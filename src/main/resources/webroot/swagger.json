@@ -1,0 +1,559 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "catalogue",
+    "version": "1.0.0",
+    "description": "API Object for IUDX-Catalogue-Server"
+  },
+  "paths": {
+    "/search": {
+      "description": "Generic catalogue item query.",
+      "get": {
+        "parameters": [
+          {
+            "name": "property",
+            "description": "Array of properties on which query is to be made. The mapping between a property and a value is one-to-one.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "in": "query",
+            "required": false
+          },
+          {
+            "name": "value",
+            "description": "Values of the one-to-one mapped properties.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "in": "query",
+            "required": false
+          },
+          {
+            "name": "geoproperty",
+            "description": "Name of the property if the query is on a geospatial property.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "query"
+          },
+          {
+            "name": "georel",
+            "description": "Type of geoquery, for e.g, within, near, outside.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "required": false
+          },
+          {
+            "name": "geometry",
+            "description": "Geometry of the geo-query, for e.g, linstring, bbox, polygon.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "query"
+          },
+          {
+            "name": "coordinates",
+            "description": "Coordinates for the specific query type. For e.g, [[1,2], [3,4]]. Note: The data-type of this field is a string, therefore the coordinates are a string encoded multidimensional array.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "required": false
+          },
+          {
+            "name": "q",
+            "description": "query for text/fuzzy search.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "required": false
+          },
+          {
+            "name": "limit",
+            "description": "Limit number of records in search response.",
+            "schema": {
+              "type": "integer"
+            },
+            "in": "query",
+            "required": false
+          },
+          {
+            "name": "offset",
+            "description": "Offset from where the next batch of results should be returned.",
+            "schema": {
+              "type": "integer"
+            },
+            "in": "query",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/searchResponseBody"
+                }
+              }
+            },
+            "description": "All the query parameters yielded results."
+          },
+          "204": {
+            "description": "None of the query parameters yielded results."
+          },
+          "206": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/searchResponseBody"
+                }
+              }
+            },
+            "description": "Some of the query parameters yielded results."
+          },
+          "400": {
+            "description": "Bad query."
+          }
+        },
+        "description": "Search items in the catalogue"
+      }
+    },
+    "/ui/cities": {
+      "description": "Get cities/instance registered to this catalogue.",
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/citiesResponseBody"
+                }
+              }
+            },
+            "description": "The query yielded results."
+          },
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/invalidSearchResponesBody"
+                }
+              }
+            },
+            "description": "No cities were registered."
+          },
+          "400": {
+            "description": "Bad query."
+          }
+        },
+        "description": "Get all cities registered to a catalogue."
+      }
+    },
+    "/ui/config/": {
+      "description": "Get configuration of a specific instance registered to this catalogue.",
+      "get": {
+        "parameters": [
+          {
+            "name": "instanceid",
+            "description": "Instance id for which config is required.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/citiesResponseBody"
+                }
+              }
+            },
+            "description": "The query yielded results."
+          },
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/invalidSearchResponesBody"
+                }
+              }
+            },
+            "description": "Configuration was not loaded."
+          },
+          "400": {
+            "description": "Bad query."
+          }
+        },
+        "operationId": "getconfig",
+        "description": "Get a UI configuation file for an instance id."
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/configBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "name": "instanceid",
+            "description": "Instance id for which config needs to be updated.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully updated."
+          },
+          "400": {
+            "description": "Invalid body."
+          }
+        },
+        "description": "Update a configuration."
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/configBody"
+              }
+            }
+          },
+          "required": true
+        },
+        "parameters": [
+          {
+            "name": "instanceid",
+            "description": "Instance id for which config is to be inserted.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Config created."
+          }
+        },
+        "description": "Insert a configuration for an instance."
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "instanceid",
+            "description": "Instance id whose config should be deleted.",
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Config deleted."
+          }
+        },
+        "description": "Delete a configuration."
+      }
+    },
+    "/items/{id}": {
+      "description": "Operations on a specific catalogue item.",
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/item"
+                }
+              }
+            },
+            "description": "Found the item."
+          },
+          "404": {
+            "content": {
+              "application/json": {}
+            },
+            "description": "Didn't find the item."
+          }
+        },
+        "operationId": "getItem",
+        "description": "Get the item."
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/item"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/item"
+                }
+              }
+            },
+            "description": "Successfully inserted."
+          },
+          "400": {
+            "description": "Schema of item didn't match."
+          },
+          "401": {
+            "description": "Don't have sufficient permission to insert items into the catalogue."
+          }
+        },
+        "description": "Insert an item into the catalogue. The item's body specifies the type of item."
+      },
+      "delete": {
+        "responses": {
+          "204": {
+            "description": "Successfully deleted."
+          },
+          "401": {
+            "description": "Not allowed to delete item."
+          },
+          "404": {
+            "description": "Didn't find the item."
+          }
+        },
+        "description": "Delete an item."
+      },
+      "parameters": [
+        {
+          "name": "id",
+          "description": "id of the item",
+          "schema": {
+            "type": "string"
+          },
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/cities": {
+      "description": "Get all cities registered to this catalogue.",
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/listOfCities"
+                }
+              }
+            },
+            "description": "List of cities"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "searchResponseBody": {
+        "title": "Root Type for searchResponseBody",
+        "description": "Response body of a search request.",
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "totalHits": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "limit": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "offset": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "example": {
+          "status": "success",
+          "totalHits": 200,
+          "limit": 1,
+          "offset": 100,
+          "results": [
+            {}
+          ]
+        }
+      },
+      "invalidSearchResponesBody": {
+        "title": "Root Type for invalidSearchResponesBody",
+        "description": "Response body for invalid requests.",
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "results": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "example": {
+          "status": "invalidValue",
+          "results": []
+        }
+      },
+      "citiesResponseBody": {
+        "title": "Root Type for citiesResponseBody",
+        "description": "Response body for a ui/cities query",
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "__instance-id": {
+                  "type": "string"
+                },
+                "configurations": {
+                  "type": "object",
+                  "properties": {
+                    "smart_city_name": {
+                      "type": "string"
+                    },
+                    "map_default_view_lat_lng": {
+                      "type": "array",
+                      "items": {
+                        "format": "double",
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "example": {
+          "status": "success",
+          "results": [
+            {
+              "__instance-id": "pudx.catalogue.iudx.org.in",
+              "configurations": {
+                "smart_city_name": "PSCDCL",
+                "map_default_view_lat_lng": [
+                  18.5644,
+                  73.7858
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "configResponse": {
+        "description": "Response of the configuration request.",
+        "type": "object",
+        "example": {
+          "status": "success",
+          "results": [
+            {
+              "instanceId": "varanasi.iudx.org.in",
+              "configurations": {
+                "cat_base_URL": "https://varanasi.iudx.org.in/catalogue/v1"
+              },
+              "legends": {},
+              "global_configuration": {}
+            }
+          ]
+        }
+      },
+      "configBody": {
+        "title": "Root Type for configBody",
+        "description": "Body of the configuration request",
+        "type": "object",
+        "properties": {
+          "instanceId": {
+            "type": "string"
+          },
+          "configurations": {
+            "type": "object",
+            "properties": {
+              "cat_base_URL": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "example": {
+          "instanceId": "varanasi.iudx.org.in",
+          "configurations": {
+            "cat_base_URL": "https://varanasi.iudx.org.in/catalogue/v1"
+          }
+        }
+      },
+      "item": {
+        "title": "Root Type for itemResponse",
+        "description": "A catalogue item.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "id": "hash/group/resourceId"
+        }
+      },
+      "listOfCities": {
+        "title": "Root Type for listOfCities",
+        "description": "List of cities.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "example": [
+          "id1",
+          "id2"
+        ]
+      }
+    }
+  }
+}
