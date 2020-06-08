@@ -143,7 +143,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 						logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
 					}
 				});
-
 				/* Get a handler for the OnboarderService from Service Discovery interface. */
 
 				EventBusService.getProxy(discovery, OnboarderService.class, onboarderServiceDiscoveryHandler -> {
@@ -167,7 +166,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 						logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
 					}
 				});
-
 				/*
 				 * Get a handler for the AuthenticationService from Service Discovery interface.
 				 */
@@ -188,27 +186,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 		});
 
 	}
-
-//	public static void main(String args[]) {
-//		JsonObject test = new JsonObject();
-//		test.put("testing", 1).put("another", 2);
-//		System.out.println(test.toString());
-//		
-//		String[] id = "value true".split(",");
-//		System.out.println(id[0]);
-//		System.out.println("++++++++");
-//		System.out.println(id.length);
-//		
-//		JsonArray value = new JsonArray();
-//		String[] split = ("property,parameter,value").split(",");
-//		for (String str : split) {
-//			value.add(str);
-//		}
-//		JsonObject tests= new JsonObject();
-//		tests.put("test", value);
-//		System.out.println(tests.toString());
-//		
-//	}
 
 	public void search(RoutingContext routingContext) {
 		HttpServerRequest request = routingContext.request();
