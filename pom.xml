@@ -32,6 +32,10 @@
 		</dependency>
 		<dependency>
 			<groupId>io.vertx</groupId>
+			<artifactId>vertx-junit5</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.vertx</groupId>
 			<artifactId>vertx-service-proxy</artifactId>
 		</dependency>
 		<dependency>
@@ -54,6 +58,11 @@
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-checkstyle-plugin</artifactId>
 			<version>3.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-web-client</artifactId>
+			<version>3.9.1</version>
 		</dependency>
 	</dependencies>
 
