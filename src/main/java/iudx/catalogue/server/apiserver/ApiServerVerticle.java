@@ -1,9 +1,11 @@
 package iudx.catalogue.server.apiserver;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
@@ -16,10 +18,8 @@ import io.vertx.core.net.JksOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.api.validation.HTTPRequestValidationHandler;
-import io.vertx.ext.web.api.validation.ParameterType;
-import io.vertx.ext.web.api.validation.ValidationException;
 import io.vertx.ext.web.client.HttpRequest;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
@@ -99,8 +99,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 
 				/* Define the APIs, methods, endpoints and associated methods. */
 
-				Router router = Router.router(vertx);
+				router = Router.router(vertx);
 				router.route("/apis/*").handler(StaticHandler.create());
+				router.route().handler(BodyHandler.create());
 				router.get("/iudx/cat/v1/search").handler(this::search);
 				router.get("/iudx/cat/v1/ui/cities").handler(this::getCities);
 				router.get("/iudx/cat/v1/ui/config").handler(this::getConfig);
@@ -158,7 +159,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 						logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
 					}
 				});
-
 				/* Get a handler for the ValidatorService from Service Discovery interface. */
 
 				EventBusService.getProxy(discovery, ValidatorService.class, validatorServiceDiscoveryHandler -> {
@@ -195,141 +195,241 @@ public class ApiServerVerticle extends AbstractVerticle {
 		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		System.out.println("routed to search");
-		if (request.getParam("property") == null || request.getParam("value") == null) {
-			if (request.getParam("geoproperty") == null || request.getParam("georel") == null
-					|| request.getParam("geometry") == null || request.getParam("coordinates") == null) {
-				JsonObject json = new JsonObject();
-				json.put("status", "invalidSyntax").put("results", new JsonArray());
-				response.headers().add("Content-Type", "JSON").add("Content-Length",
-						String.valueOf(json.toString().length()));
-				response.setStatusCode(400);
-				response.write(json.toString());
-				response.end();
-				return;
-			}
+		if ((request.getParam("property") == null || request.getParam("value") == null)
+				&& (request.getParam("geoproperty") == null || request.getParam("georel") == null
+						|| request.getParam("geometry") == null || request.getParam("coordinates") == null)) {
+			JsonObject json = new JsonObject();
+			json.put("status", "invalidSyntax").put("results", new JsonArray());
+			response.headers().add("content-type", "application/json").add("content-length",
+					String.valueOf(json.toString().length()));
+			response.setStatusCode(400);
+			response.write(json.toString());
+			response.end();
+			return;
 		}
 		MultiMap params = request.params();
-		JsonArray value = new JsonArray();
 		JsonObject queryJson = new JsonObject();
 		for (String str : params.names()) {
 			queryJson.put(str, params.get(str));
 		}
 		System.out.println(queryJson);
 		// Query queryJson to Database
-		JsonObject resultJson = new JsonObject();
-		// store response from DB to resultJson
-		String status = "success";
-		// resultJson.getString("status");
-		if (status.equalsIgnoreCase("success")) {
-			response.setStatusCode(200);
-		} else if (status.equalsIgnoreCase("partial-content")) {
-			response.setStatusCode(206);
-		} else {
-			response.setStatusCode(400);
-		}
-		response.headers().add("Content-Type", "JSON").add("Content-Length",
-				String.valueOf(resultJson.toString().length()));
-		response.write(resultJson.toString());
-		System.out.println(resultJson);
-		response.end();
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+				JsonObject resultJson = handler.result();
+				String status = resultJson.getString("status");
+//				String status = "success";
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else if (status.equalsIgnoreCase("partial-content")) {
+					response.setStatusCode(206);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
 	}
 
 	public void getCities(RoutingContext routingContext) {
 		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
+		String domainName = request.host().replaceAll("[:8443]+$", "");
+		JsonObject queryJson = new JsonObject();
+		queryJson.put("instanceId", domainName).put("operation", "getcities");
+		System.out.println(queryJson);
 		// Query database for all cities
-		JsonObject resultJson = new JsonObject();
-		// Store response from DB to resultJson
-		response.setStatusCode(200);
-		response.headers().add("Content-Type", "JSON").add("Content-Length",
-				String.valueOf(resultJson.toString().length()));
-		response.write(resultJson.toString());
-		response.end();
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+				JsonObject resultJson = handler.result();
+				String status = resultJson.getString("status");
+//				String status = "success";
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
 	}
 
 	public void getConfig(RoutingContext routingContext) {
 		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
+		String domainName = request.host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
-		queryJson.put("__instance-id", request.getParam("instanceid"));
+		queryJson.put("instanceId", domainName).put("operation", "get-config");
+		System.out.println(queryJson);
 		// Query database for config
-		JsonObject resultJson = new JsonObject();
-		// Store response from DB to resultJson
-		response.setStatusCode(200);
-		response.headers().add("Content-Type", "JSON").add("Content-Length",
-				String.valueOf(resultJson.toString().length()));
-		response.write(resultJson.toString());
-		response.end();
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+				JsonObject resultJson = handler.result();
+				String status = resultJson.getString("status");
+				// String status = "success";
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
 	}
 
 	public void setConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
-		MultiMap params = request.params();
-		JsonObject queryJson = new JsonObject();
-		for (String str : params.names()) {
-			queryJson.put(str, params.get(str));
-		}
+		JsonObject queryJson = routingContext.getBodyAsJson();
+		queryJson.put("operation", "create-config");
 		System.out.println(queryJson);
 		// Query database for setting config
-		JsonObject resultJson = new JsonObject();
-		// Store response from DB to resultJson
-		response.setStatusCode(200);
-		response.headers().add("Content-Type", "JSON").add("Content-Length",
-				String.valueOf(resultJson.toString().length()));
-		response.write(resultJson.toString());
-		response.end();
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+				JsonObject resultJson = handler.result();
+				String status = resultJson.getString("status");
+//				String status = "success";
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
 	}
 
 	public void deleteConfig(RoutingContext routingContext) {
 		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
+		String domainName = request.host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
-		queryJson.put("__instance-id", request.getParam("instanceid"));
-		System.out.println(queryJson.toString());
-		// Query database to delete Config
-		JsonObject resultJson = new JsonObject();
-		// Store response from DB to resultJson
-		response.setStatusCode(200);
-		response.headers().add("Content-Type", "JSON").add("Content-Length",
-				String.valueOf(resultJson.toString().length()));
-		response.write(resultJson.toString());
-		response.end();
+		queryJson.put("instanceId", domainName).put("operation", "delete-config");
+		System.out.println(queryJson);
+		// Query database for config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+				JsonObject resultJson = handler.result();
+				String status = resultJson.getString("status");
+//				String status = "success";
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
 	}
 
 	public void updateConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
-		MultiMap params = request.params();
-		JsonObject queryJson = new JsonObject();
-		for (String str : params.names()) {
-			queryJson.put(str, params.get(str));
-		}
-		// Query database to update config
-		JsonObject resultJson = new JsonObject();
-		// Store response from DB to resultJson
-		response.setStatusCode(200);
-		response.headers().add("Content-Type", "JSON").add("Content-Length",
-				String.valueOf(resultJson.toString().length()));
-		response.write(resultJson.toString());
-		response.end();
+		JsonObject queryJson = routingContext.getBodyAsJson();
+		queryJson.put("operation", "update-config");
+		System.out.println(queryJson);
+		// Query database for setting config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+				JsonObject resultJson = handler.result();
+				String status = resultJson.getString("status");
+//				String status = "success";
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
 	}
 
 	public void appendConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
-		MultiMap params = request.params();
-		JsonObject queryJson = new JsonObject();
-		for (String str : params.names()) {
-			queryJson.put(str, params.get(str));
-		}
-		// Query database to append config
-		JsonObject resultJson = new JsonObject();
-		// Store response from DB to resultJson
-		response.setStatusCode(200);
-		response.headers().add("Content-Type", "JSON").add("Content-Length",
-				String.valueOf(resultJson.toString().length()));
-		response.write(resultJson.toString());
-		response.end();
+		JsonObject queryJson = routingContext.getBodyAsJson();
+		queryJson.put("operation", "append-config");
+		System.out.println(queryJson);
+		// Query database for setting config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+				JsonObject resultJson = handler.result();
+				String status = resultJson.getString("status");
+				// String status = "success";
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
 	}
 }
