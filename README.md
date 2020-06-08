@@ -26,7 +26,6 @@
 
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![IUDX][iudx-shield]][iudx-url]
@@ -37,7 +36,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/datakaveri/iudx-catalogue-server">
-    <img src="readme/images/logo.png" alt="Logo" width="80" height="80">
+    <img src="readme/images/logo.png" alt="Logo" width="160" height="80">
   </a>
 
   <h3 align="center">IUDX Catalogue Server</h3>
@@ -57,8 +56,6 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://www.iudx.org.in/)
-
 The Ministry of Housing and Urban Affairs (MoHUA) launched an ambitious program for the development of 100 Smart Cities aimed at catalyzing investments in holistic infrastructure and services, development of integrated approaches to problem solving, promotion of co-creation and bottom-up innovation using technology, and creation of sustainable outcomes by espousing the circular economy and participatory processes built around communities.
 
 This repository has the IUDX Catalogue Service implemented using Vert.x, an event driven and non-blocking high performance reactive tool-kit, for identifying assets and data resources in Smart Cities. The catalogue uses Hazlecast Cluster Manager to support Scalability and High Availability. It uses Circuit Breaker for Fault Tolerence. It follows the principles of Service Mesh Architecture, where each service is exposed to the client using a Service Proxy. The code is developed using Java and dependencies are managed using Maven. We follow google codestyle, checkstyle, PMD and CPD to ensure coding discipline and document the code using java docs. 
@@ -66,7 +63,7 @@ This repository has the IUDX Catalogue Service implemented using Vert.x, an even
 <br />
 <p align="center">
   <a href="https://github.com/datakaveri/iudx-catalogue-server">
-    <img src="readme/images/architecture.png" alt="architecture" width="80" height="80">
+    <img src="readme/images/architecture.png" alt="architecture" width="800" height="600">
   </a>
 </p>
 
@@ -100,7 +97,7 @@ You can look at the APIs supported using the /apis/ page of the server. This (ht
 <br />
 <p align="center">
   <a href="https://github.com/datakaveri/iudx-catalogue-server">
-    <img src="readme/images/swagger.png" alt="swagger-apis" width="80" height="80">
+    <img src="readme/images/swagger.png" alt="swagger-apis" width="800" height="600">
   </a>
 </p>
 
