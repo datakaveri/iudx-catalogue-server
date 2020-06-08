@@ -6,9 +6,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
-import iudx.catalogue.server.apiserver.ApiServerVerticle;
 import iudx.catalogue.server.authenticator.AuthenticationVerticle;
-import iudx.catalogue.server.database.DatabaseVerticle;
 
 /**
  * The Catalogue Server Authentication Service Deployer.
@@ -44,21 +42,21 @@ public class AuthenticationServiceDeployer {
 
   public static void main(String[] args) {
 
-    /** Create a reference to HazelcastClusterManager. */
+    /* Create a reference to HazelcastClusterManager. */
 
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
 
-    /** Create or Join a Vert.x Cluster. */
+    /* Create or Join a Vert.x Cluster. */
 
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
         vertx = res.result();
 
-        /** Deploy the Authentication Service Verticle. */
+        /* Deploy the Authentication Service Verticle. */
 
-        vertx.deployVerticle(new AuthenticationVerticle(), AuthenticationVerticle -> {
-          if (AuthenticationVerticle.succeeded()) {
+        vertx.deployVerticle(new AuthenticationVerticle(), authenticationVerticle -> {
+          if (authenticationVerticle.succeeded()) {
             logger.info("The Authentication Service is ready");
           } else {
             logger.info("The Authentication Service failed !");

@@ -43,24 +43,24 @@ public class OnboarderVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    /** Create a reference to HazelcastClusterManager. */
+    /* Create a reference to HazelcastClusterManager. */
 
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
 
-    /** Create or Join a Vert.x Cluster. */
+    /* Create or Join a Vert.x Cluster. */
 
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
         vertx = res.result();
 
-        /** Publish the Onboarder service with the Event Bus against an address. */
+        /* Publish the Onboarder service with the Event Bus against an address. */
 
         onboarder = new OnboarderServiceImpl();
         new ServiceBinder(vertx).setAddress("iudx.catalogue.onboarder.service")
             .register(OnboarderService.class, onboarder);
 
-        /** Get a handler for the Service Discovery interface and publish a service record. */
+        /* Get a handler for the Service Discovery interface and publish a service record. */
 
         discovery = ServiceDiscovery.create(vertx);
         record = EventBusService.createRecord("iudx.catalogue.onboarder.service",

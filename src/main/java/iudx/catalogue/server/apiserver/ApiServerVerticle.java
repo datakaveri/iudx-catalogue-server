@@ -71,12 +71,12 @@ public class ApiServerVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    /** Create a reference to HazelcastClusterManager. */
+    /* Create a reference to HazelcastClusterManager. */
 
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
 
-    /** Create or Join a Vert.x Cluster. */
+    /* Create or Join a Vert.x Cluster. */
 
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
@@ -86,12 +86,12 @@ public class ApiServerVerticle extends AbstractVerticle {
         properties = new Properties();
         inputstream = null;
 
-        /** Define the APIs, methods, endpoints and associated methods. */
+        /* Define the APIs, methods, endpoints and associated methods. */
 
         Router router = Router.router(vertx);
         router.route("/apis/*").handler(StaticHandler.create());
 
-        /** Read the configuration and set the HTTPs server properties. */
+        /* Read the configuration and set the HTTPs server properties. */
 
         try {
 
@@ -107,18 +107,18 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         }
 
-        /** Setup the HTTPs server properties, APIs and port. */
+        /* Setup the HTTPs server properties, APIs and port. */
 
         server = vertx.createHttpServer(new HttpServerOptions().setSsl(true)
             .setKeyStoreOptions(new JksOptions().setPath(keystore).setPassword(keystorePassword)));
 
         server.requestHandler(router).listen(port);
 
-        /** Get a handler for the Service Discovery interface. */
+        /* Get a handler for the Service Discovery interface. */
 
         discovery = ServiceDiscovery.create(vertx);
 
-        /** Get a handler for the DatabaseService from Service Discovery interface. */
+        /* Get a handler for the DatabaseService from Service Discovery interface. */
 
         EventBusService.getProxy(discovery, DatabaseService.class,
             databaseServiceDiscoveryHandler -> {
@@ -132,7 +132,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
-        /** Get a handler for the OnboarderService from Service Discovery interface. */
+        /* Get a handler for the OnboarderService from Service Discovery interface. */
 
         EventBusService.getProxy(discovery, OnboarderService.class,
             onboarderServiceDiscoveryHandler -> {
@@ -146,7 +146,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
-        /** Get a handler for the ValidatorService from Service Discovery interface. */
+        /* Get a handler for the ValidatorService from Service Discovery interface. */
 
         EventBusService.getProxy(discovery, ValidatorService.class,
             validatorServiceDiscoveryHandler -> {
@@ -160,7 +160,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
-        /** Get a handler for the AuthenticationService from Service Discovery interface. */
+        /* Get a handler for the AuthenticationService from Service Discovery interface. */
 
         EventBusService.getProxy(discovery, AuthenticationService.class,
             authenticatorServiceDiscoveryHandler -> {
