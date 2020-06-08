@@ -6,7 +6,6 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
-import iudx.catalogue.server.apiserver.ApiServerVerticle;
 import iudx.catalogue.server.database.DatabaseVerticle;
 
 /**
@@ -43,21 +42,21 @@ public class DatabaseServiceDeployer {
 
   public static void main(String[] args) {
 
-    /** Create a reference to HazelcastClusterManager. */
+    /* Create a reference to HazelcastClusterManager. */
 
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
 
-    /** Create or Join a Vert.x Cluster. */
+    /* Create or Join a Vert.x Cluster. */
 
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
         vertx = res.result();
 
-        /** Deploy the Database Service Verticle. */
+        /* Deploy the Database Service Verticle. */
 
-        vertx.deployVerticle(new DatabaseVerticle(), DatabaseVerticle -> {
-          if (DatabaseVerticle.succeeded()) {
+        vertx.deployVerticle(new DatabaseVerticle(), databaseVerticle -> {
+          if (databaseVerticle.succeeded()) {
             logger.info("The Database Service is ready");
           } else {
             logger.info("The Database Service failed !");

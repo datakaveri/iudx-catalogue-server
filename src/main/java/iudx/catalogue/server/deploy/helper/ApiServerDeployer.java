@@ -42,21 +42,21 @@ public class ApiServerDeployer {
 
   public static void main(String[] args) {
 
-    /** Create a reference to HazelcastClusterManager. */
+    /* Create a reference to HazelcastClusterManager. */
 
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
 
-    /** Create or Join a Vert.x Cluster. */
+    /* Create or Join a Vert.x Cluster. */
 
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
         vertx = res.result();
 
-        /** Deploy the Api Server Verticle. */
+        /* Deploy the Api Server Verticle. */
 
-        vertx.deployVerticle(new ApiServerVerticle(), ApiServerVerticle -> {
-          if (ApiServerVerticle.succeeded()) {
+        vertx.deployVerticle(new ApiServerVerticle(), apiServerVerticle -> {
+          if (apiServerVerticle.succeeded()) {
             logger.info("The Catalogue API Server is ready at 8443");
             logger.info("Check /apis/ for supported APIs");
           } else {

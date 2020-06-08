@@ -44,24 +44,24 @@ public class ValidatorVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    /** Create a reference to HazelcastClusterManager. */
+    /* Create a reference to HazelcastClusterManager. */
 
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
 
-    /** Create or Join a Vert.x Cluster. */
+    /* Create or Join a Vert.x Cluster. */
 
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
         vertx = res.result();
 
-        /** Publish the Validator service with the Event Bus against an address. */
+        /* Publish the Validator service with the Event Bus against an address. */
 
         validator = new ValidatorServiceImpl();
         new ServiceBinder(vertx).setAddress("iudx.catalogue.validator.service")
             .register(ValidatorService.class, validator);
 
-        /** Get a handler for the Service Discovery interface and publish a service record. */
+        /* Get a handler for the Service Discovery interface and publish a service record. */
 
         discovery = ServiceDiscovery.create(vertx);
         record = EventBusService.createRecord("iudx.catalogue.validator.service",
