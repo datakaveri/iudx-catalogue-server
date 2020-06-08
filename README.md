@@ -63,7 +63,7 @@ This repository has the IUDX Catalogue Service implemented using Vert.x, an even
 <br />
 <p align="center">
   <a href="https://github.com/datakaveri/iudx-catalogue-server">
-    <img src="readme/images/architecture.png" alt="architecture" width="800" height="600">
+    <img src="readme/images/architecture.png" alt="architecture" width="800" height="500">
   </a>
 </p>
 
@@ -97,14 +97,14 @@ You can look at the APIs supported using the /apis/ page of the server. This (ht
 <br />
 <p align="center">
   <a href="https://github.com/datakaveri/iudx-catalogue-server">
-    <img src="readme/images/swagger.png" alt="swagger-apis" width="800" height="600">
+    <img src="readme/images/swagger.png" alt="swagger-apis" width="800" height="500">
   </a>
 </p>
 
 In order to scale, you can start a node with a specific module and join to the cluster using the deployer ID available in POM. For example, you can start another database service using the following command
 
 ```sh
-mvn clean compile exec:java@resource-server-database-service
+mvn clean compile exec:java@catalogue-database-service
 ```
 
 <!-- CONTRIBUTING -->
