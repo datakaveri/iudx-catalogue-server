@@ -46,45 +46,45 @@ public class CatalogueServerDeployer {
 
   public static void main(String[] args) {
 
-    /** Create a reference to HazelcastClusterManager. */
+    /* Create a reference to HazelcastClusterManager. */
 
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
 
-    /** Create or Join a Vert.x Cluster. */
+    /* Create or Join a Vert.x Cluster. */
 
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
         vertx = res.result();
 
-        /** Deploy the Database Service Verticle. */
+        /* Deploy the Database Service Verticle. */
 
-        vertx.deployVerticle(new DatabaseVerticle(), DatabaseVerticle -> {
-          if (DatabaseVerticle.succeeded()) {
+        vertx.deployVerticle(new DatabaseVerticle(), databaseVerticle -> {
+          if (databaseVerticle.succeeded()) {
             logger.info("The Database Service is ready");
 
-            /** Deploy the Authentication Service Verticle. */
+            /* Deploy the Authentication Service Verticle. */
 
-            vertx.deployVerticle(new AuthenticationVerticle(), AuthenticationVerticle -> {
-              if (AuthenticationVerticle.succeeded()) {
+            vertx.deployVerticle(new AuthenticationVerticle(), authenticationVerticle -> {
+              if (authenticationVerticle.succeeded()) {
                 logger.info("The Authentication Service is ready");
 
-                /** Deploy the Validator Service Verticle. */
+                /* Deploy the Validator Service Verticle. */
 
-                vertx.deployVerticle(new ValidatorVerticle(), ValidatorVerticle -> {
-                  if (ValidatorVerticle.succeeded()) {
+                vertx.deployVerticle(new ValidatorVerticle(), validatorVerticle -> {
+                  if (validatorVerticle.succeeded()) {
                     logger.info("The Validator Service is ready");
 
-                    /** Deploy the Onboarder Service Verticle. */
+                    /* Deploy the Onboarder Service Verticle. */
 
-                    vertx.deployVerticle(new OnboarderVerticle(), OnboarderVerticle -> {
-                      if (OnboarderVerticle.succeeded()) {
+                    vertx.deployVerticle(new OnboarderVerticle(), onboarderVerticle -> {
+                      if (onboarderVerticle.succeeded()) {
                         logger.info("The Onboarder Service is ready");
                         
-                        /** Deploy the Api Server Verticle. */
+                        /* Deploy the Api Server Verticle. */
 
-                        vertx.deployVerticle(new ApiServerVerticle(), ApiServerVerticle -> {
-                          if (ApiServerVerticle.succeeded()) {
+                        vertx.deployVerticle(new ApiServerVerticle(), apiServerVerticle -> {
+                          if (apiServerVerticle.succeeded()) {
                             logger.info("The Catalogue API Server is ready at 8443");
                             logger.info("Check /apis/ for supported APIs");
                           } else {

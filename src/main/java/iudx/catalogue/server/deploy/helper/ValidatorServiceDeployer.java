@@ -6,9 +6,6 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
-import iudx.catalogue.server.apiserver.ApiServerVerticle;
-import iudx.catalogue.server.authenticator.AuthenticationVerticle;
-import iudx.catalogue.server.database.DatabaseVerticle;
 import iudx.catalogue.server.validator.ValidatorVerticle;
 
 /**
@@ -45,21 +42,21 @@ public class ValidatorServiceDeployer {
 
   public static void main(String[] args) {
 
-    /** Create a reference to HazelcastClusterManager. */
+    /* Create a reference to HazelcastClusterManager. */
 
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
 
-    /** Create or Join a Vert.x Cluster. */
+    /* Create or Join a Vert.x Cluster. */
 
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
         vertx = res.result();
 
-        /** Deploy the Validator Service Verticle. */
+        /* Deploy the Validator Service Verticle. */
 
-        vertx.deployVerticle(new ValidatorVerticle(), ValidatorVerticle -> {
-          if (ValidatorVerticle.succeeded()) {
+        vertx.deployVerticle(new ValidatorVerticle(), validatorVerticle -> {
+          if (validatorVerticle.succeeded()) {
             logger.info("The Validator Service is ready");
           } else {
             logger.info("The Validator Service failed !");
