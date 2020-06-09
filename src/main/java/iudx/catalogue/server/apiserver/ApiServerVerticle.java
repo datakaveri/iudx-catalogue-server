@@ -1,15 +1,20 @@
 package iudx.catalogue.server.apiserver;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Properties;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
@@ -18,9 +23,6 @@ import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.onboarder.OnboarderService;
 import iudx.catalogue.server.validator.ValidatorService;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Properties;
 
 /**
  * The Catalogue Server API Verticle.
@@ -90,6 +92,10 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         Router router = Router.router(vertx);
         router.route("/apis/*").handler(StaticHandler.create());
+
+        router.post("/iudx/cat/v1/item").handler(this::createItem);
+        router.patch("/iudx/cat/v1/item/:id").handler(this::updateItem);
+        router.delete("/iudx/cat/v1/item/:id").handler(this::deleteItem);
 
         /** Read the configuration and set the HTTPs server properties. */
 
@@ -178,6 +184,26 @@ public class ApiServerVerticle extends AbstractVerticle {
     });
 
 
+  }
+
+  private void createItem(RoutingContext routingContext) {
+    HttpServerRequest request = routingContext.request();
+    String queryParams = request.query();
+
+  }
+
+  private void updateItem(RoutingContext routingContext) {
+    String iudxId = null;
+    HttpServerRequest request = routingContext.request();
+
+    // iudxId = routingContext.pathParam("id");
+  }
+
+  private void deleteItem(RoutingContext routingContext) {
+    String iudxId = null;
+    HttpServerRequest request = routingContext.request();
+
+    // iudxId = routingContext.pathParam("id");
   }
 
 }
