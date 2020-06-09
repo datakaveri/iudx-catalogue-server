@@ -155,7 +155,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 						logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
 					}
 				});
-
 				/* Get a handler for the ValidatorService from Service Discovery interface. */
 
 				EventBusService.getProxy(discovery, ValidatorService.class, validatorServiceDiscoveryHandler -> {
@@ -209,7 +208,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 //		System.out.println(tests.toString());
 //		
 //	}
-
 	public void search(RoutingContext routingContext) {
 		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
