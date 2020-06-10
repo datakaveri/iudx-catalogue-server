@@ -16,6 +16,10 @@ import io.vertx.core.net.JksOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.api.validation.HTTPRequestValidationHandler;
+import io.vertx.ext.web.api.validation.ParameterType;
+import io.vertx.ext.web.api.validation.ValidationException;
+import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
@@ -191,32 +195,31 @@ public class ApiServerVerticle extends AbstractVerticle {
 		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		System.out.println("routed to search");
-		MultiMap params = request.params();
-		System.out.println("value= " + params.names());
-
 		if (request.getParam("property") == null || request.getParam("value") == null) {
-			response.setStatusCode(400);
-			JsonObject json = new JsonObject();
-			json.put("status", "invalidSyntax").put("results", new JsonArray());
-			response.headers().add("Content-Type", "JSON").add("Content-Length",
-					String.valueOf(json.toString().length()));
-			response.write(json.toString());
-			response.end();
-			return;
+			if (request.getParam("geoproperty") == null || request.getParam("georel") == null
+					|| request.getParam("geometry") == null || request.getParam("coordinates") == null) {
+				JsonObject json = new JsonObject();
+				json.put("status", "invalidSyntax").put("results", new JsonArray());
+				response.headers().add("Content-Type", "JSON").add("Content-Length",
+						String.valueOf(json.toString().length()));
+				response.setStatusCode(400);
+				response.write(json.toString());
+				response.end();
+				return;
+			}
 		}
-
+		MultiMap params = request.params();
 		JsonArray value = new JsonArray();
-		String[] split = request.getParam("value").split(",");
-		for (String str : split) {
-			value.add(str);
-		}
 		JsonObject queryJson = new JsonObject();
-		queryJson.put("property", request.getParam("property"));
-		queryJson.put("value", value);
+		for (String str : params.names()) {
+			queryJson.put(str, params.get(str));
+		}
+		System.out.println(queryJson);
 		// Query queryJson to Database
 		JsonObject resultJson = new JsonObject();
 		// store response from DB to resultJson
-		String status = resultJson.getString("status");
+		String status = "success";
+		// resultJson.getString("status");
 		if (status.equalsIgnoreCase("success")) {
 			response.setStatusCode(200);
 		} else if (status.equalsIgnoreCase("partial-content")) {
@@ -227,6 +230,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		response.headers().add("Content-Type", "JSON").add("Content-Length",
 				String.valueOf(resultJson.toString().length()));
 		response.write(resultJson.toString());
+		System.out.println(resultJson);
 		response.end();
 	}
 
@@ -265,9 +269,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 		JsonObject queryJson = new JsonObject();
 		for (String str : params.names()) {
 			queryJson.put(str, params.get(str));
-//			System.out.println(params.get(str));
-//			System.out.println("----");
 		}
+		System.out.println(queryJson);
 		// Query database for setting config
 		JsonObject resultJson = new JsonObject();
 		// Store response from DB to resultJson
@@ -301,8 +304,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 		JsonObject queryJson = new JsonObject();
 		for (String str : params.names()) {
 			queryJson.put(str, params.get(str));
-//			System.out.println(params.get(str));
-//			System.out.println("----");
 		}
 		// Query database to update config
 		JsonObject resultJson = new JsonObject();
@@ -321,8 +322,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 		JsonObject queryJson = new JsonObject();
 		for (String str : params.names()) {
 			queryJson.put(str, params.get(str));
-//			System.out.println(params.get(str));
-//			System.out.println("----");
 		}
 		// Query database to append config
 		JsonObject resultJson = new JsonObject();
