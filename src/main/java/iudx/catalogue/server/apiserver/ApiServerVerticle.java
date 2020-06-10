@@ -16,9 +16,6 @@ import io.vertx.core.net.JksOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.api.validation.HTTPRequestValidationHandler;
-import io.vertx.ext.web.api.validation.ParameterType;
-import io.vertx.ext.web.api.validation.ValidationException;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
@@ -158,7 +155,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 						logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
 					}
 				});
-
 				/* Get a handler for the ValidatorService from Service Discovery interface. */
 
 				EventBusService.getProxy(discovery, ValidatorService.class, validatorServiceDiscoveryHandler -> {
