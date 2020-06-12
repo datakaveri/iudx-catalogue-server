@@ -1,6 +1,7 @@
 package iudx.catalogue.server.database;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -28,7 +29,26 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed
+    JsonObject result = null;
+    String resCircle =
+        "{\"status\":\"success\",\"totalHits\":200,\"limit\":1,\"offset\":100,\"results\":[{\"id\":\"rbccps.org\\/aa9d66a000d94a78895de8d4c0b3a67f3450e531\\/rs.varanasi.iudx.org.in\\/varanasi-aqm\\/EM_01_0103_01\",\"tags\":[\"environment\",\"air quality\",\"air\",\"aqi\",\"aqm\",\"climo\",\"climate\",\"pollution\",\"so2\",\"co2\",\"co\",\"no\",\"no2\",\"pm2.5\",\"pm25\",\"lux\",\"pm10\",\"humidity\",\"temperature\",\"ozone\",\"o3\",\"noise\",\"light\",\"uv\"]}]}";
+
+    String resPolygon =
+        "{\"status\":\"success\",\"totalHits\":200,\"limit\":1,\"offset\":100,\"results\":[{\"id\":\"rbccps.org\\/aa9d66a000d94a78895de8d4c0b3a67f3450e531\\/rs.varanasi.iudx.org.in\\/varanasi-aqm\\/EM_01_0103_01\",\"tags\":{\"type\":\"Property\",\"value\":[\"environment\",\"air quality\",\"air\",\"aqi\",\"aqm\",\"climo\",\"climate\",\"pollution\",\"so2\",\"co2\",\"co\",\"no\",\"no2\",\"pm2.5\",\"pm25\",\"lux\",\"pm10\",\"humidity\",\"temperature\",\"ozone\",\"o3\",\"noise\",\"light\",\"uv\"]}}]}";
+
+    if ("Point".equals(request.getString("geometry"))) {
+      result = new JsonObject(resCircle);
+
+    } else if ("Polygon".equals(request.getString("geometry"))) {
+      result = new JsonObject(resPolygon);
+    }
+
+    if (result != null) {
+      handler.handle(Future.succeededFuture(result));
+    }
 
     return null;
   }
@@ -49,7 +69,33 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use
+    String id = request.getString("id");
+    JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + id
+        + "\",\"method\": \"insert\",\"status\": \"success\" }]}");
+
+    handler.handle(Future.succeededFuture(result));
+
+    return null;
+
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+
+  @Override
+  public DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use
+    String id = request.getString("id");
+    JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + id
+        + "\",\"method\": \"update\",\"status\": \"success\" }]}");
+
+    handler.handle(Future.succeededFuture(result));
 
     return null;
   }
@@ -60,7 +106,14 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use
+    String id = request.getString("id");
+    JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + id
+        + "\",\"method\": \"delete\",\"status\": \"success\" }]}");
+
+    handler.handle(Future.succeededFuture(result));
 
     return null;
   }
@@ -71,7 +124,18 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use
+    JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
+        + "        \"results\": [{\n"
+        + "                        \"id\": \"rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01\",\n"
+        + "                        \"tags\": {\n"
+        + "                                \"type\": \"Property\",\n"
+        + "                                \"value\": [\"environment\", \"air quality\", \"air\", \"aqi\", \"aqm\", \"climo\", \"climate\", \"pollution\", \"so2\", \"co2\", \"co\", \"no\", \"no2\", \"pm2.5\", \"pm25\", \"lux\", \"pm10\", \"humidity\", \"temperature\", \"ozone\", \"o3\", \"noise\", \"light\", \"uv\"]\n"
+        + "                        }\n" + "                }\n" + "        ]\n" + "}");
+
+    handler.handle(Future.succeededFuture(result));
 
     return null;
   }
@@ -82,7 +146,14 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use
+    JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
+        + "        \"results\": [\"environment\", \"air quality\", \"air\", \"aqi\", \"aqm\", \"climo\", \"climate\", \"pollution\", \"so2\", \"co2\", \"co\", \"no\", \"no2\", \"pm2.5\", \"pm25\", \"lux\", \"pm10\", \"humidity\", \"temperature\", \"ozone\", \"o3\", \"noise\", \"light\", \"uv\"]                      \n"
+        + "}");
+
+    handler.handle(Future.succeededFuture(result));
 
     return null;
   }
@@ -93,7 +164,14 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use
+    JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
+        + "        \"results\": [\"<iudx-voc-iri>:Environment\", \"<iudx-voc-iri>:Civic\", \"<iudx-voc-iri>:Water\", \"<iudx-voc-iri>:Streetlighting\"]                      \n"
+        + "}");
+
+    handler.handle(Future.succeededFuture(result));
 
     return null;
   }
@@ -104,18 +182,13 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    return null;
-  }
+    // TODO: Stub code, to be removed after use
+    JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
+        + "        \"results\": [\"<iudx-iri>:Varanasi\", \"<iudx-iri>:Pune\"]\n" + "}");
 
-
-  /**
-   * {@inheritDoc}
-   */
-
-  @Override
-  public DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+    handler.handle(Future.succeededFuture(result));
 
     return null;
   }
@@ -127,11 +200,52 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listResourceServers(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler) {
+      Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use
+    JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
+        + "        \"results\": [\" <iudx>:rs1\", \"<iudx>:rs2\"]\n" + "}");
+
+    handler.handle(Future.succeededFuture(result));
 
     return null;
   }
 
+
+  /**
+   * {@inheritDoc}
+   */
+
+  @Override
+  public DatabaseService listProviders(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use [was not part of master code]
+    JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
+        + "        \"results\": [ \"<iudx>:p1\", \"<iudx>:p2\"]\n" + "}");
+
+    handler.handle(Future.succeededFuture(result));
+
+    return null;
+  }
+
+
+  /**
+   * {@inheritDoc}
+   */
+
+  @Override
+  public DatabaseService listResourceGroups(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use [was not part of master code]
+    JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
+        + "        \"results\": [  \"<iudx>:rg1\", \"<iudx>:rg2\"]\n" + "}");
+
+    handler.handle(Future.succeededFuture(result));
+
+    return null;
+  }
 
   /**
    * {@inheritDoc}

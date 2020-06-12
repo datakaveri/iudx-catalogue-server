@@ -1,6 +1,7 @@
 package iudx.catalogue.server.validator;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -29,6 +30,11 @@ public class ValidatorServiceImpl implements ValidatorService {
   @Override
   public ValidatorService validateItem(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use
+    JsonObject result = new JsonObject();
+    result.put("result", Boolean.TRUE);
+    handler.handle(Future.succeededFuture(result));
 
     return null;
   }

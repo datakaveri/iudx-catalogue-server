@@ -2,19 +2,26 @@ package iudx.catalogue.server.apiserver;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Map.Entry;
 import java.util.Properties;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.DecodeException;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
@@ -61,6 +68,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private final int port = 8443;
   private String keystore;
   private String keystorePassword;
+  private String basePath = "/iudx/cat/v1";
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
@@ -91,13 +99,54 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* Define the APIs, methods, endpoints and associated methods. */
 
         Router router = Router.router(vertx);
+        router.route().handler(BodyHandler.create());
+
         router.route("/apis/*").handler(StaticHandler.create());
 
-        router.post("/iudx/cat/v1/item").handler(this::createItem);
-        router.patch("/iudx/cat/v1/item/:id").handler(this::updateItem);
-        router.delete("/iudx/cat/v1/item/:id").handler(this::deleteItem);
+        /* New item create */
+        router.post(basePath.concat("/item")).handler(this::createItem);
 
-        /** Read the configuration and set the HTTPs server properties. */
+        /* Search for an item */
+        router.get(basePath.concat("/search")).handler(this::searchItem);
+
+        /* list all the tags */
+        router.get(basePath.concat("/tags")).handler(this::listTags);
+
+        /* list all the domains */
+        router.get(basePath.concat("/domains")).handler(this::listDomains);
+
+        /* list all the cities associated with the cataloque instance */
+        router.get(basePath.concat("/cities")).handler(this::listCities);
+
+        /* list all the resource server associated with the cataloque instance */
+        router.get(basePath.concat("/resourceservers")).handler(this::listResourceServers);
+
+        /* list all the providers associated with the cataloque instance */
+        router.get(basePath.concat("/providers")).handler(this::listProviders);
+
+        /* list all the resource groups associated with the cataloque instance */
+        router.get(basePath.concat("/resourcegroups")).handler(this::listResourceGroups);
+
+        /*
+         * Update an item in the database using itemId [itemId=ResourceItem, ResourceGroupItem,
+         * ResourceServerItem, ProviderItem, DataDescriptorItem]
+         */
+        router
+            .patch(basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
+            .handler(this::updateItem);
+
+        /* Delete an item from database using itemId */
+        router
+            .delete(
+                basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
+            .handler(this::deleteItem);
+
+        /* list the item from database using itemId */
+        router
+            .get(basePath.concat("/items/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
+            .handler(this::listItems);
+
+        /* Read the configuration and set the HTTPs server properties. */
 
         try {
 
@@ -182,28 +231,443 @@ public class ApiServerVerticle extends AbstractVerticle {
 
       }
     });
-
-
   }
 
+  /**
+   * Creates a new item in database
+   * 
+   * @param routingContext
+   */
   private void createItem(RoutingContext routingContext) {
-    HttpServerRequest request = routingContext.request();
-    String queryParams = request.query();
 
+    logger.info("Creating an item");
+
+    HttpServerRequest request = routingContext.request();
+    HttpServerResponse response = routingContext.response();
+    JsonObject authenticationInfo = new JsonObject();
+    JsonObject requestBody = routingContext.getBodyAsJson();
+
+    if (request.headers().contains("token")) {
+      authenticationInfo.put("token", request.getHeader("token"));
+
+      /* Authenticating the request */
+      authenticator.tokenInterospect(requestBody, authenticationInfo, authhandler -> {
+        if (authhandler.succeeded()) {
+          logger.info(
+              "Authenticating item creation request ".concat(authhandler.result().toString()));
+          /* Validating the request */
+          validator.validateItem(requestBody, valhandler -> {
+            if (valhandler.succeeded()) {
+              logger.info("Item creation validated".concat(authhandler.result().toString()));
+              /* Requesting database service, creating a item */
+              database.createItem(requestBody, dbhandler -> {
+                if (dbhandler.succeeded()) {
+                  logger.info("Item created".concat(dbhandler.result().toString()));
+                  response.putHeader("content-type", "application/json").setStatusCode(201)
+                      .end(dbhandler.result().toString());
+                } else if (dbhandler.failed()) {
+                  logger.error("Item creation failed".concat(dbhandler.cause().toString()));
+                  response.putHeader("content-type", "application-json").setStatusCode(500)
+                      .end(dbhandler.cause().toString());
+                }
+              });
+            } else if (valhandler.failed()) {
+              logger.error("Item validation failed".concat(valhandler.cause().toString()));
+              response.putHeader("content-type", "application/json").setStatusCode(500)
+                  .end(valhandler.cause().toString());
+            }
+          });
+        } else if (authhandler.failed()) {
+          logger.error("Unathorized request".concat(authhandler.cause().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(401)
+              .end(authhandler.cause().toString());
+        }
+      });
+    } else {
+      logger.error("Invalid 'token' header");
+      response.putHeader("content-type", "application-json").setStatusCode(400)
+          .end(new ResponseHandler.Builder().withStatus("invalidHeader").build().toJsonString());
+    }
   }
 
+  /**
+   *
+   * Updates a already created item
+   * <p>
+   * Endpoint: PATCH /iudx/cat/v1/update/itemId </br>
+   * itemId = ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
+   * 
+   * @param routingContext
+   */
   private void updateItem(RoutingContext routingContext) {
-    String iudxId = null;
-    HttpServerRequest request = routingContext.request();
 
-    // iudxId = routingContext.pathParam("id");
+    HttpServerRequest request = routingContext.request();
+    HttpServerResponse response = routingContext.response();
+    JsonObject authenticationInfo = new JsonObject();
+    JsonObject requestBody = routingContext.getBodyAsJson();
+
+
+    String itemId = routingContext.pathParam("resItem").concat("/")
+        .concat(routingContext.pathParam("resGrpItem").concat("/")
+            .concat(routingContext.pathParam("resSvrItem")).concat("/")
+            .concat(routingContext.pathParam("pvdrItem").concat("/"))
+            .concat(routingContext.pathParam("dataDesItem")));
+
+    logger.info("Updating an item, Id: ".concat(itemId));
+
+    if (itemId.equals(requestBody.getString("id").strip())) {
+      if (request.headers().contains("token")) {
+        authenticationInfo.put("token", request.getHeader("token"));
+
+        /* Authenticating the request */
+        authenticator.tokenInterospect(requestBody, authenticationInfo, authhandler -> {
+          if (authhandler.succeeded()) {
+            logger.info(
+                "Authenticating item update request ".concat(authhandler.result().toString()));
+            /* Validating the request */
+            validator.validateItem(requestBody, valhandler -> {
+              if (valhandler.succeeded()) {
+                logger.info("Item update validated ".concat(authhandler.result().toString()));
+                /* Requesting database service, creating a item */
+                database.updateItem(requestBody, dbhandler -> {
+                  if (dbhandler.succeeded()) {
+                    logger.info("Item updated ".concat(dbhandler.result().toString()));
+                    response.putHeader("content-type", "application/json").setStatusCode(200)
+                        .end(dbhandler.result().toString());
+                  } else if (dbhandler.failed()) {
+                    logger.error("Item update failed ".concat(dbhandler.cause().toString()));
+                    response.putHeader("content-type", "application-json").setStatusCode(500)
+                        .end(dbhandler.cause().toString());
+                  }
+                });
+              } else if (valhandler.failed()) {
+                logger.error("Item validation failed ".concat(valhandler.cause().toString()));
+                response.putHeader("content-type", "application/json").setStatusCode(500)
+                    .end(valhandler.cause().toString());
+              }
+            });
+          } else if (authhandler.failed()) {
+            logger.error("Unathorized request ".concat(authhandler.cause().toString()));
+            response.putHeader("content-type", "application/json").setStatusCode(401)
+                .end(authhandler.cause().toString());
+          }
+        });
+      } else {
+        logger.error("Invalid 'token' header");
+        response.putHeader("content-type", "application-json").setStatusCode(400)
+            .end(new ResponseHandler.Builder().withStatus("invalidHeader").build().toJsonString());
+      }
+    } else {
+      logger.error("Mismatch 'id' in query parameter and request body");
+      response.putHeader("content-type", "application-json").setStatusCode(400).end(
+          new ResponseHandler.Builder().withStatus("invalidQueryParameter").build().toJsonString());
+    }
   }
 
+  /**
+   * Deletes a created item
+   * <p>
+   * Endpoint: DELETE /iudx/cat/v1/delete/itemId </br>
+   * itemId = ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
+   * 
+   * @param routingContext
+   */
   private void deleteItem(RoutingContext routingContext) {
-    String iudxId = null;
     HttpServerRequest request = routingContext.request();
+    HttpServerResponse response = routingContext.response();
+    JsonObject authenticationInfo = new JsonObject();
+    JsonObject requestBody = new JsonObject();
 
-    // iudxId = routingContext.pathParam("id");
+    String itemId = routingContext.pathParam("resItem").concat("/")
+        .concat(routingContext.pathParam("resGrpItem").concat("/")
+            .concat(routingContext.pathParam("resSvrItem")).concat("/")
+            .concat(routingContext.pathParam("pvdrItem").concat("/"))
+            .concat(routingContext.pathParam("dataDesItem")));
+    requestBody.put("id", itemId);
+
+    logger.info("Deleting an item, Id: ".concat(itemId));
+
+    if (request.headers().contains("token")) {
+      authenticationInfo.put("token", request.getHeader("token"));
+
+      /* Authenticating the request */
+      authenticator.tokenInterospect(null, authenticationInfo, authhandler -> {
+        if (authhandler.succeeded()) {
+          logger.info("Authenticating item delete request".concat(authhandler.result().toString()));
+          /* Requesting database service, creating a item */
+          database.deleteItem(requestBody, dbhandler -> {
+            if (dbhandler.succeeded()) {
+              logger.info("Item deleted".concat(dbhandler.result().toString()));
+              response.putHeader("content-type", "application/json").setStatusCode(200)
+                  .end(dbhandler.result().toString());
+            } else if (dbhandler.failed()) {
+              logger.error("Item deletion failed".concat(dbhandler.cause().toString()));
+              response.putHeader("content-type", "application-json").setStatusCode(400)
+                  .end(dbhandler.cause().toString());
+            }
+          });
+        } else if (authhandler.failed()) {
+          logger.error("Unathorized request".concat(authhandler.cause().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(401)
+              .end(authhandler.cause().toString());
+        }
+      });
+    } else {
+      logger.error("Invalid 'token' header");
+      response.putHeader("content-type", "application-json").setStatusCode(400)
+          .end(new ResponseHandler.Builder().withStatus("invalidHeader").build().toJsonString());
+    }
   }
 
+  /**
+   * Geo Spatial property (Circle,Polygon) based database search. Validates the request query
+   * params.
+   * 
+   * @param routingContext
+   */
+  private void searchItem(RoutingContext routingContext) {
+
+    logger.info("Searching the database for Item");
+
+    HttpServerResponse response = routingContext.response();
+    MultiMap queryParameters = routingContext.queryParams();
+    JsonObject requestBody = new JsonObject();
+
+    final String POINT = "Point";
+    final String POLYGON = "Polygon";
+
+    /* Circle and Polygon based item search */
+    if (queryParameters.contains("geoproperty") && !queryParameters.get("geoproperty").isBlank()) {
+
+      if (POINT.equals(queryParameters.get("geometry"))
+          || POLYGON.equals(queryParameters.get("geometry"))) {
+
+        requestBody = map2Json(queryParameters);
+        if (requestBody != null) {
+          database.searchQuery(requestBody, dbhandler -> {
+            if (dbhandler.succeeded()) {
+              logger.info("Search completed ".concat(dbhandler.result().toString()));
+              response.putHeader("content-type", "application/json").setStatusCode(200)
+                  .end(dbhandler.result().toString());
+            } else if (dbhandler.failed()) {
+              logger.error("Issue in Item search ".concat(dbhandler.cause().toString()));
+              response.putHeader("content-type", "application-json").setStatusCode(400)
+                  .end(dbhandler.cause().toString());
+            }
+          });
+        } else {
+          response.putHeader("content-type", "application/json").setStatusCode(400)
+              .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
+        }
+      } else {
+        logger.error(
+            "Invalid Query parameter Values, Expected: 'geometry = Point|Polygon|linestring|bbox'");
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
+      }
+    } else {
+      logger.error("Invalid Query parameter values, Expected: 'geopropery'");
+      response.putHeader("content-type", "application/json").setStatusCode(400)
+          .end(new ResponseHandler.Builder().withStatus("invalidSyntax").build().toJsonString());
+    }
+  }
+
+  /**
+   * List the items from database using itemId
+   * 
+   * @param routingContext
+   */
+  private void listItems(RoutingContext routingContext) {
+    // TODO: Incomplete
+    logger.info("Listing items from database");
+
+    // HttpServerResponse response = routingContext.response();
+    JsonObject requestBody = new JsonObject();
+
+    // Map<String, String> map = routingContext.pathParams();
+
+    String itemId = routingContext.pathParam("resItem").concat("/")
+        .concat(routingContext.pathParam("resGrpItem").concat("/")
+            .concat(routingContext.pathParam("resSvrItem")).concat("/")
+            .concat(routingContext.pathParam("pvdrItem").concat("/"))
+            .concat(routingContext.pathParam("dataDesItem")));
+    requestBody.put("id", itemId);
+
+  }
+
+  /**
+   * Get the list of tags for a catalogue instance
+   * 
+   * @param routingContext
+   */
+  private void listTags(RoutingContext routingContext) {
+
+    logger.info("Listing tags of a cataloque instance");
+
+    HttpServerResponse response = routingContext.response();
+    JsonObject requestBody = new JsonObject();
+
+    database.listTags(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of tags ".concat(dbhandler.result().toString()));
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
+        response.putHeader("content-type", "application-json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
+      }
+    });
+  }
+
+  /**
+   * Get a list of domains for a cataloque instance
+   * 
+   * @param routingContext
+   */
+  private void listDomains(RoutingContext routingContext) {
+
+    logger.info("Listing domains of a cataloque instance");
+
+    HttpServerResponse response = routingContext.response();
+    JsonObject requestBody = new JsonObject();
+
+    database.listDomains(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of domains ".concat(dbhandler.result().toString()));
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
+        response.putHeader("content-type", "application-json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
+      }
+    });
+  }
+
+  /**
+   * Get the list of cities and the catalogue instance ID
+   * 
+   * @param routingContext
+   */
+  private void listCities(RoutingContext routingContext) {
+
+    logger.info("Listing cities of a cataloque instance");
+
+    HttpServerResponse response = routingContext.response();
+    JsonObject requestBody = new JsonObject();
+
+    database.listCities(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of cities ".concat(dbhandler.result().toString()));
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing cities ".concat(dbhandler.cause().toString()));
+        response.putHeader("content-type", "application-json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
+      }
+    });
+  }
+
+  /**
+   * Get the list of resourceServers for a catalogue instance
+   * 
+   * @param routingContext
+   */
+  private void listResourceServers(RoutingContext routingContext) {
+
+    logger.info("Listing resource servers of a cataloque instance");
+
+    HttpServerResponse response = routingContext.response();
+    JsonObject requestBody = new JsonObject();
+
+    database.listResourceServers(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of resource servers ".concat(dbhandler.result().toString()));
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing resource servers ".concat(dbhandler.cause().toString()));
+        response.putHeader("content-type", "application-json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
+      }
+    });
+  }
+
+  /**
+   * Get the list of providers for a catalogue instance
+   * 
+   * @param routingContext
+   */
+  private void listProviders(RoutingContext routingContext) {
+    // TODO: database handler listProviders not available, [Important talk to team]
+    logger.info("Listing providers of a cataloque instance");
+
+    HttpServerResponse response = routingContext.response();
+    JsonObject requestBody = new JsonObject();
+
+
+    database.listProviders(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of providers ".concat(dbhandler.result().toString()));
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing providers ".concat(dbhandler.cause().toString()));
+        response.putHeader("content-type", "application-json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
+      }
+    });
+  }
+
+  /**
+   * Get the list of resource groups for a catalogue instance
+   * 
+   * @param routingContext
+   */
+  private void listResourceGroups(RoutingContext routingContext) {
+    // TODO: database handler listResourceGroups not available, [Important talk to team]
+    logger.info("Listing resource groups of a cataloque instance");
+
+    HttpServerResponse response = routingContext.response();
+    JsonObject requestBody = new JsonObject();
+
+
+    database.listResourceGroups(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of resource groups ".concat(dbhandler.result().toString()));
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing resource groups ".concat(dbhandler.cause().toString()));
+        response.putHeader("content-type", "application-json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
+      }
+    });
+  }
+
+  /**
+   * Converts the MultiMap to JsonObject. Checks/validates the value of JsonArray.
+   * 
+   * @param queryParameters
+   * @return jsonObject
+   */
+  private JsonObject map2Json(MultiMap queryParameters) {
+    JsonObject jsonBody = new JsonObject();
+
+    for (Entry<String, String> entry : queryParameters.entries()) {
+      if (!entry.getValue().startsWith("[") && !entry.getValue().endsWith("]")) {
+        jsonBody.put(entry.getKey(), entry.getValue());
+      } else {
+        try {
+          jsonBody.put(entry.getKey(), new JsonArray(entry.getValue()));
+        } catch (DecodeException decodeException) {
+          logger.error("Invalid Json value ".concat(decodeException.toString()));
+          return null;
+        }
+      }
+    }
+    return jsonBody;
+  }
 }

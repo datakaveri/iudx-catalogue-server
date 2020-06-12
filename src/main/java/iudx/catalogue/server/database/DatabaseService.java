@@ -37,7 +37,7 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonArray>> handler);
+  DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The countQuery implements the count operation with the database.
@@ -59,7 +59,7 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler);
+  DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The updateItem implements the update item operation with the database.
@@ -70,7 +70,7 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler);
+  DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The deleteItem implements the delete item operation with the database.
@@ -81,7 +81,7 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler);
+  DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listItem implements the list item operation with the database.
@@ -92,7 +92,7 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler);
+  DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listTags implements the list tags operation with the database.
@@ -103,7 +103,7 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonArray>> handler);
+  DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listDomains implements the list domains operation with the database.
@@ -114,7 +114,7 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonArray>> handler);
+  DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listCities implements the list cities operation with the database.
@@ -125,7 +125,7 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonArray>> handler);
+  DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listResourceServers implements the list resource servers operation with the database.
@@ -136,7 +136,29 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listResourceServers(JsonObject request, Handler<AsyncResult<JsonArray>> handler);
+  DatabaseService listResourceServers(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The listProviders implements the list providers operation with the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService listProviders(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The listResourceGroups implements the list resource groups operation with the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService listResourceGroups(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listResourceRelationship implements the list relationships operation with the database.
