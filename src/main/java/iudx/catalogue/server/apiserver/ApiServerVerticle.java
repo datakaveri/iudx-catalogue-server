@@ -62,6 +62,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private ValidatorService validator;
   private AuthenticationService authenticator;
   private HttpServer server;
+  @SuppressWarnings("unused")
   private Router router;
   private Properties properties;
   private InputStream inputstream;
@@ -234,9 +235,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Creates a new item in database
+   * Creates a new item in database.
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void createItem(RoutingContext routingContext) {
 
@@ -291,13 +292,10 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   *
-   * Updates a already created item
-   * <p>
-   * Endpoint: PATCH /iudx/cat/v1/update/itemId </br>
-   * itemId = ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
+   * Updates a already created item in the database. Endpoint: PATCH /iudx/cat/v1/update/itemId
+   * itemId=ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void updateItem(RoutingContext routingContext) {
 
@@ -365,12 +363,10 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Deletes a created item
-   * <p>
-   * Endpoint: DELETE /iudx/cat/v1/delete/itemId </br>
-   * itemId = ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
+   * Deletes a created item in the database. Endpoint: DELETE /iudx/cat/v1/delete/itemId
+   * itemId=ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void deleteItem(RoutingContext routingContext) {
     HttpServerRequest request = routingContext.request();
@@ -423,7 +419,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    * Geo Spatial property (Circle,Polygon) based database search. Validates the request query
    * params.
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void searchItem(RoutingContext routingContext) {
 
@@ -433,14 +429,11 @@ public class ApiServerVerticle extends AbstractVerticle {
     MultiMap queryParameters = routingContext.queryParams();
     JsonObject requestBody = new JsonObject();
 
-    final String POINT = "Point";
-    final String POLYGON = "Polygon";
-
     /* Circle and Polygon based item search */
     if (queryParameters.contains("geoproperty") && !queryParameters.get("geoproperty").isBlank()) {
 
-      if (POINT.equals(queryParameters.get("geometry"))
-          || POLYGON.equals(queryParameters.get("geometry"))) {
+      if ("Point".equals(queryParameters.get("geometry"))
+          || "Polygon".equals(queryParameters.get("geometry"))) {
 
         requestBody = map2Json(queryParameters);
         if (requestBody != null) {
@@ -473,9 +466,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * List the items from database using itemId
+   * List the items from database using itemId.
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void listItems(RoutingContext routingContext) {
     // TODO: Incomplete
@@ -496,9 +489,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Get the list of tags for a catalogue instance
+   * Get the list of tags for a catalogue instance.
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void listTags(RoutingContext routingContext) {
 
@@ -521,9 +514,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Get a list of domains for a cataloque instance
+   * Get a list of domains for a cataloque instance.
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void listDomains(RoutingContext routingContext) {
 
@@ -546,9 +539,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Get the list of cities and the catalogue instance ID
+   * Get the list of cities and the catalogue instance ID.
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void listCities(RoutingContext routingContext) {
 
@@ -571,9 +564,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Get the list of resourceServers for a catalogue instance
+   * Get the list of resourceServers for a catalogue instance.
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void listResourceServers(RoutingContext routingContext) {
 
@@ -596,9 +589,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Get the list of providers for a catalogue instance
+   * Get the list of providers for a catalogue instance.
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void listProviders(RoutingContext routingContext) {
     // TODO: database handler listProviders not available, [Important talk to team]
@@ -622,9 +615,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Get the list of resource groups for a catalogue instance
+   * Get the list of resource groups for a catalogue instance.
    * 
-   * @param routingContext
+   * @param routingContext handles web requests in Vert.x Web
    */
   private void listResourceGroups(RoutingContext routingContext) {
     // TODO: database handler listResourceGroups not available, [Important talk to team]
@@ -650,8 +643,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   /**
    * Converts the MultiMap to JsonObject. Checks/validates the value of JsonArray.
    * 
-   * @param queryParameters
-   * @return jsonObject
+   * @param queryParameters is a MultiMap of request query parameters
+   * @return jsonObject of MultiMap query parameters
    */
   private JsonObject map2Json(MultiMap queryParameters) {
     JsonObject jsonBody = new JsonObject();
