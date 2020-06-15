@@ -198,9 +198,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		System.out.println("routed to search");
 		if ((request.getParam("property") == null || request.getParam("value") == null)
 				&& (request.getParam("geoproperty") == null || request.getParam("georel") == null
-						|| request.getParam("geometry") == null || request.getParam("coordinates") == null)
-				&& (request.getParam("q") == null || request.getParam("limit") == null
-						|| request.getParam("offset") == null)) {
+						|| request.getParam("geometry") == null || request.getParam("coordinates") == null)) {
 			JsonObject json = new JsonObject();
 			json.put("status", "invalidSyntax").put("results", new JsonArray());
 			response.headers().add("content-type", "application/json").add("content-length",
@@ -595,6 +593,108 @@ public class ApiServerVerticle extends AbstractVerticle {
 				response.headers().add("content-type", "text");
 				response.setStatusCode(400);
 				response.end("Bad Request");
+			}
+		});
+	}
+
+	public void getResourceServer(RoutingContext routingContext) {
+		HttpServerResponse response = routingContext.response();
+		JsonObject queryJson = new JsonObject();
+		String domainName = routingContext.request().host();
+		String id = routingContext.request().getParam("id");
+		queryJson.put("instanceID", domainName).put("resourceID", id).put("relationship", "resourceServer");
+		System.out.println(queryJson);
+		// Query database for setting config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
+	}
+
+	public void getProvider(RoutingContext routingContext) {
+		HttpServerResponse response = routingContext.response();
+		JsonObject queryJson = new JsonObject();
+		String domainName = routingContext.request().host();
+		String id = routingContext.request().getParam("id");
+		queryJson.put("instanceID", domainName).put("resourceID", id).put("relationship", "provider");
+		System.out.println(queryJson);
+		// Query database for setting config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
+	}
+
+	public void getDataModel(RoutingContext routingContext) {
+		HttpServerResponse response = routingContext.response();
+		JsonObject queryJson = new JsonObject();
+		String domainName = routingContext.request().host();
+		String id = routingContext.request().getParam("id");
+		queryJson.put("instanceID", domainName).put("resourceID", id).put("relationship", "type");
+		System.out.println(queryJson);
+		// Query database for setting config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
 			}
 		});
 	}
