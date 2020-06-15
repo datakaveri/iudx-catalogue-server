@@ -198,7 +198,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 		System.out.println("routed to search");
 		if ((request.getParam("property") == null || request.getParam("value") == null)
 				&& (request.getParam("geoproperty") == null || request.getParam("georel") == null
-						|| request.getParam("geometry") == null || request.getParam("coordinates") == null)) {
+						|| request.getParam("geometry") == null || request.getParam("coordinates") == null)
+				&& request.getParam("q") == null || request.getParam("limit") == null
+				|| request.getParam("offset") == null) {
 			JsonObject json = new JsonObject();
 			json.put("status", "invalidSyntax").put("results", new JsonArray());
 			response.headers().add("content-type", "application/json").add("content-length",
