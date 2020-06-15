@@ -199,7 +199,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 				&& (request.getParam("geoproperty") == null || request.getParam("georel") == null
 						|| request.getParam("geometry") == null || request.getParam("coordinates") == null)
 				&& (request.getParam("q") == null || request.getParam("limit") == null
-				|| request.getParam("offset") == null)) {
+						|| request.getParam("offset") == null)) {
 			JsonObject json = new JsonObject();
 			json.put("status", "invalidSyntax").put("results", new JsonArray());
 			response.headers().add("content-type", "application/json").add("content-length",
@@ -210,31 +210,63 @@ public class ApiServerVerticle extends AbstractVerticle {
 			return;
 		}
 		MultiMap params = request.params();
+//		System.out.println(params);
 		JsonObject queryJson = new JsonObject();
-		for (String str : params.names()) {
-			queryJson.put(str, params.get(str).replaceAll("\"", ""));
+		outerloop: for (String str : params.names()) {
+			if (params.get(str).contains("[")) {
+				JsonArray value = new JsonArray();
+				String[] split = params.get(str).split("\\],");
+				for (String s : split) {
+					JsonArray json = new JsonArray();
+					String[] paramValues = s.split(",");
+					for (String val : paramValues) {
+						if (str.equalsIgnoreCase("coordinates")) {
+							double number = Double.parseDouble(
+									val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
+							json.add(number);
+						} else {
+							json.add(val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
+						}
+					}
+					if (split.length > 1) {
+						value.add(json);
+					} else {
+						queryJson.put(str, json);
+						continue outerloop;
+					}
+				}
+				queryJson.put(str, value);
+			} else if (str.equalsIgnoreCase("limit") || str.equalsIgnoreCase("offset")) {
+				int number = Integer.parseInt(params.get(str));
+				queryJson.put(str, number);
+			}
+
+			else {
+				queryJson.put(str,
+						params.get(str).strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
+			}
 		}
 		System.out.println(queryJson);
 		// Query queryJson to Database
 //		database.searchQuery(queryJson, handler -> {
 //			if (handler.succeeded()) {
-				// store response from DB to resultJson
+		// store response from DB to resultJson
 //				JsonObject resultJson = handler.result();
 //				String status = resultJson.getString("status");
-				JsonObject resultJson = new JsonObject();
-				String status = "success";
-				if (status.equalsIgnoreCase("success")) {
-					response.setStatusCode(200);
-				} else if (status.equalsIgnoreCase("partial-content")) {
-					response.setStatusCode(206);
-				} else {
-					response.setStatusCode(400);
-				}
-				response.headers().add("content-type", "application/json").add("content-length",
-						String.valueOf(resultJson.toString().length()));
-				response.write(resultJson.toString());
-				System.out.println(resultJson);
-				response.end();
+		JsonObject resultJson = new JsonObject();
+		String status = "success";
+		if (status.equalsIgnoreCase("success")) {
+			response.setStatusCode(200);
+		} else if (status.equalsIgnoreCase("partial-content")) {
+			response.setStatusCode(206);
+		} else {
+			response.setStatusCode(400);
+		}
+		response.headers().add("content-type", "application/json").add("content-length",
+				String.valueOf(resultJson.toString().length()));
+		response.write(resultJson.toString());
+		System.out.println(resultJson);
+		response.end();
 //			} else if (handler.failed()) {
 //				handler.cause().getMessage();
 //				response.headers().add("content-type", "text");
