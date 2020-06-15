@@ -228,6 +228,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 			response.end();
 			return;
 		}
+
 		outerloop: for (String str : params.names()) {
 			if (params.get(str).contains("[")) {
 				JsonArray value = new JsonArray();
