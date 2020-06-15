@@ -198,8 +198,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 		if ((request.getParam("property") == null || request.getParam("value") == null)
 				&& (request.getParam("geoproperty") == null || request.getParam("georel") == null
 						|| request.getParam("geometry") == null || request.getParam("coordinates") == null)
-				&& request.getParam("q") == null || request.getParam("limit") == null
-				|| request.getParam("offset") == null) {
+				&& (request.getParam("q") == null || request.getParam("limit") == null
+				|| request.getParam("offset") == null)) {
 			JsonObject json = new JsonObject();
 			json.put("status", "invalidSyntax").put("results", new JsonArray());
 			response.headers().add("content-type", "application/json").add("content-length",
@@ -212,16 +212,17 @@ public class ApiServerVerticle extends AbstractVerticle {
 		MultiMap params = request.params();
 		JsonObject queryJson = new JsonObject();
 		for (String str : params.names()) {
-			queryJson.put(str, params.get(str));
+			queryJson.put(str, params.get(str).replaceAll("\"", ""));
 		}
 		System.out.println(queryJson);
 		// Query queryJson to Database
-		database.searchQuery(queryJson, handler -> {
-			if (handler.succeeded()) {
+//		database.searchQuery(queryJson, handler -> {
+//			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-//				String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				JsonObject resultJson = new JsonObject();
+				String status = "success";
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else if (status.equalsIgnoreCase("partial-content")) {
@@ -234,13 +235,13 @@ public class ApiServerVerticle extends AbstractVerticle {
 				response.write(resultJson.toString());
 				System.out.println(resultJson);
 				response.end();
-			} else if (handler.failed()) {
-				handler.cause().getMessage();
-				response.headers().add("content-type", "text");
-				response.setStatusCode(500);
-				response.end("Internal server error");
-			}
-		});
+//			} else if (handler.failed()) {
+//				handler.cause().getMessage();
+//				response.headers().add("content-type", "text");
+//				response.setStatusCode(500);
+//				response.end("Internal server error");
+//			}
+//		});
 	}
 
 	public void getCities(RoutingContext routingContext) {
@@ -254,9 +255,10 @@ public class ApiServerVerticle extends AbstractVerticle {
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-//				String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				JsonObject resultJson = new JsonObject();
+				String status = "success";
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else {
@@ -287,9 +289,10 @@ public class ApiServerVerticle extends AbstractVerticle {
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-				// String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				JsonObject resultJson = new JsonObject();
+				String status = "success";
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else {
@@ -318,9 +321,10 @@ public class ApiServerVerticle extends AbstractVerticle {
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-//				String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				JsonObject resultJson = new JsonObject();
+				String status = "success";
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else {
@@ -351,9 +355,10 @@ public class ApiServerVerticle extends AbstractVerticle {
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-//				String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				JsonObject resultJson = new JsonObject();
+				String status = "success";
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else {
@@ -382,9 +387,10 @@ public class ApiServerVerticle extends AbstractVerticle {
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-//				String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				JsonObject resultJson = new JsonObject();
+				String status = "success";
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else {
@@ -413,9 +419,10 @@ public class ApiServerVerticle extends AbstractVerticle {
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-				// String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				JsonObject resultJson = new JsonObject();
+				String status = "success";
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else {
