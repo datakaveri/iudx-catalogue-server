@@ -2,7 +2,6 @@ package iudx.catalogue.server.database;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -28,7 +27,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -49,7 +48,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -60,7 +59,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -71,7 +70,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -82,7 +81,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -93,7 +92,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -104,7 +103,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -115,7 +114,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -127,7 +126,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listResourceServers(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler) {
+      Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -139,7 +138,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listResourceRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler) {
+      Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -151,7 +150,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listResourceGroupRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler) {
+      Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -163,7 +162,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listProviderRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler) {
+      Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -175,7 +174,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listResourceServerRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler) {
+      Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -186,7 +185,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
