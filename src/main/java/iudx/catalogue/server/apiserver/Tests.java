@@ -1,7 +1,6 @@
 package iudx.catalogue.server.apiserver;
 
 import static org.junit.Assert.assertEquals;
-
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
