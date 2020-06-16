@@ -110,6 +110,9 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* Search for an item */
         router.get(basePath.concat("/search")).handler(this::searchItem);
 
+        /* list the item from database using itemId */
+        router.get(basePath.concat("/items/:itemID")).handler(this::listItems);
+
         /* list all the tags */
         router.get(basePath.concat("/tags")).handler(this::listTags);
 
@@ -132,8 +135,7 @@ public class ApiServerVerticle extends AbstractVerticle {
          * Update an item in the database using itemId [itemId=ResourceItem, ResourceGroupItem,
          * ResourceServerItem, ProviderItem, DataDescriptorItem]
          */
-        router
-            .patch(basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
+        router.put(basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
             .handler(this::updateItem);
 
         /* Delete an item from database using itemId */
@@ -142,10 +144,6 @@ public class ApiServerVerticle extends AbstractVerticle {
                 basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
             .handler(this::deleteItem);
 
-        /* list the item from database using itemId */
-        router
-            .get(basePath.concat("/items/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
-            .handler(this::listItems);
 
         /* Read the configuration and set the HTTPs server properties. */
 
@@ -247,47 +245,57 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject authenticationInfo = new JsonObject();
     JsonObject requestBody = routingContext.getBodyAsJson();
+    String instanceID = request.getHeader("Host");
 
-    if (request.headers().contains("token")) {
-      authenticationInfo.put("token", request.getHeader("token"));
+    if (requestBody.containsKey("itemType") && !requestBody.getString("itemType").isBlank()) {
 
-      /* Authenticating the request */
-      authenticator.tokenInterospect(requestBody, authenticationInfo, authhandler -> {
-        if (authhandler.succeeded()) {
-          logger.info(
-              "Authenticating item creation request ".concat(authhandler.result().toString()));
-          /* Validating the request */
-          validator.validateItem(requestBody, valhandler -> {
-            if (valhandler.succeeded()) {
-              logger.info("Item creation validated".concat(authhandler.result().toString()));
-              /* Requesting database service, creating a item */
-              database.createItem(requestBody, dbhandler -> {
-                if (dbhandler.succeeded()) {
-                  logger.info("Item created".concat(dbhandler.result().toString()));
-                  response.putHeader("content-type", "application/json").setStatusCode(201)
-                      .end(dbhandler.result().toString());
-                } else if (dbhandler.failed()) {
-                  logger.error("Item creation failed".concat(dbhandler.cause().toString()));
-                  response.putHeader("content-type", "application-json").setStatusCode(500)
-                      .end(dbhandler.cause().toString());
-                }
-              });
-            } else if (valhandler.failed()) {
-              logger.error("Item validation failed".concat(valhandler.cause().toString()));
-              response.putHeader("content-type", "application/json").setStatusCode(500)
-                  .end(valhandler.cause().toString());
-            }
-          });
-        } else if (authhandler.failed()) {
-          logger.error("Unathorized request".concat(authhandler.cause().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(401)
-              .end(authhandler.cause().toString());
-        }
-      });
+      requestBody.put("instanceID", instanceID);
+
+      if (request.headers().contains("token")) {
+        authenticationInfo.put("token", request.getHeader("token"));
+
+        /* Authenticating the request */
+        authenticator.tokenInterospect(requestBody, authenticationInfo, authhandler -> {
+          if (authhandler.succeeded()) {
+            logger.info(
+                "Authenticating item creation request ".concat(authhandler.result().toString()));
+            /* Validating the request */
+            validator.validateItem(requestBody, valhandler -> {
+              if (valhandler.succeeded()) {
+                logger.info("Item creation validated".concat(authhandler.result().toString()));
+                /* Requesting database service, creating a item */
+                database.createItem(requestBody, dbhandler -> {
+                  if (dbhandler.succeeded()) {
+                    logger.info("Item created".concat(dbhandler.result().toString()));
+                    response.putHeader("content-type", "application/json").setStatusCode(201)
+                        .end(dbhandler.result().toString());
+                  } else if (dbhandler.failed()) {
+                    logger.error("Item creation failed".concat(dbhandler.cause().toString()));
+                    response.putHeader("content-type", "application-json").setStatusCode(500)
+                        .end(dbhandler.cause().toString());
+                  }
+                });
+              } else if (valhandler.failed()) {
+                logger.error("Item validation failed".concat(valhandler.cause().toString()));
+                response.putHeader("content-type", "application/json").setStatusCode(500)
+                    .end(valhandler.cause().toString());
+              }
+            });
+          } else if (authhandler.failed()) {
+            logger.error("Unathorized request".concat(authhandler.cause().toString()));
+            response.putHeader("content-type", "application/json").setStatusCode(401)
+                .end(authhandler.cause().toString());
+          }
+        });
+      } else {
+        logger.error("InvalidHeader, 'token' header");
+        response.putHeader("content-type", "application-json").setStatusCode(400)
+            .end(new ResponseHandler.Builder().withStatus("invalidHeader").build().toJsonString());
+      }
     } else {
-      logger.error("Invalid 'token' header");
+      logger.error("InvalidValue, 'itemType' attribute is missing or is empty");
       response.putHeader("content-type", "application-json").setStatusCode(400)
-          .end(new ResponseHandler.Builder().withStatus("invalidHeader").build().toJsonString());
+          .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
     }
   }
 
@@ -303,7 +311,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject authenticationInfo = new JsonObject();
     JsonObject requestBody = routingContext.getBodyAsJson();
-
+    String instanceID = request.getHeader("Host");
 
     String itemId = routingContext.pathParam("resItem").concat("/")
         .concat(routingContext.pathParam("resGrpItem").concat("/")
@@ -313,7 +321,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Updating an item, Id: ".concat(itemId));
 
-    if (itemId.equals(requestBody.getString("id").strip())) {
+    if (requestBody.containsKey("itemType") && !requestBody.getString("itemType").isBlank()) {
+      requestBody.put("instanceID", instanceID);
       if (request.headers().contains("token")) {
         authenticationInfo.put("token", request.getHeader("token"));
 
@@ -351,14 +360,14 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
       } else {
-        logger.error("Invalid 'token' header");
+        logger.error("InvalidHeader 'token' header");
         response.putHeader("content-type", "application-json").setStatusCode(400)
             .end(new ResponseHandler.Builder().withStatus("invalidHeader").build().toJsonString());
       }
     } else {
-      logger.error("Mismatch 'id' in query parameter and request body");
-      response.putHeader("content-type", "application-json").setStatusCode(400).end(
-          new ResponseHandler.Builder().withStatus("invalidQueryParameter").build().toJsonString());
+      logger.error("InvalidValue, 'itemType' attribute is missing or is empty");
+      response.putHeader("content-type", "application-json").setStatusCode(400)
+          .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
     }
   }
 
@@ -373,13 +382,18 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject authenticationInfo = new JsonObject();
     JsonObject requestBody = new JsonObject();
+    String instanceID = request.getHeader("Host");
 
     String itemId = routingContext.pathParam("resItem").concat("/")
         .concat(routingContext.pathParam("resGrpItem").concat("/")
             .concat(routingContext.pathParam("resSvrItem")).concat("/")
             .concat(routingContext.pathParam("pvdrItem").concat("/"))
             .concat(routingContext.pathParam("dataDesItem")));
+
+    requestBody.put("instanceID", instanceID);
     requestBody.put("id", itemId);
+    // TODO: Confirm about the itemType in delete
+    requestBody.put("itemType", "Resource/ResourceGroup");
 
     logger.info("Deleting an item, Id: ".concat(itemId));
 
@@ -425,9 +439,11 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Searching the database for Item");
 
+    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     MultiMap queryParameters = routingContext.queryParams();
     JsonObject requestBody = new JsonObject();
+    String instanceID = request.getHeader("Host");
 
     /* Circle and Polygon based item search */
     if (queryParameters.contains("geoproperty") && !queryParameters.get("geoproperty").isBlank()) {
@@ -437,6 +453,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         requestBody = map2Json(queryParameters);
         if (requestBody != null) {
+          requestBody.put("instanceID", instanceID);
           database.searchQuery(requestBody, dbhandler -> {
             if (dbhandler.succeeded()) {
               logger.info("Search completed ".concat(dbhandler.result().toString()));
@@ -454,7 +471,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         }
       } else {
         logger.error(
-            "Invalid Query parameter Values, Expected: 'geometry = Point|Polygon|linestring|bbox'");
+            "Invalid Query parameter values, Expected: 'geometry = Point|Polygon|LineString|bbox'");
         response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
       }
@@ -471,20 +488,29 @@ public class ApiServerVerticle extends AbstractVerticle {
    * @param routingContext handles web requests in Vert.x Web
    */
   private void listItems(RoutingContext routingContext) {
-    // TODO: Incomplete
+
     logger.info("Listing items from database");
 
-    // HttpServerResponse response = routingContext.response();
+    HttpServerRequest request = routingContext.request();
+    HttpServerResponse response = routingContext.response();
     JsonObject requestBody = new JsonObject();
 
-    // Map<String, String> map = routingContext.pathParams();
-
-    String itemId = routingContext.pathParam("resItem").concat("/")
-        .concat(routingContext.pathParam("resGrpItem").concat("/")
-            .concat(routingContext.pathParam("resSvrItem")).concat("/")
-            .concat(routingContext.pathParam("pvdrItem").concat("/"))
-            .concat(routingContext.pathParam("dataDesItem")));
+    String instanceID = request.getHeader("Host");
+    String itemId = routingContext.pathParam("itemID");
     requestBody.put("id", itemId);
+    requestBody.put("instanceID", instanceID);
+
+    database.listItem(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of tags ".concat(dbhandler.result().toString()));
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
+        response.putHeader("content-type", "application-json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
+      }
+    });
 
   }
 
@@ -497,8 +523,12 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing tags of a cataloque instance");
 
+    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     JsonObject requestBody = new JsonObject();
+
+    String instanceID = request.getHeader("Host");
+    requestBody.put("instanceID", instanceID);
 
     database.listTags(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
@@ -522,8 +552,12 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing domains of a cataloque instance");
 
+    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     JsonObject requestBody = new JsonObject();
+
+    String instanceID = request.getHeader("Host");
+    requestBody.put("instanceID", instanceID);
 
     database.listDomains(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
@@ -547,8 +581,12 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing cities of a cataloque instance");
 
+    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     JsonObject requestBody = new JsonObject();
+
+    String instanceID = request.getHeader("Host");
+    requestBody.put("instanceID", instanceID);
 
     database.listCities(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
@@ -572,8 +610,12 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing resource servers of a cataloque instance");
 
+    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     JsonObject requestBody = new JsonObject();
+
+    String instanceID = request.getHeader("Host");
+    requestBody.put("instanceID", instanceID);
 
     database.listResourceServers(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
@@ -597,9 +639,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     // TODO: database handler listProviders not available, [Important talk to team]
     logger.info("Listing providers of a cataloque instance");
 
+    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     JsonObject requestBody = new JsonObject();
 
+    String instanceID = request.getHeader("Host");
+    requestBody.put("instanceID", instanceID);
 
     database.listProviders(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
@@ -623,8 +668,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     // TODO: database handler listResourceGroups not available, [Important talk to team]
     logger.info("Listing resource groups of a cataloque instance");
 
+    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     JsonObject requestBody = new JsonObject();
+
+    String instanceID = request.getHeader("Host");
+    requestBody.put("instanceID", instanceID);
 
 
     database.listResourceGroups(requestBody, dbhandler -> {

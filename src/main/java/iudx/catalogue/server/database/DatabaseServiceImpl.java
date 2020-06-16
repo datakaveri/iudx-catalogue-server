@@ -89,7 +89,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     // TODO: Stub code, to be removed after use
     String id = request.getString("id");
-    JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + id
+    JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + "rb"
+        + "ccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx"
+        + ".org.in/varanasi-swm-vehicles/varanasi-swm-vehicles-live"
         + "\",\"method\": \"insert\",\"status\": \"success\" }]}");
 
     handler.handle(Future.succeededFuture(result));
@@ -108,7 +110,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     // TODO: Stub code, to be removed after use
     String id = request.getString("id");
-    JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + id
+    JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \""
+        + "rbccps.org"
+        + "/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.org.in/varanasi-swm-vehicle"
+        + "s/varanasi-s" + "wm-vehicles-live"
         + "\",\"method\": \"update\",\"status\": \"success\" }]}");
 
     handler.handle(Future.succeededFuture(result));
@@ -126,7 +131,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     // TODO: Stub code, to be removed after use
     String id = request.getString("id");
-    JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + id
+    JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + "rb"
+        + "ccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.or"
+        + "g.in/varanasi-swm-vehicles/varanasi-swm-vehicles-live"
         + "\",\"method\": \"delete\",\"status\": \"success\" }]}");
 
     handler.handle(Future.succeededFuture(result));
@@ -156,7 +163,14 @@ public class DatabaseServiceImpl implements DatabaseService {
         + "\"ozone\"," + " \"o3\", \"noise\", \"light\", \"uv\"]\n" + "                        }\n"
         + "                }\n" + "        ]\n" + "}");
 
-    handler.handle(Future.succeededFuture(result));
+    JsonObject errResult = new JsonObject(
+        "{\n" + "        \"status\": \"invalidValue\",\n" + "        \"results\": [   ]\n" + "}");
+
+    if (request.getString("id").contains("/")) {
+      handler.handle(Future.succeededFuture(result));
+    } else {
+      handler.handle(Future.succeededFuture(errResult));
+    }
 
     return null;
   }
