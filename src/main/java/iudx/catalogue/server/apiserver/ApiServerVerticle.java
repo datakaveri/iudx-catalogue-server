@@ -210,7 +210,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 			return;
 		}
 		MultiMap params = request.params();
-//		System.out.println(params);
 		JsonObject queryJson = new JsonObject();
 		outerloop: for (String str : params.names()) {
 			if (params.get(str).contains("[")) {
