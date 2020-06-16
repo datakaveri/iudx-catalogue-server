@@ -111,6 +111,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 				router.delete("/iudx/cat/v1/ui/config").handler(this::deleteConfig);
 				router.put("/iudx/cat/v1/ui/config").handler(this::updateConfig);
 				router.patch("/iudx/cat/v1/ui/config").handler(this::appendConfig);
+				router.get("/iudx/cat/v1/:resourceID/resourceServer").handler(this::getResourceServer);
+				router.get("/iudx/cat/v1/:resourceID/provider").handler(this::getProvider);
+				router.get("/iudx/cat/v1/:resourceID/type").handler(this::getDataModel);
 
 				/* Read the configuration and set the HTTPs server properties. */
 
@@ -279,9 +282,10 @@ public class ApiServerVerticle extends AbstractVerticle {
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
+//				JsonObject resultJson = handler.result();
 //				String status = resultJson.getString("status");
 				String status = "success";
+				JsonObject resultJson = new JsonObject();
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else if (status.equalsIgnoreCase("partial-content")) {
@@ -304,9 +308,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void getCities(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
 		queryJson.put("instanceID", domainName).put("operation", "getCities");
 		System.out.println(queryJson);
@@ -338,10 +341,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void setCities(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
@@ -372,10 +374,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void updateCities(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
@@ -406,9 +407,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void getConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
 		queryJson.put("instanceID", domainName).put("operation", "getConfig");
 		System.out.println(queryJson);
@@ -440,10 +440,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void setConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
@@ -474,9 +473,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void deleteConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
@@ -508,10 +506,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void updateConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
@@ -545,6 +542,108 @@ public class ApiServerVerticle extends AbstractVerticle {
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
 		queryJson.put("operation", "append-config");
+		System.out.println(queryJson);
+		// Query database for setting config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
+	}
+
+	public void getResourceServer(RoutingContext routingContext) {
+		HttpServerResponse response = routingContext.response();
+		JsonObject queryJson = new JsonObject();
+		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
+		String resourceID = routingContext.request().getParam("resourceID");
+		queryJson.put("instanceID", domainName).put("resourceID", resourceID).put("relationship", "resourceServer");
+		System.out.println(queryJson);
+		// Query database for setting config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
+	}
+
+	public void getProvider(RoutingContext routingContext) {
+		HttpServerResponse response = routingContext.response();
+		JsonObject queryJson = new JsonObject();
+		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
+		String resourceID = routingContext.request().getParam("resourceID");
+		queryJson.put("instanceID", domainName).put("resourceID", resourceID).put("relationship", "provider");
+		System.out.println(queryJson);
+		// Query database for setting config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
+	}
+
+	public void getDataModel(RoutingContext routingContext) {
+		HttpServerResponse response = routingContext.response();
+		JsonObject queryJson = new JsonObject();
+		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
+		String resourceID = routingContext.request().getParam("resourceID");
+		queryJson.put("instanceID", domainName).put("resourceID", resourceID).put("relationship", "type");
 		System.out.println(queryJson);
 		// Query database for setting config
 		database.searchQuery(queryJson, handler -> {
