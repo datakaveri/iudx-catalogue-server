@@ -185,7 +185,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 								logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
 							}
 						});
-
 			}
 		});
 
@@ -209,8 +208,68 @@ public class ApiServerVerticle extends AbstractVerticle {
 		}
 		MultiMap params = request.params();
 		JsonObject queryJson = new JsonObject();
-		for (String str : params.names()) {
-			queryJson.put(str, params.get(str));
+		String host = request.host().replaceAll("[:8443]+$", "");
+		if (request.getParam("property") != null
+				&& request.getParam("property").toLowerCase().contains("provider.name")) {
+			queryJson.put("instanceID", host);
+		} else if (request.getParam("geometry") != null && (!request.getParam("geometry").equals("bbox")
+				&& !request.getParam("geometry").equals("LineString"))) {
+			System.out.println("invalid geometry value");
+			JsonObject json = new JsonObject();
+			json.put("status", "invalidValue").put("results", new JsonArray());
+			response.headers().add("content-type", "application/json").add("content-length",
+					String.valueOf(json.toString().length()));
+			response.setStatusCode(400);
+			response.write(json.toString());
+			response.end();
+			return;
+		}
+
+		outerloop: for (String str : params.names()) {
+			if (params.get(str).contains("[")) {
+				JsonArray value = new JsonArray();
+				String[] split = params.get(str).split("\\],");
+				for (String s : split) {
+					JsonArray json = new JsonArray();
+					String[] paramValues = s.split(",");
+					for (String val : paramValues) {
+						if (str.equalsIgnoreCase("coordinates")) {
+							try {
+								double number = Double.parseDouble(
+										val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
+								json.add(number);
+							} catch (NumberFormatException e) {
+								System.out.println("invalid coordinate value");
+								JsonObject invalidValue = new JsonObject();
+								invalidValue.put("status", "invalidValue").put("results", new JsonArray());
+								response.headers().add("content-type", "application/json").add("content-length",
+										String.valueOf(invalidValue.toString().length()));
+								response.setStatusCode(400);
+								response.write(invalidValue.toString());
+								response.end();
+								return;
+							}
+						} else {
+							json.add(val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
+						}
+					}
+					if (split.length > 1 || str.equalsIgnoreCase("value")) {
+						value.add(json);
+					} else {
+						queryJson.put(str, json);
+						continue outerloop;
+					}
+				}
+				queryJson.put(str, value);
+			} else if (str.equalsIgnoreCase("limit") || str.equalsIgnoreCase("offset")) {
+				int number = Integer.parseInt(params.get(str));
+				queryJson.put(str, number);
+			}
+
+			else {
+				queryJson.put(str,
+						params.get(str).strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
+			}
 		}
 		System.out.println(queryJson);
 		// Query queryJson to Database
@@ -218,8 +277,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
 				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-//				String status = "success";
+//				String status = resultJson.getString("status");
+				String status = "success";
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else if (status.equalsIgnoreCase("partial-content")) {
@@ -246,7 +305,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		HttpServerResponse response = routingContext.response();
 		String domainName = request.host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
-		queryJson.put("instanceId", domainName).put("operation", "getcities");
+		queryJson.put("instanceID", domainName).put("operation", "getcities");
 		System.out.println(queryJson);
 		// Query database for all cities
 		database.searchQuery(queryJson, handler -> {
@@ -279,7 +338,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		HttpServerResponse response = routingContext.response();
 		String domainName = request.host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
-		queryJson.put("instanceId", domainName).put("operation", "get-config");
+		queryJson.put("instanceID", domainName).put("operation", "get-config");
 		System.out.println(queryJson);
 		// Query database for config
 		database.searchQuery(queryJson, handler -> {
@@ -343,7 +402,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		HttpServerResponse response = routingContext.response();
 		String domainName = request.host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
-		queryJson.put("instanceId", domainName).put("operation", "delete-config");
+		queryJson.put("instanceID", domainName).put("operation", "delete-config");
 		System.out.println(queryJson);
 		// Query database for config
 		database.searchQuery(queryJson, handler -> {
