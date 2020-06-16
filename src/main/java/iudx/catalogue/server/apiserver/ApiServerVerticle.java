@@ -211,7 +211,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 			return;
 		}
 		MultiMap params = request.params();
-//		System.out.println(params);
 		JsonObject queryJson = new JsonObject();
 		String host = request.host().replaceAll("[:8443]+$", "");
 		if (request.getParam("property") != null
