@@ -7,7 +7,6 @@ import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -170,7 +169,7 @@ public interface DatabaseService {
 
   @Fluent
   DatabaseService listResourceRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler);
+      Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listResourceGroupRelationship implements the list group relationships operation with the
@@ -183,7 +182,7 @@ public interface DatabaseService {
 
   @Fluent
   DatabaseService listResourceGroupRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler);
+      Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listProviderRelationship implements the list provider relationships with the database.
@@ -195,7 +194,7 @@ public interface DatabaseService {
 
   @Fluent
   DatabaseService listProviderRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler);
+      Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listResourceServerRelationship implements the list resource server relationship with the
@@ -208,7 +207,7 @@ public interface DatabaseService {
 
   @Fluent
   DatabaseService listResourceServerRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler);
+      Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listTypes implements the list types with the database.
@@ -219,7 +218,7 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonArray>> handler);
+  DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.

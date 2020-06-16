@@ -3,7 +3,6 @@ package iudx.catalogue.server.database;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -88,7 +87,6 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     // TODO: Stub code, to be removed after use
-    String id = request.getString("id");
     JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + "rb"
         + "ccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx"
         + ".org.in/varanasi-swm-vehicles/varanasi-swm-vehicles-live"
@@ -109,7 +107,6 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     // TODO: Stub code, to be removed after use
-    String id = request.getString("id");
     JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \""
         + "rbccps.org"
         + "/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.org.in/varanasi-swm-vehicle"
@@ -130,7 +127,6 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     // TODO: Stub code, to be removed after use
-    String id = request.getString("id");
     JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + "rb"
         + "ccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.or"
         + "g.in/varanasi-swm-vehicles/varanasi-swm-vehicles-live"
@@ -291,7 +287,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listResourceRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler) {
+      Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -303,7 +299,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listResourceGroupRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler) {
+      Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -315,7 +311,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listProviderRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler) {
+      Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -327,7 +323,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listResourceServerRelationship(JsonObject request,
-      Handler<AsyncResult<JsonArray>> handler) {
+      Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
@@ -338,7 +334,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-  public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonArray>> handler) {
+  public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }

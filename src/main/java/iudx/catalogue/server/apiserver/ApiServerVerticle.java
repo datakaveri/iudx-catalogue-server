@@ -636,7 +636,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    * @param routingContext handles web requests in Vert.x Web
    */
   private void listProviders(RoutingContext routingContext) {
-    // TODO: database handler listProviders not available, [Important talk to team]
+
     logger.info("Listing providers of a cataloque instance");
 
     HttpServerRequest request = routingContext.request();
@@ -665,7 +665,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    * @param routingContext handles web requests in Vert.x Web
    */
   private void listResourceGroups(RoutingContext routingContext) {
-    // TODO: database handler listResourceGroups not available, [Important talk to team]
+
     logger.info("Listing resource groups of a cataloque instance");
 
     HttpServerRequest request = routingContext.request();
