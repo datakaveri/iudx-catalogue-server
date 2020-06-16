@@ -104,6 +104,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 				router.route().handler(BodyHandler.create());
 				router.get("/iudx/cat/v1/search").handler(this::search);
 				router.get("/iudx/cat/v1/ui/cities").handler(this::getCities);
+				router.post("/iudx/cat/v1/ui/cities").handler(this::setCities);
+				router.put("/iudx/cat/v1/ui/cities").handler(this::updateCities);
 				router.get("/iudx/cat/v1/ui/config").handler(this::getConfig);
 				router.post("/iudx/cat/v1/ui/config").handler(this::setConfig);
 				router.delete("/iudx/cat/v1/ui/config").handler(this::deleteConfig);
@@ -305,17 +307,86 @@ public class ApiServerVerticle extends AbstractVerticle {
 		HttpServerResponse response = routingContext.response();
 		String domainName = request.host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
-		queryJson.put("instanceID", domainName).put("operation", "getcities");
+		queryJson.put("instanceID", domainName).put("operation", "getCities");
 		System.out.println(queryJson);
 		// Query database for all cities
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-//				String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
+	}
+
+	public void setCities(RoutingContext routingContext) {
+		HttpServerRequest request = routingContext.request();
+		HttpServerResponse response = routingContext.response();
+		JsonObject queryJson = routingContext.getBodyAsJson();
+		String domainName = request.host().replaceAll("[:8443]+$", "");
+		queryJson.put("instanceID", domainName);
+		System.out.println(queryJson);
+		// Query database for setting config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(201);
+				} else {
+					response.setStatusCode(400);
+				}
+				response.headers().add("content-type", "application/json").add("content-length",
+						String.valueOf(resultJson.toString().length()));
+				response.write(resultJson.toString());
+				System.out.println(resultJson);
+				response.end();
+			} else if (handler.failed()) {
+				handler.cause().getMessage();
+				response.headers().add("content-type", "text");
+				response.setStatusCode(500);
+				response.end("Internal server error");
+			}
+		});
+	}
+
+	public void updateCities(RoutingContext routingContext) {
+		HttpServerRequest request = routingContext.request();
+		HttpServerResponse response = routingContext.response();
+		JsonObject queryJson = routingContext.getBodyAsJson();
+		String domainName = request.host().replaceAll("[:8443]+$", "");
+		queryJson.put("instanceID", domainName);
+		System.out.println(queryJson);
+		// Query database for setting config
+		database.searchQuery(queryJson, handler -> {
+			if (handler.succeeded()) {
+				// store response from DB to resultJson
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
+				if (status.equalsIgnoreCase("success")) {
+					response.setStatusCode(201);
 				} else {
 					response.setStatusCode(400);
 				}
@@ -338,15 +409,16 @@ public class ApiServerVerticle extends AbstractVerticle {
 		HttpServerResponse response = routingContext.response();
 		String domainName = request.host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
-		queryJson.put("instanceID", domainName).put("operation", "get-config");
+		queryJson.put("instanceID", domainName).put("operation", "getConfig");
 		System.out.println(queryJson);
 		// Query database for config
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-				// String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else {
@@ -367,19 +439,22 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void setConfig(RoutingContext routingContext) {
+		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		queryJson.put("operation", "create-config");
+		String domainName = request.host().replaceAll("[:8443]+$", "");
+		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-//				String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
 				if (status.equalsIgnoreCase("success")) {
-					response.setStatusCode(200);
+					response.setStatusCode(201);
 				} else {
 					response.setStatusCode(400);
 				}
@@ -402,15 +477,16 @@ public class ApiServerVerticle extends AbstractVerticle {
 		HttpServerResponse response = routingContext.response();
 		String domainName = request.host().replaceAll("[:8443]+$", "");
 		JsonObject queryJson = new JsonObject();
-		queryJson.put("instanceID", domainName).put("operation", "delete-config");
+		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for config
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-//				String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else {
@@ -431,19 +507,22 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void updateConfig(RoutingContext routingContext) {
+		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		queryJson.put("operation", "update-config");
+		String domainName = request.host().replaceAll("[:8443]+$", "");
+		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-//				String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
 				if (status.equalsIgnoreCase("success")) {
-					response.setStatusCode(200);
+					response.setStatusCode(201);
 				} else {
 					response.setStatusCode(400);
 				}
@@ -470,9 +549,10 @@ public class ApiServerVerticle extends AbstractVerticle {
 		database.searchQuery(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-				// String status = "success";
+//				JsonObject resultJson = handler.result();
+//				String status = resultJson.getString("status");
+				String status = "success";
+				JsonObject resultJson = new JsonObject();
 				if (status.equalsIgnoreCase("success")) {
 					response.setStatusCode(200);
 				} else {
