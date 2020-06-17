@@ -1,11 +1,9 @@
 package iudx.catalogue.server.apiserver;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
@@ -18,7 +16,6 @@ import io.vertx.core.net.JksOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
@@ -111,6 +108,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 				router.delete("/iudx/cat/v1/ui/config").handler(this::deleteConfig);
 				router.put("/iudx/cat/v1/ui/config").handler(this::updateConfig);
 				router.patch("/iudx/cat/v1/ui/config").handler(this::appendConfig);
+				router.getWithRegex("\\/iudx\\/cat\\/v1\\/(?<id>[^.]+)\\/provider").handler(this::getProvider);
+				router.getWithRegex("\\/iudx\\/cat\\/v1\\/(?<id>[^.]+)\\/resourceServer").handler(this::getResourceServer);
+				router.getWithRegex("\\/iudx\\/cat\\/v1\\/(?<id>[^.]+)\\/type").handler(this::getDataModel);
 
 				/* Read the configuration and set the HTTPs server properties. */
 
