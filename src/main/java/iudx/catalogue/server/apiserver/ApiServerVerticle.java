@@ -112,7 +112,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 				router.put("/iudx/cat/v1/ui/config").handler(this::updateConfig);
 				router.patch("/iudx/cat/v1/ui/config").handler(this::appendConfig);
 				router.get("/iudx/cat/v1/:resourceID/resourceServer").handler(this::getResourceServer);
-				router.get("/iudx/cat/v1/:resourceID/provider").handler(this::getProvider);
+				router.getWithRegex("\\/iudx\\/cat\\/v1\\/(?<id>[^\\\\.]+)\\/provider").handler(this::getProvider);
 				router.get("/iudx/cat/v1/:resourceID/type").handler(this::getDataModel);
 
 				/* Read the configuration and set the HTTPs server properties. */
@@ -215,7 +215,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		}
 		MultiMap params = request.params();
 		JsonObject queryJson = new JsonObject();
-		String host = request.host().replaceAll("[:8443]+$", "");
+		String host = request.host();
 		if (request.getParam("property") != null
 				&& request.getParam("property").toLowerCase().contains("provider.name")) {
 			queryJson.put("instanceID", host);
@@ -309,7 +309,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
 	public void getCities(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
-		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		JsonObject queryJson = new JsonObject();
 		queryJson.put("instanceID", domainName).put("operation", "getCities");
 		System.out.println(queryJson);
@@ -343,7 +343,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 	public void setCities(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
@@ -376,7 +376,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 	public void updateCities(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
@@ -408,7 +408,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
 	public void getConfig(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
-		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		JsonObject queryJson = new JsonObject();
 		queryJson.put("instanceID", domainName).put("operation", "getConfig");
 		System.out.println(queryJson);
@@ -442,7 +442,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 	public void setConfig(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
@@ -474,7 +474,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
 	public void deleteConfig(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
-		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		JsonObject queryJson = new JsonObject();
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
@@ -508,7 +508,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 	public void updateConfig(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
@@ -573,9 +573,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 	public void getResourceServer(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = new JsonObject();
-		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
-		String resourceID = routingContext.request().getParam("resourceID");
-		queryJson.put("instanceID", domainName).put("resourceID", resourceID).put("relationship", "resourceServer");
+		String domainName = routingContext.request().host();
+		String id = routingContext.request().getParam("id");
+		queryJson.put("instanceID", domainName).put("resourceID", id).put("relationship", "resourceServer");
 		System.out.println(queryJson);
 		// Query database for setting config
 		database.searchQuery(queryJson, handler -> {
@@ -607,9 +607,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 	public void getProvider(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = new JsonObject();
-		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
-		String resourceID = routingContext.request().getParam("resourceID");
-		queryJson.put("instanceID", domainName).put("resourceID", resourceID).put("relationship", "provider");
+		String domainName = routingContext.request().host();
+		String id = routingContext.request().getParam("id");
+		queryJson.put("instanceID", domainName).put("resourceID", id).put("relationship", "provider");
 		System.out.println(queryJson);
 		// Query database for setting config
 		database.searchQuery(queryJson, handler -> {
@@ -641,9 +641,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 	public void getDataModel(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = new JsonObject();
-		String domainName = routingContext.request().host().replaceAll("[:8443]+$", "");
-		String resourceID = routingContext.request().getParam("resourceID");
-		queryJson.put("instanceID", domainName).put("resourceID", resourceID).put("relationship", "type");
+		String domainName = routingContext.request().host();
+		String id = routingContext.request().getParam("id");
+		queryJson.put("instanceID", domainName).put("resourceID", id).put("relationship", "type");
 		System.out.println(queryJson);
 		// Query database for setting config
 		database.searchQuery(queryJson, handler -> {
