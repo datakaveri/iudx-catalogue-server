@@ -210,7 +210,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		}
 		MultiMap params = request.params();
 		JsonObject queryJson = new JsonObject();
-		String host = request.host().replaceAll("[:8443]+$", "");
+		String host = request.host();
 		if (request.getParam("property") != null
 				&& request.getParam("property").toLowerCase().contains("provider.name")) {
 			queryJson.put("instanceID", host);
@@ -302,9 +302,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void getCities(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		JsonObject queryJson = new JsonObject();
 		queryJson.put("instanceID", domainName).put("operation", "getCities");
 		System.out.println(queryJson);
@@ -334,73 +333,89 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void setCities(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
-		queryJson.put("instanceID", domainName);
+		String domainName = routingContext.request().host();
 		System.out.println(queryJson);
 		// Query database for setting config
-		database.searchQuery(queryJson, handler -> {
-			if (handler.succeeded()) {
-				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-				if (status.equalsIgnoreCase("success")) {
-					response.setStatusCode(201);
-				} else {
-					response.setStatusCode(400);
-				}
-				response.headers().add("content-type", "application/json").add("content-length",
-						String.valueOf(resultJson.toString().length()));
-				response.write(resultJson.toString());
-				System.out.println(resultJson);
-				response.end();
-			} else if (handler.failed()) {
-				handler.cause().getMessage();
+		validator.validateItem(queryJson, validationHandler -> {
+			if (validationHandler.succeeded()) {
+				queryJson.put("instanceID", domainName);
+				database.searchQuery(queryJson, dbHandler -> {
+					if (dbHandler.succeeded()) {
+						// store response from DB to resultJson
+						JsonObject resultJson = dbHandler.result();
+						String status = resultJson.getString("status");
+						if (status.equalsIgnoreCase("success")) {
+							response.setStatusCode(201);
+						} else {
+							response.setStatusCode(400);
+						}
+						response.headers().add("content-type", "application/json").add("content-length",
+								String.valueOf(resultJson.toString().length()));
+						response.write(resultJson.toString());
+						System.out.println(resultJson);
+						response.end();
+					} else if (dbHandler.failed()) {
+						dbHandler.cause().getMessage();
+						response.headers().add("content-type", "text");
+						response.setStatusCode(500);
+						response.end("Internal server error");
+					}
+				});
+			} else if (validationHandler.failed()) {
+				validationHandler.cause().getMessage();
 				response.headers().add("content-type", "text");
-				response.setStatusCode(500);
-				response.end("Internal server error");
+				response.setStatusCode(400);
+				response.end("Bad Request");
 			}
 		});
 	}
 
 	public void updateCities(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
-		database.searchQuery(queryJson, handler -> {
-			if (handler.succeeded()) {
-				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-				if (status.equalsIgnoreCase("success")) {
-					response.setStatusCode(201);
-				} else {
-					response.setStatusCode(400);
-				}
-				response.headers().add("content-type", "application/json").add("content-length",
-						String.valueOf(resultJson.toString().length()));
-				response.write(resultJson.toString());
-				System.out.println(resultJson);
-				response.end();
-			} else if (handler.failed()) {
-				handler.cause().getMessage();
+		validator.validateItem(queryJson, validationHandler -> {
+			if (validationHandler.succeeded()) {
+				queryJson.put("instanceID", domainName);
+				database.searchQuery(queryJson, dbHandler -> {
+					if (dbHandler.succeeded()) {
+						// store response from DB to resultJson
+						JsonObject resultJson = dbHandler.result();
+						String status = resultJson.getString("status");
+						if (status.equalsIgnoreCase("success")) {
+							response.setStatusCode(201);
+						} else {
+							response.setStatusCode(400);
+						}
+						response.headers().add("content-type", "application/json").add("content-length",
+								String.valueOf(resultJson.toString().length()));
+						response.write(resultJson.toString());
+						System.out.println(resultJson);
+						response.end();
+					} else if (dbHandler.failed()) {
+						dbHandler.cause().getMessage();
+						response.headers().add("content-type", "text");
+						response.setStatusCode(500);
+						response.end("Internal server error");
+					}
+				});
+			} else if (validationHandler.failed()) {
+				validationHandler.cause().getMessage();
 				response.headers().add("content-type", "text");
-				response.setStatusCode(500);
-				response.end("Internal server error");
+				response.setStatusCode(400);
+				response.end("Bad Request");
 			}
 		});
 	}
 
 	public void getConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		JsonObject queryJson = new JsonObject();
 		queryJson.put("instanceID", domainName).put("operation", "getConfig");
 		System.out.println(queryJson);
@@ -430,41 +445,49 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void setConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
-		database.searchQuery(queryJson, handler -> {
-			if (handler.succeeded()) {
-				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-				if (status.equalsIgnoreCase("success")) {
-					response.setStatusCode(201);
-				} else {
-					response.setStatusCode(400);
-				}
-				response.headers().add("content-type", "application/json").add("content-length",
-						String.valueOf(resultJson.toString().length()));
-				response.write(resultJson.toString());
-				System.out.println(resultJson);
-				response.end();
-			} else if (handler.failed()) {
-				handler.cause().getMessage();
+		validator.validateItem(queryJson, validationHandler -> {
+			if (validationHandler.succeeded()) {
+				queryJson.put("instanceID", domainName);
+				database.searchQuery(queryJson, dbHandler -> {
+					if (dbHandler.succeeded()) {
+						// store response from DB to resultJson
+						JsonObject resultJson = dbHandler.result();
+						String status = resultJson.getString("status");
+						if (status.equalsIgnoreCase("success")) {
+							response.setStatusCode(201);
+						} else {
+							response.setStatusCode(400);
+						}
+						response.headers().add("content-type", "application/json").add("content-length",
+								String.valueOf(resultJson.toString().length()));
+						response.write(resultJson.toString());
+						System.out.println(resultJson);
+						response.end();
+					} else if (dbHandler.failed()) {
+						dbHandler.cause().getMessage();
+						response.headers().add("content-type", "text");
+						response.setStatusCode(500);
+						response.end("Internal server error");
+					}
+				});
+			} else if (validationHandler.failed()) {
+				validationHandler.cause().getMessage();
 				response.headers().add("content-type", "text");
-				response.setStatusCode(500);
-				response.end("Internal server error");
+				response.setStatusCode(400);
+				response.end("Bad Request");
 			}
 		});
 	}
 
 	public void deleteConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		JsonObject queryJson = new JsonObject();
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
@@ -494,33 +517,42 @@ public class ApiServerVerticle extends AbstractVerticle {
 	}
 
 	public void updateConfig(RoutingContext routingContext) {
-		HttpServerRequest request = routingContext.request();
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		String domainName = request.host().replaceAll("[:8443]+$", "");
+		String domainName = routingContext.request().host();
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for setting config
-		database.searchQuery(queryJson, handler -> {
-			if (handler.succeeded()) {
-				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-				if (status.equalsIgnoreCase("success")) {
-					response.setStatusCode(201);
-				} else {
-					response.setStatusCode(400);
-				}
-				response.headers().add("content-type", "application/json").add("content-length",
-						String.valueOf(resultJson.toString().length()));
-				response.write(resultJson.toString());
-				System.out.println(resultJson);
-				response.end();
-			} else if (handler.failed()) {
-				handler.cause().getMessage();
+		validator.validateItem(queryJson, validationHandler -> {
+			if (validationHandler.succeeded()) {
+				queryJson.put("instanceID", domainName);
+				database.searchQuery(queryJson, dbHandler -> {
+					if (dbHandler.succeeded()) {
+						// store response from DB to resultJson
+						JsonObject resultJson = dbHandler.result();
+						String status = resultJson.getString("status");
+						if (status.equalsIgnoreCase("success")) {
+							response.setStatusCode(201);
+						} else {
+							response.setStatusCode(400);
+						}
+						response.headers().add("content-type", "application/json").add("content-length",
+								String.valueOf(resultJson.toString().length()));
+						response.write(resultJson.toString());
+						System.out.println(resultJson);
+						response.end();
+					} else if (dbHandler.failed()) {
+						dbHandler.cause().getMessage();
+						response.headers().add("content-type", "text");
+						response.setStatusCode(500);
+						response.end("Internal server error");
+					}
+				});
+			} else if (validationHandler.failed()) {
+				validationHandler.cause().getMessage();
 				response.headers().add("content-type", "text");
-				response.setStatusCode(500);
-				response.end("Internal server error");
+				response.setStatusCode(400);
+				response.end("Bad Request");
 			}
 		});
 	}
@@ -528,29 +560,39 @@ public class ApiServerVerticle extends AbstractVerticle {
 	public void appendConfig(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();
 		JsonObject queryJson = routingContext.getBodyAsJson();
-		queryJson.put("operation", "append-config");
+		String domainName = routingContext.request().host();
 		System.out.println(queryJson);
 		// Query database for setting config
-		database.searchQuery(queryJson, handler -> {
-			if (handler.succeeded()) {
-				// store response from DB to resultJson
-				JsonObject resultJson = handler.result();
-				String status = resultJson.getString("status");
-				if (status.equalsIgnoreCase("success")) {
-					response.setStatusCode(200);
-				} else {
-					response.setStatusCode(400);
-				}
-				response.headers().add("content-type", "application/json").add("content-length",
-						String.valueOf(resultJson.toString().length()));
-				response.write(resultJson.toString());
-				System.out.println(resultJson);
-				response.end();
-			} else if (handler.failed()) {
-				handler.cause().getMessage();
+		validator.validateItem(queryJson, validationHandler -> {
+			if (validationHandler.succeeded()) {
+				queryJson.put("instanceID", domainName);
+				database.searchQuery(queryJson, dbHandler -> {
+					if (dbHandler.succeeded()) {
+						// store response from DB to resultJson
+						JsonObject resultJson = dbHandler.result();
+						String status = resultJson.getString("status");
+						if (status.equalsIgnoreCase("success")) {
+							response.setStatusCode(200);
+						} else {
+							response.setStatusCode(400);
+						}
+						response.headers().add("content-type", "application/json").add("content-length",
+								String.valueOf(resultJson.toString().length()));
+						response.write(resultJson.toString());
+						System.out.println(resultJson);
+						response.end();
+					} else if (dbHandler.failed()) {
+						dbHandler.cause().getMessage();
+						response.headers().add("content-type", "text");
+						response.setStatusCode(500);
+						response.end("Internal server error");
+					}
+				});
+			} else if (validationHandler.failed()) {
+				validationHandler.cause().getMessage();
 				response.headers().add("content-type", "text");
-				response.setStatusCode(500);
-				response.end("Internal server error");
+				response.setStatusCode(400);
+				response.end("Bad Request");
 			}
 		});
 	}
