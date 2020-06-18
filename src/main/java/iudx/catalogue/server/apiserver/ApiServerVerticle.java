@@ -1,11 +1,9 @@
 package iudx.catalogue.server.apiserver;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
-import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
@@ -18,7 +16,6 @@ import io.vertx.core.net.JksOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
@@ -341,7 +338,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		validator.validateItem(queryJson, validationHandler -> {
 			if (validationHandler.succeeded()) {
 				queryJson.put("instanceID", domainName);
-				database.searchQuery(queryJson, dbHandler -> {
+				database.createItem(queryJson, dbHandler -> {
 					if (dbHandler.succeeded()) {
 						// store response from DB to resultJson
 						JsonObject resultJson = dbHandler.result();
@@ -382,7 +379,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		validator.validateItem(queryJson, validationHandler -> {
 			if (validationHandler.succeeded()) {
 				queryJson.put("instanceID", domainName);
-				database.searchQuery(queryJson, dbHandler -> {
+				database.updateItem(queryJson, dbHandler -> {
 					if (dbHandler.succeeded()) {
 						// store response from DB to resultJson
 						JsonObject resultJson = dbHandler.result();
@@ -454,7 +451,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		validator.validateItem(queryJson, validationHandler -> {
 			if (validationHandler.succeeded()) {
 				queryJson.put("instanceID", domainName);
-				database.searchQuery(queryJson, dbHandler -> {
+				database.createItem(queryJson, dbHandler -> {
 					if (dbHandler.succeeded()) {
 						// store response from DB to resultJson
 						JsonObject resultJson = dbHandler.result();
@@ -492,7 +489,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		queryJson.put("instanceID", domainName);
 		System.out.println(queryJson);
 		// Query database for config
-		database.searchQuery(queryJson, handler -> {
+		database.deleteItem(queryJson, handler -> {
 			if (handler.succeeded()) {
 				// store response from DB to resultJson
 				JsonObject resultJson = handler.result();
@@ -526,7 +523,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		validator.validateItem(queryJson, validationHandler -> {
 			if (validationHandler.succeeded()) {
 				queryJson.put("instanceID", domainName);
-				database.searchQuery(queryJson, dbHandler -> {
+				database.updateItem(queryJson, dbHandler -> {
 					if (dbHandler.succeeded()) {
 						// store response from DB to resultJson
 						JsonObject resultJson = dbHandler.result();
@@ -566,7 +563,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 		validator.validateItem(queryJson, validationHandler -> {
 			if (validationHandler.succeeded()) {
 				queryJson.put("instanceID", domainName);
-				database.searchQuery(queryJson, dbHandler -> {
+				database.updateItem(queryJson, dbHandler -> {
 					if (dbHandler.succeeded()) {
 						// store response from DB to resultJson
 						JsonObject resultJson = dbHandler.result();
