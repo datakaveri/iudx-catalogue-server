@@ -694,10 +694,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject queryJson = new JsonObject();
     String domainName = routingContext.request().host();
     String id = routingContext.request().getParam("id");
-    queryJson
-        .put("instanceID", domainName)
-        .put("id", id)
-        .put("relationship", "resourceServer");
+    queryJson.put("instanceID", domainName).put("id", id).put("relationship", "resourceServer");
     System.out.println(queryJson);
     // Query database for setting config
     database.searchQuery(
