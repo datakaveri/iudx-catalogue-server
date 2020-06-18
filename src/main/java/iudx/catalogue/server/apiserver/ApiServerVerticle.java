@@ -518,7 +518,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String domainName = routingContext.request().host();
-
     System.out.println(queryJson);
     // Query database for setting config
     validator.validateItem(
@@ -600,7 +599,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String domainName = routingContext.request().host();
-
     System.out.println(queryJson);
     // Query database for setting config
     validator.validateItem(
