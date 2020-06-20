@@ -206,7 +206,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         /* Setup the HTTPs server properties, APIs and port. */
 
-        server = vertx.createHttpServer(new HttpServerOptions().setSsl(true)
+        server = vertx.createHttpServer(new HttpServerOptions().setSsl(false)
             .setKeyStoreOptions(new JksOptions().setPath(keystore).setPassword(keystorePassword)));
 
         server.requestHandler(router).listen(port);
@@ -537,7 +537,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* Circle and Polygon based item search */
     if (queryParameters.contains("geoproperty") && !queryParameters.get("geoproperty").isBlank()
         && geoRels.contains(queryParameters.get("georel"))
-        && "coordinates".equals(queryParameters.get("coordinates"))) {
+        && queryParameters.contains("coordinates")
+        && !queryParameters.get("coordinates").isBlank()) {
 
       /* validating circle or polygon as value of geometry query parameter */
       if ("Point".equals(queryParameters.get("geometry"))

@@ -111,7 +111,7 @@ public class ApiServerVerticleTest {
   @Test
   @Order(2)
   @DisplayName("Create Item[Status:400, Endpoint: /item]")
-  void createItem400(VertxTestContext testContext) {
+  public void createItem400(VertxTestContext testContext) {
 
     /* open and read the entire test file mentioned in the path */
     fileSytem.readFile("src/test/resources/request_body.json", fileRes -> {
