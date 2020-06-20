@@ -1,9 +1,5 @@
 package iudx.catalogue.server.apiserver;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Map.Entry;
-import java.util.Properties;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -22,6 +18,7 @@ import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
@@ -30,6 +27,13 @@ import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.onboarder.OnboarderService;
 import iudx.catalogue.server.validator.ValidatorService;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * The Catalogue Server API Verticle.
@@ -70,6 +74,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   private String keystore;
   private String keystorePassword;
   private String basePath = "/iudx/cat/v1";
+  private ArrayList<String> itemTypes;
+  private ArrayList<String> geoRels;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
@@ -97,10 +103,22 @@ public class ApiServerVerticle extends AbstractVerticle {
         properties = new Properties();
         inputstream = null;
 
+        /* HTTP request allowed headers */
+        Set<String> allowedHeaders = new HashSet<>();
+        allowedHeaders.add("Accept");
+        allowedHeaders.add("token");
+        allowedHeaders.add("Content-Length");
+        allowedHeaders.add("Content-Type");
+        allowedHeaders.add("Host");
+        allowedHeaders.add("Origin");
+        allowedHeaders.add("Referer");
+        allowedHeaders.add("Access-Control-Allow-Origin");
+
         /* Define the APIs, methods, endpoints and associated methods. */
 
         Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
+        router.route().handler(CorsHandler.create("*").allowedHeaders(allowedHeaders));
 
         router.route("/apis/*").handler(StaticHandler.create());
 
@@ -109,9 +127,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         /* Search for an item */
         router.get(basePath.concat("/search")).handler(this::searchItem);
-
-        /* list the item from database using itemId */
-        router.get(basePath.concat("/items/:itemID")).handler(this::listItems);
 
         /* list all the tags */
         router.get(basePath.concat("/tags")).handler(this::listTags);
@@ -144,6 +159,34 @@ public class ApiServerVerticle extends AbstractVerticle {
                 basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
             .handler(this::deleteItem);
 
+        /* list the item from database using itemId */
+        router
+            .get(basePath.concat("/items/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
+            .handler(this::listItems);
+
+        /* Get all resources belonging to a resource group */
+        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resource"))
+            .handler(this::listResourceRelationship);
+
+        /* Get resource group of an item belonging to a resource */
+        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resourceGroup"))
+            .handler(this::listResourceGroupRelationship);
+
+        /* Populating itemTypes */
+        itemTypes = new ArrayList<String>();
+        itemTypes.add("Resource");
+        itemTypes.add("ResourceGroup");
+        itemTypes.add("ResourceServer");
+        itemTypes.add("Provider");
+
+        /* Populating geo spatials relations */
+        geoRels = new ArrayList<String>();
+        geoRels.add("within");
+        geoRels.add("near");
+        geoRels.add("coveredBy");
+        geoRels.add("intersects");
+        geoRels.add("equals");
+        geoRels.add("disjoint");
 
         /* Read the configuration and set the HTTPs server properties. */
 
@@ -241,16 +284,28 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Creating an item");
 
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
+    /* JsonObject of authentication related information */
     JsonObject authenticationInfo = new JsonObject();
+
+    /* HTTP request body as Json */
     JsonObject requestBody = routingContext.getBodyAsJson();
+
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
 
-    if (requestBody.containsKey("itemType") && !requestBody.getString("itemType").isBlank()) {
-
+    /* checking and comparing itemType from the request body */
+    if (requestBody.containsKey("itemType")
+        && itemTypes.contains(requestBody.getString("itemType"))) {
+      /* Populating query mapper */
       requestBody.put("instanceID", instanceID);
 
+      /* checking auhthentication info in requests */
       if (request.headers().contains("token")) {
         authenticationInfo.put("token", request.getHeader("token"));
 
@@ -271,7 +326,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                         .end(dbhandler.result().toString());
                   } else if (dbhandler.failed()) {
                     logger.error("Item creation failed".concat(dbhandler.cause().toString()));
-                    response.putHeader("content-type", "application-json").setStatusCode(500)
+                    response.putHeader("content-type", "application/json").setStatusCode(500)
                         .end(dbhandler.cause().toString());
                   }
                 });
@@ -289,12 +344,12 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
       } else {
         logger.error("InvalidHeader, 'token' header");
-        response.putHeader("content-type", "application-json").setStatusCode(400)
+        response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(new ResponseHandler.Builder().withStatus("invalidHeader").build().toJsonString());
       }
     } else {
       logger.error("InvalidValue, 'itemType' attribute is missing or is empty");
-      response.putHeader("content-type", "application-json").setStatusCode(400)
+      response.putHeader("content-type", "application/json").setStatusCode(400)
           .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
     }
   }
@@ -307,12 +362,22 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void updateItem(RoutingContext routingContext) {
 
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
+    /* JsonObject of authentication related information */
     JsonObject authenticationInfo = new JsonObject();
+
+    /* HTTP request body as Json */
     JsonObject requestBody = routingContext.getBodyAsJson();
+
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
 
+    /* Building complete itemID from HTTP request path parameters */
     String itemId = routingContext.pathParam("resItem").concat("/")
         .concat(routingContext.pathParam("resGrpItem").concat("/")
             .concat(routingContext.pathParam("resSvrItem")).concat("/")
@@ -321,8 +386,13 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Updating an item, Id: ".concat(itemId));
 
-    if (requestBody.containsKey("itemType") && !requestBody.getString("itemType").isBlank()) {
+    /* checking and comparing itemType from the request body */
+    if (requestBody.containsKey("itemType")
+        && itemTypes.contains(requestBody.getString("itemType"))) {
+      /* Populating query mapper */
       requestBody.put("instanceID", instanceID);
+
+      /* checking auhthentication info in requests */
       if (request.headers().contains("token")) {
         authenticationInfo.put("token", request.getHeader("token"));
 
@@ -343,7 +413,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                         .end(dbhandler.result().toString());
                   } else if (dbhandler.failed()) {
                     logger.error("Item update failed ".concat(dbhandler.cause().toString()));
-                    response.putHeader("content-type", "application-json").setStatusCode(500)
+                    response.putHeader("content-type", "application/json").setStatusCode(500)
                         .end(dbhandler.cause().toString());
                   }
                 });
@@ -361,12 +431,12 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
       } else {
         logger.error("InvalidHeader 'token' header");
-        response.putHeader("content-type", "application-json").setStatusCode(400)
+        response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(new ResponseHandler.Builder().withStatus("invalidHeader").build().toJsonString());
       }
     } else {
       logger.error("InvalidValue, 'itemType' attribute is missing or is empty");
-      response.putHeader("content-type", "application-json").setStatusCode(400)
+      response.putHeader("content-type", "application/json").setStatusCode(400)
           .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
     }
   }
@@ -378,25 +448,36 @@ public class ApiServerVerticle extends AbstractVerticle {
    * @param routingContext handles web requests in Vert.x Web
    */
   private void deleteItem(RoutingContext routingContext) {
+
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
+    /* JsonObject of authentication related information */
     JsonObject authenticationInfo = new JsonObject();
+
     JsonObject requestBody = new JsonObject();
+
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
 
+    /* Building complete itemID from HTTP request path parameters */
     String itemId = routingContext.pathParam("resItem").concat("/")
         .concat(routingContext.pathParam("resGrpItem").concat("/")
             .concat(routingContext.pathParam("resSvrItem")).concat("/")
             .concat(routingContext.pathParam("pvdrItem").concat("/"))
             .concat(routingContext.pathParam("dataDesItem")));
 
+    /* Populating query mapper */
     requestBody.put("instanceID", instanceID);
     requestBody.put("id", itemId);
-    // TODO: Confirm about the itemType in delete
-    requestBody.put("itemType", "Resource/ResourceGroup");
+    // requestBody.put("itemType", "Resource/ResourceGroup");
 
     logger.info("Deleting an item, Id: ".concat(itemId));
 
+    /* checking auhthentication info in requests */
     if (request.headers().contains("token")) {
       authenticationInfo.put("token", request.getHeader("token"));
 
@@ -412,7 +493,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                   .end(dbhandler.result().toString());
             } else if (dbhandler.failed()) {
               logger.error("Item deletion failed".concat(dbhandler.cause().toString()));
-              response.putHeader("content-type", "application-json").setStatusCode(400)
+              response.putHeader("content-type", "application/json").setStatusCode(400)
                   .end(dbhandler.cause().toString());
             }
           });
@@ -424,7 +505,7 @@ public class ApiServerVerticle extends AbstractVerticle {
       });
     } else {
       logger.error("Invalid 'token' header");
-      response.putHeader("content-type", "application-json").setStatusCode(400)
+      response.putHeader("content-type", "application/json").setStatusCode(400)
           .end(new ResponseHandler.Builder().withStatus("invalidHeader").build().toJsonString());
     }
   }
@@ -439,21 +520,36 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Searching the database for Item");
 
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
+    /* Collection of query parameters from HTTP request */
     MultiMap queryParameters = routingContext.queryParams();
+
     JsonObject requestBody = new JsonObject();
+
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
 
     /* Circle and Polygon based item search */
-    if (queryParameters.contains("geoproperty") && !queryParameters.get("geoproperty").isBlank()) {
+    if (queryParameters.contains("geoproperty") && !queryParameters.get("geoproperty").isBlank()
+        && geoRels.contains(queryParameters.get("georel"))
+        && "coordinates".equals(queryParameters.get("coordinates"))) {
 
+      /* validating circle or polygon as value of geometry query parameter */
       if ("Point".equals(queryParameters.get("geometry"))
           || "Polygon".equals(queryParameters.get("geometry"))) {
 
+        /* converting multimap to proper JsonObject/JsonArray format */
         requestBody = map2Json(queryParameters);
+
         if (requestBody != null) {
+          /* Populating query mapper */
           requestBody.put("instanceID", instanceID);
+          /* Request database service with requestBody for item search */
           database.searchQuery(requestBody, dbhandler -> {
             if (dbhandler.succeeded()) {
               logger.info("Search completed ".concat(dbhandler.result().toString()));
@@ -461,7 +557,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                   .end(dbhandler.result().toString());
             } else if (dbhandler.failed()) {
               logger.error("Issue in Item search ".concat(dbhandler.cause().toString()));
-              response.putHeader("content-type", "application-json").setStatusCode(400)
+              response.putHeader("content-type", "application/json").setStatusCode(400)
                   .end(dbhandler.cause().toString());
             }
           });
@@ -476,7 +572,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
       }
     } else {
-      logger.error("Invalid Query parameter values, Expected: 'geopropery'");
+      logger.error("Invalid Query parameter syntax, Expected: 'geopropery, georel, coordinates'");
       response.putHeader("content-type", "application/json").setStatusCode(400)
           .end(new ResponseHandler.Builder().withStatus("invalidSyntax").build().toJsonString());
     }
@@ -491,23 +587,37 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing items from database");
 
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
     JsonObject requestBody = new JsonObject();
 
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
-    String itemId = routingContext.pathParam("itemID");
+
+    /* Building complete itemID from HTTP request path parameters */
+    String itemId = routingContext.pathParam("resItem").concat("/")
+        .concat(routingContext.pathParam("resGrpItem").concat("/")
+            .concat(routingContext.pathParam("resSvrItem")).concat("/")
+            .concat(routingContext.pathParam("pvdrItem").concat("/"))
+            .concat(routingContext.pathParam("dataDesItem")));
+
+    /* Populating query mapper */
     requestBody.put("id", itemId);
     requestBody.put("instanceID", instanceID);
 
+    /* Databse service call for listing item */
     database.listItem(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
-        logger.info("List of tags ".concat(dbhandler.result().toString()));
+        logger.info("List of items ".concat(dbhandler.result().toString()));
         response.putHeader("content-type", "application/json").setStatusCode(200)
             .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
-        logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application-json").setStatusCode(400)
+        logger.error("Issue in listing items ".concat(dbhandler.cause().toString()));
+        response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(dbhandler.cause().toString());
       }
     });
@@ -523,13 +633,21 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing tags of a cataloque instance");
 
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
     JsonObject requestBody = new JsonObject();
 
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
+
+    /* Populating query mapper */
     requestBody.put("instanceID", instanceID);
 
+    /* Request database service with requestBody for listing tags */
     database.listTags(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of tags ".concat(dbhandler.result().toString()));
@@ -537,7 +655,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application-json").setStatusCode(400)
+        response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(dbhandler.cause().toString());
       }
     });
@@ -552,13 +670,21 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing domains of a cataloque instance");
 
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
     JsonObject requestBody = new JsonObject();
 
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
+
+    /* Populating query mapper */
     requestBody.put("instanceID", instanceID);
 
+    /* Request database service with requestBody for listing domains */
     database.listDomains(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of domains ".concat(dbhandler.result().toString()));
@@ -566,7 +692,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application-json").setStatusCode(400)
+        response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(dbhandler.cause().toString());
       }
     });
@@ -581,13 +707,21 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing cities of a cataloque instance");
 
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
     JsonObject requestBody = new JsonObject();
 
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
+
+    /* Populating query mapper */
     requestBody.put("instanceID", instanceID);
 
+    /* Request database service with requestBody for listing cities */
     database.listCities(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of cities ".concat(dbhandler.result().toString()));
@@ -595,7 +729,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing cities ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application-json").setStatusCode(400)
+        response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(dbhandler.cause().toString());
       }
     });
@@ -610,13 +744,21 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing resource servers of a cataloque instance");
 
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
     JsonObject requestBody = new JsonObject();
 
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
+
+    /* Populating query mapper */
     requestBody.put("instanceID", instanceID);
 
+    /* Request database service with requestBody for listing resource servers */
     database.listResourceServers(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of resource servers ".concat(dbhandler.result().toString()));
@@ -624,7 +766,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing resource servers ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application-json").setStatusCode(400)
+        response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(dbhandler.cause().toString());
       }
     });
@@ -639,13 +781,21 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing providers of a cataloque instance");
 
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
     JsonObject requestBody = new JsonObject();
 
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
+
+    /* Populating query mapper */
     requestBody.put("instanceID", instanceID);
 
+    /* Request database service with requestBody for listing providers */
     database.listProviders(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of providers ".concat(dbhandler.result().toString()));
@@ -653,7 +803,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing providers ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application-json").setStatusCode(400)
+        response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(dbhandler.cause().toString());
       }
     });
@@ -668,14 +818,21 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Listing resource groups of a cataloque instance");
 
+    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
+
     JsonObject requestBody = new JsonObject();
 
+    /* HTTP request instance/host details */
     String instanceID = request.getHeader("Host");
+
+    /* Populating query mapper */
     requestBody.put("instanceID", instanceID);
 
-
+    /* Request database service with requestBody for listing resource groups */
     database.listResourceGroups(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of resource groups ".concat(dbhandler.result().toString()));
@@ -683,10 +840,114 @@ public class ApiServerVerticle extends AbstractVerticle {
             .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing resource groups ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application-json").setStatusCode(400)
+        response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(dbhandler.cause().toString());
       }
     });
+  }
+
+  /**
+   * Get all resources belonging to a resourceGroup.
+   * 
+   * @param routingContext handles web requests in Vert.x Web
+   */
+  public void listResourceRelationship(RoutingContext routingContext) {
+
+    logger.info("Searching for relationship of resource");
+
+    /* Handles HTTP request from client */
+    HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
+    HttpServerResponse response = routingContext.response();
+
+    JsonObject requestBody = new JsonObject();
+
+    /* HTTP request instance/host details */
+    String instanceID = request.getHeader("Host");
+
+    /* Parsing id from HTTP request */
+    String id = request.getParam("id");
+
+    /* Checking if id is either not null nor empty */
+    if (id != null && !id.isBlank()) {
+
+      /* Populating query mapper */
+      requestBody.put("id", id);
+      requestBody.put("instanceID", instanceID);
+      requestBody.put("relationship", "resource");
+
+      /* Request database service with requestBody for listing resource relationship */
+      database.listResourceRelationship(requestBody, dbhandler -> {
+        if (dbhandler.succeeded()) {
+          logger.info("List of resources belonging to resourceGroups "
+              .concat(dbhandler.result().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(200)
+              .end(dbhandler.result().toString());
+        } else if (dbhandler.failed()) {
+          logger.error(
+              "Issue in listing resource relationship ".concat(dbhandler.cause().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(400)
+              .end(dbhandler.cause().toString());
+        }
+      });
+    } else {
+      logger.error("Issue in path parameter");
+      response.putHeader("content-type", "application/json").setStatusCode(400)
+          .end(new ResponseHandler.Builder().withStatus("invalidSyntax").build().toJsonString());
+    }
+  }
+
+  /**
+   * Get all resourceGroup relationships.
+   * 
+   * @param routingContext handles web requests in Vert.x Web
+   */
+  public void listResourceGroupRelationship(RoutingContext routingContext) {
+
+    logger.info("Searching for relationship of resource and resourceGroup");
+
+    /* Handles HTTP request from client */
+    HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
+    HttpServerResponse response = routingContext.response();
+
+    JsonObject requestBody = new JsonObject();
+
+    /* HTTP request instance/host details */
+    String instanceID = request.getHeader("Host");
+
+    /* Parsing id from HTTP request */
+    String id = request.getParam("id");
+
+    /* Checking if id is either not null nor empty */
+    if (id != null && !id.isBlank()) {
+
+      /* Populating query mapper */
+      requestBody.put("id", id);
+      requestBody.put("instanceID", instanceID);
+      requestBody.put("relationship", "resourceGroup");
+
+      /* Request database service with requestBody for listing resource group relationship */
+      database.listResourceGroupRelationship(requestBody, dbhandler -> {
+        if (dbhandler.succeeded()) {
+          logger.info(
+              "List of resourceGroup belonging to resource ".concat(dbhandler.result().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(200)
+              .end(dbhandler.result().toString());
+        } else if (dbhandler.failed()) {
+          logger.error(
+              "Issue in listing resourceGroup relationship ".concat(dbhandler.cause().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(400)
+              .end(dbhandler.cause().toString());
+        }
+      });
+    } else {
+      logger.error("Issue in path parameter");
+      response.putHeader("content-type", "application/json").setStatusCode(400)
+          .end(new ResponseHandler.Builder().withStatus("invalidSyntax").build().toJsonString());
+    }
   }
 
   /**
@@ -696,9 +957,11 @@ public class ApiServerVerticle extends AbstractVerticle {
    * @return jsonObject of MultiMap query parameters
    */
   private JsonObject map2Json(MultiMap queryParameters) {
+
     JsonObject jsonBody = new JsonObject();
 
     for (Entry<String, String> entry : queryParameters.entries()) {
+      /* checking if the Collection value is of JsonObject/JsonArray */
       if (!entry.getValue().startsWith("[") && !entry.getValue().endsWith("]")) {
         jsonBody.put(entry.getKey(), entry.getValue());
       } else {

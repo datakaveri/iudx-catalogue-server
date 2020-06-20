@@ -289,6 +289,20 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listResourceRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
+    // TODO: Stub code, to be removed after use [was not part of master code]
+    JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
+        + "        \"totalHits\": 200,\n" + "        \"results\": [{\n"
+        + "                        \"id\": \"rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f"
+        + "3450e531/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01\",\n"
+        + "                        \"tags\": {\n"
+        + "                                \"type\": \"Property\",\n"
+        + "                                \"value\": [\"environment\", \"air quality\", "
+        + "\"air\", \"aqi\", \"aqm\", \"climo\", \"climate\", \"pollution\", \"so2\", \"co"
+        + "2\", \"co\", \"no\", \"no2\", \"pm2.5\", \"pm25\", \"lux\", \"pm10\", \"humidity"
+        + "\", \"temperature\", \"ozone\", \"o3\", \"noise\", \"light\", \"uv\"]\n"
+        + "                        }\n" + "                }\n" + "        ]\n" + "}");
+
+    handler.handle(Future.succeededFuture(result));
     return null;
   }
 
@@ -300,6 +314,21 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService listResourceGroupRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
+
+    // TODO: Stub code, to be removed after use [was not part of master code]
+    JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
+        + "        \"totalHits\": 200,\n" + "        \"results\": [{\n"
+        + "                        \"id\": \"rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f"
+        + "3450e531/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01\",\n"
+        + "                        \"tags\": {\n"
+        + "                                \"type\": \"Property\",\n"
+        + "                                \"value\": [\"environment\", \"air quality\", "
+        + "\"air\", \"aqi\", \"aqm\", \"climo\", \"climate\", \"pollution\", \"so2\", \"co"
+        + "2\", \"co\", \"no\", \"no2\", \"pm2.5\", \"pm25\", \"lux\", \"pm10\", \"humidity"
+        + "\", \"temperature\", \"ozone\", \"o3\", \"noise\", \"light\", \"uv\"]\n"
+        + "                        }\n" + "                }\n" + "        ]\n" + "}");
+
+    handler.handle(Future.succeededFuture(result));
 
     return null;
   }
