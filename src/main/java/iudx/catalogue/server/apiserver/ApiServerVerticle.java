@@ -28,6 +28,7 @@ import iudx.catalogue.server.validator.ValidatorService;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 /**
  * The Catalogue Server API Verticle.
@@ -217,10 +218,16 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Processes the attribute, geoSpatial, and text search requests and returns the results from the
+   * database.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void search(RoutingContext routingContext) {
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
-    System.out.println("routed to search");
+    logger.info("routed to search");
     if ((request.getParam("property") == null || request.getParam("value") == null)
         && (request.getParam("geoproperty") == null
             || request.getParam("georel") == null
@@ -229,6 +236,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         && (request.getParam("q") == null
             || request.getParam("limit") == null
             || request.getParam("offset") == null)) {
+      logger.error("Invalid Syntax");
       JsonObject json = new JsonObject();
       json.put("status", "invalidSyntax").put("results", new JsonArray());
       response
@@ -241,15 +249,28 @@ public class ApiServerVerticle extends AbstractVerticle {
       return;
     }
     MultiMap params = request.params();
+    /* Pattern to validate text search string */
+    Pattern textPattern = Pattern.compile("^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}");
     JsonObject queryJson = new JsonObject();
-    String host = request.host();
+    String instanceID = request.host();
     if (request.getParam("property") != null
         && request.getParam("property").toLowerCase().contains("provider.name")) {
-      queryJson.put("instanceID", host);
-    } else if (request.getParam("geometry") != null
-        && (!request.getParam("geometry").equals("bbox")
-            && !request.getParam("geometry").equals("LineString"))) {
-      System.out.println("invalid geometry value");
+      queryJson.put("instanceID", instanceID);
+    }
+    /* validating acceptable values of geoproperty, geometry, and georel */
+    else if ((request.getParam("geoproperty") != null
+            && request.getParam("geometry") != null
+            && request.getParam("georel") != null)
+        && ((!request.getParam("geoproperty").equals("location"))
+            || (!request.getParam("geometry").equals("bbox")
+                && !request.getParam("geometry").equals("LineString"))
+            || (!request.getParam("georel").equals("within")
+                && !request.getParam("georel").equals("near")
+                && !request.getParam("georel").equals("coveredBy")
+                && !request.getParam("georel").equals("intersects")
+                && !request.getParam("georel").equals("equals")
+                && !request.getParam("georel").equals("disjoint")))) {
+      logger.error("invalid geo spatial search parameter value");
       JsonObject json = new JsonObject();
       json.put("status", "invalidValue").put("results", new JsonArray());
       response
@@ -261,10 +282,26 @@ public class ApiServerVerticle extends AbstractVerticle {
       response.end();
       return;
     }
-
+    /* validating acceptable text search string */
+    else if (request.getParam("q") != null
+        && !textPattern.matcher(request.getParam("q").replaceAll("\"", "")).matches()) {
+      logger.error("invalid text search string");
+      JsonObject json = new JsonObject();
+      json.put("status", "invalidValue").put("results", new JsonArray());
+      response
+          .headers()
+          .add("content-type", "application/json")
+          .add("content-length", String.valueOf(json.toString().length()));
+      response.setStatusCode(400);
+      response.write(json.toString());
+      response.end();
+      return;
+    }
+    /* Pattern to match array passed in query parameter string */
+    Pattern arrayPattern = Pattern.compile("^\\[.*\\]$");
     outerloop:
     for (String str : params.names()) {
-      if (params.get(str).contains("[")) {
+      if (arrayPattern.matcher(params.get(str)).matches()) {
         JsonArray value = new JsonArray();
         String[] split = params.get(str).split("\\],");
         for (String s : split) {
@@ -273,15 +310,15 @@ public class ApiServerVerticle extends AbstractVerticle {
           for (String val : paramValues) {
             if (str.equalsIgnoreCase("coordinates")) {
               try {
-                double number =
+                double coordinate =
                     Double.parseDouble(
                         val.strip()
                             .replaceAll("\"", "")
                             .replaceAll("\\[", "")
                             .replaceAll("\\]", ""));
-                json.add(number);
+                json.add(coordinate);
               } catch (NumberFormatException e) {
-                System.out.println("invalid coordinate value");
+                logger.error("invalid coordinate value");
                 JsonObject invalidValue = new JsonObject();
                 invalidValue.put("status", "invalidValue").put("results", new JsonArray());
                 response
@@ -310,23 +347,14 @@ public class ApiServerVerticle extends AbstractVerticle {
         int number = Integer.parseInt(params.get(str));
         queryJson.put(str, number);
       } else {
-        queryJson.put(
-            str,
-            params
-                .get(str)
-                .strip()
-                .replaceAll("\"", "")
-                .replaceAll("\\[", "")
-                .replaceAll("\\]", ""));
+        queryJson.put(str, params.get(str).strip().replaceAll("\"", ""));
       }
     }
-    System.out.println(queryJson);
-    // Query queryJson to Database
+    logger.info("search query : " + queryJson);
     database.searchQuery(
         queryJson,
         handler -> {
           if (handler.succeeded()) {
-            // store response from DB to resultJson
             JsonObject resultJson = handler.result();
             String status = resultJson.getString("status");
             if (status.equalsIgnoreCase("success")) {
@@ -341,10 +369,10 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .add("content-type", "application/json")
                 .add("content-length", String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            System.out.println(resultJson);
+            logger.info("response: " + resultJson);
             response.end();
           } else if (handler.failed()) {
-            handler.cause().getMessage();
+            logger.error(handler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(500);
             response.end("Internal server error");
@@ -352,18 +380,21 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Queries the database and returns the city config for the instanceID
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void getCities(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
-    String domainName = routingContext.request().host();
+    String instanceID = routingContext.request().host();
     JsonObject queryJson = new JsonObject();
-    queryJson.put("instanceID", domainName).put("operation", "getCities");
-    System.out.println(queryJson);
-    // Query database for all cities
+    queryJson.put("instanceID", instanceID).put("operation", "getCities");
+    logger.info("search query : " + queryJson);
     database.searchQuery(
         queryJson,
         handler -> {
           if (handler.succeeded()) {
-            // store response from DB to resultJson
             JsonObject resultJson = handler.result();
             String status = resultJson.getString("status");
             if (status.equalsIgnoreCase("success")) {
@@ -376,10 +407,10 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .add("content-type", "application/json")
                 .add("content-length", String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            System.out.println(resultJson);
+            logger.info("response : " + resultJson);
             response.end();
           } else if (handler.failed()) {
-            handler.cause().getMessage();
+            logger.info(handler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(500);
             response.end("Internal server error");
@@ -387,22 +418,25 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Creates city config for the obtained instanceID.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void setCities(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
-    String domainName = routingContext.request().host();
-    System.out.println(queryJson);
-    // Query database for setting config
+    String instanceID = routingContext.request().host();
     validator.validateItem(
         queryJson,
         validationHandler -> {
           if (validationHandler.succeeded()) {
-            queryJson.put("instanceID", domainName);
+            queryJson.put("instanceID", instanceID);
+            logger.info("search query : " + queryJson);
             database.createItem(
                 queryJson,
                 dbHandler -> {
                   if (dbHandler.succeeded()) {
-                    // store response from DB to resultJson
                     JsonObject resultJson = dbHandler.result();
                     String status = resultJson.getString("status");
                     if (status.equalsIgnoreCase("success")) {
@@ -415,7 +449,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                         .add("content-type", "application/json")
                         .add("content-length", String.valueOf(resultJson.toString().length()));
                     response.write(resultJson.toString());
-                    System.out.println(resultJson);
+                    logger.info("response : " + resultJson);
                     response.end();
                   } else if (dbHandler.failed()) {
                     dbHandler.cause().getMessage();
@@ -425,7 +459,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                   }
                 });
           } else if (validationHandler.failed()) {
-            validationHandler.cause().getMessage();
+            logger.info(validationHandler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(400);
             response.end("Bad Request");
@@ -433,22 +467,25 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Updates city config for the obtained instanceID.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void updateCities(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
-    String domainName = routingContext.request().host();
-    System.out.println(queryJson);
-    // Query database for setting config
+    String instanceID = routingContext.request().host();
     validator.validateItem(
         queryJson,
         validationHandler -> {
           if (validationHandler.succeeded()) {
-            queryJson.put("instanceID", domainName);
+            queryJson.put("instanceID", instanceID);
+            logger.info("search query : " + queryJson);
             database.updateItem(
                 queryJson,
                 dbHandler -> {
                   if (dbHandler.succeeded()) {
-                    // store response from DB to resultJson
                     JsonObject resultJson = dbHandler.result();
                     String status = resultJson.getString("status");
                     if (status.equalsIgnoreCase("success")) {
@@ -461,17 +498,17 @@ public class ApiServerVerticle extends AbstractVerticle {
                         .add("content-type", "application/json")
                         .add("content-length", String.valueOf(resultJson.toString().length()));
                     response.write(resultJson.toString());
-                    System.out.println(resultJson);
+                    logger.info("response : " + resultJson);
                     response.end();
                   } else if (dbHandler.failed()) {
-                    dbHandler.cause().getMessage();
+                    logger.info(dbHandler.cause().getMessage());
                     response.headers().add("content-type", "text");
                     response.setStatusCode(500);
                     response.end("Internal server error");
                   }
                 });
           } else if (validationHandler.failed()) {
-            validationHandler.cause().getMessage();
+            logger.info(validationHandler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(400);
             response.end("Bad Request");
@@ -479,13 +516,17 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Queries the database and returns the config for the obtained instanceID.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void getConfig(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
-    String domainName = routingContext.request().host();
+    String instanceID = routingContext.request().host();
     JsonObject queryJson = new JsonObject();
-    queryJson.put("instanceID", domainName).put("operation", "getConfig");
-    System.out.println(queryJson);
-    // Query database for config
+    queryJson.put("instanceID", instanceID).put("operation", "getConfig");
+    logger.info("search query : " + queryJson);
     database.searchQuery(
         queryJson,
         handler -> {
@@ -503,10 +544,10 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .add("content-type", "application/json")
                 .add("content-length", String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            System.out.println(resultJson);
+            logger.info("response : " + resultJson);
             response.end();
           } else if (handler.failed()) {
-            handler.cause().getMessage();
+            logger.info(handler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(500);
             response.end("Internal server error");
@@ -514,22 +555,25 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Creates config for the obtained instanceID.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void setConfig(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
-    String domainName = routingContext.request().host();
-    System.out.println(queryJson);
-    // Query database for setting config
+    String instanceID = routingContext.request().host();
     validator.validateItem(
         queryJson,
         validationHandler -> {
           if (validationHandler.succeeded()) {
-            queryJson.put("instanceID", domainName);
+            queryJson.put("instanceID", instanceID);
+            logger.info("search query : " + queryJson);
             database.createItem(
                 queryJson,
                 dbHandler -> {
                   if (dbHandler.succeeded()) {
-                    // store response from DB to resultJson
                     JsonObject resultJson = dbHandler.result();
                     String status = resultJson.getString("status");
                     if (status.equalsIgnoreCase("success")) {
@@ -542,17 +586,17 @@ public class ApiServerVerticle extends AbstractVerticle {
                         .add("content-type", "application/json")
                         .add("content-length", String.valueOf(resultJson.toString().length()));
                     response.write(resultJson.toString());
-                    System.out.println(resultJson);
+                    logger.info("response : " + resultJson);
                     response.end();
                   } else if (dbHandler.failed()) {
-                    dbHandler.cause().getMessage();
+                    logger.error(dbHandler.cause().getMessage());
                     response.headers().add("content-type", "text");
                     response.setStatusCode(500);
                     response.end("Internal server error");
                   }
                 });
           } else if (validationHandler.failed()) {
-            validationHandler.cause().getMessage();
+            logger.error(validationHandler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(400);
             response.end("Bad Request");
@@ -560,18 +604,21 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Deletes config of obtained instanceID.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void deleteConfig(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
-    String domainName = routingContext.request().host();
+    String instanceID = routingContext.request().host();
     JsonObject queryJson = new JsonObject();
-    queryJson.put("instanceID", domainName);
-    System.out.println(queryJson);
-    // Query database for config
+    queryJson.put("instanceID", instanceID);
+    logger.info("search query : " + queryJson);
     database.deleteItem(
         queryJson,
         handler -> {
           if (handler.succeeded()) {
-            // store response from DB to resultJson
             JsonObject resultJson = handler.result();
             String status = resultJson.getString("status");
             if (status.equalsIgnoreCase("success")) {
@@ -584,10 +631,10 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .add("content-type", "application/json")
                 .add("content-length", String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            System.out.println(resultJson);
+            logger.info("response : " + resultJson);
             response.end();
           } else if (handler.failed()) {
-            handler.cause().getMessage();
+            logger.error(handler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(500);
             response.end("Internal server error");
@@ -595,17 +642,21 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Updates config of the obtained instanceID.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void updateConfig(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
-    String domainName = routingContext.request().host();
-    System.out.println(queryJson);
-    // Query database for setting config
+    String instanceID = routingContext.request().host();
     validator.validateItem(
         queryJson,
         validationHandler -> {
           if (validationHandler.succeeded()) {
-            queryJson.put("instanceID", domainName);
+            queryJson.put("instanceID", instanceID);
+            logger.info("search query : " + queryJson);
             database.updateItem(
                 queryJson,
                 dbHandler -> {
@@ -623,17 +674,17 @@ public class ApiServerVerticle extends AbstractVerticle {
                         .add("content-type", "application/json")
                         .add("content-length", String.valueOf(resultJson.toString().length()));
                     response.write(resultJson.toString());
-                    System.out.println(resultJson);
+                    logger.info("response : " + resultJson);
                     response.end();
                   } else if (dbHandler.failed()) {
-                    dbHandler.cause().getMessage();
+                    logger.error(dbHandler.cause().getMessage());
                     response.headers().add("content-type", "text");
                     response.setStatusCode(500);
                     response.end("Internal server error");
                   }
                 });
           } else if (validationHandler.failed()) {
-            validationHandler.cause().getMessage();
+            logger.error(validationHandler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(400);
             response.end("Bad Request");
@@ -641,22 +692,25 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Appends config to the obtained instanceID.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void appendConfig(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
-    String domainName = routingContext.request().host();
-    System.out.println(queryJson);
-    // Query database for setting config
+    String instanceID = routingContext.request().host();
     validator.validateItem(
         queryJson,
         validationHandler -> {
           if (validationHandler.succeeded()) {
-            queryJson.put("instanceID", domainName);
+            queryJson.put("instanceID", instanceID);
+            logger.info("search query : " + queryJson);
             database.updateItem(
                 queryJson,
                 dbHandler -> {
                   if (dbHandler.succeeded()) {
-                    // store response from DB to resultJson
                     JsonObject resultJson = dbHandler.result();
                     String status = resultJson.getString("status");
                     if (status.equalsIgnoreCase("success")) {
@@ -669,17 +723,17 @@ public class ApiServerVerticle extends AbstractVerticle {
                         .add("content-type", "application/json")
                         .add("content-length", String.valueOf(resultJson.toString().length()));
                     response.write(resultJson.toString());
-                    System.out.println(resultJson);
+                    logger.info("response : " + resultJson);
                     response.end();
                   } else if (dbHandler.failed()) {
-                    dbHandler.cause().getMessage();
+                    logger.error(dbHandler.cause().getMessage());
                     response.headers().add("content-type", "text");
                     response.setStatusCode(500);
                     response.end("Internal server error");
                   }
                 });
           } else if (validationHandler.failed()) {
-            validationHandler.cause().getMessage();
+            logger.error(validationHandler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(400);
             response.end("Bad Request");
@@ -687,23 +741,24 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Queries the database and returns all resource servers belonging to an item.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void getResourceServer(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = new JsonObject();
-    String domainName = routingContext.request().host();
+    String instanceID = routingContext.request().host();
     String id = routingContext.request().getParam("id");
-    queryJson.put("instanceID", domainName).put("id", id).put("relationship", "resourceServer");
-    System.out.println(queryJson);
-    // Query database for setting config
+    queryJson.put("instanceID", instanceID).put("id", id).put("relationship", "resourceServer");
+    logger.info("search query : " + queryJson);
     database.searchQuery(
         queryJson,
         handler -> {
           if (handler.succeeded()) {
-            // store response from DB to resultJson
-            //				JsonObject resultJson = handler.result();
-            //				String status = resultJson.getString("status");
-            String status = "success";
-            JsonObject resultJson = new JsonObject();
+            JsonObject resultJson = handler.result();
+            String status = resultJson.getString("status");
             if (status.equalsIgnoreCase("success")) {
               response.setStatusCode(200);
             } else {
@@ -714,10 +769,10 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .add("content-type", "application/json")
                 .add("content-length", String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            System.out.println(resultJson);
+            logger.info("response : " + resultJson);
             response.end();
           } else if (handler.failed()) {
-            handler.cause().getMessage();
+            logger.error(handler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(500);
             response.end("Internal server error");
@@ -725,23 +780,24 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Queries the database and returns provider of an item.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void getProvider(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = new JsonObject();
-    String domainName = routingContext.request().host();
+    String instanceID = routingContext.request().host();
     String id = routingContext.request().getParam("id");
-    queryJson.put("instanceID", domainName).put("id", id).put("relationship", "provider");
-    System.out.println(queryJson);
-    // Query database for setting config
+    queryJson.put("instanceID", instanceID).put("id", id).put("relationship", "provider");
+    logger.info("search query : " + queryJson);
     database.searchQuery(
         queryJson,
         handler -> {
           if (handler.succeeded()) {
-            // store response from DB to resultJson
-            //				JsonObject resultJson = handler.result();
-            //				String status = resultJson.getString("status");
-            String status = "success";
-            JsonObject resultJson = new JsonObject();
+            JsonObject resultJson = handler.result();
+            String status = resultJson.getString("status");
             if (status.equalsIgnoreCase("success")) {
               response.setStatusCode(200);
             } else {
@@ -752,10 +808,10 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .add("content-type", "application/json")
                 .add("content-length", String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            System.out.println(resultJson);
+            logger.info("response : " + resultJson);
             response.end();
           } else if (handler.failed()) {
-            handler.cause().getMessage();
+            logger.error(handler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(500);
             response.end("Internal server error");
@@ -763,23 +819,24 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
+  /**
+   * Queries the database and returns data model of an item.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
   public void getDataModel(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = new JsonObject();
-    String domainName = routingContext.request().host();
+    String instanceID = routingContext.request().host();
     String id = routingContext.request().getParam("id");
-    queryJson.put("instanceID", domainName).put("id", id).put("relationship", "type");
-    System.out.println(queryJson);
-    // Query database for setting config
+    queryJson.put("instanceID", instanceID).put("id", id).put("relationship", "type");
+    logger.info("search query : " + queryJson);
     database.searchQuery(
         queryJson,
         handler -> {
           if (handler.succeeded()) {
-            // store response from DB to resultJson
-            //				JsonObject resultJson = handler.result();
-            //				String status = resultJson.getString("status");
-            String status = "success";
-            JsonObject resultJson = new JsonObject();
+            JsonObject resultJson = handler.result();
+            String status = resultJson.getString("status");
             if (status.equalsIgnoreCase("success")) {
               response.setStatusCode(200);
             } else {
@@ -790,10 +847,10 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .add("content-type", "application/json")
                 .add("content-length", String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            System.out.println(resultJson);
+            logger.info("response : " + resultJson);
             response.end();
           } else if (handler.failed()) {
-            handler.cause().getMessage();
+            logger.error(handler.cause().getMessage());
             response.headers().add("content-type", "text");
             response.setStatusCode(500);
             response.end("Internal server error");
