@@ -258,18 +258,18 @@ public class ApiServerVerticle extends AbstractVerticle {
       queryJson.put("instanceID", instanceID);
     }
     /* validating acceptable values of geoproperty, geometry, and georel */
-    else if ((request.getParam("geoproperty") != null
-            && request.getParam("geometry") != null
-            && request.getParam("georel") != null)
-        && ((!request.getParam("geoproperty").equals("location"))
-            || (!request.getParam("geometry").equals("bbox")
-                && !request.getParam("geometry").equals("LineString"))
-            || (!request.getParam("georel").equals("within")
+    else if (request.getParam("geoproperty") != null
+        && request.getParam("geometry") != null
+        && request.getParam("georel") != null
+        && (!request.getParam("geoproperty").equals("location")
+            || !request.getParam("geometry").equals("bbox")
+                && !request.getParam("geometry").equals("LineString")
+            || !request.getParam("georel").equals("within")
                 && !request.getParam("georel").equals("near")
                 && !request.getParam("georel").equals("coveredBy")
                 && !request.getParam("georel").equals("intersects")
                 && !request.getParam("georel").equals("equals")
-                && !request.getParam("georel").equals("disjoint")))) {
+                && !request.getParam("georel").equals("disjoint"))) {
       logger.error("invalid geo spatial search parameter value");
       JsonObject json = new JsonObject();
       json.put("status", "invalidValue").put("results", new JsonArray());
@@ -531,7 +531,6 @@ public class ApiServerVerticle extends AbstractVerticle {
         queryJson,
         handler -> {
           if (handler.succeeded()) {
-            // store response from DB to resultJson
             JsonObject resultJson = handler.result();
             String status = resultJson.getString("status");
             if (status.equalsIgnoreCase("success")) {
@@ -661,7 +660,6 @@ public class ApiServerVerticle extends AbstractVerticle {
                 queryJson,
                 dbHandler -> {
                   if (dbHandler.succeeded()) {
-                    // store response from DB to resultJson
                     JsonObject resultJson = dbHandler.result();
                     String status = resultJson.getString("status");
                     if (status.equalsIgnoreCase("success")) {
@@ -714,7 +712,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                     JsonObject resultJson = dbHandler.result();
                     String status = resultJson.getString("status");
                     if (status.equalsIgnoreCase("success")) {
-                      response.setStatusCode(200);
+                      response.setStatusCode(201);
                     } else {
                       response.setStatusCode(400);
                     }
