@@ -1,9 +1,17 @@
 package iudx.catalogue.server.apiserver;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
@@ -17,6 +25,7 @@ import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
@@ -25,10 +34,6 @@ import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.onboarder.OnboarderService;
 import iudx.catalogue.server.validator.ValidatorService;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Properties;
-import java.util.regex.Pattern;
 
 /**
  * The Catalogue Server API Verticle.
@@ -94,11 +99,33 @@ public class ApiServerVerticle extends AbstractVerticle {
             properties = new Properties();
             inputstream = null;
 
-            /* Define the APIs, methods, endpoints and associated methods. */
+            Set<String> allowedHeaders = new HashSet<>();
+            allowedHeaders.add("Accept");
+            allowedHeaders.add("token");
+            allowedHeaders.add("Content-Length");
+            allowedHeaders.add("Content-Type");
+            allowedHeaders.add("Host");
+            allowedHeaders.add("Origin");
+            allowedHeaders.add("Referer");
+            allowedHeaders.add("Access-Control-Allow-Origin");
 
+            Set<HttpMethod> allowedMethods = new HashSet<>();
+            allowedMethods.add(HttpMethod.GET);
+            allowedMethods.add(HttpMethod.POST);
+            allowedMethods.add(HttpMethod.PUT);
+            allowedMethods.add(HttpMethod.DELETE);
+            allowedMethods.add(HttpMethod.PATCH);
+
+            /* Define the APIs, methods, endpoints and associated methods. */
             router = Router.router(vertx);
             router.route("/apis/*").handler(StaticHandler.create());
             router.route().handler(BodyHandler.create());
+            router
+                .route()
+                .handler(
+                    CorsHandler.create("*")
+                        .allowedHeaders(allowedHeaders)
+                        .allowedMethods(allowedMethods));
             router.get("/iudx/cat/v1/search").handler(this::search);
             router.get("/iudx/cat/v1/ui/cities").handler(this::getCities);
             router.post("/iudx/cat/v1/ui/cities").handler(this::setCities);
