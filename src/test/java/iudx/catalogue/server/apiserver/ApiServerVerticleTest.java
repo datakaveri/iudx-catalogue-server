@@ -57,7 +57,7 @@ public class ApiServerVerticleTest {
     JksOptions options = new JksOptions().setPath("keystore.jks").setPassword("password");
 
     WebClientOptions clientOptions = new WebClientOptions().setSsl(true).setVerifyHost(false)
-        .setTrustAll(true).setTrustStoreOptions(options).setConnectTimeout(90000);
+        .setTrustAll(true).setTrustStoreOptions(options);
     fileSytem = vertx.fileSystem();
     client = WebClient.create(vertx, clientOptions);
 
