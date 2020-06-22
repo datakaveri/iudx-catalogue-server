@@ -1,15 +1,5 @@
 package iudx.catalogue.server.apiserver;
 
-import io.vertx.core.Future;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
-import io.vertx.ext.web.client.WebClientOptions;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import io.vertx.reactivex.core.Vertx;
-import io.vertx.reactivex.core.file.FileSystem;
-import io.vertx.reactivex.ext.web.client.WebClient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +8,17 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import iudx.catalogue.server.deploy.helper.CatalogueServerDeployer;
+import io.vertx.core.Future;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.net.JksOptions;
+import io.vertx.ext.web.client.WebClientOptions;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import io.vertx.reactivex.core.Vertx;
+import io.vertx.reactivex.core.file.FileSystem;
+import io.vertx.reactivex.ext.web.client.WebClient;
 import iudx.catalogue.server.starter.CatalogueServerStarter;
 
 /**
@@ -53,8 +53,11 @@ public class ApiServerVerticleTest {
   static void startVertx(VertxTestContext testContext, Vertx vertx) throws InterruptedException {
 
     /* Options for the web client connections */
-    WebClientOptions clientOptions =
-        new WebClientOptions().setSsl(true).setVerifyHost(false).setTrustAll(true);
+
+    JksOptions options = new JksOptions().setPath("keystore.jks").setPassword("password");
+
+    WebClientOptions clientOptions = new WebClientOptions().setSsl(true).setVerifyHost(false)
+        .setTrustAll(true).setTrustStoreOptions(options).setConnectTimeout(90000);
     fileSytem = vertx.fileSystem();
     client = WebClient.create(vertx, clientOptions);
 
@@ -73,12 +76,13 @@ public class ApiServerVerticleTest {
    * Tests the createItem of ApiServerVerticle.
    * 
    * @param testContext of asynchronous operations
+   * @throws InterruptedException
    */
   @Test
   @Order(1)
   @DisplayName("Create Item[Status:201, Endpoint: /item]")
-  void createItem201(VertxTestContext testContext) {
-
+  public void createItem201(VertxTestContext testContext) throws InterruptedException {
+    Thread.sleep(30000);
     fileSytem.readFile("src/test/resources/request_body.json", fileRes -> {
       if (fileRes.succeeded()) {
 
