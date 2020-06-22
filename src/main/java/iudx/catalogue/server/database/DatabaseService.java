@@ -137,6 +137,7 @@ public interface DatabaseService {
   @Fluent
   DatabaseService listResourceServers(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
+
   /**
    * The listProviders implements the list providers operation with the database.
    * 
