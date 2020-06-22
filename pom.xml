@@ -51,14 +51,22 @@
 			<artifactId>vertx-web</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-web-client</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-checkstyle-plugin</artifactId>
 			<version>3.1.1</version>
 		</dependency>
 		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>5.5.2</version>
+		</dependency>
+		<dependency>
 			<groupId>io.vertx</groupId>
 			<artifactId>vertx-junit5</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -93,41 +101,52 @@
 					<execution>
 						<id>catalogue-api-server-service</id>
 						<configuration>
-							<mainClass>iudx.catalogue.server.deploy.helper.ApiServerDeployer</mainClass>
+							<mainClass>iudx.catalogue.server.deploy.helper.ApiServerDeployer
+							</mainClass>
 						</configuration>
 					</execution>
 					<execution>
 						<id>catalogue-database-service</id>
 						<configuration>
-							<mainClass>iudx.catalogue.server.deploy.helper.DatabaseServiceDeployer</mainClass>
+							<mainClass>iudx.catalogue.server.deploy.helper.DatabaseServiceDeployer
+							</mainClass>
 						</configuration>
 					</execution>
 					<execution>
 						<id>catalogue-authentication-service</id>
 						<configuration>
-							<mainClass>iudx.catalogue.server.deploy.helper.AuthenticationServiceDeployer</mainClass>
+							<mainClass>iudx.catalogue.server.deploy.helper.AuthenticationServiceDeployer
+							</mainClass>
 						</configuration>
 					</execution>
 					<execution>
 						<id>catalogue-onboarder-service</id>
 						<configuration>
-							<mainClass>iudx.catalogue.server.deploy.helper.OnboarderServiceDeployer</mainClass>
+							<mainClass>iudx.catalogue.server.deploy.helper.OnboarderServiceDeployer
+							</mainClass>
 						</configuration>
 					</execution>
 					<execution>
 						<id>catalogue-validator-service</id>
 						<configuration>
-							<mainClass>iudx.catalogue.server.deploy.helper.ValidatorServiceDeployer</mainClass>
+							<mainClass>iudx.catalogue.server.deploy.helper.ValidatorServiceDeployer
+							</mainClass>
 						</configuration>
 					</execution>
 					<execution>
 						<id>catalogue-server</id>
 						<configuration>
-							<mainClass>iudx.catalogue.server.deploy.helper.CatalogueServerDeployer</mainClass>
+							<mainClass>iudx.catalogue.server.deploy.helper.CatalogueServerDeployer
+							</mainClass>
 						</configuration>
 					</execution>
 
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M5</version>
 			</plugin>
 		</plugins>
 	</build>
@@ -165,6 +184,18 @@
 					<reportSet>
 						<reports>
 							<report>checkstyle</report>
+						</reports>
+					</reportSet>
+				</reportSets>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-report-plugin</artifactId>
+				<version>3.0.0-M5</version>
+				<reportSets>
+					<reportSet>
+						<reports>
+							<report>report-only</report>
 						</reports>
 					</reportSet>
 				</reportSets>
