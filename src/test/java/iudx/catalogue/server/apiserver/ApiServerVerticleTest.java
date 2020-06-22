@@ -1,13 +1,6 @@
 package iudx.catalogue.server.apiserver;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
+import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -17,7 +10,16 @@ import io.vertx.junit5.VertxTestContext;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.file.FileSystem;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import iudx.catalogue.server.deploy.helper.CatalogueServerDeployer;
+import iudx.catalogue.server.starter.CatalogueServerStarter;
 
 /**
  * Test class for ApiServerVerticle api handlers
@@ -51,23 +53,19 @@ public class ApiServerVerticleTest {
   static void startVertx(VertxTestContext testContext, Vertx vertx) throws InterruptedException {
 
     /* Options for the web client connections */
-    WebClientOptions clientOptions = new WebClientOptions().setSsl(false).setVerifyHost(false);
+    WebClientOptions clientOptions =
+        new WebClientOptions().setSsl(true).setVerifyHost(false).setTrustAll(true);
     fileSytem = vertx.fileSystem();
     client = WebClient.create(vertx, clientOptions);
 
-    /* Starting the CatalogueServerDeployer in a independent thread */
-    new Thread(() -> {
-      CatalogueServerDeployer.main(new String[] {"test"});
-    }).start();
+    CatalogueServerStarter starter = new CatalogueServerStarter();
+    Future<JsonObject> result = starter.startServer();
 
-    /* Putting the current thread in sleep mode, before further execution */
-    Thread.sleep(30000);
-
-    /* Timer before closing the VertxTextContext */
-    vertx.setTimer(15000, id -> {
-      testContext.completeNow();
+    result.onComplete(resultHandler -> {
+      if (resultHandler.succeeded()) {
+        testContext.completeNow();
+      }
     });
-
   }
 
 
