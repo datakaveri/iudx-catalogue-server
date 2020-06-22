@@ -137,6 +137,29 @@ public interface DatabaseService {
   @Fluent
   DatabaseService listResourceServers(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
+
+  /**
+   * The listProviders implements the list providers operation with the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService listProviders(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The listResourceGroups implements the list resource groups operation with the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService listResourceGroups(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
   /**
    * The listResourceRelationship implements the list relationships operation with the database.
    * 
