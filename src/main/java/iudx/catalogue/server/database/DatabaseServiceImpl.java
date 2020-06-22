@@ -64,7 +64,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     if (result != null) {
       handler.handle(Future.succeededFuture(result));
     }
-
+    
     return null;
   }
 
@@ -85,6 +85,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
 
     // TODO: Stub code, to be removed after use
     JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + "rb"
@@ -259,9 +260,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         + "        \"results\": [ \"<iudx>:p1\", \"<iudx>:p2\"]\n" + "}");
 
     handler.handle(Future.succeededFuture(result));
-
-    return null;
-  }
 
 
   /**
