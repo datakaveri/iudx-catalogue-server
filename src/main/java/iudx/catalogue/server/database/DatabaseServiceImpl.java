@@ -260,7 +260,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         + "        \"results\": [ \"<iudx>:p1\", \"<iudx>:p2\"]\n" + "}");
 
     handler.handle(Future.succeededFuture(result));
-
+    
+    return null;
+  }
 
   /**
    * {@inheritDoc}
