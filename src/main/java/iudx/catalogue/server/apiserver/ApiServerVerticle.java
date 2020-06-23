@@ -42,8 +42,10 @@ import java.util.regex.Pattern;
  *
  * <h1>Catalogue Server API Verticle</h1>
  *
- * <p>The API Server verticle implements the IUDX Catalogue Server APIs. It handles the API requests
- * from the clients and interacts with the associated Service to respond.
+ * <p>
+ * The API Server verticle implements the IUDX Catalogue Server APIs. It handles
+ * the API requests from the clients and interacts with the associated Service
+ * to respond.
  *
  * @see io.vertx.core.Vertx
  * @see io.vertx.core.AbstractVerticle
@@ -79,9 +81,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private ArrayList<String> geoRels;
 
   /**
-   * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
-   * configuration, obtains a proxy for the Event bus services exposed through service discovery,
-   * start an HTTPs server at port 8443.
+   * This method is used to start the Verticle. It deploys a verticle in a
+   * cluster, reads the configuration, obtains a proxy for the Event bus services
+   * exposed through service discovery, start an HTTPs server at port 8443.
    *
    * @throws Exception which is a startup exception
    */
@@ -147,31 +149,26 @@ public class ApiServerVerticle extends AbstractVerticle {
         router.get(basePath.concat("/resourcegroups")).handler(this::listResourceGroups);
 
         /*
-         * Update an item in the database using itemId [itemId=ResourceItem, ResourceGroupItem,
-         * ResourceServerItem, ProviderItem, DataDescriptorItem]
+         * Update an item in the database using itemId [itemId=ResourceItem,
+         * ResourceGroupItem, ResourceServerItem, ProviderItem, DataDescriptorItem]
          */
         router.put(basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
             .handler(this::updateItem);
 
         /* Delete an item from database using itemId */
-        router
-            .delete(
-                basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
+        router.delete(basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
             .handler(this::deleteItem);
 
         /* list the item from database using itemId */
-        router
-            .get(basePath.concat("/items/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
+        router.get(basePath.concat("/items/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
             .handler(this::listItems);
 
         /* Get all resources belonging to a resource group */
-        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resource"))
-            .handler(this::listResourceRelationship);
+        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resource")).handler(this::listResourceRelationship);
 
         /* Get resource group of an item belonging to a resource */
         router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resourceGroup"))
-          .handler(this::listResourceGroupRelationship);
-
+            .handler(this::listResourceGroupRelationship);
 
         router.get(basePath.concat("/ui/cities")).handler(this::getCities);
         router.post(basePath.concat("/ui/cities")).handler(this::setCities);
@@ -181,16 +178,9 @@ public class ApiServerVerticle extends AbstractVerticle {
         router.delete(basePath.concat("/ui/config")).handler(this::deleteConfig);
         router.put(basePath.concat("/ui/config")).handler(this::updateConfig);
         router.patch(basePath.concat("/ui/config")).handler(this::appendConfig);
-        router
-          .getWithRegex(basePath.concat("\\/(?<id>.*)\\/provider"))
-          .handler(this::getProvider);
-        router
-          .getWithRegex(basePath.concat("\\/(?<id>.*)\\/resourceServer"))
-          .handler(this::getResourceServer);
-        router
-          .getWithRegex(basePath.concat("\\/(?<id>.*)\\/type"))
-          .handler(this::getDataModel);
-
+        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/provider")).handler(this::getProvider);
+        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resourceServer")).handler(this::getResourceServer);
+        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/type")).handler(this::getDataModel);
 
         /* Populating itemTypes */
         itemTypes = new ArrayList<String>();
@@ -222,12 +212,8 @@ public class ApiServerVerticle extends AbstractVerticle {
           logger.info(ex.toString());
         }
 
-        server =
-          vertx.createHttpServer(
-              new HttpServerOptions()
-              .setSsl(true)
-              .setKeyStoreOptions(
-                new JksOptions().setPath(keystore).setPassword(keystorePassword)));
+        server = vertx.createHttpServer(new HttpServerOptions().setSsl(true)
+            .setKeyStoreOptions(new JksOptions().setPath(keystore).setPassword(keystorePassword)));
 
         server.requestHandler(router).listen(port);
 
@@ -237,77 +223,57 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         /* Get a handler for the DatabaseService from Service Discovery interface. */
 
-        EventBusService.getProxy(
-            discovery,
-            DatabaseService.class,
-            databaseServiceDiscoveryHandler -> {
-              if (databaseServiceDiscoveryHandler.succeeded()) {
-                database = databaseServiceDiscoveryHandler.result();
-                logger.info(
-                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                    + database.getClass().getName()
-                    + " +++++++ ");
-              } else {
-                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-              }
-            });
+        EventBusService.getProxy(discovery, DatabaseService.class, databaseServiceDiscoveryHandler -> {
+          if (databaseServiceDiscoveryHandler.succeeded()) {
+            database = databaseServiceDiscoveryHandler.result();
+            logger.info("\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
+                + database.getClass().getName() + " +++++++ ");
+          } else {
+            logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
+          }
+        });
         /* Get a handler for the OnboarderService from Service Discovery interface. */
 
-        EventBusService.getProxy(
-            discovery,
-            OnboarderService.class,
-            onboarderServiceDiscoveryHandler -> {
-              if (onboarderServiceDiscoveryHandler.succeeded()) {
-                onboarder = onboarderServiceDiscoveryHandler.result();
-                logger.info(
-                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                    + onboarder.getClass().getName()
-                    + " +++++++ ");
-              } else {
-                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-              }
-            });
+        EventBusService.getProxy(discovery, OnboarderService.class, onboarderServiceDiscoveryHandler -> {
+          if (onboarderServiceDiscoveryHandler.succeeded()) {
+            onboarder = onboarderServiceDiscoveryHandler.result();
+            logger.info("\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
+                + onboarder.getClass().getName() + " +++++++ ");
+          } else {
+            logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
+          }
+        });
         /* Get a handler for the ValidatorService from Service Discovery interface. */
 
-        EventBusService.getProxy(
-            discovery,
-            ValidatorService.class,
-            validatorServiceDiscoveryHandler -> {
-              if (validatorServiceDiscoveryHandler.succeeded()) {
-                validator = validatorServiceDiscoveryHandler.result();
-                logger.info(
-                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                    + validator.getClass().getName()
-                    + " +++++++ ");
-              } else {
-                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-              }
-            });
+        EventBusService.getProxy(discovery, ValidatorService.class, validatorServiceDiscoveryHandler -> {
+          if (validatorServiceDiscoveryHandler.succeeded()) {
+            validator = validatorServiceDiscoveryHandler.result();
+            logger.info("\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
+                + validator.getClass().getName() + " +++++++ ");
+          } else {
+            logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
+          }
+        });
         /*
          * Get a handler for the AuthenticationService from Service Discovery interface.
          */
 
-        EventBusService.getProxy(
-            discovery,
-            AuthenticationService.class,
-            authenticatorServiceDiscoveryHandler -> {
-              if (authenticatorServiceDiscoveryHandler.succeeded()) {
-                authenticator = authenticatorServiceDiscoveryHandler.result();
-                logger.info(
-                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                    + authenticator.getClass().getName()
-                    + " +++++++ ");
-              } else {
-                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-              }
-            });
+        EventBusService.getProxy(discovery, AuthenticationService.class, authenticatorServiceDiscoveryHandler -> {
+          if (authenticatorServiceDiscoveryHandler.succeeded()) {
+            authenticator = authenticatorServiceDiscoveryHandler.result();
+            logger.info("\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
+                + authenticator.getClass().getName() + " +++++++ ");
+          } else {
+            logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
+          }
+        });
       }
     });
   }
 
   /**
-   * Processes the attribute, geoSpatial, and text search requests and returns the results from the
-   * database.
+   * Processes the attribute, geoSpatial, and text search requests and returns the
+   * results from the database.
    *
    * @param routingContext Handles web request in Vert.x web
    */
@@ -317,20 +283,14 @@ public class ApiServerVerticle extends AbstractVerticle {
     logger.info("routed to search");
     logger.info(request.params().toString());
     if ((request.getParam("property") == null || request.getParam("value") == null)
-        && (request.getParam("geoproperty") == null
-            || request.getParam("georel") == null
-            || request.getParam("geometry") == null
-            || request.getParam("coordinates") == null)
-        && (request.getParam("q") == null
-            || request.getParam("limit") == null
-            || request.getParam("offset") == null)) {
+        && (request.getParam("geoproperty") == null || request.getParam("georel") == null
+            || request.getParam("geometry") == null || request.getParam("coordinates") == null)
+        && (request.getParam("q") == null || request.getParam("limit") == null || request.getParam("offset") == null)) {
       logger.error("Invalid Syntax");
       JsonObject json = new JsonObject();
       json.put("status", "invalidSyntax").put("results", new JsonArray());
-      response
-          .headers()
-          .add("content-type", "application/json")
-          .add("content-length", String.valueOf(json.toString().length()));
+      response.headers().add("content-type", "application/json").add("content-length",
+          String.valueOf(json.toString().length()));
       response.setStatusCode(400);
       response.write(json.toString());
       response.end();
@@ -341,34 +301,22 @@ public class ApiServerVerticle extends AbstractVerticle {
     Pattern textPattern = Pattern.compile("^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}");
     JsonObject queryJson = new JsonObject();
     String instanceID = request.host();
-    if (request.getParam("property") != null
-        && request.getParam("property").toLowerCase().contains("provider.name")) {
+    if (request.getParam("property") != null && request.getParam("property").toLowerCase().contains("provider.name")) {
       queryJson.put("instanceID", instanceID);
-    } 
-    else if (
-      (request.getParam("geoproperty") != null)
-        && (request.getParam("geometry") != null)
+    } else if ((request.getParam("geoproperty") != null) && (request.getParam("geometry") != null)
         && (request.getParam("georel") != null)
         && (!request.getParam("geoproperty").equals("location")
-          || (
-                !request.getParam("geometry").equals("bbox")
-              && !request.getParam("geometry").equals("Point")
-              && !request.getParam("geometry").equals("LineString")
-              && !request.getParam("geometry").equals("Polygon")
-          )
-          || (!request.getParam("georel").equals("within")
-              && !request.getParam("georel").equals("near")
-              && !request.getParam("georel").equals("coveredBy")
-              && !request.getParam("georel").equals("intersects")
-              && !request.getParam("georel").equals("equals")
-              && !request.getParam("georel").equals("disjoint")))) {
+            || (!request.getParam("geometry").equals("bbox") && !request.getParam("geometry").equals("Point")
+                && !request.getParam("geometry").equals("LineString")
+                && !request.getParam("geometry").equals("Polygon"))
+            || (!request.getParam("georel").equals("within") && !request.getParam("georel").equals("near")
+                && !request.getParam("georel").equals("coveredBy") && !request.getParam("georel").equals("intersects")
+                && !request.getParam("georel").equals("equals") && !request.getParam("georel").equals("disjoint")))) {
       logger.error("invalid geo spatial search parameter value");
       JsonObject json = new JsonObject();
       json.put("status", "invalidValue").put("results", new JsonArray());
-      response
-          .headers()
-          .add("content-type", "application/json")
-          .add("content-length", String.valueOf(json.toString().length()));
+      response.headers().add("content-type", "application/json").add("content-length",
+          String.valueOf(json.toString().length()));
       response.setStatusCode(400);
       response.write(json.toString());
       response.end();
@@ -378,10 +326,8 @@ public class ApiServerVerticle extends AbstractVerticle {
       logger.error("invalid text search string");
       JsonObject json = new JsonObject();
       json.put("status", "invalidValue").put("results", new JsonArray());
-      response
-          .headers()
-          .add("content-type", "application/json")
-          .add("content-length", String.valueOf(json.toString().length()));
+      response.headers().add("content-type", "application/json").add("content-length",
+          String.valueOf(json.toString().length()));
       response.setStatusCode(400);
       response.write(json.toString());
       response.end();
@@ -389,8 +335,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     }
     /* Pattern to match array passed in query parameter string */
     Pattern arrayPattern = Pattern.compile("^\\[.*\\]$");
-    outerloop:
-    for (String str : params.names()) {
+    outerloop: for (String str : params.names()) {
       if (arrayPattern.matcher(params.get(str)).matches()) {
         JsonArray value = new JsonArray();
         String[] split = params.get(str).split("\\],");
@@ -400,29 +345,22 @@ public class ApiServerVerticle extends AbstractVerticle {
           for (String val : paramValues) {
             if (str.equalsIgnoreCase("coordinates")) {
               try {
-                double coordinate =
-                    Double.parseDouble(
-                        val.strip()
-                            .replaceAll("\"", "")
-                            .replaceAll("\\[", "")
-                            .replaceAll("\\]", ""));
+                double coordinate = Double
+                    .parseDouble(val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
                 json.add(coordinate);
               } catch (NumberFormatException e) {
                 logger.error("invalid coordinate value");
                 JsonObject invalidValue = new JsonObject();
                 invalidValue.put("status", "invalidValue").put("results", new JsonArray());
-                response
-                    .headers()
-                    .add("content-type", "application/json")
-                    .add("content-length", String.valueOf(invalidValue.toString().length()));
+                response.headers().add("content-type", "application/json").add("content-length",
+                    String.valueOf(invalidValue.toString().length()));
                 response.setStatusCode(400);
                 response.write(invalidValue.toString());
                 response.end();
                 return;
               }
             } else {
-              json.add(
-                  val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
+              json.add(val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
             }
           }
           if (split.length > 1 || str.equalsIgnoreCase("value")) {
@@ -441,33 +379,29 @@ public class ApiServerVerticle extends AbstractVerticle {
       }
     }
     logger.info("search query : " + queryJson);
-    database.searchQuery(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString("status");
-            if (status.equalsIgnoreCase("success")) {
-              response.setStatusCode(200);
-            } else if (status.equalsIgnoreCase("partial-content")) {
-              response.setStatusCode(206);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add("content-type", "application/json")
-                .add("content-length", String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response: " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add("content-type", "text");
-            response.setStatusCode(500);
-            response.end("Internal server error");
-          }
-        });
+    database.searchQuery(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString("status");
+        if (status.equalsIgnoreCase("success")) {
+          response.setStatusCode(200);
+        } else if (status.equalsIgnoreCase("partial-content")) {
+          response.setStatusCode(206);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add("content-type", "application/json").add("content-length",
+            String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response: " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.error(handler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(500);
+        response.end("Internal server error");
+      }
+    });
   }
 
   /**
@@ -481,31 +415,27 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject queryJson = new JsonObject();
     queryJson.put("instanceID", instanceID).put("operation", "getCities");
     logger.info("search query : " + queryJson);
-    database.searchQuery(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString("status");
-            if (status.equalsIgnoreCase("success")) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add("content-type", "application/json")
-                .add("content-length", String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.info(handler.cause().getMessage());
-            response.headers().add("content-type", "text");
-            response.setStatusCode(500);
-            response.end("Internal server error");
-          }
-        });
+    database.searchQuery(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString("status");
+        if (status.equalsIgnoreCase("success")) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add("content-type", "application/json").add("content-length",
+            String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.info(handler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(500);
+        response.end("Internal server error");
+      }
+    });
   }
 
   /**
@@ -517,44 +447,38 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(
-        queryJson,
-        validationHandler -> {
-          if (validationHandler.succeeded()) {
-            queryJson.put("instanceID", instanceID);
-            logger.info("search query : " + queryJson);
-            database.createItem(
-                queryJson,
-                dbHandler -> {
-                  if (dbHandler.succeeded()) {
-                    JsonObject resultJson = dbHandler.result();
-                    String status = resultJson.getString("status");
-                    if (status.equalsIgnoreCase("success")) {
-                      response.setStatusCode(201);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response
-                        .headers()
-                        .add("content-type", "application/json")
-                        .add("content-length", String.valueOf(resultJson.toString().length()));
-                    response.write(resultJson.toString());
-                    logger.info("response : " + resultJson);
-                    response.end();
-                  } else if (dbHandler.failed()) {
-                    dbHandler.cause().getMessage();
-                    response.headers().add("content-type", "text");
-                    response.setStatusCode(500);
-                    response.end("Internal server error");
-                  }
-                });
-          } else if (validationHandler.failed()) {
-            logger.info(validationHandler.cause().getMessage());
+    validator.validateItem(queryJson, validationHandler -> {
+      if (validationHandler.succeeded()) {
+        queryJson.put("instanceID", instanceID);
+        logger.info("search query : " + queryJson);
+        database.createItem(queryJson, dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject resultJson = dbHandler.result();
+            String status = resultJson.getString("status");
+            if (status.equalsIgnoreCase("success")) {
+              response.setStatusCode(201);
+            } else {
+              response.setStatusCode(400);
+            }
+            response.headers().add("content-type", "application/json").add("content-length",
+                String.valueOf(resultJson.toString().length()));
+            response.write(resultJson.toString());
+            logger.info("response : " + resultJson);
+            response.end();
+          } else if (dbHandler.failed()) {
+            dbHandler.cause().getMessage();
             response.headers().add("content-type", "text");
-            response.setStatusCode(400);
-            response.end("Bad Request");
+            response.setStatusCode(500);
+            response.end("Internal server error");
           }
         });
+      } else if (validationHandler.failed()) {
+        logger.info(validationHandler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(400);
+        response.end("Bad Request");
+      }
+    });
   }
 
   /**
@@ -566,44 +490,38 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(
-        queryJson,
-        validationHandler -> {
-          if (validationHandler.succeeded()) {
-            queryJson.put("instanceID", instanceID);
-            logger.info("search query : " + queryJson);
-            database.updateItem(
-                queryJson,
-                dbHandler -> {
-                  if (dbHandler.succeeded()) {
-                    JsonObject resultJson = dbHandler.result();
-                    String status = resultJson.getString("status");
-                    if (status.equalsIgnoreCase("success")) {
-                      response.setStatusCode(201);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response
-                        .headers()
-                        .add("content-type", "application/json")
-                        .add("content-length", String.valueOf(resultJson.toString().length()));
-                    response.write(resultJson.toString());
-                    logger.info("response : " + resultJson);
-                    response.end();
-                  } else if (dbHandler.failed()) {
-                    logger.info(dbHandler.cause().getMessage());
-                    response.headers().add("content-type", "text");
-                    response.setStatusCode(500);
-                    response.end("Internal server error");
-                  }
-                });
-          } else if (validationHandler.failed()) {
-            logger.info(validationHandler.cause().getMessage());
+    validator.validateItem(queryJson, validationHandler -> {
+      if (validationHandler.succeeded()) {
+        queryJson.put("instanceID", instanceID);
+        logger.info("search query : " + queryJson);
+        database.updateItem(queryJson, dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject resultJson = dbHandler.result();
+            String status = resultJson.getString("status");
+            if (status.equalsIgnoreCase("success")) {
+              response.setStatusCode(201);
+            } else {
+              response.setStatusCode(400);
+            }
+            response.headers().add("content-type", "application/json").add("content-length",
+                String.valueOf(resultJson.toString().length()));
+            response.write(resultJson.toString());
+            logger.info("response : " + resultJson);
+            response.end();
+          } else if (dbHandler.failed()) {
+            logger.info(dbHandler.cause().getMessage());
             response.headers().add("content-type", "text");
-            response.setStatusCode(400);
-            response.end("Bad Request");
+            response.setStatusCode(500);
+            response.end("Internal server error");
           }
         });
+      } else if (validationHandler.failed()) {
+        logger.info(validationHandler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(400);
+        response.end("Bad Request");
+      }
+    });
   }
 
   /**
@@ -617,31 +535,27 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject queryJson = new JsonObject();
     queryJson.put("instanceID", instanceID).put("operation", "getConfig");
     logger.info("search query : " + queryJson);
-    database.searchQuery(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString("status");
-            if (status.equalsIgnoreCase("success")) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add("content-type", "application/json")
-                .add("content-length", String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.info(handler.cause().getMessage());
-            response.headers().add("content-type", "text");
-            response.setStatusCode(500);
-            response.end("Internal server error");
-          }
-        });
+    database.searchQuery(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString("status");
+        if (status.equalsIgnoreCase("success")) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add("content-type", "application/json").add("content-length",
+            String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.info(handler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(500);
+        response.end("Internal server error");
+      }
+    });
   }
 
   /**
@@ -653,44 +567,38 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(
-        queryJson,
-        validationHandler -> {
-          if (validationHandler.succeeded()) {
-            queryJson.put("instanceID", instanceID);
-            logger.info("search query : " + queryJson);
-            database.createItem(
-                queryJson,
-                dbHandler -> {
-                  if (dbHandler.succeeded()) {
-                    JsonObject resultJson = dbHandler.result();
-                    String status = resultJson.getString("status");
-                    if (status.equalsIgnoreCase("success")) {
-                      response.setStatusCode(201);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response
-                        .headers()
-                        .add("content-type", "application/json")
-                        .add("content-length", String.valueOf(resultJson.toString().length()));
-                    response.write(resultJson.toString());
-                    logger.info("response : " + resultJson);
-                    response.end();
-                  } else if (dbHandler.failed()) {
-                    logger.error(dbHandler.cause().getMessage());
-                    response.headers().add("content-type", "text");
-                    response.setStatusCode(500);
-                    response.end("Internal server error");
-                  }
-                });
-          } else if (validationHandler.failed()) {
-            logger.error(validationHandler.cause().getMessage());
+    validator.validateItem(queryJson, validationHandler -> {
+      if (validationHandler.succeeded()) {
+        queryJson.put("instanceID", instanceID);
+        logger.info("search query : " + queryJson);
+        database.createItem(queryJson, dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject resultJson = dbHandler.result();
+            String status = resultJson.getString("status");
+            if (status.equalsIgnoreCase("success")) {
+              response.setStatusCode(201);
+            } else {
+              response.setStatusCode(400);
+            }
+            response.headers().add("content-type", "application/json").add("content-length",
+                String.valueOf(resultJson.toString().length()));
+            response.write(resultJson.toString());
+            logger.info("response : " + resultJson);
+            response.end();
+          } else if (dbHandler.failed()) {
+            logger.error(dbHandler.cause().getMessage());
             response.headers().add("content-type", "text");
-            response.setStatusCode(400);
-            response.end("Bad Request");
+            response.setStatusCode(500);
+            response.end("Internal server error");
           }
         });
+      } else if (validationHandler.failed()) {
+        logger.error(validationHandler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(400);
+        response.end("Bad Request");
+      }
+    });
   }
 
   /**
@@ -704,31 +612,27 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject queryJson = new JsonObject();
     queryJson.put("instanceID", instanceID);
     logger.info("search query : " + queryJson);
-    database.deleteItem(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString("status");
-            if (status.equalsIgnoreCase("success")) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add("content-type", "application/json")
-                .add("content-length", String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add("content-type", "text");
-            response.setStatusCode(500);
-            response.end("Internal server error");
-          }
-        });
+    database.deleteItem(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString("status");
+        if (status.equalsIgnoreCase("success")) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add("content-type", "application/json").add("content-length",
+            String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.error(handler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(500);
+        response.end("Internal server error");
+      }
+    });
   }
 
   /**
@@ -740,44 +644,38 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(
-        queryJson,
-        validationHandler -> {
-          if (validationHandler.succeeded()) {
-            queryJson.put("instanceID", instanceID);
-            logger.info("search query : " + queryJson);
-            database.updateItem(
-                queryJson,
-                dbHandler -> {
-                  if (dbHandler.succeeded()) {
-                    JsonObject resultJson = dbHandler.result();
-                    String status = resultJson.getString("status");
-                    if (status.equalsIgnoreCase("success")) {
-                      response.setStatusCode(201);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response
-                        .headers()
-                        .add("content-type", "application/json")
-                        .add("content-length", String.valueOf(resultJson.toString().length()));
-                    response.write(resultJson.toString());
-                    logger.info("response : " + resultJson);
-                    response.end();
-                  } else if (dbHandler.failed()) {
-                    logger.error(dbHandler.cause().getMessage());
-                    response.headers().add("content-type", "text");
-                    response.setStatusCode(500);
-                    response.end("Internal server error");
-                  }
-                });
-          } else if (validationHandler.failed()) {
-            logger.error(validationHandler.cause().getMessage());
+    validator.validateItem(queryJson, validationHandler -> {
+      if (validationHandler.succeeded()) {
+        queryJson.put("instanceID", instanceID);
+        logger.info("search query : " + queryJson);
+        database.updateItem(queryJson, dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject resultJson = dbHandler.result();
+            String status = resultJson.getString("status");
+            if (status.equalsIgnoreCase("success")) {
+              response.setStatusCode(201);
+            } else {
+              response.setStatusCode(400);
+            }
+            response.headers().add("content-type", "application/json").add("content-length",
+                String.valueOf(resultJson.toString().length()));
+            response.write(resultJson.toString());
+            logger.info("response : " + resultJson);
+            response.end();
+          } else if (dbHandler.failed()) {
+            logger.error(dbHandler.cause().getMessage());
             response.headers().add("content-type", "text");
-            response.setStatusCode(400);
-            response.end("Bad Request");
+            response.setStatusCode(500);
+            response.end("Internal server error");
           }
         });
+      } else if (validationHandler.failed()) {
+        logger.error(validationHandler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(400);
+        response.end("Bad Request");
+      }
+    });
   }
 
   /**
@@ -805,8 +703,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     String instanceID = request.getHeader("Host");
 
     /* checking and comparing itemType from the request body */
-    if (requestBody.containsKey("itemType")
-        && itemTypes.contains(requestBody.getString("itemType"))) {
+    if (requestBody.containsKey("itemType") && itemTypes.contains(requestBody.getString("itemType"))) {
       /* Populating query mapper */
       requestBody.put("instanceID", instanceID);
 
@@ -817,8 +714,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* Authenticating the request */
         authenticator.tokenInterospect(requestBody, authenticationInfo, authhandler -> {
           if (authhandler.succeeded()) {
-            logger.info(
-                "Authenticating item creation request ".concat(authhandler.result().toString()));
+            logger.info("Authenticating item creation request ".concat(authhandler.result().toString()));
             /* Validating the request */
             validator.validateItem(requestBody, valhandler -> {
               if (valhandler.succeeded()) {
@@ -860,7 +756,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Updates a already created item in the database. Endpoint: PATCH /iudx/cat/v1/update/itemId
+   * Updates a already created item in the database. Endpoint: PATCH
+   * /iudx/cat/v1/update/itemId
    * itemId=ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
    * 
    * @param routingContext handles web requests in Vert.x Web
@@ -884,16 +781,14 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Building complete itemID from HTTP request path parameters */
     String itemId = routingContext.pathParam("resItem").concat("/")
-        .concat(routingContext.pathParam("resGrpItem").concat("/")
-            .concat(routingContext.pathParam("resSvrItem")).concat("/")
-            .concat(routingContext.pathParam("pvdrItem").concat("/"))
+        .concat(routingContext.pathParam("resGrpItem").concat("/").concat(routingContext.pathParam("resSvrItem"))
+            .concat("/").concat(routingContext.pathParam("pvdrItem").concat("/"))
             .concat(routingContext.pathParam("dataDesItem")));
 
     logger.info("Updating an item, Id: ".concat(itemId));
 
     /* checking and comparing itemType from the request body */
-    if (requestBody.containsKey("itemType")
-        && itemTypes.contains(requestBody.getString("itemType"))) {
+    if (requestBody.containsKey("itemType") && itemTypes.contains(requestBody.getString("itemType"))) {
       /* Populating query mapper */
       requestBody.put("instanceID", instanceID);
 
@@ -904,8 +799,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* Authenticating the request */
         authenticator.tokenInterospect(requestBody, authenticationInfo, authhandler -> {
           if (authhandler.succeeded()) {
-            logger.info(
-                "Authenticating item update request ".concat(authhandler.result().toString()));
+            logger.info("Authenticating item update request ".concat(authhandler.result().toString()));
             /* Validating the request */
             validator.validateItem(requestBody, valhandler -> {
               if (valhandler.succeeded()) {
@@ -947,7 +841,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Deletes a created item in the database. Endpoint: DELETE /iudx/cat/v1/delete/itemId
+   * Deletes a created item in the database. Endpoint: DELETE
+   * /iudx/cat/v1/delete/itemId
    * itemId=ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
    * 
    * @param routingContext handles web requests in Vert.x Web
@@ -970,9 +865,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Building complete itemID from HTTP request path parameters */
     String itemId = routingContext.pathParam("resItem").concat("/")
-        .concat(routingContext.pathParam("resGrpItem").concat("/")
-            .concat(routingContext.pathParam("resSvrItem")).concat("/")
-            .concat(routingContext.pathParam("pvdrItem").concat("/"))
+        .concat(routingContext.pathParam("resGrpItem").concat("/").concat(routingContext.pathParam("resSvrItem"))
+            .concat("/").concat(routingContext.pathParam("pvdrItem").concat("/"))
             .concat(routingContext.pathParam("dataDesItem")));
 
     /* Populating query mapper */
@@ -1004,8 +898,7 @@ public class ApiServerVerticle extends AbstractVerticle {
           });
         } else if (authhandler.failed()) {
           logger.error("Unathorized request".concat(authhandler.cause().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(401)
-              .end(authhandler.cause().toString());
+          response.putHeader("content-type", "application/json").setStatusCode(401).end(authhandler.cause().toString());
         }
       });
     } else {
@@ -1016,8 +909,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Geo Spatial property (Circle,Polygon) based database search. Validates the request query
-   * params.
+   * Geo Spatial property (Circle,Polygon) based database search. Validates the
+   * request query params.
    * 
    * @param routingContext handles web requests in Vert.x Web
    * @TODO: Unused, remove
@@ -1042,13 +935,11 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Circle and Polygon based item search */
     if (queryParameters.contains("geoproperty") && !queryParameters.get("geoproperty").isBlank()
-        && geoRels.contains(queryParameters.get("georel"))
-        && queryParameters.contains("coordinates")
+        && geoRels.contains(queryParameters.get("georel")) && queryParameters.contains("coordinates")
         && !queryParameters.get("coordinates").isBlank()) {
 
       /* validating circle or polygon as value of geometry query parameter */
-      if ("Point".equals(queryParameters.get("geometry"))
-          || "Polygon".equals(queryParameters.get("geometry"))) {
+      if ("Point".equals(queryParameters.get("geometry")) || "Polygon".equals(queryParameters.get("geometry"))) {
 
         /* converting multimap to proper JsonObject/JsonArray format */
         requestBody = map2Json(queryParameters);
@@ -1073,8 +964,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
         }
       } else {
-        logger.error(
-            "Invalid Query parameter values, Expected: 'geometry = Point|Polygon|LineString|bbox'");
+        logger.error("Invalid Query parameter values, Expected: 'geometry = Point|Polygon|LineString|bbox'");
         response.putHeader("content-type", "application/json").setStatusCode(400)
             .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
       }
@@ -1107,9 +997,8 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Building complete itemID from HTTP request path parameters */
     String itemId = routingContext.pathParam("resItem").concat("/")
-        .concat(routingContext.pathParam("resGrpItem").concat("/")
-            .concat(routingContext.pathParam("resSvrItem")).concat("/")
-            .concat(routingContext.pathParam("pvdrItem").concat("/"))
+        .concat(routingContext.pathParam("resGrpItem").concat("/").concat(routingContext.pathParam("resSvrItem"))
+            .concat("/").concat(routingContext.pathParam("pvdrItem").concat("/"))
             .concat(routingContext.pathParam("dataDesItem")));
 
     /* Populating query mapper */
@@ -1120,12 +1009,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listItem(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of items ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200)
-            .end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing items ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400)
-            .end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
 
@@ -1158,12 +1045,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listTags(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of tags ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200)
-            .end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400)
-            .end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
   }
@@ -1195,12 +1080,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listDomains(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of domains ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200)
-            .end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400)
-            .end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
   }
@@ -1232,12 +1115,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listCities(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of cities ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200)
-            .end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing cities ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400)
-            .end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
   }
@@ -1269,12 +1150,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listResourceServers(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of resource servers ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200)
-            .end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing resource servers ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400)
-            .end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
   }
@@ -1306,12 +1185,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listProviders(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of providers ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200)
-            .end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing providers ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400)
-            .end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
   }
@@ -1343,12 +1220,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listResourceGroups(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of resource groups ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200)
-            .end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing resource groups ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400)
-            .end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
   }
@@ -1384,18 +1259,16 @@ public class ApiServerVerticle extends AbstractVerticle {
       requestBody.put("instanceID", instanceID);
       requestBody.put("relationship", "resource");
 
-      /* Request database service with requestBody for listing resource relationship */
+      /*
+       * Request database service with requestBody for listing resource relationship
+       */
       database.listResourceRelationship(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
-          logger.info("List of resources belonging to resourceGroups "
-              .concat(dbhandler.result().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(200)
-              .end(dbhandler.result().toString());
+          logger.info("List of resources belonging to resourceGroups ".concat(dbhandler.result().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
         } else if (dbhandler.failed()) {
-          logger.error(
-              "Issue in listing resource relationship ".concat(dbhandler.cause().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(400)
-              .end(dbhandler.cause().toString());
+          logger.error("Issue in listing resource relationship ".concat(dbhandler.cause().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
         }
       });
     } else {
@@ -1436,18 +1309,17 @@ public class ApiServerVerticle extends AbstractVerticle {
       requestBody.put("instanceID", instanceID);
       requestBody.put("relationship", "resourceGroup");
 
-      /* Request database service with requestBody for listing resource group relationship */
+      /*
+       * Request database service with requestBody for listing resource group
+       * relationship
+       */
       database.listResourceGroupRelationship(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
-          logger.info(
-              "List of resourceGroup belonging to resource ".concat(dbhandler.result().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(200)
-              .end(dbhandler.result().toString());
+          logger.info("List of resourceGroup belonging to resource ".concat(dbhandler.result().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
         } else if (dbhandler.failed()) {
-          logger.error(
-              "Issue in listing resourceGroup relationship ".concat(dbhandler.cause().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(400)
-              .end(dbhandler.cause().toString());
+          logger.error("Issue in listing resourceGroup relationship ".concat(dbhandler.cause().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
         }
       });
     } else {
@@ -1482,6 +1354,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     }
     return jsonBody;
   }
+
   /**
    * Appends config to the obtained instanceID.
    *
@@ -1491,44 +1364,38 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(
-        queryJson,
-        validationHandler -> {
-          if (validationHandler.succeeded()) {
-            queryJson.put("instanceID", instanceID);
-            logger.info("search query : " + queryJson);
-            database.updateItem(
-                queryJson,
-                dbHandler -> {
-                  if (dbHandler.succeeded()) {
-                    JsonObject resultJson = dbHandler.result();
-                    String status = resultJson.getString("status");
-                    if (status.equalsIgnoreCase("success")) {
-                      response.setStatusCode(201);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response
-                        .headers()
-                        .add("content-type", "application/json")
-                        .add("content-length", String.valueOf(resultJson.toString().length()));
-                    response.write(resultJson.toString());
-                    logger.info("response : " + resultJson);
-                    response.end();
-                  } else if (dbHandler.failed()) {
-                    logger.error(dbHandler.cause().getMessage());
-                    response.headers().add("content-type", "text");
-                    response.setStatusCode(500);
-                    response.end("Internal server error");
-                  }
-                });
-          } else if (validationHandler.failed()) {
-            logger.error(validationHandler.cause().getMessage());
+    validator.validateItem(queryJson, validationHandler -> {
+      if (validationHandler.succeeded()) {
+        queryJson.put("instanceID", instanceID);
+        logger.info("search query : " + queryJson);
+        database.updateItem(queryJson, dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject resultJson = dbHandler.result();
+            String status = resultJson.getString("status");
+            if (status.equalsIgnoreCase("success")) {
+              response.setStatusCode(201);
+            } else {
+              response.setStatusCode(400);
+            }
+            response.headers().add("content-type", "application/json").add("content-length",
+                String.valueOf(resultJson.toString().length()));
+            response.write(resultJson.toString());
+            logger.info("response : " + resultJson);
+            response.end();
+          } else if (dbHandler.failed()) {
+            logger.error(dbHandler.cause().getMessage());
             response.headers().add("content-type", "text");
-            response.setStatusCode(400);
-            response.end("Bad Request");
+            response.setStatusCode(500);
+            response.end("Internal server error");
           }
         });
+      } else if (validationHandler.failed()) {
+        logger.error(validationHandler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(400);
+        response.end("Bad Request");
+      }
+    });
   }
 
   /**
@@ -1543,31 +1410,27 @@ public class ApiServerVerticle extends AbstractVerticle {
     String id = routingContext.request().getParam("id");
     queryJson.put("instanceID", instanceID).put("id", id).put("relationship", "resourceServer");
     logger.info("search query : " + queryJson);
-    database.searchQuery(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString("status");
-            if (status.equalsIgnoreCase("success")) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add("content-type", "application/json")
-                .add("content-length", String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add("content-type", "text");
-            response.setStatusCode(500);
-            response.end("Internal server error");
-          }
-        });
+    database.searchQuery(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString("status");
+        if (status.equalsIgnoreCase("success")) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add("content-type", "application/json").add("content-length",
+            String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.error(handler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(500);
+        response.end("Internal server error");
+      }
+    });
   }
 
   /**
@@ -1582,31 +1445,27 @@ public class ApiServerVerticle extends AbstractVerticle {
     String id = routingContext.request().getParam("id");
     queryJson.put("instanceID", instanceID).put("id", id).put("relationship", "provider");
     logger.info("search query : " + queryJson);
-    database.searchQuery(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString("status");
-            if (status.equalsIgnoreCase("success")) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add("content-type", "application/json")
-                .add("content-length", String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add("content-type", "text");
-            response.setStatusCode(500);
-            response.end("Internal server error");
-          }
-        });
+    database.searchQuery(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString("status");
+        if (status.equalsIgnoreCase("success")) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add("content-type", "application/json").add("content-length",
+            String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.error(handler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(500);
+        response.end("Internal server error");
+      }
+    });
   }
 
   /**
@@ -1621,30 +1480,26 @@ public class ApiServerVerticle extends AbstractVerticle {
     String id = routingContext.request().getParam("id");
     queryJson.put("instanceID", instanceID).put("id", id).put("relationship", "type");
     logger.info("search query : " + queryJson);
-    database.searchQuery(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString("status");
-            if (status.equalsIgnoreCase("success")) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add("content-type", "application/json")
-                .add("content-length", String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add("content-type", "text");
-            response.setStatusCode(500);
-            response.end("Internal server error");
-          }
-        });
+    database.searchQuery(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString("status");
+        if (status.equalsIgnoreCase("success")) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add("content-type", "application/json").add("content-length",
+            String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.error(handler.cause().getMessage());
+        response.headers().add("content-type", "text");
+        response.setStatusCode(500);
+        response.end("Internal server error");
+      }
+    });
   }
 }
