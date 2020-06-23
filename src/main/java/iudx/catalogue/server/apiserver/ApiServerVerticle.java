@@ -126,7 +126,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         router.post(basePath.concat("/item")).handler(this::createItem);
 
         /* Search for an item */
-        router.get(basePath.concat("/search")).handler(this::searchItem);
+        router.get(basePath.concat("/search")).handler(this::search);
 
         /* list all the tags */
         router.get(basePath.concat("/tags")).handler(this::listTags);
@@ -173,23 +173,22 @@ public class ApiServerVerticle extends AbstractVerticle {
           .handler(this::listResourceGroupRelationship);
 
 
-        router.get("/iudx/cat/v1/search").handler(this::search);
-        router.get("/iudx/cat/v1/ui/cities").handler(this::getCities);
-        router.post("/iudx/cat/v1/ui/cities").handler(this::setCities);
-        router.put("/iudx/cat/v1/ui/cities").handler(this::updateCities);
-        router.get("/iudx/cat/v1/ui/config").handler(this::getConfig);
-        router.post("/iudx/cat/v1/ui/config").handler(this::setConfig);
-        router.delete("/iudx/cat/v1/ui/config").handler(this::deleteConfig);
-        router.put("/iudx/cat/v1/ui/config").handler(this::updateConfig);
-        router.patch("/iudx/cat/v1/ui/config").handler(this::appendConfig);
+        router.get(basePath.concat("/ui/cities")).handler(this::getCities);
+        router.post(basePath.concat("/ui/cities")).handler(this::setCities);
+        router.put(basePath.concat("/ui/cities")).handler(this::updateCities);
+        router.get(basePath.concat("/ui/config")).handler(this::getConfig);
+        router.post(basePath.concat("/ui/config")).handler(this::setConfig);
+        router.delete(basePath.concat("/ui/config")).handler(this::deleteConfig);
+        router.put(basePath.concat("/ui/config")).handler(this::updateConfig);
+        router.patch(basePath.concat("/ui/config")).handler(this::appendConfig);
         router
-          .getWithRegex("\\/iudx\\/cat\\/v1\\/(?<id>.*)\\/provider")
+          .getWithRegex(basePath.concat("\\/(?<id>.*)\\/provider"))
           .handler(this::getProvider);
         router
-          .getWithRegex("\\/iudx\\/cat\\/v1\\/(?<id>.*)\\/resourceServer")
+          .getWithRegex(basePath.concat("\\/(?<id>.*)\\/resourceServer"))
           .handler(this::getResourceServer);
         router
-          .getWithRegex("\\/iudx\\/cat\\/v1\\/(?<id>.*)\\/type")
+          .getWithRegex(basePath.concat("\\/(?<id>.*)\\/type"))
           .handler(this::getDataModel);
 
 
@@ -316,6 +315,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     logger.info("routed to search");
+    logger.info(request.params().toString());
     if ((request.getParam("property") == null || request.getParam("value") == null)
         && (request.getParam("geoproperty") == null
             || request.getParam("georel") == null
@@ -344,18 +344,24 @@ public class ApiServerVerticle extends AbstractVerticle {
     if (request.getParam("property") != null
         && request.getParam("property").toLowerCase().contains("provider.name")) {
       queryJson.put("instanceID", instanceID);
-    } else if (request.getParam("geoproperty") != null
-        && request.getParam("geometry") != null
-        && request.getParam("georel") != null
+    } 
+    else if (
+      (request.getParam("geoproperty") != null)
+        && (request.getParam("geometry") != null)
+        && (request.getParam("georel") != null)
         && (!request.getParam("geoproperty").equals("location")
-            || !request.getParam("geometry").equals("bbox")
-                && !request.getParam("geometry").equals("LineString")
-            || !request.getParam("georel").equals("within")
-                && !request.getParam("georel").equals("near")
-                && !request.getParam("georel").equals("coveredBy")
-                && !request.getParam("georel").equals("intersects")
-                && !request.getParam("georel").equals("equals")
-                && !request.getParam("georel").equals("disjoint"))) {
+          || (
+                !request.getParam("geometry").equals("bbox")
+              && !request.getParam("geometry").equals("Point")
+              && !request.getParam("geometry").equals("LineString")
+              && !request.getParam("geometry").equals("Polygon")
+          )
+          || (!request.getParam("georel").equals("within")
+              && !request.getParam("georel").equals("near")
+              && !request.getParam("georel").equals("coveredBy")
+              && !request.getParam("georel").equals("intersects")
+              && !request.getParam("georel").equals("equals")
+              && !request.getParam("georel").equals("disjoint")))) {
       logger.error("invalid geo spatial search parameter value");
       JsonObject json = new JsonObject();
       json.put("status", "invalidValue").put("results", new JsonArray());
@@ -1014,6 +1020,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    * params.
    * 
    * @param routingContext handles web requests in Vert.x Web
+   * @TODO: Unused, remove
    */
   private void searchItem(RoutingContext routingContext) {
 
@@ -1072,7 +1079,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
       }
     } else {
-      logger.error("Invalid Query parameter syntax, Expected: 'geopropery, georel, coordinates'");
+      logger.error("Invalid Query parameter syntax, Expected: 'geoproperty, georel, coordinates'");
       response.putHeader("content-type", "application/json").setStatusCode(400)
           .end(new ResponseHandler.Builder().withStatus("invalidSyntax").build().toJsonString());
     }
@@ -1474,7 +1481,7 @@ public class ApiServerVerticle extends AbstractVerticle {
       }
     }
     return jsonBody;
-=======
+  }
   /**
    * Appends config to the obtained instanceID.
    *
@@ -1639,6 +1646,5 @@ public class ApiServerVerticle extends AbstractVerticle {
             response.end("Internal server error");
           }
         });
->>>>>>> e0fe8a3775b1b66a485652080b843c49030e162a
   }
 }

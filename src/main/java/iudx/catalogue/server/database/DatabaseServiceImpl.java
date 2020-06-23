@@ -25,8 +25,6 @@ public class DatabaseServiceImpl implements DatabaseService {
   /** {@inheritDoc} */
   @Override
   public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-<<<<<<< HEAD
-
     // TODO: Stub code, to be removed
     JsonObject result = null;
     String resCircle =
@@ -51,17 +49,32 @@ public class DatabaseServiceImpl implements DatabaseService {
             + "\"pm25\",\"lux\",\"pm10\",\"humidity\",\"temperature\",\"ozone\",\"o3\",\"noise\","
             + "\"light\",\"uv\"]}}]}";
 
+    String resProperty = 
+        "{\"status\":\"success\",\"totalHits\":200,\"limit\":1,\"offset\":100,\"results\":"
+            + "[{\"id\":"
+            + "\"rbccps.org\\/aa9d66a000d94a78895de8d4c0b3a67f3450e531\\/rs.varanasi.iudx.org."
+            + "in\\/" + "varanasi-aqm"
+            + "\\/EM_01_0103_01\",\"tags\":{\"type\":\"Property\",\"value\":[\"environment\","
+            + "\"air quality\",\"air\","
+            + "\"aqi\",\"aqm\",\"climo\",\"climate\",\"pollution\",\"so2\",\"co2\",\"co\",\"no\","
+            + "\"no2\",\"pm2.5\","
+            + "\"pm25\",\"lux\",\"pm10\",\"humidity\",\"temperature\",\"ozone\",\"o3\",\"noise\","
+            + "\"light\",\"uv\"]}}]}";
+
     if ("Point".equals(request.getString("geometry"))) {
-      result = new JsonObject(resCircle);
+      // result = new JsonObject(resCircle);
 
     } else if ("Polygon".equals(request.getString("geometry"))) {
-      result = new JsonObject(resPolygon);
+      // result = new JsonObject(resPolygon);
+    } else {
+      // handler.handle(Future.succeededFuture(result));
     }
 
     if (result != null) {
-      handler.handle(Future.succeededFuture(result));
+      // handler.handle(Future.succeededFuture(result));
     }
-    return null;
+      handler.handle(Future.succeededFuture(new JsonObject(resPolygon)));
+      return this;
   }
 
   /** {@inheritDoc} */
