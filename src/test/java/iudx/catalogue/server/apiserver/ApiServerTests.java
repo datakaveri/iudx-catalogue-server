@@ -34,7 +34,8 @@ public class ApiServerTests {
   @DisplayName("Deploy a apiserver")
   static void startVertx(VertxTestContext testContext, Vertx vertx) {
 
-    WebClientOptions clientOptions = new WebClientOptions().setSsl(false).setVerifyHost(false);
+    WebClientOptions clientOptions =
+        new WebClientOptions().setSsl(true).setVerifyHost(false).setTrustAll(true);
     client = WebClient.create(vertx, clientOptions);
 
     new Thread(

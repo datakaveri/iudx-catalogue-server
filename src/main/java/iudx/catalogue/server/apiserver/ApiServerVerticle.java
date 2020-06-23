@@ -1,12 +1,5 @@
 package iudx.catalogue.server.apiserver;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -34,6 +27,12 @@ import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.onboarder.OnboarderService;
 import iudx.catalogue.server.validator.ValidatorService;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * The Catalogue Server API Verticle.
@@ -283,9 +282,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     if (request.getParam("property") != null
         && request.getParam("property").toLowerCase().contains("provider.name")) {
       queryJson.put("instanceID", instanceID);
-    }
-    /* validating acceptable values of geoproperty, geometry, and georel */
-    else if (request.getParam("geoproperty") != null
+    } else if (request.getParam("geoproperty") != null
         && request.getParam("geometry") != null
         && request.getParam("georel") != null
         && (!request.getParam("geoproperty").equals("location")
@@ -308,9 +305,7 @@ public class ApiServerVerticle extends AbstractVerticle {
       response.write(json.toString());
       response.end();
       return;
-    }
-    /* validating acceptable text search string */
-    else if (request.getParam("q") != null
+    } else if (request.getParam("q") != null
         && !textPattern.matcher(request.getParam("q").replaceAll("\"", "")).matches()) {
       logger.error("invalid text search string");
       JsonObject json = new JsonObject();
@@ -408,7 +403,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Queries the database and returns the city config for the instanceID
+   * Queries the database and returns the city config for the instanceID.
    *
    * @param routingContext Handles web request in Vert.x web
    */
