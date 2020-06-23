@@ -9,26 +9,23 @@ import io.vertx.core.logging.LoggerFactory;
 
 /**
  * The Database Service Implementation.
+ *
  * <h1>Database Service Implementation</h1>
- * <p>
- * The Database Service implementation in the IUDX Catalogue Server implements the definitions of
+ *
+ * <p>The Database Service implementation in the IUDX Catalogue Server implements the definitions of
  * the {@link iudx.catalogue.server.database.DatabaseService}.
- * </p>
- * 
+ *
  * @version 1.0
  * @since 2020-05-31
  */
-
 public class DatabaseServiceImpl implements DatabaseService {
 
   private static final Logger logger = LoggerFactory.getLogger(DatabaseServiceImpl.class);
 
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+<<<<<<< HEAD
 
     // TODO: Stub code, to be removed
     JsonObject result = null;
@@ -64,29 +61,19 @@ public class DatabaseServiceImpl implements DatabaseService {
     if (result != null) {
       handler.handle(Future.succeededFuture(result));
     }
-    
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-
-
     // TODO: Stub code, to be removed after use
     JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + "rb"
         + "ccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx"
@@ -94,19 +81,13 @@ public class DatabaseServiceImpl implements DatabaseService {
         + "\",\"method\": \"insert\",\"status\": \"success\" }]}");
 
     handler.handle(Future.succeededFuture(result));
-
     return null;
 
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-
     // TODO: Stub code, to be removed after use
     JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \""
         + "rbccps.org"
@@ -115,18 +96,12 @@ public class DatabaseServiceImpl implements DatabaseService {
         + "\",\"method\": \"update\",\"status\": \"success\" }]}");
 
     handler.handle(Future.succeededFuture(result));
-
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-
     // TODO: Stub code, to be removed after use
     JsonObject result = new JsonObject("{\"status\": \"success\",\"results\": [{\"id\": \"" + "rb"
         + "ccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.or"
@@ -134,15 +109,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         + "\",\"method\": \"delete\",\"status\": \"success\" }]}");
 
     handler.handle(Future.succeededFuture(result));
-
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -172,11 +142,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -192,11 +158,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -211,11 +173,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -228,14 +186,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceServers(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceServers(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     // TODO: Stub code, to be removed after use
     JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
@@ -246,11 +200,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listProviders(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -260,7 +210,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         + "        \"results\": [ \"<iudx>:p1\", \"<iudx>:p2\"]\n" + "}");
 
     handler.handle(Future.succeededFuture(result));
-    
     return null;
   }
 
@@ -288,7 +237,6 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService listResourceRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
-
     // TODO: Stub code, to be removed after use [was not part of master code]
     JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
         + "        \"totalHits\": 200,\n" + "        \"results\": [{\n"
@@ -306,14 +254,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceGroupRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceGroupRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     // TODO: Stub code, to be removed after use [was not part of master code]
     JsonObject result = new JsonObject("{\n" + "        \"status\": \"success\",\n"
@@ -333,35 +277,23 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listProviderRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listProviderRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceServerRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceServerRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     return null;
   }
 
-
-  /**
-   * {@inheritDoc}
-   */
-
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -370,14 +302,12 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   /**
    * The queryDecoder implements the query decoder module.
-   * 
+   *
    * @param request which is a JsonObject
    * @return JsonObject which is a JsonObject
    */
-
   public JsonObject queryDecoder(JsonObject request) {
 
     return null;
   }
-
 }
