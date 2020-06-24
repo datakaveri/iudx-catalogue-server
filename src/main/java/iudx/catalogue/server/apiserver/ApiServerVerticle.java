@@ -4,7 +4,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
@@ -42,10 +41,10 @@ import java.util.regex.Pattern;
  *
  * <h1>Catalogue Server API Verticle</h1>
  *
- * <p>
- * The API Server verticle implements the IUDX Catalogue Server APIs. It handles
- * the API requests from the clients and interacts with the associated Service
- * to respond.
+ * <p> The API Server verticle implements the IUDX Catalogue Server APIs.
+ * It handles the API requests
+ * from the clients and interacts with the associated Service to respond.
+ * </p>
  *
  * @see io.vertx.core.Vertx
  * @see io.vertx.core.AbstractVerticle
@@ -81,9 +80,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   private ArrayList<String> geoRels;
 
   /**
-   * This method is used to start the Verticle. It deploys a verticle in a
-   * cluster, reads the configuration, obtains a proxy for the Event bus services
-   * exposed through service discovery, start an HTTPs server at port 8443.
+   * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
+   * configuration, obtains a proxy for the Event bus services exposed through service discovery,
+   * start an HTTPs server at port 8443.
    *
    * @throws Exception which is a startup exception
    */
@@ -149,22 +148,26 @@ public class ApiServerVerticle extends AbstractVerticle {
         router.get(basePath.concat("/resourcegroups")).handler(this::listResourceGroups);
 
         /*
-         * Update an item in the database using itemId [itemId=ResourceItem,
-         * ResourceGroupItem, ResourceServerItem, ProviderItem, DataDescriptorItem]
+         * Update an item in the database using itemId [itemId=ResourceItem, ResourceGroupItem,
+         * ResourceServerItem, ProviderItem, DataDescriptorItem]
          */
         router.put(basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
             .handler(this::updateItem);
 
         /* Delete an item from database using itemId */
-        router.delete(basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
+        router
+            .delete(
+                basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
             .handler(this::deleteItem);
 
         /* list the item from database using itemId */
-        router.get(basePath.concat("/items/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
+        router
+            .get(basePath.concat("/items/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem"))
             .handler(this::listItems);
 
         /* Get all resources belonging to a resource group */
-        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resource")).handler(this::listResourceRelationship);
+        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resource"))
+            .handler(this::listResourceRelationship);
 
         /* Get resource group of an item belonging to a resource */
         router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resourceGroup"))
@@ -179,7 +182,8 @@ public class ApiServerVerticle extends AbstractVerticle {
         router.put(basePath.concat("/ui/config")).handler(this::updateConfig);
         router.patch(basePath.concat("/ui/config")).handler(this::appendConfig);
         router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/provider")).handler(this::getProvider);
-        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resourceServer")).handler(this::getResourceServer);
+        router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/resourceServer"))
+            .handler(this::getResourceServer);
         router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/type")).handler(this::getDataModel);
 
         /* Populating itemTypes */
@@ -223,57 +227,65 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         /* Get a handler for the DatabaseService from Service Discovery interface. */
 
-        EventBusService.getProxy(discovery, DatabaseService.class, databaseServiceDiscoveryHandler -> {
-          if (databaseServiceDiscoveryHandler.succeeded()) {
-            database = databaseServiceDiscoveryHandler.result();
-            logger.info("\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                + database.getClass().getName() + " +++++++ ");
-          } else {
-            logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-          }
-        });
+        EventBusService.getProxy(discovery, DatabaseService.class,
+            databaseServiceDiscoveryHandler -> {
+              if (databaseServiceDiscoveryHandler.succeeded()) {
+                database = databaseServiceDiscoveryHandler.result();
+                logger.info(
+                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
+                        + database.getClass().getName() + " +++++++ ");
+              } else {
+                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
+              }
+            });
         /* Get a handler for the OnboarderService from Service Discovery interface. */
 
-        EventBusService.getProxy(discovery, OnboarderService.class, onboarderServiceDiscoveryHandler -> {
-          if (onboarderServiceDiscoveryHandler.succeeded()) {
-            onboarder = onboarderServiceDiscoveryHandler.result();
-            logger.info("\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                + onboarder.getClass().getName() + " +++++++ ");
-          } else {
-            logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-          }
-        });
+        EventBusService.getProxy(discovery, OnboarderService.class,
+            onboarderServiceDiscoveryHandler -> {
+              if (onboarderServiceDiscoveryHandler.succeeded()) {
+                onboarder = onboarderServiceDiscoveryHandler.result();
+                logger.info(
+                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
+                        + onboarder.getClass().getName() + " +++++++ ");
+              } else {
+                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
+              }
+            });
         /* Get a handler for the ValidatorService from Service Discovery interface. */
 
-        EventBusService.getProxy(discovery, ValidatorService.class, validatorServiceDiscoveryHandler -> {
-          if (validatorServiceDiscoveryHandler.succeeded()) {
-            validator = validatorServiceDiscoveryHandler.result();
-            logger.info("\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                + validator.getClass().getName() + " +++++++ ");
-          } else {
-            logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-          }
-        });
+        EventBusService.getProxy(discovery, ValidatorService.class,
+            validatorServiceDiscoveryHandler -> {
+              if (validatorServiceDiscoveryHandler.succeeded()) {
+                validator = validatorServiceDiscoveryHandler.result();
+                logger.info(
+                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
+                        + validator.getClass().getName() + " +++++++ ");
+              } else {
+                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
+              }
+            });
         /*
          * Get a handler for the AuthenticationService from Service Discovery interface.
          */
 
-        EventBusService.getProxy(discovery, AuthenticationService.class, authenticatorServiceDiscoveryHandler -> {
-          if (authenticatorServiceDiscoveryHandler.succeeded()) {
-            authenticator = authenticatorServiceDiscoveryHandler.result();
-            logger.info("\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                + authenticator.getClass().getName() + " +++++++ ");
-          } else {
-            logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-          }
-        });
+        EventBusService.getProxy(discovery, AuthenticationService.class,
+            authenticatorServiceDiscoveryHandler -> {
+              if (authenticatorServiceDiscoveryHandler.succeeded()) {
+                authenticator = authenticatorServiceDiscoveryHandler.result();
+                logger.info(
+                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
+                        + authenticator.getClass().getName() + " +++++++ ");
+              } else {
+                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
+              }
+            });
       }
     });
   }
 
   /**
-   * Processes the attribute, geoSpatial, and text search requests and returns the
-   * results from the database.
+   * Processes the attribute, geoSpatial, and text search requests and returns the results from the
+   * database.
    *
    * @param routingContext Handles web request in Vert.x web
    */
@@ -285,7 +297,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     if ((request.getParam("property") == null || request.getParam("value") == null)
         && (request.getParam("geoproperty") == null || request.getParam("georel") == null
             || request.getParam("geometry") == null || request.getParam("coordinates") == null)
-        && (request.getParam("q") == null || request.getParam("limit") == null || request.getParam("offset") == null)) {
+        && (request.getParam("q") == null || request.getParam("limit") == null
+            || request.getParam("offset") == null)) {
       logger.error("Invalid Syntax");
       JsonObject json = new JsonObject();
       json.put("status", "invalidSyntax").put("results", new JsonArray());
@@ -301,17 +314,22 @@ public class ApiServerVerticle extends AbstractVerticle {
     Pattern textPattern = Pattern.compile("^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}");
     JsonObject queryJson = new JsonObject();
     String instanceID = request.host();
-    if (request.getParam("property") != null && request.getParam("property").toLowerCase().contains("provider.name")) {
+    if (request.getParam("property") != null
+        && request.getParam("property").toLowerCase().contains("provider.name")) {
       queryJson.put("instanceID", instanceID);
     } else if ((request.getParam("geoproperty") != null) && (request.getParam("geometry") != null)
         && (request.getParam("georel") != null)
         && (!request.getParam("geoproperty").equals("location")
-            || (!request.getParam("geometry").equals("bbox") && !request.getParam("geometry").equals("Point")
+            || (!request.getParam("geometry").equals("bbox")
+                && !request.getParam("geometry").equals("Point")
                 && !request.getParam("geometry").equals("LineString")
                 && !request.getParam("geometry").equals("Polygon"))
-            || (!request.getParam("georel").equals("within") && !request.getParam("georel").equals("near")
-                && !request.getParam("georel").equals("coveredBy") && !request.getParam("georel").equals("intersects")
-                && !request.getParam("georel").equals("equals") && !request.getParam("georel").equals("disjoint")))) {
+            || (!request.getParam("georel").equals("within")
+                && !request.getParam("georel").equals("near")
+                && !request.getParam("georel").equals("coveredBy")
+                && !request.getParam("georel").equals("intersects")
+                && !request.getParam("georel").equals("equals")
+                && !request.getParam("georel").equals("disjoint")))) {
       logger.error("invalid geo spatial search parameter value");
       JsonObject json = new JsonObject();
       json.put("status", "invalidValue").put("results", new JsonArray());
@@ -345,8 +363,8 @@ public class ApiServerVerticle extends AbstractVerticle {
           for (String val : paramValues) {
             if (str.equalsIgnoreCase("coordinates")) {
               try {
-                double coordinate = Double
-                    .parseDouble(val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
+                double coordinate = Double.parseDouble(
+                    val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
                 json.add(coordinate);
               } catch (NumberFormatException e) {
                 logger.error("invalid coordinate value");
@@ -360,7 +378,8 @@ public class ApiServerVerticle extends AbstractVerticle {
                 return;
               }
             } else {
-              json.add(val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
+              json.add(
+                  val.strip().replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", ""));
             }
           }
           if (split.length > 1 || str.equalsIgnoreCase("value")) {
@@ -703,7 +722,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     String instanceID = request.getHeader("Host");
 
     /* checking and comparing itemType from the request body */
-    if (requestBody.containsKey("itemType") && itemTypes.contains(requestBody.getString("itemType"))) {
+    if (requestBody.containsKey("itemType")
+        && itemTypes.contains(requestBody.getString("itemType"))) {
       /* Populating query mapper */
       requestBody.put("instanceID", instanceID);
 
@@ -714,7 +734,8 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* Authenticating the request */
         authenticator.tokenInterospect(requestBody, authenticationInfo, authhandler -> {
           if (authhandler.succeeded()) {
-            logger.info("Authenticating item creation request ".concat(authhandler.result().toString()));
+            logger.info(
+                "Authenticating item creation request ".concat(authhandler.result().toString()));
             /* Validating the request */
             validator.validateItem(requestBody, valhandler -> {
               if (valhandler.succeeded()) {
@@ -756,8 +777,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Updates a already created item in the database. Endpoint: PATCH
-   * /iudx/cat/v1/update/itemId
+   * Updates a already created item in the database. Endpoint: PATCH /iudx/cat/v1/update/itemId
    * itemId=ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
    * 
    * @param routingContext handles web requests in Vert.x Web
@@ -781,14 +801,16 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Building complete itemID from HTTP request path parameters */
     String itemId = routingContext.pathParam("resItem").concat("/")
-        .concat(routingContext.pathParam("resGrpItem").concat("/").concat(routingContext.pathParam("resSvrItem"))
-            .concat("/").concat(routingContext.pathParam("pvdrItem").concat("/"))
+        .concat(routingContext.pathParam("resGrpItem").concat("/")
+            .concat(routingContext.pathParam("resSvrItem")).concat("/")
+            .concat(routingContext.pathParam("pvdrItem").concat("/"))
             .concat(routingContext.pathParam("dataDesItem")));
 
     logger.info("Updating an item, Id: ".concat(itemId));
 
     /* checking and comparing itemType from the request body */
-    if (requestBody.containsKey("itemType") && itemTypes.contains(requestBody.getString("itemType"))) {
+    if (requestBody.containsKey("itemType")
+        && itemTypes.contains(requestBody.getString("itemType"))) {
       /* Populating query mapper */
       requestBody.put("instanceID", instanceID);
 
@@ -799,7 +821,8 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* Authenticating the request */
         authenticator.tokenInterospect(requestBody, authenticationInfo, authhandler -> {
           if (authhandler.succeeded()) {
-            logger.info("Authenticating item update request ".concat(authhandler.result().toString()));
+            logger.info(
+                "Authenticating item update request ".concat(authhandler.result().toString()));
             /* Validating the request */
             validator.validateItem(requestBody, valhandler -> {
               if (valhandler.succeeded()) {
@@ -841,8 +864,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Deletes a created item in the database. Endpoint: DELETE
-   * /iudx/cat/v1/delete/itemId
+   * Deletes a created item in the database. Endpoint: DELETE /iudx/cat/v1/delete/itemId
    * itemId=ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
    * 
    * @param routingContext handles web requests in Vert.x Web
@@ -865,8 +887,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Building complete itemID from HTTP request path parameters */
     String itemId = routingContext.pathParam("resItem").concat("/")
-        .concat(routingContext.pathParam("resGrpItem").concat("/").concat(routingContext.pathParam("resSvrItem"))
-            .concat("/").concat(routingContext.pathParam("pvdrItem").concat("/"))
+        .concat(routingContext.pathParam("resGrpItem").concat("/")
+            .concat(routingContext.pathParam("resSvrItem")).concat("/")
+            .concat(routingContext.pathParam("pvdrItem").concat("/"))
             .concat(routingContext.pathParam("dataDesItem")));
 
     /* Populating query mapper */
@@ -898,80 +921,14 @@ public class ApiServerVerticle extends AbstractVerticle {
           });
         } else if (authhandler.failed()) {
           logger.error("Unathorized request".concat(authhandler.cause().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(401).end(authhandler.cause().toString());
+          response.putHeader("content-type", "application/json").setStatusCode(401)
+              .end(authhandler.cause().toString());
         }
       });
     } else {
       logger.error("Invalid 'token' header");
       response.putHeader("content-type", "application/json").setStatusCode(400)
           .end(new ResponseHandler.Builder().withStatus("invalidHeader").build().toJsonString());
-    }
-  }
-
-  /**
-   * Geo Spatial property (Circle,Polygon) based database search. Validates the
-   * request query params.
-   * 
-   * @param routingContext handles web requests in Vert.x Web
-   * @TODO: Unused, remove
-   */
-  private void searchItem(RoutingContext routingContext) {
-
-    logger.info("Searching the database for Item");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    /* Collection of query parameters from HTTP request */
-    MultiMap queryParameters = routingContext.queryParams();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader("Host");
-
-    /* Circle and Polygon based item search */
-    if (queryParameters.contains("geoproperty") && !queryParameters.get("geoproperty").isBlank()
-        && geoRels.contains(queryParameters.get("georel")) && queryParameters.contains("coordinates")
-        && !queryParameters.get("coordinates").isBlank()) {
-
-      /* validating circle or polygon as value of geometry query parameter */
-      if ("Point".equals(queryParameters.get("geometry")) || "Polygon".equals(queryParameters.get("geometry"))) {
-
-        /* converting multimap to proper JsonObject/JsonArray format */
-        requestBody = map2Json(queryParameters);
-
-        if (requestBody != null) {
-          /* Populating query mapper */
-          requestBody.put("instanceID", instanceID);
-          /* Request database service with requestBody for item search */
-          database.searchQuery(requestBody, dbhandler -> {
-            if (dbhandler.succeeded()) {
-              logger.info("Search completed ".concat(dbhandler.result().toString()));
-              response.putHeader("content-type", "application/json").setStatusCode(200)
-                  .end(dbhandler.result().toString());
-            } else if (dbhandler.failed()) {
-              logger.error("Issue in Item search ".concat(dbhandler.cause().toString()));
-              response.putHeader("content-type", "application/json").setStatusCode(400)
-                  .end(dbhandler.cause().toString());
-            }
-          });
-        } else {
-          response.putHeader("content-type", "application/json").setStatusCode(400)
-              .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
-        }
-      } else {
-        logger.error("Invalid Query parameter values, Expected: 'geometry = Point|Polygon|LineString|bbox'");
-        response.putHeader("content-type", "application/json").setStatusCode(400)
-            .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
-      }
-    } else {
-      logger.error("Invalid Query parameter syntax, Expected: 'geoproperty, georel, coordinates'");
-      response.putHeader("content-type", "application/json").setStatusCode(400)
-          .end(new ResponseHandler.Builder().withStatus("invalidSyntax").build().toJsonString());
     }
   }
 
@@ -997,8 +954,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Building complete itemID from HTTP request path parameters */
     String itemId = routingContext.pathParam("resItem").concat("/")
-        .concat(routingContext.pathParam("resGrpItem").concat("/").concat(routingContext.pathParam("resSvrItem"))
-            .concat("/").concat(routingContext.pathParam("pvdrItem").concat("/"))
+        .concat(routingContext.pathParam("resGrpItem").concat("/")
+            .concat(routingContext.pathParam("resSvrItem")).concat("/")
+            .concat(routingContext.pathParam("pvdrItem").concat("/"))
             .concat(routingContext.pathParam("dataDesItem")));
 
     /* Populating query mapper */
@@ -1009,10 +967,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listItem(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of items ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing items ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
       }
     });
 
@@ -1045,10 +1005,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listTags(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of tags ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
       }
     });
   }
@@ -1080,10 +1042,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listDomains(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of domains ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
       }
     });
   }
@@ -1115,10 +1079,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listCities(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of cities ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing cities ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
       }
     });
   }
@@ -1150,10 +1116,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listResourceServers(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of resource servers ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing resource servers ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
       }
     });
   }
@@ -1185,10 +1153,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listProviders(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of providers ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing providers ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
       }
     });
   }
@@ -1220,10 +1190,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     database.listResourceGroups(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         logger.info("List of resource groups ".concat(dbhandler.result().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(200)
+            .end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
         logger.error("Issue in listing resource groups ".concat(dbhandler.cause().toString()));
-        response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(dbhandler.cause().toString());
       }
     });
   }
@@ -1264,11 +1236,15 @@ public class ApiServerVerticle extends AbstractVerticle {
        */
       database.listResourceRelationship(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
-          logger.info("List of resources belonging to resourceGroups ".concat(dbhandler.result().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
+          logger.info("List of resources belonging to resourceGroups "
+              .concat(dbhandler.result().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(200)
+              .end(dbhandler.result().toString());
         } else if (dbhandler.failed()) {
-          logger.error("Issue in listing resource relationship ".concat(dbhandler.cause().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
+          logger.error(
+              "Issue in listing resource relationship ".concat(dbhandler.cause().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(400)
+              .end(dbhandler.cause().toString());
         }
       });
     } else {
@@ -1310,16 +1286,19 @@ public class ApiServerVerticle extends AbstractVerticle {
       requestBody.put("relationship", "resourceGroup");
 
       /*
-       * Request database service with requestBody for listing resource group
-       * relationship
+       * Request database service with requestBody for listing resource group relationship
        */
       database.listResourceGroupRelationship(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
-          logger.info("List of resourceGroup belonging to resource ".concat(dbhandler.result().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(200).end(dbhandler.result().toString());
+          logger.info(
+              "List of resourceGroup belonging to resource ".concat(dbhandler.result().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(200)
+              .end(dbhandler.result().toString());
         } else if (dbhandler.failed()) {
-          logger.error("Issue in listing resourceGroup relationship ".concat(dbhandler.cause().toString()));
-          response.putHeader("content-type", "application/json").setStatusCode(400).end(dbhandler.cause().toString());
+          logger.error(
+              "Issue in listing resourceGroup relationship ".concat(dbhandler.cause().toString()));
+          response.putHeader("content-type", "application/json").setStatusCode(400)
+              .end(dbhandler.cause().toString());
         }
       });
     } else {
@@ -1327,32 +1306,6 @@ public class ApiServerVerticle extends AbstractVerticle {
       response.putHeader("content-type", "application/json").setStatusCode(400)
           .end(new ResponseHandler.Builder().withStatus("invalidSyntax").build().toJsonString());
     }
-  }
-
-  /**
-   * Converts the MultiMap to JsonObject. Checks/validates the value of JsonArray.
-   * 
-   * @param queryParameters is a MultiMap of request query parameters
-   * @return jsonObject of MultiMap query parameters
-   */
-  private JsonObject map2Json(MultiMap queryParameters) {
-
-    JsonObject jsonBody = new JsonObject();
-
-    for (Entry<String, String> entry : queryParameters.entries()) {
-      /* checking if the Collection value is of JsonObject/JsonArray */
-      if (!entry.getValue().startsWith("[") && !entry.getValue().endsWith("]")) {
-        jsonBody.put(entry.getKey(), entry.getValue());
-      } else {
-        try {
-          jsonBody.put(entry.getKey(), new JsonArray(entry.getValue()));
-        } catch (DecodeException decodeException) {
-          logger.error("Invalid Json value ".concat(decodeException.toString()));
-          return null;
-        }
-      }
-    }
-    return jsonBody;
   }
 
   /**

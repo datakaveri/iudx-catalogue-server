@@ -13,8 +13,8 @@ import io.vertx.core.json.JsonObject;
  * The Database Service.
  * <h1>Database Service</h1>
  * <p>
- * The Database Service in the IUDX Catalogue Server defines the operations to
- * be performed with the IUDX Database server.
+ * The Database Service in the IUDX Catalogue Server defines the operations to be performed with the
+ * IUDX Database server.
  * </p>
  * 
  * @see io.vertx.codegen.annotations.ProxyGen
@@ -127,8 +127,7 @@ public interface DatabaseService {
   DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The listResourceServers implements the list resource servers operation with
-   * the database.
+   * The listResourceServers implements the list resource servers operation with the database.
    * 
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
@@ -150,8 +149,7 @@ public interface DatabaseService {
   DatabaseService listProviders(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The listResourceGroups implements the list resource groups operation with the
-   * database.
+   * The listResourceGroups implements the list resource groups operation with the database.
    * 
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
@@ -162,8 +160,7 @@ public interface DatabaseService {
   DatabaseService listResourceGroups(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The listResourceRelationship implements the list relationships operation with
-   * the database.
+   * The listResourceRelationship implements the list relationships operation with the database.
    * 
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
@@ -171,11 +168,12 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listResourceRelationship(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService listResourceRelationship(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The listResourceGroupRelationship implements the list group relationships
-   * operation with the database.
+   * The listResourceGroupRelationship implements the list group relationships operation with the
+   * database.
    * 
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
@@ -183,11 +181,11 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listResourceGroupRelationship(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService listResourceGroupRelationship(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The listProviderRelationship implements the list provider relationships with
-   * the database.
+   * The listProviderRelationship implements the list provider relationships with the database.
    * 
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
@@ -195,11 +193,12 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listProviderRelationship(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService listProviderRelationship(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The listResourceServerRelationship implements the list resource server
-   * relationship with the database.
+   * The listResourceServerRelationship implements the list resource server relationship with the
+   * database.
    * 
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
@@ -207,7 +206,8 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listResourceServerRelationship(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService listResourceServerRelationship(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listTypes implements the list types with the database.
