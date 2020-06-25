@@ -137,7 +137,6 @@ public interface DatabaseService {
   @Fluent
   DatabaseService listResourceServers(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
-
   /**
    * The listProviders implements the list providers operation with the database.
    * 
@@ -224,7 +223,7 @@ public interface DatabaseService {
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
    * 
-   * @param vertx which is the vertx instance
+   * @param vertx   which is the vertx instance
    * @param address which is the proxy address
    * @return DatabaseServiceVertxEBProxy which is a service proxy
    */
