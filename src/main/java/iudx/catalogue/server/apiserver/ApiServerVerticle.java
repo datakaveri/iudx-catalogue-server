@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -41,8 +42,8 @@ import java.util.regex.Pattern;
  *
  * <h1>Catalogue Server API Verticle</h1>
  *
- * <p> The API Server verticle implements the IUDX Catalogue Server APIs.
- * It handles the API requests
+ * <p>
+ * The API Server verticle implements the IUDX Catalogue Server APIs. It handles the API requests
  * from the clients and interacts with the associated Service to respond.
  * </p>
  *
@@ -78,6 +79,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private String basePath = "/iudx/cat/v1";
   private ArrayList<String> itemTypes;
   private ArrayList<String> geoRels;
+  private ArrayList<String> geometries;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
@@ -186,6 +188,9 @@ public class ApiServerVerticle extends AbstractVerticle {
             .handler(this::getResourceServer);
         router.getWithRegex(basePath.concat("\\/(?<id>.*)\\/type")).handler(this::getDataModel);
 
+        /* Count the Cataloque server items */
+        router.get(basePath.concat("/count")).handler(this::count);
+
         /* Populating itemTypes */
         itemTypes = new ArrayList<String>();
         itemTypes.add("Resource");
@@ -201,6 +206,13 @@ public class ApiServerVerticle extends AbstractVerticle {
         geoRels.add("intersects");
         geoRels.add("equals");
         geoRels.add("disjoint");
+
+
+        geometries = new ArrayList<String>();
+        geometries.add("Point");
+        geometries.add("Polygon");
+        geometries.add("bbox");
+        geometries.add("LineString");
 
         /* Read the configuration and set the HTTPs server properties. */
 
@@ -1454,5 +1466,142 @@ public class ApiServerVerticle extends AbstractVerticle {
         response.end("Internal server error");
       }
     });
+  }
+
+  /**
+   * 
+   * @param routingContext
+   */
+  public void count(RoutingContext routingContext) {
+
+    logger.info("Counting the request parameters");
+
+    /* Handles HTTP request from client */
+    HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
+    HttpServerResponse response = routingContext.response();
+
+    JsonObject requestBody = new JsonObject();
+
+    /* HTTP request instance/host details */
+    String instanceID = request.getHeader("Host");
+
+    /* Parsing id from HTTP request */
+    String id = request.getParam("id");
+
+    /* Collection of query parameters from HTTP request */
+    MultiMap queryParameters = routingContext.queryParams();
+    /*
+     * List<String> queryKey = routingContext.queryParams().entries().stream().map(Entry::getKey)
+     * .collect(Collectors.toList());
+     */
+    if (!queryParameters.contains("filter")) {
+
+      if ((request.getParam("property") == null || request.getParam("value") == null)
+          && (request.getParam("geoproperty") == null || request.getParam("georel") == null
+              || request.getParam("geometry") == null || request.getParam("coordinates") == null)
+          && (request.getParam("q") == null || request.getParam("limit") == null
+              || request.getParam("offset") == null)) {
+
+        logger.error("Invalid Syntax");
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(new ResponseHandler.Builder().withStatus("invalidSyntax").build().toJsonString());
+        return;
+
+
+        /* } else if ("provider.name".equalsIgnoreCase(request.getParam("property"))) { */
+      } else if (request.getParam("property") != null && !request.getParam("property").isBlank()) {
+
+        requestBody = map2Json(queryParameters);
+
+
+      } else if ("location".equals(request.getParam("geoproperty"))
+          && geometries.contains(request.getParam("geometry"))
+          && geoRels.contains(request.getParam("georel"))) {
+
+        requestBody = map2Json(queryParameters);
+
+      } else if (request.getParam("q") != null && !request.getParam("q").isBlank()) {
+
+        requestBody = map2Json(queryParameters);
+
+      } else {
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
+        return;
+      }
+
+      if (requestBody != null) {
+        logger.info("Count query : " + requestBody);
+        requestBody.put("instanceID", instanceID);
+
+        database.countQuery(requestBody, dbhandler -> {
+          if (dbhandler.succeeded()) {
+            logger.info("Count query completed ".concat(dbhandler.result().toString()));
+            response.putHeader("content-type", "application/json").setStatusCode(200)
+                .end(dbhandler.result().toString());
+          } else if (dbhandler.failed()) {
+            logger.error("Issue in count query ".concat(dbhandler.cause().toString()));
+            response.putHeader("content-type", "application/json").setStatusCode(400)
+                .end(dbhandler.cause().toString());
+          }
+        });
+      } else {
+        response.putHeader("content-type", "application/json").setStatusCode(400)
+            .end(new ResponseHandler.Builder().withStatus("invalidValue").build().toJsonString());
+      }
+    }
+  }
+
+
+  /**
+   * 
+   * @param queryParameters
+   * @return jsonObject of queryParameters
+   */
+  private JsonObject map2Json(MultiMap queryParameters) {
+
+    JsonObject jsonBody = new JsonObject();
+
+    ArrayList<String> excepAttribute = new ArrayList<String>();
+    excepAttribute.add("coordinates");
+    excepAttribute.add("offset");
+    excepAttribute.add("limit");
+    excepAttribute.add("q");
+
+    Pattern regPatternMatchString = Pattern.compile("[\\w]+[^\\,]*(?:\\.*[\\w])");
+    Pattern regPatternText = Pattern.compile("^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}");
+
+    for (Entry<String, String> entry : queryParameters.entries()) {
+
+      String paramValue = entry.getValue().replaceAll("^\"|\"$", "").trim();
+      if (!paramValue.startsWith("[") && !paramValue.endsWith("]")) {
+        if (!excepAttribute.contains(entry.getKey())) {
+          jsonBody.put(entry.getKey(), paramValue);
+        } else if (excepAttribute.contains(entry.getKey()) && !entry.getKey().equals("q")) {
+          jsonBody.put(entry.getKey(), Integer.parseInt(paramValue));
+        } else if (entry.getKey().equals("q") && !regPatternText.matcher(paramValue).matches()) {
+          logger.info("Invalid text string");
+          return null;
+        } else {
+          jsonBody.put(entry.getKey(), paramValue);
+        }
+      } else {
+        Matcher matcher = regPatternMatchString.matcher(entry.getValue());
+        if (matcher.find() && !excepAttribute.contains(entry.getKey())) {
+          String replacedValue = paramValue.replaceAll("[\\w]+[^\\,]*(?:\\.*[\\w])", "\"$0\"");
+          jsonBody.put(entry.getKey(), new JsonArray(replacedValue));
+        } else if (excepAttribute.contains(entry.getKey())) {
+          try {
+            jsonBody.put(entry.getKey(), new JsonArray(paramValue));
+          } catch (DecodeException decodeException) {
+            logger.error("Invalid Json value ".concat(decodeException.toString()));
+            return null;
+          }
+        }
+      }
+    }
+    return jsonBody;
   }
 }
