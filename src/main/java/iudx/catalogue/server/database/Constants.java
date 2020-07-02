@@ -17,7 +17,8 @@ public class Constants {
   public static final String ERROR = "Error";
   public static final String ERROR_INVALID_COORDINATE_POLYGON = "Coordinate mismatch (Polygon)";
   public static final String ERROR_INVALID_GEO_PARAMETER = "Missing/Invalid geo parameters";
-  public static final String ERROR_INVALID_RESPONSE_FILTER = "Missing/Invalid responseFilter parameters";
+  public static final String ERROR_INVALID_RESPONSE_FILTER =
+      "Missing/Invalid responseFilter parameters";
   public static final String FAILED = "failed";
   public static final String FILTER_KEY = "filter";
   public static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
@@ -64,5 +65,5 @@ public class Constants {
   public static final String VALUE = "value";
   public static final String WITHIN = "within";
 
-  
+
 }
