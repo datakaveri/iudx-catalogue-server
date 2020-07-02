@@ -28,23 +28,6 @@ import org.elasticsearch.client.RestClient;
 @ProxyGen
 public interface DatabaseService {
 
-  String CAT_TEST_SEARCH_INDEX = "cat/_search";
-  String GEO_KEY = "location.geometry";
-  String GEO_CIRCLE = "circle";
-  String GEO_BBOX = "envelope";
-  String COORDINATES_KEY = "coordinates";
-  String GEO_RELATION_KEY = "relation";
-  String TYPE_KEY = "type";
-  String GEO_SHAPE_KEY = "geo_shape";
-  String GEO_RADIUS = "radius";
-  String SHAPE_KEY = "shape";
-  String QUERY_KEY = "query";
-  String FILTER_KEY = "filter";
-  String BOOL_KEY = "bool";
-  String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
-  String SOURCE_FILTER_KEY = "_source";
-  String INSTANCE_ID_KEY = "instanceId";
-
   /**
    * The searchQuery implements the search operation with the database.
    * 
