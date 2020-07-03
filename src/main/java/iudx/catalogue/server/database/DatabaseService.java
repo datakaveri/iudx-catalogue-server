@@ -8,6 +8,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import org.elasticsearch.client.RestClient;
 
 /**
  * The Database Service.
@@ -219,6 +220,17 @@ public interface DatabaseService {
 
   @Fluent
   DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The create implements the count operation with the database.
+   * @param client RestClient to perform ES queries.
+   * @return DatabaseService object.
+   */
+
+  @GenIgnore
+  static DatabaseService create(RestClient client) {
+    return new DatabaseServiceImpl(client);
+  }
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
