@@ -1,7 +1,6 @@
 package iudx.catalogue.server.database;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.logging.Logger;
@@ -12,11 +11,7 @@ import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
 import io.vertx.serviceproxy.ServiceBinder;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Properties;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
+
 /**
  * The Database Verticle.
  * <h1>Database Verticle</h1>
@@ -38,12 +33,6 @@ public class DatabaseVerticle extends AbstractVerticle {
   private ServiceDiscovery discovery;
   private Record record;
   private DatabaseService database;
-  private Properties properties;
-  private InputStream inputstream;
-  private String databaseIP;
-  private int databasePort;
-  private RestClient client;
-  private static final String DATABASE_SERVICE_ADDRESS = "iudx.catalogue.database.service";
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -54,30 +43,12 @@ public class DatabaseVerticle extends AbstractVerticle {
    */
 
   @Override
-  public void start(Future<Void> startFuture) throws Exception {
-
-    properties = new Properties();
-    inputstream = null;
-
-    try {
-
-      inputstream = new FileInputStream("config.properties");
-      properties.load(inputstream);
-
-      databaseIP = properties.getProperty("databaseIP");
-      databasePort = Integer.parseInt(properties.getProperty("databasePort"));
-
-    } catch (Exception ex) {
-
-      logger.info(ex.toString());
-
-    }
+  public void start() throws Exception {
 
     /* Create a reference to HazelcastClusterManager. */
 
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
-    client = RestClient.builder(new HttpHost(databaseIP, databasePort, "http")).build();
 
     /* Create or Join a Vert.x Cluster. */
 
@@ -87,22 +58,21 @@ public class DatabaseVerticle extends AbstractVerticle {
 
         /* Publish the Database service with the Event Bus against an address. */
 
-        database = new DatabaseServiceImpl(client);
-        new ServiceBinder(vertx).setAddress(DATABASE_SERVICE_ADDRESS)
+        database = new DatabaseServiceImpl();
+        new ServiceBinder(vertx).setAddress("iudx.catalogue.database.service")
             .register(DatabaseService.class, database);
 
         /* Get a handler for the Service Discovery interface and publish a service record. */
 
         discovery = ServiceDiscovery.create(vertx);
-        record = EventBusService.createRecord(DATABASE_SERVICE_ADDRESS,
-            DATABASE_SERVICE_ADDRESS,
+        record = EventBusService.createRecord("iudx.catalogue.database.service",
+            "iudx.catalogue.database.service",
             DatabaseService.class
         );
 
         discovery.publish(record, publishRecordHandler -> {
           if (publishRecordHandler.succeeded()) {
             Record publishedRecord = publishRecordHandler.result();
-            startFuture.complete();
             logger.info("Publication succeeded " + publishedRecord.toJson());
           } else {
             logger.info("Publication failed " + publishRecordHandler.result());
