@@ -7,6 +7,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.ext.web.client.WebClient;
 
 /**
  * The Authentication Service Implementation.
@@ -23,11 +24,15 @@ import io.vertx.core.logging.LoggerFactory;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
+  private final WebClient webClient;
+
+  public AuthenticationServiceImpl(WebClient client) {
+    webClient = client;
+  }
 
   /**
    * {@inheritDoc}
    */
-
   @Override
   public AuthenticationService tokenInterospect(JsonObject request, JsonObject authenticationInfo,
       Handler<AsyncResult<JsonArray>> handler) {

@@ -5,12 +5,19 @@ import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.net.JksOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.servicediscovery.Record;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
 import io.vertx.serviceproxy.ServiceBinder;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * The Authentication Verticle.
@@ -33,6 +40,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
   private ServiceDiscovery discovery;
   private Record record;
   private AuthenticationService authentication;
+  private final Properties properties = new Properties();
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -56,7 +64,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
       if (res.succeeded()) {
         vertx = res.result();
 
-        authentication = new AuthenticationServiceImpl();
+        authentication = new AuthenticationServiceImpl(createWebClient(vertx, properties));
 
         /* Publish the Authentication service with the Event Bus against an address. */
 
@@ -84,5 +92,38 @@ public class AuthenticationVerticle extends AbstractVerticle {
 
     });
 
+  }
+
+  static WebClient createWebClient(Vertx vertx, Properties properties) {
+    return createWebClient(vertx, properties, false);
+  }
+
+  /**
+   * Helper function to create a WebClient to talk to the auth server. Uses the keystore to get the client certificate
+   * required to call Auth APIs (has to be class 1). Since it's a pure function, it can be used as a helper in testing
+   * initializations also.
+   * @param vertx the vertx instance
+   * @param properties the properties field of the verticle
+   * @param testing a bool which is used to disable client side ssl checks for testing purposes
+   * @return a web client initialized with the relevant client certificate
+   */
+  static WebClient createWebClient(Vertx vertx, Properties properties, boolean testing) {
+    /* Initialize properties from the config file */
+    try {
+      FileInputStream configFile = new FileInputStream(Constants.CONFIG_FILE);
+      if (properties.isEmpty()) properties.load(configFile);
+    } catch (IOException e) {
+      logger.error("Could not load properties from config file", e);
+      //TODO: Decide if anything else is required beyond logging?
+    }
+
+    WebClientOptions webClientOptions = new WebClientOptions();
+    if (testing) webClientOptions.setTrustAll(true).setVerifyHost(false);
+    webClientOptions
+            .setSsl(true)
+            .setKeyStoreOptions(new JksOptions()
+                    .setPath(properties.getProperty(Constants.KEYSTORE_PATH))
+                    .setPassword(properties.getProperty(Constants.KEYSTORE_PASSWORD)));
+    return WebClient.create(vertx, webClientOptions);
   }
 }
