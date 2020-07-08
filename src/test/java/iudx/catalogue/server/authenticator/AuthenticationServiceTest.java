@@ -12,10 +12,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(VertxExtension.class)
 public class AuthenticationServiceTest {
-    private static Logger logger = LoggerFactory.getLogger(AuthenticationServiceTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationServiceTest.class);
     private static Vertx vertxObj;
     private static AuthenticationService authenticationService;
 
+    /**
+     * Initialize and start the auth service for testing.
+     * @param vertx the vertx instance object. Injected by VertxExtension and not started in clustered mode.
+     * @param testContext the context object injected by VertxExtension
+     */
     @BeforeAll
     @DisplayName("Initialize Vertx and deploy AuthenticationVerticle")
     static void initialize(Vertx vertx, VertxTestContext testContext) {
