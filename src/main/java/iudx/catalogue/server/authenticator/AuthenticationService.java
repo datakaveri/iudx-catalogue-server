@@ -7,7 +7,6 @@ import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -40,7 +39,7 @@ public interface AuthenticationService {
 
   @Fluent
   AuthenticationService tokenInterospect(JsonObject request, JsonObject authenticationInfo,
-      Handler<AsyncResult<JsonArray>> handler);
+      Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
