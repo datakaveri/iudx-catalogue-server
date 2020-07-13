@@ -137,6 +137,10 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
+    String result = "{ \"count\": 10 }";
+
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
     return null;
   }
 
@@ -310,6 +314,9 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listProviderRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
+    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
     return null;
   }
 
@@ -320,6 +327,9 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listResourceServerRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
+    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
     return null;
   }
 
@@ -328,6 +338,206 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService getCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "\"status\": \"success\",\n" + "\"results\": [{\n"
+        + "\"__instance-id\" : \"ui-test.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"PSCDCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"__instance-id\" : \"covid-19.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"COVID-19\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"__instance-id\" : \"pudx.catalogue.iudx.org.in\",\n" + "\"configurations\" " + ": {\n"
+        + "\"smart_city_name\" : \"PSCDCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"__instance-id\" : \"varanasi.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"VSCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ]\n" + "}\n" + "}]}";
+
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService setCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
+        + "        {\n" + "            \"instanceID\": \"ui-test.iudx.org.in\",\n"
+        + "            \"configurations\": {\n"
+        + "                \"smart_city_name\": \"PSCDCL\",\n"
+        + "                \"map_default_view_lat_lng\": [\n" + "                    18.5644"
+        + ",\n" + "                    73.7858\n" + "                ]\n" + "            }\n"
+        + "        },\n" + "        {\n" + "            \"instanceID\": \"covid-19.iudx.org.i"
+        + "n\"," + "\n" + "            \"configurations\": {\n"
+        + "                \"smart_city_name\": \"COVID-19\",\n"
+        + "                \"map_default_view_lat_lng\": [\n" + "                    18.5644,"
+        + "\n" + "                    73.7858\n" + "                ]\n" + "            }\n"
+        + "        },\n" + "        {\n"
+        + "            \"instanceID\": \"pudx.catalogue.iudx.org.in\",\n"
+        + "            \"configurations\": {\n"
+        + "                \"smart_city_name\": \"PSCDCL\",\n"
+        + "                \"map_default_view_lat_lng\": [\n" + "                    18.5644,"
+        + "\n" + "                    73.7858\n" + "                ]\n" + "            }\n"
+        + "        },\n" + "        {\n" + "            \"instanceID\": \"varanasi.iudx.org.i"
+        + "n\",\n" + "            \"configurations\": {\n"
+        + "                \"smart_city_name\": \"VSC" + "L\",\n"
+        + "                \"map_default_view_lat_lng\": [\n" + "                    25.3176,\n"
+        + "                    82.9739\n" + "                ]\n" + "            }\n"
+        + "        }\n" + "    ]\n" + "}";
+
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService updateCities(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "\"status\": \"success\",\n" + "\"results\": [\n" + "{\n"
+        + "\"instanceID\" : \"ui-test.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"PSCDCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"instanceID\" : \"covid-19.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"COVID-19\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"instanceID\" : \"pudx.catalogue.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"PSCDCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"instanceID\" : \"varanasi.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"VSCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ]\n" + "}\n" + "}]}";
+
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService getConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "\"status\": \"success\",\n" + "\"results\": [{\n"
+        + "\"__instance-id\" : \"varanasi.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_iudx_logo\" : \"../assets/img/iudx_varanasi.jpeg\",\n"
+        + "\"smart_city_name\" : \"VSCL\",\n" + "\"smart_city_url\" : \"#\",\n"
+        + "\"resoure_server_base_URL\" : \"https://rs.varanasi.iudx.org.in/resource-server/vscl/v1"
+        + "\",\n" + "\"auth_base_URL\" : \"https://auth.iudx.org.in/auth/v1\",\n"
+        + "\"api_docs_link\" : \"https://apidocs.iudx.org.in\",\n"
+        + "\"resource_server_group_head\" : \"urn:iudx-catalogue-varanasi:\",\n"
+        + "\"provider_head\" : \"urn:iudx-catalogue-varanasi:\",\n"
+        + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ],\n"
+        + "\"map_default_lat_lng_name\" : \"VSCL Office\",\n" + "\"map_default_zoom\" : 12.0,\n"
+        + "\"cat_base_URL\" : \"https://varanasi.iudx.org.in/catalogue/v1\"\n" + "},\n"
+        + "\"legends\" : {\n"
+        + "\"rs.varanasi.iudx.org.in/varanasi-swm-bins\" : \"https://image.flaticon.com/icons/svg/26"
+        + "36/2636439.svg\",\n"
+        + "\"rs.varanasi.iudx.org.in/varanasi-aqm\" : \"https://image.flaticon.com/icons/svg/1808/"
+        + "180" + "8701.svg\",\n" + "\"rs.varanasi.iudx.org.in/varanasi-swm-vehicles\" : \"#\",\n"
+        + "\"rs.varanasi.iudx.org.in/varanasi-citizen-app\" : \"#\",\n"
+        + "\"rs.varanasi.iudx.org.in/varanasi-iudx-gis\" : \"#\",\n"
+        + "\"rs.varanasi.iudx.org.in/varanasi-swm-workers\" : \"#\"\n" + "},\n"
+        + "\"global_configuration\" : {\n" + "\"icon_attribution\" : {\n" + "\"author\" : [ {\n"
+        + "\"freepik\" : \"https://www.flaticon.com/authors/freepik\"\n" + "}, {\n"
+        + "\"smashicons\" : \"https://www.flaticon.com/authors/smashicons\"\n" + "}, {\n"
+        + "\"flat-icons\" : \"https://www.flaticon.com/authors/flat-icons\"\n" + "}, {\n"
+        + "\"itim2101\" : \"https://www.flaticon.com/authors/itim2101\"\n" + "} ],\n"
+        + "\"site\" : \"flaticon.com\",\n" + "\"site_link\" : \"https://flaticon.com\"\n" + "}\n"
+        + "}\n" + "}]}";
+
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService updateConfig(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
+        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+        + "            \"method\": \"update\",\n" + "            \"status\": \"success\"\n"
+        + "        }\n" + "    ]\n" + "}";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService setConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
+        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+        + "            \"method\": \"insert\",\n" + "            \"status\": \"success\"\n"
+        + "        }\n" + "    ]\n" + "}";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService deleteConfig(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
+        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+        + "            \"method\": \"delete\",\n" + "            \"status\": \"success\"\n"
+        + "        }\n" + "    ]\n" + "}";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService appendConfig(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
+        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+        + "            \"method\": \"patch\",\n" + "            \"status\": \"success\"\n"
+        + "        }\n" + "    ]\n" + "}";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
 
     return null;
   }
@@ -370,6 +580,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         /* Construct the query for Circle */
         coordinates = request.getJsonArray(Constants.COORDINATES);
         int radius = request.getInteger(Constants.MAX_DISTANCE);
+        // int radius = Integer.parseInt(request.getString(Constants.MAX_DISTANCE));
         relation = request.getString(Constants.GEORELATION);
         shapeJson
             .put(Constants.SHAPE_KEY,
