@@ -75,15 +75,15 @@ public class DatabaseServiceTest {
   @DisplayName("Testing Geo-circle query")
   void searchGeoCircle(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO)
-        .put(Constants.COORDINATES, new JsonArray().add(75.9).add(14.5))
+        .put(Constants.COORDINATES_KEY, new JsonArray().add(73.9).add(18.6))
         .put(Constants.MAX_DISTANCE, 5000).put(Constants.GEOMETRY, Constants.POINT)
         .put(Constants.GEORELATION, Constants.INTERSECTS)
         .put(Constants.GEOPROPERTY, Constants.GEO_KEY);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(75.92,
+      assertEquals(73.9113707,
           response.getJsonArray(Constants.RESULT).getJsonObject(0).getJsonObject(Constants.LOCATION)
-              .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES).getDouble(0));
+              .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES_KEY).getDouble(0));
       testContext.completeNow();
     })));
   }
@@ -122,17 +122,17 @@ public class DatabaseServiceTest {
 
     JsonObject request = new JsonObject().put(Constants.GEOMETRY, Constants.POLYGON)
         .put(Constants.GEORELATION, Constants.WITHIN)
-        .put(Constants.COORDINATES,
+        .put(Constants.COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(new JsonArray().add(75.9).add(14.5))
                 .add(new JsonArray().add(72).add(13)).add(new JsonArray().add(73).add(20))
                 .add(new JsonArray().add(75.9).add(14.5))))
-        .put(Constants.GEOPROPERTY, Constants.GEO_JSON_LOCATION)
+        .put(Constants.GEOPROPERTY, Constants.GEO_KEY)
         .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(75.92,
+      assertEquals(73.783532,
           response.getJsonArray(Constants.RESULT).getJsonObject(0).getJsonObject(Constants.LOCATION)
-              .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES).getDouble(0));
+              .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES_KEY).getDouble(0));
       testContext.completeNow();
     })));
   }
@@ -155,10 +155,10 @@ public class DatabaseServiceTest {
   void searchPolygonFirstLastNoMatch(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(Constants.GEOMETRY, Constants.POLYGON)
         .put(Constants.GEORELATION, Constants.WITHIN)
-        .put(Constants.COORDINATES,
+        .put(Constants.COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(new JsonArray().add(75.9).add(14.5))
                 .add(new JsonArray().add(72).add(13)).add(new JsonArray().add(73).add(20))))
-        .put(Constants.GEOPROPERTY, Constants.GEO_JSON_LOCATION)
+        .put(Constants.GEOPROPERTY, Constants.GEO_KEY)
         .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
@@ -172,21 +172,21 @@ public class DatabaseServiceTest {
   @DisplayName("Testing Geo-LineString query")
   void searchGeoLineString(VertxTestContext testContext) {
     /**
-     * coordinates should look like this [[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5]]
+     * COORDINATES_KEY should look like this [[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5]]
      */
 
     JsonObject request = new JsonObject().put(Constants.GEOMETRY, Constants.LINESTRING)
         .put(Constants.GEORELATION, Constants.INTERSECTS)
-        .put(Constants.COORDINATES,
-            new JsonArray().add(new JsonArray().add(75.9).add(14.5))
-                .add(new JsonArray().add(72).add(13)).add(new JsonArray().add(73).add(20)))
-        .put(Constants.GEOPROPERTY, Constants.GEO_JSON_LOCATION)
+        .put(Constants.COORDINATES_KEY,
+            new JsonArray().add(new JsonArray().add(73.874537).add(18.528311))
+                .add(new JsonArray().add(73.836808).add(18.572797)).add(new JsonArray().add(73.876484).add(18.525007)))
+        .put(Constants.GEOPROPERTY, Constants.GEO_KEY)
         .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(75.92,
+      assertEquals(73.874537,
           response.getJsonArray(Constants.RESULT).getJsonObject(0).getJsonObject(Constants.LOCATION)
-              .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES).getDouble(0));
+              .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES_KEY).getDouble(0));
       testContext.completeNow();
     })));
   }
@@ -200,17 +200,16 @@ public class DatabaseServiceTest {
 
     JsonObject request = new JsonObject().put(Constants.GEOMETRY, Constants.BBOX)
         .put(Constants.GEORELATION, Constants.WITHIN)
-        .put(Constants.COORDINATES,
+        .put(Constants.COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(73).add(20))
                 .add(new JsonArray().add(75).add(14)))
-        .put(Constants.GEOPROPERTY, Constants.GEO_JSON_LOCATION)
+        .put(Constants.GEOPROPERTY, Constants.GEO_KEY)
         .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.86,
+      assertEquals(73.874537,
           response.getJsonArray(Constants.RESULT).getJsonObject(0).getJsonObject(Constants.LOCATION)
-              .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES).getJsonArray(0)
-              .getJsonArray(0).getDouble(0));
+              .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES_KEY).getDouble(0));
       testContext.completeNow();
     })));
 
@@ -220,15 +219,15 @@ public class DatabaseServiceTest {
   @DisplayName("Testing Geo-BBOX Exceptions [empty response]")
   void searchBboxEmptyResponse(VertxTestContext testContext) {
     /**
-     * coordinates should look like this [[lo1,la1],[lo3,la3]]
+     * COORDINATES_KEY should look like this [[lo1,la1],[lo3,la3]]
      */
 
     JsonObject request = new JsonObject().put(Constants.GEOMETRY, Constants.BBOX)
         .put(Constants.GEORELATION, Constants.WITHIN)
-        .put(Constants.COORDINATES,
+        .put(Constants.COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(82).add(25.33))
                 .add(new JsonArray().add(82.01).add(25.317)))
-        .put(Constants.GEOPROPERTY, Constants.GEO_JSON_LOCATION)
+        .put(Constants.GEOPROPERTY, Constants.GEO_KEY)
         .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
@@ -270,7 +269,7 @@ public class DatabaseServiceTest {
 
     dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
       JsonObject res = new JsonObject(response.getMessage());
-      assertEquals("Missing/Invalid responseFilter parameters",
+      assertEquals(Constants.ERROR_INVALID_RESPONSE_FILTER,
           res.getString(Constants.DESCRIPTION));
       testContext.completeNow();
     })));
@@ -281,7 +280,7 @@ public class DatabaseServiceTest {
   void searchComplexGeoResponse(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(Constants.SEARCH_TYPE, Constants.RESPONSE_FILTER_GEO)
         .put("attrs", new JsonArray().add(Constants.ID).add(Constants.TAGS).add(Constants.LOCATION))
-        .put(Constants.COORDINATES, new JsonArray().add(75.9).add(14.5))
+        .put(Constants.COORDINATES_KEY, new JsonArray().add(73.9).add(18.6))
         .put(Constants.MAX_DISTANCE, 5000).put(Constants.GEOMETRY, Constants.POINT)
         .put(Constants.GEORELATION, Constants.INTERSECTS)
         .put(Constants.GEOPROPERTY, Constants.GEO_KEY);
@@ -299,14 +298,119 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(75.92,
+        assertEquals(73.9113707,
             response.getJsonArray(Constants.RESULT).getJsonObject(0)
                 .getJsonObject(Constants.LOCATION).getJsonObject(Constants.GEOMETRY)
-                .getJsonArray(Constants.COORDINATES).getDouble(0));
+                .getJsonArray(Constants.COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
         testContext.completeNow();
       });
     }));
+  }
+
+  @Test
+  @DisplayName("Testing Count Geo-circle query")
+  void countGeoCircle(VertxTestContext testContext) {
+    JsonObject request = new JsonObject().put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO)
+        .put(Constants.COORDINATES_KEY, new JsonArray().add(73.9).add(18.6))
+        .put(Constants.MAX_DISTANCE, 5000).put(Constants.GEOMETRY, Constants.POINT)
+        .put(Constants.GEORELATION, Constants.WITHIN)
+        .put(Constants.GEOPROPERTY, Constants.GEO_KEY);
+
+    dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+      assertEquals(5, response.getInteger(Constants.COUNT));
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @DisplayName("Testing response filter with count")
+  void countResponseFilter(VertxTestContext testContext) {
+    JsonObject request = new JsonObject().put(Constants.SEARCH_TYPE, Constants.RESPONSE_FILTER)
+        .put("attrs", new JsonArray().add(Constants.ID).add(Constants.TAGS));
+
+    dbService.countQuery(request, testContext.failing(response-> testContext.verify(()->{
+      JsonObject res = new JsonObject(response.getMessage());
+      assertEquals(Constants.COUNT_UNSUPPORTED, res.getString(Constants.DESCRIPTION));
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @DisplayName("Testing Complex (response filter + geo) with count")
+  void countComplexI(VertxTestContext testContext) {
+    JsonObject request = new JsonObject().put(Constants.SEARCH_TYPE, Constants.RESPONSE_FILTER_GEO)
+        .put("attrs", new JsonArray().add(Constants.ID).add(Constants.TAGS))
+        .put(Constants.COORDINATES_KEY, new JsonArray().add(73.9).add(18.6))
+        .put(Constants.MAX_DISTANCE, 5000).put(Constants.GEOMETRY, Constants.POINT)
+        .put(Constants.GEORELATION, Constants.WITHIN)
+        .put(Constants.GEOPROPERTY, Constants.GEO_KEY);;
+
+    dbService.countQuery(request, testContext.failing(response-> testContext.verify(()->{
+      JsonObject res = new JsonObject(response.getMessage());
+      assertEquals(Constants.COUNT_UNSUPPORTED, res.getString(Constants.DESCRIPTION));
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @DisplayName("Testing Count Geo-LineString query")
+  void countGeoLineString(VertxTestContext testContext) {
+    /**
+     * COORDINATES_KEY should look like this [[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5]]
+     */
+
+    JsonObject request = new JsonObject().put(Constants.GEOMETRY, Constants.LINESTRING)
+        .put(Constants.GEORELATION, Constants.INTERSECTS)
+        .put(Constants.COORDINATES_KEY,
+            new JsonArray().add(new JsonArray().add(73.874537).add(18.528311))
+                .add(new JsonArray().add(73.836808).add(18.572797)).add(new JsonArray()
+                .add(73.876484).add(18.525007)))
+        .put(Constants.GEOPROPERTY, Constants.GEO_KEY)
+        .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
+
+    dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+      assertEquals(3, response.getInteger(Constants.COUNT));
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @DisplayName("Testing Count Geo-BBOX query")
+  void countGeoBbox(VertxTestContext testContext) {
+    /**
+     * coordinates should look like this [[lo1,la1],[lo3,la3]]
+     */
+
+    JsonObject request = new JsonObject().put(Constants.GEOMETRY, Constants.BBOX)
+        .put(Constants.GEORELATION, Constants.WITHIN)
+        .put(Constants.COORDINATES_KEY,
+            new JsonArray().add(new JsonArray().add(73).add(20))
+                .add(new JsonArray().add(75).add(14)))
+        .put(Constants.GEOPROPERTY, Constants.GEO_KEY)
+        .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
+
+    dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+      assertEquals(50, response.getInteger(Constants.COUNT));
+      testContext.completeNow();
+    })));
+
+  }
+
+  @Test
+  @DisplayName("Testing invalid Search request")
+  void searchInvalidType(VertxTestContext testContext){
+    JsonObject request =
+        new JsonObject().put(Constants.SEARCH_TYPE,"response!@$_geoS241").put(Constants.GEOMETRY,
+            Constants.BBOX).put(Constants.GEORELATION, Constants.WITHIN).put(Constants.COORDINATES_KEY,
+            new JsonArray().add(new JsonArray().add(73).add(20)).add(new JsonArray()
+                .add(75).add(14))).put(Constants.GEOPROPERTY, Constants.GEO_KEY);
+
+    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
+      JsonObject res = new JsonObject(response.getMessage());
+      assertEquals(Constants.INVALID_SEARCH, res.getString(Constants.DESCRIPTION));
+      testContext.completeNow();
+    })));
   }
 
 }
