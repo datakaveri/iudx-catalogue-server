@@ -16,4 +16,5 @@ public class Constants {
     public static final String DUMMY_RESOURCE_ID = "datakaveri.org/1022f4c20542abd5087107c0b6de4cb3130c5b7b/example.com/catalog/resource_name";
     public static final String DUMMY_RESOURCE_NAME = "resource_name";
     public static final String DUMMY_RESOURCE_GROUP = "catalog";
+    public static final String AUTH_TIP_PATH = "/auth/v1/token/introspect";
 }
