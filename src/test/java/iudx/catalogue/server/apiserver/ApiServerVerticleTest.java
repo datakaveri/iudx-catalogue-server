@@ -25,7 +25,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Test class for ApiServerVerticle api handlers
- * 
+ * TODO Need to update count test cases. 
+ * TODO Update all the end to end test cases. 
+ * TODO Use Constants file for all query strings.
  * @see {@link ApiServerVerticle}
  */
 @ExtendWith(VertxExtension.class)
