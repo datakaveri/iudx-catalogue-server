@@ -3,6 +3,7 @@ package iudx.catalogue.server.authenticator;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
@@ -30,21 +31,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         webClient = client;
     }
 
-    static void validateRequest(JsonObject request) throws IllegalArgumentException {
-        if (request.isEmpty()) throw new IllegalArgumentException("Request argument is empty/missing");
-        JsonArray typeArray = request.getJsonArray("type", new JsonArray());
-        if (typeArray.isEmpty()) throw new IllegalArgumentException("Type array is empty/missing");
-        String itemType = extractItemType(typeArray);
-        if (itemType.equals(Constants.INVALID_TYPE_STRING))
-            throw new IllegalArgumentException("Missing valid item type");
-        String itemID = request.getString("id", "");
-        String itemName = request.getString("name", "");
-        String itemResourceGroup = request.getString("resourceGroup", "");
-        if (itemID.isBlank() &&
-                (itemName.isBlank() || itemResourceGroup.isBlank()))
-            throw new IllegalArgumentException("Missing ID and name/resource group");
-    }
-
     private static String extractItemType(JsonArray typeArray) {
         for (Object o : typeArray) {
             for (String validType : Constants.VALID_TYPE_STRINGS) {
@@ -58,7 +44,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     static void validateAuthInfo(JsonObject authInfo) throws IllegalArgumentException {
         if (authInfo.isEmpty()) throw new IllegalArgumentException("AuthInfo argument is empty/missing");
         String token = authInfo.getString("token", "");
-        if (token.isBlank()) throw new IllegalArgumentException("Token in authenticationInfo is blank/missing");
+        String operation = authInfo.getString("operation", "");
+        if (token.isBlank() || operation.isBlank())
+            throw new IllegalArgumentException("Token/Operation in authenticationInfo is blank/missing");
+        try {
+            HttpMethod.valueOf(operation);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid operation in the authenticationInfo object");
+        }
+
     }
 
     /**
@@ -71,7 +65,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // TODO: Stub code, to be removed after use
         JsonObject result = new JsonObject();
         try {
-            validateRequest(request);
             validateAuthInfo(authenticationInfo);
         } catch (IllegalArgumentException e) {
             result.put("status", "error");
@@ -79,10 +72,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             handler.handle(Future.succeededFuture(result));
             return this;
         }
-
         handler.handle(Future.succeededFuture(result));
-
-    return null;
-  }
+        return null;
+    }
 
 }

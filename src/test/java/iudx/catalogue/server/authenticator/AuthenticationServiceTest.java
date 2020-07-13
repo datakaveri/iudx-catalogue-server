@@ -1,7 +1,7 @@
 package iudx.catalogue.server.authenticator;
 
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
+import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.Properties;
+import java.util.Random;
 
 @ExtendWith(VertxExtension.class)
 public class AuthenticationServiceTest {
@@ -68,7 +69,8 @@ public class AuthenticationServiceTest {
     /**
      * Test the authInfo argument validation. First test with dummy token to see if the validation succeeds. And then
      * clear the authInfo object, and test to see if the validation fails since the token is missing. Does not check if
-     * the token itself is invalid, since that's the job of the auth server.
+     * the token format itself is invalid, since that's the job of the auth server. Also check if operation field is
+     * present. That field should contain a valid HTTP method value : POST | PUT | DELETE etc.
      *
      * @param testContext the context object injected by VertxExtension
      */
@@ -77,10 +79,14 @@ public class AuthenticationServiceTest {
     public void testTIPAuthInfoArgValidation(VertxTestContext testContext) {
         JsonObject authInfo = new JsonObject();
         String dummyToken = properties.getProperty(Constants.DUMMY_TOKEN_KEY);
+        int rnd =  new Random().nextInt(HttpMethod.values().length);
+        String dummyMethod = HttpMethod.values()[rnd].toString();
         authInfo.put("token", dummyToken);
+        authInfo.put("operation", dummyMethod);
         try {
             AuthenticationServiceImpl.validateAuthInfo(authInfo);
             logger.info("Dummy token value: " + dummyToken);
+            logger.info("Dummy operation value: " + dummyMethod);
             logger.info("Validation of proper auth info arg succeeded");
         } catch (IllegalArgumentException e) {
             logger.error("Valid auth info arg failed validation");
@@ -91,7 +97,7 @@ public class AuthenticationServiceTest {
         authInfo.clear();
         try {
             AuthenticationServiceImpl.validateAuthInfo(authInfo);
-            logger.error("Empty authInfo without token passed validation");
+            logger.error("Empty authInfo without token/operation passed validation");
             testContext.failNow(new IllegalArgumentException());
             return;
         } catch (IllegalArgumentException e) {
@@ -99,92 +105,17 @@ public class AuthenticationServiceTest {
             logger.info("Empty authInfo failed validation");
         }
 
-        testContext.completeNow();
-    }
-
-    /**
-     * Test the request argument validation method. The validations required are:
-     * 1. Check if the request object is empty and throw error if true
-     * 2. Check if type array is missing or empty and throw error is true
-     * 3. Check if type array contains the valid item string: "iudx:Resource", and throw error if false
-     * 4. If ID is missing or blank, check if name + resourceGroup fields are missing or blank, and throw error if true
-     *
-     * @param testContext the context object injected by VertxExtension
-     */
-    @Test
-    @DisplayName("Test resource item of the tokenInterospect call")
-    public void testTIPResourceItemArgsValidation(VertxTestContext testContext) {
-        JsonObject request = new JsonObject();
-
+        authInfo.clear();
+        authInfo.put("token", dummyToken);
+        authInfo.put("operation", "NONSENSE");
         try {
-            AuthenticationServiceImpl.validateRequest(request);
-            logger.error("Empty request passed validation");
+            AuthenticationServiceImpl.validateAuthInfo(authInfo);
+            logger.error("Invalid operation in authInfo passed validation");
             testContext.failNow(new IllegalArgumentException());
             return;
         } catch (IllegalArgumentException e) {
             logger.info(e.getMessage());
-            logger.info("Empty request failed validation");
-        }
-
-        request.clear();
-        request.put("type", new JsonArray());
-        try {
-            AuthenticationServiceImpl.validateRequest(request);
-            logger.error("Empty type array passed validation");
-            testContext.failNow(new IllegalArgumentException());
-            return;
-        } catch (IllegalArgumentException e) {
-            logger.info(e.getMessage());
-            logger.info("Empty type failed validation");
-        }
-
-        request.clear();
-        request.put("type", new JsonArray().add(Constants.INVALID_TYPE_STRING));
-        try {
-            AuthenticationServiceImpl.validateRequest(request);
-            logger.error("Invalid type was accepted by validator");
-            testContext.failNow(new IllegalArgumentException());
-            return;
-        } catch (IllegalArgumentException e) {
-            logger.info(e.getMessage());
-            logger.info("Invalid type field rejected by validator");
-        }
-
-        request.clear();
-        request.put("type", new JsonArray().add(Constants.RESOURCE_TYPE_STRING));
-        try {
-            AuthenticationServiceImpl.validateRequest(request);
-            logger.error("Missing ID and Name+ResourceGroup fields but accepted by validator");
-            testContext.failNow(new IllegalArgumentException());
-            return;
-        } catch (IllegalArgumentException e) {
-            logger.info(e.getMessage());
-            logger.info("Missing ID and Name+ResourceGroup fields and rejected by validator");
-        }
-
-        request.clear();
-        request.put("type", new JsonArray().add(Constants.RESOURCE_TYPE_STRING));
-        request.put("id", Constants.DUMMY_RESOURCE_ID);
-        try {
-            AuthenticationServiceImpl.validateRequest(request);
-            logger.info("Request validator success for valid type and ID of resource Item");
-        } catch (IllegalArgumentException e) {
-            logger.error("Valid request arg rejected by validator");
-            testContext.failNow(e.getCause());
-            return;
-        }
-
-        request.clear();
-        request.put("type", new JsonArray().add(Constants.RESOURCE_TYPE_STRING));
-        request.put("name", Constants.DUMMY_RESOURCE_NAME);
-        request.put("resourceGroup", Constants.DUMMY_RESOURCE_GROUP);
-        try {
-            AuthenticationServiceImpl.validateRequest(request);
-            logger.info("Request validator success for valid type and name+resourceGroup of resource Item");
-        } catch (IllegalArgumentException e) {
-            logger.error("Valid request arg rejected by validator");
-            testContext.failNow(e.getCause());
-            return;
+            logger.info("Invalid operation in authInfo failed validation");
         }
 
         testContext.completeNow();
