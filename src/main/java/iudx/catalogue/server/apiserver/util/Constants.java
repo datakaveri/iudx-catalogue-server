@@ -117,5 +117,7 @@ public class Constants {
   public static final String PATTERN_TEXT = "^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}";
   public static final String PATTERN_ARRAY = "^\\[.*\\]$";
 
-
+  public static final String POST = "POST";
+  public static final String PUT = "PUT";
+  public static final String DELETE = "DELETE";
 }
