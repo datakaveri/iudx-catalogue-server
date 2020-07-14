@@ -40,8 +40,8 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     /* Initialize elastic clients and JsonObjects */
     Request elasticRequest;
-    JsonObject query;
     JsonObject errorJson = new JsonObject();
+    request.put(Constants.SEARCH, true);
     // TODO: Stub code, to be removed
 
     // if (!request.containsKey("instanceId")) {
@@ -62,7 +62,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     elasticRequest =
         new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX + Constants.FILTER_PATH);
     /* Construct the query to be made */
-    query = queryDecoder(request);
+    JsonObject query = queryDecoder(request);
     if (query.containsKey(Constants.ERROR)) {
       logger.info("Query returned with an error");
       errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
@@ -136,12 +136,67 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    JsonObject errorJson = new JsonObject();
+    logger.info("Inside countQuery<DatabaseService> block-------- " + request.toString());
+    request.put(Constants.SEARCH, false);
+    // if (!request.containsKey("instanceId")) {
+    // errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION, "No instanceId
+    // found");
+    // handler.handle(Future.failedFuture(errorJson.toString()));
+    // return null;
+    // }
+    /* Validate the Request */
+    if (!request.containsKey(Constants.SEARCH_TYPE)) {
+      errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+          Constants.NO_SEARCH_TYPE_FOUND);
+      handler.handle(Future.failedFuture(errorJson.toString()));
+      return null;
+    }
+    Request elasticRequest = new Request("GET", Constants.CAT_TEST_COUNT_INDEX);
+    JsonObject query = queryDecoder(request);
+    if (query.containsKey("Error")) {
+      logger.info("Query returned with an error");
+      errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+          query.getString(Constants.ERROR));
+      handler.handle(Future.failedFuture(errorJson.toString()));
+      return null;
+    }
+    logger.info("Query constructed: " + query.toString());
+    elasticRequest.setJsonEntity(query.toString());
+    client.performRequestAsync(elasticRequest, new ResponseListener() {
+      @Override
+      public void onSuccess(Response response) {
+        logger.info("Successful DB request");
+        try {
+          int statusCode = response.getStatusLine().getStatusCode();
+          if (statusCode != 200 && statusCode != 204) {
+            handler.handle(Future.failedFuture("Status code is not 2xx"));
+            return;
+          }
+          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+          handler.handle(Future.succeededFuture(new JsonObject()
+              .put(Constants.COUNT, responseJson.getInteger(Constants.COUNT))));
+        } catch (IOException e) {
+          logger.info("DB ERROR:\n");
+          e.printStackTrace();
+          /* Handle request error */
+          errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+              Constants.DATABASE_ERROR);
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      }
 
-    String result = "{ \"count\": 10 }";
-
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-
-    return null;
+      @Override
+      public void onFailure(Exception e) {
+        logger.info("DB request has failed. ERROR:\n");
+        e.printStackTrace();
+        /* Handle request error */
+        errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+            Constants.DATABASE_ERROR);
+        handler.handle(Future.failedFuture(errorJson.toString()));
+      }
+    });
+    return this;
   }
 
   /**
@@ -553,7 +608,12 @@ public class DatabaseServiceImpl implements DatabaseService {
   public JsonObject queryDecoder(JsonObject request) {
     String searchType = request.getString(Constants.SEARCH_TYPE);
     JsonObject elasticQuery = new JsonObject();
-    elasticQuery.put(Constants.SIZE, 10);
+    Boolean match = false;
+    JsonObject boolObject = new JsonObject().put(Constants.BOOL_KEY, new JsonObject());
+    /* TODO: Pagination for large result set */
+    if (request.getBoolean(Constants.SEARCH)) {
+      elasticQuery.put(Constants.SIZE_KEY, 10);
+    }
     // Will be used for multi-tenancy
     // String instanceId = request.getString("instanceId");
     JsonArray filterQuery = new JsonArray();
@@ -566,6 +626,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     /* Handle the search type */
     if (searchType.matches(Constants.GEOSEARCH_REGEX)) {
       logger.info("In geoSearch block---------");
+      match = true;
       JsonObject shapeJson = new JsonObject();
       JsonObject geoSearch = new JsonObject();
       String relation;
@@ -574,11 +635,11 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (request.containsKey(Constants.GEOMETRY)
           && request.getString(Constants.GEOMETRY).equalsIgnoreCase(Constants.POINT)
           && request.containsKey(Constants.GEORELATION)
-          && request.containsKey(Constants.COORDINATES)
+          && request.containsKey(Constants.COORDINATES_KEY)
           && request.containsKey(Constants.GEOPROPERTY)
           && request.containsKey(Constants.MAX_DISTANCE)) {
         /* Construct the query for Circle */
-        coordinates = request.getJsonArray(Constants.COORDINATES);
+        coordinates = request.getJsonArray(Constants.COORDINATES_KEY);
         int radius = request.getInteger(Constants.MAX_DISTANCE);
         // int radius = Integer.parseInt(request.getString(Constants.MAX_DISTANCE));
         relation = request.getString(Constants.GEORELATION);
@@ -592,12 +653,12 @@ public class DatabaseServiceImpl implements DatabaseService {
           && (request.getString(Constants.GEOMETRY).equalsIgnoreCase(Constants.POLYGON)
               || request.getString(Constants.GEOMETRY).equalsIgnoreCase(Constants.LINESTRING))
           && request.containsKey(Constants.GEORELATION)
-          && request.containsKey(Constants.COORDINATES)
+          && request.containsKey(Constants.COORDINATES_KEY)
           && request.containsKey(Constants.GEOPROPERTY)) {
         /* Construct the query for Line String, Polygon */
         String geometry = request.getString(Constants.GEOMETRY);
         relation = request.getString(Constants.GEORELATION);
-        coordinates = request.getJsonArray(Constants.COORDINATES);
+        coordinates = request.getJsonArray(Constants.COORDINATES_KEY);
         int length = coordinates.getJsonArray(0).size();
         if (geometry.equalsIgnoreCase(Constants.POLYGON)
             && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(0)
@@ -613,11 +674,11 @@ public class DatabaseServiceImpl implements DatabaseService {
       } else if (request.containsKey(Constants.GEOMETRY)
           && request.getString(Constants.GEOMETRY).equalsIgnoreCase(Constants.BBOX)
           && request.containsKey(Constants.GEORELATION)
-          && request.containsKey(Constants.COORDINATES)
+          && request.containsKey(Constants.COORDINATES_KEY)
           && request.containsKey(Constants.GEOPROPERTY)) {
         /* Construct the query for BBOX */
         relation = request.getString(Constants.GEORELATION);
-        coordinates = request.getJsonArray(Constants.COORDINATES);
+        coordinates = request.getJsonArray(Constants.COORDINATES_KEY);
         shapeJson = new JsonObject();
         shapeJson
             .put(Constants.SHAPE_KEY,
@@ -684,24 +745,36 @@ public class DatabaseServiceImpl implements DatabaseService {
     if (searchType.matches(Constants.RESPONSE_FILTER_REGEX)) {
       /* Construct the filter for response */
       logger.info("In responseFilter block---------");
+      match = true;
+      if (!request.getBoolean(Constants.SEARCH)) {
+        return new JsonObject().put("Error", Constants.COUNT_UNSUPPORTED);
+      }
       if (request.containsKey(Constants.ATTRIBUTE)) {
         JsonArray sourceFilter = request.getJsonArray(Constants.ATTRIBUTE);
         elasticQuery.put(Constants.SOURCE_FILTER_KEY, sourceFilter);
       } else if (request.containsKey(Constants.FILTER_KEY)) {
         JsonArray sourceFilter = request.getJsonArray(Constants.FILTER_KEY);
         elasticQuery.put(Constants.SOURCE_FILTER_KEY, sourceFilter);
+        elasticQuery.put(Constants.SOURCE, sourceFilter);
       } else {
         return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_RESPONSE_FILTER);
       }
     }
 
+    if (!match) {
+      return new JsonObject().put("Error", Constants.INVALID_SEARCH);
+    } else {
+      /* return fully formed elastic query */
+      boolObject.getJsonObject(Constants.BOOL_KEY).put(Constants.FILTER_KEY, filterQuery);
+      return elasticQuery.put(Constants.QUERY_KEY, boolObject);
+    }
+    
     // if (!filterQuery.isEmpty()) {
-    elasticQuery.put(Constants.QUERY_KEY, new JsonObject().put(Constants.BOOL_KEY,
-        new JsonObject().put(Constants.FILTER_KEY, filterQuery)));
-
-    return elasticQuery;
+    //return elasticQuery;
     /*
      * } else { return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_PARAMETER); }
      */
+    /* checks if any valid search requests have matched */
+
   }
 }

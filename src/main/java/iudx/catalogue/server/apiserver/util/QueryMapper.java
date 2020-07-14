@@ -87,7 +87,6 @@ public class QueryMapper {
       jsonBody.put(Constants.SEARCH_TYPE,
           jsonBody.getString(Constants.SEARCH_TYPE).concat(Constants.RESPONSE_FILTER));
     }
-
     return jsonBody;
   }
 }

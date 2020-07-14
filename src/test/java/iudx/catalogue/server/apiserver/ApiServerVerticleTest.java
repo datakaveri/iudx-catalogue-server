@@ -25,7 +25,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  * Test class for ApiServerVerticle api handlers
- * 
+ * TODO Need to update count test cases. 
+ * TODO Update all the end to end test cases. 
+ * TODO Use Constants file for all query strings.
  * @see {@link ApiServerVerticle}
  */
 @ExtendWith(VertxExtension.class)
@@ -68,10 +70,10 @@ public class ApiServerVerticleTest {
 
     result.onComplete(resultHandler -> {
       if (resultHandler.succeeded()) {
-        // vertx.setTimer(15000, id -> {
+       vertx.setTimer(15000, id -> {
         logger.info("!!!!!!!!\n\n!!!!!!!!!");
         testContext.completeNow();
-        // });
+       });
       }
     });
   }
@@ -87,7 +89,7 @@ public class ApiServerVerticleTest {
   @Order(1)
   @DisplayName("Create Item[Status:201, Endpoint: /item]")
   public void createItem201(VertxTestContext testContext) throws InterruptedException {
-    Thread.sleep(30000);;
+
     fileSytem.readFile("src/test/resources/request_body.json", fileRes -> {
       if (fileRes.succeeded()) {
 
@@ -1083,6 +1085,7 @@ public class ApiServerVerticleTest {
   void textSearchTest(VertxTestContext testContext) {
     /* Encoded whitespaces to get appropriate response */
     String apiURL = "search?q=\"climo\"";
+    
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1101,7 +1104,9 @@ public class ApiServerVerticleTest {
   @DisplayName("Text Search with *")
   void textSearchAcceptableSpecialCharTest(VertxTestContext testContext) {
     /* Encoded whitespaces to get appropriate response */
+    
     String apiURL = "search?q=\"climo*\"";
+
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
