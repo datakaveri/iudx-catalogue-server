@@ -336,8 +336,11 @@ public class ApiServerVerticle extends AbstractVerticle {
             || request.getParam(Constants.GEOREL) == null
             || request.getParam(Constants.GEOMETRY) == null
             || request.getParam(Constants.COORDINATES) == null)
-        && (request.getParam(Constants.Q_VALUE) == null || request.getParam(Constants.LIMIT) == null
-            || request.getParam(Constants.OFFSET) == null)) {
+        && (request
+            .getParam(Constants.Q_VALUE) == null /*
+                                                  * || request.getParam(Constants.LIMIT) == null ||
+                                                  * request.getParam(Constants.OFFSET) == null
+                                                  */)) {
 
       logger.error("Invalid Syntax");
       response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
@@ -392,9 +395,8 @@ public class ApiServerVerticle extends AbstractVerticle {
           response.end();
         } else if (handler.failed()) {
           logger.error(handler.cause().getMessage());
-          response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-          response.setStatusCode(500);
-          response.end(Constants.INTERNAL_SERVER_ERROR);
+          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+              .setStatusCode(400).end(handler.cause().getMessage());
         }
       });
     } else {

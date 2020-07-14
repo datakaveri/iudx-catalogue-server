@@ -65,5 +65,15 @@ public class Constants {
   public static final String VALUE = "value";
   public static final String WITHIN = "within";
 
+  public static final String TAGSEARCH_REGEX = "(.*)tagsSearch(.*)";
+  public static final String TEXTSEARCH_REGEX = "(.*)textSearch(.*)";
+  public static final String PROPERTY = "property";
+  public static final String MATCH_KEY = "match";
+  public static final String STRING_QUERY_KEY = "query_string";
+  public static final String LIMIT = "limit";
+  public static final String OFFSET = "offset";
+  public static final String FROM = "from";
+  public static final String ERROR_INVALID_PARAMETER = "Incorrect/missing query parameters";
 
+  public static final String Q_KEY = "q";
 }

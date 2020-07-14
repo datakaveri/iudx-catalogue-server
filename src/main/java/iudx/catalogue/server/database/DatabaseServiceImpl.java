@@ -630,22 +630,78 @@ public class DatabaseServiceImpl implements DatabaseService {
       }
       geoSearch.put(Constants.GEO_SHAPE_KEY, new JsonObject().put(Constants.GEO_KEY, shapeJson));
       filterQuery.add(geoSearch);
+
     }
+
+    /* Construct the query for tag based search */
+    if (searchType.matches(Constants.TAGSEARCH_REGEX)) {
+      logger.info("Tag search block");
+
+      /* validating tag search attributes */
+      if (request.containsKey(Constants.PROPERTY)
+          && !request.getJsonArray(Constants.PROPERTY).isEmpty()
+          && request.containsKey(Constants.VALUE)) {
+
+        /* fetching values from request */
+        String propertyAttr = request.getJsonArray(Constants.PROPERTY).getString(0);
+        String valueAttr = request.getJsonArray(Constants.VALUE).toString().replaceAll("\\[", "")
+            .replaceAll("\\]", "").replaceAll("\"", "");
+
+        /* constructing db queries */
+        filterQuery.add(new JsonObject().put(Constants.MATCH_KEY, new JsonObject().put(propertyAttr,
+            new JsonObject().put(Constants.QUERY_KEY, valueAttr))));
+      }
+    }
+
+    /* Construct the query for text based search */
+    if (searchType.matches(Constants.TEXTSEARCH_REGEX)) {
+      logger.info("Text search block");
+
+      /* validating tag search attributes */
+      if (request.containsKey(Constants.Q_KEY) && !request.getString(Constants.Q_KEY).isBlank()) {
+
+        /* fetching values from request */
+        String textAttr = request.getString(Constants.Q_KEY);
+
+        /* constructing db queries */
+        filterQuery.add(new JsonObject().put(Constants.STRING_QUERY_KEY,
+            new JsonObject().put(Constants.QUERY_KEY, textAttr)));
+      }
+    }
+
+    /* checking the requests for limit attribute */
+    if (request.containsKey(Constants.LIMIT)) {
+      Integer sizeFilter = request.getInteger(Constants.LIMIT);
+      elasticQuery.put(Constants.SIZE, sizeFilter);
+    }
+
+    /* checking the requests for offset attribute */
+    if (request.containsKey(Constants.OFFSET)) {
+      Integer offsetFilter = request.getInteger(Constants.OFFSET);
+      elasticQuery.put(Constants.FROM, offsetFilter);
+    }
+
     if (searchType.matches(Constants.RESPONSE_FILTER_REGEX)) {
       /* Construct the filter for response */
       logger.info("In responseFilter block---------");
       if (request.containsKey(Constants.ATTRIBUTE)) {
         JsonArray sourceFilter = request.getJsonArray(Constants.ATTRIBUTE);
         elasticQuery.put(Constants.SOURCE_FILTER_KEY, sourceFilter);
+      } else if (request.containsKey(Constants.FILTER_KEY)) {
+        JsonArray sourceFilter = request.getJsonArray(Constants.FILTER_KEY);
+        elasticQuery.put(Constants.SOURCE_FILTER_KEY, sourceFilter);
       } else {
         return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_RESPONSE_FILTER);
       }
     }
 
+    // if (!filterQuery.isEmpty()) {
     elasticQuery.put(Constants.QUERY_KEY, new JsonObject().put(Constants.BOOL_KEY,
         new JsonObject().put(Constants.FILTER_KEY, filterQuery)));
 
     return elasticQuery;
-
+    /*
+     * } else { return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_PARAMETER); }
+     */
   }
 }
