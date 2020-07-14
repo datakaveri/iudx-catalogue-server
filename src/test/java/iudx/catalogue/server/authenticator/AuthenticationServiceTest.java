@@ -79,7 +79,7 @@ public class AuthenticationServiceTest {
     public void testTIPAuthInfoArgValidation(VertxTestContext testContext) {
         JsonObject authInfo = new JsonObject();
         String dummyToken = properties.getProperty(Constants.DUMMY_TOKEN_KEY);
-        int rnd =  new Random().nextInt(HttpMethod.values().length);
+        int rnd = new Random().nextInt(HttpMethod.values().length);
         String dummyMethod = HttpMethod.values()[rnd].toString();
         authInfo.put("token", dummyToken);
         authInfo.put("operation", dummyMethod);
@@ -107,6 +107,19 @@ public class AuthenticationServiceTest {
 
         authInfo.clear();
         authInfo.put("token", dummyToken);
+        authInfo.put("operation", "");
+        try {
+            AuthenticationServiceImpl.validateAuthInfo(authInfo);
+            logger.error("Blank token/operation in authInfo passed validation");
+            testContext.failNow(new IllegalArgumentException());
+            return;
+        } catch (IllegalArgumentException e) {
+            logger.info(e.getMessage());
+            logger.info("Blank token/operation in authInfo failed validation");
+        }
+
+        authInfo.clear();
+        authInfo.put("token", dummyToken);
         authInfo.put("operation", "NONSENSE");
         try {
             AuthenticationServiceImpl.validateAuthInfo(authInfo);
@@ -119,5 +132,97 @@ public class AuthenticationServiceTest {
         }
 
         testContext.completeNow();
+    }
+
+    @Test
+    @DisplayName("Test happy path of the TIP call with dummy PUT call")
+    public void testValidTIP(VertxTestContext testContext) {
+        JsonObject request = new JsonObject();
+        request.put("provider", Constants.DUMMY_PROVIDER_PREFIX);
+        JsonObject authInfo = new JsonObject();
+        authInfo.put("token", properties.getProperty("authDummyToken"));
+        authInfo.put("operation", HttpMethod.PUT.toString());
+        authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
+            if (jsonObjectAsyncResult.failed()) {
+                logger.error("Async response of valid TIP call failed");
+                testContext.failNow(jsonObjectAsyncResult.cause());
+                return;
+            }
+            JsonObject result = jsonObjectAsyncResult.result();
+            String status = result.getString("status");
+            if (status.equals("error")) {
+                logger.error("Valid TIP call failed");
+                testContext.failNow(new Exception(result.getString("message")));
+            } else if (status.equals("success")) {
+                logger.info("Valid TIP call success");
+                testContext.completeNow();
+            }
+        });
+    }
+
+    @Test
+    @DisplayName("Test missing provider in request object for the TIP call")
+    public void testMissingProviderInTIP(VertxTestContext testContext) {
+        JsonObject request = new JsonObject();
+        JsonObject authInfo = new JsonObject();
+        authInfo.put("token", properties.getProperty("authDummyToken"));
+        authInfo.put("operation", HttpMethod.PUT.toString());
+        authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
+            JsonObject result = jsonObjectAsyncResult.result();
+            String status = result.getString("status");
+            if (status.equals("error")) {
+                logger.info("Missing provider info failed validation in TIP call");
+                testContext.completeNow();
+            } else {
+                logger.error("Missing provider info succeeded validation in TIP call");
+                testContext.failNow(new IllegalArgumentException());
+            }
+        });
+    }
+
+    @Test
+    @DisplayName("Test invalid token for the TIP call")
+    public void testInvalidTokenInTIP(VertxTestContext testContext) {
+        JsonObject request = new JsonObject();
+        request.put("provider", Constants.DUMMY_PROVIDER_PREFIX);
+        JsonObject authInfo = new JsonObject();
+        String dummyToken = properties.getProperty("authDummyToken");
+        String invalidToken = dummyToken.substring(0, dummyToken.length() - 1);
+        authInfo.put("token", invalidToken);
+        authInfo.put("operation", HttpMethod.PUT.toString());
+        authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
+            JsonObject result = jsonObjectAsyncResult.result();
+            String status = result.getString("status");
+            if (status.equals("error")) {
+                logger.info("Invalid token failed TIP call");
+                logger.info(result.getString("message"));
+                testContext.completeNow();
+            } else {
+                logger.error("Invalid token succeeded TIP call");
+                testContext.failNow(new IllegalArgumentException());
+            }
+        });
+    }
+
+    @Test
+    @DisplayName("Test impermissible operation for the TIP call")
+    public void testInvalidPermissionInTIP(VertxTestContext testContext) {
+        JsonObject request = new JsonObject();
+        request.put("provider", Constants.DUMMY_PROVIDER_PREFIX);
+        JsonObject authInfo = new JsonObject();
+        authInfo.put("token", properties.getProperty("authDummyToken"));
+        authInfo.put("operation", HttpMethod.OTHER.toString());
+        authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
+            JsonObject result = jsonObjectAsyncResult.result();
+            String status = result.getString("status");
+            if (status.equals("error")) {
+                logger.info("Invalid operation failed TIP call");
+                logger.info(result.getString("message"));
+                testContext.completeNow();
+            } else {
+                logger.error("Invalid operation succeeded TIP call");
+                testContext.failNow(new IllegalArgumentException());
+            }
+        });
     }
 }
