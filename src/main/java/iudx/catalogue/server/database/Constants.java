@@ -25,6 +25,8 @@ public class Constants {
   static final String SUCCESS = "success";
   static final String INSTANCE_ID_KEY = "instanceId";
   static final String CONFIG_FILE = "config.properties";
+  static final String RESOURCE = "resource";
+  static final String ITEM_TYPE = "itemType";
 
   /* Database */
   static final String CAT_TEST_COUNT_INDEX = "cat/_count";

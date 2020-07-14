@@ -80,18 +80,19 @@ public class DatabaseServiceTest {
   void createItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request
-        .put("itemType", "Resource")
-        .put("id", "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
+        .put(Constants.ITEM_TYPE, Constants.RESOURCE)
+        .put(
+            Constants.ID,
+            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.createItem(
         request,
         testContext.succeeding(
             response ->
                 testContext.verify(
                     () -> {
-                      String success = "success";
-                      String status = response.getString("status");
+                      String status = response.getString(Constants.STATUS);
                       System.out.println(response);
-                      assertEquals(success, status);
+                      assertEquals(Constants.SUCCESS, status);
                       TimeUnit.SECONDS.sleep(5);
                       testContext.completeNow();
                     })));
@@ -103,8 +104,10 @@ public class DatabaseServiceTest {
   void updateItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request
-        .put("itemType", "Resource")
-        .put("id", "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
+        .put(Constants.ITEM_TYPE, Constants.RESOURCE)
+        .put(
+            Constants.ID,
+            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
         .put("test", "test");
     dbService.updateItem(
         request,
@@ -112,10 +115,9 @@ public class DatabaseServiceTest {
             response ->
                 testContext.verify(
                     () -> {
-                      String success = "success";
-                      String status = response.getString("status");
+                      String status = response.getString(Constants.STATUS);
                       System.out.println(response);
-                      assertEquals(success, status);
+                      assertEquals(Constants.SUCCESS, status);
                       TimeUnit.SECONDS.sleep(5);
                       testContext.completeNow();
                     })));
@@ -127,18 +129,19 @@ public class DatabaseServiceTest {
   void deleteItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request
-        .put("itemType", "Resource")
-        .put("id", "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
+        .put(Constants.ITEM_TYPE, Constants.RESOURCE)
+        .put(
+            Constants.ID,
+            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.deleteItem(
         request,
         testContext.succeeding(
             response ->
                 testContext.verify(
                     () -> {
-                      String success = "success";
-                      String status = response.getString("status");
+                      String status = response.getString(Constants.STATUS);
                       System.out.println(response);
-                      assertEquals(success, status);
+                      assertEquals(Constants.SUCCESS, status);
                       TimeUnit.SECONDS.sleep(5);
                       testContext.completeNow();
                     })));
@@ -150,15 +153,16 @@ public class DatabaseServiceTest {
   void deleteNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request
-        .put("itemType", "Resource")
-        .put("id", "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
+        .put(Constants.ITEM_TYPE, Constants.RESOURCE)
+        .put(
+            Constants.ID,
+            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.deleteItem(
         request,
         testContext.failing(
             response ->
                 testContext.verify(
                     () -> {
-                      String failed = "failed";
                       String status = response.getMessage();
                       System.out.println(status);
                       assertTrue(status.contains("\"status\":\"failed\""));
@@ -173,8 +177,10 @@ public class DatabaseServiceTest {
   void updateNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request
-        .put("itemType", "Resource")
-        .put("id", "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
+        .put(Constants.ITEM_TYPE, Constants.RESOURCE)
+        .put(
+            Constants.ID,
+            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
         .put("test", "test");
     dbService.updateItem(
         request,
@@ -182,10 +188,9 @@ public class DatabaseServiceTest {
             response ->
                 testContext.verify(
                     () -> {
-                      String success = "success";
-                      String status = response.getString("status");
+                      String status = response.getString(Constants.STATUS);
                       System.out.println(response);
-                      assertEquals(success, status);
+                      assertEquals(Constants.SUCCESS, status);
                       TimeUnit.SECONDS.sleep(5);
                       testContext.completeNow();
                     })));
@@ -197,15 +202,16 @@ public class DatabaseServiceTest {
   void createExistingItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request
-        .put("itemType", "Resource")
-        .put("id", "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
+        .put(Constants.ITEM_TYPE, Constants.RESOURCE)
+        .put(
+            Constants.ID,
+            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.createItem(
         request,
         testContext.failing(
             response ->
                 testContext.verify(
                     () -> {
-                      String success = "success";
                       String status = response.getMessage();
                       assertTrue(status.contains("\"status\":\"failed\""));
                       TimeUnit.SECONDS.sleep(5);
