@@ -2197,6 +2197,4 @@ public class ApiServerVerticleTest {
           }
         });
   }
-
-
 }

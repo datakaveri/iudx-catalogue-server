@@ -336,11 +336,11 @@ public class ApiServerVerticle extends AbstractVerticle {
             || request.getParam(Constants.GEOREL) == null
             || request.getParam(Constants.GEOMETRY) == null
             || request.getParam(Constants.COORDINATES) == null)
-        && (request
+        && request
             .getParam(Constants.Q_VALUE) == null /*
                                                   * || request.getParam(Constants.LIMIT) == null ||
                                                   * request.getParam(Constants.OFFSET) == null
-                                                  */)) {
+                                                  */) {
 
       logger.error("Invalid Syntax");
       response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
