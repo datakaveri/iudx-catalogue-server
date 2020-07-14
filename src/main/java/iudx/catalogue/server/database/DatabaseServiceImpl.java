@@ -40,8 +40,8 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     /* Initialize elastic clients and JsonObjects */
     Request elasticRequest;
-    JsonObject query;
     JsonObject errorJson = new JsonObject();
+    request.put(Constants.SEARCH, true);
     // TODO: Stub code, to be removed
 
     // if (!request.containsKey("instanceId")) {
@@ -62,7 +62,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     elasticRequest =
         new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX + Constants.FILTER_PATH);
     /* Construct the query to be made */
-    query = queryDecoder(request);
+    JsonObject query = queryDecoder(request);
     if (query.containsKey(Constants.ERROR)) {
       logger.info("Query returned with an error");
       errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
@@ -136,8 +136,68 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    JsonObject errorJson = new JsonObject();
+    logger.info("Inside countQuery<DatabaseService> block-------- " + request.toString());
+    request.put(Constants.SEARCH, false);
+    // if (!request.containsKey("instanceId")) {
+    // errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION, "No instanceId
+    // found");
+    // handler.handle(Future.failedFuture(errorJson.toString()));
+    // return null;
+    // }
 
-    return null;
+    /* Validate the Request */
+    if (!request.containsKey(Constants.SEARCH_TYPE)) {
+      errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+          Constants.NO_SEARCH_TYPE_FOUND);
+      handler.handle(Future.failedFuture(errorJson.toString()));
+      return null;
+    }
+    Request elasticRequest = new Request("GET", Constants.CAT_TEST_COUNT_INDEX);
+    JsonObject query = queryDecoder(request);
+    if (query.containsKey("Error")) {
+      logger.info("Query returned with an error");
+      errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+          query.getString(Constants.ERROR));
+      handler.handle(Future.failedFuture(errorJson.toString()));
+      return null;
+    }
+    logger.info("Query constructed: " + query.toString());
+    elasticRequest.setJsonEntity(query.toString());
+    client.performRequestAsync(elasticRequest, new ResponseListener() {
+      @Override
+      public void onSuccess(Response response) {
+        logger.info("Successful DB request");
+        try {
+          int statusCode = response.getStatusLine().getStatusCode();
+          if (statusCode != 200 && statusCode != 204) {
+            handler.handle(Future.failedFuture("Status code is not 2xx"));
+            return;
+          }
+          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+          handler.handle(Future.succeededFuture(new JsonObject()
+              .put(Constants.COUNT, responseJson.getInteger(Constants.COUNT))));
+        } catch (IOException e) {
+          logger.info("DB ERROR:\n");
+          e.printStackTrace();
+          /* Handle request error */
+          errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+              Constants.DATABASE_ERROR);
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      }
+
+      @Override
+      public void onFailure(Exception e) {
+        logger.info("DB request has failed. ERROR:\n");
+        e.printStackTrace();
+        /* Handle request error */
+        errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+            Constants.DATABASE_ERROR);
+        handler.handle(Future.failedFuture(errorJson.toString()));
+      }
+    });
+    return this;
   }
 
   /**
@@ -310,6 +370,9 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listProviderRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
+    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
     return null;
   }
 
@@ -320,6 +383,9 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listResourceServerRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
+    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
     return null;
   }
 
@@ -328,6 +394,206 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService getCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "\"status\": \"success\",\n" + "\"results\": [{\n"
+        + "\"__instance-id\" : \"ui-test.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"PSCDCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"__instance-id\" : \"covid-19.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"COVID-19\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"__instance-id\" : \"pudx.catalogue.iudx.org.in\",\n" + "\"configurations\" " + ": {\n"
+        + "\"smart_city_name\" : \"PSCDCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"__instance-id\" : \"varanasi.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"VSCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ]\n" + "}\n" + "}]}";
+
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService setCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
+        + "        {\n" + "            \"instanceID\": \"ui-test.iudx.org.in\",\n"
+        + "            \"configurations\": {\n"
+        + "                \"smart_city_name\": \"PSCDCL\",\n"
+        + "                \"map_default_view_lat_lng\": [\n" + "                    18.5644"
+        + ",\n" + "                    73.7858\n" + "                ]\n" + "            }\n"
+        + "        },\n" + "        {\n" + "            \"instanceID\": \"covid-19.iudx.org.i"
+        + "n\"," + "\n" + "            \"configurations\": {\n"
+        + "                \"smart_city_name\": \"COVID-19\",\n"
+        + "                \"map_default_view_lat_lng\": [\n" + "                    18.5644,"
+        + "\n" + "                    73.7858\n" + "                ]\n" + "            }\n"
+        + "        },\n" + "        {\n"
+        + "            \"instanceID\": \"pudx.catalogue.iudx.org.in\",\n"
+        + "            \"configurations\": {\n"
+        + "                \"smart_city_name\": \"PSCDCL\",\n"
+        + "                \"map_default_view_lat_lng\": [\n" + "                    18.5644,"
+        + "\n" + "                    73.7858\n" + "                ]\n" + "            }\n"
+        + "        },\n" + "        {\n" + "            \"instanceID\": \"varanasi.iudx.org.i"
+        + "n\",\n" + "            \"configurations\": {\n"
+        + "                \"smart_city_name\": \"VSC" + "L\",\n"
+        + "                \"map_default_view_lat_lng\": [\n" + "                    25.3176,\n"
+        + "                    82.9739\n" + "                ]\n" + "            }\n"
+        + "        }\n" + "    ]\n" + "}";
+
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService updateCities(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "\"status\": \"success\",\n" + "\"results\": [\n" + "{\n"
+        + "\"instanceID\" : \"ui-test.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"PSCDCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"instanceID\" : \"covid-19.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"COVID-19\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"instanceID\" : \"pudx.catalogue.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"PSCDCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
+        + "\"instanceID\" : \"varanasi.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_name\" : \"VSCL\",\n"
+        + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ]\n" + "}\n" + "}]}";
+
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService getConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "\"status\": \"success\",\n" + "\"results\": [{\n"
+        + "\"__instance-id\" : \"varanasi.iudx.org.in\",\n" + "\"configurations\" : {\n"
+        + "\"smart_city_iudx_logo\" : \"../assets/img/iudx_varanasi.jpeg\",\n"
+        + "\"smart_city_name\" : \"VSCL\",\n" + "\"smart_city_url\" : \"#\",\n"
+        + "\"resoure_server_base_URL\" : \"https://rs.varanasi.iudx.org.in/resource-server/vscl/v1"
+        + "\",\n" + "\"auth_base_URL\" : \"https://auth.iudx.org.in/auth/v1\",\n"
+        + "\"api_docs_link\" : \"https://apidocs.iudx.org.in\",\n"
+        + "\"resource_server_group_head\" : \"urn:iudx-catalogue-varanasi:\",\n"
+        + "\"provider_head\" : \"urn:iudx-catalogue-varanasi:\",\n"
+        + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ],\n"
+        + "\"map_default_lat_lng_name\" : \"VSCL Office\",\n" + "\"map_default_zoom\" : 12.0,\n"
+        + "\"cat_base_URL\" : \"https://varanasi.iudx.org.in/catalogue/v1\"\n" + "},\n"
+        + "\"legends\" : {\n"
+        + "\"rs.varanasi.iudx.org.in/varanasi-swm-bins\" : \"https://image.flaticon.com/icons/svg/26"
+        + "36/2636439.svg\",\n"
+        + "\"rs.varanasi.iudx.org.in/varanasi-aqm\" : \"https://image.flaticon.com/icons/svg/1808/"
+        + "180" + "8701.svg\",\n" + "\"rs.varanasi.iudx.org.in/varanasi-swm-vehicles\" : \"#\",\n"
+        + "\"rs.varanasi.iudx.org.in/varanasi-citizen-app\" : \"#\",\n"
+        + "\"rs.varanasi.iudx.org.in/varanasi-iudx-gis\" : \"#\",\n"
+        + "\"rs.varanasi.iudx.org.in/varanasi-swm-workers\" : \"#\"\n" + "},\n"
+        + "\"global_configuration\" : {\n" + "\"icon_attribution\" : {\n" + "\"author\" : [ {\n"
+        + "\"freepik\" : \"https://www.flaticon.com/authors/freepik\"\n" + "}, {\n"
+        + "\"smashicons\" : \"https://www.flaticon.com/authors/smashicons\"\n" + "}, {\n"
+        + "\"flat-icons\" : \"https://www.flaticon.com/authors/flat-icons\"\n" + "}, {\n"
+        + "\"itim2101\" : \"https://www.flaticon.com/authors/itim2101\"\n" + "} ],\n"
+        + "\"site\" : \"flaticon.com\",\n" + "\"site_link\" : \"https://flaticon.com\"\n" + "}\n"
+        + "}\n" + "}]}";
+
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService updateConfig(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
+        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+        + "            \"method\": \"update\",\n" + "            \"status\": \"success\"\n"
+        + "        }\n" + "    ]\n" + "}";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService setConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
+        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+        + "            \"method\": \"insert\",\n" + "            \"status\": \"success\"\n"
+        + "        }\n" + "    ]\n" + "}";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService deleteConfig(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
+        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+        + "            \"method\": \"delete\",\n" + "            \"status\": \"success\"\n"
+        + "        }\n" + "    ]\n" + "}";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService appendConfig(JsonObject request,
+      Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
+        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+        + "            \"method\": \"patch\",\n" + "            \"status\": \"success\"\n"
+        + "        }\n" + "    ]\n" + "}";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
 
     return null;
   }
@@ -343,7 +609,12 @@ public class DatabaseServiceImpl implements DatabaseService {
   public JsonObject queryDecoder(JsonObject request) {
     String searchType = request.getString(Constants.SEARCH_TYPE);
     JsonObject elasticQuery = new JsonObject();
-    elasticQuery.put(Constants.SIZE, 10);
+    Boolean match = false;
+    JsonObject boolObject = new JsonObject().put(Constants.BOOL_KEY, new JsonObject());
+    /* TODO: Pagination for large result set */
+    if (request.getBoolean(Constants.SEARCH)) {
+      elasticQuery.put(Constants.SIZE_KEY, 10);
+    }
     // Will be used for multi-tenancy
     // String instanceId = request.getString("instanceId");
     JsonArray filterQuery = new JsonArray();
@@ -356,6 +627,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     /* Handle the search type */
     if (searchType.matches(Constants.GEOSEARCH_REGEX)) {
       logger.info("In geoSearch block---------");
+      match = true;
       JsonObject shapeJson = new JsonObject();
       JsonObject geoSearch = new JsonObject();
       String relation;
@@ -364,12 +636,13 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (request.containsKey(Constants.GEOMETRY)
           && request.getString(Constants.GEOMETRY).equalsIgnoreCase(Constants.POINT)
           && request.containsKey(Constants.GEORELATION)
-          && request.containsKey(Constants.COORDINATES)
+          && request.containsKey(Constants.COORDINATES_KEY)
           && request.containsKey(Constants.GEOPROPERTY)
           && request.containsKey(Constants.MAX_DISTANCE)) {
         /* Construct the query for Circle */
-        coordinates = request.getJsonArray(Constants.COORDINATES);
+        coordinates = request.getJsonArray(Constants.COORDINATES_KEY);
         int radius = request.getInteger(Constants.MAX_DISTANCE);
+        // int radius = Integer.parseInt(request.getString(Constants.MAX_DISTANCE));
         relation = request.getString(Constants.GEORELATION);
         shapeJson
             .put(Constants.SHAPE_KEY,
@@ -381,12 +654,12 @@ public class DatabaseServiceImpl implements DatabaseService {
           && (request.getString(Constants.GEOMETRY).equalsIgnoreCase(Constants.POLYGON)
               || request.getString(Constants.GEOMETRY).equalsIgnoreCase(Constants.LINESTRING))
           && request.containsKey(Constants.GEORELATION)
-          && request.containsKey(Constants.COORDINATES)
+          && request.containsKey(Constants.COORDINATES_KEY)
           && request.containsKey(Constants.GEOPROPERTY)) {
         /* Construct the query for Line String, Polygon */
         String geometry = request.getString(Constants.GEOMETRY);
         relation = request.getString(Constants.GEORELATION);
-        coordinates = request.getJsonArray(Constants.COORDINATES);
+        coordinates = request.getJsonArray(Constants.COORDINATES_KEY);
         int length = coordinates.getJsonArray(0).size();
         if (geometry.equalsIgnoreCase(Constants.POLYGON)
             && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(0)
@@ -402,11 +675,11 @@ public class DatabaseServiceImpl implements DatabaseService {
       } else if (request.containsKey(Constants.GEOMETRY)
           && request.getString(Constants.GEOMETRY).equalsIgnoreCase(Constants.BBOX)
           && request.containsKey(Constants.GEORELATION)
-          && request.containsKey(Constants.COORDINATES)
+          && request.containsKey(Constants.COORDINATES_KEY)
           && request.containsKey(Constants.GEOPROPERTY)) {
         /* Construct the query for BBOX */
         relation = request.getString(Constants.GEORELATION);
-        coordinates = request.getJsonArray(Constants.COORDINATES);
+        coordinates = request.getJsonArray(Constants.COORDINATES_KEY);
         shapeJson = new JsonObject();
         shapeJson
             .put(Constants.SHAPE_KEY,
@@ -423,18 +696,26 @@ public class DatabaseServiceImpl implements DatabaseService {
     if (searchType.matches(Constants.RESPONSE_FILTER_REGEX)) {
       /* Construct the filter for response */
       logger.info("In responseFilter block---------");
+      match = true;
+      if (!request.getBoolean(Constants.SEARCH)) {
+        return new JsonObject().put("Error", Constants.COUNT_UNSUPPORTED);
+      }
       if (request.containsKey(Constants.ATTRIBUTE)) {
         JsonArray sourceFilter = request.getJsonArray(Constants.ATTRIBUTE);
-        elasticQuery.put(Constants.SOURCE_FILTER_KEY, sourceFilter);
+        elasticQuery.put(Constants.SOURCE, sourceFilter);
       } else {
         return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_RESPONSE_FILTER);
       }
     }
 
-    elasticQuery.put(Constants.QUERY_KEY, new JsonObject().put(Constants.BOOL_KEY,
-        new JsonObject().put(Constants.FILTER_KEY, filterQuery)));
-
-    return elasticQuery;
+    /* checks if any valid search requests have matched */
+    if (!match) {
+      return new JsonObject().put("Error", Constants.INVALID_SEARCH);
+    } else {
+      /* return fully formed elastic query */
+      boolObject.getJsonObject(Constants.BOOL_KEY).put(Constants.FILTER_KEY, filterQuery);
+      return elasticQuery.put(Constants.QUERY_KEY, boolObject);
+    }
 
   }
 }

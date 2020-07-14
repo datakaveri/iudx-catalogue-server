@@ -222,7 +222,96 @@ public interface DatabaseService {
   DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
+   * The getCities gets the cities configuration from the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService getCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The setCities created the cities configuration in the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService setCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The updateCities updates the existing city configuration in the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService updateCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The getConfig gets the configuration.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService getConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The updateConfig update the configuration.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService updateConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The setConfig creates a configuration in the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService setConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The deleteConfig deletes a configuration in the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService deleteConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The appendConfig patches the existing configuration.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService appendConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
    * The create implements the count operation with the database.
+   * 
    * @param client RestClient to perform ES queries.
    * @return DatabaseService object.
    */
@@ -235,7 +324,7 @@ public interface DatabaseService {
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
    * 
-   * @param vertx   which is the vertx instance
+   * @param vertx which is the vertx instance
    * @param address which is the proxy address
    * @return DatabaseServiceVertxEBProxy which is a service proxy
    */
