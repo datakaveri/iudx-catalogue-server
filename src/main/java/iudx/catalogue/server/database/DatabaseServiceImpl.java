@@ -174,8 +174,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             return;
           }
           JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-          handler.handle(Future.succeededFuture(new JsonObject()
-              .put(Constants.COUNT, responseJson.getInteger(Constants.COUNT))));
+          handler.handle(Future.succeededFuture(
+              new JsonObject().put(Constants.COUNT, responseJson.getInteger(Constants.COUNT))));
         } catch (IOException e) {
           logger.info("DB ERROR:\n");
           e.printStackTrace();
@@ -698,6 +698,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     if (searchType.matches(Constants.TAGSEARCH_REGEX)) {
       logger.info("Tag search block");
 
+      match = true;
       /* validating tag search attributes */
       if (request.containsKey(Constants.PROPERTY)
           && !request.getJsonArray(Constants.PROPERTY).isEmpty()
@@ -718,6 +719,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     if (searchType.matches(Constants.TEXTSEARCH_REGEX)) {
       logger.info("Text search block");
 
+      match = true;
       /* validating tag search attributes */
       if (request.containsKey(Constants.Q_KEY) && !request.getString(Constants.Q_KEY).isBlank()) {
 
@@ -751,10 +753,10 @@ public class DatabaseServiceImpl implements DatabaseService {
       }
       if (request.containsKey(Constants.ATTRIBUTE)) {
         JsonArray sourceFilter = request.getJsonArray(Constants.ATTRIBUTE);
-        elasticQuery.put(Constants.SOURCE_FILTER_KEY, sourceFilter);
+        elasticQuery.put(Constants.SOURCE, sourceFilter);
       } else if (request.containsKey(Constants.FILTER_KEY)) {
         JsonArray sourceFilter = request.getJsonArray(Constants.FILTER_KEY);
-        elasticQuery.put(Constants.SOURCE_FILTER_KEY, sourceFilter);
+        elasticQuery.put(Constants.SOURCE, sourceFilter);
         elasticQuery.put(Constants.SOURCE, sourceFilter);
       } else {
         return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_RESPONSE_FILTER);
@@ -768,9 +770,9 @@ public class DatabaseServiceImpl implements DatabaseService {
       boolObject.getJsonObject(Constants.BOOL_KEY).put(Constants.FILTER_KEY, filterQuery);
       return elasticQuery.put(Constants.QUERY_KEY, boolObject);
     }
-    
+
     // if (!filterQuery.isEmpty()) {
-    //return elasticQuery;
+    // return elasticQuery;
     /*
      * } else { return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_PARAMETER); }
      */
