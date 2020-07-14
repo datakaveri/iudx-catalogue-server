@@ -1,5 +1,14 @@
 package iudx.catalogue.server.database;
 
+import java.io.IOException;
+
+import org.apache.http.ParseException;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.ResponseListener;
+import org.elasticsearch.client.RestClient;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -7,22 +16,14 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import java.io.IOException;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.ResponseListener;
-import org.elasticsearch.client.RestClient;
 
 /**
  * The Database Service Implementation.
  *
  * <h1>Database Service Implementation</h1>
  *
- * <p>
- * The Database Service implementation in the IUDX Catalogue Server implements the definitions of
+ * <p>The Database Service implementation in the IUDX Catalogue Server implements the definitions of
  * the {@link iudx.catalogue.server.database.DatabaseService}.
- * </p>
  *
  * @version 1.0
  * @since 2020-05-31
@@ -53,8 +54,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     /* Validate the Request */
     if (!request.containsKey(Constants.SEARCH_TYPE)) {
-      errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
-          Constants.NO_SEARCH_TYPE_FOUND);
+      errorJson
+          .put(Constants.STATUS, Constants.FAILED)
+          .put(Constants.DESCRIPTION, Constants.NO_SEARCH_TYPE_FOUND);
       handler.handle(Future.failedFuture(errorJson.toString()));
       return null;
     }
@@ -65,8 +67,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonObject query = queryDecoder(request);
     if (query.containsKey(Constants.ERROR)) {
       logger.info("Query returned with an error");
-      errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
-          query.getString(Constants.ERROR));
+      errorJson
+          .put(Constants.STATUS, Constants.FAILED)
+          .put(Constants.DESCRIPTION, query.getString(Constants.ERROR));
       handler.handle(Future.failedFuture(errorJson.toString()));
       return null;
     }
@@ -74,66 +77,77 @@ public class DatabaseServiceImpl implements DatabaseService {
     /* Set the elastic client with the query to perform */
     elasticRequest.setJsonEntity(query.toString());
     /* Execute the query */
-    client.performRequestAsync(elasticRequest, new ResponseListener() {
-      @Override
-      public void onSuccess(Response response) {
-        logger.info("Successful DB request");
-        JsonArray dbResponse = new JsonArray();
-        JsonObject dbResponseJson = new JsonObject();
-        try {
-          int statusCode = response.getStatusLine().getStatusCode();
-          /* Validate the response */
-          if (statusCode != 200 && statusCode != 204) {
-            handler.handle(Future.failedFuture("Status code is not 2xx"));
-            return;
+    client.performRequestAsync(
+        elasticRequest,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
+            logger.info("Successful DB request");
+            JsonArray dbResponse = new JsonArray();
+            JsonObject dbResponseJson = new JsonObject();
+            try {
+              int statusCode = response.getStatusLine().getStatusCode();
+              /* Validate the response */
+              if (statusCode != 200 && statusCode != 204) {
+                handler.handle(Future.failedFuture("Status code is not 2xx"));
+                return;
+              }
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              if (responseJson
+                      .getJsonObject(Constants.HITS)
+                      .getJsonObject(Constants.TOTAL)
+                      .getInteger(Constants.VALUE)
+                  == 0) {
+                errorJson
+                    .put(Constants.STATUS, Constants.FAILED)
+                    .put(Constants.DESCRIPTION, Constants.EMPTY_RESPONSE);
+                handler.handle(Future.failedFuture(errorJson.toString()));
+                return;
+              }
+              JsonArray responseHits =
+                  responseJson.getJsonObject(Constants.HITS).getJsonArray(Constants.HITS);
+              /* Construct the client response, remove the _source field */
+              for (Object json : responseHits) {
+                JsonObject jsonTemp = (JsonObject) json;
+                dbResponse.add(jsonTemp.getJsonObject(Constants.SOURCE));
+              }
+              dbResponseJson
+                  .put(Constants.STATUS, Constants.SUCCESS)
+                  .put(
+                      Constants.TOTAL_HITS,
+                      responseJson
+                          .getJsonObject(Constants.HITS)
+                          .getJsonObject(Constants.TOTAL)
+                          .getInteger(Constants.VALUE))
+                  .put(Constants.RESULT, dbResponse);
+              /* Send the response */
+              handler.handle(Future.succeededFuture(dbResponseJson));
+            } catch (IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              errorJson
+                  .put(Constants.STATUS, Constants.FAILED)
+                  .put(Constants.DESCRIPTION, Constants.DATABASE_ERROR);
+              handler.handle(Future.failedFuture(errorJson.toString()));
+            }
           }
-          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-          if (responseJson.getJsonObject(Constants.HITS).getJsonObject(Constants.TOTAL)
-              .getInteger(Constants.VALUE) == 0) {
-            errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
-                Constants.EMPTY_RESPONSE);
-            handler.handle(Future.failedFuture(errorJson.toString()));
-            return;
-          }
-          JsonArray responseHits =
-              responseJson.getJsonObject(Constants.HITS).getJsonArray(Constants.HITS);
-          /* Construct the client response, remove the _source field */
-          for (Object json : responseHits) {
-            JsonObject jsonTemp = (JsonObject) json;
-            dbResponse.add(jsonTemp.getJsonObject(Constants.SOURCE));
-          }
-          dbResponseJson.put(Constants.STATUS, Constants.SUCCESS)
-              .put(Constants.TOTAL_HITS, responseJson.getJsonObject(Constants.HITS)
-                  .getJsonObject(Constants.TOTAL).getInteger(Constants.VALUE))
-              .put(Constants.RESULT, dbResponse);
-          /* Send the response */
-          handler.handle(Future.succeededFuture(dbResponseJson));
-        } catch (IOException e) {
-          logger.info("DB ERROR:\n");
-          e.printStackTrace();
-          /* Handle request error */
-          errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
-              Constants.DATABASE_ERROR);
-          handler.handle(Future.failedFuture(errorJson.toString()));
-        }
-      }
 
-      @Override
-      public void onFailure(Exception e) {
-        logger.info("DB request has failed. ERROR:\n");
-        e.printStackTrace();
-        /* Handle request error */
-        errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
-            Constants.DATABASE_ERROR);
-        handler.handle(Future.failedFuture(errorJson.toString()));
-      }
-    });
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            errorJson
+                .put(Constants.STATUS, Constants.FAILED)
+                .put(Constants.DESCRIPTION, Constants.DATABASE_ERROR);
+            handler.handle(Future.failedFuture(errorJson.toString()));
+          }
+        });
     return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     JsonObject errorJson = new JsonObject();
@@ -200,56 +214,308 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\"," + "\"results\": [ " + "{ \"id\": \"123123\","
-        + "\"method\": \"insert\", \"status\": \"success\" } ] }";
+    Request checkExisting;
+    JsonObject checkQuery = new JsonObject();
+    JsonObject errorJson = new JsonObject();
+    String id = request.getString("id");
+    errorJson
+        .put(Constants.STATUS, Constants.FAILED)
+        .put(
+            Constants.RESULTS,
+            new JsonArray()
+                .add(
+                    new JsonObject()
+                        .put(Constants.ID, id)
+                        .put(Constants.METHOD, Constants.INSERT)
+                        .put(Constants.STATUS, Constants.FAILED)));
+    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX);
+    checkQuery
+        .put(Constants.SOURCE, "[\"\"]")
+        .put(
+            Constants.QUERY_KEY,
+            new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, id)));
+    checkExisting.setJsonEntity(checkQuery.toString());
+    client.performRequestAsync(
+        checkExisting,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
+            logger.info("Successful DB request");
+            try {
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              if (responseJson
+                      .getJsonObject(Constants.HITS)
+                      .getJsonObject(Constants.TOTAL)
+                      .getInteger(Constants.VALUE)
+                  > 0) {
+                logger.info("Item already exists.");
+                handler.handle(Future.failedFuture(errorJson.toString()));
+                return;
+              } else {
+                Request createRequest = new Request(Constants.REQUEST_POST, Constants.CAT_DOC);
+                createRequest.setJsonEntity(request.toString());
+                client.performRequestAsync(
+                    createRequest,
+                    new ResponseListener() {
+                      @Override
+                      public void onSuccess(Response response) {
+                        logger.info("Successful DB request");
+                        JsonObject responseJson = new JsonObject();
+                        responseJson
+                            .put(Constants.STATUS, Constants.SUCCESS)
+                            .put(
+                                Constants.RESULTS,
+                                new JsonArray()
+                                    .add(
+                                        new JsonObject()
+                                            .put(Constants.ID, id)
+                                            .put(Constants.METHOD, Constants.INSERT)
+                                            .put(Constants.STATUS, Constants.SUCCESS)));
+                        handler.handle(Future.succeededFuture(responseJson));
+                      }
 
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-    return null;
+                      @Override
+                      public void onFailure(Exception e) {
+                        logger.info("DB request has failed. ERROR:\n");
+                        e.printStackTrace();
+                        /* Handle request error */
+                        handler.handle(Future.failedFuture(errorJson.toString()));
+                      }
+                    });
+              }
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(Future.failedFuture(errorJson.toString()));
+            }
+          }
 
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(Future.failedFuture(errorJson.toString()));
+          }
+        });
+
+    return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\"," + "\"results\": [ " + "{ \"id\": \"123123\","
-        + "\"method\": \"update\", \"status\": \"success\" } ] }";
+    Request checkExisting;
+    JsonObject checkQuery = new JsonObject();
+    JsonObject errorJson = new JsonObject();
+    String id = request.getString("id");
+    errorJson
+        .put(Constants.STATUS, Constants.FAILED)
+        .put(
+            Constants.RESULTS,
+            new JsonArray()
+                .add(
+                    new JsonObject()
+                        .put(Constants.ID, id)
+                        .put(Constants.METHOD, Constants.UPDATE)
+                        .put(Constants.STATUS, Constants.FAILED)));
+    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX);
+    checkQuery
+        .put(Constants.SOURCE, "[\"\"]")
+        .put(
+            Constants.QUERY_KEY,
+            new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, id)));
+    checkExisting.setJsonEntity(checkQuery.toString());
+    client.performRequestAsync(
+        checkExisting,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
+            logger.info("Successful DB request");
+            try {
+              Request updateRequest;
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
 
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-    return null;
+              if (responseJson
+                      .getJsonObject(Constants.HITS)
+                      .getJsonObject(Constants.TOTAL)
+                      .getInteger(Constants.VALUE)
+                  == 0) {
+                updateRequest = new Request(Constants.REQUEST_PUT, Constants.CAT_DOC);
+                return;
+              } else {
+                String doc_id =
+                    responseJson
+                        .getJsonObject(Constants.HITS)
+                        .getJsonArray(Constants.HITS)
+                        .getJsonObject(0)
+                        .getString(Constants.DOC_ID);
+                updateRequest =
+                    new Request(Constants.REQUEST_PUT, Constants.CAT_DOC + "/" + doc_id);
+              }
+              updateRequest.setJsonEntity(request.toString());
+              client.performRequestAsync(
+                  updateRequest,
+                  new ResponseListener() {
+                    @Override
+                    public void onSuccess(Response response) {
+                      logger.info("Successful DB request");
+                      JsonObject responseJson = new JsonObject();
+                      responseJson
+                          .put(Constants.STATUS, Constants.SUCCESS)
+                          .put(
+                              Constants.RESULTS,
+                              new JsonArray()
+                                  .add(
+                                      new JsonObject()
+                                          .put(Constants.ID, id)
+                                          .put(Constants.METHOD, Constants.UPDATE)
+                                          .put(Constants.STATUS, Constants.SUCCESS)));
+                      handler.handle(Future.succeededFuture(responseJson));
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                      logger.info("DB request has failed. ERROR:\n");
+                      e.printStackTrace();
+                      /* Handle request error */
+                      handler.handle(Future.failedFuture(errorJson.toString()));
+                    }
+                  });
+
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(Future.failedFuture(errorJson.toString()));
+            }
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(Future.failedFuture(errorJson.toString()));
+          }
+        });
+
+    return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\"," + "\"results\": [ " + "{ \"id\": \"123123\","
-        + "\"method\": \"delete\", \"status\": \"success\" } ] }";
+    Request checkExisting;
+    JsonObject checkQuery = new JsonObject();
+    JsonObject errorJson = new JsonObject();
+    String id = request.getString("id");
+    errorJson
+        .put(Constants.STATUS, Constants.FAILED)
+        .put(
+            Constants.RESULTS,
+            new JsonArray()
+                .add(
+                    new JsonObject()
+                        .put(Constants.ID, id)
+                        .put(Constants.METHOD, Constants.DELETE)
+                        .put(Constants.STATUS, Constants.FAILED)));
+    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX);
+    checkQuery
+        .put(Constants.SOURCE, "[\"\"]")
+        .put(
+            Constants.QUERY_KEY,
+            new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, id)));
+    checkExisting.setJsonEntity(checkQuery.toString());
+    client.performRequestAsync(
+        checkExisting,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
+            logger.info("Successful DB request");
+            try {
+              Request updateRequest;
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              if (responseJson
+                      .getJsonObject(Constants.HITS)
+                      .getJsonObject(Constants.TOTAL)
+                      .getInteger(Constants.VALUE)
+                  == 0) {
+                handler.handle(Future.failedFuture(errorJson.toString()));
+                return;
+              }
+              String doc_id =
+                  responseJson
+                      .getJsonObject(Constants.HITS)
+                      .getJsonArray(Constants.HITS)
+                      .getJsonObject(0)
+                      .getString(Constants.DOC_ID);
+              updateRequest =
+                  new Request(Constants.REQUEST_DELETE, Constants.CAT_DOC + "/" + doc_id);
+              updateRequest.setJsonEntity(request.toString());
+              client.performRequestAsync(
+                  updateRequest,
+                  new ResponseListener() {
+                    @Override
+                    public void onSuccess(Response response) {
+                      logger.info("Successful DB request");
+                      JsonObject responseJson = new JsonObject();
+                      responseJson
+                          .put(Constants.STATUS, Constants.SUCCESS)
+                          .put(
+                              Constants.RESULTS,
+                              new JsonArray()
+                                  .add(
+                                      new JsonObject()
+                                          .put(Constants.ID, id)
+                                          .put(Constants.METHOD, Constants.DELETE)
+                                          .put(Constants.STATUS, Constants.SUCCESS)));
+                      handler.handle(Future.succeededFuture(responseJson));
+                    }
 
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-    return null;
+                    @Override
+                    public void onFailure(Exception e) {
+                      logger.info("DB request has failed. ERROR:\n");
+                      e.printStackTrace();
+                      /* Handle request error */
+                      handler.handle(Future.failedFuture(errorJson.toString()));
+                    }
+                  });
+
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(Future.failedFuture(errorJson.toString()));
+            }
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(Future.failedFuture(errorJson.toString()));
+          }
+        });
+
+    return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
 
     String result =
-        "{ \"status\": \"success\", \"totalHits\": 100," + "\"limit\": 10, \"offset\": 100,"
-            + "\"results\": [" + "{ \"id\": \"abc/123\", \"tags\": [ \"a\", \"b\"] } ] }";
+        "{ \"status\": \"success\", \"totalHits\": 100,"
+            + "\"limit\": 10, \"offset\": 100,"
+            + "\"results\": ["
+            + "{ \"id\": \"abc/123\", \"tags\": [ \"a\", \"b\"] } ] }";
 
     String errResult = " { \"status\": \"invalidValue\", \"results\": [] }";
 
@@ -262,9 +528,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
@@ -274,9 +538,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
@@ -286,9 +548,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
@@ -298,12 +558,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceServers(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceServers(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
     String result = "{ \"status\": \"success\", \"results\": [ \"server-1\", \"server-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -311,12 +569,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listProviders(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listProviders(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use [was not part of master code]
     String result = "{ \"status\": \"success\", \"results\": [ \"pr-1\", \"pr-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -324,12 +580,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceGroups(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceGroups(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use [was not part of master code]
     String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -337,12 +591,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use [was not part of master code]
     String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -350,12 +602,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceGroupRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceGroupRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use [was not part of master code]
     String result = "{ \"status\": \"success\", \"results\": [ { \"id\": \"abc/123\" }] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -363,12 +613,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listProviderRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listProviderRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -376,12 +624,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceServerRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceServerRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -389,9 +635,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -605,7 +849,6 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @param request Json object containing various fields related to query-type.
    * @return JsonObject which contains fully formed ElasticSearch query.
    */
-
   public JsonObject queryDecoder(JsonObject request) {
     String searchType = request.getString(Constants.SEARCH_TYPE);
     JsonObject elasticQuery = new JsonObject();
@@ -645,8 +888,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         // int radius = Integer.parseInt(request.getString(Constants.MAX_DISTANCE));
         relation = request.getString(Constants.GEORELATION);
         shapeJson
-            .put(Constants.SHAPE_KEY,
-                new JsonObject().put(Constants.TYPE_KEY, Constants.GEO_CIRCLE)
+            .put(
+                Constants.SHAPE_KEY,
+                new JsonObject()
+                    .put(Constants.TYPE_KEY, Constants.GEO_CIRCLE)
                     .put(Constants.COORDINATES_KEY, coordinates)
                     .put(Constants.GEO_RADIUS, radius + Constants.DISTANCE_IN_METERS))
             .put(Constants.GEO_RELATION_KEY, relation);
@@ -662,15 +907,24 @@ public class DatabaseServiceImpl implements DatabaseService {
         coordinates = request.getJsonArray(Constants.COORDINATES_KEY);
         int length = coordinates.getJsonArray(0).size();
         if (geometry.equalsIgnoreCase(Constants.POLYGON)
-            && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(0)
+            && !coordinates
+                .getJsonArray(0)
+                .getJsonArray(0)
+                .getDouble(0)
                 .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(0))
-            && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(1)
+            && !coordinates
+                .getJsonArray(0)
+                .getJsonArray(0)
+                .getDouble(1)
                 .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(1))) {
           return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_COORDINATE_POLYGON);
         }
         shapeJson
-            .put(Constants.SHAPE_KEY, new JsonObject().put(Constants.TYPE_KEY, geometry)
-                .put(Constants.COORDINATES_KEY, coordinates))
+            .put(
+                Constants.SHAPE_KEY,
+                new JsonObject()
+                    .put(Constants.TYPE_KEY, geometry)
+                    .put(Constants.COORDINATES_KEY, coordinates))
             .put(Constants.GEO_RELATION_KEY, relation);
       } else if (request.containsKey(Constants.GEOMETRY)
           && request.getString(Constants.GEOMETRY).equalsIgnoreCase(Constants.BBOX)
@@ -682,8 +936,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         coordinates = request.getJsonArray(Constants.COORDINATES_KEY);
         shapeJson = new JsonObject();
         shapeJson
-            .put(Constants.SHAPE_KEY,
-                new JsonObject().put(Constants.TYPE_KEY, Constants.GEO_BBOX)
+            .put(
+                Constants.SHAPE_KEY,
+                new JsonObject()
+                    .put(Constants.TYPE_KEY, Constants.GEO_BBOX)
                     .put(Constants.COORDINATES_KEY, coordinates))
             .put(Constants.GEO_RELATION_KEY, relation);
 
@@ -716,6 +972,5 @@ public class DatabaseServiceImpl implements DatabaseService {
       boolObject.getJsonObject(Constants.BOOL_KEY).put(Constants.FILTER_KEY, filterQuery);
       return elasticQuery.put(Constants.QUERY_KEY, boolObject);
     }
-
   }
 }

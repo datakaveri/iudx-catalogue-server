@@ -72,5 +72,19 @@ public class Constants {
   static final String NO_SEARCH_TYPE_FOUND = "No searchType found";
   static final String COUNT_UNSUPPORTED = "Count is not supported with filtering";
   static final String INVALID_SEARCH = "Invalid search request";
+  
+  public static final String ATTRIBUTE_SEARCH_REGEX = "(.*)attributeSearch(.*)";
+  public static final String CAT_DOC = "cat/_doc";
+  public static final String ID_KEYWORD = "id.keyword";
+  public static final String REQUEST_POST = "POST";
+  public static final String REQUEST_PUT = "PUT";
+  public static final String REQUEST_DELETE = "DELETE";
+  public static final String DOC_ID = "_id";
+  public static final String METHOD = "method";
+  public static final String INSERT = "insert";
+  public static final String UPDATE = "update";
+  public static final String DELETE = "delete";
+  public static final String RESULTS = "results";
 
+  public static final String TERM = "term";
 }
