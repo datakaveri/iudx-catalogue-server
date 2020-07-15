@@ -24,10 +24,9 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
- * Test class for ApiServerVerticle api handlers
- * TODO Need to update count test cases. 
- * TODO Update all the end to end test cases. 
- * TODO Use Constants file for all query strings.
+ * Test class for ApiServerVerticle api handlers TODO Need to update count test cases. TODO Update
+ * all the end to end test cases. TODO Use Constants file for all query strings.
+ * 
  * @see {@link ApiServerVerticle}
  */
 @ExtendWith(VertxExtension.class)
@@ -70,10 +69,10 @@ public class ApiServerVerticleTest {
 
     result.onComplete(resultHandler -> {
       if (resultHandler.succeeded()) {
-       vertx.setTimer(15000, id -> {
-        logger.info("!!!!!!!!\n\n!!!!!!!!!");
-        testContext.completeNow();
-       });
+        vertx.setTimer(15000, id -> {
+          logger.info("!!!!!!!!\n\n!!!!!!!!!");
+          testContext.completeNow();
+        });
       }
     });
   }
@@ -1085,7 +1084,7 @@ public class ApiServerVerticleTest {
   void textSearchTest(VertxTestContext testContext) {
     /* Encoded whitespaces to get appropriate response */
     String apiURL = "search?q=\"climo\"";
-    
+
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1104,7 +1103,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Text Search with *")
   void textSearchAcceptableSpecialCharTest(VertxTestContext testContext) {
     /* Encoded whitespaces to get appropriate response */
-    
+
     String apiURL = "search?q=\"climo*\"";
 
     logger.info("Url is " + BASE_URL + apiURL);
@@ -1373,7 +1372,7 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "near").addQueryParam("maxDistance", "500")
+        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "500")
         .addQueryParam("geometry", "Point")
         .addQueryParam("coordinates", "[73.85534405708313,18.52008289032131]")
         .send(serverResponse -> {
@@ -1596,7 +1595,7 @@ public class ApiServerVerticleTest {
         .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
         .addQueryParam("geometry", "bbox")
         .addQueryParam("coordinates",
-            "[[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]")
+            "[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -1629,7 +1628,7 @@ public class ApiServerVerticleTest {
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
         .addQueryParam("georel", "intersects").addQueryParam("geometry", "LineString")
         .addQueryParam("coordinates",
-            "[[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]")
+            "[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137],[73.876484,18.525007]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -1753,8 +1752,8 @@ public class ApiServerVerticleTest {
     logger.info("starting countText200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("q", "\"text to count\"")
-        .addQueryParam("limit", "50").addQueryParam("offset", "100").send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("q", "\"climo\"")
+        .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
@@ -1784,8 +1783,8 @@ public class ApiServerVerticleTest {
     logger.info("starting countTextAcceptableSpecialChar200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("q", "\"text to count*\"")
-        .addQueryParam("limit", "50").addQueryParam("offset", "100").send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("q", "\"climo*\"")
+        .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
