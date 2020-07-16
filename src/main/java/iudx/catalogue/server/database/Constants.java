@@ -25,15 +25,22 @@ public class Constants {
   static final String SUCCESS = "success";
   static final String INSTANCE_ID_KEY = "instanceId";
   static final String CONFIG_FILE = "config.properties";
+  static final String RESOURCE = "resource";
+  static final String ITEM_TYPE = "itemType";
+
   /* Database */
   static final String CAT_TEST_COUNT_INDEX = "cat/_count";
   static final String CAT_TEST_SEARCH_INDEX = "cat/_search";
+  static final String CAT_DOC = "cat/_doc";
   static final String BOOL_KEY = "bool";
   static final String FILTER_KEY = "filter";
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
   static final String HITS = "hits";
   static final String QUERY_KEY = "query";
   static final String REQUEST_GET = "GET";
+  static final String REQUEST_POST = "POST";
+  static final String REQUEST_PUT = "PUT";
+  static final String REQUEST_DELETE = "DELETE";
   static final String TAGS = "tags";
   static final String TOTAL = "total";
   static final String TOTAL_HITS = "totalHits";
@@ -41,6 +48,14 @@ public class Constants {
   static final String VALUE = "value";
   static final String WITHIN = "within";
   static final String SIZE_KEY = "size";
+  static final String INSERT = "insert";
+  static final String UPDATE = "update";
+  static final String DELETE = "delete";
+  static final String ID_KEYWORD = "id.keyword";
+  static final String DOC_ID = "_id";
+  static final String METHOD = "method";
+  static final String RESULTS = "results";
+  static final String TERM = "term";
   /* Geo-Spatial */
   static final String BBOX = "bbox";
   static final String COORDINATES_KEY = "coordinates";
@@ -73,4 +88,14 @@ public class Constants {
   static final String COUNT_UNSUPPORTED = "Count is not supported with filtering";
   static final String INVALID_SEARCH = "Invalid search request";
 
+  public static final String TAGSEARCH_REGEX = "(.*)tagsSearch(.*)";
+  public static final String TEXTSEARCH_REGEX = "(.*)textSearch(.*)";
+  public static final String PROPERTY = "property";
+  public static final String MATCH_KEY = "match";
+  public static final String STRING_QUERY_KEY = "query_string";
+  public static final String LIMIT = "limit";
+  public static final String OFFSET = "offset";
+  public static final String FROM = "from";
+  public static final String ERROR_INVALID_PARAMETER = "Incorrect/missing query parameters";
+  public static final String Q_KEY = "q";
 }
