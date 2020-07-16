@@ -91,6 +91,8 @@ public class Constants {
   public static final String TEXT_SEARCH = "textSearch_";
   public static final String TAGS_SEARCH = "tagsSearch_";
   public static final String ATTRIBUTE_SEARCH = "attributeSearch_";
+  public static final String RESPONSE_FILTER = "responseFilter_";
+  public static final String FILTER = "filter";
   public static final String TAGS = "tags";
 
   public static final String ID = "id";
