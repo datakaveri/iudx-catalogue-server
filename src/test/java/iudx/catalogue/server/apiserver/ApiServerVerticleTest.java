@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import java.util.Iterator;
 
 /**
  * Test class for ApiServerVerticle api handlers TODO Need to update count test cases. TODO Update
@@ -89,21 +90,29 @@ public class ApiServerVerticleTest {
   @DisplayName("Create Item[Status:201, Endpoint: /item]")
   public void createItem201(VertxTestContext testContext) throws InterruptedException {
 
-    fileSytem.readFile("src/test/resources/request_body.json", fileRes -> {
+    fileSytem.readFile("src/test/resources/resources.json", fileRes -> {
       if (fileRes.succeeded()) {
 
-        JsonObject fileStream = fileRes.result().toJsonObject();
+        JsonArray resources  = fileRes.result().toJsonArray();
+        logger.info("Total items = " + String.valueOf(resources.size()));
+        Iterator<Object> objectIterator = resources.iterator();
 
-        // Send the file to the server using POST
-        client.post(PORT, HOST, BASE_URL.concat("item")).putHeader("token", "abc")
-            .putHeader("Content-Type", "application/json").sendJson(fileStream, serverResponse -> {
-              if (serverResponse.succeeded()) {
-                assertEquals(201, serverResponse.result().statusCode());
-                testContext.completeNow();
-              } else if (serverResponse.failed()) {
-                testContext.failed();
-              }
-            });
+
+        while (objectIterator.hasNext()) {
+          // Send the file to the server using POST
+          client.post(PORT, HOST, BASE_URL.concat("item")).putHeader("token", "abc")
+              .putHeader("Content-Type", "application/json")
+              .sendJson(objectIterator.next(), serverResponse -> {
+                if (serverResponse.succeeded()) {
+                  if (serverResponse.result().statusCode() == 201) {
+                  }
+                  assertEquals(201, serverResponse.result().statusCode());
+                  testContext.completeNow();
+                } else if (serverResponse.failed()) {
+                  testContext.failed();
+                }
+              });
+          }
       } else if (fileRes.failed()) {
         logger.error("Problem in reading test data file: ".concat(fileRes.cause().toString()));
       }
@@ -152,9 +161,9 @@ public class ApiServerVerticleTest {
 
 
   /**
-   * Tests the updateItem of ApiServerVerticle.
+   * tests the updateitem of apiserververticle.
    * 
-   * @param testContext of asynchronous operations
+   * @param testcontext of asynchronous operations
    */
   @Test
   @Order(3)
@@ -245,24 +254,38 @@ public class ApiServerVerticleTest {
   @Order(5)
   @DisplayName("Delete Item[Status:200, Endpoint: /item]")
   void deleteItem200(VertxTestContext testContext) {
+    
+    fileSytem.readFile("src/test/resources/resourcesToDelete.json",
+      fileRes -> {
+        if (fileRes.succeeded()) {
+          JsonArray resources  = fileRes.result().toJsonArray();
+          Iterator<Object> objectIterator = resources.iterator();
 
-    String itemId = "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs"
-        + ".varanasi.iudx.org.in/varanasi-swm-vehicles/varanasi-swm-vehicles-live";
+          while (objectIterator.hasNext()) {
 
-    /* Send the file to the server using DELETE */
-    client.delete(PORT, HOST, BASE_URL.concat("item/").concat(itemId)).putHeader("token", "abc")
-        .putHeader("Content-Type", "application/json").send(serverResponse -> {
-          if (serverResponse.succeeded()) {
+            JsonObject item = (JsonObject) objectIterator.next();
+            /* Send the file to the server using DELETE */
+            logger.info("Deleting " + item.getString("id"));
+            client.delete(PORT, HOST, BASE_URL.concat("item/")
+                .concat(item.getString("id"))).putHeader("token", "abc")
+              .putHeader("Content-Type", "application/json").send(serverResponse -> {
+                if (serverResponse.succeeded()) {
 
-            /* comparing the response */
-            assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
+                  /* comparing the response */
+                  assertEquals(200, serverResponse.result().statusCode());
+                  assertEquals("application/json", serverResponse.result().getHeader("content-type"));
 
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            testContext.failed();
+                  testContext.completeNow();
+                } else if (serverResponse.failed()) {
+                  testContext.failed();
+                }
+              });
+
+
           }
-        });
+        }
+    });
+
   }
 
 
@@ -278,8 +301,8 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "5000")
-        .addQueryParam("geometry", "Point").addQueryParam("coordinates", "[75.9,14.5]")
+        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "100")
+        .addQueryParam("geometry", "Point").addQueryParam("coordinates", "[73.88559,18.538425]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 

@@ -461,6 +461,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             try {
               Request updateRequest;
               JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              logger.info("\n\n\n Response is \n\n\n");
+              logger.info(responseJson);
               if (responseJson
                       .getJsonObject(Constants.HITS)
                       .getJsonObject(Constants.TOTAL)

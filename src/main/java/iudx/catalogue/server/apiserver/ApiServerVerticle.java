@@ -9,6 +9,7 @@ import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
@@ -31,9 +32,10 @@ import iudx.catalogue.server.validator.ValidatorService;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
+import java.util.Arrays;
 
 /**
  * The Catalogue Server API Verticle.
@@ -74,7 +76,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private InputStream inputstream;
   private String keystore;
   private String keystorePassword;
-  private ArrayList<String> itemTypes;
+  private Set<String> itemTypes;
   private ArrayList<String> geoRels;
   private ArrayList<String> geometries;
 
@@ -204,7 +206,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         router.get(Constants.ROUTE_COUNT).handler(this::count);
 
         /* Populating itemTypes */
-        itemTypes = new ArrayList<String>();
+        itemTypes = new HashSet<String>();
         itemTypes.add(Constants.ITEM_TYPE_RESOURCE);
         itemTypes.add(Constants.ITEM_TYPE_RESOURCE_GROUP);
         itemTypes.add(Constants.ITEM_TYPE_RESOURCE_SERVER);
@@ -758,9 +760,22 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* HTTP request instance/host details */
     String instanceID = request.getHeader(Constants.HEADER_HOST);
 
+    Set<String> docItemTypes = new HashSet<String>(new JsonArray().getList());
+
+    try {
+      docItemTypes = new HashSet<String>(requestBody.getJsonArray("type").getList());
+    } catch (Exception e) {
+      logger.error("Item type mismatch");
+      response
+        .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        .setStatusCode(400)
+        .end();
+    }
+
+    docItemTypes.retainAll(itemTypes);
+
     /* checking and comparing itemType from the request body */
-    if (requestBody.containsKey(Constants.ITEM_TYPE)
-        && itemTypes.contains(requestBody.getString(Constants.ITEM_TYPE))) {
+    if (docItemTypes.size() > 0) {
       /* Populating query mapper */
       requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
