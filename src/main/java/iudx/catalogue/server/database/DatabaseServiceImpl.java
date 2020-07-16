@@ -20,7 +20,8 @@ import org.elasticsearch.client.RestClient;
  *
  * <h1>Database Service Implementation</h1>
  *
- * <p>The Database Service implementation in the IUDX Catalogue Server implements the definitions of
+ * <p>
+ * The Database Service implementation in the IUDX Catalogue Server implements the definitions of
  * the {@link iudx.catalogue.server.database.DatabaseService}.
  *
  * @version 1.0
@@ -52,9 +53,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     /* Validate the Request */
     if (!request.containsKey(Constants.SEARCH_TYPE)) {
-      errorJson
-          .put(Constants.STATUS, Constants.FAILED)
-          .put(Constants.DESCRIPTION, Constants.NO_SEARCH_TYPE_FOUND);
+      errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+          Constants.NO_SEARCH_TYPE_FOUND);
       handler.handle(Future.failedFuture(errorJson.toString()));
       return null;
     }
@@ -65,9 +65,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonObject query = queryDecoder(request);
     if (query.containsKey(Constants.ERROR)) {
       logger.info("Query returned with an error");
-      errorJson
-          .put(Constants.STATUS, Constants.FAILED)
-          .put(Constants.DESCRIPTION, query.getString(Constants.ERROR));
+      errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+          query.getString(Constants.ERROR));
       handler.handle(Future.failedFuture(errorJson.toString()));
       return null;
     }
@@ -75,77 +74,66 @@ public class DatabaseServiceImpl implements DatabaseService {
     /* Set the elastic client with the query to perform */
     elasticRequest.setJsonEntity(query.toString());
     /* Execute the query */
-    client.performRequestAsync(
-        elasticRequest,
-        new ResponseListener() {
-          @Override
-          public void onSuccess(Response response) {
-            logger.info("Successful DB request");
-            JsonArray dbResponse = new JsonArray();
-            JsonObject dbResponseJson = new JsonObject();
-            try {
-              int statusCode = response.getStatusLine().getStatusCode();
-              /* Validate the response */
-              if (statusCode != 200 && statusCode != 204) {
-                handler.handle(Future.failedFuture("Status code is not 2xx"));
-                return;
-              }
-              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-              if (responseJson
-                      .getJsonObject(Constants.HITS)
-                      .getJsonObject(Constants.TOTAL)
-                      .getInteger(Constants.VALUE)
-                  == 0) {
-                errorJson
-                    .put(Constants.STATUS, Constants.FAILED)
-                    .put(Constants.DESCRIPTION, Constants.EMPTY_RESPONSE);
-                handler.handle(Future.failedFuture(errorJson.toString()));
-                return;
-              }
-              JsonArray responseHits =
-                  responseJson.getJsonObject(Constants.HITS).getJsonArray(Constants.HITS);
-              /* Construct the client response, remove the _source field */
-              for (Object json : responseHits) {
-                JsonObject jsonTemp = (JsonObject) json;
-                dbResponse.add(jsonTemp.getJsonObject(Constants.SOURCE));
-              }
-              dbResponseJson
-                  .put(Constants.STATUS, Constants.SUCCESS)
-                  .put(
-                      Constants.TOTAL_HITS,
-                      responseJson
-                          .getJsonObject(Constants.HITS)
-                          .getJsonObject(Constants.TOTAL)
-                          .getInteger(Constants.VALUE))
-                  .put(Constants.RESULT, dbResponse);
-              /* Send the response */
-              handler.handle(Future.succeededFuture(dbResponseJson));
-            } catch (IOException e) {
-              logger.info("DB ERROR:\n");
-              e.printStackTrace();
-              /* Handle request error */
-              errorJson
-                  .put(Constants.STATUS, Constants.FAILED)
-                  .put(Constants.DESCRIPTION, Constants.DATABASE_ERROR);
-              handler.handle(Future.failedFuture(errorJson.toString()));
-            }
+    client.performRequestAsync(elasticRequest, new ResponseListener() {
+      @Override
+      public void onSuccess(Response response) {
+        logger.info("Successful DB request");
+        JsonArray dbResponse = new JsonArray();
+        JsonObject dbResponseJson = new JsonObject();
+        try {
+          int statusCode = response.getStatusLine().getStatusCode();
+          /* Validate the response */
+          if (statusCode != 200 && statusCode != 204) {
+            handler.handle(Future.failedFuture("Status code is not 2xx"));
+            return;
           }
-
-          @Override
-          public void onFailure(Exception e) {
-            logger.info("DB request has failed. ERROR:\n");
-            e.printStackTrace();
-            /* Handle request error */
-            errorJson
-                .put(Constants.STATUS, Constants.FAILED)
-                .put(Constants.DESCRIPTION, Constants.DATABASE_ERROR);
+          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+          if (responseJson.getJsonObject(Constants.HITS).getJsonObject(Constants.TOTAL)
+              .getInteger(Constants.VALUE) == 0) {
+            errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+                Constants.EMPTY_RESPONSE);
             handler.handle(Future.failedFuture(errorJson.toString()));
+            return;
           }
-        });
+          JsonArray responseHits =
+              responseJson.getJsonObject(Constants.HITS).getJsonArray(Constants.HITS);
+          /* Construct the client response, remove the _source field */
+          for (Object json : responseHits) {
+            JsonObject jsonTemp = (JsonObject) json;
+            dbResponse.add(jsonTemp.getJsonObject(Constants.SOURCE));
+          }
+          dbResponseJson.put(Constants.STATUS, Constants.SUCCESS)
+              .put(Constants.TOTAL_HITS, responseJson.getJsonObject(Constants.HITS)
+                  .getJsonObject(Constants.TOTAL).getInteger(Constants.VALUE))
+              .put(Constants.RESULT, dbResponse);
+          /* Send the response */
+          handler.handle(Future.succeededFuture(dbResponseJson));
+        } catch (IOException e) {
+          logger.info("DB ERROR:\n");
+          e.printStackTrace();
+          /* Handle request error */
+          errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+              Constants.DATABASE_ERROR);
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      }
+
+      @Override
+      public void onFailure(Exception e) {
+        logger.info("DB request has failed. ERROR:\n");
+        e.printStackTrace();
+        /* Handle request error */
+        errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+            Constants.DATABASE_ERROR);
+        handler.handle(Future.failedFuture(errorJson.toString()));
+      }
+    });
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     JsonObject errorJson = new JsonObject();
@@ -157,12 +145,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     // handler.handle(Future.failedFuture(errorJson.toString()));
     // return null;
     // }
-
     /* Validate the Request */
     if (!request.containsKey(Constants.SEARCH_TYPE)) {
-      errorJson
-          .put(Constants.STATUS, Constants.FAILED)
-          .put(Constants.DESCRIPTION, Constants.NO_SEARCH_TYPE_FOUND);
+      errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+          Constants.NO_SEARCH_TYPE_FOUND);
       handler.handle(Future.failedFuture(errorJson.toString()));
       return null;
     }
@@ -170,57 +156,52 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonObject query = queryDecoder(request);
     if (query.containsKey("Error")) {
       logger.info("Query returned with an error");
-      errorJson
-          .put(Constants.STATUS, Constants.FAILED)
-          .put(Constants.DESCRIPTION, query.getString(Constants.ERROR));
+      errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+          query.getString(Constants.ERROR));
       handler.handle(Future.failedFuture(errorJson.toString()));
       return null;
     }
     logger.info("Query constructed: " + query.toString());
     elasticRequest.setJsonEntity(query.toString());
-    client.performRequestAsync(
-        elasticRequest,
-        new ResponseListener() {
-          @Override
-          public void onSuccess(Response response) {
-            logger.info("Successful DB request");
-            try {
-              int statusCode = response.getStatusLine().getStatusCode();
-              if (statusCode != 200 && statusCode != 204) {
-                handler.handle(Future.failedFuture("Status code is not 2xx"));
-                return;
-              }
-              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-              handler.handle(
-                  Future.succeededFuture(
-                      new JsonObject()
-                          .put(Constants.COUNT, responseJson.getInteger(Constants.COUNT))));
-            } catch (IOException e) {
-              logger.info("DB ERROR:\n");
-              e.printStackTrace();
-              /* Handle request error */
-              errorJson
-                  .put(Constants.STATUS, Constants.FAILED)
-                  .put(Constants.DESCRIPTION, Constants.DATABASE_ERROR);
-              handler.handle(Future.failedFuture(errorJson.toString()));
-            }
+    client.performRequestAsync(elasticRequest, new ResponseListener() {
+      @Override
+      public void onSuccess(Response response) {
+        logger.info("Successful DB request");
+        try {
+          int statusCode = response.getStatusLine().getStatusCode();
+          if (statusCode != 200 && statusCode != 204) {
+            handler.handle(Future.failedFuture("Status code is not 2xx"));
+            return;
           }
+          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+          handler.handle(Future.succeededFuture(
+              new JsonObject().put(Constants.COUNT, responseJson.getInteger(Constants.COUNT))));
+        } catch (IOException e) {
+          logger.info("DB ERROR:\n");
+          e.printStackTrace();
+          /* Handle request error */
+          errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+              Constants.DATABASE_ERROR);
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      }
 
-          @Override
-          public void onFailure(Exception e) {
-            logger.info("DB request has failed. ERROR:\n");
-            e.printStackTrace();
-            /* Handle request error */
-            errorJson
-                .put(Constants.STATUS, Constants.FAILED)
-                .put(Constants.DESCRIPTION, Constants.DATABASE_ERROR);
-            handler.handle(Future.failedFuture(errorJson.toString()));
-          }
-        });
+      @Override
+      public void onFailure(Exception e) {
+        logger.info("DB request has failed. ERROR:\n");
+        e.printStackTrace();
+        /* Handle request error */
+        errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+            Constants.DATABASE_ERROR);
+        handler.handle(Future.failedFuture(errorJson.toString()));
+      }
+    });
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     Request checkExisting;
@@ -439,7 +420,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     Request checkExisting;
@@ -552,7 +535,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
@@ -1027,10 +1012,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         // int radius = Integer.parseInt(request.getString(Constants.MAX_DISTANCE));
         relation = request.getString(Constants.GEORELATION);
         shapeJson
-            .put(
-                Constants.SHAPE_KEY,
-                new JsonObject()
-                    .put(Constants.TYPE_KEY, Constants.GEO_CIRCLE)
+            .put(Constants.SHAPE_KEY,
+                new JsonObject().put(Constants.TYPE_KEY, Constants.GEO_CIRCLE)
                     .put(Constants.COORDINATES_KEY, coordinates)
                     .put(Constants.GEO_RADIUS, radius + Constants.DISTANCE_IN_METERS))
             .put(Constants.GEO_RELATION_KEY, relation);
@@ -1046,24 +1029,15 @@ public class DatabaseServiceImpl implements DatabaseService {
         coordinates = request.getJsonArray(Constants.COORDINATES_KEY);
         int length = coordinates.getJsonArray(0).size();
         if (geometry.equalsIgnoreCase(Constants.POLYGON)
-            && !coordinates
-                .getJsonArray(0)
-                .getJsonArray(0)
-                .getDouble(0)
+            && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(0)
                 .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(0))
-            && !coordinates
-                .getJsonArray(0)
-                .getJsonArray(0)
-                .getDouble(1)
+            && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(1)
                 .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(1))) {
           return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_COORDINATE_POLYGON);
         }
         shapeJson
-            .put(
-                Constants.SHAPE_KEY,
-                new JsonObject()
-                    .put(Constants.TYPE_KEY, geometry)
-                    .put(Constants.COORDINATES_KEY, coordinates))
+            .put(Constants.SHAPE_KEY, new JsonObject().put(Constants.TYPE_KEY, geometry)
+                .put(Constants.COORDINATES_KEY, coordinates))
             .put(Constants.GEO_RELATION_KEY, relation);
       } else if (request.containsKey(Constants.GEOMETRY)
           && request.getString(Constants.GEOMETRY).equalsIgnoreCase(Constants.BBOX)
@@ -1075,10 +1049,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         coordinates = request.getJsonArray(Constants.COORDINATES_KEY);
         shapeJson = new JsonObject();
         shapeJson
-            .put(
-                Constants.SHAPE_KEY,
-                new JsonObject()
-                    .put(Constants.TYPE_KEY, Constants.GEO_BBOX)
+            .put(Constants.SHAPE_KEY,
+                new JsonObject().put(Constants.TYPE_KEY, Constants.GEO_BBOX)
                     .put(Constants.COORDINATES_KEY, coordinates))
             .put(Constants.GEO_RELATION_KEY, relation);
 
@@ -1087,7 +1059,59 @@ public class DatabaseServiceImpl implements DatabaseService {
       }
       geoSearch.put(Constants.GEO_SHAPE_KEY, new JsonObject().put(Constants.GEO_KEY, shapeJson));
       filterQuery.add(geoSearch);
+
     }
+
+    /* Construct the query for tag based search */
+    if (searchType.matches(Constants.TAGSEARCH_REGEX)) {
+      logger.info("Tag search block");
+
+      match = true;
+      /* validating tag search attributes */
+      if (request.containsKey(Constants.PROPERTY)
+          && !request.getJsonArray(Constants.PROPERTY).isEmpty()
+          && request.containsKey(Constants.VALUE)) {
+
+        /* fetching values from request */
+        String propertyAttr = request.getJsonArray(Constants.PROPERTY).getString(0);
+        String valueAttr = request.getJsonArray(Constants.VALUE).toString().replaceAll("\\[", "")
+            .replaceAll("\\]", "").replaceAll("\"", "");
+
+        /* constructing db queries */
+        filterQuery.add(new JsonObject().put(Constants.MATCH_KEY, new JsonObject().put(propertyAttr,
+            new JsonObject().put(Constants.QUERY_KEY, valueAttr))));
+      }
+    }
+
+    /* Construct the query for text based search */
+    if (searchType.matches(Constants.TEXTSEARCH_REGEX)) {
+      logger.info("Text search block");
+
+      match = true;
+      /* validating tag search attributes */
+      if (request.containsKey(Constants.Q_KEY) && !request.getString(Constants.Q_KEY).isBlank()) {
+
+        /* fetching values from request */
+        String textAttr = request.getString(Constants.Q_KEY);
+
+        /* constructing db queries */
+        filterQuery.add(new JsonObject().put(Constants.STRING_QUERY_KEY,
+            new JsonObject().put(Constants.QUERY_KEY, textAttr)));
+      }
+    }
+
+    /* checking the requests for limit attribute */
+    if (request.containsKey(Constants.LIMIT)) {
+      Integer sizeFilter = request.getInteger(Constants.LIMIT);
+      elasticQuery.put(Constants.SIZE, sizeFilter);
+    }
+
+    /* checking the requests for offset attribute */
+    if (request.containsKey(Constants.OFFSET)) {
+      Integer offsetFilter = request.getInteger(Constants.OFFSET);
+      elasticQuery.put(Constants.FROM, offsetFilter);
+    }
+
     if (searchType.matches(Constants.RESPONSE_FILTER_REGEX)) {
       /* Construct the filter for response */
       logger.info("In responseFilter block---------");
@@ -1098,12 +1122,15 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (request.containsKey(Constants.ATTRIBUTE)) {
         JsonArray sourceFilter = request.getJsonArray(Constants.ATTRIBUTE);
         elasticQuery.put(Constants.SOURCE, sourceFilter);
+      } else if (request.containsKey(Constants.FILTER_KEY)) {
+        JsonArray sourceFilter = request.getJsonArray(Constants.FILTER_KEY);
+        elasticQuery.put(Constants.SOURCE, sourceFilter);
+        elasticQuery.put(Constants.SOURCE, sourceFilter);
       } else {
         return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_RESPONSE_FILTER);
       }
     }
 
-    /* checks if any valid search requests have matched */
     if (!match) {
       return new JsonObject().put("Error", Constants.INVALID_SEARCH);
     } else {
@@ -1111,5 +1138,13 @@ public class DatabaseServiceImpl implements DatabaseService {
       boolObject.getJsonObject(Constants.BOOL_KEY).put(Constants.FILTER_KEY, filterQuery);
       return elasticQuery.put(Constants.QUERY_KEY, boolObject);
     }
+
+    // if (!filterQuery.isEmpty()) {
+    // return elasticQuery;
+    /*
+     * } else { return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_PARAMETER); }
+     */
+    /* checks if any valid search requests have matched */
+
   }
 }

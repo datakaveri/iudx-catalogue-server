@@ -87,4 +87,15 @@ public class Constants {
   static final String NO_SEARCH_TYPE_FOUND = "No searchType found";
   static final String COUNT_UNSUPPORTED = "Count is not supported with filtering";
   static final String INVALID_SEARCH = "Invalid search request";
+
+  public static final String TAGSEARCH_REGEX = "(.*)tagsSearch(.*)";
+  public static final String TEXTSEARCH_REGEX = "(.*)textSearch(.*)";
+  public static final String PROPERTY = "property";
+  public static final String MATCH_KEY = "match";
+  public static final String STRING_QUERY_KEY = "query_string";
+  public static final String LIMIT = "limit";
+  public static final String OFFSET = "offset";
+  public static final String FROM = "from";
+  public static final String ERROR_INVALID_PARAMETER = "Incorrect/missing query parameters";
+  public static final String Q_KEY = "q";
 }
