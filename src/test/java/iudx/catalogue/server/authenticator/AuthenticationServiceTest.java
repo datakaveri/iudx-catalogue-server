@@ -55,7 +55,8 @@ public class AuthenticationServiceTest {
     @DisplayName("Test if WebClient has been initialized correctly")
     public void testWebClientSetup(VertxTestContext testContext) {
         WebClient client = AuthenticationVerticle.createWebClient(vertxObj, properties, true);
-        client.post(443, Constants.AUTH_SERVER_HOST, Constants.AUTH_CERTINFO_PATH).send(httpResponseAsyncResult -> {
+        String host = properties.getProperty(Constants.AUTH_SERVER_HOST);
+        client.post(443, host, Constants.AUTH_CERTINFO_PATH).send(httpResponseAsyncResult -> {
             if (httpResponseAsyncResult.failed()) {
                 logger.error("Cert info call to auth server failed");
                 testContext.failNow(httpResponseAsyncResult.cause());

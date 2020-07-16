@@ -14,7 +14,10 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.predicate.ResponsePredicate;
 import org.apache.http.HttpStatus;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Properties;
 
 /**
  * The Authentication Service Implementation.
@@ -31,10 +34,17 @@ import java.util.Arrays;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
+    private static final Properties properties = new Properties();
     private final WebClient webClient;
 
     public AuthenticationServiceImpl(WebClient client) {
         webClient = client;
+        try {
+            FileInputStream configFile = new FileInputStream(Constants.CONFIG_FILE);
+            if (properties.isEmpty()) properties.load(configFile);
+        } catch (IOException e) {
+            logger.error("Could not load properties from config file", e);
+        }
     }
 
     static void validateAuthInfo(JsonObject authInfo) throws IllegalArgumentException {
@@ -74,7 +84,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         JsonObject body = new JsonObject();
         body.put("token", authenticationInfo.getString("token"));
         webClient
-                .post(443, Constants.AUTH_SERVER_HOST, Constants.AUTH_TIP_PATH)
+                .post(443, properties.getProperty(Constants.AUTH_SERVER_HOST), Constants.AUTH_TIP_PATH)
                 .expect(ResponsePredicate.JSON)
                 .sendJsonObject(body, httpResponseAsyncResult -> {
                     if (httpResponseAsyncResult.failed()) {
