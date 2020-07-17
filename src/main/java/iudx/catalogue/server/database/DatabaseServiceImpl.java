@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import java.io.IOException;
+import org.apache.http.ParseException;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
@@ -22,7 +23,6 @@ import org.elasticsearch.client.RestClient;
  * <p>
  * The Database Service implementation in the IUDX Catalogue Server implements the definitions of
  * the {@link iudx.catalogue.server.database.DatabaseService}.
- * </p>
  *
  * @version 1.0
  * @since 2020-05-31
@@ -145,7 +145,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     // handler.handle(Future.failedFuture(errorJson.toString()));
     // return null;
     // }
-
     /* Validate the Request */
     if (!request.containsKey(Constants.SEARCH_TYPE)) {
       errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
@@ -175,8 +174,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             return;
           }
           JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-          handler.handle(Future.succeededFuture(new JsonObject()
-              .put(Constants.COUNT, responseJson.getInteger(Constants.COUNT))));
+          handler.handle(Future.succeededFuture(
+              new JsonObject().put(Constants.COUNT, responseJson.getInteger(Constants.COUNT))));
         } catch (IOException e) {
           logger.info("DB ERROR:\n");
           e.printStackTrace();
@@ -205,26 +204,220 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\"," + "\"results\": [ " + "{ \"id\": \"123123\","
-        + "\"method\": \"insert\", \"status\": \"success\" } ] }";
+    Request checkExisting;
+    JsonObject checkQuery = new JsonObject();
+    JsonObject errorJson = new JsonObject();
+    String id = request.getString("id");
+    errorJson
+        .put(Constants.STATUS, Constants.FAILED)
+        .put(
+            Constants.RESULTS,
+            new JsonArray()
+                .add(
+                    new JsonObject()
+                        .put(Constants.ID, id)
+                        .put(Constants.METHOD, Constants.INSERT)
+                        .put(Constants.STATUS, Constants.FAILED)));
+    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX);
+    checkQuery
+        .put(Constants.SOURCE, "[\"\"]")
+        .put(
+            Constants.QUERY_KEY,
+            new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, id)));
+    logger.info("Query constructed: " + checkQuery.toString());
+    checkExisting.setJsonEntity(checkQuery.toString());
+    client.performRequestAsync(
+        checkExisting,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
+            logger.info("Successful DB request");
+            int statusCode = response.getStatusLine().getStatusCode();
+            logger.info("status code: " + statusCode);
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+            try {
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              if (responseJson
+                      .getJsonObject(Constants.HITS)
+                      .getJsonObject(Constants.TOTAL)
+                      .getInteger(Constants.VALUE)
+                  > 0) {
+                logger.info("Item already exists.");
+                handler.handle(Future.failedFuture(errorJson.toString()));
+                return;
+              } else {
+                Request createRequest = new Request(Constants.REQUEST_POST, Constants.CAT_DOC);
+                createRequest.setJsonEntity(request.toString());
+                client.performRequestAsync(
+                    createRequest,
+                    new ResponseListener() {
+                      @Override
+                      public void onSuccess(Response response) {
+                        int statusCode = response.getStatusLine().getStatusCode();
+                        logger.info("status code: " + statusCode);
+                        if (statusCode != 200 && statusCode != 201 && statusCode != 204) {
+                          handler.handle(Future.failedFuture("Status code is not 2xx"));
+                          return;
+                        }
+                        logger.info("Successful DB request: Item Created");
+                        JsonObject responseJson = new JsonObject();
+                        responseJson
+                            .put(Constants.STATUS, Constants.SUCCESS)
+                            .put(
+                                Constants.RESULTS,
+                                new JsonArray()
+                                    .add(
+                                        new JsonObject()
+                                            .put(Constants.ID, id)
+                                            .put(Constants.METHOD, Constants.INSERT)
+                                            .put(Constants.STATUS, Constants.SUCCESS)));
+                        handler.handle(Future.succeededFuture(responseJson));
+                      }
 
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-    return null;
+                      @Override
+                      public void onFailure(Exception e) {
+                        logger.info("DB request has failed. ERROR:\n");
+                        e.printStackTrace();
+                        /* Handle request error */
+                        handler.handle(Future.failedFuture(errorJson.toString()));
+                      }
+                    });
+              }
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(Future.failedFuture(errorJson.toString()));
+            }
+          }
 
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(Future.failedFuture(errorJson.toString()));
+          }
+        });
+
+    return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\"," + "\"results\": [ " + "{ \"id\": \"123123\","
-        + "\"method\": \"update\", \"status\": \"success\" } ] }";
+    Request checkExisting;
+    JsonObject checkQuery = new JsonObject();
+    JsonObject errorJson = new JsonObject();
+    String id = request.getString("id");
+    errorJson
+        .put(Constants.STATUS, Constants.FAILED)
+        .put(
+            Constants.RESULTS,
+            new JsonArray()
+                .add(
+                    new JsonObject()
+                        .put(Constants.ID, id)
+                        .put(Constants.METHOD, Constants.UPDATE)
+                        .put(Constants.STATUS, Constants.FAILED)));
+    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX);
+    checkQuery
+        .put(Constants.SOURCE, "[\"\"]")
+        .put(
+            Constants.QUERY_KEY,
+            new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, id)));
+    logger.info("Query constructed: " + checkQuery.toString());
+    checkExisting.setJsonEntity(checkQuery.toString());
+    client.performRequestAsync(
+        checkExisting,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
+            logger.info("Successful DB request");
+            int statusCode = response.getStatusLine().getStatusCode();
+            logger.info("status code: " + statusCode);
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+            try {
+              Request updateRequest;
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              if (responseJson
+                      .getJsonObject(Constants.HITS)
+                      .getJsonObject(Constants.TOTAL)
+                      .getInteger(Constants.VALUE)
+                  == 0) {
+                logger.info("Item Doesn't Exist in the Database");
+                updateRequest = new Request(Constants.REQUEST_POST, Constants.CAT_DOC);
+                logger.info("Creating New Item");
+              } else {
+                logger.info("Item found");
+                String docId =
+                    responseJson
+                        .getJsonObject(Constants.HITS)
+                        .getJsonArray(Constants.HITS)
+                        .getJsonObject(0)
+                        .getString(Constants.DOC_ID);
+                updateRequest = new Request(Constants.REQUEST_PUT, Constants.CAT_DOC + "/" + docId);
+              }
+              updateRequest.setJsonEntity(request.toString());
+              client.performRequestAsync(
+                  updateRequest,
+                  new ResponseListener() {
+                    @Override
+                    public void onSuccess(Response response) {
+                      int statusCode = response.getStatusLine().getStatusCode();
+                      logger.info("status code: " + statusCode);
+                      if (statusCode != 200 && statusCode != 204 && statusCode != 201) {
+                        handler.handle(Future.failedFuture("Status code is not 2xx"));
+                        return;
+                      }
+                      logger.info("Successful DB request: Item Updated");
+                      JsonObject responseJson = new JsonObject();
+                      responseJson
+                          .put(Constants.STATUS, Constants.SUCCESS)
+                          .put(
+                              Constants.RESULTS,
+                              new JsonArray()
+                                  .add(
+                                      new JsonObject()
+                                          .put(Constants.ID, id)
+                                          .put(Constants.METHOD, Constants.UPDATE)
+                                          .put(Constants.STATUS, Constants.SUCCESS)));
+                      handler.handle(Future.succeededFuture(responseJson));
+                    }
 
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-    return null;
+                    @Override
+                    public void onFailure(Exception e) {
+                      logger.info("DB request has failed. ERROR:\n");
+                      e.printStackTrace();
+                      /* Handle request error */
+                      handler.handle(Future.failedFuture(errorJson.toString()));
+                    }
+                  });
+
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(Future.failedFuture(errorJson.toString()));
+            }
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(Future.failedFuture(errorJson.toString()));
+          }
+        });
+
+    return this;
   }
 
   /**
@@ -232,12 +425,116 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\"," + "\"results\": [ " + "{ \"id\": \"123123\","
-        + "\"method\": \"delete\", \"status\": \"success\" } ] }";
+    Request checkExisting;
+    JsonObject checkQuery = new JsonObject();
+    JsonObject errorJson = new JsonObject();
+    String id = request.getString("id");
+    errorJson
+        .put(Constants.STATUS, Constants.FAILED)
+        .put(
+            Constants.RESULTS,
+            new JsonArray()
+                .add(
+                    new JsonObject()
+                        .put(Constants.ID, id)
+                        .put(Constants.METHOD, Constants.DELETE)
+                        .put(Constants.STATUS, Constants.FAILED)));
+    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX);
+    checkQuery
+        .put(Constants.SOURCE, "[\"\"]")
+        .put(
+            Constants.QUERY_KEY,
+            new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, id)));
+    checkExisting.setJsonEntity(checkQuery.toString());
+    client.performRequestAsync(
+        checkExisting,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            logger.info("status code: " + statusCode);
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+            logger.info("Successful DB request");
+            try {
+              Request updateRequest;
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              logger.info("\n\n\n Response is \n\n\n");
+              logger.info(responseJson);
+              if (responseJson
+                      .getJsonObject(Constants.HITS)
+                      .getJsonObject(Constants.TOTAL)
+                      .getInteger(Constants.VALUE)
+                  == 0) {
+                logger.info("Item Doesn't exist");
+                handler.handle(Future.failedFuture(errorJson.toString()));
+                return;
+              }
+              logger.info("Item Found");
+              String docId =
+                  responseJson
+                      .getJsonObject(Constants.HITS)
+                      .getJsonArray(Constants.HITS)
+                      .getJsonObject(0)
+                      .getString(Constants.DOC_ID);
+              updateRequest =
+                  new Request(Constants.REQUEST_DELETE, Constants.CAT_DOC + "/" + docId);
+              updateRequest.setJsonEntity(request.toString());
+              client.performRequestAsync(
+                  updateRequest,
+                  new ResponseListener() {
+                    @Override
+                    public void onSuccess(Response response) {
+                      int statusCode = response.getStatusLine().getStatusCode();
+                      logger.info("status code: " + statusCode);
+                      if (statusCode != 200 && statusCode != 204) {
+                        handler.handle(Future.failedFuture("Status code is not 2xx"));
+                        return;
+                      }
+                      logger.info("Successful DB request: Item Deleted");
+                      JsonObject responseJson = new JsonObject();
+                      responseJson
+                          .put(Constants.STATUS, Constants.SUCCESS)
+                          .put(
+                              Constants.RESULTS,
+                              new JsonArray()
+                                  .add(
+                                      new JsonObject()
+                                          .put(Constants.ID, id)
+                                          .put(Constants.METHOD, Constants.DELETE)
+                                          .put(Constants.STATUS, Constants.SUCCESS)));
+                      handler.handle(Future.succeededFuture(responseJson));
+                    }
 
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-    return null;
+                    @Override
+                    public void onFailure(Exception e) {
+                      logger.info("DB request has failed. ERROR:\n");
+                      e.printStackTrace();
+                      /* Handle request error */
+                      handler.handle(Future.failedFuture(errorJson.toString()));
+                    }
+                  });
+
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(Future.failedFuture(errorJson.toString()));
+            }
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(Future.failedFuture(errorJson.toString()));
+          }
+        });
+
+    return this;
   }
 
   /**
@@ -248,8 +545,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     // TODO: Stub code, to be removed after use
 
     String result =
-        "{ \"status\": \"success\", \"totalHits\": 100," + "\"limit\": 10, \"offset\": 100,"
-            + "\"results\": [" + "{ \"id\": \"abc/123\", \"tags\": [ \"a\", \"b\"] } ] }";
+        "{ \"status\": \"success\", \"totalHits\": 100,"
+            + "\"limit\": 10, \"offset\": 100,"
+            + "\"results\": ["
+            + "{ \"id\": \"abc/123\", \"tags\": [ \"a\", \"b\"] } ] }";
 
     String errResult = " { \"status\": \"invalidValue\", \"results\": [] }";
 
@@ -262,9 +561,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
@@ -274,9 +571,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
@@ -286,9 +581,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
@@ -298,12 +591,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceServers(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceServers(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
     String result = "{ \"status\": \"success\", \"results\": [ \"server-1\", \"server-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -311,12 +602,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listProviders(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listProviders(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use [was not part of master code]
     String result = "{ \"status\": \"success\", \"results\": [ \"pr-1\", \"pr-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -324,12 +613,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceGroups(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceGroups(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use [was not part of master code]
     String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -337,12 +624,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use [was not part of master code]
     String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -350,12 +635,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceGroupRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceGroupRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use [was not part of master code]
     String result = "{ \"status\": \"success\", \"results\": [ { \"id\": \"abc/123\" }] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -363,12 +646,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listProviderRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listProviderRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -376,12 +657,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceServerRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService listResourceServerRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
@@ -389,9 +668,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -401,198 +678,291 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService getCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
 
-    String result = "{\n" + "\"status\": \"success\",\n" + "\"results\": [{\n"
-        + "\"__instance-id\" : \"ui-test.iudx.org.in\",\n" + "\"configurations\" : {\n"
-        + "\"smart_city_name\" : \"PSCDCL\",\n"
-        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
-        + "\"__instance-id\" : \"covid-19.iudx.org.in\",\n" + "\"configurations\" : {\n"
-        + "\"smart_city_name\" : \"COVID-19\",\n"
-        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
-        + "\"__instance-id\" : \"pudx.catalogue.iudx.org.in\",\n" + "\"configurations\" " + ": {\n"
-        + "\"smart_city_name\" : \"PSCDCL\",\n"
-        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
-        + "\"__instance-id\" : \"varanasi.iudx.org.in\",\n" + "\"configurations\" : {\n"
-        + "\"smart_city_name\" : \"VSCL\",\n"
-        + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ]\n" + "}\n" + "}]}";
+    String result =
+        "{\n"
+            + "\"status\": \"success\",\n"
+            + "\"results\": [{\n"
+            + "\"__instance-id\" : \"ui-test.iudx.org.in\",\n"
+            + "\"configurations\" : {\n"
+            + "\"smart_city_name\" : \"PSCDCL\",\n"
+            + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n"
+            + "}\n"
+            + "}, {\n"
+            + "\"__instance-id\" : \"covid-19.iudx.org.in\",\n"
+            + "\"configurations\" : {\n"
+            + "\"smart_city_name\" : \"COVID-19\",\n"
+            + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n"
+            + "}\n"
+            + "}, {\n"
+            + "\"__instance-id\" : \"pudx.catalogue.iudx.org.in\",\n"
+            + "\"configurations\" "
+            + ": {\n"
+            + "\"smart_city_name\" : \"PSCDCL\",\n"
+            + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n"
+            + "}\n"
+            + "}, {\n"
+            + "\"__instance-id\" : \"varanasi.iudx.org.in\",\n"
+            + "\"configurations\" : {\n"
+            + "\"smart_city_name\" : \"VSCL\",\n"
+            + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ]\n"
+            + "}\n"
+            + "}]}";
 
     handler.handle(Future.succeededFuture(new JsonObject(result)));
 
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService setCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
 
-    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
-        + "        {\n" + "            \"instanceID\": \"ui-test.iudx.org.in\",\n"
-        + "            \"configurations\": {\n"
-        + "                \"smart_city_name\": \"PSCDCL\",\n"
-        + "                \"map_default_view_lat_lng\": [\n" + "                    18.5644"
-        + ",\n" + "                    73.7858\n" + "                ]\n" + "            }\n"
-        + "        },\n" + "        {\n" + "            \"instanceID\": \"covid-19.iudx.org.i"
-        + "n\"," + "\n" + "            \"configurations\": {\n"
-        + "                \"smart_city_name\": \"COVID-19\",\n"
-        + "                \"map_default_view_lat_lng\": [\n" + "                    18.5644,"
-        + "\n" + "                    73.7858\n" + "                ]\n" + "            }\n"
-        + "        },\n" + "        {\n"
-        + "            \"instanceID\": \"pudx.catalogue.iudx.org.in\",\n"
-        + "            \"configurations\": {\n"
-        + "                \"smart_city_name\": \"PSCDCL\",\n"
-        + "                \"map_default_view_lat_lng\": [\n" + "                    18.5644,"
-        + "\n" + "                    73.7858\n" + "                ]\n" + "            }\n"
-        + "        },\n" + "        {\n" + "            \"instanceID\": \"varanasi.iudx.org.i"
-        + "n\",\n" + "            \"configurations\": {\n"
-        + "                \"smart_city_name\": \"VSC" + "L\",\n"
-        + "                \"map_default_view_lat_lng\": [\n" + "                    25.3176,\n"
-        + "                    82.9739\n" + "                ]\n" + "            }\n"
-        + "        }\n" + "    ]\n" + "}";
+    String result =
+        "{\n"
+            + "    \"status\": \"success\",\n"
+            + "    \"results\": [\n"
+            + "        {\n"
+            + "            \"instanceID\": \"ui-test.iudx.org.in\",\n"
+            + "            \"configurations\": {\n"
+            + "                \"smart_city_name\": \"PSCDCL\",\n"
+            + "                \"map_default_view_lat_lng\": [\n"
+            + "                    18.5644"
+            + ",\n"
+            + "                    73.7858\n"
+            + "                ]\n"
+            + "            }\n"
+            + "        },\n"
+            + "        {\n"
+            + "            \"instanceID\": \"covid-19.iudx.org.i"
+            + "n\","
+            + "\n"
+            + "            \"configurations\": {\n"
+            + "                \"smart_city_name\": \"COVID-19\",\n"
+            + "                \"map_default_view_lat_lng\": [\n"
+            + "                    18.5644,"
+            + "\n"
+            + "                    73.7858\n"
+            + "                ]\n"
+            + "            }\n"
+            + "        },\n"
+            + "        {\n"
+            + "            \"instanceID\": \"pudx.catalogue.iudx.org.in\",\n"
+            + "            \"configurations\": {\n"
+            + "                \"smart_city_name\": \"PSCDCL\",\n"
+            + "                \"map_default_view_lat_lng\": [\n"
+            + "                    18.5644,"
+            + "\n"
+            + "                    73.7858\n"
+            + "                ]\n"
+            + "            }\n"
+            + "        },\n"
+            + "        {\n"
+            + "            \"instanceID\": \"varanasi.iudx.org.i"
+            + "n\",\n"
+            + "            \"configurations\": {\n"
+            + "                \"smart_city_name\": \"VSC"
+            + "L\",\n"
+            + "                \"map_default_view_lat_lng\": [\n"
+            + "                    25.3176,\n"
+            + "                    82.9739\n"
+            + "                ]\n"
+            + "            }\n"
+            + "        }\n"
+            + "    ]\n"
+            + "}";
 
     handler.handle(Future.succeededFuture(new JsonObject(result)));
 
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService updateCities(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService updateCities(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
 
-    String result = "{\n" + "\"status\": \"success\",\n" + "\"results\": [\n" + "{\n"
-        + "\"instanceID\" : \"ui-test.iudx.org.in\",\n" + "\"configurations\" : {\n"
-        + "\"smart_city_name\" : \"PSCDCL\",\n"
-        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
-        + "\"instanceID\" : \"covid-19.iudx.org.in\",\n" + "\"configurations\" : {\n"
-        + "\"smart_city_name\" : \"COVID-19\",\n"
-        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
-        + "\"instanceID\" : \"pudx.catalogue.iudx.org.in\",\n" + "\"configurations\" : {\n"
-        + "\"smart_city_name\" : \"PSCDCL\",\n"
-        + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n" + "}\n" + "}, {\n"
-        + "\"instanceID\" : \"varanasi.iudx.org.in\",\n" + "\"configurations\" : {\n"
-        + "\"smart_city_name\" : \"VSCL\",\n"
-        + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ]\n" + "}\n" + "}]}";
+    String result =
+        "{\n"
+            + "\"status\": \"success\",\n"
+            + "\"results\": [\n"
+            + "{\n"
+            + "\"instanceID\" : \"ui-test.iudx.org.in\",\n"
+            + "\"configurations\" : {\n"
+            + "\"smart_city_name\" : \"PSCDCL\",\n"
+            + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n"
+            + "}\n"
+            + "}, {\n"
+            + "\"instanceID\" : \"covid-19.iudx.org.in\",\n"
+            + "\"configurations\" : {\n"
+            + "\"smart_city_name\" : \"COVID-19\",\n"
+            + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n"
+            + "}\n"
+            + "}, {\n"
+            + "\"instanceID\" : \"pudx.catalogue.iudx.org.in\",\n"
+            + "\"configurations\" : {\n"
+            + "\"smart_city_name\" : \"PSCDCL\",\n"
+            + "\"map_default_view_lat_lng\" : [ 18.5644, 73.7858 ]\n"
+            + "}\n"
+            + "}, {\n"
+            + "\"instanceID\" : \"varanasi.iudx.org.in\",\n"
+            + "\"configurations\" : {\n"
+            + "\"smart_city_name\" : \"VSCL\",\n"
+            + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ]\n"
+            + "}\n"
+            + "}]}";
 
     handler.handle(Future.succeededFuture(new JsonObject(result)));
 
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService getConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
 
-    String result = "{\n" + "\"status\": \"success\",\n" + "\"results\": [{\n"
-        + "\"__instance-id\" : \"varanasi.iudx.org.in\",\n" + "\"configurations\" : {\n"
-        + "\"smart_city_iudx_logo\" : \"../assets/img/iudx_varanasi.jpeg\",\n"
-        + "\"smart_city_name\" : \"VSCL\",\n" + "\"smart_city_url\" : \"#\",\n"
-        + "\"resoure_server_base_URL\" : \"https://rs.varanasi.iudx.org.in/resource-server/vscl/v1"
-        + "\",\n" + "\"auth_base_URL\" : \"https://auth.iudx.org.in/auth/v1\",\n"
-        + "\"api_docs_link\" : \"https://apidocs.iudx.org.in\",\n"
-        + "\"resource_server_group_head\" : \"urn:iudx-catalogue-varanasi:\",\n"
-        + "\"provider_head\" : \"urn:iudx-catalogue-varanasi:\",\n"
-        + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ],\n"
-        + "\"map_default_lat_lng_name\" : \"VSCL Office\",\n" + "\"map_default_zoom\" : 12.0,\n"
-        + "\"cat_base_URL\" : \"https://varanasi.iudx.org.in/catalogue/v1\"\n" + "},\n"
-        + "\"legends\" : {\n"
-        + "\"rs.varanasi.iudx.org.in/varanasi-swm-bins\" : \"https://image.flaticon.com/icons/svg/26"
-        + "36/2636439.svg\",\n"
-        + "\"rs.varanasi.iudx.org.in/varanasi-aqm\" : \"https://image.flaticon.com/icons/svg/1808/"
-        + "180" + "8701.svg\",\n" + "\"rs.varanasi.iudx.org.in/varanasi-swm-vehicles\" : \"#\",\n"
-        + "\"rs.varanasi.iudx.org.in/varanasi-citizen-app\" : \"#\",\n"
-        + "\"rs.varanasi.iudx.org.in/varanasi-iudx-gis\" : \"#\",\n"
-        + "\"rs.varanasi.iudx.org.in/varanasi-swm-workers\" : \"#\"\n" + "},\n"
-        + "\"global_configuration\" : {\n" + "\"icon_attribution\" : {\n" + "\"author\" : [ {\n"
-        + "\"freepik\" : \"https://www.flaticon.com/authors/freepik\"\n" + "}, {\n"
-        + "\"smashicons\" : \"https://www.flaticon.com/authors/smashicons\"\n" + "}, {\n"
-        + "\"flat-icons\" : \"https://www.flaticon.com/authors/flat-icons\"\n" + "}, {\n"
-        + "\"itim2101\" : \"https://www.flaticon.com/authors/itim2101\"\n" + "} ],\n"
-        + "\"site\" : \"flaticon.com\",\n" + "\"site_link\" : \"https://flaticon.com\"\n" + "}\n"
-        + "}\n" + "}]}";
+    String result =
+        "{\n"
+            + "\"status\": \"success\",\n"
+            + "\"results\": [{\n"
+            + "\"__instance-id\" : \"varanasi.iudx.org.in\",\n"
+            + "\"configurations\" : {\n"
+            + "\"smart_city_iudx_logo\" : \"../assets/img/iudx_varanasi.jpeg\",\n"
+            + "\"smart_city_name\" : \"VSCL\",\n"
+            + "\"smart_city_url\" : \"#\",\n"
+            + "\"resoure_server_base_URL\" : \"https://rs.varanasi.iudx.org.in/resource-server/vscl/v1"
+            + "\",\n"
+            + "\"auth_base_URL\" : \"https://auth.iudx.org.in/auth/v1\",\n"
+            + "\"api_docs_link\" : \"https://apidocs.iudx.org.in\",\n"
+            + "\"resource_server_group_head\" : \"urn:iudx-catalogue-varanasi:\",\n"
+            + "\"provider_head\" : \"urn:iudx-catalogue-varanasi:\",\n"
+            + "\"map_default_view_lat_lng\" : [ 25.3176, 82.9739 ],\n"
+            + "\"map_default_lat_lng_name\" : \"VSCL Office\",\n"
+            + "\"map_default_zoom\" : 12.0,\n"
+            + "\"cat_base_URL\" : \"https://varanasi.iudx.org.in/catalogue/v1\"\n"
+            + "},\n"
+            + "\"legends\" : {\n"
+            + "\"rs.varanasi.iudx.org.in/varanasi-swm-bins\" : \"https://image.flaticon.com/icons/svg/26"
+            + "36/2636439.svg\",\n"
+            + "\"rs.varanasi.iudx.org.in/varanasi-aqm\" : \"https://image.flaticon.com/icons/svg/1808/"
+            + "180"
+            + "8701.svg\",\n"
+            + "\"rs.varanasi.iudx.org.in/varanasi-swm-vehicles\" : \"#\",\n"
+            + "\"rs.varanasi.iudx.org.in/varanasi-citizen-app\" : \"#\",\n"
+            + "\"rs.varanasi.iudx.org.in/varanasi-iudx-gis\" : \"#\",\n"
+            + "\"rs.varanasi.iudx.org.in/varanasi-swm-workers\" : \"#\"\n"
+            + "},\n"
+            + "\"global_configuration\" : {\n"
+            + "\"icon_attribution\" : {\n"
+            + "\"author\" : [ {\n"
+            + "\"freepik\" : \"https://www.flaticon.com/authors/freepik\"\n"
+            + "}, {\n"
+            + "\"smashicons\" : \"https://www.flaticon.com/authors/smashicons\"\n"
+            + "}, {\n"
+            + "\"flat-icons\" : \"https://www.flaticon.com/authors/flat-icons\"\n"
+            + "}, {\n"
+            + "\"itim2101\" : \"https://www.flaticon.com/authors/itim2101\"\n"
+            + "} ],\n"
+            + "\"site\" : \"flaticon.com\",\n"
+            + "\"site_link\" : \"https://flaticon.com\"\n"
+            + "}\n"
+            + "}\n"
+            + "}]}";
 
     handler.handle(Future.succeededFuture(new JsonObject(result)));
 
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService updateConfig(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService updateConfig(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
 
-    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
-        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
-        + "            \"method\": \"update\",\n" + "            \"status\": \"success\"\n"
-        + "        }\n" + "    ]\n" + "}";
+    String result =
+        "{\n"
+            + "    \"status\": \"success\",\n"
+            + "    \"results\": [\n"
+            + "        {\n"
+            + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+            + "            \"method\": \"update\",\n"
+            + "            \"status\": \"success\"\n"
+            + "        }\n"
+            + "    ]\n"
+            + "}";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
 
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService setConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
 
-    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
-        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
-        + "            \"method\": \"insert\",\n" + "            \"status\": \"success\"\n"
-        + "        }\n" + "    ]\n" + "}";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-
-    return null;
-
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DatabaseService deleteConfig(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
-    // TODO Auto-generated method stub
-
-    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
-        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
-        + "            \"method\": \"delete\",\n" + "            \"status\": \"success\"\n"
-        + "        }\n" + "    ]\n" + "}";
+    String result =
+        "{\n"
+            + "    \"status\": \"success\",\n"
+            + "    \"results\": [\n"
+            + "        {\n"
+            + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+            + "            \"method\": \"insert\",\n"
+            + "            \"status\": \"success\"\n"
+            + "        }\n"
+            + "    ]\n"
+            + "}";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
 
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService appendConfig(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService deleteConfig(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
 
-    String result = "{\n" + "    \"status\": \"success\",\n" + "    \"results\": [\n"
-        + "        {\n" + "            \"instance-id\": \"<iudx-instance>:id\",\n"
-        + "            \"method\": \"patch\",\n" + "            \"status\": \"success\"\n"
-        + "        }\n" + "    ]\n" + "}";
+    String result =
+        "{\n"
+            + "    \"status\": \"success\",\n"
+            + "    \"results\": [\n"
+            + "        {\n"
+            + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+            + "            \"method\": \"delete\",\n"
+            + "            \"status\": \"success\"\n"
+            + "        }\n"
+            + "    ]\n"
+            + "}";
+    handler.handle(Future.succeededFuture(new JsonObject(result)));
+
+    return null;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public DatabaseService appendConfig(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    // TODO Auto-generated method stub
+
+    String result =
+        "{\n"
+            + "    \"status\": \"success\",\n"
+            + "    \"results\": [\n"
+            + "        {\n"
+            + "            \"instance-id\": \"<iudx-instance>:id\",\n"
+            + "            \"method\": \"patch\",\n"
+            + "            \"status\": \"success\"\n"
+            + "        }\n"
+            + "    ]\n"
+            + "}";
     handler.handle(Future.succeededFuture(new JsonObject(result)));
 
     return null;
@@ -605,7 +975,6 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @param request Json object containing various fields related to query-type.
    * @return JsonObject which contains fully formed ElasticSearch query.
    */
-
   public JsonObject queryDecoder(JsonObject request) {
     String searchType = request.getString(Constants.SEARCH_TYPE);
     JsonObject elasticQuery = new JsonObject();
@@ -692,7 +1061,59 @@ public class DatabaseServiceImpl implements DatabaseService {
       }
       geoSearch.put(Constants.GEO_SHAPE_KEY, new JsonObject().put(Constants.GEO_KEY, shapeJson));
       filterQuery.add(geoSearch);
+
     }
+
+    /* Construct the query for tag based search */
+    if (searchType.matches(Constants.TAGSEARCH_REGEX)) {
+      logger.info("Tag search block");
+
+      match = true;
+      /* validating tag search attributes */
+      if (request.containsKey(Constants.PROPERTY)
+          && !request.getJsonArray(Constants.PROPERTY).isEmpty()
+          && request.containsKey(Constants.VALUE)) {
+
+        /* fetching values from request */
+        String propertyAttr = request.getJsonArray(Constants.PROPERTY).getString(0);
+        String valueAttr = request.getJsonArray(Constants.VALUE).toString().replaceAll("\\[", "")
+            .replaceAll("\\]", "").replaceAll("\"", "");
+
+        /* constructing db queries */
+        filterQuery.add(new JsonObject().put(Constants.MATCH_KEY, new JsonObject().put(propertyAttr,
+            new JsonObject().put(Constants.QUERY_KEY, valueAttr))));
+      }
+    }
+
+    /* Construct the query for text based search */
+    if (searchType.matches(Constants.TEXTSEARCH_REGEX)) {
+      logger.info("Text search block");
+
+      match = true;
+      /* validating tag search attributes */
+      if (request.containsKey(Constants.Q_KEY) && !request.getString(Constants.Q_KEY).isBlank()) {
+
+        /* fetching values from request */
+        String textAttr = request.getString(Constants.Q_KEY);
+
+        /* constructing db queries */
+        filterQuery.add(new JsonObject().put(Constants.STRING_QUERY_KEY,
+            new JsonObject().put(Constants.QUERY_KEY, textAttr)));
+      }
+    }
+
+    /* checking the requests for limit attribute */
+    if (request.containsKey(Constants.LIMIT)) {
+      Integer sizeFilter = request.getInteger(Constants.LIMIT);
+      elasticQuery.put(Constants.SIZE, sizeFilter);
+    }
+
+    /* checking the requests for offset attribute */
+    if (request.containsKey(Constants.OFFSET)) {
+      Integer offsetFilter = request.getInteger(Constants.OFFSET);
+      elasticQuery.put(Constants.FROM, offsetFilter);
+    }
+
     if (searchType.matches(Constants.RESPONSE_FILTER_REGEX)) {
       /* Construct the filter for response */
       logger.info("In responseFilter block---------");
@@ -703,12 +1124,15 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (request.containsKey(Constants.ATTRIBUTE)) {
         JsonArray sourceFilter = request.getJsonArray(Constants.ATTRIBUTE);
         elasticQuery.put(Constants.SOURCE, sourceFilter);
+      } else if (request.containsKey(Constants.FILTER_KEY)) {
+        JsonArray sourceFilter = request.getJsonArray(Constants.FILTER_KEY);
+        elasticQuery.put(Constants.SOURCE, sourceFilter);
+        elasticQuery.put(Constants.SOURCE, sourceFilter);
       } else {
         return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_RESPONSE_FILTER);
       }
     }
 
-    /* checks if any valid search requests have matched */
     if (!match) {
       return new JsonObject().put("Error", Constants.INVALID_SEARCH);
     } else {
@@ -716,6 +1140,13 @@ public class DatabaseServiceImpl implements DatabaseService {
       boolObject.getJsonObject(Constants.BOOL_KEY).put(Constants.FILTER_KEY, filterQuery);
       return elasticQuery.put(Constants.QUERY_KEY, boolObject);
     }
+
+    // if (!filterQuery.isEmpty()) {
+    // return elasticQuery;
+    /*
+     * } else { return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_PARAMETER); }
+     */
+    /* checks if any valid search requests have matched */
 
   }
 }

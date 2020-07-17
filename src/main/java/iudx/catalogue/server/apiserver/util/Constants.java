@@ -42,10 +42,10 @@ public class Constants {
   public static final String ROUTE_DATA_TYPE = basePath.concat("\\/(?<id>.*)\\/type");
   public static final String ROUTE_COUNT = basePath.concat("/count");
 
-  public static final String ITEM_TYPE_RESOURCE = "Resource";
-  public static final String ITEM_TYPE_RESOURCE_GROUP = "ResourceGroup";
-  public static final String ITEM_TYPE_RESOURCE_SERVER = "ResourceServer";
-  public static final String ITEM_TYPE_PROVIDER = "Provider";
+  public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
+  public static final String ITEM_TYPE_RESOURCE_GROUP = "iudx:ResourceGroup";
+  public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
+  public static final String ITEM_TYPE_PROVIDER = "iudx:Provider";
   public static final String RELATIONSHIP = "relationship";
   public static final String REL_RESOURCE = "resource";
   public static final String REL_RESOURCE_GRP = "resourceGroup";
@@ -91,6 +91,8 @@ public class Constants {
   public static final String TEXT_SEARCH = "textSearch_";
   public static final String TAGS_SEARCH = "tagsSearch_";
   public static final String ATTRIBUTE_SEARCH = "attributeSearch_";
+  public static final String RESPONSE_FILTER = "responseFilter_";
+  public static final String FILTER = "filter";
   public static final String TAGS = "tags";
 
   public static final String ID = "id";
@@ -118,4 +120,7 @@ public class Constants {
   public static final String PATTERN_ARRAY = "^\\[.*\\]$";
 
 
+  public static final String POST = "POST";
+  public static final String PUT = "PUT";
+  public static final String DELETE = "DELETE";
 }
