@@ -90,13 +90,15 @@ public class ApiServerVerticleTest {
   @DisplayName("Create Item[Status:201, Endpoint: /item]")
   public void createItem201(VertxTestContext testContext) throws InterruptedException {
 
+    var wrapper = new Object(){ int count = 0; };
+
     fileSytem.readFile("src/test/resources/resources.json", fileRes -> {
       if (fileRes.succeeded()) {
 
         JsonArray resources  = fileRes.result().toJsonArray();
+        int numItems = resources.size();
         logger.info("Total items = " + String.valueOf(resources.size()));
         Iterator<Object> objectIterator = resources.iterator();
-
 
         while (objectIterator.hasNext()) {
           // Send the file to the server using POST
@@ -105,9 +107,12 @@ public class ApiServerVerticleTest {
               .sendJson(objectIterator.next(), serverResponse -> {
                 if (serverResponse.succeeded()) {
                   if (serverResponse.result().statusCode() == 201) {
+                    wrapper.count++;
+                  }
+                  if (wrapper.count == numItems-1){
+                    testContext.completeNow();
                   }
                   assertEquals(201, serverResponse.result().statusCode());
-                  testContext.completeNow();
                 } else if (serverResponse.failed()) {
                   testContext.failed();
                 }
@@ -255,10 +260,13 @@ public class ApiServerVerticleTest {
   @DisplayName("Delete Item[Status:200, Endpoint: /item]")
   void deleteItem200(VertxTestContext testContext) {
     
+    var wrapper = new Object(){ int count = 0; };
+
     fileSytem.readFile("src/test/resources/resourcesToDelete.json",
       fileRes -> {
         if (fileRes.succeeded()) {
           JsonArray resources  = fileRes.result().toJsonArray();
+          int numItems = resources.size();
           Iterator<Object> objectIterator = resources.iterator();
 
           while (objectIterator.hasNext()) {
@@ -270,12 +278,12 @@ public class ApiServerVerticleTest {
                 .concat(item.getString("id"))).putHeader("token", "abc")
               .putHeader("Content-Type", "application/json").send(serverResponse -> {
                 if (serverResponse.succeeded()) {
-
-                  /* comparing the response */
-                  assertEquals(200, serverResponse.result().statusCode());
-                  assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-
-                  testContext.completeNow();
+                  if (serverResponse.result().statusCode() == 201) {
+                    wrapper.count++;
+                  }
+                  if (wrapper.count == numItems-1){
+                    testContext.completeNow();
+                  }
                 } else if (serverResponse.failed()) {
                   testContext.failed();
                 }
@@ -291,6 +299,7 @@ public class ApiServerVerticleTest {
 
   /**
    * Tests the search api handler of ApiServerVerticle.
+   * Circle query used. Query ensured to return only one item
    * 
    * @param testContext of asynchronous operations
    */
