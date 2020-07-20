@@ -29,6 +29,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator resourceValidator;
   private Validator resourceGroupValidator;
   private Validator providerValidator;
+  private Validator resourceServerValidator;
 
   /** {@inheritDoc} */
   @Override
@@ -37,6 +38,7 @@ public class ValidatorServiceImpl implements ValidatorService {
     try {
       resourceValidator = new Validator("/resourceItemSchema.json");
       resourceGroupValidator = new Validator("/resourceGroupItemSchema.json");
+      resourceServerValidator = new Validator("/resourceServerItemSchema.json");
       providerValidator = new Validator("/providerItemSchema.json");
     } catch (IOException | ProcessingException e) {
       e.printStackTrace();
@@ -49,6 +51,8 @@ public class ValidatorServiceImpl implements ValidatorService {
       isValidSchema = providerValidator.validate(request.toString());
     } else if (itemType.equalsIgnoreCase("iudx:resourceGroup")) {
       isValidSchema = resourceGroupValidator.validate(request.toString());
+    } else if (itemType.equalsIgnoreCase("iudx:resourceServer")) {
+      isValidSchema = resourceServerValidator.validate(request.toString());
     } else {
       isValidSchema = false;
     }
