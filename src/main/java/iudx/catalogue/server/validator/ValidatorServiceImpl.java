@@ -21,10 +21,11 @@ import io.vertx.core.logging.LoggerFactory;
 public class ValidatorServiceImpl implements ValidatorService {
 
   private static final Logger logger = LoggerFactory.getLogger(ValidatorServiceImpl.class);
+  private boolean isValidSchema;
+  private Validator resourceValidator;
+  private Validator resourceGroupValidator;
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public ValidatorService validateItem(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -38,9 +39,7 @@ public class ValidatorServiceImpl implements ValidatorService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public ValidatorService validateProvider(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
