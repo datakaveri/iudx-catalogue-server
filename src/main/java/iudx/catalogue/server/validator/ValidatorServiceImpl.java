@@ -1,5 +1,9 @@
 package iudx.catalogue.server.validator;
 
+import java.io.IOException;
+
+import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -24,18 +28,36 @@ public class ValidatorServiceImpl implements ValidatorService {
   private boolean isValidSchema;
   private Validator resourceValidator;
   private Validator resourceGroupValidator;
+  private Validator providerValidator;
 
   /** {@inheritDoc} */
   @Override
   public ValidatorService validateItem(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    handler.handle(Future.succeededFuture(new JsonObject().put("status", "success")));
-
-    // TODO: Stub code, to be removed after use
-    JsonObject result = new JsonObject();
-    result.put("result", Boolean.TRUE);
-    handler.handle(Future.succeededFuture(result));
-
+    try {
+      resourceValidator = new Validator("/resourceItemSchema.json");
+      resourceGroupValidator = new Validator("/resourceGroupItemSchema.json");
+      providerValidator = new Validator("/providerItemSchema.json");
+    } catch (IOException | ProcessingException e) {
+      e.printStackTrace();
+    }
+    String itemType = request.getJsonArray("type").getString(0);
+    System.out.println("itemType: " + itemType);
+    if (itemType.equalsIgnoreCase("iudx:resource")) {
+      isValidSchema = resourceValidator.validate(request.toString());
+    } else if (itemType.equalsIgnoreCase("iudx:Provider")) {
+      isValidSchema = providerValidator.validate(request.toString());
+    } else if (itemType.equalsIgnoreCase("iudx:resourceGroup")) {
+      isValidSchema = resourceGroupValidator.validate(request.toString());
+    } else {
+      isValidSchema = false;
+    }
+    if (isValidSchema) {
+      handler.handle(Future.succeededFuture(new JsonObject().put("status", "success")));
+    } else {
+      logger.info("invalid Json");
+      handler.handle(Future.failedFuture("failed"));
+    }
     return null;
   }
 
