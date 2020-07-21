@@ -1,0 +1,28 @@
+{
+        "@context": "https://voc.iudx.org.in/",
+        "type": [
+            "iudx:EnvAQM"
+        ],
+        "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/pscdcl/aqm-bosch-climo/Pune Railway Station_28",
+        "description": "Description for Bosch-Climo AQM resource",
+        "tags": "environment, air quality, climate, air, aqi, aqm, climo, pollution, so2, co2, co, no, no2, pm2.5, pm10, humidity, temperature, ozone, o3, noise, light, uv",
+        "provider": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+        "itemStatus": "ACTIVE",
+        "deviceId": "b3ec32ff-fa7d-64fa-c0af-272e25d314e9",
+        "resourceGroup": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/pscdcl/aqm-bosch-climo",
+        "location": {
+            "type": "Place",
+            "address": "ABD area, Pune",
+            "geometry": {
+                "coordinates": [
+                    73.874537,
+                    18.528311
+                ],
+                "type": "Point"
+            }
+        },
+        "deviceModelInfo": {
+            "additionalInfoURL": "http://www.boschclimo.com/",
+            "name": "Bosch-Climo"
+        }
+    }

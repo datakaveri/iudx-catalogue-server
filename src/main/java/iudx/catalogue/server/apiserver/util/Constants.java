@@ -24,10 +24,22 @@ public class Constants {
   public static final String ROUTE_PROVIDERS = basePath.concat("/providers");
   public static final String ROUTE_RESOURCE_GROUPS = basePath.concat("/resourcegroups");
 
+
+  public static final String ID = "id";
+  public static final String ITEM_TYPE = "itemType";
+  public static final String RESOURCE_ITEM = "resItem";
+  public static final String RESOURCE_GRP_ITEM = "resGrpItem";
+  public static final String RESOURCE_SVR_ITEM = "resSvrItem";
+  public static final String PROVIDER_ORG = "prvdrOrg";
+  public static final String PROVIDER_ITEM = "pvdrItem";
+  public static final String DATA_DES_ITEM = "dataDesItem";
+
+
   public static final String ROUTE_UPDATE_ITEMS =
       basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem");
   public static final String ROUTE_DELETE_ITEMS =
-      basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem");
+      basePath.concat("/item/:" + PROVIDER_ORG + "/:" + PROVIDER_ITEM 
+          + "/:" + RESOURCE_SVR_ITEM + "/:" + RESOURCE_GRP_ITEM + "/:" + RESOURCE_ITEM);
   public static final String ROUTE_LIST_ITEMS =
       basePath.concat("/items/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem");
   public static final String ROUTE_LIST_RESOURCE_REL = basePath.concat("\\/(?<id>.*)\\/resource");
@@ -95,13 +107,6 @@ public class Constants {
   public static final String FILTER = "filter";
   public static final String TAGS = "tags";
 
-  public static final String ID = "id";
-  public static final String ITEM_TYPE = "itemType";
-  public static final String RESOURCE_ITEM = "resItem";
-  public static final String RESOURCE_GRP_ITEM = "resGrpItem";
-  public static final String RESOURCE_SVR_ITEM = "resSvrItem";
-  public static final String PROVIDER_ITEM = "pvdrItem";
-  public static final String DATA_DES_ITEM = "dataDesItem";
 
   public static final String OPERATION = "operation";
   public static final String GET_CITIES = "getCities";

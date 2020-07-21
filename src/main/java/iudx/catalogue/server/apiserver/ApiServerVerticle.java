@@ -775,7 +775,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     docItemTypes.retainAll(itemTypes);
 
     /* checking and comparing itemType from the request body */
-    if (docItemTypes.size() > 0) {
+    if (docItemTypes.size() == 1) {
       /* Populating query mapper */
       requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
@@ -785,12 +785,24 @@ public class ApiServerVerticle extends AbstractVerticle {
             .put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
             .put(Constants.OPERATION, Constants.POST);
 
+      String providerId = requestBody.getString(Constants.REL_PROVIDER);
+
+
+      JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
+
         /* Authenticating the request */
         authenticator.tokenInterospect(
-            requestBody,
+            authRequest,
             authenticationInfo,
             authhandler -> {
-              if (authhandler.succeeded()) {
+              if (authhandler.failed()) {
+                response
+                    .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                    .setStatusCode(401)
+                    .end(authhandler.cause().toString());
+                return;
+              }
+              if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
                 logger.info(
                     "Authenticating item creation request "
                         .concat(authhandler.result().toString()));
@@ -854,7 +866,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                     .toJsonString());
       }
     } else {
-      logger.error("InvalidValue, 'itemType' attribute is missing or is empty");
+      logger.error("InvalidValue, 'type' attribute is missing, empty, or invalid");
       response
           .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
           .setStatusCode(400)
@@ -917,12 +929,25 @@ public class ApiServerVerticle extends AbstractVerticle {
             .put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
             .put(Constants.OPERATION, Constants.PUT);
 
+
+      String providerId = requestBody.getString(Constants.REL_PROVIDER);
+
+      JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
+
+
         /* Authenticating the request */
         authenticator.tokenInterospect(
-            requestBody,
+            authRequest,
             authenticationInfo,
             authhandler -> {
-              if (authhandler.succeeded()) {
+              if (authhandler.failed()) {
+                response
+                    .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                    .setStatusCode(401)
+                    .end(authhandler.cause().toString());
+                return;
+              }
+              if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
                 logger.info(
                     "Authenticating item update request ".concat(authhandler.result().toString()));
                 /* Validating the request */
@@ -1020,18 +1045,14 @@ public class ApiServerVerticle extends AbstractVerticle {
     String instanceID = request.getHeader(Constants.HEADER_HOST);
 
     /* Building complete itemID from HTTP request path parameters */
-    String itemId =
-        routingContext
-            .pathParam(Constants.RESOURCE_ITEM)
-            .concat("/")
-            .concat(
-                routingContext
-                    .pathParam(Constants.RESOURCE_GRP_ITEM)
-                    .concat("/")
-                    .concat(routingContext.pathParam(Constants.RESOURCE_SVR_ITEM))
-                    .concat("/")
-                    .concat(routingContext.pathParam(Constants.PROVIDER_ITEM).concat("/"))
-                    .concat(routingContext.pathParam(Constants.DATA_DES_ITEM)));
+    String itemId = "";
+    itemId = itemId 
+      + routingContext.pathParam(Constants.PROVIDER_ORG) + "/"
+      + routingContext.pathParam(Constants.PROVIDER_ITEM) + "/"
+      + routingContext.pathParam(Constants.RESOURCE_SVR_ITEM) + "/"
+      + routingContext.pathParam(Constants.RESOURCE_GRP_ITEM) + "/"
+      + routingContext.pathParam(Constants.RESOURCE_ITEM);
+
 
     /* Populating query mapper */
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
@@ -1046,12 +1067,24 @@ public class ApiServerVerticle extends AbstractVerticle {
           .put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
           .put(Constants.OPERATION, Constants.DELETE);
 
+      String providerId = String.join("/", Arrays.copyOfRange(itemId.split("/"), 0, 2));
+      logger.info("Provider ID is  " + providerId);
+
+      JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
+
       /* Authenticating the request */
       authenticator.tokenInterospect(
-          null,
+          authRequest,
           authenticationInfo,
           authhandler -> {
-            if (authhandler.succeeded()) {
+            if (authhandler.failed()) {
+              response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(401)
+                .end(authhandler.cause().toString());
+              return;
+            }
+            if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
               logger.info(
                   "Authenticating item delete request".concat(authhandler.result().toString()));
               /* Requesting database service, creating a item */

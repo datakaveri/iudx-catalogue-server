@@ -29,9 +29,10 @@ public class Constants {
   static final String ITEM_TYPE = "itemType";
 
   /* Database */
-  static final String CAT_TEST_COUNT_INDEX = "cat/_count";
-  static final String CAT_TEST_SEARCH_INDEX = "cat/_search";
-  static final String CAT_DOC = "cat/_doc";
+  static final String CAT_INDEX_NAME = "testindex";
+  static final String CAT_TEST_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
+  static final String CAT_TEST_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
+  static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
   static final String BOOL_KEY = "bool";
   static final String FILTER_KEY = "filter";
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";

@@ -7,6 +7,6 @@ public class Constants {
     public static final String AUTH_SERVER_HOST = "authServerHost";
     public static final String AUTH_CERTINFO_PATH = "/auth/v1/certificate-info";
     public static final String DUMMY_TOKEN_KEY = "authDummyToken";
-    public static final String DUMMY_PROVIDER_PREFIX = "datakaveri.org/1022f4c20542abd5087107c0b6de4cb3130c5b7b";
+    public static final String DUMMY_PROVIDER_PREFIX = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc";
     public static final String AUTH_TIP_PATH = "/auth/v1/token/introspect";
 }
