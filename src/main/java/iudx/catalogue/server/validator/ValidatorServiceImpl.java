@@ -3,7 +3,6 @@ package iudx.catalogue.server.validator;
 import java.io.IOException;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
