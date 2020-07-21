@@ -283,7 +283,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     Request checkExisting;
@@ -481,7 +483,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
@@ -491,7 +495,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
@@ -501,7 +507,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO: Stub code, to be removed after use
@@ -511,7 +519,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listResourceServers(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -522,7 +532,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listProviders(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -533,7 +545,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listResourceGroups(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -544,7 +558,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listResourceRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -555,7 +571,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listResourceGroupRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -566,7 +584,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listProviderRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -577,7 +597,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listResourceServerRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -588,7 +610,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -598,7 +622,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService getCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
@@ -622,7 +648,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService setCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
@@ -656,7 +684,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService updateCities(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -681,7 +711,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService getConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
@@ -719,7 +751,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService updateConfig(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -734,7 +768,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService setConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     // TODO Auto-generated method stub
@@ -748,7 +784,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService deleteConfig(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -763,7 +801,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService appendConfig(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -1015,13 +1055,5 @@ public class DatabaseServiceImpl implements DatabaseService {
           .put(Constants.MUST_KEY, mustQuery);
       return elasticQuery.put(Constants.QUERY_KEY, boolObject);
     }
-
-    // if (!filterQuery.isEmpty()) {
-    // return elasticQuery;
-    /*
-     * } else { return new JsonObject().put(Constants.ERROR, Constants.ERROR_INVALID_PARAMETER); }
-     */
-    /* checks if any valid search requests have matched */
-
   }
 }

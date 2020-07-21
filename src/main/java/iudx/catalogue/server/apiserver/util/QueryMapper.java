@@ -71,11 +71,13 @@ public class QueryMapper {
       }
     }
 
+    /* adding search type for geo related search */
     if (jsonBody.containsKey(Constants.GEOMETRY)) {
       jsonBody.put(Constants.SEARCH_TYPE,
           jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.GEO_SEARCH));
     }
 
+    /* adding search type for text related search */
     if (jsonBody.containsKey(Constants.Q_VALUE)) {
       jsonBody.put(Constants.SEARCH_TYPE,
           jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.TEXT_SEARCH));
@@ -88,12 +90,13 @@ public class QueryMapper {
           jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.ATTRIBUTE_SEARCH));
     }
 
+    /* adding response filter */
     if (jsonBody.containsKey(Constants.FILTER)) {
       jsonBody.put(Constants.SEARCH_TYPE,
           jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.RESPONSE_FILTER));
     }
 
-    logger.info("Json Query constructed: " + jsonBody);
+    logger.info("Json Query Mapped: " + jsonBody);
 
     return jsonBody;
   }
