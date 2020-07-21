@@ -36,7 +36,6 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-
 /**
  * The Catalogue Server API Verticle.
  *
