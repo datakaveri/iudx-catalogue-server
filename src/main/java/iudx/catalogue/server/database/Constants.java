@@ -93,10 +93,23 @@ public class Constants {
   public static final String TEXTSEARCH_REGEX = "(.*)textSearch(.*)";
   public static final String PROPERTY = "property";
   public static final String MATCH_KEY = "match";
+  public static final String TERMS_KEY = "terms";
   public static final String STRING_QUERY_KEY = "query_string";
   public static final String LIMIT = "limit";
   public static final String OFFSET = "offset";
   public static final String FROM = "from";
   public static final String ERROR_INVALID_PARAMETER = "Incorrect/missing query parameters";
   public static final String Q_KEY = "q";
+
+  public static final String ATTRIBUTE_SEARCH_REGEX = "(.*)attributeSearch(.*)";
+  public static final String KEYWORD_KEY = ".keyword";
+  public static final String SHOULD_KEY = "should";
+  public static final String MUST_KEY = "must";
+
+  public static final String TEXT_SEARCH = "textSearch_";
+  public static final String ATTRIBUTE_SEARCH = "attributeSearch_";
+  public static final String DEVICEID_KEYWORD = "deviceId.keyword";
+  public static final String TAG_AQM = "aqm";
+  public static final String GEO_SEARCH = "geoSearch_";
+
 }

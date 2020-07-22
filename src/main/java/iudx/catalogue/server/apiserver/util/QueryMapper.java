@@ -71,22 +71,33 @@ public class QueryMapper {
       }
     }
 
-    if (jsonBody.containsKey(Constants.GEOPROPERTY)) {
-      jsonBody.put(Constants.SEARCH_TYPE, Constants.GEO_SEARCH);
-    } else if (jsonBody.containsKey(Constants.Q_VALUE)) {
-      jsonBody.put(Constants.SEARCH_TYPE, Constants.TEXT_SEARCH);
-    } else if (jsonBody.containsKey(Constants.PROPERTY)) {
-      if (jsonBody.getJsonArray(Constants.PROPERTY).getString(0).equals(Constants.TAGS)) {
-        jsonBody.put(Constants.SEARCH_TYPE, Constants.TAGS_SEARCH);
-      } else {
-        jsonBody.put(Constants.SEARCH_TYPE, Constants.ATTRIBUTE_SEARCH);
-      }
+    /* adding search type for geo related search */
+    if (jsonBody.containsKey(Constants.GEOMETRY)) {
+      jsonBody.put(Constants.SEARCH_TYPE,
+          jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.GEO_SEARCH));
     }
 
+    /* adding search type for text related search */
+    if (jsonBody.containsKey(Constants.Q_VALUE)) {
+      jsonBody.put(Constants.SEARCH_TYPE,
+          jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.TEXT_SEARCH));
+    }
+
+    /* Tag related search are to be considered as attribute search and are being merged as one */
+    if (jsonBody.containsKey(Constants.PROPERTY)) {
+
+      jsonBody.put(Constants.SEARCH_TYPE,
+          jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.ATTRIBUTE_SEARCH));
+    }
+
+    /* adding response filter */
     if (jsonBody.containsKey(Constants.FILTER)) {
       jsonBody.put(Constants.SEARCH_TYPE,
-          jsonBody.getString(Constants.SEARCH_TYPE).concat(Constants.RESPONSE_FILTER));
+          jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.RESPONSE_FILTER));
     }
+
+    logger.info("Json Query Mapped: " + jsonBody);
+
     return jsonBody;
   }
 }

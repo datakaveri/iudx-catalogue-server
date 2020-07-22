@@ -15,6 +15,7 @@ import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.file.FileSystem;
 import io.vertx.reactivex.ext.web.client.WebClient;
 import iudx.catalogue.server.starter.CatalogueServerStarter;
+import java.util.Iterator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import java.util.Iterator;
 
 /**
  * Test class for ApiServerVerticle api handlers TODO Need to update count test cases. TODO Update
@@ -39,6 +39,8 @@ public class ApiServerVerticleTest {
   private static final String HOST = "127.0.0.1";
   private static final int PORT = 8443;
   private static final String BASE_URL = "/iudx/cat/v1/";
+
+  private static final String TOKEN = "auth.iudx.org.in/rakshit.ramesh@datakaveri.org/7acc9a451a6ec79b26daaf84555b1f37";
 
   private static WebClient client;
   private static FileSystem fileSytem;
@@ -76,6 +78,7 @@ public class ApiServerVerticleTest {
         });
       }
     });
+
   }
 
 
@@ -90,21 +93,29 @@ public class ApiServerVerticleTest {
   @DisplayName("Create Item[Status:201, Endpoint: /item]")
   public void createItem201(VertxTestContext testContext) throws InterruptedException {
 
+    var wrapper = new Object(){ int count = 0; };
+
     fileSytem.readFile("src/test/resources/resources.json", fileRes -> {
       if (fileRes.succeeded()) {
 
         JsonArray resources  = fileRes.result().toJsonArray();
+        int numItems = resources.size();
         logger.info("Total items = " + String.valueOf(resources.size()));
         Iterator<Object> objectIterator = resources.iterator();
 
 
         while (objectIterator.hasNext()) {
           // Send the file to the server using POST
-          client.post(PORT, HOST, BASE_URL.concat("item")).putHeader("token", "abc")
+          client.post(PORT, HOST, BASE_URL.concat("item")).putHeader("token", TOKEN)
               .putHeader("Content-Type", "application/json")
               .sendJson(objectIterator.next(), serverResponse -> {
                 if (serverResponse.succeeded()) {
                   if (serverResponse.result().statusCode() == 201) {
+                    wrapper.count++;
+                  }
+                  if (wrapper.count == numItems-1){
+                    logger.info("Inserted " + wrapper.count + " items");
+                    testContext.completeNow();
                   }
                   assertEquals(201, serverResponse.result().statusCode());
                   testContext.completeNow();
@@ -112,7 +123,7 @@ public class ApiServerVerticleTest {
                   testContext.failed();
                 }
               });
-          }
+        }
       } else if (fileRes.failed()) {
         logger.error("Problem in reading test data file: ".concat(fileRes.cause().toString()));
       }
@@ -131,23 +142,20 @@ public class ApiServerVerticleTest {
   public void createItem400(VertxTestContext testContext) {
 
     /* open and read the entire test file mentioned in the path */
-    fileSytem.readFile("src/test/resources/request_body.json", fileRes -> {
+    fileSytem.readFile("src/test/resources/resourceBadBody.json", fileRes -> {
       if (fileRes.succeeded()) {
 
         /* mapping the file as JsonObject */
         JsonObject jsonBody = fileRes.result().toJsonObject();
 
-        /* with itemType null or empty */
-        jsonBody.putNull("itemType");
 
         /* Send the file to the server using POST */
-        client.post(PORT, HOST, BASE_URL.concat("item")).putHeader("token", "abc")
+        client.post(PORT, HOST, BASE_URL.concat("item")).putHeader("token", TOKEN)
             .putHeader("Content-Type", "application/json").sendJson(jsonBody, serverResponse -> {
               if (serverResponse.succeeded()) {
 
                 /* comparing the response */
                 assertEquals(400, serverResponse.result().statusCode());
-
                 testContext.completeNow();
               } else if (serverResponse.failed()) {
                 testContext.failed();
@@ -170,18 +178,16 @@ public class ApiServerVerticleTest {
   @DisplayName("Update Item[Status:200, Endpoint: /item]")
   void updateItem200(VertxTestContext testContext) {
 
-    String itemId = "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs"
-        + ".varanasi.iudx.org.in/varanasi-swm-vehicles/varanasi-swm-vehicles-live";
-
     /* open and read the entire test file mentioned in the path */
-    fileSytem.readFile("src/test/resources/request_body.json", fileRes -> {
+    fileSytem.readFile("src/test/resources/resourceToUpdate.json", fileRes -> {
       if (fileRes.succeeded()) {
 
         /* mapping the file as JsonObject */
         JsonObject jsonBody = fileRes.result().toJsonObject();
 
         /* Send the file to the server using PUT */
-        client.put(PORT, HOST, BASE_URL.concat("item/").concat(itemId)).putHeader("token", "abc")
+        client.put(PORT, HOST, BASE_URL.concat("item/")
+            .concat(jsonBody.getString("id"))).putHeader("token", TOKEN)
             .putHeader("Content-Type", "application/json").sendJson(jsonBody, serverResponse -> {
               if (serverResponse.succeeded()) {
 
@@ -211,21 +217,16 @@ public class ApiServerVerticleTest {
   @DisplayName("Update Item[Status:400, Endpoint: /item]")
   void updateItem400(VertxTestContext testContext) {
 
-    String itemId = "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs"
-        + ".varanasi.iudx.org.in/varanasi-swm-vehicles/varanasi-swm-vehicles-live";
-
     /* open and read the entire test file mentioned in the path */
-    fileSytem.readFile("src/test/resources/request_body.json", fileRes -> {
+    fileSytem.readFile("src/test/resources/resourceBadBody.json", fileRes -> {
       if (fileRes.succeeded()) {
 
         /* mapping the file as JsonObject */
         JsonObject jsonBody = fileRes.result().toJsonObject();
 
-        /* with itemType null or empty */
-        jsonBody.putNull("itemType");
-
         /* Send the file to the server using PUT */
-        client.put(PORT, HOST, BASE_URL.concat("item/").concat(itemId)).putHeader("token", "abc")
+        client.put(PORT, HOST, BASE_URL.concat("item/")
+            .concat(jsonBody.getString("id"))).putHeader("token", TOKEN)
             .putHeader("Content-Type", "application/json").sendJson(jsonBody, serverResponse -> {
               if (serverResponse.succeeded()) {
 
@@ -254,38 +255,42 @@ public class ApiServerVerticleTest {
   @Order(5)
   @DisplayName("Delete Item[Status:200, Endpoint: /item]")
   void deleteItem200(VertxTestContext testContext) {
-    
-    fileSytem.readFile("src/test/resources/resourcesToDelete.json",
-      fileRes -> {
-        if (fileRes.succeeded()) {
-          JsonArray resources  = fileRes.result().toJsonArray();
-          Iterator<Object> objectIterator = resources.iterator();
 
-          while (objectIterator.hasNext()) {
+    var wrapper = new Object(){ int count = 0; };
 
-            JsonObject item = (JsonObject) objectIterator.next();
-            /* Send the file to the server using DELETE */
-            logger.info("Deleting " + item.getString("id"));
-            client.delete(PORT, HOST, BASE_URL.concat("item/")
-                .concat(item.getString("id"))).putHeader("token", "abc")
-              .putHeader("Content-Type", "application/json").send(serverResponse -> {
+    fileSytem.readFile("src/test/resources/resourcesToDelete.json", fileRes -> {
+      if (fileRes.succeeded()) {
+        JsonArray resources = fileRes.result().toJsonArray();
+        Iterator<Object> objectIterator = resources.iterator();
+        int numItems = resources.size();
+
+        while (objectIterator.hasNext()) {
+
+          JsonObject item = (JsonObject) objectIterator.next();
+          /* Send the file to the server using DELETE */
+          logger.info("Deleting " + item.getString("id"));
+          client.delete(PORT, HOST, BASE_URL.concat("item/").concat(item.getString("id")))
+              .putHeader("token", TOKEN).putHeader("Content-Type", "application/json")
+              .send(serverResponse -> {
                 if (serverResponse.succeeded()) {
 
                   /* comparing the response */
                   assertEquals(200, serverResponse.result().statusCode());
-                  assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-
-                  testContext.completeNow();
+                  assertEquals("application/json",
+                      serverResponse.result().getHeader("content-type"));
+                  if (serverResponse.result().statusCode() == 200) {
+                    wrapper.count++;
+                  }
+                  if (wrapper.count == numItems-1){
+                    testContext.completeNow();
+                  }
                 } else if (serverResponse.failed()) {
                   testContext.failed();
                 }
               });
-
-
-          }
         }
+      }
     });
-
   }
 
 
@@ -874,63 +879,69 @@ public class ApiServerVerticleTest {
   @Order(25)
   @DisplayName("Single Attribute search")
   void singleAttributeSearchTest(VertxTestContext testContext) {
-    String apiURL =
-        "search?property=[id]&value=[[rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01]]";
-    logger.info("Url is " + BASE_URL + apiURL);
-    client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
-      if (ar.succeeded()) {
-        assertEquals(200, ar.result().statusCode());
-        testContext.completeNow();
-      } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
-        testContext.failed();
-      }
-    });
+
+    logger.info("singleAttributeSearchTest");
+
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
+        .addQueryParam("value", "[[rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/"
+            + "aqm-bosch-climo/Ambedkar society circle_29]]")
+        .send(ar -> {
+          if (ar.succeeded()) {
+            assertEquals(200, ar.result().statusCode());
+            testContext.completeNow();
+          } else if (ar.failed()) {
+            logger.info(ar.cause());
+            testContext.failed();
+          }
+        });
+
   }
 
   @Test
   @Order(26)
   @DisplayName("Single Attribute multiple value")
   void singleAttributeMultiValueTest(VertxTestContext testContext) {
-    String apiURL =
-        "search?property=[id]&value=[[rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01,rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_02]]";
+
+    logger.info("singleAttributeMultiValueTest");
+
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
+        .addQueryParam("value",
+            "[[rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscd"
+                + "cl/aqm-bosch-climo/Ambedkar society circle_29,rbccps.org/aa9d66a000d94a78895d"
+                + "e8d4c0b3a67f3450e531/pscdcl/aqm-bosch-climo/Appa_Balwant_Square_30]]")
+        .send(ar -> {
+          if (ar.succeeded()) {
+            assertEquals(200, ar.result().statusCode());
+            testContext.completeNow();
+          } else if (ar.failed()) {
+            logger.info(ar.cause());
+            testContext.failed();
+          }
+        });
+  }
+
+  @Test
+  @Order(27)
+  @DisplayName("non-existing value")
+  void nonExistingValueTest(VertxTestContext testContext) {
+    // TODO: This test case will not pass because of assert failure
+    String apiURL = "search?property=[id]&value=[[rbccps.org/aa9d66a000d94a788"
+        + "95de8d4c0b3a67f3450e531/pscdcl/aqm-bosch-climo/Appa_Balwant_Square_900]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
-        assertEquals(200, ar.result().statusCode());
+        /*
+         * Due to stub code in DBservice, the query succeeds and 200 code is obtained which causes
+         * the test to fail
+         */
+        assertEquals(400, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
         logger.info(ar.cause());
         testContext.failed();
       }
     });
   }
-
-  // @Test
-  // @Order(27)
-  // @DisplayName("non-existing value")
-  // void nonExistingValueTest(VertxTestContext testContext) {
-  // // TODO: This test case will not pass because of assert failure
-  // String apiURL = "search?property=[id]&value=[[non-existing-id]]";
-  // logger.info("Url is " + BASE_URL + apiURL);
-  // client
-  // .get(PORT, HOST, BASE_URL.concat(apiURL))
-  // .send(
-  // ar -> {
-  // if (ar.succeeded()) {
-  // /* Due to stub code in DBservice, the query succeeds and 200 code is obtained which causes the
-  // test to fail */
-  // assertEquals(400, ar.result().statusCode());
-  // testContext.completeNow();
-  // } else if (ar.failed()) {
-  // logger.info("status code received : " + ar.result().statusCode());
-  // logger.info(ar.cause());
-  // testContext.failed();
-  // }
-  // });
-  // }
 
   @Test
   @Order(28)
@@ -943,7 +954,6 @@ public class ApiServerVerticleTest {
         assertEquals(400, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
         logger.info(ar.cause());
         testContext.failed();
       }
@@ -955,7 +965,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Multi Attribute search")
   void multiAttributeSearchtest(VertxTestContext testContext) {
     String apiURL =
-        "search?property=[prop1,prop2]&value=[[prop1-value],[prop2-value1,prop2-value2]]";
+        "search?property=[tags,deviceId.keyword]&value=[[aqm],[8cff12b2-b8be-1230-c5f6-ca96b4e4e441,climo]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -973,7 +983,7 @@ public class ApiServerVerticleTest {
   @Order(30)
   @DisplayName("Nested Attribute search")
   void nestedAttributeSearchtest(VertxTestContext testContext) {
-    String apiURL = "search?property=[provider.name]&value=[[value1]]";
+    String apiURL = "search?property=[location.address]&value=[[pune]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1010,8 +1020,8 @@ public class ApiServerVerticleTest {
   @Order(32)
   @DisplayName("LineString search")
   void LineStringSearchtest(VertxTestContext testContext) {
-    String apiURL =
-        "search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[75.9,14.5],[72,13],[73,20]]";
+    String apiURL = "search?geoproperty=location&georel=intersects&geometry=LineString&coordinates"
+        + "=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1030,7 +1040,8 @@ public class ApiServerVerticleTest {
   @DisplayName("Invalid Geometry search")
   void invalidGeometrySearchtest(VertxTestContext testContext) {
     String apiURL =
-        "search?geoproperty=location&georel=within&geometry=abc123&coordinates=[[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]";
+        "search?geoproperty=location&georel=within&geometry=abc123&coordinates=[[[73.696975"
+            + "70800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1049,7 +1060,8 @@ public class ApiServerVerticleTest {
   @DisplayName("Invalid Georel search")
   void invalidGeorelSearchtest(VertxTestContext testContext) {
     String apiURL =
-        "search?geoproperty=location&georel=abc123&geometry=LineString&coordinates=[[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]";
+        "search?geoproperty=location&georel=abc123&geometry=LineString&coordinates=[[[73.696975"
+            + "70800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1068,7 +1080,8 @@ public class ApiServerVerticleTest {
   @DisplayName("Invalid coordinate search")
   void invalidCoordinateSearchtest(VertxTestContext testContext) {
     String apiURL =
-        "search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[[73.69697570800781,18.592236436157137],[73.69697570800781,abc123]]]";
+        "search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[[73.69697570"
+            + "800781,18.592236436157137],[73.69697570800781,abc123]]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1087,7 +1100,8 @@ public class ApiServerVerticleTest {
   @DisplayName("Geo Spatial Search Invalid Syntax")
   void geoSpatialInvalidSyntax(VertxTestContext testContext) {
     String apiURL =
-        "search?invalidsyntax=location&abc123=within&geometry=bbox&coordinates=[[[73.69697570800781,18.592236436157137],[73.69697570800781,abc123]]]";
+        "search?invalidsyntax=location&abc123=within&geometry=bbox&coordinates=[[[73.6969757"
+            + "0800781,18.592236436157137],[73.69697570800781,abc123]]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {

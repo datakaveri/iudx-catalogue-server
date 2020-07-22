@@ -8,8 +8,8 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
@@ -419,37 +419,30 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     String instanceID = routingContext.request().host();
     JsonObject queryJson = new JsonObject();
-    queryJson
-        .put(Constants.INSTANCE_ID_KEY, instanceID)
-        .put(Constants.OPERATION, Constants.GET_CITIES);
+    queryJson.put(Constants.INSTANCE_ID_KEY, instanceID).put(Constants.OPERATION,
+        Constants.GET_CITIES);
     logger.info("search query : " + queryJson);
-    database.getCities(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(
-                    Constants.HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.info(handler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-            response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
-          }
-        });
+    database.getCities(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString(Constants.STATUS);
+        if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.info(handler.cause().getMessage());
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        response.setStatusCode(500);
+        response.end(Constants.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 
   /**
@@ -461,46 +454,39 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(
-        queryJson,
-        validationHandler -> {
-          if (validationHandler.succeeded()) {
-            queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-            logger.info("search query : " + queryJson);
-            database.setCities(
-                queryJson,
-                dbHandler -> {
-                  if (dbHandler.succeeded()) {
-                    JsonObject resultJson = dbHandler.result();
-                    String status = resultJson.getString(Constants.STATUS);
-                    if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-                      response.setStatusCode(201);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response
-                        .headers()
-                        .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                        .add(
-                            Constants.HEADER_CONTENT_LENGTH,
-                            String.valueOf(resultJson.toString().length()));
-                    response.write(resultJson.toString());
-                    logger.info("response : " + resultJson);
-                    response.end();
-                  } else if (dbHandler.failed()) {
-                    dbHandler.cause().getMessage();
-                    response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-                    response.setStatusCode(500);
-                    response.end(Constants.INTERNAL_SERVER_ERROR);
-                  }
-                });
-          } else if (validationHandler.failed()) {
-            logger.info(validationHandler.cause().getMessage());
+    validator.validateItem(queryJson, validationHandler -> {
+      if (validationHandler.succeeded()) {
+        queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
+        logger.info("search query : " + queryJson);
+        database.setCities(queryJson, dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject resultJson = dbHandler.result();
+            String status = resultJson.getString(Constants.STATUS);
+            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+              response.setStatusCode(201);
+            } else {
+              response.setStatusCode(400);
+            }
+            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .add(Constants.HEADER_CONTENT_LENGTH,
+                    String.valueOf(resultJson.toString().length()));
+            response.write(resultJson.toString());
+            logger.info("response : " + resultJson);
+            response.end();
+          } else if (dbHandler.failed()) {
+            dbHandler.cause().getMessage();
             response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-            response.setStatusCode(400);
-            response.end(Constants.BAD_REQUEST);
+            response.setStatusCode(500);
+            response.end(Constants.INTERNAL_SERVER_ERROR);
           }
         });
+      } else if (validationHandler.failed()) {
+        logger.info(validationHandler.cause().getMessage());
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        response.setStatusCode(400);
+        response.end(Constants.BAD_REQUEST);
+      }
+    });
   }
 
   /**
@@ -512,46 +498,39 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(
-        queryJson,
-        validationHandler -> {
-          if (validationHandler.succeeded()) {
-            queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-            logger.info("search query : " + queryJson);
-            database.updateCities(
-                queryJson,
-                dbHandler -> {
-                  if (dbHandler.succeeded()) {
-                    JsonObject resultJson = dbHandler.result();
-                    String status = resultJson.getString(Constants.STATUS);
-                    if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-                      response.setStatusCode(201);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response
-                        .headers()
-                        .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                        .add(
-                            Constants.HEADER_CONTENT_LENGTH,
-                            String.valueOf(resultJson.toString().length()));
-                    response.write(resultJson.toString());
-                    logger.info("response : " + resultJson);
-                    response.end();
-                  } else if (dbHandler.failed()) {
-                    logger.info(dbHandler.cause().getMessage());
-                    response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-                    response.setStatusCode(500);
-                    response.end(Constants.INTERNAL_SERVER_ERROR);
-                  }
-                });
-          } else if (validationHandler.failed()) {
-            logger.info(validationHandler.cause().getMessage());
+    validator.validateItem(queryJson, validationHandler -> {
+      if (validationHandler.succeeded()) {
+        queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
+        logger.info("search query : " + queryJson);
+        database.updateCities(queryJson, dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject resultJson = dbHandler.result();
+            String status = resultJson.getString(Constants.STATUS);
+            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+              response.setStatusCode(201);
+            } else {
+              response.setStatusCode(400);
+            }
+            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .add(Constants.HEADER_CONTENT_LENGTH,
+                    String.valueOf(resultJson.toString().length()));
+            response.write(resultJson.toString());
+            logger.info("response : " + resultJson);
+            response.end();
+          } else if (dbHandler.failed()) {
+            logger.info(dbHandler.cause().getMessage());
             response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-            response.setStatusCode(400);
-            response.end(Constants.BAD_REQUEST);
+            response.setStatusCode(500);
+            response.end(Constants.INTERNAL_SERVER_ERROR);
           }
         });
+      } else if (validationHandler.failed()) {
+        logger.info(validationHandler.cause().getMessage());
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        response.setStatusCode(400);
+        response.end(Constants.BAD_REQUEST);
+      }
+    });
   }
 
   /**
@@ -565,33 +544,27 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject queryJson = new JsonObject();
     queryJson.put(Constants.INSTANCE_ID_KEY, instanceID).put("operation", "getConfig");
     logger.info("search query : " + queryJson);
-    database.getConfig(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(
-                    Constants.HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.info(handler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-            response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
-          }
-        });
+    database.getConfig(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString(Constants.STATUS);
+        if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.info(handler.cause().getMessage());
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        response.setStatusCode(500);
+        response.end(Constants.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 
   /**
@@ -603,46 +576,39 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(
-        queryJson,
-        validationHandler -> {
-          if (validationHandler.succeeded()) {
-            queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-            logger.info("search query : " + queryJson);
-            database.setConfig(
-                queryJson,
-                dbHandler -> {
-                  if (dbHandler.succeeded()) {
-                    JsonObject resultJson = dbHandler.result();
-                    String status = resultJson.getString(Constants.STATUS);
-                    if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-                      response.setStatusCode(201);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response
-                        .headers()
-                        .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                        .add(
-                            Constants.HEADER_CONTENT_LENGTH,
-                            String.valueOf(resultJson.toString().length()));
-                    response.write(resultJson.toString());
-                    logger.info("response : " + resultJson);
-                    response.end();
-                  } else if (dbHandler.failed()) {
-                    logger.error(dbHandler.cause().getMessage());
-                    response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-                    response.setStatusCode(500);
-                    response.end(Constants.INTERNAL_SERVER_ERROR);
-                  }
-                });
-          } else if (validationHandler.failed()) {
-            logger.error(validationHandler.cause().getMessage());
+    validator.validateItem(queryJson, validationHandler -> {
+      if (validationHandler.succeeded()) {
+        queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
+        logger.info("search query : " + queryJson);
+        database.setConfig(queryJson, dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject resultJson = dbHandler.result();
+            String status = resultJson.getString(Constants.STATUS);
+            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+              response.setStatusCode(201);
+            } else {
+              response.setStatusCode(400);
+            }
+            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .add(Constants.HEADER_CONTENT_LENGTH,
+                    String.valueOf(resultJson.toString().length()));
+            response.write(resultJson.toString());
+            logger.info("response : " + resultJson);
+            response.end();
+          } else if (dbHandler.failed()) {
+            logger.error(dbHandler.cause().getMessage());
             response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-            response.setStatusCode(400);
-            response.end(Constants.BAD_REQUEST);
+            response.setStatusCode(500);
+            response.end(Constants.INTERNAL_SERVER_ERROR);
           }
         });
+      } else if (validationHandler.failed()) {
+        logger.error(validationHandler.cause().getMessage());
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        response.setStatusCode(400);
+        response.end(Constants.BAD_REQUEST);
+      }
+    });
   }
 
   /**
@@ -656,33 +622,27 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject queryJson = new JsonObject();
     queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
     logger.info("search query : " + queryJson);
-    database.deleteConfig(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(
-                    Constants.HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-            response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
-          }
-        });
+    database.deleteConfig(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString(Constants.STATUS);
+        if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.error(handler.cause().getMessage());
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        response.setStatusCode(500);
+        response.end(Constants.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 
   /**
@@ -694,46 +654,39 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(
-        queryJson,
-        validationHandler -> {
-          if (validationHandler.succeeded()) {
-            queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-            logger.info("search query : " + queryJson);
-            database.updateConfig(
-                queryJson,
-                dbHandler -> {
-                  if (dbHandler.succeeded()) {
-                    JsonObject resultJson = dbHandler.result();
-                    String status = resultJson.getString(Constants.STATUS);
-                    if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-                      response.setStatusCode(201);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response
-                        .headers()
-                        .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                        .add(
-                            Constants.HEADER_CONTENT_LENGTH,
-                            String.valueOf(resultJson.toString().length()));
-                    response.write(resultJson.toString());
-                    logger.info("response : " + resultJson);
-                    response.end();
-                  } else if (dbHandler.failed()) {
-                    logger.error(dbHandler.cause().getMessage());
-                    response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-                    response.setStatusCode(500);
-                    response.end(Constants.INTERNAL_SERVER_ERROR);
-                  }
-                });
-          } else if (validationHandler.failed()) {
-            logger.error(validationHandler.cause().getMessage());
+    validator.validateItem(queryJson, validationHandler -> {
+      if (validationHandler.succeeded()) {
+        queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
+        logger.info("search query : " + queryJson);
+        database.updateConfig(queryJson, dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject resultJson = dbHandler.result();
+            String status = resultJson.getString(Constants.STATUS);
+            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+              response.setStatusCode(201);
+            } else {
+              response.setStatusCode(400);
+            }
+            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .add(Constants.HEADER_CONTENT_LENGTH,
+                    String.valueOf(resultJson.toString().length()));
+            response.write(resultJson.toString());
+            logger.info("response : " + resultJson);
+            response.end();
+          } else if (dbHandler.failed()) {
+            logger.error(dbHandler.cause().getMessage());
             response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-            response.setStatusCode(400);
-            response.end(Constants.BAD_REQUEST);
+            response.setStatusCode(500);
+            response.end(Constants.INTERNAL_SERVER_ERROR);
           }
         });
+      } else if (validationHandler.failed()) {
+        logger.error(validationHandler.cause().getMessage());
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        response.setStatusCode(400);
+        response.end(Constants.BAD_REQUEST);
+      }
+    });
   }
 
   /**
@@ -766,10 +719,8 @@ public class ApiServerVerticle extends AbstractVerticle {
       docItemTypes = new HashSet<String>(requestBody.getJsonArray("type").getList());
     } catch (Exception e) {
       logger.error("Item type mismatch");
-      response
-        .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-        .setStatusCode(400)
-        .end();
+      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          .setStatusCode(400).end();
     }
 
     docItemTypes.retainAll(itemTypes);
@@ -781,8 +732,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
       /* checking auhthentication info in requests */
       if (request.headers().contains(Constants.HEADER_TOKEN)) {
-        authenticationInfo
-            .put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
+        authenticationInfo.put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
             .put(Constants.OPERATION, Constants.POST);
 
       String providerId = requestBody.getString(Constants.REL_PROVIDER);
@@ -846,7 +796,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                             .end(valhandler.cause().toString());
                       }
                     });
-              } else if (authhandler.failed()) {
+              } else {
                 logger.error("Unathorized request".concat(authhandler.cause().toString()));
                 response
                     .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
@@ -856,14 +806,9 @@ public class ApiServerVerticle extends AbstractVerticle {
             });
       } else {
         logger.error("InvalidHeader, 'token' header");
-        response
-            .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400)
-            .end(
-                new ResponseHandler.Builder()
-                    .withStatus(Constants.INVALID_HEADER)
-                    .build()
-                    .toJsonString());
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(new ResponseHandler.Builder()
+                .withStatus(Constants.INVALID_HEADER).build().toJsonString());
       }
     } else {
       logger.error("InvalidValue, 'type' attribute is missing, empty, or invalid");
@@ -925,8 +870,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
       /* checking auhthentication info in requests */
       if (request.headers().contains(Constants.HEADER_TOKEN)) {
-        authenticationInfo
-            .put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
+        authenticationInfo.put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
             .put(Constants.OPERATION, Constants.PUT);
 
 
@@ -990,7 +934,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                             .end(valhandler.cause().toString());
                       }
                     });
-              } else if (authhandler.failed()) {
+              } else {
                 logger.error("Unathorized request ".concat(authhandler.cause().toString()));
                 response
                     .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
@@ -1000,25 +944,15 @@ public class ApiServerVerticle extends AbstractVerticle {
             });
       } else {
         logger.error("InvalidHeader 'token' header");
-        response
-            .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400)
-            .end(
-                new ResponseHandler.Builder()
-                    .withStatus(Constants.INVALID_HEADER)
-                    .build()
-                    .toJsonString());
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(new ResponseHandler.Builder()
+                .withStatus(Constants.INVALID_HEADER).build().toJsonString());
       }
     } else {
       logger.error("InvalidValue, 'itemType' attribute is missing or is empty");
-      response
-          .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400)
-          .end(
-              new ResponseHandler.Builder()
-                  .withStatus(Constants.INVALID_VALUE)
-                  .build()
-                  .toJsonString());
+      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_VALUE)
+              .build().toJsonString());
     }
   }
 
@@ -1105,7 +1039,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                           .end(dbhandler.cause().toString());
                     }
                   });
-            } else if (authhandler.failed()) {
+            } else {
               logger.error("Unathorized request".concat(authhandler.cause().toString()));
               response
                   .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
@@ -1115,14 +1049,9 @@ public class ApiServerVerticle extends AbstractVerticle {
           });
     } else {
       logger.error("Invalid 'token' header");
-      response
-          .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400)
-          .end(
-              new ResponseHandler.Builder()
-                  .withStatus(Constants.INVALID_HEADER)
-                  .build()
-                  .toJsonString());
+      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_HEADER)
+              .build().toJsonString());
     }
   }
 
@@ -1165,23 +1094,17 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Databse service call for listing item */
-    database.listItem(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of items ".concat(dbhandler.result().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing items ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
+    database.listItem(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of items ".concat(dbhandler.result().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(200).end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing items ".concat(dbhandler.cause().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(dbhandler.cause().toString());
+      }
+    });
   }
 
   /**
@@ -1208,23 +1131,17 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing tags */
-    database.listTags(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of tags ".concat(dbhandler.result().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
+    database.listTags(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of tags ".concat(dbhandler.result().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(200).end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(dbhandler.cause().toString());
+      }
+    });
   }
 
   /**
@@ -1251,23 +1168,17 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing domains */
-    database.listDomains(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of domains ".concat(dbhandler.result().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
+    database.listDomains(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of domains ".concat(dbhandler.result().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(200).end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(dbhandler.cause().toString());
+      }
+    });
   }
 
   /**
@@ -1294,23 +1205,17 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing cities */
-    database.listCities(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of cities ".concat(dbhandler.result().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing cities ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
+    database.listCities(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of cities ".concat(dbhandler.result().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(200).end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing cities ".concat(dbhandler.cause().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(dbhandler.cause().toString());
+      }
+    });
   }
 
   /**
@@ -1337,23 +1242,17 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing resource servers */
-    database.listResourceServers(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of resource servers ".concat(dbhandler.result().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing resource servers ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
+    database.listResourceServers(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of resource servers ".concat(dbhandler.result().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(200).end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing resource servers ".concat(dbhandler.cause().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(dbhandler.cause().toString());
+      }
+    });
   }
 
   /**
@@ -1380,23 +1279,17 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing providers */
-    database.listProviders(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of providers ".concat(dbhandler.result().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing providers ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
+    database.listProviders(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of providers ".concat(dbhandler.result().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(200).end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing providers ".concat(dbhandler.cause().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(dbhandler.cause().toString());
+      }
+    });
   }
 
   /**
@@ -1423,23 +1316,17 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing resource groups */
-    database.listResourceGroups(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of resource groups ".concat(dbhandler.result().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing resource groups ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
+    database.listResourceGroups(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        logger.info("List of resource groups ".concat(dbhandler.result().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(200).end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        logger.error("Issue in listing resource groups ".concat(dbhandler.cause().toString()));
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(dbhandler.cause().toString());
+      }
+    });
   }
 
   /**
@@ -1476,36 +1363,24 @@ public class ApiServerVerticle extends AbstractVerticle {
       /*
        * Request database service with requestBody for listing resource relationship
        */
-      database.listResourceRelationship(
-          requestBody,
-          dbhandler -> {
-            if (dbhandler.succeeded()) {
-              logger.info(
-                  "List of resources belonging to resourceGroups "
-                      .concat(dbhandler.result().toString()));
-              response
-                  .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                  .setStatusCode(200)
-                  .end(dbhandler.result().toString());
-            } else if (dbhandler.failed()) {
-              logger.error(
-                  "Issue in listing resource relationship ".concat(dbhandler.cause().toString()));
-              response
-                  .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                  .setStatusCode(400)
-                  .end(dbhandler.cause().toString());
-            }
-          });
+      database.listResourceRelationship(requestBody, dbhandler -> {
+        if (dbhandler.succeeded()) {
+          logger.info("List of resources belonging to resourceGroups "
+              .concat(dbhandler.result().toString()));
+          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+              .setStatusCode(200).end(dbhandler.result().toString());
+        } else if (dbhandler.failed()) {
+          logger.error(
+              "Issue in listing resource relationship ".concat(dbhandler.cause().toString()));
+          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+              .setStatusCode(400).end(dbhandler.cause().toString());
+        }
+      });
     } else {
       logger.error("Issue in path parameter");
-      response
-          .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400)
-          .end(
-              new ResponseHandler.Builder()
-                  .withStatus(Constants.INVALID_SYNTAX)
-                  .build()
-                  .toJsonString());
+      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_SYNTAX)
+              .build().toJsonString());
     }
   }
 
@@ -1543,37 +1418,24 @@ public class ApiServerVerticle extends AbstractVerticle {
       /*
        * Request database service with requestBody for listing resource group relationship
        */
-      database.listResourceGroupRelationship(
-          requestBody,
-          dbhandler -> {
-            if (dbhandler.succeeded()) {
-              logger.info(
-                  "List of resourceGroup belonging to resource "
-                      .concat(dbhandler.result().toString()));
-              response
-                  .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                  .setStatusCode(200)
-                  .end(dbhandler.result().toString());
-            } else if (dbhandler.failed()) {
-              logger.error(
-                  "Issue in listing resourceGroup relationship "
-                      .concat(dbhandler.cause().toString()));
-              response
-                  .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                  .setStatusCode(400)
-                  .end(dbhandler.cause().toString());
-            }
-          });
+      database.listResourceGroupRelationship(requestBody, dbhandler -> {
+        if (dbhandler.succeeded()) {
+          logger.info(
+              "List of resourceGroup belonging to resource ".concat(dbhandler.result().toString()));
+          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+              .setStatusCode(200).end(dbhandler.result().toString());
+        } else if (dbhandler.failed()) {
+          logger.error(
+              "Issue in listing resourceGroup relationship ".concat(dbhandler.cause().toString()));
+          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+              .setStatusCode(400).end(dbhandler.cause().toString());
+        }
+      });
     } else {
       logger.error("Issue in path parameter");
-      response
-          .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400)
-          .end(
-              new ResponseHandler.Builder()
-                  .withStatus(Constants.INVALID_SYNTAX)
-                  .build()
-                  .toJsonString());
+      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_SYNTAX)
+              .build().toJsonString());
     }
   }
 
@@ -1586,46 +1448,34 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(
-        queryJson,
-        validationHandler -> {
-          if (validationHandler.succeeded()) {
-            queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-            logger.info("search query : " + queryJson);
-            database.appendConfig(
-                queryJson,
-                dbHandler -> {
-                  if (dbHandler.succeeded()) {
-                    JsonObject resultJson = dbHandler.result();
-                    String status = resultJson.getString(Constants.STATUS);
-                    if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-                      response.setStatusCode(201);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response
-                        .headers()
-                        .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                        .add(
-                            Constants.HEADER_CONTENT_LENGTH,
-                            String.valueOf(resultJson.toString().length()));
-                    response.write(resultJson.toString());
-                    logger.info("response : " + resultJson);
-                    response.end();
-                  } else if (dbHandler.failed()) {
-                    logger.error(dbHandler.cause().getMessage());
-                    response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-                    response.setStatusCode(500);
-                    response.end(Constants.INTERNAL_SERVER_ERROR);
-                  }
-                });
-          } else if (validationHandler.failed()) {
-            logger.error(validationHandler.cause().getMessage());
+    validator.validateItem(queryJson, validationHandler -> {
+      if (validationHandler.succeeded()) {
+        queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
+        logger.info("search query : " + queryJson);
+        database.appendConfig(queryJson, dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject resultJson = dbHandler.result();
+            String status = resultJson.getString(Constants.STATUS);
+            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+              response.setStatusCode(201);
+            } else {
+              response.setStatusCode(400);
+            }
+            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .add(Constants.HEADER_CONTENT_LENGTH,
+                    String.valueOf(resultJson.toString().length()));
+            response.write(resultJson.toString());
+            logger.info("response : " + resultJson);
+            response.end();
+          } else if (dbHandler.failed()) {
+            logger.error(dbHandler.cause().getMessage());
             response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
             response.setStatusCode(400);
             response.end(Constants.BAD_REQUEST);
           }
         });
+      }
+      });
   }
 
   /**
@@ -1638,38 +1488,30 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject queryJson = new JsonObject();
     String instanceID = routingContext.request().host();
     String id = routingContext.request().getParam(Constants.ID);
-    queryJson
-        .put(Constants.INSTANCE_ID_KEY, instanceID)
-        .put(Constants.ID, id)
+    queryJson.put(Constants.INSTANCE_ID_KEY, instanceID).put(Constants.ID, id)
         .put(Constants.RELATIONSHIP, Constants.REL_RESOURCE_SVR);
     logger.info("search query : " + queryJson);
-    database.listResourceServerRelationship(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(
-                    Constants.HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-            response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
-          }
-        });
+    database.listResourceServerRelationship(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString(Constants.STATUS);
+        if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.error(handler.cause().getMessage());
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        response.setStatusCode(500);
+        response.end(Constants.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 
   /**
@@ -1787,25 +1629,17 @@ public class ApiServerVerticle extends AbstractVerticle {
 
       /* validating proper actual query parameters from request */
       if ((request.getParam(Constants.PROPERTY) == null
-              || request.getParam(Constants.VALUE) == null)
+          || request.getParam(Constants.VALUE) == null)
           && (request.getParam(Constants.GEOPROPERTY) == null
               || request.getParam(Constants.GEOREL) == null
               || request.getParam(Constants.GEOMETRY) == null
               || request.getParam(Constants.COORDINATES) == null)
-          && request.getParam(Constants.Q_VALUE) == null
-      /*
-       * || request.getParam(Constants.LIMIT) == null || request.getParam(Constants.OFFSET) == null
-       */) {
+          && request.getParam(Constants.Q_VALUE) == null) {
 
         logger.error("Invalid Syntax");
-        response
-            .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400)
-            .end(
-                new ResponseHandler.Builder()
-                    .withStatus(Constants.INVALID_SYNTAX)
-                    .build()
-                    .toJsonString());
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(new ResponseHandler.Builder()
+                .withStatus(Constants.INVALID_SYNTAX).build().toJsonString());
         return;
 
         /* checking the values of the query parameters */
@@ -1829,14 +1663,9 @@ public class ApiServerVerticle extends AbstractVerticle {
         requestBody = QueryMapper.map2Json(queryParameters);
 
       } else {
-        response
-            .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400)
-            .end(
-                new ResponseHandler.Builder()
-                    .withStatus(Constants.INVALID_VALUE)
-                    .build()
-                    .toJsonString());
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(new ResponseHandler.Builder()
+                .withStatus(Constants.INVALID_VALUE).build().toJsonString());
         return;
       }
 
@@ -1845,44 +1674,28 @@ public class ApiServerVerticle extends AbstractVerticle {
         requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
         /* Request database service with requestBody for counting */
-        database.countQuery(
-            requestBody,
-            dbhandler -> {
-              if (dbhandler.succeeded()) {
-                logger.info("Count query completed ".concat(dbhandler.result().toString()));
-                response
-                    .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                    .setStatusCode(200)
-                    .end(dbhandler.result().toString());
-              } else if (dbhandler.failed()) {
-                logger.error("Issue in count query ".concat(dbhandler.cause().toString()));
-                response
-                    .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                    .setStatusCode(400)
-                    .end(dbhandler.cause().toString());
-              }
-            });
+        database.countQuery(requestBody, dbhandler -> {
+          if (dbhandler.succeeded()) {
+            logger.info("Count query completed ".concat(dbhandler.result().toString()));
+            response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(200).end(dbhandler.result().toString());
+          } else if (dbhandler.failed()) {
+            logger.error("Issue in count query ".concat(dbhandler.cause().toString()));
+            response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(400).end(dbhandler.cause().toString());
+          }
+        });
       } else {
         logger.error("Invalid request query parameters");
-        response
-            .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400)
-            .end(
-                new ResponseHandler.Builder()
-                    .withStatus(Constants.INVALID_VALUE)
-                    .build()
-                    .toJsonString());
+        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400).end(new ResponseHandler.Builder()
+                .withStatus(Constants.INVALID_VALUE).build().toJsonString());
       }
     } else {
       logger.error("Invalid request query parameters");
-      response
-          .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400)
-          .end(
-              new ResponseHandler.Builder()
-                  .withStatus(Constants.INVALID_VALUE)
-                  .build()
-                  .toJsonString());
+      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_VALUE)
+              .build().toJsonString());
     }
   }
 }
