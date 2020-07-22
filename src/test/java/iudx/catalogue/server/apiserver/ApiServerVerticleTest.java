@@ -40,7 +40,8 @@ public class ApiServerVerticleTest {
   private static final int PORT = 8443;
   private static final String BASE_URL = "/iudx/cat/v1/";
 
-  private static final String TOKEN = "auth.iudx.org.in/rakshit.ramesh@datakaveri.org/7acc9a451a6ec79b26daaf84555b1f37";
+  /** Token for crud apis */
+  private static final String TOKEN = "";
 
   private static WebClient client;
   private static FileSystem fileSytem;
@@ -66,18 +67,26 @@ public class ApiServerVerticleTest {
         .setTrustAll(true).setTrustStoreOptions(options);
     fileSytem = vertx.fileSystem();
     client = WebClient.create(vertx, clientOptions);
+    testContext.completeNow();
 
-    CatalogueServerStarter starter = new CatalogueServerStarter();
-    Future<JsonObject> result = starter.startServer();
+    /**
+     * Comment this block if you want to use an already running instance/hotswapped instance
+     **/
 
-    result.onComplete(resultHandler -> {
-      if (resultHandler.succeeded()) {
-        vertx.setTimer(15000, id -> {
-          logger.info("!!!!!!!!\n\n!!!!!!!!!");
-          testContext.completeNow();
-        });
-      }
-    });
+    // CatalogueServerStarter starter = new CatalogueServerStarter();
+    // Future<JsonObject> result = starter.startServer();
+    // result.onComplete(resultHandler -> {
+    //   if (resultHandler.succeeded()) {
+    //     vertx.setTimer(15000, id -> {
+    //       logger.info("!!!!!!!!\n\n!!!!!!!!!");
+    //       testContext.completeNow();
+    //     });
+    //   }
+    // });
+
+    /**
+     * End
+     **/
 
   }
 
@@ -114,11 +123,9 @@ public class ApiServerVerticleTest {
                     wrapper.count++;
                   }
                   if (wrapper.count == numItems-1){
-                    logger.info("Inserted " + wrapper.count + " items");
                     testContext.completeNow();
                   }
                   assertEquals(201, serverResponse.result().statusCode());
-                  testContext.completeNow();
                 } else if (serverResponse.failed()) {
                   testContext.failed();
                 }
@@ -305,9 +312,11 @@ public class ApiServerVerticleTest {
   void searchItemCircle200(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
+    /* Should give only one item */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "100")
-        .addQueryParam("geometry", "Point").addQueryParam("coordinates", "[73.88559,18.538425]")
+        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "5")
+        .addQueryParam("geometry", "Point")
+        .addQueryParam("coordinates", "[ 73.874537, 18.528311 ]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -602,7 +611,7 @@ public class ApiServerVerticleTest {
   @DisplayName("List Item[Status:200, Endpoint: /items{itemID}]")
   void listItem200(VertxTestContext testContext) {
 
-    String itemId = "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs"
+    String itemId = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs"
         + ".varanasi.iudx.org.in/varanasi-swm-vehicles/varanasi-swm-vehicles-live";
 
     /* Send the file to the server using GET */
@@ -821,7 +830,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Search Relationship[Status:200, Endpoint: /<resourceGroupID>/resource]")
   void listResourceRelationship200(VertxTestContext testContext) {
 
-    String resourceGroupID = "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531"
+    String resourceGroupID = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
         + "/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01";
 
     /* Send the file to the server using GET */
@@ -853,7 +862,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Search Relationship[Status:200, Endpoint: /<resourceID>/resourceGroup]")
   void listResourceGroupRelationship200(VertxTestContext testContext) {
 
-    String resourceID = "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531"
+    String resourceID = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
         + "/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01";
 
     /* Send the file to the server using GET */
@@ -883,7 +892,7 @@ public class ApiServerVerticleTest {
     logger.info("singleAttributeSearchTest");
 
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
-        .addQueryParam("value", "[[rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/"
+        .addQueryParam("value", "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/pscdcl/"
             + "aqm-bosch-climo/Ambedkar society circle_29]]")
         .send(ar -> {
           if (ar.succeeded()) {
@@ -906,7 +915,7 @@ public class ApiServerVerticleTest {
 
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
         .addQueryParam("value",
-            "[[rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscd"
+            "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/pscd"
                 + "cl/aqm-bosch-climo/Ambedkar society circle_29,rbccps.org/aa9d66a000d94a78895d"
                 + "e8d4c0b3a67f3450e531/pscdcl/aqm-bosch-climo/Appa_Balwant_Square_30]]")
         .send(ar -> {
@@ -983,7 +992,7 @@ public class ApiServerVerticleTest {
   @Order(30)
   @DisplayName("Nested Attribute search")
   void nestedAttributeSearchtest(VertxTestContext testContext) {
-    String apiURL = "search?property=[location.address]&value=[[pune]]";
+    String apiURL = "search?property=[deviceModelInfo.name]&value=[[Bosch-Climo]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1002,7 +1011,7 @@ public class ApiServerVerticleTest {
   @DisplayName("bbox search")
   void bboxSearchtest(VertxTestContext testContext) {
     String apiURL =
-        "search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73,20],[75,14]]";
+        "search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1199,7 +1208,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get Provider")
   void getProviderTest(VertxTestContext testContext) {
     String apiURL =
-        "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01/provider";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01/provider";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1218,7 +1227,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get resourceServer")
   void getResourceServerTest(VertxTestContext testContext) {
     String apiURL =
-        "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01/resourceServer";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01/resourceServer";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1237,7 +1246,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get data model [type]")
   void getDataModelTest(VertxTestContext testContext) {
     String apiURL =
-        "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01/type";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01/type";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1408,10 +1417,11 @@ public class ApiServerVerticleTest {
   void countItemCircle200(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
+    /* Should give only one item */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "500")
+        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "5")
         .addQueryParam("geometry", "Point")
-        .addQueryParam("coordinates", "[73.85534405708313,18.52008289032131]")
+        .addQueryParam("coordinates", "[ 73.874537, 18.528311 ]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -1472,8 +1482,7 @@ public class ApiServerVerticleTest {
 
     logger.info("starting countAttribute200");
 
-    String id = "[[rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi."
-        + "iudx.org.in/varanasi-aqm/EM_01_0103_01]]";
+    String id = "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]";
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[id]")
         .addQueryParam("value", id).send(serverResponse -> {
@@ -1504,9 +1513,10 @@ public class ApiServerVerticleTest {
 
     logger.info("starting countAttributeMultiValue200");
 
-    String id = "[[rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.varanasi."
-        + "iudx.org.in/varanasi-aqm/EM_01_0103_01,rbccps.org/aa9d66a000d94a78895de8d4c0"
-        + "b3a67f3450e531/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_02]]";
+    String id1 = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28";
+    String id2 = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/BopadiSquare_65";
+
+    String id = "[[" + id1 + "," + id2 + "]]";
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[id]")
@@ -1567,8 +1577,8 @@ public class ApiServerVerticleTest {
     logger.info("starting countMultiAttribute200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[prop1,prop2]")
-        .addQueryParam("value", "[[prop1-value],[prop2-value1,prop2-value2]]")
+    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[itemStatus,deviceId]")
+        .addQueryParam("value", "[[ACTIVE, INACTIVE],[b3ec32ff-fa7d-64fa-c0af-272e25d314e9]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -1598,8 +1608,8 @@ public class ApiServerVerticleTest {
     logger.info("starting countNestedAttribute200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[provider.name]")
-        .addQueryParam("value", "[[value1]]").send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[deviceModelInfo.name]")
+        .addQueryParam("value", "[[Bosch-Climo]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
