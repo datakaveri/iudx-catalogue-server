@@ -11,7 +11,6 @@
             "type": [
                 "iudx:Resource"
             ],
-            "id": "providerID/example.com/senosrs/sensorA",
             "name": "sensorA",
             "description": "Description of this resource",
             "tags": "sensor, sensing, resource, battery operated",
@@ -36,7 +35,6 @@
     "required": [
         "@context",
         "type",
-        "id",
         "name",
         "description",
         "tags",
@@ -86,16 +84,6 @@
                 ],
                 "$id": "#/properties/type/items"
             }
-        },
-        "id": {
-            "$id": "#/properties/id",
-            "type": "string",
-            "title": "The id schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "providerID/example.com/senosrs/sensorA"
-            ]
         },
         "name": {
             "$id": "#/properties/name",
