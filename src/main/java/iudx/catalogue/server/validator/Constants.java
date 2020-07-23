@@ -3,7 +3,7 @@ package iudx.catalogue.server.validator;
 public class Constants {
   public static final String REQUEST_GET = "GET";
   public static final String REQUEST_POST = "POST";
-  public static final String CAT_TEST_SEARCH_INDEX = "validation/_search";
+  public static final String CAT_TEST_SEARCH_INDEX = "testindex/_search";
   public static final String CAT_INDEX = CAT_TEST_SEARCH_INDEX;
   public static final String SOURCE = "_source";
   public static final String QUERY_KEY = "query";

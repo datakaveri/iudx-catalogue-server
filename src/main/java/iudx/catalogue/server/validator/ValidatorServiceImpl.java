@@ -136,6 +136,8 @@ public class ValidatorServiceImpl implements ValidatorService {
           }
           try {
             JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+            logger.info("Got response ");
+            logger.info(responseJson);
             if (responseJson.getJsonObject(Constants.HITS)
                 .getJsonObject(Constants.TOTAL)
                 .getInteger(Constants.VALUE) == 1) {
@@ -187,6 +189,8 @@ public class ValidatorServiceImpl implements ValidatorService {
           Constants.ACTIVE)
           .put(Constants.ITEM_CREATED_AT, getUtcDatetimeAsString());
 
+      logger.info("Starting verification");
+      logger.info("Verifying resourceGroup " + resourceGroup);
       Future<Boolean> verifiedResource = verifyLink(resourceGroup);
       verifiedResource.onComplete( res -> {
         if (res.succeeded()) {

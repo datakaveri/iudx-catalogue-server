@@ -698,11 +698,11 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     logger.info("Creating an item");
 
-    /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
 
-    /* Handles HTTP response from server to client */
+    /** Add default headers to response*/
     HttpServerResponse response = routingContext.response();
+    response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON);
 
     /* JsonObject of authentication related information */
     JsonObject authenticationInfo = new JsonObject();
@@ -719,108 +719,101 @@ public class ApiServerVerticle extends AbstractVerticle {
       docItemTypes = new HashSet<String>(requestBody.getJsonArray("type").getList());
     } catch (Exception e) {
       logger.error("Item type mismatch");
-      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400).end();
+      response.setStatusCode(400).end();
     }
 
     docItemTypes.retainAll(itemTypes);
 
     /* checking and comparing itemType from the request body */
-    if (docItemTypes.size() == 1) {
-      /* Populating query mapper */
-      requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
+    if (docItemTypes.size() != 1) {
+      logger.error("InvalidValue, 'type' attribute is missing, empty, or invalid");
+      response.setStatusCode(400)
+              .end(new ResponseHandler.Builder()
+                    .withStatus(Constants.INVALID_VALUE)
+              .build().toJsonString());
+      return;
+    }
 
-      /* checking auhthentication info in requests */
-      if (request.headers().contains(Constants.HEADER_TOKEN)) {
-        authenticationInfo.put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
-            .put(Constants.OPERATION, Constants.POST);
+    /* Populating query mapper */
+    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
-      String providerId = requestBody.getString(Constants.REL_PROVIDER);
+    /* checking auhthentication info in requests */
+    if (request.headers().contains(Constants.HEADER_TOKEN)) {
+      authenticationInfo.put(Constants.HEADER_TOKEN,
+                              request.getHeader(Constants.HEADER_TOKEN))
+                        .put(Constants.OPERATION, Constants.POST);
+    } else {
+      logger.info("Unathorized CUD operation");
+      response.setStatusCode(401)
+              .end(new ResponseHandler.Builder()
+                        .withStatus(Constants.INVALID_VALUE)
+              .build().toJsonString());
+      return;
+    }
 
+    /** Start insertion flow */
 
-      JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
+    /** Json schema validate item */
+    validator.validateSchema(requestBody, schValHandler -> {
+      if (schValHandler.failed()) {
+        logger.error("Item validation failed");
+        response.setStatusCode(400).end();
+        return;
+      }
+      if (schValHandler.succeeded()) {
+        String providerId = requestBody.getString(Constants.REL_PROVIDER);
+        JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
 
-        /* Authenticating the request */
-        authenticator.tokenInterospect(
-            authRequest,
-            authenticationInfo,
-            authhandler -> {
-              if (authhandler.failed()) {
-                response
-                    .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                    .setStatusCode(401)
+        /** Introspect token and authorize operation */
+        authenticator.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
+          if (authhandler.failed()) {
+            response.setStatusCode(401)
                     .end(authhandler.cause().toString());
-                return;
+            return;
+          }
+          else if (authhandler.result()
+                  .getString(Constants.STATUS)
+                  .equals(Constants.ERROR)) {
+            logger.info("Authentication failed");
+            response.setStatusCode(401)
+                    .end(authhandler.cause().toString());
+                  }
+          else if (authhandler.result()
+                  .getString(Constants.STATUS)
+                  .equals(Constants.SUCCESS)) {
+            logger.info("Authenticated item creation request "
+                .concat(authhandler.result().toString()));
+
+            /* Link Validating the request to ensure item correctness */
+            validator.validateItem(requestBody, valhandler -> {
+              if (valhandler.failed()) {
+                logger.error("Item validation failed".concat(valhandler.cause().toString()));
+                response.setStatusCode(500)
+                        .end(valhandler.cause().toString());
               }
-              if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
-                logger.info(
-                    "Authenticating item creation request "
-                        .concat(authhandler.result().toString()));
-                /* Validating the request */
-                validator.validateItem(
-                    requestBody,
-                    valhandler -> {
-                      if (valhandler.succeeded()) {
-                        logger.info(
-                            "Item creation validated".concat(authhandler.result().toString()));
-                        /* Requesting database service, creating a item */
-                        database.createItem(
-                            requestBody,
-                            dbhandler -> {
-                              if (dbhandler.succeeded()) {
-                                logger.info("Item created".concat(dbhandler.result().toString()));
-                                response
-                                    .putHeader(
-                                        Constants.HEADER_CONTENT_TYPE,
-                                        Constants.MIME_APPLICATION_JSON)
-                                    .setStatusCode(201)
-                                    .end(dbhandler.result().toString());
-                              } else if (dbhandler.failed()) {
-                                logger.error(
-                                    "Item creation failed".concat(dbhandler.cause().toString()));
-                                response
-                                    .putHeader(
-                                        Constants.HEADER_CONTENT_TYPE,
-                                        Constants.MIME_APPLICATION_JSON)
-                                    .setStatusCode(500)
-                                    .end(dbhandler.cause().toString());
-                              }
-                            });
-                      } else if (valhandler.failed()) {
-                        logger.error(
-                            "Item validation failed".concat(valhandler.cause().toString()));
-                        response
-                            .putHeader(
-                                Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                            .setStatusCode(500)
-                            .end(valhandler.cause().toString());
-                      }
-                    });
-              } else {
-                logger.error("Unathorized request".concat(authhandler.cause().toString()));
-                response
-                    .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                    .setStatusCode(401)
-                    .end(authhandler.cause().toString());
+              if (valhandler.succeeded()) {
+                logger.info("Item link validation successful");
+
+                /* Requesting database service, creating a item */
+                database.createItem(valhandler.result(), dbhandler -> {
+                  if (dbhandler.failed()) {
+                    logger.error("Item creation failed".concat(dbhandler.cause().toString()));
+                    response.setStatusCode(500)
+                            .end(dbhandler.cause().toString());
+                  }
+                  if (dbhandler.succeeded()) {
+                    logger.info("Item created".concat(dbhandler.result().toString()));
+                    response.setStatusCode(201)
+                            .end(dbhandler.result().toString());
+                  }
+                });
               }
             });
-      } else {
-        logger.error("InvalidHeader, 'token' header");
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(new ResponseHandler.Builder()
-                .withStatus(Constants.INVALID_HEADER).build().toJsonString());
+          } 
+        });
       }
-    } else {
-      logger.error("InvalidValue, 'type' attribute is missing, empty, or invalid");
-      response
-          .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400)
-          .end(
-              new ResponseHandler.Builder()
-                  .withStatus(Constants.INVALID_VALUE)
-                  .build()
-                  .toJsonString());
-    }
+    });
+    /** End insertion flow */
   }
 
   /**

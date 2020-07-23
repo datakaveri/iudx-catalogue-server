@@ -118,6 +118,7 @@ public class Constants {
   public static final String INVALID_HEADER = "invalidHeader";
   public static final String RESULTS = "results";
   public static final String SUCCESS = "success";
+  public static final String ERROR = "error";
   public static final String BAD_REQUEST = "Bad Request";
   public static final String INTERNAL_SERVER_ERROR = "Internal server error";
 
