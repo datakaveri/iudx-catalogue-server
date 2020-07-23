@@ -1,0 +1,422 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "title": "The root schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "default": {},
+    "examples": [
+        {
+            "@context": "https://voc.iudx.org.in/",
+            "type": [
+                "iudx:ResourceGroup"
+            ],
+            "description": "Description of this resource group",
+            "name": "sensors",
+            "tags": "sensor, sensing, resource, battery operated",
+            "itemStatus": "ACTIVE",
+            "provider": "providerID",
+            "resourceServer": "resourceProviderID/exapmle.com",
+            "resourceAuthControlLevel": "INDIVIDUAL",
+            "resourceType": "messageStream",
+            "authServerInfo": {
+                "type": [
+                    "AuthServerInfoValue"
+                ],
+                "authServerURL": "https://myauth.server.org/",
+                "authType": "iudx-auth"
+            },
+            "accessObjectInfo": {
+                "type": [
+                    "AccessObjectInfoValue"
+                ],
+                "accessObject": "https://example.com/sensorsApis.json",
+                "additionalInfoURL": "https://example.com/sensorsApis",
+                "accessObjectType": "openAPI"
+            },
+            "iudxResourceAPIs": [
+                "attribute",
+                "temporal"
+            ],
+            "itemCreatedAt": "2019-02-20T10:30:06.093121",
+            "location": {
+                "type": "Place",
+                "address": "Bangalore"
+            }
+        }
+    ],
+    "required": [
+        "@context",
+        "type",
+        "description",
+        "name",
+        "tags",
+        "itemStatus",
+        "provider",
+        "resourceServer",
+        "resourceAuthControlLevel",
+        "resourceType",
+        "authServerInfo",
+        "accessObjectInfo",
+        "iudxResourceAPIs",
+        "itemCreatedAt",
+        "location"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "@context": {
+            "$id": "#/properties/@context",
+            "type": "string",
+            "title": "The @context schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "https://voc.iudx.org.in/"
+            ]
+        },
+        "type": {
+            "$id": "#/properties/type",
+            "type": "array",
+            "title": "The type schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": [],
+            "examples": [
+                [
+                    "iudx:ResourceGroup"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "anyOf": [
+                    {
+                        "$id": "#/properties/type/items/anyOf/0",
+                        "type": "string",
+                        "title": "The first anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "examples": [
+                            "iudx:ResourceGroup"
+                        ]
+                    }
+                ],
+                "$id": "#/properties/type/items"
+            }
+        },
+        "description": {
+            "$id": "#/properties/description",
+            "type": "string",
+            "title": "The description schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "Description of this resource group"
+            ]
+        },
+        "name": {
+            "$id": "#/properties/name",
+            "type": "string",
+            "title": "The name schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "sensors"
+            ]
+        },
+        "tags": {
+            "$id": "#/properties/tags",
+            "type": "string",
+            "title": "The tags schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "sensor, sensing, resource, battery operated"
+            ]
+        },
+        "itemStatus": {
+            "$id": "#/properties/itemStatus",
+            "type": "string",
+            "title": "The itemStatus schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "ACTIVE"
+            ]
+        },
+        "provider": {
+            "$id": "#/properties/provider",
+            "type": "string",
+            "title": "The provider schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "providerID"
+            ]
+        },
+        "resourceServer": {
+            "$id": "#/properties/resourceServer",
+            "type": "string",
+            "title": "The resourceServer schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "resourceProviderID/exapmle.com"
+            ]
+        },
+        "resourceAuthControlLevel": {
+            "$id": "#/properties/resourceAuthControlLevel",
+            "type": "string",
+            "title": "The resourceAuthControlLevel schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "INDIVIDUAL"
+            ]
+        },
+        "resourceType": {
+            "$id": "#/properties/resourceType",
+            "type": "string",
+            "title": "The resourceType schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "messageStream"
+            ]
+        },
+        "authServerInfo": {
+            "$id": "#/properties/authServerInfo",
+            "type": "object",
+            "title": "The authServerInfo schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+                {
+                    "type": [
+                        "AuthServerInfoValue"
+                    ],
+                    "authServerURL": "https://myauth.server.org/",
+                    "authType": "iudx-auth"
+                }
+            ],
+            "required": [
+                "type",
+                "authServerURL",
+                "authType"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "type": {
+                    "$id": "#/properties/authServerInfo/properties/type",
+                    "type": "array",
+                    "title": "The type schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "examples": [
+                        [
+                            "AuthServerInfoValue"
+                        ]
+                    ],
+                    "additionalItems": true,
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$id": "#/properties/authServerInfo/properties/type/items/anyOf/0",
+                                "type": "string",
+                                "title": "The first anyOf schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "AuthServerInfoValue"
+                                ]
+                            }
+                        ],
+                        "$id": "#/properties/authServerInfo/properties/type/items"
+                    }
+                },
+                "authServerURL": {
+                    "$id": "#/properties/authServerInfo/properties/authServerURL",
+                    "type": "string",
+                    "title": "The authServerURL schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "https://myauth.server.org/"
+                    ]
+                },
+                "authType": {
+                    "$id": "#/properties/authServerInfo/properties/authType",
+                    "type": "string",
+                    "title": "The authType schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "iudx-auth"
+                    ]
+                }
+            }
+        },
+        "accessObjectInfo": {
+            "$id": "#/properties/accessObjectInfo",
+            "type": "object",
+            "title": "The accessObjectInfo schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+                {
+                    "type": [
+                        "AccessObjectInfoValue"
+                    ],
+                    "accessObject": "https://example.com/sensorsApis.json",
+                    "additionalInfoURL": "https://example.com/sensorsApis",
+                    "accessObjectType": "openAPI"
+                }
+            ],
+            "required": [
+                "type",
+                "accessObject",
+                "additionalInfoURL",
+                "accessObjectType"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "type": {
+                    "$id": "#/properties/accessObjectInfo/properties/type",
+                    "type": "array",
+                    "title": "The type schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": [],
+                    "examples": [
+                        [
+                            "AccessObjectInfoValue"
+                        ]
+                    ],
+                    "additionalItems": true,
+                    "items": {
+                        "anyOf": [
+                            {
+                                "$id": "#/properties/accessObjectInfo/properties/type/items/anyOf/0",
+                                "type": "string",
+                                "title": "The first anyOf schema",
+                                "description": "An explanation about the purpose of this instance.",
+                                "default": "",
+                                "examples": [
+                                    "AccessObjectInfoValue"
+                                ]
+                            }
+                        ],
+                        "$id": "#/properties/accessObjectInfo/properties/type/items"
+                    }
+                },
+                "accessObject": {
+                    "$id": "#/properties/accessObjectInfo/properties/accessObject",
+                    "type": "string",
+                    "title": "The accessObject schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "https://example.com/sensorsApis.json"
+                    ]
+                },
+                "additionalInfoURL": {
+                    "$id": "#/properties/accessObjectInfo/properties/additionalInfoURL",
+                    "type": "string",
+                    "title": "The additionalInfoURL schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "https://example.com/sensorsApis"
+                    ]
+                },
+                "accessObjectType": {
+                    "$id": "#/properties/accessObjectInfo/properties/accessObjectType",
+                    "type": "string",
+                    "title": "The accessObjectType schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "openAPI"
+                    ]
+                }
+            }
+        },
+        "iudxResourceAPIs": {
+            "$id": "#/properties/iudxResourceAPIs",
+            "type": "array",
+            "title": "The iudxResourceAPIs schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": [],
+            "examples": [
+                [
+                    "attribute",
+                    "temporal"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "anyOf": [
+                    {
+                        "$id": "#/properties/iudxResourceAPIs/items/anyOf/0",
+                        "type": "string",
+                        "title": "The first anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "examples": [
+                            "attribute",
+                            "temporal"
+                        ]
+                    }
+                ],
+                "$id": "#/properties/iudxResourceAPIs/items"
+            }
+        },
+        "itemCreatedAt": {
+            "$id": "#/properties/itemCreatedAt",
+            "type": "string",
+            "title": "The itemCreatedAt schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "2019-02-20T10:30:06.093121"
+            ]
+        },
+        "location": {
+            "$id": "#/properties/location",
+            "type": "object",
+            "title": "The location schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+                {
+                    "type": "Place",
+                    "address": "Bangalore"
+                }
+            ],
+            "required": [
+                "type",
+                "address"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "type": {
+                    "$id": "#/properties/location/properties/type",
+                    "type": "string",
+                    "title": "The type schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "Place"
+                    ]
+                },
+                "address": {
+                    "$id": "#/properties/location/properties/address",
+                    "type": "string",
+                    "title": "The address schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "Bangalore"
+                    ]
+                }
+            }
+        }
+    }
+}

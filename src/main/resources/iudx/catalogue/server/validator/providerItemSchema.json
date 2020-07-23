@@ -1,0 +1,312 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "http://example.com/example.json",
+    "type": "object",
+    "title": "The root schema",
+    "description": "The root schema comprises the entire JSON document.",
+    "default": {},
+    "examples": [
+        {
+            "@context": "https://voc.iudx.org.in/",
+            "type": [
+                "iudx:Provider"
+            ],
+            "id": "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531",
+            "name": "IUDXAdmin",
+            "description": "Administrator of the IUDX platform",
+            "tags": "IUDX, Admin, Platform",
+            "itemStatus": "ACTIVE",
+            "itemCreatedAt": "2020-07-01T10:03:26+0000",
+            "providerOrg": {
+                "name": "iudx",
+                "additionalInfoURL": "https://iudx.org.in",
+                "location": {
+                    "type": "Place",
+                    "address": "ABD area, Pune",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            75.92,
+                            14.5
+                        ]
+                    }
+                }
+            }
+        }
+    ],
+    "required": [
+        "@context",
+        "type",
+        "id",
+        "name",
+        "description",
+        "tags",
+        "itemStatus",
+        "itemCreatedAt",
+        "providerOrg"
+    ],
+    "additionalProperties": true,
+    "properties": {
+        "@context": {
+            "$id": "#/properties/@context",
+            "type": "string",
+            "title": "The @context schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "https://voc.iudx.org.in/"
+            ]
+        },
+        "type": {
+            "$id": "#/properties/type",
+            "type": "array",
+            "title": "The type schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": [],
+            "examples": [
+                [
+                    "iudx:Provider"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "anyOf": [
+                    {
+                        "$id": "#/properties/type/items/anyOf/0",
+                        "type": "string",
+                        "title": "The first anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "examples": [
+                            "iudx:Provider"
+                        ]
+                    }
+                ],
+                "$id": "#/properties/type/items"
+            }
+        },
+        "id": {
+            "$id": "#/properties/id",
+            "type": "string",
+            "title": "The id schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531"
+            ]
+        },
+        "name": {
+            "$id": "#/properties/name",
+            "type": "string",
+            "title": "The name schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "IUDXAdmin"
+            ]
+        },
+        "description": {
+            "$id": "#/properties/description",
+            "type": "string",
+            "title": "The description schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "Administrator of the IUDX platform"
+            ]
+        },
+        "tags": {
+            "$id": "#/properties/tags",
+            "type": "string",
+            "title": "The tags schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "IUDX, Admin, Platform"
+            ]
+        },
+        "itemStatus": {
+            "$id": "#/properties/itemStatus",
+            "type": "string",
+            "title": "The itemStatus schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "ACTIVE"
+            ]
+        },
+        "itemCreatedAt": {
+            "$id": "#/properties/itemCreatedAt",
+            "type": "string",
+            "title": "The itemCreatedAt schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "2020-07-01T10:03:26+0000"
+            ]
+        },
+        "providerOrg": {
+            "$id": "#/properties/providerOrg",
+            "type": "object",
+            "title": "The providerOrg schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": {},
+            "examples": [
+                {
+                    "name": "iudx",
+                    "additionalInfoURL": "https://iudx.org.in",
+                    "location": {
+                        "type": "Place",
+                        "address": "ABD area, Pune",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [
+                                75.92,
+                                14.5
+                            ]
+                        }
+                    }
+                }
+            ],
+            "required": [
+                "name",
+                "additionalInfoURL",
+                "location"
+            ],
+            "additionalProperties": true,
+            "properties": {
+                "name": {
+                    "$id": "#/properties/providerOrg/properties/name",
+                    "type": "string",
+                    "title": "The name schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "iudx"
+                    ]
+                },
+                "additionalInfoURL": {
+                    "$id": "#/properties/providerOrg/properties/additionalInfoURL",
+                    "type": "string",
+                    "title": "The additionalInfoURL schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": "",
+                    "examples": [
+                        "https://iudx.org.in"
+                    ]
+                },
+                "location": {
+                    "$id": "#/properties/providerOrg/properties/location",
+                    "type": "object",
+                    "title": "The location schema",
+                    "description": "An explanation about the purpose of this instance.",
+                    "default": {},
+                    "examples": [
+                        {
+                            "type": "Place",
+                            "address": "ABD area, Pune",
+                            "geometry": {
+                                "type": "Point",
+                                "coordinates": [
+                                    75.92,
+                                    14.5
+                                ]
+                            }
+                        }
+                    ],
+                    "required": [
+                        "type",
+                        "address",
+                        "geometry"
+                    ],
+                    "additionalProperties": true,
+                    "properties": {
+                        "type": {
+                            "$id": "#/properties/providerOrg/properties/location/properties/type",
+                            "type": "string",
+                            "title": "The type schema",
+                            "description": "An explanation about the purpose of this instance.",
+                            "default": "",
+                            "examples": [
+                                "Place"
+                            ]
+                        },
+                        "address": {
+                            "$id": "#/properties/providerOrg/properties/location/properties/address",
+                            "type": "string",
+                            "title": "The address schema",
+                            "description": "An explanation about the purpose of this instance.",
+                            "default": "",
+                            "examples": [
+                                "ABD area, Pune"
+                            ]
+                        },
+                        "geometry": {
+                            "$id": "#/properties/providerOrg/properties/location/properties/geometry",
+                            "type": "object",
+                            "title": "The geometry schema",
+                            "description": "An explanation about the purpose of this instance.",
+                            "default": {},
+                            "examples": [
+                                {
+                                    "type": "Point",
+                                    "coordinates": [
+                                        75.92,
+                                        14.5
+                                    ]
+                                }
+                            ],
+                            "required": [
+                                "type",
+                                "coordinates"
+                            ],
+                            "additionalProperties": true,
+                            "properties": {
+                                "type": {
+                                    "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/type",
+                                    "type": "string",
+                                    "title": "The type schema",
+                                    "description": "An explanation about the purpose of this instance.",
+                                    "default": "",
+                                    "examples": [
+                                        "Point"
+                                    ]
+                                },
+                                "coordinates": {
+                                    "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates",
+                                    "type": "array",
+                                    "title": "The coordinates schema",
+                                    "description": "An explanation about the purpose of this instance.",
+                                    "default": [],
+                                    "examples": [
+                                        [
+                                            75.92,
+                                            14.5
+                                        ]
+                                    ],
+                                    "additionalItems": true,
+                                    "items": {
+                                        "anyOf": [
+                                            {
+                                                "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates/items/anyOf/0",
+                                                "type": "number",
+                                                "title": "The first anyOf schema",
+                                                "description": "An explanation about the purpose of this instance.",
+                                                "default": 0.0,
+                                                "examples": [
+                                                    75.92,
+                                                    14.5
+                                                ]
+                                            }
+                                        ],
+                                        "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates/items"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

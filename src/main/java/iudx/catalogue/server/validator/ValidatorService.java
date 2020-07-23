@@ -28,13 +28,22 @@ import io.vertx.core.json.JsonObject;
 public interface ValidatorService {
 
   /**
+   * The validateSchema method implements the item schema validation 
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return ValidatorService which is a Service
+   */
+  @Fluent
+  ValidatorService validateSchema(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
    * The validateItem method implements the item validation flow based on the schema of the item.
    * 
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return ValidatorService which is a Service
    */
-
   @Fluent
   ValidatorService validateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
@@ -45,7 +54,6 @@ public interface ValidatorService {
    * @param handler which is a Request Handler
    * @return ValidatorService which is a Service
    */
-
   @Fluent
   ValidatorService validateProvider(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
