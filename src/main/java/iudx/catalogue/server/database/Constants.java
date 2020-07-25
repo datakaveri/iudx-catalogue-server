@@ -108,8 +108,9 @@ public class Constants {
 
   public static final String TEXT_SEARCH = "textSearch_";
   public static final String ATTRIBUTE_SEARCH = "attributeSearch_";
-  public static final String DEVICEID_KEYWORD = "deviceId.keyword";
+  public static final String DEVICEID_KEY = "deviceId";
   public static final String TAG_AQM = "aqm";
   public static final String GEO_SEARCH = "geoSearch_";
+  public static final String DESCRIPTION_ATTR = "description";
 
 }

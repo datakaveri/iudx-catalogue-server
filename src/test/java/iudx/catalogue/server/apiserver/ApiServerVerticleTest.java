@@ -17,6 +17,7 @@ import io.vertx.reactivex.ext.web.client.WebClient;
 import iudx.catalogue.server.starter.CatalogueServerStarter;
 import java.util.Iterator;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -73,16 +74,18 @@ public class ApiServerVerticleTest {
      * Comment this block if you want to use an already running instance/hotswapped instance
      **/
 
+
     // CatalogueServerStarter starter = new CatalogueServerStarter();
     // Future<JsonObject> result = starter.startServer();
     // result.onComplete(resultHandler -> {
-    //   if (resultHandler.succeeded()) {
-    //     vertx.setTimer(15000, id -> {
-    //       logger.info("!!!!!!!!\n\n!!!!!!!!!");
-    //       testContext.completeNow();
-    //     });
-    //   }
+    // if (resultHandler.succeeded()) {
+    // vertx.setTimer(15000, id -> {
+    // logger.info("!!!!!!!!\n\n!!!!!!!!!");
+    // testContext.completeNow();
     // });
+    // }
+    // });
+
 
     /**
      * End
@@ -102,12 +105,14 @@ public class ApiServerVerticleTest {
   @DisplayName("Create Item[Status:201, Endpoint: /item]")
   public void createItem201(VertxTestContext testContext) throws InterruptedException {
 
-    var wrapper = new Object(){ int count = 0; };
+    var wrapper = new Object() {
+      int count = 0;
+    };
 
     fileSytem.readFile("src/test/resources/resources.json", fileRes -> {
       if (fileRes.succeeded()) {
 
-        JsonArray resources  = fileRes.result().toJsonArray();
+        JsonArray resources = fileRes.result().toJsonArray();
         int numItems = resources.size();
         logger.info("Total items = " + String.valueOf(resources.size()));
         Iterator<Object> objectIterator = resources.iterator();
@@ -122,7 +127,7 @@ public class ApiServerVerticleTest {
                   if (serverResponse.result().statusCode() == 201) {
                     wrapper.count++;
                   }
-                  if (wrapper.count == numItems-1){
+                  if (wrapper.count == numItems - 1) {
                     testContext.completeNow();
                   }
                   assertEquals(201, serverResponse.result().statusCode());
@@ -193,9 +198,9 @@ public class ApiServerVerticleTest {
         JsonObject jsonBody = fileRes.result().toJsonObject();
 
         /* Send the file to the server using PUT */
-        client.put(PORT, HOST, BASE_URL.concat("item/")
-            .concat(jsonBody.getString("id"))).putHeader("token", TOKEN)
-            .putHeader("Content-Type", "application/json").sendJson(jsonBody, serverResponse -> {
+        client.put(PORT, HOST, BASE_URL.concat("item/").concat(jsonBody.getString("id")))
+            .putHeader("token", TOKEN).putHeader("Content-Type", "application/json")
+            .sendJson(jsonBody, serverResponse -> {
               if (serverResponse.succeeded()) {
 
                 /* comparing the response */
@@ -232,9 +237,9 @@ public class ApiServerVerticleTest {
         JsonObject jsonBody = fileRes.result().toJsonObject();
 
         /* Send the file to the server using PUT */
-        client.put(PORT, HOST, BASE_URL.concat("item/")
-            .concat(jsonBody.getString("id"))).putHeader("token", TOKEN)
-            .putHeader("Content-Type", "application/json").sendJson(jsonBody, serverResponse -> {
+        client.put(PORT, HOST, BASE_URL.concat("item/").concat(jsonBody.getString("id")))
+            .putHeader("token", TOKEN).putHeader("Content-Type", "application/json")
+            .sendJson(jsonBody, serverResponse -> {
               if (serverResponse.succeeded()) {
 
                 /* comparing the response */
@@ -263,7 +268,9 @@ public class ApiServerVerticleTest {
   @DisplayName("Delete Item[Status:200, Endpoint: /item]")
   void deleteItem200(VertxTestContext testContext) {
 
-    var wrapper = new Object(){ int count = 0; };
+    var wrapper = new Object() {
+      int count = 0;
+    };
 
     fileSytem.readFile("src/test/resources/resourcesToDelete.json", fileRes -> {
       if (fileRes.succeeded()) {
@@ -288,7 +295,7 @@ public class ApiServerVerticleTest {
                   if (serverResponse.result().statusCode() == 200) {
                     wrapper.count++;
                   }
-                  if (wrapper.count == numItems-1){
+                  if (wrapper.count == numItems - 1) {
                     testContext.completeNow();
                   }
                 } else if (serverResponse.failed()) {
@@ -315,8 +322,7 @@ public class ApiServerVerticleTest {
     /* Should give only one item */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
         .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "5")
-        .addQueryParam("geometry", "Point")
-        .addQueryParam("coordinates", "[ 73.874537, 18.528311 ]")
+        .addQueryParam("geometry", "Point").addQueryParam("coordinates", "[ 73.874537, 18.528311 ]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -892,8 +898,8 @@ public class ApiServerVerticleTest {
     logger.info("singleAttributeSearchTest");
 
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
-        .addQueryParam("value", "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/pscdcl/"
-            + "aqm-bosch-climo/Ambedkar society circle_29]]")
+        .addQueryParam("value", "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/"
+                + "rs.iudx.org.in/aqm-bosch-climo/Ambedkar society circle_29]]")
         .send(ar -> {
           if (ar.succeeded()) {
             assertEquals(200, ar.result().statusCode());
@@ -915,9 +921,9 @@ public class ApiServerVerticleTest {
 
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
         .addQueryParam("value",
-            "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/pscd"
-                + "cl/aqm-bosch-climo/Ambedkar society circle_29,rbccps.org/aa9d66a000d94a78895d"
-                + "e8d4c0b3a67f3450e531/pscdcl/aqm-bosch-climo/Appa_Balwant_Square_30]]")
+            "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.i"
+                + "udx.org.in/aqm-bosch-climo/Ambedkar society circle_29,datakaveri.org/f7e044e"
+                + "ee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Dr Baba Saheb Ambedkar Sethu Junction_3]]")
         .send(ar -> {
           if (ar.succeeded()) {
             assertEquals(200, ar.result().statusCode());
@@ -933,7 +939,7 @@ public class ApiServerVerticleTest {
   @Order(27)
   @DisplayName("non-existing value")
   void nonExistingValueTest(VertxTestContext testContext) {
-    // TODO: This test case will not pass because of assert failure
+
     String apiURL = "search?property=[id]&value=[[rbccps.org/aa9d66a000d94a788"
         + "95de8d4c0b3a67f3450e531/pscdcl/aqm-bosch-climo/Appa_Balwant_Square_900]]";
     logger.info("Url is " + BASE_URL + apiURL);
@@ -974,7 +980,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Multi Attribute search")
   void multiAttributeSearchtest(VertxTestContext testContext) {
     String apiURL =
-        "search?property=[tags,deviceId.keyword]&value=[[aqm],[8cff12b2-b8be-1230-c5f6-ca96b4e4e441,climo]]";
+        "search?property=[tags,deviceId]&value=[[aqm],[8cff12b2-b8be-1230-c5f6-ca96b4e4e441,climo]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1420,8 +1426,7 @@ public class ApiServerVerticleTest {
     /* Should give only one item */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
         .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "5")
-        .addQueryParam("geometry", "Point")
-        .addQueryParam("coordinates", "[ 73.874537, 18.528311 ]")
+        .addQueryParam("geometry", "Point").addQueryParam("coordinates", "[ 73.874537, 18.528311 ]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -1482,7 +1487,8 @@ public class ApiServerVerticleTest {
 
     logger.info("starting countAttribute200");
 
-    String id = "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]";
+    String id =
+        "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]";
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[id]")
         .addQueryParam("value", id).send(serverResponse -> {
@@ -1513,8 +1519,10 @@ public class ApiServerVerticleTest {
 
     logger.info("starting countAttributeMultiValue200");
 
-    String id1 = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28";
-    String id2 = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/BopadiSquare_65";
+    String id1 =
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28";
+    String id2 =
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/BopadiSquare_65";
 
     String id = "[[" + id1 + "," + id2 + "]]";
 
@@ -1577,7 +1585,8 @@ public class ApiServerVerticleTest {
     logger.info("starting countMultiAttribute200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[itemStatus,deviceId]")
+    client.get(PORT, HOST, BASE_URL.concat("count"))
+        .addQueryParam("property", "[itemStatus,deviceId]")
         .addQueryParam("value", "[[ACTIVE, INACTIVE],[b3ec32ff-fa7d-64fa-c0af-272e25d314e9]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
@@ -1608,7 +1617,8 @@ public class ApiServerVerticleTest {
     logger.info("starting countNestedAttribute200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[deviceModelInfo.name]")
+    client.get(PORT, HOST, BASE_URL.concat("count"))
+        .addQueryParam("property", "[deviceModelInfo.name]")
         .addQueryParam("value", "[[Bosch-Climo]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
