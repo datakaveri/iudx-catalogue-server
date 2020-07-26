@@ -181,7 +181,7 @@ public class DatabaseServiceTest {
         .put(Constants.GEOPROPERTY, Constants.GEO_KEY);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.8785177,
+      assertEquals(73.9113707,
           response.getJsonArray(Constants.RESULT).getJsonObject(0).getJsonObject(Constants.LOCATION)
               .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES_KEY)
               .getDouble(0));
@@ -231,7 +231,7 @@ public class DatabaseServiceTest {
         .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.815409,
+      assertEquals(73.783532,
           response.getJsonArray(Constants.RESULT).getJsonObject(0).getJsonObject(Constants.LOCATION)
               .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES_KEY)
               .getDouble(0));
@@ -305,7 +305,7 @@ public class DatabaseServiceTest {
         .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.8843632,
+      assertEquals(73.874537,
           response.getJsonArray(Constants.RESULT).getJsonObject(0).getJsonObject(Constants.LOCATION)
               .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES_KEY)
               .getDouble(0));
@@ -391,7 +391,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.8785177,
+        assertEquals(73.9113707,
             response.getJsonArray(Constants.RESULT).getJsonObject(0)
                 .getJsonObject(Constants.LOCATION).getJsonObject(Constants.GEOMETRY)
                 .getJsonArray(Constants.COORDINATES_KEY).getDouble(0));
@@ -410,7 +410,7 @@ public class DatabaseServiceTest {
         .put(Constants.GEORELATION, Constants.WITHIN).put(Constants.GEOPROPERTY, Constants.GEO_KEY);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(4, response.getInteger(Constants.COUNT));
+      assertEquals(5, response.getInteger(Constants.COUNT));
       testContext.completeNow();
     })));
   }
@@ -459,7 +459,7 @@ public class DatabaseServiceTest {
         .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(1, response.getInteger(Constants.COUNT));
+      assertEquals(3, response.getInteger(Constants.COUNT));
       testContext.completeNow();
     })));
   }
@@ -477,7 +477,7 @@ public class DatabaseServiceTest {
         .put(Constants.SEARCH_TYPE, Constants.SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(32, response.getInteger(Constants.COUNT));
+      assertEquals(50, response.getInteger(Constants.COUNT));
       testContext.completeNow();
     })));
   }
@@ -511,8 +511,9 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject().put(Constants.SEARCH_TYPE, Constants.ATTRIBUTE_SEARCH)
         .put(Constants.PROPERTY, new JsonArray().add(Constants.ID)).put(Constants.VALUE,
-            new JsonArray().add(new JsonArray().add("rbccps.org/aa9d66a000d94a78895de8d4c0b3a6"
-                + "7f3450e531/pscdcl/aqm-bosch-climo/Ambedkar society circle_29")));
+            new JsonArray().add(
+                new JsonArray().add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
+                    + "iudx.org.in/aqm-bosch-climo/Ambedkar society circle_29")));
 
     /* requesting db service */
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
@@ -538,14 +539,15 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject().put(Constants.SEARCH_TYPE, Constants.ATTRIBUTE_SEARCH)
         .put(Constants.PROPERTY, new JsonArray().add(Constants.ID)).put(Constants.VALUE,
             new JsonArray().add(new JsonArray()
-                .add("rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/aqm-bosch-c"
-                    + "limo/Ambedkar society circle_29")
-                .add("rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/aqm-bosch-cl"
-                    + "imo/Blue Diamond Square (Hotel Taj)_10")));
+                .add(
+                    "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bos"
+                        + "ch-climo/Ambedkar society circle_29")
+                .add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in"
+                        + "/aqm-bosch-climo/Blue Diamond Square (Hotel Taj)_10")));
 
     /* requesting db service */
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.879657,
+      assertEquals(73.88559,
           response.getJsonArray(Constants.RESULT).getJsonObject(0).getJsonObject(Constants.LOCATION)
               .getJsonObject(Constants.GEOMETRY).getJsonArray(Constants.COORDINATES_KEY)
               .getDouble(0));
@@ -613,7 +615,7 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject().put(Constants.SEARCH_TYPE, Constants.ATTRIBUTE_SEARCH)
         .put(Constants.PROPERTY,
-            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEYWORD))
+            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEY))
         .put(Constants.VALUE, new JsonArray().add(new JsonArray().add(Constants.TAG_AQM))
             .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
 
@@ -641,7 +643,7 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject().put(Constants.SEARCH_TYPE, Constants.ATTRIBUTE_SEARCH)
         .put(Constants.PROPERTY,
-            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEYWORD.concat("invalid")))
+            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEY.concat("invalid")))
         .put(Constants.VALUE, new JsonArray().add(new JsonArray().add(Constants.TAG_AQM))
             .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
 
@@ -666,7 +668,7 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject().put(Constants.SEARCH_TYPE, Constants.ATTRIBUTE_SEARCH)
         .put(Constants.PROPERTY,
-            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEYWORD))
+            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEY))
         .put(Constants.VALUE,
             new JsonArray().add(new JsonArray().add(Constants.TAG_AQM.concat("invalidTag")))
                 .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
@@ -693,7 +695,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject()
         .put(Constants.SEARCH_TYPE, Constants.RESPONSE_FILTER.concat(Constants.ATTRIBUTE_SEARCH))
         .put(Constants.PROPERTY,
-            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEYWORD))
+            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEY))
         .put(Constants.VALUE,
             new JsonArray().add(new JsonArray().add(Constants.TAG_AQM))
                 .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")))
@@ -743,7 +745,7 @@ public class DatabaseServiceTest {
             Constants.RESPONSE_FILTER.concat(Constants.ATTRIBUTE_SEARCH)
                 .concat(Constants.GEO_SEARCH))
         .put(Constants.PROPERTY,
-            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEYWORD))
+            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEY))
         .put(Constants.VALUE,
             new JsonArray().add(new JsonArray().add(Constants.TAG_AQM))
                 .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")))
@@ -796,7 +798,7 @@ public class DatabaseServiceTest {
             Constants.RESPONSE_FILTER.concat(Constants.ATTRIBUTE_SEARCH)
                 .concat(Constants.TEXT_SEARCH))
         .put(Constants.PROPERTY,
-            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEYWORD))
+            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEY))
         .put(Constants.VALUE,
             new JsonArray().add(new JsonArray().add(Constants.TAG_AQM))
                 .add(new JsonArray().add("05fbae93-d3f7-0bbe-dd5d-2c2b4180edc7")))
@@ -932,7 +934,7 @@ public class DatabaseServiceTest {
             Constants.RESPONSE_FILTER.concat(Constants.ATTRIBUTE_SEARCH)
                 .concat(Constants.GEO_SEARCH).concat(Constants.TEXT_SEARCH))
         .put(Constants.PROPERTY,
-            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEYWORD))
+            new JsonArray().add(Constants.TAGS).add(Constants.DEVICEID_KEY))
         .put(Constants.VALUE,
             new JsonArray().add(new JsonArray().add(Constants.TAG_AQM))
                 .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")))

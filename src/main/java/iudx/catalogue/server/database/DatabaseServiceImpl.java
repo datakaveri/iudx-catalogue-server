@@ -927,7 +927,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         String textAttr = request.getString(Constants.Q_KEY);
 
         /* constructing db queries */
-        filterQuery.add(new JsonObject().put(Constants.STRING_QUERY_KEY,
+        mustQuery.add(new JsonObject().put(Constants.STRING_QUERY_KEY,
             new JsonObject().put(Constants.QUERY_KEY, textAttr)));
       }
     }
@@ -948,43 +948,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         JsonArray propertyAttrs = request.getJsonArray(Constants.PROPERTY);
         JsonArray valueAttrs = request.getJsonArray(Constants.VALUE);
 
-        if (propertyAttrs.size() == 1) {
-
-          /* fetching values from request */
-          String propertyString = propertyAttrs.getString(0);
-          JsonArray valueAttr = valueAttrs.getJsonArray(0);
-
-          if (propertyString.equalsIgnoreCase(Constants.TAGS)) {
-
-            String valueAttrStr = valueAttr.toString().replaceAll("\\[", "").replaceAll("\\]", "")
-                .replaceAll("\"", "");
-
-            /* constructing db queries using "match" and "query" */
-            filterQuery.add(new JsonObject().put(Constants.MATCH_KEY, new JsonObject()
-                .put(propertyString, new JsonObject().put(Constants.QUERY_KEY, valueAttrStr))));
-
-          } else if (propertyString.contains(".")) {
-
-            /* constructing db queries using "terms" with values as JsonArray */
-            filterQuery.add(new JsonObject().put(Constants.TERMS_KEY,
-                new JsonObject().put(propertyString, valueAttr)));
-
-          } else if (propertyString.equalsIgnoreCase(Constants.ID)) {
-
-            /* constructing db queries using "terms" with values as JsonArray */
-            filterQuery.add(new JsonObject().put(Constants.TERMS_KEY,
-                new JsonObject().put(Constants.ID_KEYWORD, valueAttr)));
-
-          } else {
-
-            /* constructing db queries using "terms" with values as JsonArray */
-            filterQuery.add(new JsonObject().put(Constants.TERMS_KEY,
-                new JsonObject().put(propertyString, valueAttr)));
-
-          }
-
-          /* For multi-attribute property and values search */
-        } else if (propertyAttrs.size() > 1 && propertyAttrs.size() == valueAttrs.size()) {
+        /* For attribute property and values search */
+        if (propertyAttrs.size() == valueAttrs.size()) {
 
           /* Mapping and constructing the value attributes with the property attributes for query */
           for (int i = 0; i < valueAttrs.size(); i++) {
@@ -995,16 +960,27 @@ public class DatabaseServiceImpl implements DatabaseService {
             for (int j = 0; j < valueArray.size(); j++) {
               JsonObject matchQuery = new JsonObject();
 
-              /* tag related queries using "match" and "query" */
-              if (propertyAttrs.getString(i).equals(Constants.TAGS)) {
-                matchQuery.put(propertyAttrs.getString(i), new JsonObject().put(Constants.QUERY_KEY,
-                    matchQuery.getString(Constants.QUERY_KEY, "").concat(valueArray.getString(j))));
-                shouldQuery.add(new JsonObject().put(Constants.MATCH_KEY, matchQuery));
+              /* Attribute related queries using "match" and without the ".keyword" */
+              if (propertyAttrs.getString(i).equals(Constants.TAGS)
+                  || propertyAttrs.getString(i).equals(Constants.DESCRIPTION_ATTR)
+                  || propertyAttrs.getString(i).startsWith(Constants.LOCATION)) {
 
-              } else {
                 matchQuery.put(propertyAttrs.getString(i), valueArray.getString(j));
                 shouldQuery.add(new JsonObject().put(Constants.MATCH_KEY, matchQuery));
 
+                /* Attribute related queries using "match" and with the ".keyword" */
+              } else {
+                /* checking keyword in the query paramters */
+                if (propertyAttrs.getString(i).endsWith(Constants.KEYWORD_KEY)) {
+                  matchQuery.put(propertyAttrs.getString(i), valueArray.getString(j));
+
+                }else {
+
+                  /* add keyword if not avaialble */
+                  matchQuery.put(propertyAttrs.getString(i).concat(Constants.KEYWORD_KEY),
+                      valueArray.getString(j));
+                }
+                shouldQuery.add(new JsonObject().put(Constants.MATCH_KEY, matchQuery));
               }
             }
             mustQuery.add(new JsonObject().put(Constants.BOOL_KEY,
