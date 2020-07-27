@@ -700,7 +700,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     HttpServerRequest request = routingContext.request();
 
-    /** Add default headers to response*/
+    /** Add default headers to response */
     HttpServerResponse response = routingContext.response();
     response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON);
 
@@ -727,10 +727,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* checking and comparing itemType from the request body */
     if (docItemTypes.size() != 1) {
       logger.error("InvalidValue, 'type' attribute is missing, empty, or invalid");
-      response.setStatusCode(400)
-              .end(new ResponseHandler.Builder()
-                    .withStatus(Constants.INVALID_VALUE)
-              .build().toJsonString());
+      response.setStatusCode(400).end(
+          new ResponseHandler.Builder().withStatus(Constants.INVALID_VALUE).build().toJsonString());
       return;
     }
 
@@ -739,15 +737,12 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* checking auhthentication info in requests */
     if (request.headers().contains(Constants.HEADER_TOKEN)) {
-      authenticationInfo.put(Constants.HEADER_TOKEN,
-                              request.getHeader(Constants.HEADER_TOKEN))
-                        .put(Constants.OPERATION, Constants.POST);
+      authenticationInfo.put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
+          .put(Constants.OPERATION, Constants.POST);
     } else {
       logger.info("Unathorized CUD operation");
-      response.setStatusCode(401)
-              .end(new ResponseHandler.Builder()
-                        .withStatus(Constants.INVALID_VALUE)
-              .build().toJsonString());
+      response.setStatusCode(401).end(
+          new ResponseHandler.Builder().withStatus(Constants.INVALID_VALUE).build().toJsonString());
       return;
     }
 
@@ -767,29 +762,20 @@ public class ApiServerVerticle extends AbstractVerticle {
         /** Introspect token and authorize operation */
         authenticator.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
           if (authhandler.failed()) {
-            response.setStatusCode(401)
-                    .end(authhandler.cause().toString());
+            response.setStatusCode(401).end(authhandler.cause().toString());
             return;
-          }
-          else if (authhandler.result()
-                  .getString(Constants.STATUS)
-                  .equals(Constants.ERROR)) {
+          } else if (authhandler.result().getString(Constants.STATUS).equals(Constants.ERROR)) {
             logger.info("Authentication failed");
-            response.setStatusCode(401)
-                    .end(authhandler.cause().toString());
-                  }
-          else if (authhandler.result()
-                  .getString(Constants.STATUS)
-                  .equals(Constants.SUCCESS)) {
-            logger.info("Authenticated item creation request "
-                .concat(authhandler.result().toString()));
+            response.setStatusCode(401).end(authhandler.cause().toString());
+          } else if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
+            logger.info(
+                "Authenticated item creation request ".concat(authhandler.result().toString()));
 
             /* Link Validating the request to ensure item correctness */
             validator.validateItem(requestBody, valhandler -> {
               if (valhandler.failed()) {
                 logger.error("Item validation failed".concat(valhandler.cause().toString()));
-                response.setStatusCode(500)
-                        .end(valhandler.cause().toString());
+                response.setStatusCode(500).end(valhandler.cause().toString());
               }
               if (valhandler.succeeded()) {
                 logger.info("Item link validation successful");
@@ -798,18 +784,16 @@ public class ApiServerVerticle extends AbstractVerticle {
                 database.createItem(valhandler.result(), dbhandler -> {
                   if (dbhandler.failed()) {
                     logger.error("Item creation failed".concat(dbhandler.cause().toString()));
-                    response.setStatusCode(500)
-                            .end(dbhandler.cause().toString());
+                    response.setStatusCode(500).end(dbhandler.cause().toString());
                   }
                   if (dbhandler.succeeded()) {
                     logger.info("Item created".concat(dbhandler.result().toString()));
-                    response.setStatusCode(201)
-                            .end(dbhandler.result().toString());
+                    response.setStatusCode(201).end(dbhandler.result().toString());
                   }
                 });
               }
             });
-          } 
+          }
         });
       }
     });
@@ -840,18 +824,11 @@ public class ApiServerVerticle extends AbstractVerticle {
     String instanceID = request.getHeader(Constants.HEADER_HOST);
 
     /* Building complete itemID from HTTP request path parameters */
-    String itemId =
-        routingContext
-            .pathParam(Constants.RESOURCE_ITEM)
-            .concat("/")
-            .concat(
-                routingContext
-                    .pathParam(Constants.RESOURCE_GRP_ITEM)
-                    .concat("/")
-                    .concat(routingContext.pathParam(Constants.RESOURCE_SVR_ITEM))
-                    .concat("/")
-                    .concat(routingContext.pathParam(Constants.PROVIDER_ITEM).concat("/"))
-                    .concat(routingContext.pathParam(Constants.DATA_DES_ITEM)));
+    String itemId = routingContext.pathParam(Constants.RESOURCE_ITEM).concat("/")
+        .concat(routingContext.pathParam(Constants.RESOURCE_GRP_ITEM).concat("/")
+            .concat(routingContext.pathParam(Constants.RESOURCE_SVR_ITEM)).concat("/")
+            .concat(routingContext.pathParam(Constants.PROVIDER_ITEM).concat("/"))
+            .concat(routingContext.pathParam(Constants.DATA_DES_ITEM)));
 
     logger.info("Updating an item, Id: ".concat(itemId));
 
@@ -867,74 +844,51 @@ public class ApiServerVerticle extends AbstractVerticle {
             .put(Constants.OPERATION, Constants.PUT);
 
 
-      String providerId = requestBody.getString(Constants.REL_PROVIDER);
+        String providerId = requestBody.getString(Constants.REL_PROVIDER);
 
-      JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
+        JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
 
 
         /* Authenticating the request */
-        authenticator.tokenInterospect(
-            authRequest,
-            authenticationInfo,
-            authhandler -> {
-              if (authhandler.failed()) {
-                response
-                    .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                    .setStatusCode(401)
-                    .end(authhandler.cause().toString());
-                return;
-              }
-              if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
-                logger.info(
-                    "Authenticating item update request ".concat(authhandler.result().toString()));
-                /* Validating the request */
-                validator.validateItem(
-                    requestBody,
-                    valhandler -> {
-                      if (valhandler.succeeded()) {
-                        logger.info(
-                            "Item update validated ".concat(authhandler.result().toString()));
-                        /* Requesting database service, creating a item */
-                        database.updateItem(
-                            requestBody,
-                            dbhandler -> {
-                              if (dbhandler.succeeded()) {
-                                logger.info("Item updated ".concat(dbhandler.result().toString()));
-                                response
-                                    .putHeader(
-                                        Constants.HEADER_CONTENT_TYPE,
-                                        Constants.MIME_APPLICATION_JSON)
-                                    .setStatusCode(200)
-                                    .end(dbhandler.result().toString());
-                              } else if (dbhandler.failed()) {
-                                logger.error(
-                                    "Item update failed ".concat(dbhandler.cause().toString()));
-                                response
-                                    .putHeader(
-                                        Constants.HEADER_CONTENT_TYPE,
-                                        Constants.MIME_APPLICATION_JSON)
-                                    .setStatusCode(500)
-                                    .end(dbhandler.cause().toString());
-                              }
-                            });
-                      } else if (valhandler.failed()) {
-                        logger.error(
-                            "Item validation failed ".concat(valhandler.cause().toString()));
-                        response
-                            .putHeader(
-                                Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                            .setStatusCode(500)
-                            .end(valhandler.cause().toString());
-                      }
-                    });
-              } else {
-                logger.error("Unathorized request ".concat(authhandler.cause().toString()));
-                response
-                    .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                    .setStatusCode(401)
-                    .end(authhandler.cause().toString());
+        authenticator.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
+          if (authhandler.failed()) {
+            response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(401).end(authhandler.cause().toString());
+            return;
+          }
+          if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
+            logger.info(
+                "Authenticating item update request ".concat(authhandler.result().toString()));
+            /* Validating the request */
+            validator.validateItem(requestBody, valhandler -> {
+              if (valhandler.succeeded()) {
+                logger.info("Item update validated ".concat(authhandler.result().toString()));
+                /* Requesting database service, creating a item */
+                database.updateItem(requestBody, dbhandler -> {
+                  if (dbhandler.succeeded()) {
+                    logger.info("Item updated ".concat(dbhandler.result().toString()));
+                    response
+                        .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                        .setStatusCode(200).end(dbhandler.result().toString());
+                  } else if (dbhandler.failed()) {
+                    logger.error("Item update failed ".concat(dbhandler.cause().toString()));
+                    response
+                        .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                        .setStatusCode(500).end(dbhandler.cause().toString());
+                  }
+                });
+              } else if (valhandler.failed()) {
+                logger.error("Item validation failed ".concat(valhandler.cause().toString()));
+                response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                    .setStatusCode(500).end(valhandler.cause().toString());
               }
             });
+          } else {
+            logger.error("Unathorized request ".concat(authhandler.cause().toString()));
+            response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(401).end(authhandler.cause().toString());
+          }
+        });
       } else {
         logger.error("InvalidHeader 'token' header");
         response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
@@ -973,12 +927,11 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Building complete itemID from HTTP request path parameters */
     String itemId = "";
-    itemId = itemId 
-      + routingContext.pathParam(Constants.PROVIDER_ORG) + "/"
-      + routingContext.pathParam(Constants.PROVIDER_ITEM) + "/"
-      + routingContext.pathParam(Constants.RESOURCE_SVR_ITEM) + "/"
-      + routingContext.pathParam(Constants.RESOURCE_GRP_ITEM) + "/"
-      + routingContext.pathParam(Constants.RESOURCE_ITEM);
+    itemId = itemId + routingContext.pathParam(Constants.PROVIDER_ORG) + "/"
+        + routingContext.pathParam(Constants.PROVIDER_ITEM) + "/"
+        + routingContext.pathParam(Constants.RESOURCE_SVR_ITEM) + "/"
+        + routingContext.pathParam(Constants.RESOURCE_GRP_ITEM) + "/"
+        + routingContext.pathParam(Constants.RESOURCE_ITEM);
 
 
     /* Populating query mapper */
@@ -990,8 +943,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* checking auhthentication info in requests */
     if (request.headers().contains(Constants.HEADER_TOKEN)) {
-      authenticationInfo
-          .put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
+      authenticationInfo.put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
           .put(Constants.OPERATION, Constants.DELETE);
 
       String providerId = String.join("/", Arrays.copyOfRange(itemId.split("/"), 0, 2));
@@ -1000,46 +952,32 @@ public class ApiServerVerticle extends AbstractVerticle {
       JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
 
       /* Authenticating the request */
-      authenticator.tokenInterospect(
-          authRequest,
-          authenticationInfo,
-          authhandler -> {
-            if (authhandler.failed()) {
-              response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(401)
-                .end(authhandler.cause().toString());
-              return;
-            }
-            if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
-              logger.info(
-                  "Authenticating item delete request".concat(authhandler.result().toString()));
-              /* Requesting database service, creating a item */
-              database.deleteItem(
-                  requestBody,
-                  dbhandler -> {
-                    if (dbhandler.succeeded()) {
-                      logger.info("Item deleted".concat(dbhandler.result().toString()));
-                      response
-                          .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                          .setStatusCode(200)
-                          .end(dbhandler.result().toString());
-                    } else if (dbhandler.failed()) {
-                      logger.error("Item deletion failed".concat(dbhandler.cause().toString()));
-                      response
-                          .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                          .setStatusCode(400)
-                          .end(dbhandler.cause().toString());
-                    }
-                  });
-            } else {
-              logger.error("Unathorized request".concat(authhandler.cause().toString()));
-              response
-                  .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                  .setStatusCode(401)
-                  .end(authhandler.cause().toString());
+      authenticator.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
+        if (authhandler.failed()) {
+          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+              .setStatusCode(401).end(authhandler.cause().toString());
+          return;
+        }
+        if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
+          logger.info("Authenticating item delete request".concat(authhandler.result().toString()));
+          /* Requesting database service, creating a item */
+          database.deleteItem(requestBody, dbhandler -> {
+            if (dbhandler.succeeded()) {
+              logger.info("Item deleted".concat(dbhandler.result().toString()));
+              response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                  .setStatusCode(200).end(dbhandler.result().toString());
+            } else if (dbhandler.failed()) {
+              logger.error("Item deletion failed".concat(dbhandler.cause().toString()));
+              response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                  .setStatusCode(400).end(dbhandler.cause().toString());
             }
           });
+        } else {
+          logger.error("Unathorized request".concat(authhandler.cause().toString()));
+          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+              .setStatusCode(401).end(authhandler.cause().toString());
+        }
+      });
     } else {
       logger.error("Invalid 'token' header");
       response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
@@ -1069,18 +1007,11 @@ public class ApiServerVerticle extends AbstractVerticle {
     String instanceID = request.getHeader(Constants.HEADER_HOST);
 
     /* Building complete itemID from HTTP request path parameters */
-    String itemId =
-        routingContext
-            .pathParam(Constants.RESOURCE_ITEM)
-            .concat("/")
-            .concat(
-                routingContext
-                    .pathParam(Constants.RESOURCE_GRP_ITEM)
-                    .concat("/")
-                    .concat(routingContext.pathParam(Constants.RESOURCE_SVR_ITEM))
-                    .concat("/")
-                    .concat(routingContext.pathParam(Constants.PROVIDER_ITEM).concat("/"))
-                    .concat(routingContext.pathParam(Constants.DATA_DES_ITEM)));
+    String itemId = routingContext.pathParam(Constants.RESOURCE_ITEM).concat("/")
+        .concat(routingContext.pathParam(Constants.RESOURCE_GRP_ITEM).concat("/")
+            .concat(routingContext.pathParam(Constants.RESOURCE_SVR_ITEM)).concat("/")
+            .concat(routingContext.pathParam(Constants.PROVIDER_ITEM).concat("/"))
+            .concat(routingContext.pathParam(Constants.DATA_DES_ITEM)));
 
     /* Populating query mapper */
     requestBody.put(Constants.ID, itemId);
@@ -1366,7 +1297,7 @@ public class ApiServerVerticle extends AbstractVerticle {
           logger.error(
               "Issue in listing resource relationship ".concat(dbhandler.cause().toString()));
           response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-              .setStatusCode(400).end(dbhandler.cause().toString());
+              .setStatusCode(400).end(dbhandler.cause().getLocalizedMessage().toString());
         }
       });
     } else {
@@ -1421,7 +1352,7 @@ public class ApiServerVerticle extends AbstractVerticle {
           logger.error(
               "Issue in listing resourceGroup relationship ".concat(dbhandler.cause().toString()));
           response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-              .setStatusCode(400).end(dbhandler.cause().toString());
+              .setStatusCode(400).end(dbhandler.cause().getLocalizedMessage().toString());
         }
       });
     } else {
@@ -1468,7 +1399,7 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
       }
-      });
+    });
   }
 
   /**
@@ -1501,8 +1432,8 @@ public class ApiServerVerticle extends AbstractVerticle {
       } else if (handler.failed()) {
         logger.error(handler.cause().getMessage());
         response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-        response.setStatusCode(500);
-        response.end(Constants.INTERNAL_SERVER_ERROR);
+        response.setStatusCode(400);
+        response.end(handler.cause().getLocalizedMessage());
       }
     });
   }
@@ -1517,38 +1448,30 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject queryJson = new JsonObject();
     String instanceID = routingContext.request().host();
     String id = routingContext.request().getParam(Constants.ID);
-    queryJson
-        .put(Constants.INSTANCE_ID_KEY, instanceID)
-        .put(Constants.ID, id)
+    queryJson.put(Constants.INSTANCE_ID_KEY, instanceID).put(Constants.ID, id)
         .put(Constants.RELATIONSHIP, Constants.REL_PROVIDER);
     logger.info("search query : " + queryJson);
-    database.listProviderRelationship(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(
-                    Constants.HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-            response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
-          }
-        });
+    database.listProviderRelationship(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString(Constants.STATUS);
+        if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.error(handler.cause().getMessage());
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        response.setStatusCode(400);
+        response.end(handler.cause().getLocalizedMessage());
+      }
+    });
   }
 
   /**
@@ -1561,38 +1484,30 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject queryJson = new JsonObject();
     String instanceID = routingContext.request().host();
     String id = routingContext.request().getParam(Constants.ID);
-    queryJson
-        .put(Constants.INSTANCE_ID_KEY, instanceID)
-        .put(Constants.ID, id)
+    queryJson.put(Constants.INSTANCE_ID_KEY, instanceID).put(Constants.ID, id)
         .put(Constants.RELATIONSHIP, Constants.REL_TYPE);
     logger.info("search query : " + queryJson);
-    database.listTypes(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(
-                    Constants.HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-            response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
-          }
-        });
+    database.listTypes(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString(Constants.STATUS);
+        if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        logger.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        logger.error(handler.cause().getMessage());
+        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        response.setStatusCode(500);
+        response.end(Constants.INTERNAL_SERVER_ERROR);
+      }
+    });
   }
 
   /**

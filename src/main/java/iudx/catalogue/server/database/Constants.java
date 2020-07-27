@@ -30,6 +30,9 @@ public class Constants {
 
   /* Database */
   static final String CAT_INDEX_NAME = "testindex";
+  // TODO: To be removed after code completion
+  static final String REL_API_INDEX_NAME = "rel_api";
+  static final String REL_API_SEARCH_INDEX = REL_API_INDEX_NAME + "/_search";
   static final String CAT_TEST_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
   static final String CAT_TEST_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
   static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
@@ -112,5 +115,17 @@ public class Constants {
   public static final String TAG_AQM = "aqm";
   public static final String GEO_SEARCH = "geoSearch_";
   public static final String DESCRIPTION_ATTR = "description";
+
+  public static final String FORWARD_SLASH = "/";
+  public static final String RELATIONSHIP = "relationship";
+  public static final String REL_RESOURCE = "resource";
+  public static final String REL_RESOURCE_GRP = "resourceGroup";
+  public static final String REL_RESOURCE_SVR = "resourceServer";
+  public static final String REL_PROVIDER = "provider";
+  public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
+  public static final String ITEM_TYPE_RESOURCE_GROUP = "iudx:ResourceGroup";
+  public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
+  public static final String ITEM_TYPE_PROVIDER = "iudx:Provider";
+  public static final String REL_TYPE = "type";
 
 }
