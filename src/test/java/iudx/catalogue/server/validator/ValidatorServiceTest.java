@@ -10,7 +10,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,14 +21,12 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import iudx.catalogue.server.database.Constants;
-import iudx.catalogue.server.database.DatabaseServiceTest;
 
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ValidatorServiceTest {
 
-  private static Logger logger = LoggerFactory.getLogger(DatabaseServiceTest.class);
+  private static Logger logger = LoggerFactory.getLogger(ValidatorServiceTest.class);
   private static ValidatorService validator;
   private static Vertx vertxObj;
   private static RestClient client;
@@ -72,9 +69,8 @@ public class ValidatorServiceTest {
   }
 
   @Test
-  @Order(1)
-  @DisplayName("Test Link Validation")
-  void validLinkTest(VertxTestContext testContext) {
+  @DisplayName("Test Link Validation [Resource]")
+  void validResourceLinkTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request
         .put("type", new JsonArray().add("iudx:Resource"))
@@ -95,9 +91,30 @@ public class ValidatorServiceTest {
   }
 
   @Test
-  @Order(2)
-  @DisplayName("Test Invalid Link")
-  void invalidLinkTest(VertxTestContext testContext) {
+  @DisplayName("Test Link Validation [ResourceGroup]")
+  void validResourceGroupLinkTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject();
+    request
+        .put("type", new JsonArray().add("iudx:ResourceGroup"))
+        .put("id", "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors")
+        .put(
+            "provider",
+            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors")
+        .put(
+            "resourceServer", "rbccps.org/00D75505FD5256B142AFD9C0E32790FA7180D500/rs.iudx.org.in");
+    validator.validateItem(
+        request,
+        testContext.succeeding(
+            response ->
+                testContext.verify(
+                    () -> {
+                      testContext.completeNow();
+                    })));
+  }
+
+  @Test
+  @DisplayName("Test Invalid Link [Resource]")
+  void invalidResourceLinkTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request
         .put("type", new JsonArray().add("iudx:Resource"))
@@ -118,9 +135,52 @@ public class ValidatorServiceTest {
   }
 
   @Test
-  @Order(3)
-  @DisplayName("Valid Schema Test")
-  void validSchemaTest(VertxTestContext testContext) {
+  @DisplayName("Test Invalid Link [ResourceGroup]")
+  void invalidResourceGroupLinkTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject();
+    request
+        .put("type", new JsonArray().add("iudx:Resource"))
+        .put("id", "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors")
+        .put(
+            "provider",
+            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors")
+        .put(
+            "resourceServer",
+            "rbccps.org/00D75505FD5256B142AFD9C0E32790FA7180D500/rs.invalid.org.in");
+    validator.validateItem(
+        request,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      testContext.completeNow();
+                    })));
+  }
+
+  @Test
+  @DisplayName("Valid Schema Test [Resource]")
+  void validResourceSchemaTest(VertxTestContext testContext) {
+    try {
+      JsonObject request =
+          new JsonObject(
+              "{\"@context\": \"https://voc.iudx.org.in/\",\"type\": [\"iudx:Resource\"],\"id\": \"rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors/sensorA\",\"name\": \"sensorA\",\"description\": \"Description of this resource\",\"tags\": \"sensor, sensing, resource, battery operated\",\"itemStatus\": \"ACTIVE\",\"resourceGroup\": \"rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors\",\"provider\": \"rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531\",\"itemCreatedAt\": \"2020-07-01T10:03:26+0000\",\"location\": {\"type\": \"Place\",\"address\": \"IISc, Bangalore-560092, India\",\"geometry\": {\"type\": \"Point\",\"coordinates\": [75.92,14.5]}},\"itemModifiedAt\": \"2020-07-01T10:03:26+0000\"}");
+      System.out.println(request.toString());
+      validator.validateSchema(
+          request,
+          testContext.succeeding(
+              response ->
+                  testContext.verify(
+                      () -> {
+                        testContext.completeNow();
+                      })));
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @Test
+  @DisplayName("Valid Schema Test [ResourceGroup]")
+  void validResourceGroupSchemaTest(VertxTestContext testContext) {
     try {
       JsonObject request =
           new JsonObject(
@@ -140,7 +200,6 @@ public class ValidatorServiceTest {
   }
 
   @Test
-  @Order(4)
   @DisplayName("Invalid Schema Test")
   void invalidSchemaTest(VertxTestContext testContext) {
     try {
