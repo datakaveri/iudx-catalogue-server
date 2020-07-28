@@ -71,6 +71,7 @@ public final class CrudApis implements CrudInterface {
 
     /* Contains the cat-item */
     JsonObject requestBody = routingContext.getBodyAsJson();
+    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     JsonObject authenticationInfo = new JsonObject();
 
@@ -89,6 +90,9 @@ public final class CrudApis implements CrudInterface {
         LOGGER.info("Schema validation success");
         String providerId = requestBody.getString(REL_PROVIDER);
         JsonObject authRequest = new JsonObject().put(REL_PROVIDER, providerId);
+        authenticationInfo.put(HEADER_TOKEN,
+                              request.getHeader(HEADER_TOKEN))
+                        .put(OPERATION, POST);
 
         /** Introspect token and authorize operation */
         authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
@@ -102,7 +106,7 @@ public final class CrudApis implements CrudInterface {
                   .equals(ERROR)) {
             LOGGER.info("Authentication failed");
             response.setStatusCode(401)
-                    .end(authhandler.cause().toString());
+                    .end();
                   }
           else if (authhandler.result()
                   .getString(STATUS)
