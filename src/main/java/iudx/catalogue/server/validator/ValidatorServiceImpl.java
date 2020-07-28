@@ -75,6 +75,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   public ValidatorService validateSchema(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
+    logger.info("Reached Validator service validate schema");
     Set<String> type = new HashSet<String>(new JsonArray().getList());
 
     try {

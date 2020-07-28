@@ -9,7 +9,6 @@ import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 import iudx.catalogue.server.apiserver.ApiServerVerticle;
 import iudx.catalogue.server.authenticator.AuthenticationVerticle;
 import iudx.catalogue.server.database.DatabaseVerticle;
-import iudx.catalogue.server.onboarder.OnboarderVerticle;
 import iudx.catalogue.server.validator.ValidatorVerticle;
 
 /**
@@ -75,12 +74,6 @@ public class CatalogueServerDeployer {
                   if (validatorVerticle.succeeded()) {
                     logger.info("The Validator Service is ready");
 
-                    /* Deploy the Onboarder Service Verticle. */
-
-                    vertx.deployVerticle(new OnboarderVerticle(), onboarderVerticle -> {
-                      if (onboarderVerticle.succeeded()) {
-                        logger.info("The Onboarder Service is ready");
-                        
                         /* Deploy the Api Server Verticle. */
 
                         vertx.deployVerticle(new ApiServerVerticle(), apiServerVerticle -> {
@@ -91,11 +84,6 @@ public class CatalogueServerDeployer {
                             logger.info("The Catalogue API Server startup failed !");
                           }
                         });
-                      } else {
-                        logger.info("The Onboarder Service failed !");
-                      }
-                    });
-
                   } else {
                     logger.info("The Validator Service failed !");
                   }

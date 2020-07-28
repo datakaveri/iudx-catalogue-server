@@ -1,5 +1,15 @@
 package iudx.catalogue.server.apiserver;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -10,8 +20,6 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.net.JksOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
@@ -22,20 +30,15 @@ import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
-import iudx.catalogue.server.apiserver.util.Constants;
+
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.apiserver.util.ResponseHandler;
+
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
-import iudx.catalogue.server.onboarder.OnboarderService;
 import iudx.catalogue.server.validator.ValidatorService;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Arrays;
+
+import static iudx.catalogue.server.apiserver.util.Constants.*;
 
 /**
  * The Catalogue Server API Verticle.
@@ -58,252 +61,235 @@ import java.util.Arrays;
  */
 public class ApiServerVerticle extends AbstractVerticle {
 
-  private static final Logger logger = LoggerFactory.getLogger(ApiServerVerticle.class);
-  private Vertx vertx;
+
   private ClusterManager mgr;
   private VertxOptions options;
+
   private ServiceDiscovery discovery;
-  private DatabaseService database;
-  private OnboarderService onboarder;
-  private ValidatorService validator;
-  private AuthenticationService authenticator;
+
+  private DatabaseService dbService;
+  private ValidatorService validationService;
+  private AuthenticationService authService;
+
   private HttpServer server;
+  private CrudApis crudApis;
 
   @SuppressWarnings("unused")
   private Router router;
 
-  private Properties properties;
-  private InputStream inputstream;
   private String keystore;
   private String keystorePassword;
-  private Set<String> itemTypes;
-  private ArrayList<String> geoRels;
-  private ArrayList<String> geometries;
+
+  private Properties properties;
+  private InputStream inputstream;
+
+  private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
 
   /**
-   * This method is used to start the Verticle. It deploys a verticle in a cluster, reads the
-   * configuration, obtains a proxy for the Event bus services exposed through service discovery,
-   * start an HTTPs server at port 8443.
+   * This method is used to start the Verticle and joing a cluster
    *
    * @throws Exception which is a startup exception
    */
   @Override
   public void start() throws Exception {
 
-    /* Create a reference to HazelcastClusterManager. */
-
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
 
     /* Create or Join a Vert.x Cluster. */
-
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
 
-        vertx = res.result();
+        Vertx vertx = res.result();
         router = Router.router(vertx);
+
         properties = new Properties();
         inputstream = null;
+        /* Read the configuration and set the HTTPs server properties. */
+        try {
+          inputstream = new FileInputStream(CONFIG_FILE);
+          properties.load(inputstream);
+          keystore = properties.getProperty(KEYSTORE_FILE_NAME);
+          keystorePassword = properties.getProperty(KEYSTORE_FILE_PASSWORD);
+        } catch (Exception ex) {
+          LOGGER.info(ex.toString());
+        }
 
-        /* HTTP request allowed headers */
-        Set<String> allowedHeaders = new HashSet<>();
-        allowedHeaders.add(Constants.HEADER_ACCEPT);
-        allowedHeaders.add(Constants.HEADER_TOKEN);
-        allowedHeaders.add(Constants.HEADER_CONTENT_LENGTH);
-        allowedHeaders.add(Constants.HEADER_CONTENT_TYPE);
-        allowedHeaders.add(Constants.HEADER_HOST);
-        allowedHeaders.add(Constants.HEADER_ORIGIN);
-        allowedHeaders.add(Constants.HEADER_REFERER);
-        allowedHeaders.add(Constants.HEADER_CORS);
 
-        /* Define the APIs, methods, endpoints and associated methods. */
+        /** Instantiate this server */
+        server = vertx.createHttpServer(new HttpServerOptions()
+                                            .setSsl(true)
+                                            .setKeyStoreOptions(new JksOptions()
+                                                                .setPath(keystore)
+                                                                .setPassword(keystorePassword)));
 
+
+        /** Callback managers */
+        crudApis = new CrudApis();
+
+        /**
+         *
+         * Get proxies and handlers
+         *
+         */
+
+        /* Handler for service discovery */
+        discovery = ServiceDiscovery.create(vertx);
+
+        /* Handler for DatabaseService from service discovery */
+        EventBusService.getProxy(discovery, DatabaseService.class,
+            ar -> {
+              if (ar.succeeded()) {
+                dbService = ar.result();
+                crudApis.setDbService(dbService);
+                LOGGER.info("Service Discovery Success. Service name is : "
+                        + dbService.getClass().getName());
+              } else {
+                LOGGER.fatal("DatabaseService Discovery Failed");
+              }
+            });
+
+        /* Handler for AuthenticationService from service discovery*/
+        EventBusService.getProxy(discovery, AuthenticationService.class,
+            ar -> {
+              if (ar.succeeded()) {
+                authService = ar.result();
+                crudApis.setAuthService(authService);
+                LOGGER.info("Service Discovery Success. Service name is : "
+                        + authService.getClass().getName());
+              } else {
+                LOGGER.fatal("Auth Discovery Failed");
+              }
+            });
+
+        /* Handler for ValidatorService from service discovery*/
+        EventBusService.getProxy(discovery, ValidatorService.class,
+            ar -> {
+              if (ar.succeeded()) {
+                validationService = ar.result();
+                crudApis.setValidatorService(validationService);
+                LOGGER.info("Service Discovery Success. Service name is : "
+                        + validationService.getClass().getName());
+              } else {
+                LOGGER.fatal("ValidatorService Discovery Failed");
+              }
+            });
+
+
+        /**
+         *
+         * API Routes and Callbacks
+         *
+         */
+
+
+        /** 
+         * Routes - Defines the routes and callbacks
+         */
         Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
-        router.route().handler(CorsHandler.create("*").allowedHeaders(allowedHeaders));
+        router.route().handler(CorsHandler.create("*").allowedHeaders(ALLOWED_HEADERS));
 
-        router.route(Constants.ROUTE_APIS).handler(StaticHandler.create());
+        /** Static Resource Handler */
+        router.route(ROUTE_STATIC).handler(StaticHandler.create());
 
-        /* New item create */
-        router.post(Constants.ROUTE_ITEMS).handler(this::createItem);
+        /**
+         * Routes for item creation, deletion and updation
+         */
+        /* Create Item */
+        router.post(ROUTE_ITEMS).produces(MIME_APPLICATION_JSON).handler( routingContext -> {
+          /* checking auhthentication info in requests */
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            crudApis.createItemHandler(routingContext);
+          } else {
+            LOGGER.warn("Unathorized CUD operation");
+            routingContext.response().setStatusCode(401)
+                          .end(new ResponseHandler.Builder()
+                                .withStatus(INVALID_VALUE)
+                                .build().toJsonString());
+          }
+        });
+
+        /* Update Item */
+        router.put(ROUTE_UPDATE_ITEMS).handler(this::updateItem);
+        /* Delete Item */
+        router.delete(ROUTE_DELETE_ITEMS).handler(this::deleteItem);
 
         /* Search for an item */
-        router.get(Constants.ROUTE_SEARCH).handler(this::search);
+        router.get(ROUTE_SEARCH).handler(this::search);
 
         /* list all the tags */
-        router.get(Constants.ROUTE_TAGS).handler(this::listTags);
+        router.get(ROUTE_TAGS).handler(this::listTags);
 
         /* list all the domains */
-        router.get(Constants.ROUTE_DOMAINS).handler(this::listDomains);
+        router.get(ROUTE_DOMAINS).handler(this::listDomains);
 
         /* list all the cities associated with the cataloque instance */
-        router.get(Constants.ROUTE_CITIES).handler(this::listCities);
+        router.get(ROUTE_CITIES).handler(this::listCities);
 
         /* list all the resource server associated with the cataloque instance */
-        router.get(Constants.ROUTE_RESOURCE_SERVERS).handler(this::listResourceServers);
+        router.get(ROUTE_RESOURCE_SERVERS).handler(this::listResourceServers);
 
         /* list all the providers associated with the cataloque instance */
-        router.get(Constants.ROUTE_PROVIDERS).handler(this::listProviders);
+        router.get(ROUTE_PROVIDERS).handler(this::listProviders);
 
         /* list all the resource groups associated with the cataloque instance */
-        router.get(Constants.ROUTE_RESOURCE_GROUPS).handler(this::listResourceGroups);
+        router.get(ROUTE_RESOURCE_GROUPS).handler(this::listResourceGroups);
 
-        /*
-         * Update an item in the database using itemId [itemId=ResourceItem, ResourceGroupItem,
-         * ResourceServerItem, ProviderItem, DataDescriptorItem]
-         */
-        router.put(Constants.ROUTE_UPDATE_ITEMS).handler(this::updateItem);
-
-        /* Delete an item from database using itemId */
-        router.delete(Constants.ROUTE_DELETE_ITEMS).handler(this::deleteItem);
 
         /* list the item from database using itemId */
-        router.get(Constants.ROUTE_LIST_ITEMS).handler(this::listItems);
+        router.get(ROUTE_LIST_ITEMS).handler(this::listItems);
 
         /* Get all resources belonging to a resource group */
-        router.getWithRegex(Constants.ROUTE_LIST_RESOURCE_REL)
+        router.getWithRegex(ROUTE_LIST_RESOURCE_REL)
             .handler(this::listResourceRelationship);
 
         /* Get resource group of an item belonging to a resource */
-        router.getWithRegex(Constants.ROUTE_LIST_RESOURCE_GROUP_REL)
+        router.getWithRegex(ROUTE_LIST_RESOURCE_GROUP_REL)
             .handler(this::listResourceGroupRelationship);
 
         /* Gets the cities configuration from the database */
-        router.get(Constants.ROUTE_UI_CITIES).handler(this::getCities);
+        router.get(ROUTE_UI_CITIES).handler(this::getCities);
 
         /* Create the cities configuration from the database */
-        router.post(Constants.ROUTE_UI_CITIES).handler(this::setCities);
+        router.post(ROUTE_UI_CITIES).handler(this::setCities);
 
         /* Updates the cities configuration from the database */
-        router.put(Constants.ROUTE_UI_CITIES).handler(this::updateCities);
+        router.put(ROUTE_UI_CITIES).handler(this::updateCities);
 
         /* Get all the configuration */
-        router.get(Constants.ROUTE_UI_CONFIG).handler(this::getConfig);
+        router.get(ROUTE_UI_CONFIG).handler(this::getConfig);
 
         /* Creates the configuration */
-        router.post(Constants.ROUTE_UI_CONFIG).handler(this::setConfig);
+        router.post(ROUTE_UI_CONFIG).handler(this::setConfig);
 
         /* Deletes the configuration */
-        router.delete(Constants.ROUTE_UI_CONFIG).handler(this::deleteConfig);
+        router.delete(ROUTE_UI_CONFIG).handler(this::deleteConfig);
 
         /* Updates the existing configuration */
-        router.put(Constants.ROUTE_UI_CONFIG).handler(this::updateConfig);
+        router.put(ROUTE_UI_CONFIG).handler(this::updateConfig);
 
         /* Patches the existing configuration */
-        router.patch(Constants.ROUTE_UI_CONFIG).handler(this::appendConfig);
+        router.patch(ROUTE_UI_CONFIG).handler(this::appendConfig);
 
         /* Get provider relationship to an item */
-        router.getWithRegex(Constants.ROUTE_PROVIDER_REL).handler(this::listProviderRelationship);
+        router.getWithRegex(ROUTE_PROVIDER_REL).handler(this::listProviderRelationship);
 
         /* Get resource server relationship to an item */
-        router.getWithRegex(Constants.ROUTE_RESOURCE_SERVER_REL)
+        router.getWithRegex(ROUTE_RESOURCE_SERVER_REL)
             .handler(this::listResourceServerRelationship);
 
         /* Get list types with the database for an item */
-        router.getWithRegex(Constants.ROUTE_DATA_TYPE).handler(this::listTypes);
+        router.getWithRegex(ROUTE_DATA_TYPE).handler(this::listTypes);
 
         /* Count the Cataloque server items */
-        router.get(Constants.ROUTE_COUNT).handler(this::count);
+        router.get(ROUTE_COUNT).handler(this::count);
 
-        /* Populating itemTypes */
-        itemTypes = new HashSet<String>();
-        itemTypes.add(Constants.ITEM_TYPE_RESOURCE);
-        itemTypes.add(Constants.ITEM_TYPE_RESOURCE_GROUP);
-        itemTypes.add(Constants.ITEM_TYPE_RESOURCE_SERVER);
-        itemTypes.add(Constants.ITEM_TYPE_PROVIDER);
 
-        /* Populating geo spatials relations */
-        geoRels = new ArrayList<String>();
-        geoRels.add(Constants.GEOREL_WITHIN);
-        geoRels.add(Constants.GEOREL_NEAR);
-        geoRels.add(Constants.GEOREL_COVERED_BY);
-        geoRels.add(Constants.GEOREL_INTERSECTS);
-        geoRels.add(Constants.GEOREL_EQUALS);
-        geoRels.add(Constants.GEOREL_DISJOINT);
+        /** Start server */
+        server.requestHandler(router).listen(PORT);
 
-        geometries = new ArrayList<String>();
-        geometries.add(Constants.POINT);
-        geometries.add(Constants.POLYGON);
-        geometries.add(Constants.BBOX);
-        geometries.add(Constants.LINE_STRING);
 
-        /* Read the configuration and set the HTTPs server properties. */
-
-        try {
-
-          inputstream = new FileInputStream(Constants.CONFIG_FILE);
-          properties.load(inputstream);
-
-          keystore = properties.getProperty(Constants.KEYSTORE_FILE_NAME);
-          keystorePassword = properties.getProperty(Constants.KEYSTORE_FILE_PASSWORD);
-
-        } catch (Exception ex) {
-          logger.info(ex.toString());
-        }
-
-        server = vertx.createHttpServer(new HttpServerOptions().setSsl(true)
-            .setKeyStoreOptions(new JksOptions().setPath(keystore).setPassword(keystorePassword)));
-
-        server.requestHandler(router).listen(Constants.PORT);
-
-        /* Get a handler for the Service Discovery interface. */
-
-        discovery = ServiceDiscovery.create(vertx);
-
-        /* Get a handler for the DatabaseService from Service Discovery interface. */
-
-        EventBusService.getProxy(discovery, DatabaseService.class,
-            databaseServiceDiscoveryHandler -> {
-              if (databaseServiceDiscoveryHandler.succeeded()) {
-                database = databaseServiceDiscoveryHandler.result();
-                logger.info(
-                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                        + database.getClass().getName() + " +++++++ ");
-              } else {
-                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-              }
-            });
-        /* Get a handler for the OnboarderService from Service Discovery interface. */
-
-        EventBusService.getProxy(discovery, OnboarderService.class,
-            onboarderServiceDiscoveryHandler -> {
-              if (onboarderServiceDiscoveryHandler.succeeded()) {
-                onboarder = onboarderServiceDiscoveryHandler.result();
-                logger.info(
-                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                        + onboarder.getClass().getName() + " +++++++ ");
-              } else {
-                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-              }
-            });
-        /* Get a handler for the ValidatorService from Service Discovery interface. */
-
-        EventBusService.getProxy(discovery, ValidatorService.class,
-            validatorServiceDiscoveryHandler -> {
-              if (validatorServiceDiscoveryHandler.succeeded()) {
-                validator = validatorServiceDiscoveryHandler.result();
-                logger.info(
-                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                        + validator.getClass().getName() + " +++++++ ");
-              } else {
-                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-              }
-            });
-        /*
-         * Get a handler for the AuthenticationService from Service Discovery interface.
-         */
-
-        EventBusService.getProxy(discovery, AuthenticationService.class,
-            authenticatorServiceDiscoveryHandler -> {
-              if (authenticatorServiceDiscoveryHandler.succeeded()) {
-                authenticator = authenticatorServiceDiscoveryHandler.result();
-                logger.info(
-                    "\n +++++++ Service Discovery  Success. +++++++ \n +++++++ Service name is : "
-                        + authenticator.getClass().getName() + " +++++++ ");
-              } else {
-                logger.info("\n +++++++ Service Discovery Failed. +++++++ ");
-              }
-            });
       }
     });
   }
@@ -325,87 +311,87 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Collection of query parameters from HTTP request */
     MultiMap queryParameters = routingContext.queryParams();
 
-    logger.info("routed to search");
-    logger.info(request.params().toString());
+    LOGGER.info("routed to search");
+    LOGGER.info(request.params().toString());
 
     /* validating proper actual query parameters from request */
-    if ((request.getParam(Constants.PROPERTY) == null || request.getParam(Constants.VALUE) == null)
-        && (request.getParam(Constants.GEOPROPERTY) == null
-            || request.getParam(Constants.GEOREL) == null
-            || request.getParam(Constants.GEOMETRY) == null
-            || request.getParam(Constants.COORDINATES) == null)
+    if ((request.getParam(PROPERTY) == null || request.getParam(VALUE) == null)
+        && (request.getParam(GEOPROPERTY) == null
+            || request.getParam(GEOREL) == null
+            || request.getParam(GEOMETRY) == null
+            || request.getParam(COORDINATES) == null)
         && request
-            .getParam(Constants.Q_VALUE) == null /*
-                                                  * || request.getParam(Constants.LIMIT) == null ||
-                                                  * request.getParam(Constants.OFFSET) == null
+            .getParam(Q_VALUE) == null /*
+                                                  * || request.getParam(LIMIT) == null ||
+                                                  * request.getParam(OFFSET) == null
                                                   */) {
 
-      logger.error("Invalid Syntax");
-      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_SYNTAX)
+      LOGGER.error("Invalid Syntax");
+      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX)
               .build().toJsonString());
       return;
 
       /* checking the values of the query parameters */
-    } else if (request.getParam(Constants.PROPERTY) != null
-        && !request.getParam(Constants.PROPERTY).isBlank()) {
+    } else if (request.getParam(PROPERTY) != null
+        && !request.getParam(PROPERTY).isBlank()) {
 
       /* converting query parameters in json */
       requestBody = QueryMapper.map2Json(queryParameters);
 
       /* checking the values of the query parameters for geo related count */
-    } else if (Constants.LOCATION.equals(request.getParam(Constants.GEOPROPERTY))
-        && geometries.contains(request.getParam(Constants.GEOMETRY))
-        && geoRels.contains(request.getParam(Constants.GEOREL))) {
+    } else if (LOCATION.equals(request.getParam(GEOPROPERTY))
+        && GEOMETRIES.contains(request.getParam(GEOMETRY))
+        && GEORELS.contains(request.getParam(GEOREL))) {
 
       requestBody = QueryMapper.map2Json(queryParameters);
 
       /* checking the values of the query parameters */
-    } else if (request.getParam(Constants.Q_VALUE) != null
-        && !request.getParam(Constants.Q_VALUE).isBlank()) {
+    } else if (request.getParam(Q_VALUE) != null
+        && !request.getParam(Q_VALUE).isBlank()) {
 
       requestBody = QueryMapper.map2Json(queryParameters);
 
     } else {
-      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_VALUE)
+      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_VALUE)
               .build().toJsonString());
       return;
     }
 
     if (requestBody != null) {
-      requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
-      database.searchQuery(requestBody, handler -> {
+      requestBody.put(INSTANCE_ID_KEY, instanceID);
+      dbService.searchQuery(requestBody, handler -> {
         if (handler.succeeded()) {
           JsonObject resultJson = handler.result();
-          String status = resultJson.getString(Constants.STATUS);
-          if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+          String status = resultJson.getString(STATUS);
+          if (status.equalsIgnoreCase(SUCCESS)) {
             response.setStatusCode(200);
-          } else if (status.equalsIgnoreCase(Constants.PARTIAL_CONTENT)) {
+          } else if (status.equalsIgnoreCase(PARTIAL_CONTENT)) {
             response.setStatusCode(206);
           } else {
             response.setStatusCode(400);
           }
-          response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-              .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+          response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+              .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
           response.write(resultJson.toString());
-          logger.info("response: " + resultJson);
+          LOGGER.info("response: " + resultJson);
           response.end();
         } else if (handler.failed()) {
-          logger.error(handler.cause().getMessage());
-          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          LOGGER.error(handler.cause().getMessage());
+          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
               .setStatusCode(400).end(handler.cause().getMessage());
         }
       });
     } else {
-      logger.error("Invalid request query parameters");
-      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_VALUE)
+      LOGGER.error("Invalid request query parameters");
+      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_VALUE)
               .build().toJsonString());
     }
   }
@@ -419,28 +405,28 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     String instanceID = routingContext.request().host();
     JsonObject queryJson = new JsonObject();
-    queryJson.put(Constants.INSTANCE_ID_KEY, instanceID).put(Constants.OPERATION,
-        Constants.GET_CITIES);
-    logger.info("search query : " + queryJson);
-    database.getCities(queryJson, handler -> {
+    queryJson.put(INSTANCE_ID_KEY, instanceID).put(OPERATION,
+        GET_CITIES);
+    LOGGER.info("search query : " + queryJson);
+    dbService.getCities(queryJson, handler -> {
       if (handler.succeeded()) {
         JsonObject resultJson = handler.result();
-        String status = resultJson.getString(Constants.STATUS);
-        if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+        String status = resultJson.getString(STATUS);
+        if (status.equalsIgnoreCase(SUCCESS)) {
           response.setStatusCode(200);
         } else {
           response.setStatusCode(400);
         }
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+            .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
         response.write(resultJson.toString());
-        logger.info("response : " + resultJson);
+        LOGGER.info("response : " + resultJson);
         response.end();
       } else if (handler.failed()) {
-        logger.info(handler.cause().getMessage());
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        LOGGER.info(handler.cause().getMessage());
+        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
         response.setStatusCode(500);
-        response.end(Constants.INTERNAL_SERVER_ERROR);
+        response.end(INTERNAL_SERVER_ERROR);
       }
     });
   }
@@ -454,37 +440,37 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(queryJson, validationHandler -> {
+    validationService.validateItem(queryJson, validationHandler -> {
       if (validationHandler.succeeded()) {
-        queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-        logger.info("search query : " + queryJson);
-        database.setCities(queryJson, dbHandler -> {
+        queryJson.put(INSTANCE_ID_KEY, instanceID);
+        LOGGER.info("search query : " + queryJson);
+        dbService.setCities(queryJson, dbHandler -> {
           if (dbHandler.succeeded()) {
             JsonObject resultJson = dbHandler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+            String status = resultJson.getString(STATUS);
+            if (status.equalsIgnoreCase(SUCCESS)) {
               response.setStatusCode(201);
             } else {
               response.setStatusCode(400);
             }
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(Constants.HEADER_CONTENT_LENGTH,
+            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+                .add(HEADER_CONTENT_LENGTH,
                     String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
+            LOGGER.info("response : " + resultJson);
             response.end();
           } else if (dbHandler.failed()) {
             dbHandler.cause().getMessage();
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
             response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
+            response.end(INTERNAL_SERVER_ERROR);
           }
         });
       } else if (validationHandler.failed()) {
-        logger.info(validationHandler.cause().getMessage());
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        LOGGER.info(validationHandler.cause().getMessage());
+        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
         response.setStatusCode(400);
-        response.end(Constants.BAD_REQUEST);
+        response.end(BAD_REQUEST);
       }
     });
   }
@@ -498,37 +484,37 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(queryJson, validationHandler -> {
+    validationService.validateItem(queryJson, validationHandler -> {
       if (validationHandler.succeeded()) {
-        queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-        logger.info("search query : " + queryJson);
-        database.updateCities(queryJson, dbHandler -> {
+        queryJson.put(INSTANCE_ID_KEY, instanceID);
+        LOGGER.info("search query : " + queryJson);
+        dbService.updateCities(queryJson, dbHandler -> {
           if (dbHandler.succeeded()) {
             JsonObject resultJson = dbHandler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+            String status = resultJson.getString(STATUS);
+            if (status.equalsIgnoreCase(SUCCESS)) {
               response.setStatusCode(201);
             } else {
               response.setStatusCode(400);
             }
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(Constants.HEADER_CONTENT_LENGTH,
+            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+                .add(HEADER_CONTENT_LENGTH,
                     String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
+            LOGGER.info("response : " + resultJson);
             response.end();
           } else if (dbHandler.failed()) {
-            logger.info(dbHandler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+            LOGGER.info(dbHandler.cause().getMessage());
+            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
             response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
+            response.end(INTERNAL_SERVER_ERROR);
           }
         });
       } else if (validationHandler.failed()) {
-        logger.info(validationHandler.cause().getMessage());
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        LOGGER.info(validationHandler.cause().getMessage());
+        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
         response.setStatusCode(400);
-        response.end(Constants.BAD_REQUEST);
+        response.end(BAD_REQUEST);
       }
     });
   }
@@ -542,27 +528,27 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     String instanceID = routingContext.request().host();
     JsonObject queryJson = new JsonObject();
-    queryJson.put(Constants.INSTANCE_ID_KEY, instanceID).put("operation", "getConfig");
-    logger.info("search query : " + queryJson);
-    database.getConfig(queryJson, handler -> {
+    queryJson.put(INSTANCE_ID_KEY, instanceID).put("operation", "getConfig");
+    LOGGER.info("search query : " + queryJson);
+    dbService.getConfig(queryJson, handler -> {
       if (handler.succeeded()) {
         JsonObject resultJson = handler.result();
-        String status = resultJson.getString(Constants.STATUS);
-        if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+        String status = resultJson.getString(STATUS);
+        if (status.equalsIgnoreCase(SUCCESS)) {
           response.setStatusCode(200);
         } else {
           response.setStatusCode(400);
         }
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+            .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
         response.write(resultJson.toString());
-        logger.info("response : " + resultJson);
+        LOGGER.info("response : " + resultJson);
         response.end();
       } else if (handler.failed()) {
-        logger.info(handler.cause().getMessage());
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        LOGGER.info(handler.cause().getMessage());
+        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
         response.setStatusCode(500);
-        response.end(Constants.INTERNAL_SERVER_ERROR);
+        response.end(INTERNAL_SERVER_ERROR);
       }
     });
   }
@@ -576,37 +562,37 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(queryJson, validationHandler -> {
+    validationService.validateItem(queryJson, validationHandler -> {
       if (validationHandler.succeeded()) {
-        queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-        logger.info("search query : " + queryJson);
-        database.setConfig(queryJson, dbHandler -> {
+        queryJson.put(INSTANCE_ID_KEY, instanceID);
+        LOGGER.info("search query : " + queryJson);
+        dbService.setConfig(queryJson, dbHandler -> {
           if (dbHandler.succeeded()) {
             JsonObject resultJson = dbHandler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+            String status = resultJson.getString(STATUS);
+            if (status.equalsIgnoreCase(SUCCESS)) {
               response.setStatusCode(201);
             } else {
               response.setStatusCode(400);
             }
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(Constants.HEADER_CONTENT_LENGTH,
+            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+                .add(HEADER_CONTENT_LENGTH,
                     String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
+            LOGGER.info("response : " + resultJson);
             response.end();
           } else if (dbHandler.failed()) {
-            logger.error(dbHandler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+            LOGGER.error(dbHandler.cause().getMessage());
+            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
             response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
+            response.end(INTERNAL_SERVER_ERROR);
           }
         });
       } else if (validationHandler.failed()) {
-        logger.error(validationHandler.cause().getMessage());
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        LOGGER.error(validationHandler.cause().getMessage());
+        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
         response.setStatusCode(400);
-        response.end(Constants.BAD_REQUEST);
+        response.end(BAD_REQUEST);
       }
     });
   }
@@ -620,27 +606,27 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     String instanceID = routingContext.request().host();
     JsonObject queryJson = new JsonObject();
-    queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-    logger.info("search query : " + queryJson);
-    database.deleteConfig(queryJson, handler -> {
+    queryJson.put(INSTANCE_ID_KEY, instanceID);
+    LOGGER.info("search query : " + queryJson);
+    dbService.deleteConfig(queryJson, handler -> {
       if (handler.succeeded()) {
         JsonObject resultJson = handler.result();
-        String status = resultJson.getString(Constants.STATUS);
-        if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+        String status = resultJson.getString(STATUS);
+        if (status.equalsIgnoreCase(SUCCESS)) {
           response.setStatusCode(200);
         } else {
           response.setStatusCode(400);
         }
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+            .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
         response.write(resultJson.toString());
-        logger.info("response : " + resultJson);
+        LOGGER.info("response : " + resultJson);
         response.end();
       } else if (handler.failed()) {
-        logger.error(handler.cause().getMessage());
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        LOGGER.error(handler.cause().getMessage());
+        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
         response.setStatusCode(500);
-        response.end(Constants.INTERNAL_SERVER_ERROR);
+        response.end(INTERNAL_SERVER_ERROR);
       }
     });
   }
@@ -654,167 +640,41 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(queryJson, validationHandler -> {
+    validationService.validateItem(queryJson, validationHandler -> {
       if (validationHandler.succeeded()) {
-        queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-        logger.info("search query : " + queryJson);
-        database.updateConfig(queryJson, dbHandler -> {
+        queryJson.put(INSTANCE_ID_KEY, instanceID);
+        LOGGER.info("search query : " + queryJson);
+        dbService.updateConfig(queryJson, dbHandler -> {
           if (dbHandler.succeeded()) {
             JsonObject resultJson = dbHandler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+            String status = resultJson.getString(STATUS);
+            if (status.equalsIgnoreCase(SUCCESS)) {
               response.setStatusCode(201);
             } else {
               response.setStatusCode(400);
             }
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(Constants.HEADER_CONTENT_LENGTH,
+            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+                .add(HEADER_CONTENT_LENGTH,
                     String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
+            LOGGER.info("response : " + resultJson);
             response.end();
           } else if (dbHandler.failed()) {
-            logger.error(dbHandler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+            LOGGER.error(dbHandler.cause().getMessage());
+            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
             response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
+            response.end(INTERNAL_SERVER_ERROR);
           }
         });
       } else if (validationHandler.failed()) {
-        logger.error(validationHandler.cause().getMessage());
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        LOGGER.error(validationHandler.cause().getMessage());
+        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
         response.setStatusCode(400);
-        response.end(Constants.BAD_REQUEST);
+        response.end(BAD_REQUEST);
       }
     });
   }
 
-  /**
-   * Creates a new item in database.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void createItem(RoutingContext routingContext) {
-
-    logger.info("Creating an item");
-
-    HttpServerRequest request = routingContext.request();
-
-    /** Add default headers to response*/
-    HttpServerResponse response = routingContext.response();
-    response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON);
-
-    /* JsonObject of authentication related information */
-    JsonObject authenticationInfo = new JsonObject();
-
-    /* HTTP request body as Json */
-    JsonObject requestBody = routingContext.getBodyAsJson();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
-
-    Set<String> docItemTypes = new HashSet<String>(new JsonArray().getList());
-
-    try {
-      docItemTypes = new HashSet<String>(requestBody.getJsonArray("type").getList());
-    } catch (Exception e) {
-      logger.error("Item type mismatch");
-      response.setStatusCode(400).end();
-    }
-
-    docItemTypes.retainAll(itemTypes);
-
-    /* checking and comparing itemType from the request body */
-    if (docItemTypes.size() != 1) {
-      logger.error("InvalidValue, 'type' attribute is missing, empty, or invalid");
-      response.setStatusCode(400)
-              .end(new ResponseHandler.Builder()
-                    .withStatus(Constants.INVALID_VALUE)
-              .build().toJsonString());
-      return;
-    }
-
-    /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
-
-    /* checking auhthentication info in requests */
-    if (request.headers().contains(Constants.HEADER_TOKEN)) {
-      authenticationInfo.put(Constants.HEADER_TOKEN,
-                              request.getHeader(Constants.HEADER_TOKEN))
-                        .put(Constants.OPERATION, Constants.POST);
-    } else {
-      logger.info("Unathorized CUD operation");
-      response.setStatusCode(401)
-              .end(new ResponseHandler.Builder()
-                        .withStatus(Constants.INVALID_VALUE)
-              .build().toJsonString());
-      return;
-    }
-
-    /** Start insertion flow */
-
-    /** Json schema validate item */
-    validator.validateSchema(requestBody, schValHandler -> {
-      if (schValHandler.failed()) {
-        logger.error("Item validation failed");
-        response.setStatusCode(400).end();
-        return;
-      }
-      if (schValHandler.succeeded()) {
-        String providerId = requestBody.getString(Constants.REL_PROVIDER);
-        JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
-
-        /** Introspect token and authorize operation */
-        authenticator.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
-          if (authhandler.failed()) {
-            response.setStatusCode(401)
-                    .end(authhandler.cause().toString());
-            return;
-          }
-          else if (authhandler.result()
-                  .getString(Constants.STATUS)
-                  .equals(Constants.ERROR)) {
-            logger.info("Authentication failed");
-            response.setStatusCode(401)
-                    .end(authhandler.cause().toString());
-                  }
-          else if (authhandler.result()
-                  .getString(Constants.STATUS)
-                  .equals(Constants.SUCCESS)) {
-            logger.info("Authenticated item creation request "
-                .concat(authhandler.result().toString()));
-
-            /* Link Validating the request to ensure item correctness */
-            validator.validateItem(requestBody, valhandler -> {
-              if (valhandler.failed()) {
-                logger.error("Item validation failed".concat(valhandler.cause().toString()));
-                response.setStatusCode(500)
-                        .end(valhandler.cause().toString());
-              }
-              if (valhandler.succeeded()) {
-                logger.info("Item link validation successful");
-
-                /* Requesting database service, creating a item */
-                database.createItem(valhandler.result(), dbhandler -> {
-                  if (dbhandler.failed()) {
-                    logger.error("Item creation failed".concat(dbhandler.cause().toString()));
-                    response.setStatusCode(500)
-                            .end(dbhandler.cause().toString());
-                  }
-                  if (dbhandler.succeeded()) {
-                    logger.info("Item created".concat(dbhandler.result().toString()));
-                    response.setStatusCode(201)
-                            .end(dbhandler.result().toString());
-                  }
-                });
-              }
-            });
-          } 
-        });
-      }
-    });
-    /** End insertion flow */
-  }
 
   /**
    * Updates a already created item in the database. Endpoint: PATCH /iudx/cat/v1/update/itemId
@@ -837,114 +697,114 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = routingContext.getBodyAsJson();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Building complete itemID from HTTP request path parameters */
     String itemId =
         routingContext
-            .pathParam(Constants.RESOURCE_ITEM)
+            .pathParam(RESOURCE_ITEM)
             .concat("/")
             .concat(
                 routingContext
-                    .pathParam(Constants.RESOURCE_GRP_ITEM)
+                    .pathParam(RESOURCE_GRP_ITEM)
                     .concat("/")
-                    .concat(routingContext.pathParam(Constants.RESOURCE_SVR_ITEM))
+                    .concat(routingContext.pathParam(RESOURCE_SVR_ITEM))
                     .concat("/")
-                    .concat(routingContext.pathParam(Constants.PROVIDER_ITEM).concat("/"))
-                    .concat(routingContext.pathParam(Constants.DATA_DES_ITEM)));
+                    .concat(routingContext.pathParam(PROVIDER_ITEM).concat("/"))
+                    .concat(routingContext.pathParam(DATA_DES_ITEM)));
 
-    logger.info("Updating an item, Id: ".concat(itemId));
+    LOGGER.info("Updating an item, Id: ".concat(itemId));
 
     /* checking and comparing itemType from the request body */
-    if (requestBody.containsKey(Constants.ITEM_TYPE)
-        && itemTypes.contains(requestBody.getString(Constants.ITEM_TYPE))) {
+    if (requestBody.containsKey(ITEM_TYPE)
+        && ITEM_TYPES.contains(requestBody.getString(ITEM_TYPE))) {
       /* Populating query mapper */
-      requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
+      requestBody.put(INSTANCE_ID_KEY, instanceID);
 
       /* checking auhthentication info in requests */
-      if (request.headers().contains(Constants.HEADER_TOKEN)) {
-        authenticationInfo.put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
-            .put(Constants.OPERATION, Constants.PUT);
+      if (request.headers().contains(HEADER_TOKEN)) {
+        authenticationInfo.put(HEADER_TOKEN, request.getHeader(HEADER_TOKEN))
+            .put(OPERATION, PUT);
 
 
-      String providerId = requestBody.getString(Constants.REL_PROVIDER);
+      String providerId = requestBody.getString(REL_PROVIDER);
 
-      JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
+      JsonObject authRequest = new JsonObject().put(REL_PROVIDER, providerId);
 
 
         /* Authenticating the request */
-        authenticator.tokenInterospect(
+        authService.tokenInterospect(
             authRequest,
             authenticationInfo,
             authhandler -> {
               if (authhandler.failed()) {
                 response
-                    .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                    .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                     .setStatusCode(401)
                     .end(authhandler.cause().toString());
                 return;
               }
-              if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
-                logger.info(
+              if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
+                LOGGER.info(
                     "Authenticating item update request ".concat(authhandler.result().toString()));
                 /* Validating the request */
-                validator.validateItem(
+                validationService.validateItem(
                     requestBody,
                     valhandler -> {
                       if (valhandler.succeeded()) {
-                        logger.info(
+                        LOGGER.info(
                             "Item update validated ".concat(authhandler.result().toString()));
                         /* Requesting database service, creating a item */
-                        database.updateItem(
+                        dbService.updateItem(
                             requestBody,
                             dbhandler -> {
                               if (dbhandler.succeeded()) {
-                                logger.info("Item updated ".concat(dbhandler.result().toString()));
+                                LOGGER.info("Item updated ".concat(dbhandler.result().toString()));
                                 response
                                     .putHeader(
-                                        Constants.HEADER_CONTENT_TYPE,
-                                        Constants.MIME_APPLICATION_JSON)
+                                        HEADER_CONTENT_TYPE,
+                                        MIME_APPLICATION_JSON)
                                     .setStatusCode(200)
                                     .end(dbhandler.result().toString());
                               } else if (dbhandler.failed()) {
-                                logger.error(
+                                LOGGER.error(
                                     "Item update failed ".concat(dbhandler.cause().toString()));
                                 response
                                     .putHeader(
-                                        Constants.HEADER_CONTENT_TYPE,
-                                        Constants.MIME_APPLICATION_JSON)
+                                        HEADER_CONTENT_TYPE,
+                                        MIME_APPLICATION_JSON)
                                     .setStatusCode(500)
                                     .end(dbhandler.cause().toString());
                               }
                             });
                       } else if (valhandler.failed()) {
-                        logger.error(
+                        LOGGER.error(
                             "Item validation failed ".concat(valhandler.cause().toString()));
                         response
                             .putHeader(
-                                Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                                HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                             .setStatusCode(500)
                             .end(valhandler.cause().toString());
                       }
                     });
               } else {
-                logger.error("Unathorized request ".concat(authhandler.cause().toString()));
+                LOGGER.error("Unathorized request ".concat(authhandler.cause().toString()));
                 response
-                    .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                    .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                     .setStatusCode(401)
                     .end(authhandler.cause().toString());
               }
             });
       } else {
-        logger.error("InvalidHeader 'token' header");
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.error("InvalidHeader 'token' header");
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(new ResponseHandler.Builder()
-                .withStatus(Constants.INVALID_HEADER).build().toJsonString());
+                .withStatus(INVALID_HEADER).build().toJsonString());
       }
     } else {
-      logger.error("InvalidValue, 'itemType' attribute is missing or is empty");
-      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_VALUE)
+      LOGGER.error("InvalidValue, 'itemType' attribute is missing or is empty");
+      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_VALUE)
               .build().toJsonString());
     }
   }
@@ -969,81 +829,81 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Building complete itemID from HTTP request path parameters */
     String itemId = "";
     itemId = itemId 
-      + routingContext.pathParam(Constants.PROVIDER_ORG) + "/"
-      + routingContext.pathParam(Constants.PROVIDER_ITEM) + "/"
-      + routingContext.pathParam(Constants.RESOURCE_SVR_ITEM) + "/"
-      + routingContext.pathParam(Constants.RESOURCE_GRP_ITEM) + "/"
-      + routingContext.pathParam(Constants.RESOURCE_ITEM);
+      + routingContext.pathParam(PROVIDER_ORG) + "/"
+      + routingContext.pathParam(PROVIDER_ITEM) + "/"
+      + routingContext.pathParam(RESOURCE_SVR_ITEM) + "/"
+      + routingContext.pathParam(RESOURCE_GRP_ITEM) + "/"
+      + routingContext.pathParam(RESOURCE_ITEM);
 
 
     /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
-    requestBody.put(Constants.ID, itemId);
-    // requestBody.put(Constants.ITEM_TYPE, "Resource/ResourceGroup");
+    requestBody.put(INSTANCE_ID_KEY, instanceID);
+    requestBody.put(ID, itemId);
+    // requestBody.put(ITEM_TYPE, "Resource/ResourceGroup");
 
-    logger.info("Deleting an item, Id: ".concat(itemId));
+    LOGGER.info("Deleting an item, Id: ".concat(itemId));
 
     /* checking auhthentication info in requests */
-    if (request.headers().contains(Constants.HEADER_TOKEN)) {
+    if (request.headers().contains(HEADER_TOKEN)) {
       authenticationInfo
-          .put(Constants.HEADER_TOKEN, request.getHeader(Constants.HEADER_TOKEN))
-          .put(Constants.OPERATION, Constants.DELETE);
+          .put(HEADER_TOKEN, request.getHeader(HEADER_TOKEN))
+          .put(OPERATION, DELETE);
 
       String providerId = String.join("/", Arrays.copyOfRange(itemId.split("/"), 0, 2));
-      logger.info("Provider ID is  " + providerId);
+      LOGGER.info("Provider ID is  " + providerId);
 
-      JsonObject authRequest = new JsonObject().put(Constants.REL_PROVIDER, providerId);
+      JsonObject authRequest = new JsonObject().put(REL_PROVIDER, providerId);
 
       /* Authenticating the request */
-      authenticator.tokenInterospect(
+      authService.tokenInterospect(
           authRequest,
           authenticationInfo,
           authhandler -> {
             if (authhandler.failed()) {
               response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                 .setStatusCode(401)
                 .end(authhandler.cause().toString());
               return;
             }
-            if (authhandler.result().getString(Constants.STATUS).equals(Constants.SUCCESS)) {
-              logger.info(
+            if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
+              LOGGER.info(
                   "Authenticating item delete request".concat(authhandler.result().toString()));
               /* Requesting database service, creating a item */
-              database.deleteItem(
+              dbService.deleteItem(
                   requestBody,
                   dbhandler -> {
                     if (dbhandler.succeeded()) {
-                      logger.info("Item deleted".concat(dbhandler.result().toString()));
+                      LOGGER.info("Item deleted".concat(dbhandler.result().toString()));
                       response
-                          .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                          .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                           .setStatusCode(200)
                           .end(dbhandler.result().toString());
                     } else if (dbhandler.failed()) {
-                      logger.error("Item deletion failed".concat(dbhandler.cause().toString()));
+                      LOGGER.error("Item deletion failed".concat(dbhandler.cause().toString()));
                       response
-                          .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                          .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                           .setStatusCode(400)
                           .end(dbhandler.cause().toString());
                     }
                   });
             } else {
-              logger.error("Unathorized request".concat(authhandler.cause().toString()));
+              LOGGER.error("Unathorized request".concat(authhandler.cause().toString()));
               response
-                  .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                  .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                   .setStatusCode(401)
                   .end(authhandler.cause().toString());
             }
           });
     } else {
-      logger.error("Invalid 'token' header");
-      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_HEADER)
+      LOGGER.error("Invalid 'token' header");
+      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_HEADER)
               .build().toJsonString());
     }
   }
@@ -1055,7 +915,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void listItems(RoutingContext routingContext) {
 
-    logger.info("Listing items from database");
+    LOGGER.info("Listing items from database");
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
@@ -1066,35 +926,35 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Building complete itemID from HTTP request path parameters */
     String itemId =
         routingContext
-            .pathParam(Constants.RESOURCE_ITEM)
+            .pathParam(RESOURCE_ITEM)
             .concat("/")
             .concat(
                 routingContext
-                    .pathParam(Constants.RESOURCE_GRP_ITEM)
+                    .pathParam(RESOURCE_GRP_ITEM)
                     .concat("/")
-                    .concat(routingContext.pathParam(Constants.RESOURCE_SVR_ITEM))
+                    .concat(routingContext.pathParam(RESOURCE_SVR_ITEM))
                     .concat("/")
-                    .concat(routingContext.pathParam(Constants.PROVIDER_ITEM).concat("/"))
-                    .concat(routingContext.pathParam(Constants.DATA_DES_ITEM)));
+                    .concat(routingContext.pathParam(PROVIDER_ITEM).concat("/"))
+                    .concat(routingContext.pathParam(DATA_DES_ITEM)));
 
     /* Populating query mapper */
-    requestBody.put(Constants.ID, itemId);
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
+    requestBody.put(ID, itemId);
+    requestBody.put(INSTANCE_ID_KEY, instanceID);
 
     /* Databse service call for listing item */
-    database.listItem(requestBody, dbhandler -> {
+    dbService.listItem(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
-        logger.info("List of items ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.info("List of items ".concat(dbhandler.result().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
-        logger.error("Issue in listing items ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.error("Issue in listing items ".concat(dbhandler.cause().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
@@ -1107,7 +967,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void listTags(RoutingContext routingContext) {
 
-    logger.info("Listing tags of a cataloque instance");
+    LOGGER.info("Listing tags of a cataloque instance");
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
@@ -1118,20 +978,20 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
+    requestBody.put(INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing tags */
-    database.listTags(requestBody, dbhandler -> {
+    dbService.listTags(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
-        logger.info("List of tags ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.info("List of tags ".concat(dbhandler.result().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
-        logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
@@ -1144,7 +1004,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void listDomains(RoutingContext routingContext) {
 
-    logger.info("Listing domains of a cataloque instance");
+    LOGGER.info("Listing domains of a cataloque instance");
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
@@ -1155,20 +1015,20 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
+    requestBody.put(INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing domains */
-    database.listDomains(requestBody, dbhandler -> {
+    dbService.listDomains(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
-        logger.info("List of domains ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.info("List of domains ".concat(dbhandler.result().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
-        logger.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
@@ -1181,7 +1041,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void listCities(RoutingContext routingContext) {
 
-    logger.info("Listing cities of a cataloque instance");
+    LOGGER.info("Listing cities of a cataloque instance");
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
@@ -1192,20 +1052,20 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
+    requestBody.put(INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing cities */
-    database.listCities(requestBody, dbhandler -> {
+    dbService.listCities(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
-        logger.info("List of cities ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.info("List of cities ".concat(dbhandler.result().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
-        logger.error("Issue in listing cities ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.error("Issue in listing cities ".concat(dbhandler.cause().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
@@ -1218,7 +1078,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void listResourceServers(RoutingContext routingContext) {
 
-    logger.info("Listing resource servers of a cataloque instance");
+    LOGGER.info("Listing resource servers of a cataloque instance");
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
@@ -1229,20 +1089,20 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
+    requestBody.put(INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing resource servers */
-    database.listResourceServers(requestBody, dbhandler -> {
+    dbService.listResourceServers(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
-        logger.info("List of resource servers ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.info("List of resource servers ".concat(dbhandler.result().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
-        logger.error("Issue in listing resource servers ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.error("Issue in listing resource servers ".concat(dbhandler.cause().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
@@ -1255,7 +1115,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void listProviders(RoutingContext routingContext) {
 
-    logger.info("Listing providers of a cataloque instance");
+    LOGGER.info("Listing providers of a cataloque instance");
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
@@ -1266,20 +1126,20 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
+    requestBody.put(INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing providers */
-    database.listProviders(requestBody, dbhandler -> {
+    dbService.listProviders(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
-        logger.info("List of providers ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.info("List of providers ".concat(dbhandler.result().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
-        logger.error("Issue in listing providers ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.error("Issue in listing providers ".concat(dbhandler.cause().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
@@ -1292,7 +1152,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   private void listResourceGroups(RoutingContext routingContext) {
 
-    logger.info("Listing resource groups of a cataloque instance");
+    LOGGER.info("Listing resource groups of a cataloque instance");
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
@@ -1303,20 +1163,20 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
+    requestBody.put(INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing resource groups */
-    database.listResourceGroups(requestBody, dbhandler -> {
+    dbService.listResourceGroups(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
-        logger.info("List of resource groups ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.info("List of resource groups ".concat(dbhandler.result().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(200).end(dbhandler.result().toString());
       } else if (dbhandler.failed()) {
-        logger.error("Issue in listing resource groups ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.error("Issue in listing resource groups ".concat(dbhandler.cause().toString()));
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(dbhandler.cause().toString());
       }
     });
@@ -1329,7 +1189,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   public void listResourceRelationship(RoutingContext routingContext) {
 
-    logger.info("Searching for relationship of resource");
+    LOGGER.info("Searching for relationship of resource");
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
@@ -1340,39 +1200,39 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Parsing id from HTTP request */
-    String id = request.getParam(Constants.ID);
+    String id = request.getParam(ID);
 
     /* Checking if id is either not null nor empty */
     if (id != null && !id.isBlank()) {
 
       /* Populating query mapper */
-      requestBody.put(Constants.ID, id);
-      requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
-      requestBody.put(Constants.RELATIONSHIP, Constants.REL_RESOURCE);
+      requestBody.put(ID, id);
+      requestBody.put(INSTANCE_ID_KEY, instanceID);
+      requestBody.put(RELATIONSHIP, REL_RESOURCE);
 
       /*
        * Request database service with requestBody for listing resource relationship
        */
-      database.listResourceRelationship(requestBody, dbhandler -> {
+      dbService.listResourceRelationship(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
-          logger.info("List of resources belonging to resourceGroups "
+          LOGGER.info("List of resources belonging to resourceGroups "
               .concat(dbhandler.result().toString()));
-          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
               .setStatusCode(200).end(dbhandler.result().toString());
         } else if (dbhandler.failed()) {
-          logger.error(
+          LOGGER.error(
               "Issue in listing resource relationship ".concat(dbhandler.cause().toString()));
-          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
               .setStatusCode(400).end(dbhandler.cause().toString());
         }
       });
     } else {
-      logger.error("Issue in path parameter");
-      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_SYNTAX)
+      LOGGER.error("Issue in path parameter");
+      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX)
               .build().toJsonString());
     }
   }
@@ -1384,7 +1244,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   public void listResourceGroupRelationship(RoutingContext routingContext) {
 
-    logger.info("Searching for relationship of resource and resourceGroup");
+    LOGGER.info("Searching for relationship of resource and resourceGroup");
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
@@ -1395,39 +1255,39 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Parsing id from HTTP request */
-    String id = request.getParam(Constants.ID);
+    String id = request.getParam(ID);
 
     /* Checking if id is either not null nor empty */
     if (id != null && !id.isBlank()) {
 
       /* Populating query mapper */
-      requestBody.put(Constants.ID, id);
-      requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
-      requestBody.put(Constants.RELATIONSHIP, Constants.REL_RESOURCE_GRP);
+      requestBody.put(ID, id);
+      requestBody.put(INSTANCE_ID_KEY, instanceID);
+      requestBody.put(RELATIONSHIP, REL_RESOURCE_GRP);
 
       /*
        * Request database service with requestBody for listing resource group relationship
        */
-      database.listResourceGroupRelationship(requestBody, dbhandler -> {
+      dbService.listResourceGroupRelationship(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
-          logger.info(
+          LOGGER.info(
               "List of resourceGroup belonging to resource ".concat(dbhandler.result().toString()));
-          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
               .setStatusCode(200).end(dbhandler.result().toString());
         } else if (dbhandler.failed()) {
-          logger.error(
+          LOGGER.error(
               "Issue in listing resourceGroup relationship ".concat(dbhandler.cause().toString()));
-          response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
               .setStatusCode(400).end(dbhandler.cause().toString());
         }
       });
     } else {
-      logger.error("Issue in path parameter");
-      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_SYNTAX)
+      LOGGER.error("Issue in path parameter");
+      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX)
               .build().toJsonString());
     }
   }
@@ -1441,30 +1301,30 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = routingContext.getBodyAsJson();
     String instanceID = routingContext.request().host();
-    validator.validateItem(queryJson, validationHandler -> {
+    validationService.validateItem(queryJson, validationHandler -> {
       if (validationHandler.succeeded()) {
-        queryJson.put(Constants.INSTANCE_ID_KEY, instanceID);
-        logger.info("search query : " + queryJson);
-        database.appendConfig(queryJson, dbHandler -> {
+        queryJson.put(INSTANCE_ID_KEY, instanceID);
+        LOGGER.info("search query : " + queryJson);
+        dbService.appendConfig(queryJson, dbHandler -> {
           if (dbHandler.succeeded()) {
             JsonObject resultJson = dbHandler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+            String status = resultJson.getString(STATUS);
+            if (status.equalsIgnoreCase(SUCCESS)) {
               response.setStatusCode(201);
             } else {
               response.setStatusCode(400);
             }
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .add(Constants.HEADER_CONTENT_LENGTH,
+            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+                .add(HEADER_CONTENT_LENGTH,
                     String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
+            LOGGER.info("response : " + resultJson);
             response.end();
           } else if (dbHandler.failed()) {
-            logger.error(dbHandler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+            LOGGER.error(dbHandler.cause().getMessage());
+            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
             response.setStatusCode(400);
-            response.end(Constants.BAD_REQUEST);
+            response.end(BAD_REQUEST);
           }
         });
       }
@@ -1480,29 +1340,29 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = new JsonObject();
     String instanceID = routingContext.request().host();
-    String id = routingContext.request().getParam(Constants.ID);
-    queryJson.put(Constants.INSTANCE_ID_KEY, instanceID).put(Constants.ID, id)
-        .put(Constants.RELATIONSHIP, Constants.REL_RESOURCE_SVR);
-    logger.info("search query : " + queryJson);
-    database.listResourceServerRelationship(queryJson, handler -> {
+    String id = routingContext.request().getParam(ID);
+    queryJson.put(INSTANCE_ID_KEY, instanceID).put(ID, id)
+        .put(RELATIONSHIP, REL_RESOURCE_SVR);
+    LOGGER.info("search query : " + queryJson);
+    dbService.listResourceServerRelationship(queryJson, handler -> {
       if (handler.succeeded()) {
         JsonObject resultJson = handler.result();
-        String status = resultJson.getString(Constants.STATUS);
-        if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+        String status = resultJson.getString(STATUS);
+        if (status.equalsIgnoreCase(SUCCESS)) {
           response.setStatusCode(200);
         } else {
           response.setStatusCode(400);
         }
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .add(Constants.HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+            .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
         response.write(resultJson.toString());
-        logger.info("response : " + resultJson);
+        LOGGER.info("response : " + resultJson);
         response.end();
       } else if (handler.failed()) {
-        logger.error(handler.cause().getMessage());
-        response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+        LOGGER.error(handler.cause().getMessage());
+        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
         response.setStatusCode(500);
-        response.end(Constants.INTERNAL_SERVER_ERROR);
+        response.end(INTERNAL_SERVER_ERROR);
       }
     });
   }
@@ -1516,37 +1376,37 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = new JsonObject();
     String instanceID = routingContext.request().host();
-    String id = routingContext.request().getParam(Constants.ID);
+    String id = routingContext.request().getParam(ID);
     queryJson
-        .put(Constants.INSTANCE_ID_KEY, instanceID)
-        .put(Constants.ID, id)
-        .put(Constants.RELATIONSHIP, Constants.REL_PROVIDER);
-    logger.info("search query : " + queryJson);
-    database.listProviderRelationship(
+        .put(INSTANCE_ID_KEY, instanceID)
+        .put(ID, id)
+        .put(RELATIONSHIP, REL_PROVIDER);
+    LOGGER.info("search query : " + queryJson);
+    dbService.listProviderRelationship(
         queryJson,
         handler -> {
           if (handler.succeeded()) {
             JsonObject resultJson = handler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+            String status = resultJson.getString(STATUS);
+            if (status.equalsIgnoreCase(SUCCESS)) {
               response.setStatusCode(200);
             } else {
               response.setStatusCode(400);
             }
             response
                 .headers()
-                .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                 .add(
-                    Constants.HEADER_CONTENT_LENGTH,
+                    HEADER_CONTENT_LENGTH,
                     String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
+            LOGGER.info("response : " + resultJson);
             response.end();
           } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+            LOGGER.error(handler.cause().getMessage());
+            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
             response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
+            response.end(INTERNAL_SERVER_ERROR);
           }
         });
   }
@@ -1560,37 +1420,37 @@ public class ApiServerVerticle extends AbstractVerticle {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = new JsonObject();
     String instanceID = routingContext.request().host();
-    String id = routingContext.request().getParam(Constants.ID);
+    String id = routingContext.request().getParam(ID);
     queryJson
-        .put(Constants.INSTANCE_ID_KEY, instanceID)
-        .put(Constants.ID, id)
-        .put(Constants.RELATIONSHIP, Constants.REL_TYPE);
-    logger.info("search query : " + queryJson);
-    database.listTypes(
+        .put(INSTANCE_ID_KEY, instanceID)
+        .put(ID, id)
+        .put(RELATIONSHIP, REL_TYPE);
+    LOGGER.info("search query : " + queryJson);
+    dbService.listTypes(
         queryJson,
         handler -> {
           if (handler.succeeded()) {
             JsonObject resultJson = handler.result();
-            String status = resultJson.getString(Constants.STATUS);
-            if (status.equalsIgnoreCase(Constants.SUCCESS)) {
+            String status = resultJson.getString(STATUS);
+            if (status.equalsIgnoreCase(SUCCESS)) {
               response.setStatusCode(200);
             } else {
               response.setStatusCode(400);
             }
             response
                 .headers()
-                .add(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                 .add(
-                    Constants.HEADER_CONTENT_LENGTH,
+                    HEADER_CONTENT_LENGTH,
                     String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            logger.info("response : " + resultJson);
+            LOGGER.info("response : " + resultJson);
             response.end();
           } else if (handler.failed()) {
-            logger.error(handler.cause().getMessage());
-            response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
+            LOGGER.error(handler.cause().getMessage());
+            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
             response.setStatusCode(500);
-            response.end(Constants.INTERNAL_SERVER_ERROR);
+            response.end(INTERNAL_SERVER_ERROR);
           }
         });
   }
@@ -1602,7 +1462,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    */
   public void count(RoutingContext routingContext) {
 
-    logger.info("Counting the request parameters");
+    LOGGER.info("Counting the request parameters");
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
@@ -1613,81 +1473,81 @@ public class ApiServerVerticle extends AbstractVerticle {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_HOST);
 
     /* Collection of query parameters from HTTP request */
     MultiMap queryParameters = routingContext.queryParams();
 
-    if (!queryParameters.contains(Constants.ATTRIBUTE_FILTER)) {
+    if (!queryParameters.contains(ATTRIBUTE_FILTER)) {
 
       /* validating proper actual query parameters from request */
-      if ((request.getParam(Constants.PROPERTY) == null
-          || request.getParam(Constants.VALUE) == null)
-          && (request.getParam(Constants.GEOPROPERTY) == null
-              || request.getParam(Constants.GEOREL) == null
-              || request.getParam(Constants.GEOMETRY) == null
-              || request.getParam(Constants.COORDINATES) == null)
-          && request.getParam(Constants.Q_VALUE) == null) {
+      if ((request.getParam(PROPERTY) == null
+          || request.getParam(VALUE) == null)
+          && (request.getParam(GEOPROPERTY) == null
+              || request.getParam(GEOREL) == null
+              || request.getParam(GEOMETRY) == null
+              || request.getParam(COORDINATES) == null)
+          && request.getParam(Q_VALUE) == null) {
 
-        logger.error("Invalid Syntax");
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.error("Invalid Syntax");
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(new ResponseHandler.Builder()
-                .withStatus(Constants.INVALID_SYNTAX).build().toJsonString());
+                .withStatus(INVALID_SYNTAX).build().toJsonString());
         return;
 
         /* checking the values of the query parameters */
-      } else if (request.getParam(Constants.PROPERTY) != null
-          && !request.getParam(Constants.PROPERTY).isBlank()) {
+      } else if (request.getParam(PROPERTY) != null
+          && !request.getParam(PROPERTY).isBlank()) {
 
         /* converting query parameters in json */
         requestBody = QueryMapper.map2Json(queryParameters);
 
         /* checking the values of the query parameters for geo related count */
-      } else if (Constants.LOCATION.equals(request.getParam(Constants.GEOPROPERTY))
-          && geometries.contains(request.getParam(Constants.GEOMETRY))
-          && geoRels.contains(request.getParam(Constants.GEOREL))) {
+      } else if (LOCATION.equals(request.getParam(GEOPROPERTY))
+          && GEOMETRIES.contains(request.getParam(GEOMETRY))
+          && GEORELS.contains(request.getParam(GEOREL))) {
 
         requestBody = QueryMapper.map2Json(queryParameters);
 
         /* checking the values of the query parameters */
-      } else if (request.getParam(Constants.Q_VALUE) != null
-          && !request.getParam(Constants.Q_VALUE).isBlank()) {
+      } else if (request.getParam(Q_VALUE) != null
+          && !request.getParam(Q_VALUE).isBlank()) {
 
         requestBody = QueryMapper.map2Json(queryParameters);
 
       } else {
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(new ResponseHandler.Builder()
-                .withStatus(Constants.INVALID_VALUE).build().toJsonString());
+                .withStatus(INVALID_VALUE).build().toJsonString());
         return;
       }
 
       if (requestBody != null) {
-        logger.info("Count query : " + requestBody);
-        requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
+        LOGGER.info("Count query : " + requestBody);
+        requestBody.put(INSTANCE_ID_KEY, instanceID);
 
         /* Request database service with requestBody for counting */
-        database.countQuery(requestBody, dbhandler -> {
+        dbService.countQuery(requestBody, dbhandler -> {
           if (dbhandler.succeeded()) {
-            logger.info("Count query completed ".concat(dbhandler.result().toString()));
-            response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            LOGGER.info("Count query completed ".concat(dbhandler.result().toString()));
+            response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                 .setStatusCode(200).end(dbhandler.result().toString());
           } else if (dbhandler.failed()) {
-            logger.error("Issue in count query ".concat(dbhandler.cause().toString()));
-            response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            LOGGER.error("Issue in count query ".concat(dbhandler.cause().toString()));
+            response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                 .setStatusCode(400).end(dbhandler.cause().toString());
           }
         });
       } else {
-        logger.error("Invalid request query parameters");
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+        LOGGER.error("Invalid request query parameters");
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .setStatusCode(400).end(new ResponseHandler.Builder()
-                .withStatus(Constants.INVALID_VALUE).build().toJsonString());
+                .withStatus(INVALID_VALUE).build().toJsonString());
       }
     } else {
-      logger.error("Invalid request query parameters");
-      response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(Constants.INVALID_VALUE)
+      LOGGER.error("Invalid request query parameters");
+      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_VALUE)
               .build().toJsonString());
     }
   }
