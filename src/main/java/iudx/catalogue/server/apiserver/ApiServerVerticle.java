@@ -1504,8 +1504,8 @@ public class ApiServerVerticle extends AbstractVerticle {
       } else if (handler.failed()) {
         logger.error(handler.cause().getMessage());
         response.headers().add(Constants.HEADER_CONTENT_TYPE, Constants.TEXT);
-        response.setStatusCode(500);
-        response.end(Constants.INTERNAL_SERVER_ERROR);
+        response.setStatusCode(400);
+        response.end(handler.cause().getLocalizedMessage());
       }
     });
   }

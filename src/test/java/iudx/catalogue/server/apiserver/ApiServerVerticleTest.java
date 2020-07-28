@@ -16,6 +16,7 @@ import io.vertx.reactivex.core.file.FileSystem;
 import io.vertx.reactivex.ext.web.client.WebClient;
 import java.util.Iterator;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -100,6 +101,7 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(1)
+  @Disabled
   @DisplayName("Create Item[Status:201, Endpoint: /item]")
   public void createItem201(VertxTestContext testContext) throws InterruptedException {
 
@@ -148,6 +150,7 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(2)
+  @Disabled
   @DisplayName("Create Item[Status:400, Endpoint: /item]")
   public void createItem400(VertxTestContext testContext) {
 
@@ -185,6 +188,7 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(3)
+  @Disabled
   @DisplayName("Update Item[Status:200, Endpoint: /item]")
   void updateItem200(VertxTestContext testContext) {
 
@@ -224,6 +228,7 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(4)
+  @Disabled
   @DisplayName("Update Item[Status:400, Endpoint: /item]")
   void updateItem400(VertxTestContext testContext) {
 
@@ -263,6 +268,7 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(5)
+  @Disabled
   @DisplayName("Delete Item[Status:200, Endpoint: /item]")
   void deleteItem200(VertxTestContext testContext) {
 
@@ -834,8 +840,8 @@ public class ApiServerVerticleTest {
   @DisplayName("Search Relationship[Status:200, Endpoint: /<resourceGroupID>/resource]")
   void listResourceRelationship200(VertxTestContext testContext) {
 
-    String resourceGroupID = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
-        + "/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01";
+    String resourceGroupID =
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo";
 
     /* Send the file to the server using GET */
     client.get(PORT, HOST, BASE_URL.concat(resourceGroupID).concat("/resource"))
@@ -866,8 +872,8 @@ public class ApiServerVerticleTest {
   @DisplayName("Search Relationship[Status:200, Endpoint: /<resourceID>/resourceGroup]")
   void listResourceGroupRelationship200(VertxTestContext testContext) {
 
-    String resourceID = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
-        + "/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01";
+    String resourceID =
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
 
     /* Send the file to the server using GET */
     client.get(PORT, HOST, BASE_URL.concat(resourceID).concat("/resourceGroup"))
@@ -897,7 +903,7 @@ public class ApiServerVerticleTest {
 
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
         .addQueryParam("value", "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/"
-                + "rs.iudx.org.in/aqm-bosch-climo/Ambedkar society circle_29]]")
+            + "rs.iudx.org.in/aqm-bosch-climo/Ambedkar society circle_29]]")
         .send(ar -> {
           if (ar.succeeded()) {
             assertEquals(200, ar.result().statusCode());
@@ -918,10 +924,9 @@ public class ApiServerVerticleTest {
     logger.info("singleAttributeMultiValueTest");
 
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
-        .addQueryParam("value",
-            "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.i"
-                + "udx.org.in/aqm-bosch-climo/Ambedkar society circle_29,datakaveri.org/f7e044e"
-                + "ee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Dr Baba Saheb Ambedkar Sethu Junction_3]]")
+        .addQueryParam("value", "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.i"
+            + "udx.org.in/aqm-bosch-climo/Ambedkar society circle_29,datakaveri.org/f7e044e"
+            + "ee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Dr Baba Saheb Ambedkar Sethu Junction_3]]")
         .send(ar -> {
           if (ar.succeeded()) {
             assertEquals(200, ar.result().statusCode());
@@ -996,7 +1001,7 @@ public class ApiServerVerticleTest {
   @Order(30)
   @DisplayName("Nested Attribute search")
   void nestedAttributeSearchtest(VertxTestContext testContext) {
-    String apiURL = "search?property=[deviceModelInfo.name]&value=[[Bosch-Climo]]";
+    String apiURL = "search?property=[deviceModel.modelName]&value=[[Bosch-Climo]]";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1231,7 +1236,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get resourceServer")
   void getResourceServerTest(VertxTestContext testContext) {
     String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01/resourceServer";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/resourceServer";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
@@ -1250,7 +1255,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get data model [type]")
   void getDataModelTest(VertxTestContext testContext) {
     String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.varanasi.iudx.org.in/varanasi-aqm/EM_01_0103_01/type";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/type";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {

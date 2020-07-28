@@ -632,8 +632,10 @@ public class DatabaseServiceImpl implements DatabaseService {
               handler.handle(Future.failedFuture(errorJson.toString()));
               return;
             }
+
             JsonArray responseHits =
                 responseJson.getJsonObject(Constants.HITS).getJsonArray(Constants.HITS);
+
             /* Construct the client response, remove the _source field */
             for (Object json : responseHits) {
               JsonObject jsonTemp = (JsonObject) json;
@@ -687,7 +689,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     Request elasticRequest;
     JsonObject errorJson = new JsonObject();
 
-    JsonObject jsonQuery = new JsonObject();
     JsonObject elasticQuery = new JsonObject();
     JsonObject boolObject = new JsonObject();
 
@@ -703,8 +704,6 @@ public class DatabaseServiceImpl implements DatabaseService {
       String resourceGroupId =
           StringUtils.substringBeforeLast(request.getString(Constants.ID), Constants.FORWARD_SLASH);
 
-      jsonQuery.put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, resourceGroupId));
-
       boolObject.put(Constants.BOOL_KEY,
           new JsonObject().put(Constants.MUST_KEY,
               new JsonArray()
@@ -714,10 +713,6 @@ public class DatabaseServiceImpl implements DatabaseService {
                       new JsonObject().put(Constants.TYPE_KEY.concat(Constants.KEYWORD_KEY),
                           Constants.ITEM_TYPE_RESOURCE_GROUP)))));
 
-
-
-      boolObject.put(Constants.BOOL_KEY,
-          new JsonObject().put(Constants.SHOULD_KEY, new JsonArray().add(jsonQuery)));
       elasticQuery.put(Constants.QUERY_KEY, boolObject);
 
       logger.info("Query constructed: " + elasticQuery.toString());
@@ -754,8 +749,10 @@ public class DatabaseServiceImpl implements DatabaseService {
               handler.handle(Future.failedFuture(errorJson.toString()));
               return;
             }
+
             JsonArray responseHits =
                 responseJson.getJsonObject(Constants.HITS).getJsonArray(Constants.HITS);
+
             /* Construct the client response, remove the _source field */
             for (Object json : responseHits) {
               JsonObject jsonTemp = (JsonObject) json;
@@ -805,10 +802,113 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listProviderRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
-    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+    /* <resourceId>/provider */
+    /* Initialize elastic clients and JsonObjects */
+    Request elasticRequest;
+    JsonObject errorJson = new JsonObject();
 
-    return null;
+    JsonObject elasticQuery = new JsonObject();
+    JsonObject boolObject = new JsonObject();
+
+    /* Construct an elastic client request with index to query */
+    elasticRequest =
+        new Request(Constants.REQUEST_GET, Constants.REL_API_SEARCH_INDEX + Constants.FILTER_PATH);
+
+    /* Validating the request */
+    if (request.containsKey(Constants.ID)
+        && request.getString(Constants.RELATIONSHIP).equals(Constants.REL_PROVIDER)) {
+
+      /* parsing id from the request */
+      String id = request.getString(Constants.ID);
+
+      /* parsing providerId from the request */
+      String providerId = StringUtils.substring(id, 0, id.indexOf("/", id.indexOf("/") + 1));
+
+      boolObject.put(Constants.BOOL_KEY, new JsonObject().put(Constants.MUST_KEY, new JsonArray()
+          .add(new JsonObject().put(Constants.TERM,
+              new JsonObject().put(Constants.ID_KEYWORD, providerId)))
+          .add(new JsonObject().put(Constants.TERM, new JsonObject().put(
+              Constants.TYPE_KEY.concat(Constants.KEYWORD_KEY), Constants.ITEM_TYPE_PROVIDER)))));
+
+      elasticQuery.put(Constants.QUERY_KEY, boolObject);
+
+      logger.info("Query constructed: " + elasticQuery.toString());
+
+      /* Set the elastic client with the query to perform */
+      elasticRequest.setJsonEntity(elasticQuery.toString());
+
+      /* Execute the query */
+      client.performRequestAsync(elasticRequest, new ResponseListener() {
+        @Override
+        public void onSuccess(Response response) {
+
+          logger.info("Successful DB request");
+          JsonArray dbResponse = new JsonArray();
+          JsonObject dbResponseJson = new JsonObject();
+
+          try {
+            int statusCode = response.getStatusLine().getStatusCode();
+            /* Validate the response */
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+
+            JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+
+            if (responseJson.getJsonObject(Constants.HITS).getJsonObject(Constants.TOTAL)
+                .getInteger(Constants.VALUE) == 0) {
+
+              /* Constructing error response */
+              errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+                  Constants.EMPTY_RESPONSE);
+
+              handler.handle(Future.failedFuture(errorJson.toString()));
+              return;
+            }
+
+            JsonArray responseHits =
+                responseJson.getJsonObject(Constants.HITS).getJsonArray(Constants.HITS);
+
+            /* Construct the client response, remove the _source field */
+            for (Object json : responseHits) {
+              JsonObject jsonTemp = (JsonObject) json;
+              dbResponse.add(jsonTemp.getJsonObject(Constants.SOURCE));
+            }
+
+            dbResponseJson.put(Constants.STATUS, Constants.SUCCESS)
+                .put(Constants.TOTAL_HITS, responseJson.getJsonObject(Constants.HITS)
+                    .getJsonObject(Constants.TOTAL).getInteger(Constants.VALUE))
+                .put(Constants.RESULT, dbResponse);
+            /* Send the response */
+            handler.handle(Future.succeededFuture(dbResponseJson));
+
+          } catch (IOException e) {
+
+            logger.info("DB ERROR: " + e.getMessage());
+
+            /* Constructing error response */
+            errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+                Constants.DATABASE_ERROR);
+
+            handler.handle(Future.failedFuture(errorJson.toString()));
+          }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+
+          logger.info("DB request has failed. ERROR: " + e.getMessage());
+
+          /* Constructing error response */
+          errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+              Constants.DATABASE_ERROR);
+
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      });
+    }
+    return this;
   }
 
   /**
@@ -818,10 +918,111 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listResourceServerRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
-    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+    /* <resourceId>/resourceServer */
+    /* Initialize elastic clients and JsonObjects */
+    Request elasticRequest;
+    JsonObject errorJson = new JsonObject();
 
-    return null;
+    JsonObject elasticQuery = new JsonObject();
+    JsonObject boolObject = new JsonObject();
+
+    /* Construct an elastic client request with index to query */
+    elasticRequest =
+        new Request(Constants.REQUEST_GET, Constants.REL_API_SEARCH_INDEX + Constants.FILTER_PATH);
+
+    /* Validating the request */
+    if (request.containsKey(Constants.ID)
+        && request.getString(Constants.RELATIONSHIP).equals(Constants.REL_RESOURCE_SVR)) {
+
+      /* parsing id from the request */
+      String[] id = request.getString(Constants.ID).split(Constants.FORWARD_SLASH);
+
+      boolObject.put(Constants.BOOL_KEY, new JsonObject().put(Constants.MUST_KEY, new JsonArray()
+          .add(new JsonObject().put(Constants.MATCH_KEY, new JsonObject().put(Constants.ID, id[0])))
+          .add(new JsonObject().put(Constants.MATCH_KEY, new JsonObject().put(Constants.ID, id[2])))
+          .add(new JsonObject().put(Constants.TERM,
+              new JsonObject().put(Constants.TYPE_KEY.concat(Constants.KEYWORD_KEY),
+                  Constants.ITEM_TYPE_RESOURCE_SERVER)))));
+
+      elasticQuery.put(Constants.QUERY_KEY, boolObject);
+
+      logger.info("Query constructed: " + elasticQuery.toString());
+
+      /* Set the elastic client with the query to perform */
+      elasticRequest.setJsonEntity(elasticQuery.toString());
+
+      /* Execute the query */
+      client.performRequestAsync(elasticRequest, new ResponseListener() {
+        @Override
+        public void onSuccess(Response response) {
+
+          logger.info("Successful DB request");
+          JsonArray dbResponse = new JsonArray();
+          JsonObject dbResponseJson = new JsonObject();
+
+          try {
+            int statusCode = response.getStatusLine().getStatusCode();
+            /* Validate the response */
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+
+            JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+
+            if (responseJson.getJsonObject(Constants.HITS).getJsonObject(Constants.TOTAL)
+                .getInteger(Constants.VALUE) == 0) {
+
+              /* Constructing error response */
+              errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+                  Constants.EMPTY_RESPONSE);
+
+              handler.handle(Future.failedFuture(errorJson.toString()));
+              return;
+            }
+
+            JsonArray responseHits =
+                responseJson.getJsonObject(Constants.HITS).getJsonArray(Constants.HITS);
+
+            /* Construct the client response, remove the _source field */
+            for (Object json : responseHits) {
+              JsonObject jsonTemp = (JsonObject) json;
+              dbResponse.add(jsonTemp.getJsonObject(Constants.SOURCE));
+            }
+
+            dbResponseJson.put(Constants.STATUS, Constants.SUCCESS)
+                .put(Constants.TOTAL_HITS, responseJson.getJsonObject(Constants.HITS)
+                    .getJsonObject(Constants.TOTAL).getInteger(Constants.VALUE))
+                .put(Constants.RESULT, dbResponse);
+            /* Send the response */
+            handler.handle(Future.succeededFuture(dbResponseJson));
+
+          } catch (IOException e) {
+
+            logger.info("DB ERROR: " + e.getMessage());
+
+            /* Constructing error response */
+            errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+                Constants.DATABASE_ERROR);
+
+            handler.handle(Future.failedFuture(errorJson.toString()));
+          }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+
+          logger.info("DB request has failed. ERROR: " + e.getMessage());
+
+          /* Constructing error response */
+          errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+              Constants.DATABASE_ERROR);
+
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      });
+    }
+    return this;
   }
 
   /**
@@ -830,10 +1031,109 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+    /* <resourceId or resourceGroupId>/resourceServer */
+    /* Initialize elastic clients and JsonObjects */
+    Request elasticRequest;
+    JsonObject errorJson = new JsonObject();
 
-    return null;
+    JsonObject elasticQuery = new JsonObject();
+    JsonObject boolObject = new JsonObject();
+
+    /* Construct an elastic client request with index to query */
+    elasticRequest =
+        new Request(Constants.REQUEST_GET, Constants.REL_API_SEARCH_INDEX + Constants.FILTER_PATH);
+
+    /* Validating the request */
+    if (request.containsKey(Constants.ID)
+        && request.getString(Constants.RELATIONSHIP).equals(Constants.TYPE_KEY)) {
+
+      /* parsing id from the request */
+      String itemId = request.getString(Constants.ID);
+
+      boolObject.put(Constants.BOOL_KEY,
+          new JsonObject().put(Constants.MUST_KEY, new JsonArray().add(new JsonObject()
+              .put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, itemId)))));
+
+      elasticQuery.put(Constants.QUERY_KEY, boolObject).put(Constants.SOURCE,
+          request.getString(Constants.RELATIONSHIP));
+
+      logger.info("Query constructed: " + elasticQuery.toString());
+
+      /* Set the elastic client with the query to perform */
+      elasticRequest.setJsonEntity(elasticQuery.toString());
+
+      /* Execute the query */
+      client.performRequestAsync(elasticRequest, new ResponseListener() {
+        @Override
+        public void onSuccess(Response response) {
+
+          logger.info("Successful DB request");
+          JsonArray dbResponse = new JsonArray();
+          JsonObject dbResponseJson = new JsonObject();
+
+          try {
+            int statusCode = response.getStatusLine().getStatusCode();
+            /* Validate the response */
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+
+            JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+
+            if (responseJson.getJsonObject(Constants.HITS).getJsonObject(Constants.TOTAL)
+                .getInteger(Constants.VALUE) == 0) {
+
+              /* Constructing error response */
+              errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+                  Constants.EMPTY_RESPONSE);
+
+              handler.handle(Future.failedFuture(errorJson.toString()));
+              return;
+            }
+
+            JsonArray responseHits =
+                responseJson.getJsonObject(Constants.HITS).getJsonArray(Constants.HITS);
+
+            /* Construct the client response, remove the _source field */
+            for (Object json : responseHits) {
+              JsonObject jsonTemp = (JsonObject) json;
+              dbResponse.add(jsonTemp.getJsonObject(Constants.SOURCE));
+            }
+
+            dbResponseJson.put(Constants.STATUS, Constants.SUCCESS)
+                .put(Constants.TOTAL_HITS, responseJson.getJsonObject(Constants.HITS)
+                    .getJsonObject(Constants.TOTAL).getInteger(Constants.VALUE))
+                .put(Constants.RESULT, dbResponse);
+            /* Send the response */
+            handler.handle(Future.succeededFuture(dbResponseJson));
+
+          } catch (IOException e) {
+
+            logger.info("DB ERROR: " + e.getMessage());
+
+            /* Constructing error response */
+            errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+                Constants.DATABASE_ERROR);
+
+            handler.handle(Future.failedFuture(errorJson.toString()));
+          }
+        }
+
+        @Override
+        public void onFailure(Exception e) {
+
+          logger.info("DB request has failed. ERROR: " + e.getMessage());
+
+          /* Constructing error response */
+          errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.DESCRIPTION,
+              Constants.DATABASE_ERROR);
+
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      });
+    }
+    return this;
   }
 
   /**

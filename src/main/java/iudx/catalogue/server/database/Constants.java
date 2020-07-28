@@ -127,5 +127,6 @@ public class Constants {
   public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
   public static final String ITEM_TYPE_PROVIDER = "iudx:Provider";
   public static final String REL_TYPE = "type";
+  public static final String IUDX_KEY = "iudx:";
 
 }
