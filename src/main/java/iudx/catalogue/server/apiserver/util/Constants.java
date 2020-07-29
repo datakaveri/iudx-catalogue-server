@@ -27,7 +27,20 @@ public class Constants {
 
   public static final String ROUTE_STATIC = "/apis/*";
 
+  /**
+   *Routes
+   */
+  /** CRUD Routes */
   public static final String ROUTE_ITEMS = basePath.concat("/item");
+  public static final String ROUTE_UPDATE_ITEMS = basePath.concat("/item");
+  public static final String ROUTE_DELETE_ITEMS = basePath.concat("/item");
+  public static final String ROUTE_LIST_ITEMS = basePath.concat("/items");
+
+  public static final String ROUTE_LIST_RESOURCE_REL = basePath.concat("\\/(?<id>.*)\\/resource");
+  public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
+      basePath.concat("\\/(?<id>.*)\\/resourceGroup");
+
+
   public static final String ROUTE_SEARCH = basePath.concat("/search");
   public static final String ROUTE_TAGS = basePath.concat("/tags");
   public static final String ROUTE_DOMAINS = basePath.concat("/domains");
@@ -47,16 +60,6 @@ public class Constants {
   public static final String DATA_DES_ITEM = "dataDesItem";
 
 
-  public static final String ROUTE_UPDATE_ITEMS =
-      basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem");
-  public static final String ROUTE_DELETE_ITEMS =
-      basePath.concat("/item/:" + PROVIDER_ORG + "/:" + PROVIDER_ITEM 
-          + "/:" + RESOURCE_SVR_ITEM + "/:" + RESOURCE_GRP_ITEM + "/:" + RESOURCE_ITEM);
-  public static final String ROUTE_LIST_ITEMS =
-      basePath.concat("/items/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem");
-  public static final String ROUTE_LIST_RESOURCE_REL = basePath.concat("\\/(?<id>.*)\\/resource");
-  public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
-      basePath.concat("\\/(?<id>.*)\\/resourceGroup");
 
   public static final String ROUTE_UI_CITIES = basePath.concat("/ui/cities");
   public static final String ROUTE_UI_CONFIG = basePath.concat("/ui/config");
@@ -151,6 +154,7 @@ public class Constants {
   public static final String RESULTS = "results";
   public static final String SUCCESS = "success";
   public static final String ERROR = "error";
+  public static final String MESSAGE = "message";
   public static final String BAD_REQUEST = "Bad Request";
   public static final String INTERNAL_SERVER_ERROR = "Internal server error";
 

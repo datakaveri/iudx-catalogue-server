@@ -60,7 +60,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
     /* Construct an elastic client request with index to query */
     elasticRequest =
-        new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX + Constants.FILTER_PATH);
+        new Request(Constants.REQUEST_GET, Constants.CAT_INDEX_NAME + Constants.FILTER_PATH);
     /* Construct the query to be made */
     JsonObject query = queryDecoder(request);
     if (query.containsKey(Constants.ERROR)) {
@@ -211,7 +211,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.RESULTS,
         new JsonArray().add(new JsonObject().put(Constants.ID, id)
             .put(Constants.METHOD, Constants.INSERT).put(Constants.STATUS, Constants.FAILED)));
-    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX);
+    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_INDEX_NAME);
     checkQuery.put(Constants.SOURCE, "[\"\"]").put(Constants.QUERY_KEY,
         new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, id)));
     logger.info("Query constructed: " + checkQuery.toString());
@@ -295,7 +295,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.RESULTS,
         new JsonArray().add(new JsonObject().put(Constants.ID, id)
             .put(Constants.METHOD, Constants.UPDATE).put(Constants.STATUS, Constants.FAILED)));
-    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX);
+    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_INDEX_NAME);
     checkQuery.put(Constants.SOURCE, "[\"\"]").put(Constants.QUERY_KEY,
         new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, id)));
     logger.info("Query constructed: " + checkQuery.toString());
@@ -384,7 +384,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     errorJson.put(Constants.STATUS, Constants.FAILED).put(Constants.RESULTS,
         new JsonArray().add(new JsonObject().put(Constants.ID, id)
             .put(Constants.METHOD, Constants.DELETE).put(Constants.STATUS, Constants.FAILED)));
-    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_TEST_SEARCH_INDEX);
+    checkExisting = new Request(Constants.REQUEST_GET, Constants.CAT_INDEX_NAME);
     checkQuery.put(Constants.SOURCE, "[\"\"]").put(Constants.QUERY_KEY,
         new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, id)));
     checkExisting.setJsonEntity(checkQuery.toString());

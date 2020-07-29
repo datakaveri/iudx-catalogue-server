@@ -116,35 +116,38 @@ public class ValidatorServiceImpl implements ValidatorService {
     return null;
   }
 
+  /**
+   * Verify if link present in item is a valid one
+   **/
   Future<Boolean> verifyLink(String link) {
     Promise<Boolean> promise = Promise.promise();
-      Request checkResourceGroup =
-          new Request(Constants.REQUEST_GET, Constants.CAT_INDEX + Constants.FILTER_PATH);
-      JsonObject checkQuery = new JsonObject();
-      checkQuery.put(Constants.SOURCE, "[\"" + Constants.ID + "\"]")
-        .put(Constants.QUERY_KEY, new JsonObject()
-        .put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, link)));
-      logger.info("Query constructed: " + checkQuery.toString());
-      checkResourceGroup.setJsonEntity(checkQuery.toString());
-      client.performRequestAsync(checkResourceGroup, new ResponseListener() {
-        @Override
-        public void onSuccess(Response response) {
-          int statusCode = response.getStatusLine().getStatusCode();
-          logger.info("status code: " + statusCode);
-          if (statusCode != 200 && statusCode != 204) {
-            promise.fail(Constants.NON_EXISTING_LINK_MSG + link);
-            return;
-          }
-          try {
-            JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-            logger.info("Got response ");
-            logger.info(responseJson);
-            if (responseJson.getJsonObject(Constants.HITS)
-                .getJsonObject(Constants.TOTAL)
-                .getInteger(Constants.VALUE) == 1) {
-                  promise.complete(true);
-                  logger.info("resource group validated");
-              } else {
+    Request checkResourceGroup =
+      new Request(Constants.REQUEST_GET, Constants.CAT_INDEX + Constants.FILTER_PATH);
+    JsonObject checkQuery = new JsonObject();
+    checkQuery.put(Constants.SOURCE, "[\"" + Constants.ID + "\"]")
+      .put(Constants.QUERY_KEY, new JsonObject()
+          .put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, link)));
+    logger.info("Query constructed: " + checkQuery.toString());
+    checkResourceGroup.setJsonEntity(checkQuery.toString());
+    client.performRequestAsync(checkResourceGroup, new ResponseListener() {
+      @Override
+      public void onSuccess(Response response) {
+        int statusCode = response.getStatusLine().getStatusCode();
+        logger.info("status code: " + statusCode);
+        if (statusCode != 200 && statusCode != 204) {
+          promise.fail(Constants.NON_EXISTING_LINK_MSG + link);
+          return;
+        }
+        try {
+          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+          logger.info("Got response ");
+          logger.info(responseJson);
+          if (responseJson.getJsonObject(Constants.HITS)
+              .getJsonObject(Constants.TOTAL)
+              .getInteger(Constants.VALUE) == 1) {
+            promise.complete(true);
+            logger.info("resource group validated");
+          } else {
                 promise.fail(Constants.NON_EXISTING_LINK_MSG + link);
               }
           } catch (ParseException | IOException e) {

@@ -123,8 +123,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                                                                 .setPath(keystore)
                                                                 .setPassword(keystorePassword)));
 
-
-        /** Callback managers */
+        /** API Callback managers */
         crudApis = new CrudApis();
 
         /**
@@ -182,7 +181,6 @@ public class ApiServerVerticle extends AbstractVerticle {
          *
          */
 
-
         /** 
          * Routes - Defines the routes and callbacks
          */
@@ -194,99 +192,104 @@ public class ApiServerVerticle extends AbstractVerticle {
         router.route(ROUTE_STATIC).handler(StaticHandler.create());
 
         /**
-         * Routes for item creation, deletion and updation
+         * Routes for item CRUD
          */
-        /* Create Item */
-        router.post(ROUTE_ITEMS).produces(MIME_APPLICATION_JSON).handler( routingContext -> {
+
+        /* Create Item - Body contains data */
+        router.post(ROUTE_ITEMS)
+          .consumes(MIME_APPLICATION_JSON)
+          .produces(MIME_APPLICATION_JSON)
+          .handler( routingContext -> {
           /* checking auhthentication info in requests */
           if (routingContext.request().headers().contains(HEADER_TOKEN)) {
             crudApis.createItemHandler(routingContext);
           } else {
             LOGGER.warn("Unathorized CUD operation");
-            routingContext.response().setStatusCode(401)
-                          .end(new ResponseHandler.Builder()
-                                .withStatus(INVALID_VALUE)
-                                .build().toJsonString());
+            routingContext.response().setStatusCode(401).end();
           }
         });
 
-        /* Update Item */
-        router.put(ROUTE_UPDATE_ITEMS).handler(this::updateItem);
-        /* Delete Item */
-        router.delete(ROUTE_DELETE_ITEMS).handler(this::deleteItem);
+        /* Update Item - Body contains data */
+        router.put(ROUTE_UPDATE_ITEMS)
+          .consumes(MIME_APPLICATION_JSON)
+          .produces(MIME_APPLICATION_JSON)
+          .handler( routingContext -> {
+          /* checking auhthentication info in requests */
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            /** Update params checked in createItemHandler */
+            crudApis.createItemHandler(routingContext);
+          } else {
+            LOGGER.warn("Unathorized CUD operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
+
+        /* Delete Item - Path param contains id */
+        router.delete(ROUTE_DELETE_ITEMS)
+          .handler( routingContext -> {
+          /* checking auhthentication info in requests */
+          if (routingContext.request().headers().contains(HEADER_TOKEN) &&
+              routingContext.queryParams().contains(ID)) {
+            /** Update params checked in createItemHandler */
+            crudApis.deleteItemHandler(routingContext);
+          } else {
+            LOGGER.warn("Unathorized CUD operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
+
+
+        /**
+         * Routes for search and count
+         */
 
         /* Search for an item */
         router.get(ROUTE_SEARCH).handler(this::search);
-
-        /* list all the tags */
-        router.get(ROUTE_TAGS).handler(this::listTags);
-
-        /* list all the domains */
-        router.get(ROUTE_DOMAINS).handler(this::listDomains);
-
-        /* list all the cities associated with the cataloque instance */
-        router.get(ROUTE_CITIES).handler(this::listCities);
-
-        /* list all the resource server associated with the cataloque instance */
-        router.get(ROUTE_RESOURCE_SERVERS).handler(this::listResourceServers);
-
-        /* list all the providers associated with the cataloque instance */
-        router.get(ROUTE_PROVIDERS).handler(this::listProviders);
-
-        /* list all the resource groups associated with the cataloque instance */
-        router.get(ROUTE_RESOURCE_GROUPS).handler(this::listResourceGroups);
-
-
-        /* list the item from database using itemId */
-        router.get(ROUTE_LIST_ITEMS).handler(this::listItems);
-
-        /* Get all resources belonging to a resource group */
-        router.getWithRegex(ROUTE_LIST_RESOURCE_REL)
-            .handler(this::listResourceRelationship);
-
-        /* Get resource group of an item belonging to a resource */
-        router.getWithRegex(ROUTE_LIST_RESOURCE_GROUP_REL)
-            .handler(this::listResourceGroupRelationship);
-
-        /* Gets the cities configuration from the database */
-        router.get(ROUTE_UI_CITIES).handler(this::getCities);
-
-        /* Create the cities configuration from the database */
-        router.post(ROUTE_UI_CITIES).handler(this::setCities);
-
-        /* Updates the cities configuration from the database */
-        router.put(ROUTE_UI_CITIES).handler(this::updateCities);
-
-        /* Get all the configuration */
-        router.get(ROUTE_UI_CONFIG).handler(this::getConfig);
-
-        /* Creates the configuration */
-        router.post(ROUTE_UI_CONFIG).handler(this::setConfig);
-
-        /* Deletes the configuration */
-        router.delete(ROUTE_UI_CONFIG).handler(this::deleteConfig);
-
-        /* Updates the existing configuration */
-        router.put(ROUTE_UI_CONFIG).handler(this::updateConfig);
-
-        /* Patches the existing configuration */
-        router.patch(ROUTE_UI_CONFIG).handler(this::appendConfig);
-
-        /* Get provider relationship to an item */
-        router.getWithRegex(ROUTE_PROVIDER_REL).handler(this::listProviderRelationship);
-
-        /* Get resource server relationship to an item */
-        router.getWithRegex(ROUTE_RESOURCE_SERVER_REL)
-            .handler(this::listResourceServerRelationship);
-
-        /* Get list types with the database for an item */
-        router.getWithRegex(ROUTE_DATA_TYPE).handler(this::listTypes);
 
         /* Count the Cataloque server items */
         router.get(ROUTE_COUNT).handler(this::count);
 
 
-        /** Start server */
+        /**
+         * Routes for list
+         */
+
+        /* list all the tags */
+        router.get(ROUTE_TAGS).handler(this::listTags);
+        /* list all the domains */
+        router.get(ROUTE_DOMAINS).handler(this::listDomains);
+        /* list all the cities associated with the cataloque instance */
+        router.get(ROUTE_CITIES).handler(this::listCities);
+        /* list all the resource server associated with the cataloque instance */
+        router.get(ROUTE_RESOURCE_SERVERS).handler(this::listResourceServers);
+        /* list all the providers associated with the cataloque instance */
+        router.get(ROUTE_PROVIDERS).handler(this::listProviders);
+        /* list all the resource groups associated with the cataloque instance */
+        router.get(ROUTE_RESOURCE_GROUPS).handler(this::listResourceGroups);
+        /* list the item from database using itemId */
+        router.get(ROUTE_LIST_ITEMS).handler(this::listItems);
+        /* Get list types with the database for an item */
+        router.getWithRegex(ROUTE_DATA_TYPE).handler(this::listTypes);
+
+        /**
+         * Routes for relationships
+         */
+        /* Get all resources belonging to a resource group */
+        router.getWithRegex(ROUTE_LIST_RESOURCE_REL)
+            .handler(this::listResourceRelationship);
+        /* Get resource group of an item belonging to a resource */
+        router.getWithRegex(ROUTE_LIST_RESOURCE_GROUP_REL)
+            .handler(this::listResourceGroupRelationship);
+        /* Get provider relationship to an item */
+        router.getWithRegex(ROUTE_PROVIDER_REL).handler(this::listProviderRelationship);
+        /* Get resource server relationship to an item */
+        router.getWithRegex(ROUTE_RESOURCE_SERVER_REL)
+            .handler(this::listResourceServerRelationship);
+
+
+        /**
+         * Start server 
+         */
         server.requestHandler(router).listen(PORT);
 
 
@@ -673,239 +676,6 @@ public class ApiServerVerticle extends AbstractVerticle {
         response.end(BAD_REQUEST);
       }
     });
-  }
-
-
-  /**
-   * Updates a already created item in the database. Endpoint: PATCH /iudx/cat/v1/update/itemId
-   * itemId=ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void updateItem(RoutingContext routingContext) {
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    /* JsonObject of authentication related information */
-    JsonObject authenticationInfo = new JsonObject();
-
-    /* HTTP request body as Json */
-    JsonObject requestBody = routingContext.getBodyAsJson();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Building complete itemID from HTTP request path parameters */
-    String itemId =
-        routingContext
-            .pathParam(RESOURCE_ITEM)
-            .concat("/")
-            .concat(
-                routingContext
-                    .pathParam(RESOURCE_GRP_ITEM)
-                    .concat("/")
-                    .concat(routingContext.pathParam(RESOURCE_SVR_ITEM))
-                    .concat("/")
-                    .concat(routingContext.pathParam(PROVIDER_ITEM).concat("/"))
-                    .concat(routingContext.pathParam(DATA_DES_ITEM)));
-
-    LOGGER.info("Updating an item, Id: ".concat(itemId));
-
-    /* checking and comparing itemType from the request body */
-    if (requestBody.containsKey(ITEM_TYPE)
-        && ITEM_TYPES.contains(requestBody.getString(ITEM_TYPE))) {
-      /* Populating query mapper */
-      requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-      /* checking auhthentication info in requests */
-      if (request.headers().contains(HEADER_TOKEN)) {
-        authenticationInfo.put(HEADER_TOKEN, request.getHeader(HEADER_TOKEN))
-            .put(OPERATION, PUT);
-
-
-      String providerId = requestBody.getString(REL_PROVIDER);
-
-      JsonObject authRequest = new JsonObject().put(REL_PROVIDER, providerId);
-
-
-        /* Authenticating the request */
-        authService.tokenInterospect(
-            authRequest,
-            authenticationInfo,
-            authhandler -> {
-              if (authhandler.failed()) {
-                response
-                    .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                    .setStatusCode(401)
-                    .end(authhandler.cause().toString());
-                return;
-              }
-              if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
-                LOGGER.info(
-                    "Authenticating item update request ".concat(authhandler.result().toString()));
-                /* Validating the request */
-                validationService.validateItem(
-                    requestBody,
-                    valhandler -> {
-                      if (valhandler.succeeded()) {
-                        LOGGER.info(
-                            "Item update validated ".concat(authhandler.result().toString()));
-                        /* Requesting database service, creating a item */
-                        dbService.updateItem(
-                            requestBody,
-                            dbhandler -> {
-                              if (dbhandler.succeeded()) {
-                                LOGGER.info("Item updated ".concat(dbhandler.result().toString()));
-                                response
-                                    .putHeader(
-                                        HEADER_CONTENT_TYPE,
-                                        MIME_APPLICATION_JSON)
-                                    .setStatusCode(200)
-                                    .end(dbhandler.result().toString());
-                              } else if (dbhandler.failed()) {
-                                LOGGER.error(
-                                    "Item update failed ".concat(dbhandler.cause().toString()));
-                                response
-                                    .putHeader(
-                                        HEADER_CONTENT_TYPE,
-                                        MIME_APPLICATION_JSON)
-                                    .setStatusCode(500)
-                                    .end(dbhandler.cause().toString());
-                              }
-                            });
-                      } else if (valhandler.failed()) {
-                        LOGGER.error(
-                            "Item validation failed ".concat(valhandler.cause().toString()));
-                        response
-                            .putHeader(
-                                HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                            .setStatusCode(500)
-                            .end(valhandler.cause().toString());
-                      }
-                    });
-              } else {
-                LOGGER.error("Unathorized request ".concat(authhandler.cause().toString()));
-                response
-                    .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                    .setStatusCode(401)
-                    .end(authhandler.cause().toString());
-              }
-            });
-      } else {
-        LOGGER.error("InvalidHeader 'token' header");
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(new ResponseHandler.Builder()
-                .withStatus(INVALID_HEADER).build().toJsonString());
-      }
-    } else {
-      LOGGER.error("InvalidValue, 'itemType' attribute is missing or is empty");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_VALUE)
-              .build().toJsonString());
-    }
-  }
-
-  /**
-   * Deletes a created item in the database. Endpoint: DELETE /iudx/cat/v1/delete/itemId
-   * itemId=ResourceItem/ResourceGroupItem/ResourceServerItem/ProviderItem/DataDescriptorItem
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void deleteItem(RoutingContext routingContext) {
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    /* JsonObject of authentication related information */
-    JsonObject authenticationInfo = new JsonObject();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Building complete itemID from HTTP request path parameters */
-    String itemId = "";
-    itemId = itemId 
-      + routingContext.pathParam(PROVIDER_ORG) + "/"
-      + routingContext.pathParam(PROVIDER_ITEM) + "/"
-      + routingContext.pathParam(RESOURCE_SVR_ITEM) + "/"
-      + routingContext.pathParam(RESOURCE_GRP_ITEM) + "/"
-      + routingContext.pathParam(RESOURCE_ITEM);
-
-
-    /* Populating query mapper */
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
-    requestBody.put(ID, itemId);
-    // requestBody.put(ITEM_TYPE, "Resource/ResourceGroup");
-
-    LOGGER.info("Deleting an item, Id: ".concat(itemId));
-
-    /* checking auhthentication info in requests */
-    if (request.headers().contains(HEADER_TOKEN)) {
-      authenticationInfo
-          .put(HEADER_TOKEN, request.getHeader(HEADER_TOKEN))
-          .put(OPERATION, DELETE);
-
-      String providerId = String.join("/", Arrays.copyOfRange(itemId.split("/"), 0, 2));
-      LOGGER.info("Provider ID is  " + providerId);
-
-      JsonObject authRequest = new JsonObject().put(REL_PROVIDER, providerId);
-
-      /* Authenticating the request */
-      authService.tokenInterospect(
-          authRequest,
-          authenticationInfo,
-          authhandler -> {
-            if (authhandler.failed()) {
-              response
-                .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .setStatusCode(401)
-                .end(authhandler.cause().toString());
-              return;
-            }
-            if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
-              LOGGER.info(
-                  "Authenticating item delete request".concat(authhandler.result().toString()));
-              /* Requesting database service, creating a item */
-              dbService.deleteItem(
-                  requestBody,
-                  dbhandler -> {
-                    if (dbhandler.succeeded()) {
-                      LOGGER.info("Item deleted".concat(dbhandler.result().toString()));
-                      response
-                          .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                          .setStatusCode(200)
-                          .end(dbhandler.result().toString());
-                    } else if (dbhandler.failed()) {
-                      LOGGER.error("Item deletion failed".concat(dbhandler.cause().toString()));
-                      response
-                          .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                          .setStatusCode(400)
-                          .end(dbhandler.cause().toString());
-                    }
-                  });
-            } else {
-              LOGGER.error("Unathorized request".concat(authhandler.cause().toString()));
-              response
-                  .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                  .setStatusCode(401)
-                  .end(authhandler.cause().toString());
-            }
-          });
-    } else {
-      LOGGER.error("Invalid 'token' header");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_HEADER)
-              .build().toJsonString());
-    }
   }
 
   /**
