@@ -33,8 +33,8 @@ public class Constants {
   static final String CAT_TEST_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
   static final String CAT_TEST_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
   static final String CAT_GET_TAG = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations.instance.tags.buckets";
-  static final String CAT_GET_DOMAIN = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations.instance.buckets";
-  static final String CAT_GET_ID = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations.id.buckets";
+  static final String CAT_GET_DOMAIN = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations.instances.buckets";
+  static final String CAT_GET_AGGREGATIONS = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations";
   static final String CAT_GET_ITEM = CAT_TEST_SEARCH_INDEX+"?filter_path=hits.hits";
   static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
   static final String BOOL_KEY = "bool";

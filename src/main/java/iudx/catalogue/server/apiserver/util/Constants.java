@@ -17,12 +17,7 @@ public class Constants {
   public static final String ROUTE_APIS = "/apis/*";
   public static final String ROUTE_ITEMS = basePath.concat("/item");
   public static final String ROUTE_SEARCH = basePath.concat("/search");
-  public static final String ROUTE_TAGS = basePath.concat("/list/tags");
-  public static final String ROUTE_DOMAINS = basePath.concat("/list/instances");
-  public static final String ROUTE_CITIES = basePath.concat("/cities");
-  public static final String ROUTE_RESOURCE_SERVERS = basePath.concat("/list/resourceservers");
-  public static final String ROUTE_PROVIDERS = basePath.concat("/list/providers");
-  public static final String ROUTE_RESOURCE_GROUPS = basePath.concat("/list/resourcegroups");
+  public static final String ROUTE_LIST_ITEMS = basePath.concat("/list/:itemType");
 
 
   public static final String ID = "id";
@@ -40,7 +35,7 @@ public class Constants {
   public static final String ROUTE_DELETE_ITEMS =
       basePath.concat("/item/:" + PROVIDER_ORG + "/:" + PROVIDER_ITEM 
           + "/:" + RESOURCE_SVR_ITEM + "/:" + RESOURCE_GRP_ITEM + "/:" + RESOURCE_ITEM);
-  public static final String ROUTE_LIST_ITEMS =
+  public static final String ROUTE_GET_ITEM =
       basePath.concat("/items");
   public static final String ROUTE_LIST_RESOURCE_REL = basePath.concat("\\/(?<id>.*)\\/resource");
   public static final String ROUTE_LIST_RESOURCE_GROUP_REL =

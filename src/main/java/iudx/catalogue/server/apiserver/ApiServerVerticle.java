@@ -1,6 +1,7 @@
 package iudx.catalogue.server.apiserver;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -130,23 +131,8 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* Search for an item */
         router.get(Constants.ROUTE_SEARCH).handler(this::search);
 
-        /* list all the tags */
-        router.get(Constants.ROUTE_TAGS).handler(this::listTags);
-
-        /* list all the domains */
-        router.get(Constants.ROUTE_DOMAINS).handler(this::listDomains);
-
-        /* list all the cities associated with the cataloque instance */
-        router.get(Constants.ROUTE_CITIES).handler(this::listCities);
-
-        /* list all the resource server associated with the cataloque instance */
-        router.get(Constants.ROUTE_RESOURCE_SERVERS).handler(this::listResourceServers);
-
-        /* list all the providers associated with the cataloque instance */
-        router.get(Constants.ROUTE_PROVIDERS).handler(this::listProviders);
-
         /* list all the resource groups associated with the cataloque instance */
-        router.get(Constants.ROUTE_RESOURCE_GROUPS).handler(this::listResourceGroups);
+        router.get(Constants.ROUTE_LIST_ITEMS).handler(this::listItems);
 
         /*
          * Update an item in the database using itemId [itemId=ResourceItem, ResourceGroupItem,
@@ -158,7 +144,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         router.delete(Constants.ROUTE_DELETE_ITEMS).handler(this::deleteItem);
 
         /* list the item from database using itemId */
-        router.get(Constants.ROUTE_LIST_ITEMS).handler(this::listItems);
+        router.get(Constants.ROUTE_GET_ITEM).handler(this::getItem);
 
         /* Get all resources belonging to a resource group */
         router.getWithRegex(Constants.ROUTE_LIST_RESOURCE_REL)
@@ -1053,7 +1039,7 @@ public class ApiServerVerticle extends AbstractVerticle {
    *
    * @param routingContext handles web requests in Vert.x Web
    */
-  private void listItems(RoutingContext routingContext) {
+  private void getItem(RoutingContext routingContext) {
 
     logger.info("Listing items from database");
 
@@ -1076,7 +1062,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Databse service call for listing item */
-    database.listItem(
+    database.getItem(
         requestBody,
         dbhandler -> {
           if (dbhandler.succeeded()) {
@@ -1103,281 +1089,11 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Get the list of tags for a catalogue instance.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listTags(RoutingContext routingContext) {
-
-    logger.info("Listing tags of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing tags */
-    database.listTags(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of tags ".concat(dbhandler.result().toString()));
-            JsonArray tags = new JsonArray();
-            JsonArray result = new JsonArray();
-            result =
-                dbhandler
-                    .result()
-                    .getJsonObject("aggregations")
-                    .getJsonObject("instance")
-                    .getJsonObject("tags")
-                    .getJsonArray("buckets");
-            int size = result.size();
-            for (int i = 0; i < size; i++) {
-              JsonObject tag = result.getJsonObject(i);
-              String key = tag.getString("key");
-              if (!tags.contains(key)) tags.add(key);
-            }
-
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(tags.toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
-  }
-
-  /**
-   * Get a list of domains for a cataloque instance.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listDomains(RoutingContext routingContext) {
-
-    logger.info("Listing domains of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing domains */
-    database.listDomains(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of Domains ".concat(dbhandler.result().toString()));
-            JsonArray domains = new JsonArray();
-            JsonArray result = new JsonArray();
-            result =
-                dbhandler
-                    .result()
-                    .getJsonObject("aggregations")
-                    .getJsonObject("instance")
-                    .getJsonArray("buckets");
-            int size = result.size();
-            for (int i = 0; i < size; i++) {
-              JsonObject instance = result.getJsonObject(i);
-              String key = instance.getString("key");
-              if (!domains.contains(key)) domains.add(key);
-            }
-
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(domains.toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
-  }
-
-  /**
-   * Get the list of cities and the catalogue instance ID.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listCities(RoutingContext routingContext) {
-
-    logger.info("Listing cities of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing cities */
-    database.listCities(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        logger.info("List of cities ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        logger.error("Issue in listing cities ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
-  }
-
-  /**
-   * Get the list of resourceServers for a catalogue instance.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listResourceServers(RoutingContext routingContext) {
-
-    logger.info("Listing resource servers of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing resource servers */
-    database.listResourceServers(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of resourceServers ".concat(dbhandler.result().toString()));
-            JsonArray resourceServers = new JsonArray();
-            JsonArray result = new JsonArray();
-            result =
-                dbhandler
-                    .result()
-                    .getJsonObject("aggregations")
-                    .getJsonObject("id")
-                    .getJsonArray("buckets");
-            int size = result.size();
-            for (int i = 0; i < size; i++) {
-              JsonObject rs = result.getJsonObject(i);
-              String key = rs.getString("key");
-              if (!resourceServers.contains(key)) resourceServers.add(key);
-            }
-
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(resourceServers.toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
-  }
-
-  /**
-   * Get the list of providers for a catalogue instance.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listProviders(RoutingContext routingContext) {
-
-    logger.info("Listing providers of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(Constants.HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing providers */
-    database.listProviders(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            logger.info("List of providers ".concat(dbhandler.result().toString()));
-            JsonArray providers = new JsonArray();
-            JsonArray result = new JsonArray();
-            result =
-                dbhandler
-                    .result()
-                    .getJsonObject("aggregations")
-                    .getJsonObject("id")
-                    .getJsonArray("buckets");
-            int size = result.size();
-            for (int i = 0; i < size; i++) {
-              JsonObject provider = result.getJsonObject(i);
-              String key = provider.getString("key");
-              if (!providers.contains(key)) providers.add(key);
-            }
-
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(providers.toString());
-          } else if (dbhandler.failed()) {
-            logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
-  }
-
-  /**
    * Get the list of resource groups for a catalogue instance.
    *
    * @param routingContext handles web requests in Vert.x Web
    */
-  private void listResourceGroups(RoutingContext routingContext) {
+  private void listItems(RoutingContext routingContext) {
 
     logger.info("Listing resource groups of a cataloque instance");
 
@@ -1392,36 +1108,76 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* HTTP request instance/host details */
     String instanceID = request.getHeader(Constants.HEADER_HOST);
 
+    String itemType = request.getParam("itemType");
+    requestBody.put("itemType", itemType);
     /* Populating query mapper */
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
+    String type = null;
+    switch (itemType) {
+      case "resourcegroups":
+        type = "iudx:ResourceGroup";
+        break;
+      case "resourceservers":
+        type = "iudx:ResourceServer";
+        break;
+      case "providers":
+        type = "iudx:Provider";
+        break;
+      case "instances":
+      case "tags":
+        type = itemType;
+        break;
+      default:
+        logger.info("invalid itemType:" + itemType);
+        response
+            .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+            .setStatusCode(400)
+            .end("Invalid itemType");
+        return;
+    }
+    requestBody.put("type", type);
+
     /* Request database service with requestBody for listing resource groups */
-    database.listResourceGroups(
+    database.listItems(
         requestBody,
         dbhandler -> {
           if (dbhandler.succeeded()) {
-            logger.info("List of resourceGroups ".concat(dbhandler.result().toString()));
-            JsonArray resourceGroups = new JsonArray();
+            logger.info("List of " + itemType + ": ".concat(dbhandler.result().toString()));
+            JsonArray items = new JsonArray();
             JsonArray result = new JsonArray();
-            result =
-                dbhandler
-                    .result()
-                    .getJsonObject("aggregations")
-                    .getJsonObject("id")
-                    .getJsonArray("buckets");
+            if (itemType.equalsIgnoreCase("resourcegroups")||itemType.equalsIgnoreCase("resourceservers")
+                || itemType.equalsIgnoreCase("providers")
+                || itemType.equalsIgnoreCase("instances")) {
+              result =
+                  dbhandler
+                      .result()
+                      .getJsonObject("aggregations")
+                      .getJsonObject(itemType)
+                      .getJsonArray("buckets");
+            } else if (itemType.equalsIgnoreCase("tags")) {
+              result =
+                  dbhandler
+                      .result()
+                      .getJsonObject("aggregations")
+                      .getJsonObject("instance")
+                      .getJsonObject("tags")
+                      .getJsonArray("buckets");
+            }
             int size = result.size();
             for (int i = 0; i < size; i++) {
               JsonObject rg = result.getJsonObject(i);
               String key = rg.getString("key");
-              if (!resourceGroups.contains(key)) resourceGroups.add(key);
+              if (!items.contains(key)) items.add(key);
             }
 
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
                 .setStatusCode(200)
-                .end(resourceGroups.toString());
+                .end(items.toString());
           } else if (dbhandler.failed()) {
-            logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
+            logger.error(
+                "Issue in listing " + itemType + ": ".concat(dbhandler.cause().toString()));
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
                 .setStatusCode(400)
