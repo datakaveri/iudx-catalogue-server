@@ -24,7 +24,7 @@ public class Constants {
   static final String STATUS = "status";
   static final String SUCCESS = "success";
   static final String INSTANCE= "instance";
-  static final String INSTANCE_ID_KEY = "instanceId";
+  static final String INSTANCE_ID_KEY = "instanceID";
   static final String CONFIG_FILE = "config.properties";
   static final String RESOURCE = "resource";
   static final String ITEM_TYPE = "itemType";

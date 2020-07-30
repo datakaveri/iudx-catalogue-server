@@ -465,10 +465,12 @@ public class DatabaseServiceImpl implements DatabaseService {
   /** {@inheritDoc} */
   @Override
   public DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    String itemId = request.getString("id");
+    String itemId = request.getString(Constants.ID);
     Request getItem = new Request(Constants.REQUEST_GET, Constants.CAT_GET_ITEM);
     JsonObject req = new JsonObject();
-    req.put("query", new JsonObject().put("term", new JsonObject().put("id.keyword", itemId)));
+    req.put(
+        Constants.QUERY_KEY,
+        new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, itemId)));
     System.out.println(req.toString());
     getItem.setJsonEntity(req.toString());
     client.performRequestAsync(
@@ -492,7 +494,8 @@ public class DatabaseServiceImpl implements DatabaseService {
               e.printStackTrace();
               /* Handle request error */
               handler.handle(
-                  Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+                  Future.failedFuture(
+                      new JsonObject().put(Constants.STATUS, Constants.FAILED).toString()));
             }
           }
 
@@ -502,7 +505,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             e.printStackTrace();
             /* Handle request error */
             handler.handle(
-                Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+                Future.failedFuture(
+                    new JsonObject().put(Constants.STATUS, Constants.FAILED).toString()));
           }
         });
     return null;
