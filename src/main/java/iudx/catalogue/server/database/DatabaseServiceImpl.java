@@ -517,7 +517,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String itemType = request.getString(Constants.ITEM_TYPE);
     String type = request.getString(Constants.TYPE_KEY);
-    String TestInstanceID = "catalogue.iudx.org.in";
+    String instanceID=request.getString(Constants.INSTANCE_ID_KEY);
     JsonObject req = new JsonObject();
     Request getItems;
 
@@ -550,7 +550,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                   .put(
                                       Constants.TERM,
                                       new JsonObject()
-                                          .put(Constants.INSTANCE_ID_KEY, TestInstanceID)))
+                                          .put(Constants.INSTANCE_ID_KEY, instanceID)))
                           .put(
                               Constants.AGGREGATION_KEY,
                               new JsonObject()
@@ -581,7 +581,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                           .put(
                                               Constants.TERM,
                                               new JsonObject()
-                                                  .put(Constants.INSTANCE_ID_KEY, TestInstanceID)))
+                                                  .put(Constants.INSTANCE_ID_KEY, instanceID)))
                                   .add(
                                       new JsonObject()
                                           .put(
