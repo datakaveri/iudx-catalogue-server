@@ -1069,35 +1069,37 @@ public class ApiServerVerticle extends AbstractVerticle {
     String instanceID = request.getHeader(Constants.HEADER_HOST);
 
     /* Building complete itemID from HTTP request path parameters */
-    String itemId =
-        routingContext
-            .pathParam(Constants.RESOURCE_ITEM)
-            .concat("/")
-            .concat(
-                routingContext
-                    .pathParam(Constants.RESOURCE_GRP_ITEM)
-                    .concat("/")
-                    .concat(routingContext.pathParam(Constants.RESOURCE_SVR_ITEM))
-                    .concat("/")
-                    .concat(routingContext.pathParam(Constants.PROVIDER_ITEM).concat("/"))
-                    .concat(routingContext.pathParam(Constants.DATA_DES_ITEM)));
+    String itemId = request.getParam("id");
 
     /* Populating query mapper */
     requestBody.put(Constants.ID, itemId);
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Databse service call for listing item */
-    database.listItem(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        logger.info("List of items ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        logger.error("Issue in listing items ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
+    database.listItem(
+        requestBody,
+        dbhandler -> {
+          if (dbhandler.succeeded()) {
+            logger.info("Successfull DB request");
+            JsonObject result =
+                dbhandler
+                    .result()
+                    .getJsonObject("hits")
+                    .getJsonArray("hits")
+                    .getJsonObject(0)
+                    .getJsonObject("_source");
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(200)
+                .end(result.toString());
+          } else if (dbhandler.failed()) {
+            logger.error("Issue in listing items ".concat(dbhandler.cause().toString()));
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(400)
+                .end(dbhandler.cause().toString());
+          }
+        });
   }
 
   /**
@@ -1124,17 +1126,39 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing tags */
-    database.listTags(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        logger.info("List of tags ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
+    database.listTags(
+        requestBody,
+        dbhandler -> {
+          if (dbhandler.succeeded()) {
+            logger.info("List of tags ".concat(dbhandler.result().toString()));
+            JsonArray tags = new JsonArray();
+            JsonArray result = new JsonArray();
+            result =
+                dbhandler
+                    .result()
+                    .getJsonObject("aggregations")
+                    .getJsonObject("instance")
+                    .getJsonObject("tags")
+                    .getJsonArray("buckets");
+            int size = result.size();
+            for (int i = 0; i < size; i++) {
+              JsonObject tag = result.getJsonObject(i);
+              String key = tag.getString("key");
+              if (!tags.contains(key)) tags.add(key);
+            }
+
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(200)
+                .end(tags.toString());
+          } else if (dbhandler.failed()) {
+            logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(400)
+                .end(dbhandler.cause().toString());
+          }
+        });
   }
 
   /**
@@ -1161,17 +1185,38 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing domains */
-    database.listDomains(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        logger.info("List of domains ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        logger.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
+    database.listDomains(
+        requestBody,
+        dbhandler -> {
+          if (dbhandler.succeeded()) {
+            logger.info("List of Domains ".concat(dbhandler.result().toString()));
+            JsonArray domains = new JsonArray();
+            JsonArray result = new JsonArray();
+            result =
+                dbhandler
+                    .result()
+                    .getJsonObject("aggregations")
+                    .getJsonObject("instance")
+                    .getJsonArray("buckets");
+            int size = result.size();
+            for (int i = 0; i < size; i++) {
+              JsonObject instance = result.getJsonObject(i);
+              String key = instance.getString("key");
+              if (!domains.contains(key)) domains.add(key);
+            }
+
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(200)
+                .end(domains.toString());
+          } else if (dbhandler.failed()) {
+            logger.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(400)
+                .end(dbhandler.cause().toString());
+          }
+        });
   }
 
   /**
@@ -1235,17 +1280,38 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing resource servers */
-    database.listResourceServers(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        logger.info("List of resource servers ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        logger.error("Issue in listing resource servers ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
+    database.listResourceServers(
+        requestBody,
+        dbhandler -> {
+          if (dbhandler.succeeded()) {
+            logger.info("List of resourceServers ".concat(dbhandler.result().toString()));
+            JsonArray resourceServers = new JsonArray();
+            JsonArray result = new JsonArray();
+            result =
+                dbhandler
+                    .result()
+                    .getJsonObject("aggregations")
+                    .getJsonObject("id")
+                    .getJsonArray("buckets");
+            int size = result.size();
+            for (int i = 0; i < size; i++) {
+              JsonObject rs = result.getJsonObject(i);
+              String key = rs.getString("key");
+              if (!resourceServers.contains(key)) resourceServers.add(key);
+            }
+
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(200)
+                .end(resourceServers.toString());
+          } else if (dbhandler.failed()) {
+            logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(400)
+                .end(dbhandler.cause().toString());
+          }
+        });
   }
 
   /**
@@ -1272,17 +1338,38 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing providers */
-    database.listProviders(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        logger.info("List of providers ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        logger.error("Issue in listing providers ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
+    database.listProviders(
+        requestBody,
+        dbhandler -> {
+          if (dbhandler.succeeded()) {
+            logger.info("List of providers ".concat(dbhandler.result().toString()));
+            JsonArray providers = new JsonArray();
+            JsonArray result = new JsonArray();
+            result =
+                dbhandler
+                    .result()
+                    .getJsonObject("aggregations")
+                    .getJsonObject("id")
+                    .getJsonArray("buckets");
+            int size = result.size();
+            for (int i = 0; i < size; i++) {
+              JsonObject provider = result.getJsonObject(i);
+              String key = provider.getString("key");
+              if (!providers.contains(key)) providers.add(key);
+            }
+
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(200)
+                .end(providers.toString());
+          } else if (dbhandler.failed()) {
+            logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(400)
+                .end(dbhandler.cause().toString());
+          }
+        });
   }
 
   /**
@@ -1309,17 +1396,38 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     /* Request database service with requestBody for listing resource groups */
-    database.listResourceGroups(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        logger.info("List of resource groups ".concat(dbhandler.result().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        logger.error("Issue in listing resource groups ".concat(dbhandler.cause().toString()));
-        response.putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
+    database.listResourceGroups(
+        requestBody,
+        dbhandler -> {
+          if (dbhandler.succeeded()) {
+            logger.info("List of resourceGroups ".concat(dbhandler.result().toString()));
+            JsonArray resourceGroups = new JsonArray();
+            JsonArray result = new JsonArray();
+            result =
+                dbhandler
+                    .result()
+                    .getJsonObject("aggregations")
+                    .getJsonObject("id")
+                    .getJsonArray("buckets");
+            int size = result.size();
+            for (int i = 0; i < size; i++) {
+              JsonObject rg = result.getJsonObject(i);
+              String key = rg.getString("key");
+              if (!resourceGroups.contains(key)) resourceGroups.add(key);
+            }
+
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(200)
+                .end(resourceGroups.toString());
+          } else if (dbhandler.failed()) {
+            logger.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
+            response
+                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
+                .setStatusCode(400)
+                .end(dbhandler.cause().toString());
+          }
+        });
   }
 
   /**

@@ -461,49 +461,173 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
+    String itemId = request.getString("id");
+    Request getItem = new Request(Constants.REQUEST_GET, Constants.CAT_GET_ITEM);
+    JsonObject req = new JsonObject();
+    req.put("query", new JsonObject().put("term", new JsonObject().put("id.keyword", itemId)));
+    System.out.println(req.toString());
+    getItem.setJsonEntity(req.toString());
+    client.performRequestAsync(
+        getItem,
+        new ResponseListener() {
 
-    String result =
-        "{ \"status\": \"success\", \"totalHits\": 100," + "\"limit\": 10, \"offset\": 100,"
-            + "\"results\": [" + "{ \"id\": \"abc/123\", \"tags\": [ \"a\", \"b\"] } ] }";
+          @Override
+          public void onSuccess(Response response) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            logger.info("status code: " + statusCode);
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+            logger.info("Successful DB request");
+            try {
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              handler.handle(Future.succeededFuture(responseJson));
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(
+                  Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+            }
+          }
 
-    String errResult = " { \"status\": \"invalidValue\", \"results\": [] }";
-
-    if (request.getString("id").contains("/")) {
-      handler.handle(Future.succeededFuture(new JsonObject(result)));
-    } else {
-      handler.handle(Future.succeededFuture(new JsonObject(errResult)));
-    }
-
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(
+                Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+          }
+        });
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\", \"results\": [ \"environment\", \"civic\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+    String TestInstanceID = "catalogue.iudx.org.in";
+    Request getTags = new Request(Constants.REQUEST_GET, Constants.CAT_GET_TAG);
+    JsonObject req = new JsonObject();
+    req.put("size", 0)
+        .put(
+            "aggs",
+            new JsonObject()
+                .put(
+                    "instance",
+                    new JsonObject()
+                        .put(
+                            "filter",
+                            new JsonObject()
+                                .put("term", new JsonObject().put("instanceID", TestInstanceID)))
+                        .put(
+                            "aggs",
+                            new JsonObject()
+                                .put(
+                                    "tags",
+                                    new JsonObject()
+                                        .put(
+                                            "terms",
+                                            new JsonObject()
+                                                .put("field", "tags.keyword")
+                                                .put("size", 10000))))));
+    System.out.println(req.toString());
+    getTags.setJsonEntity(req.toString());
+    client.performRequestAsync(
+        getTags,
+        new ResponseListener() {
 
+          @Override
+          public void onSuccess(Response response) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            logger.info("status code: " + statusCode);
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+            logger.info("Successful DB request");
+            try {
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              handler.handle(Future.succeededFuture(responseJson));
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(
+                  Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+            }
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(
+                Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+          }
+        });
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
   public DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\", \"results\": [ \"environment\", \"civic\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+    String TestInstanceID = "catalogue.iudx.org.in";
+    Request getDomains = new Request(Constants.REQUEST_GET, Constants.CAT_GET_DOMAIN);
+    JsonObject req = new JsonObject();
+    req.put("size", 0)
+        .put(
+            "aggs",
+            new JsonObject()
+                .put(
+                    "instance",
+                    new JsonObject()
+                        .put(
+                            "terms",
+                            new JsonObject()
+                                .put("field", "instanceID.keyword")
+                                .put("size", 10000))));
+    System.out.println(req.toString());
+    getDomains.setJsonEntity(req.toString());
+    client.performRequestAsync(
+        getDomains,
+        new ResponseListener() {
 
+          @Override
+          public void onSuccess(Response response) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            logger.info("status code: " + statusCode);
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+            logger.info("Successful DB request");
+            try {
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              handler.handle(Future.succeededFuture(responseJson));
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(
+                  Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+            }
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(
+                Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+          }
+        });
     return null;
   }
 
@@ -519,16 +643,76 @@ public class DatabaseServiceImpl implements DatabaseService {
     return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceServers(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\", \"results\": [ \"server-1\", \"server-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+  public DatabaseService listResourceServers(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    String TestInstanceID = "catalogue.iudx.org.in";
+    Request getResourceServers = new Request(Constants.REQUEST_GET, Constants.CAT_GET_ID);
+    JsonObject req = new JsonObject();
+    req.put(
+        "query",
+        new JsonObject()
+            .put(
+                "bool",
+                new JsonObject()
+                    .put(
+                        "filter",
+                        new JsonArray()
+                            .add(
+                                new JsonObject()
+                                    .put(
+                                        "term", new JsonObject().put("instanceID", TestInstanceID)))
+                            .add(
+                                new JsonObject()
+                                    .put(
+                                        "match",
+                                        new JsonObject().put("type", "iudx:ResourceServer"))))))
+            .put(
+                "aggs",
+                new JsonObject()
+                    .put(
+                        "id",
+                        new JsonObject()
+                            .put(
+                                "terms",
+                                new JsonObject().put("field", "id.keyword").put("size", 10000))));
+    System.out.println(req.toString());
+    getResourceServers.setJsonEntity(req.toString());
+    client.performRequestAsync(
+        getResourceServers,
+        new ResponseListener() {
 
+          @Override
+          public void onSuccess(Response response) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            logger.info("status code: " + statusCode);
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+            logger.info("Successful DB request");
+            try {
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              handler.handle(Future.succeededFuture(responseJson));
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(
+                  Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+            }
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(
+                Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+          }
+        });
     return null;
   }
 
@@ -538,23 +722,145 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService listProviders(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use [was not part of master code]
-    String result = "{ \"status\": \"success\", \"results\": [ \"pr-1\", \"pr-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+	  String TestInstanceID = "catalogue.iudx.org.in";
+	    Request getProviders = new Request(Constants.REQUEST_GET, Constants.CAT_GET_ID);
+	    JsonObject req = new JsonObject();
+	    req.put(
+	        "query",
+	        new JsonObject()
+	            .put(
+	                "bool",
+	                new JsonObject()
+	                    .put(
+	                        "filter",
+	                        new JsonArray()
+	                            .add(
+	                                new JsonObject()
+	                                    .put(
+	                                        "term", new JsonObject().put("instanceID", TestInstanceID)))
+	                            .add(
+	                                new JsonObject()
+	                                    .put(
+	                                        "match",
+	                                        new JsonObject().put("type", "iudx:Provider"))))))
+	            .put(
+	                "aggs",
+	                new JsonObject()
+	                    .put(
+	                        "id",
+	                        new JsonObject()
+	                            .put(
+	                                "terms",
+	                                new JsonObject().put("field", "id.keyword").put("size", 10000))));
+	    System.out.println(req.toString());
+	    getProviders.setJsonEntity(req.toString());
+	    client.performRequestAsync(
+	        getProviders,
+	        new ResponseListener() {
 
-    return null;
+	          @Override
+	          public void onSuccess(Response response) {
+	            int statusCode = response.getStatusLine().getStatusCode();
+	            logger.info("status code: " + statusCode);
+	            if (statusCode != 200 && statusCode != 204) {
+	              handler.handle(Future.failedFuture("Status code is not 2xx"));
+	              return;
+	            }
+	            logger.info("Successful DB request");
+	            try {
+	              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+	              handler.handle(Future.succeededFuture(responseJson));
+	            } catch (ParseException | IOException e) {
+	              logger.info("DB ERROR:\n");
+	              e.printStackTrace();
+	              /* Handle request error */
+	              handler.handle(
+	                  Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+	            }
+	          }
+
+	          @Override
+	          public void onFailure(Exception e) {
+	            logger.info("DB request has failed. ERROR:\n");
+	            e.printStackTrace();
+	            /* Handle request error */
+	            handler.handle(
+	                Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+	          }
+	        });
+	    return null;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listResourceGroups(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use [was not part of master code]
-    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+  public DatabaseService listResourceGroups(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    String TestInstanceID = "catalogue.iudx.org.in";
+    Request getResourceGroups = new Request(Constants.REQUEST_GET, Constants.CAT_GET_ID);
+    JsonObject req = new JsonObject();
+    req.put(
+        "query",
+        new JsonObject()
+            .put(
+                "bool",
+                new JsonObject()
+                    .put(
+                        "filter",
+                        new JsonArray()
+                            .add(
+                                new JsonObject()
+                                    .put(
+                                        "term", new JsonObject().put("instanceID", TestInstanceID)))
+                            .add(
+                                new JsonObject()
+                                    .put(
+                                        "match",
+                                        new JsonObject().put("type", "iudx:ResourceGroup"))))))
+            .put(
+                "aggs",
+                new JsonObject()
+                    .put(
+                        "id",
+                        new JsonObject()
+                            .put(
+                                "terms",
+                                new JsonObject().put("field", "id.keyword").put("size", 10000))));
+    System.out.println(req.toString());
+    getResourceGroups.setJsonEntity(req.toString());
+    client.performRequestAsync(
+        getResourceGroups,
+        new ResponseListener() {
 
+          @Override
+          public void onSuccess(Response response) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            logger.info("status code: " + statusCode);
+            if (statusCode != 200 && statusCode != 204) {
+              handler.handle(Future.failedFuture("Status code is not 2xx"));
+              return;
+            }
+            logger.info("Successful DB request");
+            try {
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              handler.handle(Future.succeededFuture(responseJson));
+            } catch (ParseException | IOException e) {
+              logger.info("DB ERROR:\n");
+              e.printStackTrace();
+              /* Handle request error */
+              handler.handle(
+                  Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+            }
+          }
+
+          @Override
+          public void onFailure(Exception e) {
+            logger.info("DB request has failed. ERROR:\n");
+            e.printStackTrace();
+            /* Handle request error */
+            handler.handle(
+                Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+          }
+        });
     return null;
   }
 
