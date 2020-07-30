@@ -15,6 +15,7 @@ import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseListener;
 import org.elasticsearch.client.RestClient;
 
+
 /**
  * The Database Service Implementation.
  *
@@ -510,81 +511,89 @@ public class DatabaseServiceImpl implements DatabaseService {
   /** {@inheritDoc} */
   @Override
   public DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    String itemType = request.getString("itemType");
-    String type = request.getString("type");
+    String itemType = request.getString(Constants.ITEM_TYPE);
+    String type = request.getString(Constants.TYPE_KEY);
     String TestInstanceID = "catalogue.iudx.org.in";
     JsonObject req = new JsonObject();
     Request getItems;
 
     if (itemType.equalsIgnoreCase("instances")) {
       getItems = new Request(Constants.REQUEST_GET, Constants.CAT_GET_DOMAIN);
-      req.put("size", 0)
+      req.put(Constants.SIZE, 0)
           .put(
-              "aggs",
+              Constants.AGGREGATION_KEY,
               new JsonObject()
                   .put(
                       itemType,
                       new JsonObject()
                           .put(
-                              "terms",
+                              Constants.TERMS_KEY,
                               new JsonObject()
-                                  .put("field", "instanceID.keyword")
-                                  .put("size", 10000))));
-    } else if (itemType.equalsIgnoreCase("tags")) {
+                                  .put(Constants.FIELD, Constants.INSTANCE_ID_KEYWORD)
+                                  .put(Constants.SIZE, 10000))));
+    } else if (itemType.equalsIgnoreCase(Constants.TAGS)) {
       getItems = new Request(Constants.REQUEST_GET, Constants.CAT_GET_TAG);
-      req.put("size", 0)
+      req.put(Constants.SIZE, 0)
           .put(
-              "aggs",
+              Constants.AGGREGATION_KEY,
               new JsonObject()
                   .put(
-                      "instance",
+                      Constants.INSTANCE,
                       new JsonObject()
                           .put(
-                              "filter",
-                              new JsonObject()
-                                  .put("term", new JsonObject().put("instanceID", TestInstanceID)))
-                          .put(
-                              "aggs",
+                              Constants.FILTER_KEY,
                               new JsonObject()
                                   .put(
-                                      "tags",
+                                      Constants.TERM,
+                                      new JsonObject()
+                                          .put(Constants.INSTANCE_ID_KEY, TestInstanceID)))
+                          .put(
+                              Constants.AGGREGATION_KEY,
+                              new JsonObject()
+                                  .put(
+                                      Constants.TAGS,
                                       new JsonObject()
                                           .put(
-                                              "terms",
+                                              Constants.TERMS_KEY,
                                               new JsonObject()
-                                                  .put("field", "tags.keyword")
-                                                  .put("size", 10000))))));
+                                                  .put(Constants.FIELD, Constants.TAGS_KEYWORD)
+                                                  .put(Constants.SIZE, 10000))))));
     } else {
       getItems =
           new Request(
               Constants.REQUEST_GET, Constants.CAT_GET_AGGREGATIONS + "." + itemType + ".buckets");
       System.out.println(Constants.CAT_GET_AGGREGATIONS + "." + itemType + ".buckets");
       req.put(
-              "query",
+              Constants.QUERY_KEY,
               new JsonObject()
                   .put(
-                      "bool",
+                      Constants.BOOL_KEY,
                       new JsonObject()
                           .put(
-                              "filter",
+                              Constants.FILTER_KEY,
                               new JsonArray()
                                   .add(
                                       new JsonObject()
                                           .put(
-                                              "term",
-                                              new JsonObject().put("instanceID", TestInstanceID)))
+                                              Constants.TERM,
+                                              new JsonObject()
+                                                  .put(Constants.INSTANCE_ID_KEY, TestInstanceID)))
                                   .add(
                                       new JsonObject()
-                                          .put("match", new JsonObject().put("type", type))))))
+                                          .put(
+                                              Constants.MATCH_KEY,
+                                              new JsonObject().put(Constants.TYPE_KEY, type))))))
           .put(
-              "aggs",
+              Constants.AGGREGATION_KEY,
               new JsonObject()
                   .put(
                       itemType,
                       new JsonObject()
                           .put(
-                              "terms",
-                              new JsonObject().put("field", "id.keyword").put("size", 10000))));
+                              Constants.TERMS_KEY,
+                              new JsonObject()
+                                  .put(Constants.FIELD, Constants.ID_KEYWORD)
+                                  .put(Constants.SIZE_KEY, 10000))));
     }
     System.out.println(req.toString());
     getItems.setJsonEntity(req.toString());
@@ -610,7 +619,8 @@ public class DatabaseServiceImpl implements DatabaseService {
               e.printStackTrace();
               /* Handle request error */
               handler.handle(
-                  Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+                  Future.failedFuture(
+                      new JsonObject().put(Constants.STATUS, Constants.FAILED).toString()));
             }
           }
 
@@ -620,7 +630,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             e.printStackTrace();
             /* Handle request error */
             handler.handle(
-                Future.failedFuture(new JsonObject().put("status", "failed").toString()));
+                Future.failedFuture(
+                    new JsonObject().put(Constants.STATUS, Constants.FAILED).toString()));
           }
         });
     return null;

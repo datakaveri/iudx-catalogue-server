@@ -19,6 +19,9 @@ public class Constants {
   public static final String ROUTE_SEARCH = basePath.concat("/search");
   public static final String ROUTE_LIST_ITEMS = basePath.concat("/list/:itemType");
 
+  public static final String AGGREGATIONS = "aggregations";
+  public static final String INSTANCE = "instance";
+  public static final String BUCKETS = "buckets";
 
   public static final String ID = "id";
   public static final String ITEM_TYPE = "itemType";

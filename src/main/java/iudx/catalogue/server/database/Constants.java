@@ -23,6 +23,7 @@ public class Constants {
   static final String SOURCE = "_source";
   static final String STATUS = "status";
   static final String SUCCESS = "success";
+  static final String INSTANCE= "instance";
   static final String INSTANCE_ID_KEY = "instanceId";
   static final String CONFIG_FILE = "config.properties";
   static final String RESOURCE = "resource";
@@ -35,8 +36,9 @@ public class Constants {
   static final String CAT_GET_TAG = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations.instance.tags.buckets";
   static final String CAT_GET_DOMAIN = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations.instances.buckets";
   static final String CAT_GET_AGGREGATIONS = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations";
-  static final String CAT_GET_ITEM = CAT_TEST_SEARCH_INDEX+"?filter_path=hits.hits";
+  static final String CAT_GET_ITEM = CAT_TEST_SEARCH_INDEX + "?filter_path=hits.hits";
   static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
+  static final String AGGREGATION_KEY = "aggs";
   static final String BOOL_KEY = "bool";
   static final String FILTER_KEY = "filter";
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
@@ -117,4 +119,8 @@ public class Constants {
   public static final String GEO_SEARCH = "geoSearch_";
   public static final String DESCRIPTION_ATTR = "description";
 
+  public static final String FIELD = "field";
+  public static final String INSTANCE_ID_KEYWORD = "instanceID.keyword";
+  public static final String TAGS_KEYWORD = "tags.keyword";
+  
 }

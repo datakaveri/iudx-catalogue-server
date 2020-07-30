@@ -1108,21 +1108,21 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* HTTP request instance/host details */
     String instanceID = request.getHeader(Constants.HEADER_HOST);
 
-    String itemType = request.getParam("itemType");
-    requestBody.put("itemType", itemType);
+    String itemType = request.getParam(Constants.ITEM_TYPE);
+    requestBody.put(Constants.ITEM_TYPE, itemType);
     /* Populating query mapper */
     requestBody.put(Constants.INSTANCE_ID_KEY, instanceID);
 
     String type = null;
     switch (itemType) {
       case "resourcegroups":
-        type = "iudx:ResourceGroup";
+        type = Constants.ITEM_TYPE_RESOURCE_GROUP;
         break;
       case "resourceservers":
-        type = "iudx:ResourceServer";
+    	  type = Constants.ITEM_TYPE_RESOURCE_SERVER;
         break;
       case "providers":
-        type = "iudx:Provider";
+    	  type = Constants.ITEM_TYPE_PROVIDER;
         break;
       case "instances":
       case "tags":
@@ -1146,23 +1146,24 @@ public class ApiServerVerticle extends AbstractVerticle {
             logger.info("List of " + itemType + ": ".concat(dbhandler.result().toString()));
             JsonArray items = new JsonArray();
             JsonArray result = new JsonArray();
-            if (itemType.equalsIgnoreCase("resourcegroups")||itemType.equalsIgnoreCase("resourceservers")
+            if (itemType.equalsIgnoreCase("resourcegroups")
+                || itemType.equalsIgnoreCase("resourceservers")
                 || itemType.equalsIgnoreCase("providers")
                 || itemType.equalsIgnoreCase("instances")) {
               result =
                   dbhandler
                       .result()
-                      .getJsonObject("aggregations")
+                      .getJsonObject(Constants.AGGREGATIONS)
                       .getJsonObject(itemType)
-                      .getJsonArray("buckets");
-            } else if (itemType.equalsIgnoreCase("tags")) {
+                      .getJsonArray(Constants.BUCKETS);
+            } else if (itemType.equalsIgnoreCase(Constants.TAGS)) {
               result =
                   dbhandler
                       .result()
-                      .getJsonObject("aggregations")
-                      .getJsonObject("instance")
-                      .getJsonObject("tags")
-                      .getJsonArray("buckets");
+                      .getJsonObject(Constants.AGGREGATIONS)
+                      .getJsonObject(Constants.INSTANCE)
+                      .getJsonObject(Constants.TAGS)
+                      .getJsonArray(Constants.BUCKETS);
             }
             int size = result.size();
             for (int i = 0; i < size; i++) {
