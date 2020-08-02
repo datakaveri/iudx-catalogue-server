@@ -3,6 +3,7 @@
 
 logs/
 config.properties
+python_scripts
 
 ### STS ###
 .apt_generated

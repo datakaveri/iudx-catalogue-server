@@ -73,6 +73,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   private HttpServer server;
   private CrudApis crudApis;
+  private SearchApis searchApis;
 
   @SuppressWarnings("unused")
   private Router router;
@@ -125,12 +126,13 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         /** API Callback managers */
         crudApis = new CrudApis();
+        searchApis = new SearchApis();
 
         /**
          *
          * Get proxies and handlers
          *
-         */
+        */
 
         /* Handler for service discovery */
         discovery = ServiceDiscovery.create(vertx);
@@ -141,6 +143,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               if (ar.succeeded()) {
                 dbService = ar.result();
                 crudApis.setDbService(dbService);
+                searchApis.setDbService(dbService);
                 LOGGER.info("Service Discovery Success. Service name is : "
                         + dbService.getClass().getName());
               } else {
@@ -194,7 +197,6 @@ public class ApiServerVerticle extends AbstractVerticle {
         /**
          * Routes for item CRUD
          */
-
         /* Create Item - Body contains data */
         router.post(ROUTE_ITEMS)
           .consumes(MIME_APPLICATION_JSON)
@@ -204,7 +206,7 @@ public class ApiServerVerticle extends AbstractVerticle {
           if (routingContext.request().headers().contains(HEADER_TOKEN)) {
             crudApis.createItemHandler(routingContext);
           } else {
-            LOGGER.warn("Unathorized CUD operation");
+            LOGGER.warn("Fail: Unathorized CRUD operation");
             routingContext.response().setStatusCode(401).end();
           }
         });
@@ -219,13 +221,14 @@ public class ApiServerVerticle extends AbstractVerticle {
             /** Update params checked in createItemHandler */
             crudApis.createItemHandler(routingContext);
           } else {
-            LOGGER.warn("Unathorized CUD operation");
+            LOGGER.warn("Unathorized CRUD operation");
             routingContext.response().setStatusCode(401).end();
           }
         });
 
-        /* Delete Item - Path param contains id */
+        /* Delete Item - Query param contains id */
         router.delete(ROUTE_DELETE_ITEMS)
+          .produces(MIME_APPLICATION_JSON)
           .handler( routingContext -> {
           /* checking auhthentication info in requests */
           if (routingContext.request().headers().contains(HEADER_TOKEN) &&
@@ -233,7 +236,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             /** Update params checked in createItemHandler */
             crudApis.deleteItemHandler(routingContext);
           } else {
-            LOGGER.warn("Unathorized CUD operation");
+            LOGGER.warn("Unathorized CRUD operation");
             routingContext.response().setStatusCode(401).end();
           }
         });
@@ -242,12 +245,19 @@ public class ApiServerVerticle extends AbstractVerticle {
         /**
          * Routes for search and count
          */
-
         /* Search for an item */
-        router.get(ROUTE_SEARCH).handler(this::search);
+        router.get(ROUTE_SEARCH)
+          .produces(MIME_APPLICATION_JSON)
+          .handler( routingContext -> {
+          searchApis.searchHandler(routingContext);
+        });
 
         /* Count the Cataloque server items */
-        router.get(ROUTE_COUNT).handler(this::count);
+        router.get(ROUTE_COUNT)
+          .produces(MIME_APPLICATION_JSON)
+          .handler( routingContext -> {
+          searchApis.searchHandler(routingContext);
+        });
 
 
         /**
@@ -297,385 +307,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     });
   }
 
-  /**
-   * Processes the attribute, geoSpatial, and text search requests and returns the results from the
-   * database.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
   public void search(RoutingContext routingContext) {
 
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Collection of query parameters from HTTP request */
-    MultiMap queryParameters = routingContext.queryParams();
-
-    LOGGER.info("routed to search");
-    LOGGER.info(request.params().toString());
-
-    /* validating proper actual query parameters from request */
-    if ((request.getParam(PROPERTY) == null || request.getParam(VALUE) == null)
-        && (request.getParam(GEOPROPERTY) == null
-            || request.getParam(GEOREL) == null
-            || request.getParam(GEOMETRY) == null
-            || request.getParam(COORDINATES) == null)
-        && request
-            .getParam(Q_VALUE) == null /*
-                                                  * || request.getParam(LIMIT) == null ||
-                                                  * request.getParam(OFFSET) == null
-                                                  */) {
-
-      LOGGER.error("Invalid Syntax");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX)
-              .build().toJsonString());
-      return;
-
-      /* checking the values of the query parameters */
-    } else if (request.getParam(PROPERTY) != null
-        && !request.getParam(PROPERTY).isBlank()) {
-
-      /* converting query parameters in json */
-      requestBody = QueryMapper.map2Json(queryParameters);
-
-      /* checking the values of the query parameters for geo related count */
-    } else if (LOCATION.equals(request.getParam(GEOPROPERTY))
-        && GEOMETRIES.contains(request.getParam(GEOMETRY))
-        && GEORELS.contains(request.getParam(GEOREL))) {
-
-      requestBody = QueryMapper.map2Json(queryParameters);
-
-      /* checking the values of the query parameters */
-    } else if (request.getParam(Q_VALUE) != null
-        && !request.getParam(Q_VALUE).isBlank()) {
-
-      requestBody = QueryMapper.map2Json(queryParameters);
-
-    } else {
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_VALUE)
-              .build().toJsonString());
-      return;
-    }
-
-    if (requestBody != null) {
-      requestBody.put(INSTANCE_ID_KEY, instanceID);
-      dbService.searchQuery(requestBody, handler -> {
-        if (handler.succeeded()) {
-          JsonObject resultJson = handler.result();
-          String status = resultJson.getString(STATUS);
-          if (status.equalsIgnoreCase(SUCCESS)) {
-            response.setStatusCode(200);
-          } else if (status.equalsIgnoreCase(PARTIAL_CONTENT)) {
-            response.setStatusCode(206);
-          } else {
-            response.setStatusCode(400);
-          }
-          response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-              .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
-          response.write(resultJson.toString());
-          LOGGER.info("response: " + resultJson);
-          response.end();
-        } else if (handler.failed()) {
-          LOGGER.error(handler.cause().getMessage());
-          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-              .setStatusCode(400).end(handler.cause().getMessage());
-        }
-      });
-    } else {
-      LOGGER.error("Invalid request query parameters");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_VALUE)
-              .build().toJsonString());
-    }
-  }
-
-  /**
-   * Queries the database and returns the city config for the instanceID.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void getCities(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    String instanceID = routingContext.request().host();
-    JsonObject queryJson = new JsonObject();
-    queryJson.put(INSTANCE_ID_KEY, instanceID).put(OPERATION,
-        GET_CITIES);
-    LOGGER.info("search query : " + queryJson);
-    dbService.getCities(queryJson, handler -> {
-      if (handler.succeeded()) {
-        JsonObject resultJson = handler.result();
-        String status = resultJson.getString(STATUS);
-        if (status.equalsIgnoreCase(SUCCESS)) {
-          response.setStatusCode(200);
-        } else {
-          response.setStatusCode(400);
-        }
-        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
-        response.write(resultJson.toString());
-        LOGGER.info("response : " + resultJson);
-        response.end();
-      } else if (handler.failed()) {
-        LOGGER.info(handler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-        response.setStatusCode(500);
-        response.end(INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-
-  /**
-   * Creates city config for the obtained instanceID.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void setCities(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = routingContext.getBodyAsJson();
-    String instanceID = routingContext.request().host();
-    validationService.validateItem(queryJson, validationHandler -> {
-      if (validationHandler.succeeded()) {
-        queryJson.put(INSTANCE_ID_KEY, instanceID);
-        LOGGER.info("search query : " + queryJson);
-        dbService.setCities(queryJson, dbHandler -> {
-          if (dbHandler.succeeded()) {
-            JsonObject resultJson = dbHandler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              response.setStatusCode(201);
-            } else {
-              response.setStatusCode(400);
-            }
-            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            LOGGER.info("response : " + resultJson);
-            response.end();
-          } else if (dbHandler.failed()) {
-            dbHandler.cause().getMessage();
-            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-            response.setStatusCode(500);
-            response.end(INTERNAL_SERVER_ERROR);
-          }
-        });
-      } else if (validationHandler.failed()) {
-        LOGGER.info(validationHandler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-        response.setStatusCode(400);
-        response.end(BAD_REQUEST);
-      }
-    });
-  }
-
-  /**
-   * Updates city config for the obtained instanceID.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void updateCities(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = routingContext.getBodyAsJson();
-    String instanceID = routingContext.request().host();
-    validationService.validateItem(queryJson, validationHandler -> {
-      if (validationHandler.succeeded()) {
-        queryJson.put(INSTANCE_ID_KEY, instanceID);
-        LOGGER.info("search query : " + queryJson);
-        dbService.updateCities(queryJson, dbHandler -> {
-          if (dbHandler.succeeded()) {
-            JsonObject resultJson = dbHandler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              response.setStatusCode(201);
-            } else {
-              response.setStatusCode(400);
-            }
-            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            LOGGER.info("response : " + resultJson);
-            response.end();
-          } else if (dbHandler.failed()) {
-            LOGGER.info(dbHandler.cause().getMessage());
-            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-            response.setStatusCode(500);
-            response.end(INTERNAL_SERVER_ERROR);
-          }
-        });
-      } else if (validationHandler.failed()) {
-        LOGGER.info(validationHandler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-        response.setStatusCode(400);
-        response.end(BAD_REQUEST);
-      }
-    });
-  }
-
-  /**
-   * Queries the database and returns the config for the obtained instanceID.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void getConfig(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    String instanceID = routingContext.request().host();
-    JsonObject queryJson = new JsonObject();
-    queryJson.put(INSTANCE_ID_KEY, instanceID).put("operation", "getConfig");
-    LOGGER.info("search query : " + queryJson);
-    dbService.getConfig(queryJson, handler -> {
-      if (handler.succeeded()) {
-        JsonObject resultJson = handler.result();
-        String status = resultJson.getString(STATUS);
-        if (status.equalsIgnoreCase(SUCCESS)) {
-          response.setStatusCode(200);
-        } else {
-          response.setStatusCode(400);
-        }
-        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
-        response.write(resultJson.toString());
-        LOGGER.info("response : " + resultJson);
-        response.end();
-      } else if (handler.failed()) {
-        LOGGER.info(handler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-        response.setStatusCode(500);
-        response.end(INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-
-  /**
-   * Creates config for the obtained instanceID.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void setConfig(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = routingContext.getBodyAsJson();
-    String instanceID = routingContext.request().host();
-    validationService.validateItem(queryJson, validationHandler -> {
-      if (validationHandler.succeeded()) {
-        queryJson.put(INSTANCE_ID_KEY, instanceID);
-        LOGGER.info("search query : " + queryJson);
-        dbService.setConfig(queryJson, dbHandler -> {
-          if (dbHandler.succeeded()) {
-            JsonObject resultJson = dbHandler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              response.setStatusCode(201);
-            } else {
-              response.setStatusCode(400);
-            }
-            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            LOGGER.info("response : " + resultJson);
-            response.end();
-          } else if (dbHandler.failed()) {
-            LOGGER.error(dbHandler.cause().getMessage());
-            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-            response.setStatusCode(500);
-            response.end(INTERNAL_SERVER_ERROR);
-          }
-        });
-      } else if (validationHandler.failed()) {
-        LOGGER.error(validationHandler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-        response.setStatusCode(400);
-        response.end(BAD_REQUEST);
-      }
-    });
-  }
-
-  /**
-   * Deletes config of obtained instanceID.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void deleteConfig(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    String instanceID = routingContext.request().host();
-    JsonObject queryJson = new JsonObject();
-    queryJson.put(INSTANCE_ID_KEY, instanceID);
-    LOGGER.info("search query : " + queryJson);
-    dbService.deleteConfig(queryJson, handler -> {
-      if (handler.succeeded()) {
-        JsonObject resultJson = handler.result();
-        String status = resultJson.getString(STATUS);
-        if (status.equalsIgnoreCase(SUCCESS)) {
-          response.setStatusCode(200);
-        } else {
-          response.setStatusCode(400);
-        }
-        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
-        response.write(resultJson.toString());
-        LOGGER.info("response : " + resultJson);
-        response.end();
-      } else if (handler.failed()) {
-        LOGGER.error(handler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-        response.setStatusCode(500);
-        response.end(INTERNAL_SERVER_ERROR);
-      }
-    });
-  }
-
-  /**
-   * Updates config of the obtained instanceID.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void updateConfig(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = routingContext.getBodyAsJson();
-    String instanceID = routingContext.request().host();
-    validationService.validateItem(queryJson, validationHandler -> {
-      if (validationHandler.succeeded()) {
-        queryJson.put(INSTANCE_ID_KEY, instanceID);
-        LOGGER.info("search query : " + queryJson);
-        dbService.updateConfig(queryJson, dbHandler -> {
-          if (dbHandler.succeeded()) {
-            JsonObject resultJson = dbHandler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              response.setStatusCode(201);
-            } else {
-              response.setStatusCode(400);
-            }
-            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            LOGGER.info("response : " + resultJson);
-            response.end();
-          } else if (dbHandler.failed()) {
-            LOGGER.error(dbHandler.cause().getMessage());
-            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-            response.setStatusCode(500);
-            response.end(INTERNAL_SERVER_ERROR);
-          }
-        });
-      } else if (validationHandler.failed()) {
-        LOGGER.error(validationHandler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-        response.setStatusCode(400);
-        response.end(BAD_REQUEST);
-      }
-    });
   }
 
   /**
@@ -1062,44 +695,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     }
   }
 
-  /**
-   * Appends config to the obtained instanceID.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void appendConfig(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = routingContext.getBodyAsJson();
-    String instanceID = routingContext.request().host();
-    validationService.validateItem(queryJson, validationHandler -> {
-      if (validationHandler.succeeded()) {
-        queryJson.put(INSTANCE_ID_KEY, instanceID);
-        LOGGER.info("search query : " + queryJson);
-        dbService.appendConfig(queryJson, dbHandler -> {
-          if (dbHandler.succeeded()) {
-            JsonObject resultJson = dbHandler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              response.setStatusCode(201);
-            } else {
-              response.setStatusCode(400);
-            }
-            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            LOGGER.info("response : " + resultJson);
-            response.end();
-          } else if (dbHandler.failed()) {
-            LOGGER.error(dbHandler.cause().getMessage());
-            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-            response.setStatusCode(400);
-            response.end(BAD_REQUEST);
-          }
-        });
-      }
-      });
-  }
 
   /**
    * Queries the database and returns all resource servers belonging to an item.
@@ -1225,100 +820,4 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
   }
 
-  /**
-   * Counting the cataloque items.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void count(RoutingContext routingContext) {
-
-    LOGGER.info("Counting the request parameters");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Collection of query parameters from HTTP request */
-    MultiMap queryParameters = routingContext.queryParams();
-
-    if (!queryParameters.contains(ATTRIBUTE_FILTER)) {
-
-      /* validating proper actual query parameters from request */
-      if ((request.getParam(PROPERTY) == null
-          || request.getParam(VALUE) == null)
-          && (request.getParam(GEOPROPERTY) == null
-              || request.getParam(GEOREL) == null
-              || request.getParam(GEOMETRY) == null
-              || request.getParam(COORDINATES) == null)
-          && request.getParam(Q_VALUE) == null) {
-
-        LOGGER.error("Invalid Syntax");
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(new ResponseHandler.Builder()
-                .withStatus(INVALID_SYNTAX).build().toJsonString());
-        return;
-
-        /* checking the values of the query parameters */
-      } else if (request.getParam(PROPERTY) != null
-          && !request.getParam(PROPERTY).isBlank()) {
-
-        /* converting query parameters in json */
-        requestBody = QueryMapper.map2Json(queryParameters);
-
-        /* checking the values of the query parameters for geo related count */
-      } else if (LOCATION.equals(request.getParam(GEOPROPERTY))
-          && GEOMETRIES.contains(request.getParam(GEOMETRY))
-          && GEORELS.contains(request.getParam(GEOREL))) {
-
-        requestBody = QueryMapper.map2Json(queryParameters);
-
-        /* checking the values of the query parameters */
-      } else if (request.getParam(Q_VALUE) != null
-          && !request.getParam(Q_VALUE).isBlank()) {
-
-        requestBody = QueryMapper.map2Json(queryParameters);
-
-      } else {
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(new ResponseHandler.Builder()
-                .withStatus(INVALID_VALUE).build().toJsonString());
-        return;
-      }
-
-      if (requestBody != null) {
-        LOGGER.info("Count query : " + requestBody);
-        requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-        /* Request database service with requestBody for counting */
-        dbService.countQuery(requestBody, dbhandler -> {
-          if (dbhandler.succeeded()) {
-            LOGGER.info("Count query completed ".concat(dbhandler.result().toString()));
-            response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .setStatusCode(200).end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            LOGGER.error("Issue in count query ".concat(dbhandler.cause().toString()));
-            response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .setStatusCode(400).end(dbhandler.cause().toString());
-          }
-        });
-      } else {
-        LOGGER.error("Invalid request query parameters");
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(new ResponseHandler.Builder()
-                .withStatus(INVALID_VALUE).build().toJsonString());
-      }
-    } else {
-      LOGGER.error("Invalid request query parameters");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_VALUE)
-              .build().toJsonString());
-    }
-  }
 }
