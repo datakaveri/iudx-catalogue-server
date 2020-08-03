@@ -196,7 +196,7 @@ public class ApiServerVerticleTest {
         JsonObject jsonBody = fileRes.result().toJsonObject();
 
         /* Send the file to the server using PUT */
-        client.put(PORT, HOST, BASE_URL.concat("item/").concat(jsonBody.getString("id")))
+        client.put(PORT, HOST, BASE_URL.concat("item"))
             .putHeader("token", TOKEN).putHeader("Content-Type", "application/json")
             .sendJson(jsonBody, serverResponse -> {
               if (serverResponse.succeeded()) {
@@ -281,15 +281,14 @@ public class ApiServerVerticleTest {
           JsonObject item = (JsonObject) objectIterator.next();
           /* Send the file to the server using DELETE */
           logger.info("Deleting " + item.getString("id"));
-          client.delete(PORT, HOST, BASE_URL.concat("item/").concat(item.getString("id")))
+          client.delete(PORT, HOST, BASE_URL.concat("item/"))
+              .addQueryParam("id", item.getString("id"))
               .putHeader("token", TOKEN).putHeader("Content-Type", "application/json")
               .send(serverResponse -> {
                 if (serverResponse.succeeded()) {
 
                   /* comparing the response */
                   assertEquals(200, serverResponse.result().statusCode());
-                  assertEquals("application/json",
-                      serverResponse.result().getHeader("content-type"));
                   if (serverResponse.result().statusCode() == 200) {
                     wrapper.count++;
                   }

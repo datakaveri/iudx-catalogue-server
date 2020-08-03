@@ -1,9 +1,15 @@
 package iudx.catalogue.server.apiserver.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
+
 public class Constants {
 
   private static String basePath = "/iudx/cat/v1";
 
+  /** Accept Headers and CORS */
   public static final String HEADER_ACCEPT = "Accept";
   public static final String HEADER_TOKEN = "token";
   public static final String HEADER_CONTENT_LENGTH = "Content-Length";
@@ -12,10 +18,29 @@ public class Constants {
   public static final String HEADER_ORIGIN = "Origin";
   public static final String HEADER_REFERER = "Referer";
   public static final String HEADER_CORS = "Access-Control-Allow-Origin";
+  public static final Set<String> ALLOWED_HEADERS
+    = new HashSet<String>(Arrays.asList(HEADER_ACCEPT, HEADER_TOKEN, HEADER_CONTENT_LENGTH,
+                                    HEADER_CONTENT_TYPE, HEADER_HOST, HEADER_ORIGIN,
+                                    HEADER_REFERER, HEADER_CORS));
+
   public static final String MIME_APPLICATION_JSON = "application/json";
 
-  public static final String ROUTE_APIS = "/apis/*";
+  public static final String ROUTE_STATIC = "/apis/*";
+
+  /**
+   *Routes
+   */
+  /** CRUD Routes */
   public static final String ROUTE_ITEMS = basePath.concat("/item");
+  public static final String ROUTE_UPDATE_ITEMS = basePath.concat("/item");
+  public static final String ROUTE_DELETE_ITEMS = basePath.concat("/item");
+  public static final String ROUTE_LIST_ITEMS = basePath.concat("/items");
+
+  public static final String ROUTE_LIST_RESOURCE_REL = basePath.concat("\\/(?<id>.*)\\/resource");
+  public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
+      basePath.concat("\\/(?<id>.*)\\/resourceGroup");
+
+
   public static final String ROUTE_SEARCH = basePath.concat("/search");
   public static final String ROUTE_TAGS = basePath.concat("/tags");
   public static final String ROUTE_DOMAINS = basePath.concat("/domains");
@@ -35,16 +60,6 @@ public class Constants {
   public static final String DATA_DES_ITEM = "dataDesItem";
 
 
-  public static final String ROUTE_UPDATE_ITEMS =
-      basePath.concat("/item/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem");
-  public static final String ROUTE_DELETE_ITEMS =
-      basePath.concat("/item/:" + PROVIDER_ORG + "/:" + PROVIDER_ITEM 
-          + "/:" + RESOURCE_SVR_ITEM + "/:" + RESOURCE_GRP_ITEM + "/:" + RESOURCE_ITEM);
-  public static final String ROUTE_LIST_ITEMS =
-      basePath.concat("/items/:resItem/:resGrpItem/:resSvrItem/:pvdrItem/:dataDesItem");
-  public static final String ROUTE_LIST_RESOURCE_REL = basePath.concat("\\/(?<id>.*)\\/resource");
-  public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
-      basePath.concat("\\/(?<id>.*)\\/resourceGroup");
 
   public static final String ROUTE_UI_CITIES = basePath.concat("/ui/cities");
   public static final String ROUTE_UI_CONFIG = basePath.concat("/ui/config");
@@ -54,10 +69,17 @@ public class Constants {
   public static final String ROUTE_DATA_TYPE = basePath.concat("\\/(?<id>.*)\\/type");
   public static final String ROUTE_COUNT = basePath.concat("/count");
 
+  /** Item types */
   public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
   public static final String ITEM_TYPE_RESOURCE_GROUP = "iudx:ResourceGroup";
   public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
   public static final String ITEM_TYPE_PROVIDER = "iudx:Provider";
+  public static final ArrayList<String> ITEM_TYPES 
+    = new ArrayList<String>(Arrays.asList(ITEM_TYPE_RESOURCE, ITEM_TYPE_RESOURCE_GROUP,
+                                          ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_PROVIDER));
+
+
+
   public static final String RELATIONSHIP = "relationship";
   public static final String REL_RESOURCE = "resource";
   public static final String REL_RESOURCE_GRP = "resourceGroup";
@@ -65,12 +87,6 @@ public class Constants {
   public static final String REL_PROVIDER = "provider";
   public static final String REL_TYPE = "type";
 
-  public static final String GEOREL_WITHIN = "within";
-  public static final String GEOREL_NEAR = "near";
-  public static final String GEOREL_COVERED_BY = "coveredBy";
-  public static final String GEOREL_INTERSECTS = "intersects";
-  public static final String GEOREL_EQUALS = "equals";
-  public static final String GEOREL_DISJOINT = "disjoint";
 
   public static final String CONFIG_FILE = "config.properties";
   public static final String KEYSTORE_FILE_NAME = "keystore";
@@ -90,13 +106,32 @@ public class Constants {
   public static final String OFFSET = "offset";
   public static final String PROVIDER_NAME = "provider.name";
   public static final String LOCATION = "location";
-  public static final String BBOX = "bbox";
-  public static final String POLYGON = "Polygon";
-  public static final String POINT = "Point";
-  public static final String LINE_STRING = "LineString";
   public static final String PARTIAL_CONTENT = "partial-content";
   public static final String TEXT = "text";
   public static final String MAX_DISTANCE = "maxDistance";
+
+
+  /** GeoRels */
+  public static final String GEOREL_WITHIN = "within";
+  public static final String GEOREL_NEAR = "near";
+  public static final String GEOREL_COVERED_BY = "coveredBy";
+  public static final String GEOREL_INTERSECTS = "intersects";
+  public static final String GEOREL_EQUALS = "equals";
+  public static final String GEOREL_DISJOINT = "disjoint";
+  public static final ArrayList<String> GEORELS 
+    = new ArrayList<String>(Arrays.asList(GEOREL_WITHIN, GEOREL_NEAR,
+                                          GEOREL_COVERED_BY, GEOREL_INTERSECTS,
+                                          GEOREL_EQUALS, GEOREL_DISJOINT));
+
+
+  /** Geometries */
+  public static final String BBOX = "bbox";
+  public static final String POLYGON = "Polygon";
+  public static final String LINE_STRING = "LineString";
+  public static final String POINT = "Point";
+  public static final ArrayList<String> GEOMETRIES 
+    = new ArrayList<String>(Arrays.asList(BBOX, POLYGON,
+                                          LINE_STRING, POINT));
 
   public static final String SEARCH_TYPE = "searchType";
   public static final String GEO_SEARCH = "geoSearch_";
@@ -119,6 +154,7 @@ public class Constants {
   public static final String RESULTS = "results";
   public static final String SUCCESS = "success";
   public static final String ERROR = "error";
+  public static final String MESSAGE = "message";
   public static final String BAD_REQUEST = "Bad Request";
   public static final String INTERNAL_SERVER_ERROR = "Internal server error";
 
