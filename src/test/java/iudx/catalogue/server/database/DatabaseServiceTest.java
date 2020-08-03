@@ -16,7 +16,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -26,13 +25,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import iudx.catalogue.server.database.ElasticClient;
+
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DatabaseServiceTest {
   private static Logger logger = LoggerFactory.getLogger(DatabaseServiceTest.class);
   private static DatabaseService dbService;
   private static Vertx vertxObj;
-  private static RestClient client;
+  private static ElasticClient client;
   private static Properties properties;
   private static InputStream inputstream;
   private static String databaseIP;
@@ -61,7 +62,7 @@ public class DatabaseServiceTest {
     }
 
     // TODO : Need to enable TLS using xpack security
-    client = RestClient.builder(new HttpHost(databaseIP, databasePort, Constants.HTTP)).build();
+    client = new ElasticClient(databaseIP, databasePort);
     dbService = new DatabaseServiceImpl(client);
     testContext.completeNow();
   }

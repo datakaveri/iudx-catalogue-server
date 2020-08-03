@@ -6,8 +6,8 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import io.vertx.core.Promise;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -21,7 +21,10 @@ import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseListener;
+
 import org.elasticsearch.client.RestClient;
+
+import static iudx.catalogue.server.validator.Constants.*;
 
 /**
  * The Validator Service Implementation.
@@ -37,7 +40,7 @@ import org.elasticsearch.client.RestClient;
  */
 public class ValidatorServiceImpl implements ValidatorService {
 
-  private static final Logger logger = LoggerFactory.getLogger(ValidatorServiceImpl.class);
+  private static final Logger LOGGER = LogManager.getLogger(ValidatorServiceImpl.class);
   private boolean isValidSchema;
 
   private Validator resourceValidator;
@@ -64,10 +67,10 @@ public class ValidatorServiceImpl implements ValidatorService {
     }
 
     itemTypes = new HashSet<String>();
-    itemTypes.add(Constants.ITEM_TYPE_RESOURCE);
-    itemTypes.add(Constants.ITEM_TYPE_RESOURCE_GROUP);
-    itemTypes.add(Constants.ITEM_TYPE_RESOURCE_SERVER);
-    itemTypes.add(Constants.ITEM_TYPE_PROVIDER);
+    itemTypes.add(ITEM_TYPE_RESOURCE);
+    itemTypes.add(ITEM_TYPE_RESOURCE_GROUP);
+    itemTypes.add(ITEM_TYPE_RESOURCE_SERVER);
+    itemTypes.add(ITEM_TYPE_PROVIDER);
   }
 
   /** {@inheritDoc} */
@@ -75,30 +78,30 @@ public class ValidatorServiceImpl implements ValidatorService {
   public ValidatorService validateSchema(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
-    logger.info("Reached Validator service validate schema");
+    LOGGER.debug("Info: Reached Validator service validate schema");
     Set<String> type = new HashSet<String>(new JsonArray().getList());
 
     try {
-      type = new HashSet<String>(request.getJsonArray(Constants.TYPE).getList());
+      type = new HashSet<String>(request.getJsonArray(TYPE).getList());
     } catch (Exception e) {
-      logger.error("Item type mismatch");
+      LOGGER.error("Item type mismatch");
     }
     type.retainAll(itemTypes);
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
-    logger.info("itemType: " + itemType);
+    LOGGER.debug("Info: itemType: " + itemType);
 
     switch(itemType) {
 
-      case Constants.ITEM_TYPE_RESOURCE:
+      case ITEM_TYPE_RESOURCE:
         isValidSchema = resourceValidator.validate(request.toString());
         break;
-      case Constants.ITEM_TYPE_RESOURCE_GROUP:
+      case ITEM_TYPE_RESOURCE_GROUP:
         isValidSchema = resourceGroupValidator.validate(request.toString());
         break;
-      case Constants.ITEM_TYPE_RESOURCE_SERVER:
+      case ITEM_TYPE_RESOURCE_SERVER:
         isValidSchema = resourceServerValidator.validate(request.toString());
         break;
-      case Constants.ITEM_TYPE_PROVIDER:
+      case ITEM_TYPE_PROVIDER:
         isValidSchema = providerValidator.validate(request.toString());
         break;
       default:
@@ -108,10 +111,10 @@ public class ValidatorServiceImpl implements ValidatorService {
 
     if (isValidSchema) {
       handler.handle(
-          Future.succeededFuture(new JsonObject().put(Constants.STATUS, Constants.SUCCESS)));
+          Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
       handler.handle(
-          Future.failedFuture(new JsonObject().put(Constants.STATUS, Constants.FAILED).toString()));
+          Future.failedFuture(new JsonObject().put(STATUS, FAILED).toString()));
     }
     return null;
   }
@@ -122,46 +125,46 @@ public class ValidatorServiceImpl implements ValidatorService {
   Future<Boolean> verifyLink(String link) {
     Promise<Boolean> promise = Promise.promise();
     Request checkResourceGroup =
-      new Request(Constants.REQUEST_GET, Constants.CAT_INDEX + Constants.FILTER_PATH);
+      new Request(REQUEST_GET, CAT_INDEX + FILTER_PATH);
     JsonObject checkQuery = new JsonObject();
-    checkQuery.put(Constants.SOURCE, "[\"" + Constants.ID + "\"]")
-      .put(Constants.QUERY_KEY, new JsonObject()
-          .put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, link)));
-    logger.info("Query constructed: " + checkQuery.toString());
+    checkQuery.put(SOURCE, "[\"" + ID + "\"]")
+      .put(QUERY_KEY, new JsonObject()
+          .put(TERM, new JsonObject().put(ID_KEYWORD, link)));
+    LOGGER.debug("Info: Query constructed: " + checkQuery.toString());
     checkResourceGroup.setJsonEntity(checkQuery.toString());
     client.performRequestAsync(checkResourceGroup, new ResponseListener() {
       @Override
       public void onSuccess(Response response) {
         int statusCode = response.getStatusLine().getStatusCode();
-        logger.info("status code: " + statusCode);
+        LOGGER.debug("Info: status code: " + statusCode);
         if (statusCode != 200 && statusCode != 204) {
-          promise.fail(Constants.NON_EXISTING_LINK_MSG + link);
+          promise.fail(NON_EXISTING_LINK_MSG + link);
           return;
         }
         try {
           JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-          logger.info("Got response ");
-          logger.info(responseJson);
-          if (responseJson.getJsonObject(Constants.HITS)
-              .getJsonObject(Constants.TOTAL)
-              .getInteger(Constants.VALUE) == 1) {
+          LOGGER.debug("Info: Got response ");
+          LOGGER.debug("Info:" + responseJson.toString());
+          if (responseJson.getJsonObject(HITS)
+              .getJsonObject(TOTAL)
+              .getInteger(VALUE) == 1) {
             promise.complete(true);
-            logger.info("resource group validated");
+            LOGGER.debug("Info: resource group validated");
           } else {
-                promise.fail(Constants.NON_EXISTING_LINK_MSG + link);
+                promise.fail(NON_EXISTING_LINK_MSG + link);
               }
           } catch (ParseException | IOException e) {
-            logger.info("DB ERROR:\n");
+            LOGGER.error("DB ERROR:\n");
             e.printStackTrace();
-            promise.fail(Constants.NON_EXISTING_LINK_MSG + link);
+            promise.fail(NON_EXISTING_LINK_MSG + link);
           }
         }
 
         @Override
         public void onFailure(Exception e) {
-          logger.info("DB request has failed. ERROR:\n");
+          LOGGER.info("DB request has failed. ERROR:\n");
           e.printStackTrace();
-          promise.fail(Constants.NON_EXISTING_LINK_MSG + link);
+          promise.fail(NON_EXISTING_LINK_MSG + link);
           return;
         }
       });
@@ -176,49 +179,49 @@ public class ValidatorServiceImpl implements ValidatorService {
 
     Set<String> type = new HashSet<String>(new JsonArray().getList());
     try {
-      type = new HashSet<String>(request.getJsonArray(Constants.TYPE).getList());
+      type = new HashSet<String>(request.getJsonArray(TYPE).getList());
     } catch (Exception e) {
-      logger.error("Item type mismatch");
+      LOGGER.error("Item type mismatch");
     }
     type.retainAll(itemTypes);
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
-    logger.info("itemType: " + itemType);
+    LOGGER.debug("Info: itemType: " + itemType);
 
     /** Validate if Resource */
-    if (itemType.equalsIgnoreCase(Constants.ITEM_TYPE_RESOURCE)) {
-      String resourceGroup = request.getString(Constants.RESOURCE_GROUP_KEY);
-      String id = resourceGroup + "/" + request.getString(Constants.NAME);
-      logger.info("id generated: " + id);
-      request.put(Constants.ID, id).put(Constants.ITEM_STATUS,
-          Constants.ACTIVE)
-          .put(Constants.ITEM_CREATED_AT, getUtcDatetimeAsString());
+    if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
+      String resourceGroup = request.getString(RESOURCE_GROUP_KEY);
+      String id = resourceGroup + "/" + request.getString(NAME);
+      LOGGER.debug("Info: id generated: " + id);
+      request.put(ID, id).put(ITEM_STATUS,
+          ACTIVE)
+          .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
-      logger.info("Starting verification");
-      logger.info("Verifying resourceGroup " + resourceGroup);
+      LOGGER.debug("Info: Starting verification");
+      LOGGER.debug("Info: Verifying resourceGroup " + resourceGroup);
       Future<Boolean> verifiedResource = verifyLink(resourceGroup);
       verifiedResource.onComplete( res -> {
         if (res.succeeded()) {
           handler.handle(Future.succeededFuture(request));
         } else {
-          handler.handle(Future.failedFuture(Constants.VALIDATION_FAILURE_MSG));
+          handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
         }
       });
     }
     /** Validate if Provider */
-    else if (itemType.equalsIgnoreCase(Constants.ITEM_TYPE_PROVIDER)) {
+    else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
       handler.handle(
-          Future.succeededFuture(new JsonObject().put(Constants.STATUS, Constants.SUCCESS)));
+          Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     }
     /** Validate if ResourceGroup */
-    else if (itemType.equalsIgnoreCase(Constants.ITEM_TYPE_RESOURCE_GROUP)) {
-      String resourceServer = request.getString(Constants.RESOURCE_SERVER_KEY);
+    else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+      String resourceServer = request.getString(RESOURCE_SERVER_KEY);
       String[] domain = resourceServer.split("/");
-      String provider = request.getString(Constants.PROVIDER_KEY);
-      String name = request.getString(Constants.NAME);
+      String provider = request.getString(PROVIDER_KEY);
+      String name = request.getString(NAME);
       String id = provider + "/" + domain[2] + "/" + name;
-      logger.info("id generated: " + id);
-      request.put(Constants.ID, id).put(Constants.ITEM_STATUS, Constants.ACTIVE)
-          .put(Constants.ITEM_CREATED_AT, getUtcDatetimeAsString());
+      LOGGER.debug("Info: id generated: " + id);
+      request.put(ID, id).put(ITEM_STATUS, ACTIVE)
+          .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
       Future<Boolean> verifiedProvider = verifyLink(provider);
       verifiedProvider.onComplete( res -> {
@@ -229,11 +232,11 @@ public class ValidatorServiceImpl implements ValidatorService {
             if (rres.succeeded()) {
               handler.handle(Future.succeededFuture(request));
             } else {
-              handler.handle(Future.failedFuture(Constants.VALIDATION_FAILURE_MSG));
+              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
             }
           });
         } else {
-          handler.handle(Future.failedFuture(Constants.VALIDATION_FAILURE_MSG));
+          handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
         }
       });
     }

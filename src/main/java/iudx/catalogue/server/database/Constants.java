@@ -40,6 +40,7 @@ public class Constants {
   static final String BOOL_KEY = "bool";
   static final String FILTER_KEY = "filter";
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source&size=10000";
+  static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
   static final String HITS = "hits";
   static final String QUERY_KEY = "query";
   static final String REQUEST_GET = "GET";
@@ -117,5 +118,10 @@ public class Constants {
   public static final String TAG_AQM = "aqm";
   public static final String GEO_SEARCH = "geoSearch_";
   public static final String DESCRIPTION_ATTR = "description";
+
+  /** ElasticClient search types */
+  public static final String DOC_IDS_ONLY = "DOCIDS";
+  public static final String SOURCE_ONLY = "SOURCE";
+
 
 }

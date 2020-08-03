@@ -16,7 +16,8 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
+
+import iudx.catalogue.server.database.ElasticClient;
 /**
  * The Database Verticle.
  * <h1>Database Verticle</h1>
@@ -42,7 +43,7 @@ public class DatabaseVerticle extends AbstractVerticle {
   private InputStream inputstream;
   private String databaseIP;
   private int databasePort;
-  private RestClient client;
+  private ElasticClient client;
   private static final String DATABASE_SERVICE_ADDRESS = "iudx.catalogue.database.service";
 
   /**
@@ -77,7 +78,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
     mgr = new HazelcastClusterManager();
     options = new VertxOptions().setClusterManager(mgr);
-    client = RestClient.builder(new HttpHost(databaseIP, databasePort, "http")).build();
+    client = new ElasticClient(databaseIP, databasePort);
 
     /* Create or Join a Vert.x Cluster. */
 

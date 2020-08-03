@@ -8,7 +8,8 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import org.elasticsearch.client.RestClient;
+
+import iudx.catalogue.server.database.ElasticClient;
 
 /**
  * The Database Service.
@@ -229,85 +230,6 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
 
-  @Fluent
-  DatabaseService getCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The setCities created the cities configuration in the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService setCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The updateCities updates the existing city configuration in the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService updateCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The getConfig gets the configuration.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService getConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The updateConfig update the configuration.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService updateConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The setConfig creates a configuration in the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService setConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The deleteConfig deletes a configuration in the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService deleteConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The appendConfig patches the existing configuration.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService appendConfig(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The create implements the count operation with the database.
@@ -317,7 +239,7 @@ public interface DatabaseService {
    */
 
   @GenIgnore
-  static DatabaseService create(RestClient client) {
+  static DatabaseService create(ElasticClient client) {
     return new DatabaseServiceImpl(client);
   }
 

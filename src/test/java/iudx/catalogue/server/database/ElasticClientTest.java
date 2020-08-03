@@ -70,11 +70,7 @@ public class ElasticClientTest {
   void TestGetAll(VertxTestContext testContext) {
     JsonObject query = new JsonObject().put("query", new JsonObject()
                                         .put("match_all", new JsonObject()));
-    elasticRequest =
-        new Request("GET", "testindex/_search?filter_path=took,hits.total.value,hits.hits._source&size=10000");
-    elasticRequest.setJsonEntity(query.toString());
-
-    client.performRequestAsync(elasticRequest, res -> {
+    client.searchAsync("testindex", query.toString(), res -> {
       if (res.succeeded()) {
         logger.info("Succeeded");
         logger.info(res.result());
