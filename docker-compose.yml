@@ -1,0 +1,25 @@
+version: '3'
+
+networks:
+  cat-net:
+    driver: bridge
+
+services:
+
+  server:
+    build:
+      dockerfile: ./Dockerfile
+      context: .
+    ports:
+      - "8443:8443"
+    restart: on-failure
+    networks: 
+      - cat-net
+    volumes:
+      - ./:/cat
+    command: sh -c "cd cat && mvn clean compile exec:java@catalogue-server"
+    logging:
+         driver: "json-file"
+         options:
+             max-file: "5"
+             max-size: "100m"

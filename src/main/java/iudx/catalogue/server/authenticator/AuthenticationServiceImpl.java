@@ -67,7 +67,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationService tokenInterospect(JsonObject request, JsonObject authenticationInfo,
                                                   Handler<AsyncResult<JsonObject>> handler) {
 
-        // TODO: Stub code, to be removed after use
         JsonObject result = new JsonObject();
         String providerID;
         try {

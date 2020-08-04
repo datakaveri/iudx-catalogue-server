@@ -10,7 +10,6 @@ import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 import iudx.catalogue.server.apiserver.ApiServerVerticle;
 import iudx.catalogue.server.authenticator.AuthenticationVerticle;
 import iudx.catalogue.server.database.DatabaseVerticle;
-import iudx.catalogue.server.onboarder.OnboarderVerticle;
 import iudx.catalogue.server.validator.ValidatorVerticle;
 
 import io.vertx.core.AbstractVerticle;
@@ -57,25 +56,16 @@ public class CatMainVerticle extends AbstractVerticle {
                   if (validatorVerticle.succeeded()) {
                     logger.info("The Validator Service is ready");
 
-                    /* Deploy the Onboarder Service Verticle. */
 
-                    vertx.deployVerticle(new OnboarderVerticle(), onboarderVerticle -> {
-                      if (onboarderVerticle.succeeded()) {
-                        logger.info("The Onboarder Service is ready");
-                        
-                        /* Deploy the Api Server Verticle. */
+                    /* Deploy the Api Server Verticle. */
 
-                        vertx.deployVerticle(new ApiServerVerticle(), apiServerVerticle -> {
-                          if (apiServerVerticle.succeeded()) {
-                            logger.info("The Catalogue API Server is ready at 8443");
-                            logger.info("Check /apis/ for supported APIs");
-                            promise.complete();
-                          } else {
-                            logger.info("The Catalogue API Server startup failed !");
-                          }
-                        });
+                    vertx.deployVerticle(new ApiServerVerticle(), apiServerVerticle -> {
+                      if (apiServerVerticle.succeeded()) {
+                        logger.info("The Catalogue API Server is ready at 8443");
+                        logger.info("Check /apis/ for supported APIs");
+                        promise.complete();
                       } else {
-                        logger.info("The Onboarder Service failed !");
+                        logger.info("The Catalogue API Server startup failed !");
                       }
                     });
 

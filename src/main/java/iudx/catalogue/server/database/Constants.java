@@ -1,5 +1,7 @@
 package iudx.catalogue.server.database;
 
+import io.vertx.core.json.JsonObject;
+
 public class Constants {
 
   /* General purpose */
@@ -29,19 +31,24 @@ public class Constants {
   static final String RESOURCE = "resource";
   static final String ITEM_TYPE = "itemType";
 
+  static final JsonObject ERROR_JSON_RESP = new JsonObject();
+
   /* Database */
-  static final String CAT_INDEX_NAME = "test-cat";
-  static final String CAT_TEST_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
-  static final String CAT_TEST_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
-  static final String CAT_GET_TAG = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations.instance.tags.buckets";
-  static final String CAT_GET_DOMAIN = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations.instances.buckets";
-  static final String CAT_GET_AGGREGATIONS = CAT_TEST_SEARCH_INDEX + "?filter_path=aggregations";
-  static final String CAT_GET_ITEM = CAT_TEST_SEARCH_INDEX + "?filter_path=hits.hits";
+
+  static final String CAT_INDEX_NAME = "testindex";
+  static final String CAT_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
+  static final String CAT_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
+  static final String CAT_GET_TAG = CAT_SEARCH_INDEX + "?filter_path=aggregations.instance.tags.buckets";
+  static final String CAT_GET_DOMAIN = CAT_SEARCH_INDEX + "?filter_path=aggregations.instances.buckets";
+  static final String CAT_GET_AGGREGATIONS = CAT_SEARCH_INDEX + "?filter_path=aggregations";
+  static final String CAT_GET_ITEM = CAT_SEARCH_INDEX + "?filter_path=hits.hits";
+  
   static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
   static final String AGGREGATION_KEY = "aggs";
   static final String BOOL_KEY = "bool";
   static final String FILTER_KEY = "filter";
-  static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
+  static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source&size=10000";
+  static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
   static final String HITS = "hits";
   static final String QUERY_KEY = "query";
   static final String REQUEST_GET = "GET";
@@ -86,6 +93,7 @@ public class Constants {
   static final String ATTRIBUTE = "attrs";
   /* Error */
   static final String DATABASE_ERROR = "DB Error. Check logs for more information";
+  static final String DATABASE_BAD_QUERY = "Query Failed with status != 20x";
   static final String EMPTY_RESPONSE = "Empty response";
   static final String ERROR = "Error";
   static final String ERROR_INVALID_COORDINATE_POLYGON = "Coordinate mismatch (Polygon)";
@@ -122,5 +130,9 @@ public class Constants {
   public static final String FIELD = "field";
   public static final String INSTANCE_ID_KEYWORD = "instanceID.keyword";
   public static final String TAGS_KEYWORD = "tags.keyword";
+
+  /** ElasticClient search types */
+  public static final String DOC_IDS_ONLY = "DOCIDS";
+  public static final String SOURCE_ONLY = "SOURCE";
   
 }
