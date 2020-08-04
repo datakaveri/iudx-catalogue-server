@@ -1171,11 +1171,12 @@ public class ApiServerVerticle extends AbstractVerticle {
               String key = rg.getString("key");
               if (!items.contains(key)) items.add(key);
             }
-
+            JsonObject responseJson =new JsonObject();
+            responseJson.put("status", "success").put("totalHits", items.size()).put("results", items);
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
                 .setStatusCode(200)
-                .end(items.toString());
+                .end(responseJson.toString());
           } else if (dbhandler.failed()) {
             logger.error(
                 "Issue in listing " + itemType + ": ".concat(dbhandler.cause().toString()));
