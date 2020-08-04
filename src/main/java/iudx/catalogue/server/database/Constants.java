@@ -40,8 +40,10 @@ public class Constants {
   static final String BOOL_KEY = "bool";
   static final String FILTER_KEY = "filter";
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source&size=10000";
+  static final String FILTER_PATH_AGGREGATION = "?filter_path=hits.total.value,aggregations.results.buckets&size=10000";
   static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
   static final String HITS = "hits";
+  static final String AGGREGATIONS = "aggregations";
   static final String QUERY_KEY = "query";
   static final String REQUEST_GET = "GET";
   static final String REQUEST_POST = "POST";
@@ -61,6 +63,8 @@ public class Constants {
   static final String DOC_ID = "_id";
   static final String METHOD = "method";
   static final String RESULTS = "results";
+  static final String BUCKETS = "buckets";
+  static final String KEY = "key";
   static final String TERM = "term";
   /* Geo-Spatial */
   static final String BBOX = "bbox";
@@ -122,6 +126,7 @@ public class Constants {
   /** ElasticClient search types */
   public static final String DOC_IDS_ONLY = "DOCIDS";
   public static final String SOURCE_ONLY = "SOURCE";
+  public static final String AGGREGATION_ONLY = "AGGREGATION";
 
 
 }
