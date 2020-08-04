@@ -34,7 +34,6 @@ public class Constants {
   public static final String ROUTE_ITEMS = basePath.concat("/item");
   public static final String ROUTE_UPDATE_ITEMS = basePath.concat("/item");
   public static final String ROUTE_DELETE_ITEMS = basePath.concat("/item");
-  public static final String ROUTE_LIST_ITEMS = basePath.concat("/items");
 
   public static final String ROUTE_LIST_RESOURCE_REL = basePath.concat("\\/(?<id>.*)\\/resource");
   public static final String ROUTE_LIST_RESOURCE_GROUP_REL =

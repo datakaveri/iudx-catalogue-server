@@ -31,7 +31,7 @@ import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
-
+import iudx.catalogue.server.apiserver.util.Constants;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.apiserver.util.ResponseHandler;
 
@@ -261,23 +261,13 @@ public class ApiServerVerticle extends AbstractVerticle {
           searchApis.searchHandler(routingContext);
         });
 
-
+        /* list the item from database using itemId */
+        router.get(Constants.ROUTE_GET_ITEM).handler(this::getItem);
+        
         /**
          * Routes for list
          */
 
-        /* list all the tags */
-        router.get(ROUTE_TAGS).handler(this::listTags);
-        /* list all the domains */
-        router.get(ROUTE_DOMAINS).handler(this::listDomains);
-        /* list all the cities associated with the cataloque instance */
-        router.get(ROUTE_CITIES).handler(this::listCities);
-        /* list all the resource server associated with the cataloque instance */
-        router.get(ROUTE_RESOURCE_SERVERS).handler(this::listResourceServers);
-        /* list all the providers associated with the cataloque instance */
-        router.get(ROUTE_PROVIDERS).handler(this::listProviders);
-        /* list all the resource groups associated with the cataloque instance */
-        router.get(ROUTE_RESOURCE_GROUPS).handler(this::listResourceGroups);
         /* list the item from database using itemId */
         router.get(ROUTE_LIST_ITEMS).handler(this::listItems);
         /* Get list types with the database for an item */
@@ -341,11 +331,11 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(INSTANCE_ID_KEY, instanceID);
 
     /* Databse service call for listing item */
-    database.getItem(
+    dbService.getItem(
         requestBody,
         dbhandler -> {
           if (dbhandler.succeeded()) {
-            logger.info("Successfull DB request");
+            LOGGER.info("Successfull DB request");
             JsonObject result =
                 dbhandler
                     .result()
@@ -365,7 +355,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .setStatusCode(200)
                 .end(responseJson.toString());
           } else if (dbhandler.failed()) {
-            logger.error("Issue in listing items ".concat(dbhandler.cause().toString()));
+            LOGGER.error("Issue in listing items ".concat(dbhandler.cause().toString()));
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
                 .setStatusCode(400)
@@ -415,7 +405,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         type = itemType;
         break;
       default:
-        logger.info("invalid itemType:" + itemType);
+        LOGGER.info("invalid itemType:" + itemType);
         response
             .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
             .setStatusCode(400)
@@ -425,11 +415,11 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put("type", type);
 
     /* Request database service with requestBody for listing resource groups */
-    database.listItems(
+    dbService.listItems(
         requestBody,
         dbhandler -> {
           if (dbhandler.succeeded()) {
-            logger.info("List of " + itemType + ": ".concat(dbhandler.result().toString()));
+            LOGGER.info("List of " + itemType + ": ".concat(dbhandler.result().toString()));
             JsonArray items = new JsonArray();
             JsonArray result = new JsonArray();
             if (itemType.equalsIgnoreCase("resourcegroups")
@@ -467,7 +457,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .setStatusCode(200)
                 .end(responseJson.toString());
           } else if (dbhandler.failed()) {
-            logger.error(
+            LOGGER.error(
                 "Issue in listing " + itemType + ": ".concat(dbhandler.cause().toString()));
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
