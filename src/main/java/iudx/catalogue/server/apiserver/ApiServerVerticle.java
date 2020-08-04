@@ -335,7 +335,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         requestBody,
         dbhandler -> {
           if (dbhandler.succeeded()) {
-            LOGGER.info("Successfull DB request");
+            LOGGER.info("Success: Successfull DB request");
             JsonObject result =
                 dbhandler
                     .result()
@@ -355,7 +355,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .setStatusCode(200)
                 .end(responseJson.toString());
           } else if (dbhandler.failed()) {
-            LOGGER.error("Issue in listing items ".concat(dbhandler.cause().toString()));
+            LOGGER.error("Fail: Issue in listing items ".concat(dbhandler.cause().toString()));
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
                 .setStatusCode(400)
