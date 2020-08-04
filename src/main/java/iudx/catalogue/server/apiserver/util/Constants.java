@@ -119,6 +119,7 @@ public class Constants {
   public static final String ERROR = "error";
   public static final String BAD_REQUEST = "Bad Request";
   public static final String INTERNAL_SERVER_ERROR = "Internal server error";
+  public static final String TOTAL_HITS="totalHits";
 
   public static final String PATTERN_TEXT = "^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}";
   public static final String PATTERN_ARRAY = "^\\[.*\\]$";

@@ -1074,10 +1074,17 @@ public class ApiServerVerticle extends AbstractVerticle {
                     .getJsonArray("hits")
                     .getJsonObject(0)
                     .getJsonObject("_source");
+            JsonObject responseJson = new JsonObject();
+            responseJson
+                .put(Constants.STATUS, Constants.SUCCESS)
+                .put(
+                    Constants.TOTAL_HITS,
+                    dbhandler.result().getJsonObject("hits").getJsonArray("hits").size())
+                .put(Constants.RESULTS, new JsonArray().add(result));
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
                 .setStatusCode(200)
-                .end(result.toString());
+                .end(responseJson.toString());
           } else if (dbhandler.failed()) {
             logger.error("Issue in listing items ".concat(dbhandler.cause().toString()));
             response
@@ -1171,8 +1178,11 @@ public class ApiServerVerticle extends AbstractVerticle {
               String key = rg.getString("key");
               if (!items.contains(key)) items.add(key);
             }
-            JsonObject responseJson =new JsonObject();
-            responseJson.put("status", "success").put("totalHits", items.size()).put("results", items);
+            JsonObject responseJson = new JsonObject();
+            responseJson
+                .put(Constants.STATUS, Constants.SUCCESS)
+                .put(Constants.TOTAL_HITS, items.size())
+                .put(Constants.RESULTS, items);
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
                 .setStatusCode(200)
