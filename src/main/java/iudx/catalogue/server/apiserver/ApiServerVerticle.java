@@ -419,7 +419,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         requestBody,
         dbhandler -> {
           if (dbhandler.succeeded()) {
-            LOGGER.info("List of " + itemType + ": ".concat(dbhandler.result().toString()));
+            LOGGER.info("Success: Successfull DB request");
             JsonArray items = new JsonArray();
             JsonArray result = new JsonArray();
             if (itemType.equalsIgnoreCase("resourcegroups")
@@ -458,7 +458,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 .end(responseJson.toString());
           } else if (dbhandler.failed()) {
             LOGGER.error(
-                "Issue in listing " + itemType + ": ".concat(dbhandler.cause().toString()));
+                "Fail: Issue in listing " + itemType + ": ".concat(dbhandler.cause().toString()));
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
                 .setStatusCode(400)
