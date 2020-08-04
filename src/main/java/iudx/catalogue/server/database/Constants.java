@@ -123,5 +123,20 @@ public class Constants {
   public static final String DOC_IDS_ONLY = "DOCIDS";
   public static final String SOURCE_ONLY = "SOURCE";
 
+  static final String REL_API_INDEX_NAME = "rel_api";
+  static final String REL_API_SEARCH_INDEX = REL_API_INDEX_NAME + "/_search";
+
+  public static final String FORWARD_SLASH = "/";
+  public static final String RELATIONSHIP = "relationship";
+  public static final String REL_RESOURCE = "resource";
+  public static final String REL_RESOURCE_GRP = "resourceGroup";
+  public static final String REL_RESOURCE_SVR = "resourceServer";
+  public static final String REL_PROVIDER = "provider";
+  public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
+  public static final String ITEM_TYPE_RESOURCE_GROUP = "iudx:ResourceGroup";
+  public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
+  public static final String ITEM_TYPE_PROVIDER = "iudx:Provider";
+  public static final String REL_TYPE = "type";
+
 
 }

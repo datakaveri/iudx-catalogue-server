@@ -684,7 +684,7 @@ public class ApiServerVerticle extends AbstractVerticle {
           LOGGER.error(
               "Issue in listing resourceGroup relationship ".concat(dbhandler.cause().toString()));
           response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-              .setStatusCode(400).end(dbhandler.cause().toString());
+              .setStatusCode(400).end(dbhandler.cause().getLocalizedMessage());
         }
       });
     } else {
@@ -725,9 +725,9 @@ public class ApiServerVerticle extends AbstractVerticle {
         response.end();
       } else if (handler.failed()) {
         LOGGER.error(handler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-        response.setStatusCode(500);
-        response.end(INTERNAL_SERVER_ERROR);
+        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+        response.setStatusCode(400);
+        response.end(handler.cause().getLocalizedMessage());
       }
     });
   }
@@ -747,33 +747,27 @@ public class ApiServerVerticle extends AbstractVerticle {
         .put(ID, id)
         .put(RELATIONSHIP, REL_PROVIDER);
     LOGGER.info("search query : " + queryJson);
-    dbService.listProviderRelationship(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(
-                    HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            LOGGER.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            LOGGER.error(handler.cause().getMessage());
-            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-            response.setStatusCode(500);
-            response.end(INTERNAL_SERVER_ERROR);
-          }
-        });
+    dbService.listProviderRelationship(queryJson, handler -> {
+      if (handler.succeeded()) {
+        JsonObject resultJson = handler.result();
+        String status = resultJson.getString(STATUS);
+        if (status.equalsIgnoreCase(SUCCESS)) {
+          response.setStatusCode(200);
+        } else {
+          response.setStatusCode(400);
+        }
+        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+            .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
+        response.write(resultJson.toString());
+        LOGGER.info("response : " + resultJson);
+        response.end();
+      } else if (handler.failed()) {
+        LOGGER.error(handler.cause().getMessage());
+        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+        response.setStatusCode(400);
+        response.end(handler.cause().getLocalizedMessage());
+      }
+    });
   }
 
   /**
@@ -813,9 +807,9 @@ public class ApiServerVerticle extends AbstractVerticle {
             response.end();
           } else if (handler.failed()) {
             LOGGER.error(handler.cause().getMessage());
-            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-            response.setStatusCode(500);
-            response.end(INTERNAL_SERVER_ERROR);
+            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+            response.setStatusCode(400);
+            response.end(handler.cause().getLocalizedMessage());
           }
         });
   }

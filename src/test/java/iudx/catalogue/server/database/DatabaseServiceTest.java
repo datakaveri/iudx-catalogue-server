@@ -970,4 +970,177 @@ public class DatabaseServiceTest {
       });
     }));
   }
+
+
+  @Test
+  @DisplayName("List Resource Relationship")
+  void listResourceRelationshipTest(VertxTestContext testContext) {
+
+    /* Constructing request Json Body */
+    JsonObject request = new JsonObject().put(Constants.ID,
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo")
+        .put(Constants.RELATIONSHIP, Constants.REL_RESOURCE);
+
+    dbService.listResourceRelationship(request, testContext.succeeding(response -> {
+
+      testContext.verify(() -> {
+        assertEquals(73.874537,
+            response.getJsonArray(Constants.RESULT).getJsonObject(0)
+                .getJsonObject(Constants.LOCATION).getJsonObject(Constants.GEOMETRY)
+                .getJsonArray(Constants.COORDINATES_KEY).getDouble(0));
+        testContext.completeNow();
+      });
+    }));
+  }
+
+
+  @Test
+  @DisplayName("List ResourceGroup Relationship")
+  void listResourceGroupRelationshipTest(VertxTestContext testContext) {
+
+    /* Constructing request Json Body */
+    JsonObject request = new JsonObject()
+        .put(Constants.ID,
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+                + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+        .put(Constants.RELATIONSHIP, Constants.REL_RESOURCE_GRP);
+
+    dbService.listResourceGroupRelationship(request, testContext.succeeding(response -> {
+
+      testContext.verify(() -> {
+        assertEquals(
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo",
+            response.getJsonArray(Constants.RESULT).getJsonObject(0).getString(Constants.ID));
+        testContext.completeNow();
+      });
+    }));
+  }
+
+  @Test
+  @DisplayName("List Provider Relationship for resourceId")
+  void listProviderResourceIdRelationshipTest(VertxTestContext testContext) {
+
+    /* Constructing request Json Body */
+    JsonObject request = new JsonObject()
+        .put(Constants.ID,
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+                + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+        .put(Constants.RELATIONSHIP, Constants.REL_PROVIDER);
+
+    dbService.listProviderRelationship(request, testContext.succeeding(response -> {
+
+      testContext.verify(() -> {
+        assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+            response.getJsonArray(Constants.RESULT).getJsonObject(0).getString(Constants.ID));
+        testContext.completeNow();
+      });
+    }));
+  }
+
+
+  @Test
+  @DisplayName("List Provider Relationship for resourceGroupId")
+  void listProviderResourceGroupIdRelationshipTest(VertxTestContext testContext) {
+
+    /* Constructing request Json Body */
+    JsonObject request = new JsonObject()
+        .put(Constants.ID,
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+                + "/rs.iudx.org.in/aqm-bosch-climo")
+        .put(Constants.RELATIONSHIP, Constants.REL_PROVIDER);
+
+    dbService.listProviderRelationship(request, testContext.succeeding(response -> {
+
+      testContext.verify(() -> {
+        assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+            response.getJsonArray(Constants.RESULT).getJsonObject(0).getString(Constants.ID));
+        testContext.completeNow();
+      });
+    }));
+  }
+
+
+  @Test
+  @DisplayName("List ResourceServer Relationship for resourceId")
+  void listResourceServerResourceIdRelationshipTest(VertxTestContext testContext) {
+
+    /* Constructing request Json Body */
+    JsonObject request = new JsonObject()
+        .put(Constants.ID,
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+                + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+        .put(Constants.RELATIONSHIP, Constants.REL_RESOURCE_SVR);
+
+    dbService.listResourceServerRelationship(request, testContext.succeeding(response -> {
+
+      testContext.verify(() -> {
+        assertEquals("datakaveri.org/00D75505FD5256B142AFD9C0E32790FA7180D500/rs.iudx.org.in",
+            response.getJsonArray(Constants.RESULT).getJsonObject(0).getString(Constants.ID));
+        testContext.completeNow();
+      });
+    }));
+  }
+
+  @Test
+  @DisplayName("List ResourceServer Relationship for resourceGroupId")
+  void listResourceServerResourceGroupIdRelationshipTest(VertxTestContext testContext) {
+
+    /* Constructing request Json Body */
+    JsonObject request = new JsonObject()
+        .put(Constants.ID,
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+                + "/rs.iudx.org.in/aqm-bosch-climo")
+        .put(Constants.RELATIONSHIP, Constants.REL_RESOURCE_SVR);
+
+    dbService.listResourceServerRelationship(request, testContext.succeeding(response -> {
+
+      testContext.verify(() -> {
+        assertEquals("datakaveri.org/00D75505FD5256B142AFD9C0E32790FA7180D500/rs.iudx.org.in",
+            response.getJsonArray(Constants.RESULT).getJsonObject(0).getString(Constants.ID));
+        testContext.completeNow();
+      });
+    }));
+  }
+
+  @Test
+  @DisplayName("List Type Relationship for resourceId")
+  void listTypeResourceIdRelationshipTest(VertxTestContext testContext) {
+
+    /* Constructing request Json Body */
+    JsonObject request = new JsonObject()
+        .put(Constants.ID,
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+                + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+        .put(Constants.RELATIONSHIP, Constants.REL_TYPE);
+
+    dbService.listTypes(request, testContext.succeeding(response -> {
+
+      testContext.verify(() -> {
+        assertEquals("iudx:Resource", response.getJsonArray(Constants.RESULT).getJsonObject(0)
+            .getJsonArray(Constants.TYPE_KEY).getString(0));
+        testContext.completeNow();
+      });
+    }));
+  }
+
+  @Test
+  @DisplayName("List ResourceServer Relationship for resourceGroupId")
+  void listTypeResourceGroupIdRelationshipTest(VertxTestContext testContext) {
+
+    /* Constructing request Json Body */
+    JsonObject request = new JsonObject()
+        .put(Constants.ID,
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+                + "/rs.iudx.org.in/aqm-bosch-climo")
+        .put(Constants.RELATIONSHIP, Constants.REL_TYPE);
+
+    dbService.listTypes(request, testContext.succeeding(response -> {
+
+      testContext.verify(() -> {
+        assertEquals("iudx:ResourceGroup", response.getJsonArray(Constants.RESULT).getJsonObject(0)
+            .getJsonArray(Constants.TYPE_KEY).getString(0));
+        testContext.completeNow();
+      });
+    }));
+  }
 }

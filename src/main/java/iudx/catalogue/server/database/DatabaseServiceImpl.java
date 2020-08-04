@@ -5,10 +5,9 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import iudx.catalogue.server.database.ElasticClient;
 
 import static iudx.catalogue.server.database.Constants.*;
 
@@ -349,11 +348,42 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService listResourceRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use [was not part of master code]
-    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
 
-    return null;
+    /* <resourceGroupId>/resource */
+    /* Initialize JsonObjects & JsonArrays */
+    JsonObject errorJson = new JsonObject();
+    JsonObject elasticQuery = new JsonObject();
+    JsonObject boolObject = new JsonObject();
+
+    /* Validating the request */
+    if (request.containsKey(ID) && request.getString(RELATIONSHIP).equals(REL_RESOURCE)) {
+
+      /* parsing resourceGroupId from the request */
+      String resourceGroupId = request.getString(ID);
+
+      /* Constructing db queries */
+      boolObject.put(BOOL_KEY, new JsonObject().put(MUST_KEY,
+              new JsonArray()
+              .add(new JsonObject().put(TERM,
+                  new JsonObject().put(REL_RESOURCE_GRP.concat(KEYWORD_KEY),
+                          resourceGroupId)))
+              .add(new JsonObject().put(TERM,
+                  new JsonObject().put(TYPE_KEY.concat(KEYWORD_KEY), ITEM_TYPE_RESOURCE)))));
+
+      elasticQuery.put(QUERY_KEY, boolObject);
+
+      LOGGER.debug("Info: Query constructed;" + elasticQuery.toString());
+
+      client.searchAsync(REL_API_INDEX_NAME, elasticQuery.toString(), searchRes -> {
+        if (searchRes.succeeded()) {
+          LOGGER.debug("Success: Successful DB request");
+          handler.handle(Future.succeededFuture(searchRes.result()));
+        } else {
+            handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      });
+    }
+    return this;
   }
 
   /**
@@ -362,11 +392,44 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService listResourceGroupRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use [was not part of master code]
-    String result = "{ \"status\": \"success\", \"results\": [ { \"id\": \"abc/123\" }] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
 
-    return null;
+    /* <resourceId>/resourceGroup */
+    /* Initialize JsonObjects and JsonArrays */
+    JsonObject errorJson = new JsonObject();
+    JsonObject elasticQuery = new JsonObject();
+    JsonObject boolObject = new JsonObject();
+
+    /* Validating the request */
+    if (request.containsKey(Constants.ID)
+        && request.getString(Constants.RELATIONSHIP).equals(Constants.REL_RESOURCE_GRP)) {
+
+      /* parsing resourceGroupId from the request ID */
+      String resourceGroupId =
+          StringUtils.substringBeforeLast(request.getString(Constants.ID), Constants.FORWARD_SLASH);
+
+      boolObject.put(Constants.BOOL_KEY,
+          new JsonObject().put(Constants.MUST_KEY,
+              new JsonArray()
+                  .add(new JsonObject().put(Constants.TERM,
+                      new JsonObject().put(Constants.ID_KEYWORD, resourceGroupId)))
+                  .add(new JsonObject().put(Constants.TERM,
+                      new JsonObject().put(Constants.TYPE_KEY.concat(Constants.KEYWORD_KEY),
+                          Constants.ITEM_TYPE_RESOURCE_GROUP)))));
+
+      elasticQuery.put(Constants.QUERY_KEY, boolObject);
+
+      LOGGER.debug("Info: Query constructed;" + elasticQuery.toString());
+
+      client.searchAsync(REL_API_INDEX_NAME, elasticQuery.toString(), searchRes -> {
+        if (searchRes.succeeded()) {
+          LOGGER.debug("Success: Successful DB request");
+          handler.handle(Future.succeededFuture(searchRes.result()));
+        } else {
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      });
+    }
+    return this;
   }
 
   /**
@@ -376,10 +439,42 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listProviderRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
-    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+    /* <resourceId>/provider */
+    /* Initialize JsonObjects and JsonArrays */
+    JsonObject errorJson = new JsonObject();
+    JsonObject elasticQuery = new JsonObject();
+    JsonObject boolObject = new JsonObject();
 
-    return null;
+    /* Validating the request */
+    if (request.containsKey(Constants.ID)
+        && request.getString(Constants.RELATIONSHIP).equals(Constants.REL_PROVIDER)) {
+
+      /* parsing id from the request */
+      String id = request.getString(Constants.ID);
+
+      /* parsing providerId from the request */
+      String providerId = StringUtils.substring(id, 0, id.indexOf("/", id.indexOf("/") + 1));
+
+      boolObject.put(Constants.BOOL_KEY, new JsonObject().put(Constants.MUST_KEY, new JsonArray()
+          .add(new JsonObject().put(Constants.TERM,
+              new JsonObject().put(Constants.ID_KEYWORD, providerId)))
+          .add(new JsonObject().put(Constants.TERM, new JsonObject().put(
+              Constants.TYPE_KEY.concat(Constants.KEYWORD_KEY), Constants.ITEM_TYPE_PROVIDER)))));
+
+      elasticQuery.put(Constants.QUERY_KEY, boolObject);
+
+      LOGGER.debug("Info: Query constructed;" + elasticQuery.toString());
+
+      client.searchAsync(REL_API_INDEX_NAME, elasticQuery.toString(), searchRes -> {
+        if (searchRes.succeeded()) {
+          LOGGER.debug("Success: Successful DB request");
+          handler.handle(Future.succeededFuture(searchRes.result()));
+        } else {
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      });
+    }
+    return this;
   }
 
   /**
@@ -389,10 +484,40 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listResourceServerRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
-    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+    /* <resourceId or resourceGroupId>/resourceServer */
+    /* Initialize JsonObjects and JsonArrays */
+    JsonObject errorJson = new JsonObject();
+    JsonObject elasticQuery = new JsonObject();
+    JsonObject boolObject = new JsonObject();
 
-    return null;
+    /* Validating the request */
+    if (request.containsKey(Constants.ID)
+        && request.getString(Constants.RELATIONSHIP).equals(Constants.REL_RESOURCE_SVR)) {
+
+      /* parsing id from the request */
+      String[] id = request.getString(Constants.ID).split(Constants.FORWARD_SLASH);
+
+      boolObject.put(Constants.BOOL_KEY, new JsonObject().put(Constants.MUST_KEY, new JsonArray()
+          .add(new JsonObject().put(Constants.MATCH_KEY, new JsonObject().put(Constants.ID, id[0])))
+          .add(new JsonObject().put(Constants.MATCH_KEY, new JsonObject().put(Constants.ID, id[2])))
+          .add(new JsonObject().put(Constants.TERM,
+              new JsonObject().put(Constants.TYPE_KEY.concat(Constants.KEYWORD_KEY),
+                  Constants.ITEM_TYPE_RESOURCE_SERVER)))));
+
+      elasticQuery.put(Constants.QUERY_KEY, boolObject);
+
+      LOGGER.debug("Info: Query constructed;" + elasticQuery.toString());
+
+      client.searchAsync(REL_API_INDEX_NAME, elasticQuery.toString(), searchRes -> {
+        if (searchRes.succeeded()) {
+          LOGGER.debug("Success: Successful DB request");
+          handler.handle(Future.succeededFuture(searchRes.result()));
+        } else {
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      });
+    }
+    return this;
   }
 
   /**
@@ -401,10 +526,36 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
+    /* Initialize JsonObjects and JsonArrays */
+    JsonObject errorJson = new JsonObject();
+    JsonObject elasticQuery = new JsonObject();
+    JsonObject boolObject = new JsonObject();
 
-    return null;
+    /* Validating the request */
+    if (request.containsKey(Constants.ID)
+        && request.getString(Constants.RELATIONSHIP).equals(Constants.TYPE_KEY)) {
+
+      /* parsing id from the request */
+      String itemId = request.getString(Constants.ID);
+
+      boolObject.put(Constants.BOOL_KEY,
+          new JsonObject().put(Constants.MUST_KEY, new JsonArray().add(new JsonObject()
+              .put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, itemId)))));
+
+      elasticQuery.put(Constants.QUERY_KEY, boolObject);
+
+      LOGGER.debug("Info: Query constructed;" + elasticQuery.toString());
+
+      client.searchAsync(REL_API_INDEX_NAME, elasticQuery.toString(), searchRes -> {
+        if (searchRes.succeeded()) {
+          LOGGER.debug("Success: Successful DB request");
+          handler.handle(Future.succeededFuture(searchRes.result()));
+        } else {
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      });
+    }
+    return this;
   }
 
 
