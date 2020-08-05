@@ -251,130 +251,109 @@ public class DatabaseServiceImpl implements DatabaseService {
   /** {@inheritDoc} */
   @Override
   public DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    String itemId = request.getString(Constants.ID);
+    String itemId = request.getString(ID);
     JsonObject req = new JsonObject();
     req.put(
-        Constants.QUERY_KEY,
-        new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, itemId)));
-    System.out.println(req.toString());
+        QUERY_KEY,
+        new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, itemId)));
     client.searchAsync(
-        Constants.CAT_INDEX_NAME,
+        CAT_INDEX_NAME,
         req.toString(),
         clientHandler -> {
           if (clientHandler.succeeded()) {
-            LOGGER.info("Successful DB request");
+            LOGGER.info("Success: Retreived item");
             JsonObject responseJson = clientHandler.result();
-            System.out.println(responseJson);
             handler.handle(Future.succeededFuture(responseJson));
           } else {
-            LOGGER.info("DB request has failed. ERROR:\n");
+            LOGGER.error("Fail: Failed getting item");
             /* Handle request error */
             handler.handle(
                 Future.failedFuture(
-                    new JsonObject().put(Constants.STATUS, Constants.FAILED).toString()));
+                    new JsonObject().put(STATUS, FAILED).toString()));
           }
         });
-    return null;
+    return this;
   }
 
   /** {@inheritDoc} */
   @Override
   public DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    String itemType = request.getString(Constants.ITEM_TYPE);
-    String type = request.getString(Constants.TYPE_KEY);
-    String instanceID = request.getString(Constants.INSTANCE_ID_KEY);
+    LOGGER.debug("Info: Reached list items;" + request.toString());
+    String itemType = request.getString(ITEM_TYPE);
+    String type = request.getString(TYPE_KEY);
+    String instanceID = request.getString(INSTANCE_ID_KEY);
     JsonObject req = new JsonObject();
     if (itemType.equalsIgnoreCase("instances")) {
-      req.put(Constants.SIZE, 0)
+      req.put(SIZE, 0)
           .put(
-              Constants.AGGREGATION_KEY,
+              AGGREGATION_KEY,
               new JsonObject()
                   .put(
-                      Constants.RESULTS,
+                      RESULTS,
                       new JsonObject()
                           .put(
-                              Constants.TERMS_KEY,
+                              TERMS_KEY,
                               new JsonObject()
-                                  .put(Constants.FIELD, Constants.INSTANCE_ID_KEYWORD)
-                                  .put(Constants.SIZE, 10000))));
-    } else if (itemType.equalsIgnoreCase(Constants.TAGS)) {
+                                  .put(FIELD, INSTANCE_ID_KEYWORD)
+                                  .put(SIZE, 10000))));
+    } else if (itemType.equalsIgnoreCase(TAGS)) {
+      LOGGER.debug("Info: Listing tags");
       req.put(
-              Constants.QUERY_KEY,
-              new JsonObject()
-                  .put(
-                      Constants.BOOL_KEY,
-                      new JsonObject()
-                          .put(
-                              Constants.FILTER_KEY,
-                              new JsonObject()
-                                  .put(
-                                      Constants.TERM,
-                                      new JsonObject()
-                                          .put(Constants.INSTANCE_ID_KEY, instanceID)))))
-          .put(
-              Constants.AGGREGATION_KEY,
-              new JsonObject()
-                  .put(
-                      Constants.RESULTS,
-                      new JsonObject()
-                          .put(
-                              Constants.TERMS_KEY,
-                              new JsonObject()
-                                  .put(Constants.FIELD, Constants.TAGS_KEYWORD)
-                                  .put(Constants.SIZE_KEY, 10000))));
+            AGGREGATION_KEY,
+            new JsonObject()
+                .put(
+                    RESULTS,
+                    new JsonObject()
+                        .put(
+                            TERMS_KEY,
+                            new JsonObject()
+                                .put(FIELD, TAGS_KEYWORD)
+                                .put(SIZE_KEY, 10000))));
     } else {
       req.put(
-              Constants.QUERY_KEY,
+              QUERY_KEY,
               new JsonObject()
                   .put(
-                      Constants.BOOL_KEY,
+                      BOOL_KEY,
                       new JsonObject()
                           .put(
-                              Constants.FILTER_KEY,
+                              FILTER_KEY,
                               new JsonArray()
                                   .add(
                                       new JsonObject()
                                           .put(
-                                              Constants.TERM,
-                                              new JsonObject()
-                                                  .put(Constants.INSTANCE_ID_KEY, instanceID)))
-                                  .add(
-                                      new JsonObject()
-                                          .put(
-                                              Constants.MATCH_KEY,
-                                              new JsonObject().put(Constants.TYPE_KEY, type))))))
+                                              MATCH_KEY,
+                                              new JsonObject().put(TYPE_KEY, type))))))
           .put(
-              Constants.AGGREGATION_KEY,
+              AGGREGATION_KEY,
               new JsonObject()
                   .put(
-                      Constants.RESULTS,
+                      RESULTS,
                       new JsonObject()
                           .put(
-                              Constants.TERMS_KEY,
+                              TERMS_KEY,
                               new JsonObject()
-                                  .put(Constants.FIELD, Constants.ID_KEYWORD)
-                                  .put(Constants.SIZE_KEY, 10000))));
+                                  .put(FIELD, ID_KEYWORD)
+                                  .put(SIZE_KEY, 10000))));
     }
-    System.out.println(req.toString());
-    System.out.println(req.toString());
+    LOGGER.debug("Info: Listing items;" + req.toString());
     client.listAggregationAsync(
-        Constants.CAT_INDEX_NAME,
+        CAT_INDEX_NAME,
         req.toString(),
         clientHandler -> {
           if (clientHandler.succeeded()) {
-            LOGGER.info("Successful DB request");
+            LOGGER.info("Success: List request");
             JsonObject responseJson = clientHandler.result();
-            System.out.println(responseJson);
             handler.handle(Future.succeededFuture(responseJson));
           } else {
-            LOGGER.info("DB request has failed. ERROR:\n");
+            LOGGER.error("Fail: DB request has failed");
             /* Handle request error */
             handler.handle(
                 Future.failedFuture(
-                    new JsonObject().put(Constants.STATUS, Constants.FAILED).toString()));
+                    new JsonObject().put(STATUS, FAILED).toString()));
           }
         });
-    return null;
+    return this;
   }
 
   /**

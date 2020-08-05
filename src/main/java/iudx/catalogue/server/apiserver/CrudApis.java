@@ -71,11 +71,14 @@ public final class CrudApis {
     HttpServerResponse response = routingContext.response();
     JsonObject authenticationInfo = new JsonObject();
 
-    String instanceID = request.getHeader(HEADER_HOST);
+    // String instanceID = request.getHeader(HEADER_HOST);
+    // requestBody.put(INSTANCE_ID_KEY, instanceID);
+
     String itemId = routingContext.queryParams().get(ID);
 
 
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
     requestBody.put(ID, itemId);
 
     /**
@@ -165,6 +168,40 @@ public final class CrudApis {
     });
   }
 
+  /**
+   * Get Item
+   *
+   * @param context {@link RoutingContext}
+   * @TODO Throw error if load failed
+   */
+  // tag::db-service-calls[]
+  public void getItemHandler(RoutingContext routingContext) {
+
+    /* Id in path param */
+    HttpServerResponse response = routingContext.response();
+
+    String itemId = routingContext.queryParams().get(ID);
+
+    LOGGER.debug("Info: Getting item; id=".concat(itemId));
+
+    JsonObject requestBody = new JsonObject().put(ID, itemId);
+
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
+    dbService.getItem(requestBody, dbhandler -> {
+      if (dbhandler.succeeded()) {
+        LOGGER.info("Success: Retreived item");
+        response.setStatusCode(200)
+                .end(dbhandler.result().toString());
+      } else if (dbhandler.failed()) {
+        LOGGER.error("Fail: Item not found;"
+                      .concat(dbhandler.cause().toString()));
+        response.setStatusCode(400)
+                .end(dbhandler.cause().toString());
+      }
+    });
+  }
+
 
   /**
    * Delete Item
@@ -187,6 +224,7 @@ public final class CrudApis {
     String instanceID = request.getHeader(HEADER_HOST);
     String itemId = routingContext.queryParams().get(ID);
 
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     requestBody.put(INSTANCE_ID_KEY, instanceID);
     requestBody.put(ID, itemId);
@@ -211,22 +249,19 @@ public final class CrudApis {
           if (dbhandler.succeeded()) {
             LOGGER.info("Success: Item deleted;"
                         .concat(dbhandler.result().toString()));
-            response.putHeader(HEADER_CONTENT_TYPE,
-                                MIME_APPLICATION_JSON).setStatusCode(200)
+            response.setStatusCode(200)
                     .end(dbhandler.result().toString());
           } else if (dbhandler.failed()) {
             LOGGER.error("Fail: Item deletion;"
                           .concat(dbhandler.cause().toString()));
-            response.putHeader(HEADER_CONTENT_TYPE,
-                                MIME_APPLICATION_JSON).setStatusCode(400)
-                                .end(dbhandler.cause().toString());
+            response.setStatusCode(400)
+                    .end(dbhandler.cause().toString());
           }
         });
       } else {
         LOGGER.error("Fail: Unathorized request"
                       .concat(authhandler.cause().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .setStatusCode(401)
+        response.setStatusCode(401)
                 .end(authhandler.cause().toString());
       }
     });

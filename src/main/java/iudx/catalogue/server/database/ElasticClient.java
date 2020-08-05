@@ -13,6 +13,9 @@ import io.vertx.core.Handler;
 import io.vertx.core.AsyncResult;
 import org.apache.http.util.EntityUtils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import java.io.IOException;
 
@@ -20,6 +23,7 @@ import static iudx.catalogue.server.database.Constants.*;
 
 public final class ElasticClient {
   private final RestClient client;
+  private static final Logger LOGGER = LogManager.getLogger(ElasticClient.class);
 
   /**
    * ElasticClient - Wrapper around ElasticSearch low level client

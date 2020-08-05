@@ -75,6 +75,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private HttpServer server;
   private CrudApis crudApis;
   private SearchApis searchApis;
+  private ListApis listApis;
 
   @SuppressWarnings("unused")
   private Router router;
@@ -129,6 +130,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         /** API Callback managers */
         crudApis = new CrudApis();
         searchApis = new SearchApis();
+        listApis = new ListApis();
 
         /**
          *
@@ -145,6 +147,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               if (ar.succeeded()) {
                 dbService = ar.result();
                 crudApis.setDbService(dbService);
+                listApis.setDbService(dbService);
                 searchApis.setDbService(dbService);
                 LOGGER.info("Service Discovery Success. Service name is : "
                         + dbService.getClass().getName());
@@ -213,6 +216,13 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
 
+        /* Get Item */
+        router.get(ROUTE_ITEMS)
+          .produces(MIME_APPLICATION_JSON)
+          .handler( routingContext -> {
+          crudApis.getItemHandler(routingContext);
+        });
+
         /* Update Item - Body contains data */
         router.put(ROUTE_UPDATE_ITEMS)
           .consumes(MIME_APPLICATION_JSON)
@@ -261,17 +271,23 @@ public class ApiServerVerticle extends AbstractVerticle {
           searchApis.searchHandler(routingContext);
         });
 
-        /* list the item from database using itemId */
-        router.get(Constants.ROUTE_GET_ITEM).handler(this::getItem);
         
         /**
          * Routes for list
          */
-
         /* list the item from database using itemId */
-        router.get(ROUTE_LIST_ITEMS).handler(this::listItems);
+        router.get(ROUTE_LIST_ITEMS)
+          .produces(MIME_APPLICATION_JSON)
+          .handler( routingContext -> { 
+            listApis.listItems(routingContext);
+          });
         /* Get list types with the database for an item */
-        router.getWithRegex(ROUTE_DATA_TYPE).handler(this::listTypes);
+        /* list the item from database using itemId */
+        router.getWithRegex(ROUTE_DATA_TYPE)
+          .produces(MIME_APPLICATION_JSON)
+          .handler( routingContext -> { 
+            listApis.listTypes(routingContext);
+          });
 
         /**
          * Routes for relationships
@@ -299,127 +315,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     });
   }
 
-  public void search(RoutingContext routingContext) {
-
-  }
-
-  /**
-   * List the item from database using itemId.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void getItem(RoutingContext routingContext) {
-
-    LOGGER.info("Listing items from database");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-    
-    /* Retrieves ID from Query Parameters */
-    String itemId = request.getParam("id");
-
-    /* Populating query mapper */
-    requestBody.put(ID, itemId);
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-    /* Database service call for fetching item */
-    dbService.getItem(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            LOGGER.info("Success: Successfull DB request");
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            LOGGER.error("Fail: Issue in listing items ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
-  }
-
-  /**
-   * Get the list of items for a catalogue instance.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listItems(RoutingContext routingContext) {
-
-    LOGGER.info("Listing resource groups of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    String itemType = request.getParam(Constants.ITEM_TYPE);
-    requestBody.put(Constants.ITEM_TYPE, itemType);
-    /* Populating query mapper */
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-    String type = null;
-    switch (itemType) {
-      case "resourcegroups":
-        type = Constants.ITEM_TYPE_RESOURCE_GROUP;
-        break;
-      case "resourceservers":
-    	  type = Constants.ITEM_TYPE_RESOURCE_SERVER;
-        break;
-      case "providers":
-    	  type = Constants.ITEM_TYPE_PROVIDER;
-        break;
-      case "instances":
-      case "tags":
-        type = itemType;
-        break;
-      default:
-        LOGGER.info("invalid itemType:" + itemType);
-        response
-            .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-            .setStatusCode(400)
-            .end("Invalid itemType");
-        return;
-    }
-    requestBody.put("type", type);
-
-    /* Request database service with requestBody for listing items */
-    dbService.listItems(
-        requestBody,
-        dbhandler -> {
-          if (dbhandler.succeeded()) {
-            LOGGER.info("Success: Successfull DB request");
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(200)
-                .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            LOGGER.error(
-                "Fail: Issue in listing " + itemType + ": ".concat(dbhandler.cause().toString()));
-            response
-                .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
-                .setStatusCode(400)
-                .end(dbhandler.cause().toString());
-          }
-        });
-  }
 
   /**
    * Get all resources belonging to a resourceGroup.
@@ -584,50 +479,6 @@ public class ApiServerVerticle extends AbstractVerticle {
         .put(RELATIONSHIP, REL_PROVIDER);
     LOGGER.info("search query : " + queryJson);
     dbService.listProviderRelationship(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(
-                    HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            LOGGER.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            LOGGER.error(handler.cause().getMessage());
-            response.headers().add(HEADER_CONTENT_TYPE, TEXT);
-            response.setStatusCode(500);
-            response.end(INTERNAL_SERVER_ERROR);
-          }
-        });
-  }
-
-  /**
-   * Queries the database and returns data model of an item.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void listTypes(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().host();
-    String id = routingContext.request().getParam(ID);
-    queryJson
-        .put(INSTANCE_ID_KEY, instanceID)
-        .put(ID, id)
-        .put(RELATIONSHIP, REL_TYPE);
-    LOGGER.info("search query : " + queryJson);
-    dbService.listTypes(
         queryJson,
         handler -> {
           if (handler.succeeded()) {
