@@ -336,24 +336,10 @@ public class ApiServerVerticle extends AbstractVerticle {
         dbhandler -> {
           if (dbhandler.succeeded()) {
             LOGGER.info("Success: Successfull DB request");
-            JsonObject result =
-                dbhandler
-                    .result()
-                    .getJsonObject("hits")
-                    .getJsonArray("hits")
-                    .getJsonObject(0)
-                    .getJsonObject("_source");
-            JsonObject responseJson = new JsonObject();
-            responseJson
-                .put(Constants.STATUS, Constants.SUCCESS)
-                .put(
-                    Constants.TOTAL_HITS,
-                    dbhandler.result().getJsonObject("hits").getJsonArray("hits").size())
-                .put(Constants.RESULTS, new JsonArray().add(result));
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
                 .setStatusCode(200)
-                .end(responseJson.toString());
+                .end(dbhandler.result().toString());
           } else if (dbhandler.failed()) {
             LOGGER.error("Fail: Issue in listing items ".concat(dbhandler.cause().toString()));
             response
@@ -420,42 +406,10 @@ public class ApiServerVerticle extends AbstractVerticle {
         dbhandler -> {
           if (dbhandler.succeeded()) {
             LOGGER.info("Success: Successfull DB request");
-            JsonArray items = new JsonArray();
-            JsonArray result = new JsonArray();
-            if (itemType.equalsIgnoreCase("resourcegroups")
-                || itemType.equalsIgnoreCase("resourceservers")
-                || itemType.equalsIgnoreCase("providers")
-                || itemType.equalsIgnoreCase("instances")) {
-              result =
-                  dbhandler
-                      .result()
-                      .getJsonObject(Constants.AGGREGATIONS)
-                      .getJsonObject(itemType)
-                      .getJsonArray(Constants.BUCKETS);
-            } else if (itemType.equalsIgnoreCase(Constants.TAGS)) {
-              result =
-                  dbhandler
-                      .result()
-                      .getJsonObject(Constants.AGGREGATIONS)
-                      .getJsonObject(Constants.INSTANCE)
-                      .getJsonObject(Constants.TAGS)
-                      .getJsonArray(Constants.BUCKETS);
-            }
-            int size = result.size();
-            for (int i = 0; i < size; i++) {
-              JsonObject rg = result.getJsonObject(i);
-              String key = rg.getString("key");
-              if (!items.contains(key)) items.add(key);
-            }
-            JsonObject responseJson = new JsonObject();
-            responseJson
-                .put(Constants.STATUS, Constants.SUCCESS)
-                .put(Constants.TOTAL_HITS, items.size())
-                .put(Constants.RESULTS, items);
             response
                 .putHeader(Constants.HEADER_CONTENT_TYPE, Constants.MIME_APPLICATION_JSON)
                 .setStatusCode(200)
-                .end(responseJson.toString());
+                .end(dbhandler.result().toString());
           } else if (dbhandler.failed()) {
             LOGGER.error(
                 "Fail: Issue in listing " + itemType + ": ".concat(dbhandler.cause().toString()));

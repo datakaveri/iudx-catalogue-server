@@ -7,6 +7,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.client.Request;
 
 import iudx.catalogue.server.database.ElasticClient;
 
@@ -251,43 +252,22 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String itemId = request.getString(Constants.ID);
-    Request getItem = new Request(Constants.REQUEST_GET, Constants.CAT_GET_ITEM);
     JsonObject req = new JsonObject();
     req.put(
         Constants.QUERY_KEY,
         new JsonObject().put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, itemId)));
     System.out.println(req.toString());
-    getItem.setJsonEntity(req.toString());
-    client.performRequestAsync(
-        getItem,
-        new ResponseListener() {
-
-          @Override
-          public void onSuccess(Response response) {
-            int statusCode = response.getStatusLine().getStatusCode();
-            logger.info("status code: " + statusCode);
-            if (statusCode != 200 && statusCode != 204) {
-              handler.handle(Future.failedFuture("Status code is not 2xx"));
-              return;
-            }
-            logger.info("Successful DB request");
-            try {
-              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-              handler.handle(Future.succeededFuture(responseJson));
-            } catch (ParseException | IOException e) {
-              logger.info("DB ERROR:\n");
-              e.printStackTrace();
-              /* Handle request error */
-              handler.handle(
-                  Future.failedFuture(
-                      new JsonObject().put(Constants.STATUS, Constants.FAILED).toString()));
-            }
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            logger.info("DB request has failed. ERROR:\n");
-            e.printStackTrace();
+    client.searchAsync(
+        Constants.CAT_INDEX_NAME,
+        req.toString(),
+        clientHandler -> {
+          if (clientHandler.succeeded()) {
+            LOGGER.info("Successful DB request");
+            JsonObject responseJson = clientHandler.result();
+            System.out.println(responseJson);
+            handler.handle(Future.succeededFuture(responseJson));
+          } else {
+            LOGGER.info("DB request has failed. ERROR:\n");
             /* Handle request error */
             handler.handle(
                 Future.failedFuture(
@@ -304,16 +284,13 @@ public class DatabaseServiceImpl implements DatabaseService {
     String type = request.getString(Constants.TYPE_KEY);
     String instanceID = request.getString(Constants.INSTANCE_ID_KEY);
     JsonObject req = new JsonObject();
-    Request getItems;
-
     if (itemType.equalsIgnoreCase("instances")) {
-      getItems = new Request(Constants.REQUEST_GET, Constants.CAT_GET_DOMAIN);
       req.put(Constants.SIZE, 0)
           .put(
               Constants.AGGREGATION_KEY,
               new JsonObject()
                   .put(
-                      itemType,
+                      Constants.RESULTS,
                       new JsonObject()
                           .put(
                               Constants.TERMS_KEY,
@@ -321,36 +298,31 @@ public class DatabaseServiceImpl implements DatabaseService {
                                   .put(Constants.FIELD, Constants.INSTANCE_ID_KEYWORD)
                                   .put(Constants.SIZE, 10000))));
     } else if (itemType.equalsIgnoreCase(Constants.TAGS)) {
-      getItems = new Request(Constants.REQUEST_GET, Constants.CAT_GET_TAG);
-      req.put(Constants.SIZE, 0)
-          .put(
-              Constants.AGGREGATION_KEY,
+      req.put(
+              Constants.QUERY_KEY,
               new JsonObject()
                   .put(
-                      Constants.INSTANCE,
+                      Constants.BOOL_KEY,
                       new JsonObject()
                           .put(
                               Constants.FILTER_KEY,
                               new JsonObject()
                                   .put(
                                       Constants.TERM,
-                                      new JsonObject().put(Constants.INSTANCE_ID_KEY, instanceID)))
-                          .put(
-                              Constants.AGGREGATION_KEY,
-                              new JsonObject()
-                                  .put(
-                                      Constants.TAGS,
                                       new JsonObject()
-                                          .put(
-                                              Constants.TERMS_KEY,
-                                              new JsonObject()
-                                                  .put(Constants.FIELD, Constants.TAGS_KEYWORD)
-                                                  .put(Constants.SIZE, 10000))))));
+                                          .put(Constants.INSTANCE_ID_KEY, instanceID)))))
+          .put(
+              Constants.AGGREGATION_KEY,
+              new JsonObject()
+                  .put(
+                      Constants.RESULTS,
+                      new JsonObject()
+                          .put(
+                              Constants.TERMS_KEY,
+                              new JsonObject()
+                                  .put(Constants.FIELD, Constants.TAGS_KEYWORD)
+                                  .put(Constants.SIZE_KEY, 10000))));
     } else {
-      getItems =
-          new Request(
-              Constants.REQUEST_GET, Constants.CAT_GET_AGGREGATIONS + "." + itemType + ".buckets");
-      System.out.println(Constants.CAT_GET_AGGREGATIONS + "." + itemType + ".buckets");
       req.put(
               Constants.QUERY_KEY,
               new JsonObject()
@@ -375,7 +347,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               Constants.AGGREGATION_KEY,
               new JsonObject()
                   .put(
-                      itemType,
+                      Constants.RESULTS,
                       new JsonObject()
                           .put(
                               Constants.TERMS_KEY,
@@ -384,38 +356,18 @@ public class DatabaseServiceImpl implements DatabaseService {
                                   .put(Constants.SIZE_KEY, 10000))));
     }
     System.out.println(req.toString());
-    getItems.setJsonEntity(req.toString());
-    client.performRequestAsync(
-        getItems,
-        new ResponseListener() {
-
-          @Override
-          public void onSuccess(Response response) {
-            int statusCode = response.getStatusLine().getStatusCode();
-            logger.info("status code: " + statusCode);
-            if (statusCode != 200 && statusCode != 204) {
-              handler.handle(Future.failedFuture("Status code is not 2xx"));
-              return;
-            }
-            logger.info("Successful DB request");
-            try {
-              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-              System.out.println(responseJson);
-              handler.handle(Future.succeededFuture(responseJson));
-            } catch (ParseException | IOException e) {
-              logger.info("DB ERROR:\n");
-              e.printStackTrace();
-              /* Handle request error */
-              handler.handle(
-                  Future.failedFuture(
-                      new JsonObject().put(Constants.STATUS, Constants.FAILED).toString()));
-            }
-          }
-
-          @Override
-          public void onFailure(Exception e) {
-            logger.info("DB request has failed. ERROR:\n");
-            e.printStackTrace();
+    System.out.println(req.toString());
+    client.listAggregationAsync(
+        Constants.CAT_INDEX_NAME,
+        req.toString(),
+        clientHandler -> {
+          if (clientHandler.succeeded()) {
+            LOGGER.info("Successful DB request");
+            JsonObject responseJson = clientHandler.result();
+            System.out.println(responseJson);
+            handler.handle(Future.succeededFuture(responseJson));
+          } else {
+            LOGGER.info("DB request has failed. ERROR:\n");
             /* Handle request error */
             handler.handle(
                 Future.failedFuture(
