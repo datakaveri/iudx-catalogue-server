@@ -71,6 +71,13 @@ public final class CrudApis {
     HttpServerResponse response = routingContext.response();
     JsonObject authenticationInfo = new JsonObject();
 
+    String instanceID = request.getHeader(HEADER_HOST);
+    String itemId = routingContext.queryParams().get(ID);
+
+
+    requestBody.put(INSTANCE_ID_KEY, instanceID);
+    requestBody.put(ID, itemId);
+
     /**
      * Start insertion flow 
      **/
