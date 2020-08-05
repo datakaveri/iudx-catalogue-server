@@ -304,7 +304,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * List the items from database using itemId.
+   * List the item from database using itemId.
    *
    * @param routingContext handles web requests in Vert.x Web
    */
@@ -330,7 +330,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     requestBody.put(ID, itemId);
     requestBody.put(INSTANCE_ID_KEY, instanceID);
 
-    /* Databse service call for listing item */
+    /* Database service call for fetching item */
     dbService.getItem(
         requestBody,
         dbhandler -> {
@@ -351,7 +351,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   }
 
   /**
-   * Get the list of resource groups for a catalogue instance.
+   * Get the list of items for a catalogue instance.
    *
    * @param routingContext handles web requests in Vert.x Web
    */
@@ -400,7 +400,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     }
     requestBody.put("type", type);
 
-    /* Request database service with requestBody for listing resource groups */
+    /* Request database service with requestBody for listing items */
     dbService.listItems(
         requestBody,
         dbhandler -> {
