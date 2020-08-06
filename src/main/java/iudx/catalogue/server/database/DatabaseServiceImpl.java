@@ -400,23 +400,20 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonObject boolObject = new JsonObject();
 
     /* Validating the request */
-    if (request.containsKey(Constants.ID)
-        && request.getString(Constants.RELATIONSHIP).equals(Constants.REL_RESOURCE_GRP)) {
+    if (request.containsKey(ID) && request.getString(RELATIONSHIP).equals(REL_RESOURCE_GRP)) {
 
       /* parsing resourceGroupId from the request ID */
       String resourceGroupId =
-          StringUtils.substringBeforeLast(request.getString(Constants.ID), Constants.FORWARD_SLASH);
+          StringUtils.substringBeforeLast(request.getString(ID), FORWARD_SLASH);
 
-      boolObject.put(Constants.BOOL_KEY,
-          new JsonObject().put(Constants.MUST_KEY,
+      /* constructing the query */
+      boolObject.put(BOOL_KEY, new JsonObject().put(MUST_KEY,
               new JsonArray()
-                  .add(new JsonObject().put(Constants.TERM,
-                      new JsonObject().put(Constants.ID_KEYWORD, resourceGroupId)))
-                  .add(new JsonObject().put(Constants.TERM,
-                      new JsonObject().put(Constants.TYPE_KEY.concat(Constants.KEYWORD_KEY),
-                          Constants.ITEM_TYPE_RESOURCE_GROUP)))));
+              .add(new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, resourceGroupId)))
+              .add(new JsonObject().put(TERM,
+                  new JsonObject().put(TYPE_KEY.concat(KEYWORD_KEY), ITEM_TYPE_RESOURCE_GROUP)))));
 
-      elasticQuery.put(Constants.QUERY_KEY, boolObject);
+      elasticQuery.put(QUERY_KEY, boolObject);
 
       LOGGER.debug("Info: Query constructed;" + elasticQuery.toString());
 
@@ -446,22 +443,23 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonObject boolObject = new JsonObject();
 
     /* Validating the request */
-    if (request.containsKey(Constants.ID)
-        && request.getString(Constants.RELATIONSHIP).equals(Constants.REL_PROVIDER)) {
+    if (request.containsKey(ID) && request.getString(RELATIONSHIP).equals(REL_PROVIDER)) {
 
       /* parsing id from the request */
-      String id = request.getString(Constants.ID);
+      String id = request.getString(ID);
 
       /* parsing providerId from the request */
       String providerId = StringUtils.substring(id, 0, id.indexOf("/", id.indexOf("/") + 1));
 
-      boolObject.put(Constants.BOOL_KEY, new JsonObject().put(Constants.MUST_KEY, new JsonArray()
-          .add(new JsonObject().put(Constants.TERM,
-              new JsonObject().put(Constants.ID_KEYWORD, providerId)))
-          .add(new JsonObject().put(Constants.TERM, new JsonObject().put(
-              Constants.TYPE_KEY.concat(Constants.KEYWORD_KEY), Constants.ITEM_TYPE_PROVIDER)))));
+      /* constructing the query */
+      boolObject.put(BOOL_KEY,
+          new JsonObject().put(MUST_KEY,
+              new JsonArray()
+                  .add(new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, providerId)))
+                  .add(new JsonObject().put(TERM,
+                      new JsonObject().put(TYPE_KEY.concat(KEYWORD_KEY), ITEM_TYPE_PROVIDER)))));
 
-      elasticQuery.put(Constants.QUERY_KEY, boolObject);
+      elasticQuery.put(QUERY_KEY, boolObject);
 
       LOGGER.debug("Info: Query constructed;" + elasticQuery.toString());
 
@@ -491,20 +489,19 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonObject boolObject = new JsonObject();
 
     /* Validating the request */
-    if (request.containsKey(Constants.ID)
-        && request.getString(Constants.RELATIONSHIP).equals(Constants.REL_RESOURCE_SVR)) {
+    if (request.containsKey(ID) && request.getString(RELATIONSHIP).equals(REL_RESOURCE_SVR)) {
 
       /* parsing id from the request */
-      String[] id = request.getString(Constants.ID).split(Constants.FORWARD_SLASH);
+      String[] id = request.getString(ID).split(FORWARD_SLASH);
 
-      boolObject.put(Constants.BOOL_KEY, new JsonObject().put(Constants.MUST_KEY, new JsonArray()
-          .add(new JsonObject().put(Constants.MATCH_KEY, new JsonObject().put(Constants.ID, id[0])))
-          .add(new JsonObject().put(Constants.MATCH_KEY, new JsonObject().put(Constants.ID, id[2])))
-          .add(new JsonObject().put(Constants.TERM,
-              new JsonObject().put(Constants.TYPE_KEY.concat(Constants.KEYWORD_KEY),
-                  Constants.ITEM_TYPE_RESOURCE_SERVER)))));
+      /* constructing the query */
+      boolObject.put(BOOL_KEY, new JsonObject().put(MUST_KEY,
+          new JsonArray().add(new JsonObject().put(MATCH_KEY, new JsonObject().put(ID, id[0])))
+              .add(new JsonObject().put(MATCH_KEY, new JsonObject().put(ID, id[2])))
+              .add(new JsonObject().put(TERM,
+                  new JsonObject().put(TYPE_KEY.concat(KEYWORD_KEY), ITEM_TYPE_RESOURCE_SERVER)))));
 
-      elasticQuery.put(Constants.QUERY_KEY, boolObject);
+      elasticQuery.put(QUERY_KEY, boolObject);
 
       LOGGER.debug("Info: Query constructed;" + elasticQuery.toString());
 
@@ -532,17 +529,16 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonObject boolObject = new JsonObject();
 
     /* Validating the request */
-    if (request.containsKey(Constants.ID)
-        && request.getString(Constants.RELATIONSHIP).equals(Constants.TYPE_KEY)) {
+    if (request.containsKey(ID) && request.getString(RELATIONSHIP).equals(TYPE_KEY)) {
 
       /* parsing id from the request */
-      String itemId = request.getString(Constants.ID);
+      String itemId = request.getString(ID);
 
-      boolObject.put(Constants.BOOL_KEY,
-          new JsonObject().put(Constants.MUST_KEY, new JsonArray().add(new JsonObject()
-              .put(Constants.TERM, new JsonObject().put(Constants.ID_KEYWORD, itemId)))));
+      /* constructing the query */
+      boolObject.put(BOOL_KEY, new JsonObject().put(MUST_KEY, new JsonArray()
+          .add(new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, itemId)))));
 
-      elasticQuery.put(Constants.QUERY_KEY, boolObject);
+      elasticQuery.put(QUERY_KEY, boolObject);
 
       LOGGER.debug("Info: Query constructed;" + elasticQuery.toString());
 
@@ -558,6 +554,121 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    /* Initialize elastic clients and JsonObjects */
+    JsonObject errorJson = new JsonObject();
+    JsonObject elasticQuery = new JsonObject();
+    JsonObject boolObject = new JsonObject();
+
+    /* Validating the request */
+    if (request.containsKey(RELATIONSHIP) && request.containsKey(VALUE)) {
+
+      /* parsing data parameters from the request */
+      String relReq = request.getJsonArray(RELATIONSHIP).getString(0);
+
+      if (relReq.contains(".")) {
+
+        String typeValue = null;
+        String[] relReqs = relReq.split("\\.", 2);
+        String relReqsKey = relReqs[1];
+        String relReqsValue = request.getJsonArray(VALUE).getJsonArray(0).getString(0);
+
+        if (relReqs[0].equalsIgnoreCase(REL_PROVIDER)) {
+          typeValue = ITEM_TYPE_PROVIDER;
+
+        } else if (relReqs[0].equalsIgnoreCase(REL_RESOURCE)) {
+          typeValue = ITEM_TYPE_RESOURCE;
+
+        } else if (relReqs[0].equalsIgnoreCase(REL_RESOURCE_GRP)) {
+          typeValue = ITEM_TYPE_RESOURCE_GROUP;
+
+        } else if (relReqs[0].equalsIgnoreCase(REL_RESOURCE_SVR)) {
+          typeValue = ITEM_TYPE_RESOURCE_SERVER;
+
+        } else {
+          /* Constructing error response */
+          errorJson.put(STATUS, FAILED).put(DESCRIPTION, ERROR_INVALID_PARAMETER);
+
+          handler.handle(Future.failedFuture(errorJson.toString()));
+          return null;
+        }
+
+        /* Constructing the db query */
+        boolObject.put(BOOL_KEY,
+            new JsonObject().put(MUST_KEY, new JsonArray()
+                .add(new JsonObject().put(TERM,
+                    new JsonObject().put(TYPE_KEY.concat(KEYWORD_KEY), typeValue)))
+                .add(new JsonObject().put(MATCH_KEY,
+                    new JsonObject().put(relReqsKey, relReqsValue)))));
+
+      } else {
+        handler.handle(Future.failedFuture(errorJson.toString()));
+        return null;
+      }
+      
+      elasticQuery.put(QUERY_KEY, boolObject).put(SOURCE, ID);
+      
+      /* Initial db query to filter matching attributes */
+      client.searchAsync(REL_API_INDEX_NAME, elasticQuery.toString(), searchRes -> {
+        if (searchRes.succeeded()) {
+
+          JsonArray resultValues = searchRes.result().getJsonArray(RESULTS);
+          elasticQuery.clear();
+          boolObject.clear();
+          JsonArray idCollection = new JsonArray();
+
+          /* iterating over the filtered response json array */
+          for (Object idIndex : resultValues) {
+            JsonObject id = (JsonObject) idIndex;
+
+            if (!id.isEmpty()) {
+              idCollection
+                  .add(new JsonObject().put(WILDCARD_KEY,
+                      new JsonObject().put(ID_KEYWORD, id.getString(ID).concat("*"))));
+            }
+          }
+          
+          /* constructing the db query */
+          boolObject.put(BOOL_KEY, new JsonObject().put(SHOULD_KEY, idCollection));
+          elasticQuery.put(QUERY_KEY, boolObject);
+          
+          /* checking the requests for limit attribute */
+          if (request.containsKey(LIMIT)) {
+            Integer sizeFilter = request.getInteger(LIMIT);
+            elasticQuery.put(SIZE, sizeFilter);
+          }
+
+          /* checking the requests for offset attribute */
+          if (request.containsKey(OFFSET)) {
+            Integer offsetFilter = request.getInteger(OFFSET);
+            elasticQuery.put(FROM, offsetFilter);
+          }
+          
+          LOGGER.debug("INFO: Query constructed;" + elasticQuery.toString());
+
+          /* db query to find the relationship to the initial query */
+          client.searchAsync(REL_API_INDEX_NAME, elasticQuery.toString(), relSearchRes -> {
+            if (relSearchRes.succeeded()) {
+              
+              LOGGER.debug("Success: Successful DB request");
+              handler.handle(Future.succeededFuture(relSearchRes.result()));
+            }
+            else if (relSearchRes.failed()) {
+              handler.handle(Future.failedFuture(relSearchRes.cause().getMessage()));
+            }
+          });
+        } else {
+          handler.handle(Future.failedFuture(errorJson.toString()));
+        }
+      });
+    }
+    return this;
+  }
 
   /**
    * Decodes and constructs ElasticSearch Search/Count query based on the parameters passed in the

@@ -230,6 +230,16 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
 
+  /**
+   * The relSearch implements the Relationship searches with the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+
+  @Fluent
+  DatabaseService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The create implements the count operation with the database.

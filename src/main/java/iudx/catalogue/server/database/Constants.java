@@ -39,8 +39,8 @@ public class Constants {
   static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
   static final String BOOL_KEY = "bool";
   static final String FILTER_KEY = "filter";
-  static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source&size=10000";
-  static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
+  static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
+  static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id";
   static final String HITS = "hits";
   static final String QUERY_KEY = "query";
   static final String REQUEST_GET = "GET";
@@ -138,5 +138,7 @@ public class Constants {
   public static final String ITEM_TYPE_PROVIDER = "iudx:Provider";
   public static final String REL_TYPE = "type";
 
+  public static final String NAME_KEY = "name";
+  public static final String WILDCARD_KEY = "wildcard";
 
 }

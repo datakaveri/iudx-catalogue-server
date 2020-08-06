@@ -1,15 +1,5 @@
 package iudx.catalogue.server.apiserver;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -18,7 +8,6 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JksOptions;
 import io.vertx.core.spi.cluster.ClusterManager;
@@ -30,13 +19,16 @@ import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
-
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.apiserver.util.ResponseHandler;
-
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Properties;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 
@@ -295,6 +287,9 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* Get resource server relationship to an item */
         router.getWithRegex(ROUTE_RESOURCE_SERVER_REL)
             .handler(this::listResourceServerRelationship);
+        /* Relationship related search */
+        router.get(ROUTE_REL_SEARCH).handler(this::relSearch);
+
 
 
         /**
@@ -812,6 +807,64 @@ public class ApiServerVerticle extends AbstractVerticle {
             response.end(handler.cause().getLocalizedMessage());
           }
         });
+  }
+
+  /**
+   * Relationship search of the cataloque items.
+   *
+   * @param routingContext Handles web request in Vert.x web
+   */
+  public void relSearch(RoutingContext routingContext) {
+
+    LOGGER.info("Relationship search");
+
+    /* Handles HTTP request from client */
+    HttpServerRequest request = routingContext.request();
+
+    /* Handles HTTP response from server to client */
+    HttpServerResponse response = routingContext.response();
+    JsonObject requestBody = new JsonObject();
+
+    /* HTTP request instance/host details */
+    String instanceID = request.getHeader(HEADER_HOST);
+
+    /* Collection of query parameters from HTTP request */
+    MultiMap queryParameters = routingContext.queryParams();
+
+    /* validating proper actual query parameters from request */
+    if (request.getParam(RELATIONSHIP) != null && request.getParam(VALUE) != null) {
+
+      /* converting query parameters in json */
+      requestBody = QueryMapper.map2Json(queryParameters);
+
+      if (requestBody != null) {
+
+        /* Populating query mapper */
+        requestBody.put(INSTANCE_ID_KEY, instanceID);
+
+        /* Request database service with requestBody for listing domains */
+        dbService.relSearch(requestBody, dbhandler -> {
+          if (dbhandler.succeeded()) {
+            LOGGER.info(
+                "Relationship search completed, response: ".concat(dbhandler.result().toString()));
+            response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).setStatusCode(200)
+                .end(dbhandler.result().toString());
+          } else if (dbhandler.failed()) {
+            LOGGER.error("Issue in relationship search ".concat(dbhandler.cause().toString()));
+            response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).setStatusCode(400)
+                .end(dbhandler.cause().getLocalizedMessage());
+          }
+        });
+      } else {
+        LOGGER.error("Invalid request query parameters");
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).setStatusCode(400)
+            .end(new ResponseHandler.Builder().withStatus(INVALID_VALUE).build().toJsonString());
+      }
+    } else {
+      LOGGER.error("Invalid request query parameters");
+      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).setStatusCode(400)
+          .end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX).build().toJsonString());
+    }
   }
 
 }

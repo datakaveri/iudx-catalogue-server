@@ -100,7 +100,6 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(1)
-  @Disabled
   @DisplayName("Create Item[Status:201, Endpoint: /item]")
   public void createItem201(VertxTestContext testContext) throws InterruptedException {
 
@@ -149,7 +148,6 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(2)
-  @Disabled
   @DisplayName("Create Item[Status:400, Endpoint: /item]")
   public void createItem400(VertxTestContext testContext) {
 
@@ -187,7 +185,6 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(3)
-  @Disabled
   @DisplayName("Update Item[Status:200, Endpoint: /item]")
   void updateItem200(VertxTestContext testContext) {
 
@@ -226,7 +223,6 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(4)
-  @Disabled
   @DisplayName("Update Item[Status:400, Endpoint: /item]")
   void updateItem400(VertxTestContext testContext) {
 
@@ -266,7 +262,6 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(5)
-  @Disabled
   @DisplayName("Delete Item[Status:200, Endpoint: /item]")
   void deleteItem200(VertxTestContext testContext) {
 
