@@ -110,9 +110,11 @@ public class ValidatorServiceImpl implements ValidatorService {
     }
 
     if (isValidSchema) {
+      LOGGER.debug("Success: Valid Schema");
       handler.handle(
           Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
+      LOGGER.error("Fail: Invalid Schema");
       handler.handle(
           Future.failedFuture(new JsonObject().put(STATUS, FAILED).toString()));
     }
@@ -149,10 +151,9 @@ public class ValidatorServiceImpl implements ValidatorService {
               .getJsonObject(TOTAL)
               .getInteger(VALUE) == 1) {
             promise.complete(true);
-            LOGGER.debug("Info: resource group validated");
           } else {
                 promise.fail(NON_EXISTING_LINK_MSG + link);
-              }
+          }
           } catch (ParseException | IOException e) {
             LOGGER.error("DB ERROR:\n");
             e.printStackTrace();
@@ -207,6 +208,14 @@ public class ValidatorServiceImpl implements ValidatorService {
         }
       });
     }
+    /** 
+     * Validate if Resource Server
+     * TODO: More checks and auth rules
+     **/
+    else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      handler.handle(
+          Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
+    }
     /** Validate if Provider */
     else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
       handler.handle(
@@ -226,10 +235,12 @@ public class ValidatorServiceImpl implements ValidatorService {
       Future<Boolean> verifiedProvider = verifyLink(provider);
       verifiedProvider.onComplete( res -> {
         if (res.succeeded()) {
+          LOGGER.debug("Info: Provider exists");
           handler.handle(Future.succeededFuture(request));
           Future<Boolean> verifiedResourceServer = verifyLink(resourceServer);
           verifiedResourceServer.onComplete( rres -> {
             if (rres.succeeded()) {
+              LOGGER.debug("Info: Server exists");
               handler.handle(Future.succeededFuture(request));
             } else {
               handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));

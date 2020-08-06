@@ -8,8 +8,10 @@ import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.client.Request;
 
 import static iudx.catalogue.server.database.Constants.*;
+
 
 /**
  * The Database Service Implementation.
@@ -245,101 +247,112 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @Override
-  public DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
+  public DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    String itemId = request.getString(ID);
+    JsonObject req = new JsonObject();
+    req.put(
+        QUERY_KEY,
+        new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, itemId)));
+    client.searchAsync(
+        CAT_INDEX_NAME,
+        req.toString(),
+        clientHandler -> {
+          if (clientHandler.succeeded()) {
+            LOGGER.info("Success: Retreived item");
+            JsonObject responseJson = clientHandler.result();
+            handler.handle(Future.succeededFuture(responseJson));
+          } else {
+            LOGGER.error("Fail: Failed getting item");
+            /* Handle request error */
+            handler.handle(
+                Future.failedFuture(
+                    new JsonObject().put(STATUS, FAILED).toString()));
+          }
+        });
+    return this;
+  }
 
-    String result =
-        "{ \"status\": \"success\", \"totalHits\": 100," + "\"limit\": 10, \"offset\": 100,"
-            + "\"results\": [" + "{ \"id\": \"abc/123\", \"tags\": [ \"a\", \"b\"] } ] }";
-
-    String errResult = " { \"status\": \"invalidValue\", \"results\": [] }";
-
-    if (request.getString("id").contains("/")) {
-      handler.handle(Future.succeededFuture(new JsonObject(result)));
+  /** {@inheritDoc} */
+  @Override
+  public DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.debug("Info: Reached list items;" + request.toString());
+    String itemType = request.getString(ITEM_TYPE);
+    String type = request.getString(TYPE_KEY);
+    String instanceID = request.getString(INSTANCE_ID_KEY);
+    JsonObject req = new JsonObject();
+    if (itemType.equalsIgnoreCase("instances")) {
+      req.put(SIZE, 0)
+          .put(
+              AGGREGATION_KEY,
+              new JsonObject()
+                  .put(
+                      RESULTS,
+                      new JsonObject()
+                          .put(
+                              TERMS_KEY,
+                              new JsonObject()
+                                  .put(FIELD, INSTANCE_ID_KEYWORD)
+                                  .put(SIZE, 10000))));
+    } else if (itemType.equalsIgnoreCase(TAGS)) {
+      LOGGER.debug("Info: Listing tags");
+      req.put(
+            AGGREGATION_KEY,
+            new JsonObject()
+                .put(
+                    RESULTS,
+                    new JsonObject()
+                        .put(
+                            TERMS_KEY,
+                            new JsonObject()
+                                .put(FIELD, TAGS_KEYWORD)
+                                .put(SIZE_KEY, 10000))));
     } else {
-      handler.handle(Future.succeededFuture(new JsonObject(errResult)));
+      req.put(
+              QUERY_KEY,
+              new JsonObject()
+                  .put(
+                      BOOL_KEY,
+                      new JsonObject()
+                          .put(
+                              FILTER_KEY,
+                              new JsonArray()
+                                  .add(
+                                      new JsonObject()
+                                          .put(
+                                              MATCH_KEY,
+                                              new JsonObject().put(TYPE_KEY, type))))))
+          .put(
+              AGGREGATION_KEY,
+              new JsonObject()
+                  .put(
+                      RESULTS,
+                      new JsonObject()
+                          .put(
+                              TERMS_KEY,
+                              new JsonObject()
+                                  .put(FIELD, ID_KEYWORD)
+                                  .put(SIZE_KEY, 10000))));
     }
-
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\", \"results\": [ \"environment\", \"civic\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\", \"results\": [ \"environment\", \"civic\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\", \"results\": [ \"Pune\", \"Varanasi\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DatabaseService listResourceServers(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use
-    String result = "{ \"status\": \"success\", \"results\": [ \"server-1\", \"server-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DatabaseService listProviders(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use [was not part of master code]
-    String result = "{ \"status\": \"success\", \"results\": [ \"pr-1\", \"pr-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-
-    return null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public DatabaseService listResourceGroups(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
-    // TODO: Stub code, to be removed after use [was not part of master code]
-    String result = "{ \"status\": \"success\", \"results\": [ \"rg-1\", \"rg-2\" ] }";
-    handler.handle(Future.succeededFuture(new JsonObject(result)));
-
-    return null;
+    LOGGER.debug("Info: Listing items;" + req.toString());
+    client.listAggregationAsync(
+        CAT_INDEX_NAME,
+        req.toString(),
+        clientHandler -> {
+          if (clientHandler.succeeded()) {
+            LOGGER.info("Success: List request");
+            JsonObject responseJson = clientHandler.result();
+            handler.handle(Future.succeededFuture(responseJson));
+          } else {
+            LOGGER.error("Fail: DB request has failed");
+            /* Handle request error */
+            handler.handle(
+                Future.failedFuture(
+                    new JsonObject().put(STATUS, FAILED).toString()));
+          }
+        });
+    return this;
   }
 
   /**

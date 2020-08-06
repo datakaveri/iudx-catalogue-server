@@ -13,6 +13,9 @@ import io.vertx.core.Handler;
 import io.vertx.core.AsyncResult;
 import org.apache.http.util.EntityUtils;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 import java.io.IOException;
 
@@ -20,6 +23,7 @@ import static iudx.catalogue.server.database.Constants.*;
 
 public final class ElasticClient {
   private final RestClient client;
+  private static final Logger LOGGER = LogManager.getLogger(ElasticClient.class);
 
   /**
    * ElasticClient - Wrapper around ElasticSearch low level client
@@ -68,6 +72,25 @@ public final class ElasticClient {
     return this;
   }
 
+  /**
+   * aggregationsAsync - Wrapper around elasticsearch async search requests
+   * 
+   * @param index Index to search on
+   * @param query Query
+   * @param resultHandler JsonObject result {@link AsyncResult}
+   * @TODO XPack Security
+   */
+  public ElasticClient listAggregationAsync(String index, String query,
+      Handler<AsyncResult<JsonObject>> resultHandler) {
+
+    Request queryRequest = new Request(REQUEST_GET, index 
+                              + "/_search"
+                              + FILTER_PATH_AGGREGATION);
+    queryRequest.setJsonEntity(query);
+    Future<JsonObject> future = searchAsync(queryRequest, AGGREGATION_ONLY);
+    future.onComplete(resultHandler);
+    return this;
+  }
 
   /**
    * countAsync - Wrapper around elasticsearch async count requests
@@ -216,13 +239,25 @@ public final class ElasticClient {
           responseMsg.statusSuccess()
                       .setTotalHits(totalHits);
           if (totalHits > 0 ) {
-            JsonArray hits = responseJson.getJsonObject(HITS).getJsonArray(HITS);
-            for (int i=0; i<hits.size(); i++) {
+            JsonArray results = new JsonArray();
+
+            if ((options == SOURCE_ONLY) || (options == DOC_IDS_ONLY)) {
+              results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
+            }
+            if (options == AGGREGATION_ONLY) {
+              results = responseJson.getJsonObject(AGGREGATIONS)
+                                  .getJsonObject(RESULTS)
+                                  .getJsonArray(BUCKETS);
+            }
+            for (int i=0; i<results.size(); i++) {
               if ( options == SOURCE_ONLY) {
-                responseMsg.addResult(hits.getJsonObject(i).getJsonObject(SOURCE));
+                responseMsg.addResult(results.getJsonObject(i).getJsonObject(SOURCE));
               }
               if (options == DOC_IDS_ONLY) {
-                responseMsg.addResult(hits.getJsonObject(i).getString(DOC_ID));
+                responseMsg.addResult(results.getJsonObject(i).getString(DOC_ID));
+              }
+              if (options == AGGREGATION_ONLY) {
+                responseMsg.addResult(results.getJsonObject(i).getString(KEY));
               }
             }
           }
@@ -308,21 +343,22 @@ public final class ElasticClient {
             case REQUEST_POST:
               if (statusCode == 201) {
                 promise.complete(responseJson);
+                return;
               }
             case REQUEST_DELETE:
               if (statusCode == 200) {
                 promise.complete(responseJson);
+                return;
               }
             case REQUEST_PUT:
               if (statusCode == 200) {
                 promise.complete(responseJson);
+                return;
               }
             default:
               promise.fail(DATABASE_BAD_QUERY);
           }
-          if (statusCode != 201 && statusCode != 204) {
-          } else {
-          }
+          promise.fail("Failed request");
         } catch (IOException e) {
             promise.fail(e);
         } finally {

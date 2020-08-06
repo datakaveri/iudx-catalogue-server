@@ -12,7 +12,7 @@ public class Constants {
   public static final String HITS = "hits";
   public static final String TOTAL = "total";
   public static final String VALUE = "value";
-  public static final String CAT_DOC = "validation/_doc";
+  public static final String CAT_DOC = "cat/_doc";
   public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
   public static final String ITEM_TYPE_RESOURCE_GROUP = "iudx:ResourceGroup";
   public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
@@ -29,6 +29,9 @@ public class Constants {
   public static final String ITEM_STATUS = "itemStatus";
   public static final String ACTIVE = "ACTIVE";
   public static final String ITEM_CREATED_AT = "itemCreatedAt";
+  public static final String CONFIG_FILE = "config.properties";
+  public static final String DATABASE_IP = "databaseIP";
+  public static final String DATABASE_PORT = "databasePort";
 
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
   public static final String NON_EXISTING_LINK_MSG = "No such cat item exists: ";

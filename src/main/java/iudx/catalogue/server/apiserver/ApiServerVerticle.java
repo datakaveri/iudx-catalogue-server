@@ -1,6 +1,7 @@
 package iudx.catalogue.server.apiserver;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
@@ -66,6 +67,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private HttpServer server;
   private CrudApis crudApis;
   private SearchApis searchApis;
+  private ListApis listApis;
 
   @SuppressWarnings("unused")
   private Router router;
@@ -98,6 +100,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         properties = new Properties();
         inputstream = null;
+        
         /* Read the configuration and set the HTTPs server properties. */
         try {
           inputstream = new FileInputStream(CONFIG_FILE);
@@ -119,6 +122,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         /** API Callback managers */
         crudApis = new CrudApis();
         searchApis = new SearchApis();
+        listApis = new ListApis();
 
         /**
          *
@@ -135,6 +139,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               if (ar.succeeded()) {
                 dbService = ar.result();
                 crudApis.setDbService(dbService);
+                listApis.setDbService(dbService);
                 searchApis.setDbService(dbService);
                 LOGGER.info("Service Discovery Success. Service name is : "
                         + dbService.getClass().getName());
@@ -203,6 +208,13 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
 
+        /* Get Item */
+        router.get(ROUTE_ITEMS)
+          .produces(MIME_APPLICATION_JSON)
+          .handler( routingContext -> {
+          crudApis.getItemHandler(routingContext);
+        });
+
         /* Update Item - Body contains data */
         router.put(ROUTE_UPDATE_ITEMS)
           .consumes(MIME_APPLICATION_JSON)
@@ -251,27 +263,23 @@ public class ApiServerVerticle extends AbstractVerticle {
           searchApis.searchHandler(routingContext);
         });
 
-
+        
         /**
          * Routes for list
          */
-
-        /* list all the tags */
-        router.get(ROUTE_TAGS).handler(this::listTags);
-        /* list all the domains */
-        router.get(ROUTE_DOMAINS).handler(this::listDomains);
-        /* list all the cities associated with the cataloque instance */
-        router.get(ROUTE_CITIES).handler(this::listCities);
-        /* list all the resource server associated with the cataloque instance */
-        router.get(ROUTE_RESOURCE_SERVERS).handler(this::listResourceServers);
-        /* list all the providers associated with the cataloque instance */
-        router.get(ROUTE_PROVIDERS).handler(this::listProviders);
-        /* list all the resource groups associated with the cataloque instance */
-        router.get(ROUTE_RESOURCE_GROUPS).handler(this::listResourceGroups);
         /* list the item from database using itemId */
-        router.get(ROUTE_LIST_ITEMS).handler(this::listItems);
+        router.get(ROUTE_LIST_ITEMS)
+          .produces(MIME_APPLICATION_JSON)
+          .handler( routingContext -> { 
+            listApis.listItems(routingContext);
+          });
         /* Get list types with the database for an item */
-        router.getWithRegex(ROUTE_DATA_TYPE).handler(this::listTypes);
+        /* list the item from database using itemId */
+        router.getWithRegex(ROUTE_DATA_TYPE)
+          .produces(MIME_APPLICATION_JSON)
+          .handler( routingContext -> { 
+            listApis.listTypes(routingContext);
+          });
 
         /**
          * Routes for relationships
@@ -302,283 +310,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     });
   }
 
-  public void search(RoutingContext routingContext) {
-
-  }
-
-  /**
-   * List the items from database using itemId.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listItems(RoutingContext routingContext) {
-
-    LOGGER.info("Listing items from database");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Building complete itemID from HTTP request path parameters */
-    String itemId =
-        routingContext
-            .pathParam(RESOURCE_ITEM)
-            .concat("/")
-            .concat(
-                routingContext
-                    .pathParam(RESOURCE_GRP_ITEM)
-                    .concat("/")
-                    .concat(routingContext.pathParam(RESOURCE_SVR_ITEM))
-                    .concat("/")
-                    .concat(routingContext.pathParam(PROVIDER_ITEM).concat("/"))
-                    .concat(routingContext.pathParam(DATA_DES_ITEM)));
-
-    /* Populating query mapper */
-    requestBody.put(ID, itemId);
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-    /* Databse service call for listing item */
-    dbService.listItem(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        LOGGER.info("List of items ".concat(dbhandler.result().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        LOGGER.error("Issue in listing items ".concat(dbhandler.cause().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
-  }
-
-  /**
-   * Get the list of tags for a catalogue instance.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listTags(RoutingContext routingContext) {
-
-    LOGGER.info("Listing tags of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing tags */
-    dbService.listTags(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        LOGGER.info("List of tags ".concat(dbhandler.result().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        LOGGER.error("Issue in listing tags ".concat(dbhandler.cause().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
-  }
-
-  /**
-   * Get a list of domains for a cataloque instance.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listDomains(RoutingContext routingContext) {
-
-    LOGGER.info("Listing domains of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing domains */
-    dbService.listDomains(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        LOGGER.info("List of domains ".concat(dbhandler.result().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        LOGGER.error("Issue in listing domains ".concat(dbhandler.cause().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
-  }
-
-  /**
-   * Get the list of cities and the catalogue instance ID.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listCities(RoutingContext routingContext) {
-
-    LOGGER.info("Listing cities of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing cities */
-    dbService.listCities(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        LOGGER.info("List of cities ".concat(dbhandler.result().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        LOGGER.error("Issue in listing cities ".concat(dbhandler.cause().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
-  }
-
-  /**
-   * Get the list of resourceServers for a catalogue instance.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listResourceServers(RoutingContext routingContext) {
-
-    LOGGER.info("Listing resource servers of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing resource servers */
-    dbService.listResourceServers(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        LOGGER.info("List of resource servers ".concat(dbhandler.result().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        LOGGER.error("Issue in listing resource servers ".concat(dbhandler.cause().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
-  }
-
-  /**
-   * Get the list of providers for a catalogue instance.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listProviders(RoutingContext routingContext) {
-
-    LOGGER.info("Listing providers of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing providers */
-    dbService.listProviders(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        LOGGER.info("List of providers ".concat(dbhandler.result().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        LOGGER.error("Issue in listing providers ".concat(dbhandler.cause().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
-  }
-
-  /**
-   * Get the list of resource groups for a catalogue instance.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  private void listResourceGroups(RoutingContext routingContext) {
-
-    LOGGER.info("Listing resource groups of a cataloque instance");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Populating query mapper */
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-    /* Request database service with requestBody for listing resource groups */
-    dbService.listResourceGroups(requestBody, dbhandler -> {
-      if (dbhandler.succeeded()) {
-        LOGGER.info("List of resource groups ".concat(dbhandler.result().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(200).end(dbhandler.result().toString());
-      } else if (dbhandler.failed()) {
-        LOGGER.error("Issue in listing resource groups ".concat(dbhandler.cause().toString()));
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .setStatusCode(400).end(dbhandler.cause().toString());
-      }
-    });
-  }
 
   /**
    * Get all resources belonging to a resourceGroup.
@@ -866,5 +597,4 @@ public class ApiServerVerticle extends AbstractVerticle {
           .end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX).build().toJsonString());
     }
   }
-
 }

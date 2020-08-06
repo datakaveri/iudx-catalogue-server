@@ -612,13 +612,16 @@ public class ApiServerVerticleTest {
   @DisplayName("List Item[Status:200, Endpoint: /items{itemID}]")
   void listItem200(VertxTestContext testContext) {
 
-    String itemId = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs"
-        + ".varanasi.iudx.org.in/varanasi-swm-vehicles/varanasi-swm-vehicles-live";
+    String itemId = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Hadapsar_Gadital_01";
 
     /* Send the file to the server using GET */
-    client.get(PORT, HOST, BASE_URL.concat("items/").concat(itemId)).send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("item/"))
+          .addQueryParam("id", itemId)
+          .send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
+        logger.info("Received response");
+        logger.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -670,9 +673,10 @@ public class ApiServerVerticleTest {
   void listTags200(VertxTestContext testContext) {
 
     /* Send the file to the server using GET */
-    client.get(PORT, HOST, BASE_URL.concat("tags/")).send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("/list/tags")).send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
+        logger.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -778,9 +782,10 @@ public class ApiServerVerticleTest {
   void listProviders200(VertxTestContext testContext) {
 
     /* Send the file to the server using GET */
-    client.get(PORT, HOST, BASE_URL.concat("providers")).send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("/list/provider")).send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
+        logger.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -805,9 +810,10 @@ public class ApiServerVerticleTest {
   void listResourceGroups200(VertxTestContext testContext) {
 
     /* Send the file to the server using GET */
-    client.get(PORT, HOST, BASE_URL.concat("resourcegroups")).send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("/list/resourceGroup")).send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
+        logger.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals("application/json", serverResponse.result().getHeader("content-type"));

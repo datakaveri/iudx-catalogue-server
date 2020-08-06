@@ -85,7 +85,7 @@ public interface DatabaseService {
   DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The listItem implements the list item operation with the database.
+   * The listItems implements the list items operation with the database.
    * 
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
@@ -93,76 +93,10 @@ public interface DatabaseService {
    */
 
   @Fluent
-  DatabaseService listItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listTags implements the list tags operation with the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService listTags(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The listDomains implements the list domains operation with the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService listDomains(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The listCities implements the list cities operation with the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService listCities(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The listResourceServers implements the list resource servers operation with the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService listResourceServers(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The listProviders implements the list providers operation with the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService listProviders(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The listResourceGroups implements the list resource groups operation with the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService listResourceGroups(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The listResourceRelationship implements the list relationships operation with the database.
    * 
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
@@ -252,6 +186,8 @@ public interface DatabaseService {
   static DatabaseService create(ElasticClient client) {
     return new DatabaseServiceImpl(client);
   }
+  @Fluent
+  DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
@@ -265,4 +201,5 @@ public interface DatabaseService {
   static DatabaseService createProxy(Vertx vertx, String address) {
     return new DatabaseServiceVertxEBProxy(vertx, address);
   }
+
 }

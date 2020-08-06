@@ -25,7 +25,8 @@ public class Constants {
   static final String SOURCE = "_source";
   static final String STATUS = "status";
   static final String SUCCESS = "success";
-  static final String INSTANCE_ID_KEY = "instanceId";
+  static final String INSTANCE= "instance";
+  static final String INSTANCE_ID_KEY = "instanceID";
   static final String CONFIG_FILE = "config.properties";
   static final String RESOURCE = "resource";
   static final String ITEM_TYPE = "itemType";
@@ -33,15 +34,25 @@ public class Constants {
   static final JsonObject ERROR_JSON_RESP = new JsonObject();
 
   /* Database */
+
   static final String CAT_INDEX_NAME = "testindex";
   static final String CAT_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
   static final String CAT_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
+  static final String CAT_GET_TAG = CAT_SEARCH_INDEX + "?filter_path=aggregations.instance.tags.buckets";
+  static final String CAT_GET_DOMAIN = CAT_SEARCH_INDEX + "?filter_path=aggregations.instances.buckets";
+  static final String CAT_GET_AGGREGATIONS = CAT_SEARCH_INDEX + "?filter_path=aggregations";
+  static final String CAT_GET_ITEM = CAT_SEARCH_INDEX + "?filter_path=hits.hits";
+  
   static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
+  static final String AGGREGATION_KEY = "aggs";
   static final String BOOL_KEY = "bool";
   static final String FILTER_KEY = "filter";
-  static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
-  static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id";
+  
+  static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source&size=10000";
+  static final String FILTER_PATH_AGGREGATION = "?filter_path=hits.total.value,aggregations.results.buckets&size=10000";
+  static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
   static final String HITS = "hits";
+  static final String AGGREGATIONS = "aggregations";
   static final String QUERY_KEY = "query";
   static final String REQUEST_GET = "GET";
   static final String REQUEST_POST = "POST";
@@ -61,6 +72,8 @@ public class Constants {
   static final String DOC_ID = "_id";
   static final String METHOD = "method";
   static final String RESULTS = "results";
+  static final String BUCKETS = "buckets";
+  static final String KEY = "key";
   static final String TERM = "term";
   /* Geo-Spatial */
   static final String BBOX = "bbox";
@@ -119,10 +132,13 @@ public class Constants {
   public static final String GEO_SEARCH = "geoSearch_";
   public static final String DESCRIPTION_ATTR = "description";
 
+  public static final String FIELD = "field";
+  public static final String INSTANCE_ID_KEYWORD = "instanceID.keyword";
+  public static final String TAGS_KEYWORD = "tags.keyword";
+
   /** ElasticClient search types */
   public static final String DOC_IDS_ONLY = "DOCIDS";
   public static final String SOURCE_ONLY = "SOURCE";
-
   static final String REL_API_INDEX_NAME = "rel_api";
   static final String REL_API_SEARCH_INDEX = REL_API_INDEX_NAME + "/_search";
 
@@ -141,4 +157,5 @@ public class Constants {
   public static final String NAME_KEY = "name";
   public static final String WILDCARD_KEY = "wildcard";
 
+  public static final String AGGREGATION_ONLY = "AGGREGATION";
 }

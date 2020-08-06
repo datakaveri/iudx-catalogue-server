@@ -82,6 +82,29 @@ public class ElasticClientTest {
         testContext.failed();
       }
     });
-
   }
+
+  @Test
+  @Order(2)
+  @DisplayName("Test Get aggregations")
+  void TestGetAggregations(VertxTestContext testContext) {
+
+    logger.info("Reached get aggregations");
+
+    String req = "{\"query\":{\"bool\":{\"filter\":[{\"match\":{\"type\":\"iudx:ResourceGroup\"}}]}},\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\",\"size\":10000}}}}";
+    logger.info("Aggregation query is " + req);
+    client.listAggregationAsync("testindex", req, res -> {
+      if (res.succeeded()) {
+        logger.info("Succeeded");
+        logger.info(res.result());
+        logger.info("Computed size = " + res.result().getJsonArray("results").size());
+        testContext.completeNow();
+      } else {
+        logger.info("Failed");
+        logger.info(res.cause());
+        testContext.failed();
+      }
+    });
+  }
+
 }

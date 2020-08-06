@@ -34,7 +34,6 @@ public class Constants {
   public static final String ROUTE_ITEMS = basePath.concat("/item");
   public static final String ROUTE_UPDATE_ITEMS = basePath.concat("/item");
   public static final String ROUTE_DELETE_ITEMS = basePath.concat("/item");
-  public static final String ROUTE_LIST_ITEMS = basePath.concat("/items");
 
   public static final String ROUTE_LIST_RESOURCE_REL = basePath.concat("\\/(?<id>.*)\\/resource");
   public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
@@ -42,13 +41,11 @@ public class Constants {
 
 
   public static final String ROUTE_SEARCH = basePath.concat("/search");
-  public static final String ROUTE_TAGS = basePath.concat("/tags");
-  public static final String ROUTE_DOMAINS = basePath.concat("/domains");
-  public static final String ROUTE_CITIES = basePath.concat("/cities");
-  public static final String ROUTE_RESOURCE_SERVERS = basePath.concat("/resourceservers");
-  public static final String ROUTE_PROVIDERS = basePath.concat("/providers");
-  public static final String ROUTE_RESOURCE_GROUPS = basePath.concat("/resourcegroups");
+  public static final String ROUTE_LIST_ITEMS = basePath.concat("/list/:itemType");
 
+  public static final String AGGREGATIONS = "aggregations";
+  public static final String INSTANCE = "instance";
+  public static final String BUCKETS = "buckets";
 
   public static final String ID = "id";
   public static final String ITEM_TYPE = "itemType";
@@ -60,6 +57,9 @@ public class Constants {
   public static final String DATA_DES_ITEM = "dataDesItem";
 
 
+
+  public static final String ROUTE_GET_ITEM =
+      basePath.concat("/items");
 
   public static final String ROUTE_UI_CITIES = basePath.concat("/ui/cities");
   public static final String ROUTE_UI_CONFIG = basePath.concat("/ui/config");
@@ -157,6 +157,7 @@ public class Constants {
   public static final String MESSAGE = "message";
   public static final String BAD_REQUEST = "Bad Request";
   public static final String INTERNAL_SERVER_ERROR = "Internal server error";
+  public static final String TOTAL_HITS="totalHits";
 
   public static final String PATTERN_TEXT = "^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}";
   public static final String PATTERN_ARRAY = "^\\[.*\\]$";
