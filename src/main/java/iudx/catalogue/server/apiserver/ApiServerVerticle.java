@@ -68,6 +68,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private CrudApis crudApis;
   private SearchApis searchApis;
   private ListApis listApis;
+  private RelationshipApis relApis;
 
   @SuppressWarnings("unused")
   private Router router;
@@ -123,6 +124,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         crudApis = new CrudApis();
         searchApis = new SearchApis();
         listApis = new ListApis();
+        relApis = new RelationshipApis();
 
         /**
          *
@@ -141,6 +143,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 crudApis.setDbService(dbService);
                 listApis.setDbService(dbService);
                 searchApis.setDbService(dbService);
+                relApis.setDbService(dbService);
                 LOGGER.info("Service Discovery Success. Service name is : "
                         + dbService.getClass().getName());
               } else {
@@ -281,22 +284,36 @@ public class ApiServerVerticle extends AbstractVerticle {
             listApis.listTypes(routingContext);
           });
 
+
         /**
          * Routes for relationships
          */
         /* Get all resources belonging to a resource group */
         router.getWithRegex(ROUTE_LIST_RESOURCE_REL)
-            .handler(this::listResourceRelationship);
+            .handler( routingContext -> {
+              relApis.listResourceRelationship(routingContext);
+            });
         /* Get resource group of an item belonging to a resource */
         router.getWithRegex(ROUTE_LIST_RESOURCE_GROUP_REL)
-            .handler(this::listResourceGroupRelationship);
+            .handler( routingContext -> {
+              relApis.listResourceGroupRelationship(routingContext);
+            });
         /* Get provider relationship to an item */
-        router.getWithRegex(ROUTE_PROVIDER_REL).handler(this::listProviderRelationship);
+        router.getWithRegex(ROUTE_PROVIDER_REL)
+            .handler( routingContext -> {
+              relApis.listProviderRelationship(routingContext);
+            });
         /* Get resource server relationship to an item */
         router.getWithRegex(ROUTE_RESOURCE_SERVER_REL)
-            .handler(this::listResourceServerRelationship);
+            .handler( routingContext -> {
+              relApis.listResourceServerRelationship(routingContext);
+            });
         /* Relationship related search */
-        router.get(ROUTE_REL_SEARCH).handler(this::relSearch);
+        router.get(ROUTE_REL_SEARCH)
+            .handler( routingContext -> {
+              relApis.relSearch(routingContext);
+            });
+
 
 
 
@@ -305,296 +322,9 @@ public class ApiServerVerticle extends AbstractVerticle {
          */
         server.requestHandler(router).listen(PORT);
 
-
       }
     });
   }
 
 
-  /**
-   * Get all resources belonging to a resourceGroup.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  public void listResourceRelationship(RoutingContext routingContext) {
-
-    LOGGER.info("Searching for relationship of resource");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Parsing id from HTTP request */
-    String id = request.getParam(ID);
-
-    /* Checking if id is either not null nor empty */
-    if (id != null && !id.isBlank()) {
-
-      /* Populating query mapper */
-      requestBody.put(ID, id);
-      requestBody.put(INSTANCE_ID_KEY, instanceID);
-      requestBody.put(RELATIONSHIP, REL_RESOURCE);
-
-      /*
-       * Request database service with requestBody for listing resource relationship
-       */
-      dbService.listResourceRelationship(requestBody, dbhandler -> {
-        if (dbhandler.succeeded()) {
-          LOGGER.info("List of resources belonging to resourceGroups "
-              .concat(dbhandler.result().toString()));
-          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-              .setStatusCode(200).end(dbhandler.result().toString());
-        } else if (dbhandler.failed()) {
-          LOGGER.error(
-              "Issue in listing resource relationship ".concat(dbhandler.cause().toString()));
-          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-              .setStatusCode(400).end(dbhandler.cause().toString());
-        }
-      });
-    } else {
-      LOGGER.error("Issue in path parameter");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX)
-              .build().toJsonString());
-    }
-  }
-
-  /**
-   * Get all resourceGroup relationships.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  public void listResourceGroupRelationship(RoutingContext routingContext) {
-
-    LOGGER.info("Searching for relationship of resource and resourceGroup");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Parsing id from HTTP request */
-    String id = request.getParam(ID);
-
-    /* Checking if id is either not null nor empty */
-    if (id != null && !id.isBlank()) {
-
-      /* Populating query mapper */
-      requestBody.put(ID, id);
-      requestBody.put(INSTANCE_ID_KEY, instanceID);
-      requestBody.put(RELATIONSHIP, REL_RESOURCE_GRP);
-
-      /*
-       * Request database service with requestBody for listing resource group relationship
-       */
-      dbService.listResourceGroupRelationship(requestBody, dbhandler -> {
-        if (dbhandler.succeeded()) {
-          LOGGER.info(
-              "List of resourceGroup belonging to resource ".concat(dbhandler.result().toString()));
-          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-              .setStatusCode(200).end(dbhandler.result().toString());
-        } else if (dbhandler.failed()) {
-          LOGGER.error(
-              "Issue in listing resourceGroup relationship ".concat(dbhandler.cause().toString()));
-          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-              .setStatusCode(400).end(dbhandler.cause().getLocalizedMessage());
-        }
-      });
-    } else {
-      LOGGER.error("Issue in path parameter");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX)
-              .build().toJsonString());
-    }
-  }
-
-
-  /**
-   * Queries the database and returns all resource servers belonging to an item.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void listResourceServerRelationship(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().host();
-    String id = routingContext.request().getParam(ID);
-    queryJson.put(INSTANCE_ID_KEY, instanceID).put(ID, id)
-        .put(RELATIONSHIP, REL_RESOURCE_SVR);
-    LOGGER.info("search query : " + queryJson);
-    dbService.listResourceServerRelationship(queryJson, handler -> {
-      if (handler.succeeded()) {
-        JsonObject resultJson = handler.result();
-        String status = resultJson.getString(STATUS);
-        if (status.equalsIgnoreCase(SUCCESS)) {
-          response.setStatusCode(200);
-        } else {
-          response.setStatusCode(400);
-        }
-        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
-        response.write(resultJson.toString());
-        LOGGER.info("response : " + resultJson);
-        response.end();
-      } else if (handler.failed()) {
-        LOGGER.error(handler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-        response.setStatusCode(400);
-        response.end(handler.cause().getLocalizedMessage());
-      }
-    });
-  }
-
-  /**
-   * Queries the database and returns provider of an item.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void listProviderRelationship(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().host();
-    String id = routingContext.request().getParam(ID);
-    queryJson
-        .put(INSTANCE_ID_KEY, instanceID)
-        .put(ID, id)
-        .put(RELATIONSHIP, REL_PROVIDER);
-    LOGGER.info("search query : " + queryJson);
-    dbService.listProviderRelationship(queryJson, handler -> {
-      if (handler.succeeded()) {
-        JsonObject resultJson = handler.result();
-        String status = resultJson.getString(STATUS);
-        if (status.equalsIgnoreCase(SUCCESS)) {
-          response.setStatusCode(200);
-        } else {
-          response.setStatusCode(400);
-        }
-        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-            .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
-        response.write(resultJson.toString());
-        LOGGER.info("response : " + resultJson);
-        response.end();
-      } else if (handler.failed()) {
-        LOGGER.error(handler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-        response.setStatusCode(400);
-        response.end(handler.cause().getLocalizedMessage());
-      }
-    });
-  }
-
-  /**
-   * Queries the database and returns data model of an item.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void listTypes(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().host();
-    String id = routingContext.request().getParam(ID);
-    queryJson
-        .put(INSTANCE_ID_KEY, instanceID)
-        .put(ID, id)
-        .put(RELATIONSHIP, REL_TYPE);
-    LOGGER.info("search query : " + queryJson);
-    dbService.listTypes(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(
-                    HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            LOGGER.info("response : " + resultJson);
-            response.end();
-          } else if (handler.failed()) {
-            LOGGER.error(handler.cause().getMessage());
-            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-            response.setStatusCode(400);
-            response.end(handler.cause().getLocalizedMessage());
-          }
-        });
-  }
-
-  /**
-   * Relationship search of the cataloque items.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void relSearch(RoutingContext routingContext) {
-
-    LOGGER.info("Relationship search");
-
-    /* Handles HTTP request from client */
-    HttpServerRequest request = routingContext.request();
-
-    /* Handles HTTP response from server to client */
-    HttpServerResponse response = routingContext.response();
-    JsonObject requestBody = new JsonObject();
-
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
-
-    /* Collection of query parameters from HTTP request */
-    MultiMap queryParameters = routingContext.queryParams();
-
-    /* validating proper actual query parameters from request */
-    if (request.getParam(RELATIONSHIP) != null && request.getParam(VALUE) != null) {
-
-      /* converting query parameters in json */
-      requestBody = QueryMapper.map2Json(queryParameters);
-
-      if (requestBody != null) {
-
-        /* Populating query mapper */
-        requestBody.put(INSTANCE_ID_KEY, instanceID);
-
-        /* Request database service with requestBody for listing domains */
-        dbService.relSearch(requestBody, dbhandler -> {
-          if (dbhandler.succeeded()) {
-            LOGGER.info(
-                "Relationship search completed, response: ".concat(dbhandler.result().toString()));
-            response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).setStatusCode(200)
-                .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            LOGGER.error("Issue in relationship search ".concat(dbhandler.cause().toString()));
-            response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).setStatusCode(400)
-                .end(dbhandler.cause().getLocalizedMessage());
-          }
-        });
-      } else {
-        LOGGER.error("Invalid request query parameters");
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).setStatusCode(400)
-            .end(new ResponseHandler.Builder().withStatus(INVALID_VALUE).build().toJsonString());
-      }
-    } else {
-      LOGGER.error("Invalid request query parameters");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).setStatusCode(400)
-          .end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX).build().toJsonString());
-    }
-  }
 }

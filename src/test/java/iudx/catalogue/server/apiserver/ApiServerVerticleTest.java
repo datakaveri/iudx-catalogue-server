@@ -845,6 +845,7 @@ public class ApiServerVerticleTest {
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
+            logger.info(serverResponse.result().bodyAsString());
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -965,6 +966,25 @@ public class ApiServerVerticleTest {
         assertEquals(400, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
+        logger.info(ar.cause());
+        testContext.failed();
+      }
+    });
+  }
+
+  @Test
+  @Order(29)
+  @DisplayName("rel search")
+  void relsearch(VertxTestContext testContext) {
+    String apiURL =
+        "relsearch?relationship=[resourceGroup.authServerInfo.authType]&value=[[iudx-auth]]";
+    logger.info("Url is " + BASE_URL + apiURL);
+    client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
+      if (ar.succeeded()) {
+        assertEquals(200, ar.result().statusCode());
+        testContext.completeNow();
+      } else if (ar.failed()) {
+        logger.info("status code received : " + ar.result().statusCode());
         logger.info(ar.cause());
         testContext.failed();
       }

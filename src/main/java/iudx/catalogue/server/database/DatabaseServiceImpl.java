@@ -586,6 +586,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
       if (relReq.contains(".")) {
 
+        LOGGER.debug("Info: Reached relationship search dbServiceImpl");
+
         String typeValue = null;
         String[] relReqs = relReq.split("\\.", 2);
         String relReqsKey = relReqs[1];

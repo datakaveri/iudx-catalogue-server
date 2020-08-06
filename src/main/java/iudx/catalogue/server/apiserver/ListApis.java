@@ -1,6 +1,6 @@
 /**
  * <h1>SearchApis.java</h1>
- * Callback handlers for CRUD
+ * Callback handlers for List APIS
  */
 
 package iudx.catalogue.server.apiserver;
