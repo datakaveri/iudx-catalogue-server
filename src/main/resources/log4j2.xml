@@ -3,8 +3,8 @@
 	<Properties>
 		<Property name="LOG_EXCEPTION_CONVERSION_WORD">%xEx</Property>
 		<Property name="LOG_LEVEL_PATTERN">%p</Property>
-		<Property name="CONSOLE_LOG_PATTERN">[%style{%d{MM-ddHH:mm:ss}}][%highlight{${LOG_LEVEL_PATTERN}}][%c]%style{:}{faint}%m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
-		<Property name="FILE_LOG_PATTERN">[%d{MM-ddHH:mm:ss}][${LOG_LEVEL_PATTERN}][%c]:%m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+		<Property name="CONSOLE_LOG_PATTERN">[%style{%d{MM-dd HH:mm:ss}}][%highlight{${LOG_LEVEL_PATTERN}}][%c]%style{:}{faint}%m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+		<Property name="FILE_LOG_PATTERN">[%d{MM-dd HH:mm:ss}][${LOG_LEVEL_PATTERN}][%c]:%m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
 	</Properties>
 	<Appenders>
 		<Console name="ConsoleAppender" target="SYSTEM_OUT"
@@ -12,8 +12,8 @@
 			<PatternLayout pattern="${CONSOLE_LOG_PATTERN}" />
 		</Console>
 		<RollingFile name="RollingFile" ignoreExceptions="false">
-			<FileName>./logs/iudx-cataloque-server.log</FileName>
-			<FilePattern>./logs/iudx-cataloque-server-%d{yyyy-MM-dd}.%i.log
+			<FileName>./logs/iudx-catalogue-server.log</FileName>
+			<FilePattern>./logs/iudx-catalogue-server-%d{yyyy-MM-dd}.%i.log
 			</FilePattern>
 			<PatternLayout pattern="${FILE_LOG_PATTERN}" charset="UTF-8"/>
 			<Policies>

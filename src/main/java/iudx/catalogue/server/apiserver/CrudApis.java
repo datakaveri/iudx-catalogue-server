@@ -163,8 +163,9 @@ public final class CrudApis {
                     }
                   });
                 } else {
+                  LOGGER.debug("Info: Updating item");
                   /* Requesting database service, creating a item */
-                  dbService.updateItem( requestBody, dbhandler -> {
+                  dbService.updateItem(valhandler.result(), dbhandler -> {
                     if (dbhandler.succeeded()) {
                       LOGGER.info("Success: Item updated;"
                                   .concat(dbhandler.result().toString()));

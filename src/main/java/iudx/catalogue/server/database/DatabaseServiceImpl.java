@@ -165,7 +165,8 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService updateItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
-    JsonObject checkQuery = new JsonObject();
+    String checkQuery = "{\"_source\": [\"id\"],"
+                        +"\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}";
     JsonObject errorJson = new JsonObject();
     String id = doc.getString("id");
 
@@ -173,11 +174,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         new JsonArray().add(new JsonObject().put(ID, id)
             .put(METHOD, UPDATE).put(STATUS, FAILED)));
 
-    checkQuery.put(SOURCE, "[\"\"]").put(QUERY_KEY,
-        new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, id)));
 
-    client.searchGetId(CAT_INDEX_NAME, checkQuery.toString(), checkRes -> {
+    client.searchGetId(CAT_INDEX_NAME, checkQuery.replace("$1", id), checkRes -> {
       if (checkRes.failed()) {
+        LOGGER.error("Fail: Check query fail");
         handler.handle(Future.failedFuture(errorJson.toString()));
         return;
       }
@@ -185,7 +185,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.debug("Success: Check index for doc");
         if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
           LOGGER.error("Fail: Doc doesn't exist, can't update");
-          handler.handle(Future.failedFuture("Fail: Doc doesn't exist"));
+          handler.handle(Future.failedFuture(errorJson.toString()));
           return;
         }
         String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
@@ -218,6 +218,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonObject errorJson = new JsonObject();
     String id = request.getString("id");
 
+    LOGGER.debug("Info: Updating item");
+
     errorJson.put(STATUS, FAILED).put(RESULTS,
         new JsonArray().add(new JsonObject().put(ID, id)
             .put(METHOD, UPDATE).put(STATUS, FAILED)));
@@ -227,6 +229,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     client.searchGetId(CAT_INDEX_NAME, checkQuery.toString(), checkRes -> {
       if (checkRes.failed()) {
+        LOGGER.info(checkRes.cause());
         handler.handle(Future.failedFuture(errorJson.toString()));
       }
       if (checkRes.succeeded()) {
