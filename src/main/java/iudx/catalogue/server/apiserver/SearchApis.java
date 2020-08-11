@@ -111,7 +111,7 @@ public final class SearchApis {
 
     if (requestBody != null) {
       LOGGER.debug("Info: instanceID;" + instanceID);
-      requestBody.put(INSTANCE, instanceID);
+      requestBody.put(HEADER_INSTANCE, instanceID);
       dbService.searchQuery(requestBody, handler -> {
         if (handler.succeeded()) {
           JsonObject resultJson = handler.result();

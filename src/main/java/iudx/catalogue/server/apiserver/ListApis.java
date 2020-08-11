@@ -69,7 +69,7 @@ public final class ListApis {
     String itemType = request.getParam(ITEM_TYPE);
     requestBody.put(ITEM_TYPE, itemType);
     /* Populating query mapper */
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
+    requestBody.put(HEADER_INSTANCE, instanceID);
 
     String type = null;
 

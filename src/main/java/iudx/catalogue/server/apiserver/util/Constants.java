@@ -49,6 +49,7 @@ public class Constants {
   public static final String BUCKETS = "buckets";
 
   public static final String ID = "id";
+  public static final String TYPE = "type";
   public static final String ITEM_TYPE = "itemType";
   public static final String RESOURCE_ITEM = "resItem";
   public static final String RESOURCE_GRP_ITEM = "resGrpItem";

@@ -12,8 +12,12 @@ import java.util.Arrays;
 
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+
+import java.util.Set;
+import java.util.HashSet;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 
@@ -70,20 +74,33 @@ public final class CrudApis {
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     JsonObject authenticationInfo = new JsonObject();
+    JsonObject authRequest = new JsonObject();
 
     String instanceID = request.getHeader(HEADER_INSTANCE);
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
+    requestBody.put(HEADER_INSTANCE, instanceID);
+
 
     String itemId = routingContext.queryParams().get(ID);
-
-
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     requestBody.put(ID, itemId);
 
+    Set<String> type = new HashSet<String>(new JsonArray().getList());
+    try {
+      type = new HashSet<String>(requestBody.getJsonArray(TYPE).getList());
+    } catch (Exception e) {
+      LOGGER.error("Fail: Invalid type");
+      response.setStatusCode(500)
+              .end("Fail: Invalid type");
+    }
+    type.retainAll(ITEM_TYPES);
+    String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+
+
     /**
      * Start insertion flow 
      **/
+
 
     /** Json schema validate item */
     validatorService.validateSchema(requestBody, schValHandler -> {
@@ -94,13 +111,14 @@ public final class CrudApis {
       }
       if (schValHandler.succeeded()) {
         LOGGER.debug("Success: Schema validation");
-        String providerId = requestBody.getString(REL_PROVIDER);
-        JsonObject authRequest = new JsonObject()
-                                      .put(REL_PROVIDER, providerId);
         authenticationInfo.put(HEADER_TOKEN,
                                 request.getHeader(HEADER_TOKEN))
-                                .put(OPERATION, POST);
-
+                                .put(OPERATION, routingContext.request().method().toString());
+        if (itemType == REL_PROVIDER) {
+          authRequest.put(REL_PROVIDER, requestBody.getString(ID));
+        } else {
+          authRequest.put(REL_PROVIDER, requestBody.getString(REL_PROVIDER));
+        }
         /** Introspect token and authorize operation */
         authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
           if (authhandler.failed()) {
@@ -226,7 +244,7 @@ public final class CrudApis {
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    requestBody.put(INSTANCE_ID_KEY, instanceID);
+    requestBody.put(HEADER_INSTANCE, instanceID);
     requestBody.put(ID, itemId);
 
     LOGGER.debug("Info: Deleting item; id=".concat(itemId));

@@ -15,6 +15,7 @@ public class Constants {
   public static final String TERM = "term";
   public static final String ID_KEYWORD = "id.keyword";
   public static final String HITS = "hits";
+  static final String TOTAL_HITS = "totalHits";
   public static final String TOTAL = "total";
   public static final String VALUE = "value";
   public static final String CAT_DOC = "cat/_doc";

@@ -8,7 +8,6 @@ import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.client.Request;
 
 import static iudx.catalogue.server.database.Constants.*;
 
@@ -132,9 +131,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.failedFuture(errorJson.toString()));
       }
       if (checkRes.succeeded()) {
-        LOGGER.debug("Success: Check index for doc");
         if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
           handler.handle(Future.failedFuture("Fail: Doc Exists"));
+          LOGGER.error("Fail: Insertion failed");
           return;
         }
         /* Insert document */
@@ -180,6 +179,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     client.searchGetId(CAT_INDEX_NAME, checkQuery.toString(), checkRes -> {
       if (checkRes.failed()) {
         handler.handle(Future.failedFuture(errorJson.toString()));
+        return;
       }
       if (checkRes.succeeded()) {
         LOGGER.debug("Success: Check index for doc");
@@ -290,7 +290,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     LOGGER.debug("Info: Reached list items;" + request.toString());
     String itemType = request.getString(ITEM_TYPE);
     String type = request.getString(TYPE_KEY);
-    String instanceID = request.getString(INSTANCE_ID_KEY);
+    String instanceID = request.getString(INSTANCE);
+    String query = "";
     JsonObject req = new JsonObject();
     if (itemType.equalsIgnoreCase("instances")) {
       req.put(SIZE, 0)

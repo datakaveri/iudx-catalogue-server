@@ -106,7 +106,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       handler.handle(
           Future.failedFuture(new JsonObject().put(STATUS, FAILED).toString()));
     }
-    return null;
+    return this;
   }
 
 
@@ -144,10 +144,16 @@ public class ValidatorServiceImpl implements ValidatorService {
       LOGGER.debug("Info: Verifying resourceGroup " + resourceGroup);
       client.searchGetId(CAT_INDEX_NAME,
           checkQuery.replace("$1", resourceGroup), checkRes -> {
-        if (checkRes.succeeded()) {
+        if (checkRes.failed()) {
+          LOGGER.error("Fail: ResourceGroup doesn't exist");
+          handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+          return;
+        } 
+        if (checkRes.result().getInteger(TOTAL_HITS) == 1) {
           handler.handle(Future.succeededFuture(request));
         } else {
           handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+          return;
         }
       });
     }
@@ -177,10 +183,18 @@ public class ValidatorServiceImpl implements ValidatorService {
 
       client.searchGetId(CAT_INDEX_NAME,
           checkQuery.replace("$1", provider), providerRes -> {
-        if (providerRes.succeeded()) {
+        if (providerRes.failed()) {
+          handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+          return;
+        }
+        if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
           client.searchGetId(CAT_INDEX_NAME,
               checkQuery.replace("$1", resourceServer), serverRes -> {
-              if (serverRes.succeeded()) {
+              if (serverRes.failed()) {
+                handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                return;
+              } 
+              if (serverRes.result().getInteger(TOTAL_HITS) == 1) {
                 handler.handle(Future.succeededFuture(request));
               } else {
                 handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
