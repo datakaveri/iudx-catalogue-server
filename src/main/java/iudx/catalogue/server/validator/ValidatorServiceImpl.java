@@ -16,14 +16,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
-import org.apache.http.ParseException;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.ResponseListener;
 
-import org.elasticsearch.client.RestClient;
-
+import iudx.catalogue.server.database.ElasticClient;
 import static iudx.catalogue.server.validator.Constants.*;
 
 /**
@@ -49,11 +43,10 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator resourceServerValidator;
 
   /** ES client */
-  private final RestClient client;
+  private final ElasticClient client;
 
-  private Set<String> itemTypes;
 
-  public ValidatorServiceImpl(RestClient client) {
+  public ValidatorServiceImpl(ElasticClient client) {
 
     this.client = client;
 
@@ -66,11 +59,6 @@ public class ValidatorServiceImpl implements ValidatorService {
       e.printStackTrace();
     }
 
-    itemTypes = new HashSet<String>();
-    itemTypes.add(ITEM_TYPE_RESOURCE);
-    itemTypes.add(ITEM_TYPE_RESOURCE_GROUP);
-    itemTypes.add(ITEM_TYPE_RESOURCE_SERVER);
-    itemTypes.add(ITEM_TYPE_PROVIDER);
   }
 
   /** {@inheritDoc} */
@@ -86,7 +74,7 @@ public class ValidatorServiceImpl implements ValidatorService {
     } catch (Exception e) {
       LOGGER.error("Item type mismatch");
     }
-    type.retainAll(itemTypes);
+    type.retainAll(ITEM_TYPES);
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
     LOGGER.debug("Info: itemType: " + itemType);
 
@@ -121,56 +109,6 @@ public class ValidatorServiceImpl implements ValidatorService {
     return null;
   }
 
-  /**
-   * Verify if link present in item is a valid one
-   **/
-  Future<Boolean> verifyLink(String link) {
-    Promise<Boolean> promise = Promise.promise();
-    Request checkResourceGroup =
-      new Request(REQUEST_GET, CAT_INDEX + FILTER_PATH);
-    JsonObject checkQuery = new JsonObject();
-    checkQuery.put(SOURCE, "[\"" + ID + "\"]")
-      .put(QUERY_KEY, new JsonObject()
-          .put(TERM, new JsonObject().put(ID_KEYWORD, link)));
-    LOGGER.debug("Info: Query constructed: " + checkQuery.toString());
-    checkResourceGroup.setJsonEntity(checkQuery.toString());
-    client.performRequestAsync(checkResourceGroup, new ResponseListener() {
-      @Override
-      public void onSuccess(Response response) {
-        int statusCode = response.getStatusLine().getStatusCode();
-        LOGGER.debug("Info: status code: " + statusCode);
-        if (statusCode != 200 && statusCode != 204) {
-          promise.fail(NON_EXISTING_LINK_MSG + link);
-          return;
-        }
-        try {
-          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-          LOGGER.debug("Info: Got response ");
-          LOGGER.debug("Info:" + responseJson.toString());
-          if (responseJson.getJsonObject(HITS)
-              .getJsonObject(TOTAL)
-              .getInteger(VALUE) == 1) {
-            promise.complete(true);
-          } else {
-                promise.fail(NON_EXISTING_LINK_MSG + link);
-          }
-          } catch (ParseException | IOException e) {
-            LOGGER.error("DB ERROR:\n");
-            e.printStackTrace();
-            promise.fail(NON_EXISTING_LINK_MSG + link);
-          }
-        }
-
-        @Override
-        public void onFailure(Exception e) {
-          LOGGER.info("DB request has failed. ERROR:\n");
-          e.printStackTrace();
-          promise.fail(NON_EXISTING_LINK_MSG + link);
-          return;
-        }
-      });
-      return promise.future();
-  }
 
   /** {@inheritDoc} */
   @SuppressWarnings("unchecked")
@@ -184,9 +122,14 @@ public class ValidatorServiceImpl implements ValidatorService {
     } catch (Exception e) {
       LOGGER.error("Item type mismatch");
     }
-    type.retainAll(itemTypes);
+    type.retainAll(ITEM_TYPES);
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
     LOGGER.debug("Info: itemType: " + itemType);
+
+
+    String checkQuery = "{\"_source\": [\"id\"],"
+                        +"\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}";
+
 
     /** Validate if Resource */
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
@@ -199,9 +142,9 @@ public class ValidatorServiceImpl implements ValidatorService {
 
       LOGGER.debug("Info: Starting verification");
       LOGGER.debug("Info: Verifying resourceGroup " + resourceGroup);
-      Future<Boolean> verifiedResource = verifyLink(resourceGroup);
-      verifiedResource.onComplete( res -> {
-        if (res.succeeded()) {
+      client.searchGetId(CAT_INDEX_NAME,
+          checkQuery.replace("$1", resourceGroup), checkRes -> {
+        if (checkRes.succeeded()) {
           handler.handle(Future.succeededFuture(request));
         } else {
           handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
@@ -232,19 +175,16 @@ public class ValidatorServiceImpl implements ValidatorService {
       request.put(ID, id).put(ITEM_STATUS, ACTIVE)
           .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
-      Future<Boolean> verifiedProvider = verifyLink(provider);
-      verifiedProvider.onComplete( res -> {
-        if (res.succeeded()) {
-          LOGGER.debug("Info: Provider exists");
-          handler.handle(Future.succeededFuture(request));
-          Future<Boolean> verifiedResourceServer = verifyLink(resourceServer);
-          verifiedResourceServer.onComplete( rres -> {
-            if (rres.succeeded()) {
-              LOGGER.debug("Info: Server exists");
-              handler.handle(Future.succeededFuture(request));
-            } else {
-              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-            }
+      client.searchGetId(CAT_INDEX_NAME,
+          checkQuery.replace("$1", provider), providerRes -> {
+        if (providerRes.succeeded()) {
+          client.searchGetId(CAT_INDEX_NAME,
+              checkQuery.replace("$1", resourceServer), serverRes -> {
+              if (serverRes.succeeded()) {
+                handler.handle(Future.succeededFuture(request));
+              } else {
+                handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+              }
           });
         } else {
           handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));

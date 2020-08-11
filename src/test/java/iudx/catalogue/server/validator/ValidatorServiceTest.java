@@ -22,6 +22,8 @@ import io.vertx.core.logging.LoggerFactory;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 
+import iudx.catalogue.server.database.ElasticClient;
+
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ValidatorServiceTest {
@@ -29,7 +31,7 @@ public class ValidatorServiceTest {
   private static Logger logger = LoggerFactory.getLogger(ValidatorServiceTest.class);
   private static ValidatorService validator;
   private static Vertx vertxObj;
-  private static RestClient client;
+  private static ElasticClient client;
   private static String databaseIP;
   private static int databasePort;
   private static Properties properties;
@@ -57,7 +59,7 @@ public class ValidatorServiceTest {
     }
 
     // TODO : Need to enable TLS using xpack security
-    client = RestClient.builder(new HttpHost(databaseIP, databasePort, "http")).build();
+    client = new ElasticClient(databaseIP, databasePort);
     validator = new ValidatorServiceImpl(client);
     testContext.completeNow();
   }
