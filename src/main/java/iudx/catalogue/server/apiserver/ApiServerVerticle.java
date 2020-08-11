@@ -274,14 +274,14 @@ public class ApiServerVerticle extends AbstractVerticle {
         router.get(ROUTE_LIST_ITEMS)
           .produces(MIME_APPLICATION_JSON)
           .handler( routingContext -> { 
-            listApis.listItems(routingContext);
+            listApis.listItemsHandler(routingContext);
           });
         /* Get list types with the database for an item */
         /* list the item from database using itemId */
         router.getWithRegex(ROUTE_DATA_TYPE)
           .produces(MIME_APPLICATION_JSON)
           .handler( routingContext -> { 
-            listApis.listTypes(routingContext);
+            listApis.listTypesHandler(routingContext);
           });
 
 
@@ -291,27 +291,27 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* Get all resources belonging to a resource group */
         router.getWithRegex(ROUTE_LIST_RESOURCE_REL)
             .handler( routingContext -> {
-              relApis.listResourceRelationship(routingContext);
+              relApis.resourceRelationshipHandler(routingContext);
             });
         /* Get resource group of an item belonging to a resource */
         router.getWithRegex(ROUTE_LIST_RESOURCE_GROUP_REL)
             .handler( routingContext -> {
-              relApis.listResourceGroupRelationship(routingContext);
+              relApis.resourceGroupRelationshipHandler(routingContext);
             });
         /* Get provider relationship to an item */
         router.getWithRegex(ROUTE_PROVIDER_REL)
             .handler( routingContext -> {
-              relApis.listProviderRelationship(routingContext);
+              relApis.providerRelationshipHandler(routingContext);
             });
         /* Get resource server relationship to an item */
         router.getWithRegex(ROUTE_RESOURCE_SERVER_REL)
             .handler( routingContext -> {
-              relApis.listResourceServerRelationship(routingContext);
+              relApis.resourceServerRelationshipHandler(routingContext);
             });
         /* Relationship related search */
         router.get(ROUTE_REL_SEARCH)
             .handler( routingContext -> {
-              relApis.relSearch(routingContext);
+              relApis.relSearchHandler(routingContext);
             });
 
 

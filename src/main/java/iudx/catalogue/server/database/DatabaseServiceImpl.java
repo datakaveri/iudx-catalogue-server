@@ -67,6 +67,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
+          LOGGER.error("Fail: DB Request;" + errorJson.toString());
           handler.handle(Future.failedFuture(errorJson.toString()));
       }
     });
@@ -127,6 +128,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, id)));
 
     client.searchAsync(CAT_INDEX_NAME, checkQuery.toString(), checkRes -> {
+      if (checkRes.failed()) {
+        handler.handle(Future.failedFuture(errorJson.toString()));
+      }
       if (checkRes.succeeded()) {
         LOGGER.debug("Success: Check index for doc");
         if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
@@ -174,6 +178,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, id)));
 
     client.searchGetId(CAT_INDEX_NAME, checkQuery.toString(), checkRes -> {
+      if (checkRes.failed()) {
+        handler.handle(Future.failedFuture(errorJson.toString()));
+      }
       if (checkRes.succeeded()) {
         LOGGER.debug("Success: Check index for doc");
         if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
@@ -219,6 +226,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, id)));
 
     client.searchGetId(CAT_INDEX_NAME, checkQuery.toString(), checkRes -> {
+      if (checkRes.failed()) {
+        handler.handle(Future.failedFuture(errorJson.toString()));
+      }
       if (checkRes.succeeded()) {
         LOGGER.debug("Success: Check index for doc");
         if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
@@ -702,14 +712,9 @@ public class DatabaseServiceImpl implements DatabaseService {
       elasticQuery.put(SIZE_KEY, 10);
     }
     // Will be used for multi-tenancy
-    // String instanceId = request.getString("instanceId");
+    String instanceId = request.getString(INSTANCE);
     JsonArray filterQuery = new JsonArray();
     JsonArray mustQuery = new JsonArray();
-    // Will be used for multi-tenancy
-    // JsonObject termQuery =
-    // new JsonObject().put("term", new JsonObject()
-    // .put(INSTANCE_ID_KEY + ".keyword", instanceId));
-    // filterQuery.add(termQuery);
 
     /* Handle the search type */
     if (searchType.matches(GEOSEARCH_REGEX)) {
@@ -857,6 +862,14 @@ public class DatabaseServiceImpl implements DatabaseService {
           return new JsonObject().put(ERROR, ERROR_INVALID_PARAMETER);
         }
       }
+    }
+
+    if (instanceId != null) {
+      String instanceFilter = "{\"match\":"
+                              + "{\"instance\": \"" + instanceId + "\"}}";
+      LOGGER.debug("Info: Instance found in query;" + instanceFilter);
+      mustQuery.add(new JsonObject(instanceFilter));
+
     }
 
     /* checking the requests for limit attribute */

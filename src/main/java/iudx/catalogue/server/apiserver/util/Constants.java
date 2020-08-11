@@ -15,6 +15,7 @@ public class Constants {
   public static final String HEADER_CONTENT_LENGTH = "Content-Length";
   public static final String HEADER_CONTENT_TYPE = "Content-Type";
   public static final String HEADER_HOST = "Host";
+  public static final String HEADER_INSTANCE = "instance";
   public static final String HEADER_ORIGIN = "Origin";
   public static final String HEADER_REFERER = "Referer";
   public static final String HEADER_CORS = "Access-Control-Allow-Origin";

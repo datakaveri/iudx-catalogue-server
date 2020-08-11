@@ -49,7 +49,7 @@ public final class RelationshipApis {
    *
    * @param routingContext handles web requests in Vert.x Web
    */
-  public void listResourceRelationship(RoutingContext routingContext) {
+  public void resourceRelationshipHandler(RoutingContext routingContext) {
 
     LOGGER.info("Info: Searching for relationship of resource");
 
@@ -58,7 +58,7 @@ public final class RelationshipApis {
 
     JsonObject requestBody = new JsonObject();
 
-    String instanceID = request.getHeader(HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_INSTANCE);
 
     String id = request.getParam(ID);
 
@@ -99,7 +99,7 @@ public final class RelationshipApis {
    *
    * @param routingContext handles web requests in Vert.x Web
    */
-  public void listResourceGroupRelationship(RoutingContext routingContext) {
+  public void resourceGroupRelationshipHandler(RoutingContext routingContext) {
 
     LOGGER.info("Info: Searching for relationship of resource and resourceGroup");
 
@@ -108,7 +108,7 @@ public final class RelationshipApis {
 
     JsonObject requestBody = new JsonObject();
 
-    String instanceID = request.getHeader(HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_INSTANCE);
     String id = request.getParam(ID);
 
     if (id != null && !id.isBlank()) {
@@ -149,7 +149,7 @@ public final class RelationshipApis {
    *
    * @param routingContext Handles web request in Vert.x web
    */
-  public void listResourceServerRelationship(RoutingContext routingContext) {
+  public void resourceServerRelationshipHandler(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = new JsonObject();
     String instanceID = routingContext.request().host();
@@ -187,7 +187,7 @@ public final class RelationshipApis {
    *
    * @param routingContext Handles web request in Vert.x web
    */
-  public void listProviderRelationship(RoutingContext routingContext) {
+  public void providerRelationshipHandler(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = new JsonObject();
     String instanceID = routingContext.request().host();
@@ -221,56 +221,13 @@ public final class RelationshipApis {
     });
   }
 
-  /**
-   * Queries the database and returns data model of an item.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void listTypes(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().host();
-    String id = routingContext.request().getParam(ID);
-    queryJson
-        .put(INSTANCE_ID_KEY, instanceID)
-        .put(ID, id)
-        .put(RELATIONSHIP, REL_TYPE);
-    LOGGER.info("Info: search query : " + queryJson);
-    dbService.listTypes(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response
-                .headers()
-                .add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(
-                    HEADER_CONTENT_LENGTH,
-                    String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            LOGGER.info("Success: Retrieved relationships");
-            response.end();
-          } else if (handler.failed()) {
-            LOGGER.error(handler.cause().getMessage());
-            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-            response.setStatusCode(400);
-            response.end(handler.cause().getLocalizedMessage());
-          }
-        });
-  }
 
   /**
    * Relationship search of the cataloque items.
    *
    * @param routingContext Handles web request in Vert.x web
    */
-  public void relSearch(RoutingContext routingContext) {
+  public void relSearchHandler(RoutingContext routingContext) {
 
     LOGGER.debug("Info: Relationship search");
 
@@ -278,7 +235,7 @@ public final class RelationshipApis {
     HttpServerResponse response = routingContext.response();
     JsonObject requestBody = new JsonObject();
 
-    String instanceID = request.getHeader(HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_INSTANCE);
 
     MultiMap queryParameters = routingContext.queryParams();
 

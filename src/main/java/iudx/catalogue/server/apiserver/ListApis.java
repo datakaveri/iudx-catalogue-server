@@ -49,7 +49,7 @@ public final class ListApis {
    *
    * @param routingContext handles web requests in Vert.x Web
    */
-  public void listItems(RoutingContext routingContext) {
+  public void listItemsHandler(RoutingContext routingContext) {
 
     LOGGER.debug("Info: Listing items");
 
@@ -64,7 +64,7 @@ public final class ListApis {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_INSTANCE);
 
     String itemType = request.getParam(ITEM_TYPE);
     requestBody.put(ITEM_TYPE, itemType);
@@ -121,7 +121,7 @@ public final class ListApis {
    *
    * @param routingContext Handles web request in Vert.x web
    */
-  public void listTypes(RoutingContext routingContext) {
+  public void listTypesHandler(RoutingContext routingContext) {
     LOGGER.debug("Listing type of item");
 
     HttpServerResponse response = routingContext.response();

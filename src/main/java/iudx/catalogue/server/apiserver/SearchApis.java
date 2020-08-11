@@ -58,7 +58,7 @@ public final class SearchApis {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_HOST);
+    String instanceID = request.getHeader(HEADER_INSTANCE);
 
     MultiMap queryParameters = routingContext.queryParams();
 
@@ -110,7 +110,8 @@ public final class SearchApis {
     }
 
     if (requestBody != null) {
-      requestBody.put(INSTANCE_ID_KEY, instanceID);
+      LOGGER.debug("Info: instanceID;" + instanceID);
+      requestBody.put(INSTANCE, instanceID);
       dbService.searchQuery(requestBody, handler -> {
         if (handler.succeeded()) {
           JsonObject resultJson = handler.result();
@@ -212,7 +213,7 @@ public final class SearchApis {
 
       if (requestBody != null) {
         LOGGER.info("Count query : " + requestBody);
-        requestBody.put(INSTANCE_ID_KEY, instanceID);
+        requestBody.put(INSTANCE, instanceID);
 
         /* Request database service with requestBody for counting */
         dbService.countQuery(requestBody, dbhandler -> {
