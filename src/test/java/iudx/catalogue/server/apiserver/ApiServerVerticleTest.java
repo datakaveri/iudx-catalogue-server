@@ -332,6 +332,94 @@ public class ApiServerVerticleTest {
         });
   }
 
+  /**
+   * Tests the create instance api
+   * 
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(6)
+  @DisplayName("create Instance, Status:200, Endpoint: /instance]")
+  void createInstance201(VertxTestContext testContext) {
+
+    /* Send the file to the server using GET with query parameters */
+    /* Should give only one item */
+    client.post(PORT, HOST,
+                BASE_URL.concat("instance"))
+                        .addQueryParam("id", "someTestInstance")
+                        .putHeader("Content-Type", "application/json")
+                        .putHeader("token", TOKEN)
+        .send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+            logger.info(serverResponse.result().bodyAsString());
+            /* comparing the response */
+            assertEquals(201, serverResponse.result().statusCode());
+            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            testContext.failed();
+          }
+        });
+  }
+
+  /**
+   * Tests the list instance api
+   * 
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(6)
+  @DisplayName("list Instance, Status:200, Endpoint: /instance]")
+  void listInstance200(VertxTestContext testContext) {
+
+    /* Send the file to the server using GET with query parameters */
+    /* Should give only one item */
+    client.get(PORT, HOST,
+                BASE_URL.concat("list/instance"))
+                        .putHeader("Content-Type", "application/json")
+        .send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+            logger.info(serverResponse.result().bodyAsString());
+            /* comparing the response */
+            assertEquals(200, serverResponse.result().statusCode());
+            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            testContext.failed();
+          }
+        });
+  }
+
+  /**
+   * Tests the create instance api
+   * 
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(6)
+  @DisplayName("delete Instance, Status:200, Endpoint: /instance]")
+  void deleteInstance200(VertxTestContext testContext) {
+
+    /* Send the file to the server using GET with query parameters */
+    /* Should give only one item */
+    client.delete(PORT, HOST,
+                BASE_URL.concat("instance"))
+                        .addQueryParam("id", "someTestInstance")
+                        .putHeader("Content-Type", "application/json")
+                        .putHeader("token", TOKEN)
+        .send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+            logger.info(serverResponse.result().bodyAsString());
+            /* comparing the response */
+            assertEquals(200, serverResponse.result().statusCode());
+            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            testContext.failed();
+          }
+        });
+  }
+
 
   /**
    * Tests the search api handler of ApiServerVerticle.
@@ -1271,159 +1359,6 @@ public class ApiServerVerticleTest {
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/type";
     logger.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
-      if (ar.succeeded()) {
-        assertEquals(200, ar.result().statusCode());
-        testContext.completeNow();
-      } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
-        testContext.failed();
-      }
-    });
-  }
-
-  @Test
-  @Order(44)
-  @Disabled
-  @DisplayName("Get City Config")
-  void getCityConfigTest(VertxTestContext testContext) {
-    String apiURL = "ui/cities";
-    logger.info("Url is " + BASE_URL + apiURL);
-    client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
-      if (ar.succeeded()) {
-        assertEquals(200, ar.result().statusCode());
-        testContext.completeNow();
-      } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
-        testContext.failed();
-      }
-    });
-  }
-
-  @Test
-  @Order(45)
-  @Disabled
-  @DisplayName("Set City Config")
-  void setCityConfigTest(VertxTestContext testContext) {
-    JsonObject body = new JsonObject();
-    JsonObject json = new JsonObject();
-    json.put("smart_city_name", "PSCDCL").put("map_default_view_lat_lng",
-        new JsonArray().add(18.5644).add(73.7858));
-    body.put("configurations", json);
-    String apiURL = "ui/cities";
-    logger.info("Url is " + BASE_URL + apiURL);
-    client.post(PORT, HOST, BASE_URL.concat(apiURL)).sendJsonObject(body, ar -> {
-      if (ar.succeeded()) {
-        assertEquals(201, ar.result().statusCode());
-        testContext.completeNow();
-      } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
-        testContext.failed();
-      }
-    });
-  }
-
-  @Test
-  @Order(46)
-  @Disabled
-  @DisplayName("Update City Config")
-  void updateCityConfigTest(VertxTestContext testContext) {
-    JsonObject body = new JsonObject();
-    JsonObject json = new JsonObject();
-    json.put("smart_city_name", "PSCDCL").put("map_default_view_lat_lng",
-        new JsonArray().add(18.5644).add(73.7858));
-    body.put("configurations", json);
-    String apiURL = "ui/cities";
-    logger.info("Url is " + BASE_URL + apiURL);
-    client.put(PORT, HOST, BASE_URL.concat(apiURL)).sendJsonObject(body, ar -> {
-      if (ar.succeeded()) {
-        assertEquals(201, ar.result().statusCode());
-        testContext.completeNow();
-      } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
-        testContext.failed();
-      }
-    });
-  }
-
-  @Test
-  @Order(47)
-  @Disabled
-  @DisplayName("Get Config")
-  void getConfigTest(VertxTestContext testContext) {
-    String apiURL = "ui/config";
-    logger.info("Url is " + BASE_URL + apiURL);
-    client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
-      if (ar.succeeded()) {
-        assertEquals(200, ar.result().statusCode());
-        testContext.completeNow();
-      } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
-        testContext.failed();
-      }
-    });
-  }
-
-  @Test
-  @Order(48)
-  @Disabled
-  @DisplayName("Set Config")
-  void setConfigTest(VertxTestContext testContext) {
-    JsonObject body = new JsonObject();
-    JsonObject json = new JsonObject();
-    json.put("smart_city_name", "PSCDCL").put("map_default_view_lat_lng",
-        new JsonArray().add(18.5644).add(73.7858));
-    body.put("configurations", json);
-    String apiURL = "ui/config";
-    logger.info("Url is " + BASE_URL + apiURL);
-    client.post(PORT, HOST, BASE_URL.concat(apiURL)).sendJsonObject(body, ar -> {
-      if (ar.succeeded()) {
-        assertEquals(201, ar.result().statusCode());
-        testContext.completeNow();
-      } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
-        testContext.failed();
-      }
-    });
-  }
-
-  @Test
-  @Order(49)
-  @Disabled
-  @DisplayName("Update Config")
-  void updateConfigTest(VertxTestContext testContext) {
-    JsonObject body = new JsonObject();
-    JsonObject json = new JsonObject();
-    json.put("smart_city_name", "PSCDCL").put("map_default_view_lat_lng",
-        new JsonArray().add(18.5644).add(73.7858));
-    body.put("configurations", json);
-    String apiURL = "ui/config";
-    logger.info("Url is " + BASE_URL + apiURL);
-    client.put(PORT, HOST, BASE_URL.concat(apiURL)).sendJsonObject(body, ar -> {
-      if (ar.succeeded()) {
-        assertEquals(201, ar.result().statusCode());
-        testContext.completeNow();
-      } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
-        testContext.failed();
-      }
-    });
-  }
-
-  @Test
-  @Order(50)
-  @Disabled
-  @DisplayName("Delete Config")
-  void deleteConfigTest(VertxTestContext testContext) {
-    String apiURL = "ui/config";
-    logger.info("Url is " + BASE_URL + apiURL);
-    client.delete(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();

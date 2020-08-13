@@ -147,7 +147,7 @@ public final class CrudApis {
                 /** If post, create. If put, update */
                 if (routingContext.request().method().toString() == POST) {
                   /* Requesting database service, creating a item */
-                  LOGGER.debug("Info: Inserting item;" + valhandler.result().toString());
+                  LOGGER.debug("Info: Inserting item");
                   dbService.createItem(valhandler.result(), dbhandler -> {
                     if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item creation;"
@@ -286,17 +286,20 @@ public final class CrudApis {
     });
   }
 
-  public void newInstanceHandler(RoutingContext routingContext, String catAdmin) {
+  public void createInstanceHandler(RoutingContext routingContext, String catAdmin) {
 
     LOGGER.debug("Info: Creating new instance");
 
     HttpServerResponse response = routingContext.response();
     HttpServerRequest request = routingContext.request();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
 
     JsonObject authenticationInfo = new JsonObject();
     JsonObject authRequest = new JsonObject();
 
-    String instance = routingContext.queryParams().get(INSTANCE);
+    String instance = routingContext.queryParams().get(ID);
+
 
     /**
      * Start insertion flow 
@@ -320,6 +323,72 @@ public final class CrudApis {
         response.setStatusCode(401).end();
       }
       else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
+        /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */
+        JsonObject body = new JsonObject().put(ID, instance)
+                                          .put(TYPE, new JsonArray().add(ITEM_TYPE_INSTANCE))
+                                          .put(INSTANCE, "");
+        dbService.createItem(body, res -> {
+          if (res.succeeded()) {
+            LOGGER.info("Success: Instance created;"
+                .concat(res.result().toString()));
+            response.setStatusCode(201)
+              .end(res.result().toString());
+          } else {
+            LOGGER.error("Fail: Creating instance");
+            response.setStatusCode(500).end();
+          }
+        });
+        LOGGER.debug("Success: Authenticated instance creation request");
+      }
+    });
+  }
+
+  public void deleteInstanceHandler(RoutingContext routingContext, String catAdmin) {
+
+    LOGGER.debug("Info: Deleting instance");
+
+    HttpServerResponse response = routingContext.response();
+    HttpServerRequest request = routingContext.request();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
+    JsonObject authenticationInfo = new JsonObject();
+    JsonObject authRequest = new JsonObject();
+
+    String instance = routingContext.queryParams().get(ID);
+
+    /**
+     * Start insertion flow 
+     **/
+
+    /** Json schema validate item */
+    authenticationInfo.put(HEADER_TOKEN,
+                            request.getHeader(HEADER_TOKEN))
+                            .put(OPERATION, routingContext.request().method().toString());
+    authRequest.put(REL_PROVIDER, catAdmin);
+    /** Introspect token and authorize operation */
+    authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
+      if (authhandler.failed()) {
+          response.setStatusCode(401)
+                .end(authhandler.cause().toString());
+        return;
+      }
+      else if (authhandler.result().getString(STATUS).equals(ERROR)) {
+        LOGGER.error("Fail: Authentication;" 
+                      + authhandler.result().getString(MESSAGE));
+        response.setStatusCode(401).end();
+      }
+      else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
+        /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */
+        JsonObject body = new JsonObject().put(ID, instance)
+                                          .put(INSTANCE, "");
+        dbService.deleteItem(body, res -> {
+          if (res.succeeded()) {
+            LOGGER.info("Success: Instance deleted;"
+                .concat(res.result().toString()));
+            response.setStatusCode(200)
+              .end(res.result().toString());
+          }
+        });
         LOGGER.debug("Success: Authenticated instance creation request");
       }
     });

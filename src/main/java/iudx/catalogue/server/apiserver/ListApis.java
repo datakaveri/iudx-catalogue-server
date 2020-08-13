@@ -74,6 +74,9 @@ public final class ListApis {
     String type = null;
 
     switch (itemType) {
+      case "instance":
+        type = ITEM_TYPE_INSTANCE;
+        break;
       case "resourceGroup":
         type = ITEM_TYPE_RESOURCE_GROUP;
         break;
@@ -83,7 +86,6 @@ public final class ListApis {
       case "provider":
     	  type = ITEM_TYPE_PROVIDER;
         break;
-      case "instances":
       case "tags":
         type = itemType;
         break;
