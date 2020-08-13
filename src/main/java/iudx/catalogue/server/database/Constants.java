@@ -54,6 +54,8 @@ public class Constants {
   static final String HITS = "hits";
   static final String AGGREGATIONS = "aggregations";
   static final String QUERY_KEY = "query";
+  static final String SCRIPT_KEY = "script";
+  static final String PARAM_KEY = "params";
   static final String REQUEST_GET = "GET";
   static final String REQUEST_POST = "POST";
   static final String REQUEST_PUT = "PUT";
@@ -148,6 +150,7 @@ public class Constants {
   public static final String REL_RESOURCE_GRP = "resourceGroup";
   public static final String REL_RESOURCE_SVR = "resourceServer";
   public static final String REL_PROVIDER = "provider";
+  public static final String ITEM_TYPE_INSTANCE = "iudx:Instance";
   public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
   public static final String ITEM_TYPE_RESOURCE_GROUP = "iudx:ResourceGroup";
   public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
@@ -187,4 +190,5 @@ public class Constants {
   public static final String LIST_TYPES_QUERY = 
     "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}} ]}},"
     + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": 10000}}}}";
+
 }

@@ -36,7 +36,6 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
@@ -47,7 +46,6 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
@@ -58,9 +56,9 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
 
   /**
    * The updateItem implements the update item operation with the database.
@@ -69,7 +67,6 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
@@ -80,7 +77,6 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
@@ -91,7 +87,6 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
@@ -102,7 +97,6 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService listResourceRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler);
@@ -115,7 +109,6 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService listResourceGroupRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler);
@@ -127,7 +120,6 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService listProviderRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler);
@@ -140,11 +132,9 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService listResourceServerRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler);
-
   /**
    * The listTypes implements the list types with the database.
    * 
@@ -155,7 +145,6 @@ public interface DatabaseService {
 
   @Fluent
   DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
   /**
    * The getCities gets the cities configuration from the database.
    * 
@@ -171,7 +160,6 @@ public interface DatabaseService {
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
-
   @Fluent
   DatabaseService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
@@ -181,7 +169,6 @@ public interface DatabaseService {
    * @param client RestClient to perform ES queries.
    * @return DatabaseService object.
    */
-
   @GenIgnore
   static DatabaseService create(ElasticClient client) {
     return new DatabaseServiceImpl(client);
@@ -196,7 +183,6 @@ public interface DatabaseService {
    * @param address which is the proxy address
    * @return DatabaseServiceVertxEBProxy which is a service proxy
    */
-
   @GenIgnore
   static DatabaseService createProxy(Vertx vertx, String address) {
     return new DatabaseServiceVertxEBProxy(vertx, address);

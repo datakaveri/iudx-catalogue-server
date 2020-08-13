@@ -109,25 +109,43 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-
   /**
    * {@inheritDoc}
    */
   @Override
   public DatabaseService createItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
-    JsonObject checkQuery = new JsonObject();
+    JsonObject checkItem = new JsonObject();
     JsonObject errorJson = new JsonObject();
+
     String id = doc.getString("id");
+    String instanceId = doc.getString("instance");
 
     errorJson.put(STATUS, FAILED).put(RESULTS,
         new JsonArray().add(new JsonObject().put(ID, id)
             .put(METHOD, INSERT).put(STATUS, FAILED)));
 
 
-    checkQuery.put(SOURCE, "[\"\"]").put(QUERY_KEY,
+    checkItem.put(SOURCE, "[\"\"]").put(QUERY_KEY,
         new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, id)));
 
-    client.searchAsync(CAT_INDEX_NAME, checkQuery.toString(), checkRes -> {
+    var isInstanceValid = new Object(){ boolean value  = true; };
+    if (!instanceId.equals("")) {
+      String checkInstance = "{\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}"
+                                  .replace("$1", instanceId);
+      client.searchAsync(CAT_INDEX_NAME, checkInstance, checkRes -> {
+        if (checkRes.failed()) {
+          handler.handle(Future.failedFuture("Fail: Doc Exists"));
+          isInstanceValid.value = false;
+          return;
+        } else {
+          if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
+            isInstanceValid.value = false;
+          }
+        }
+      });
+    }
+
+    client.searchAsync(CAT_INDEX_NAME, checkItem.toString(), checkRes -> {
       if (checkRes.failed()) {
         handler.handle(Future.failedFuture(errorJson.toString()));
       }
@@ -136,6 +154,11 @@ public class DatabaseServiceImpl implements DatabaseService {
           handler.handle(Future.failedFuture("Fail: Doc Exists"));
           LOGGER.error("Fail: Insertion failed");
           return;
+        }
+        if (isInstanceValid.value == false) {
+            handler.handle(Future.failedFuture(errorJson.toString()));
+            LOGGER.error("Fail: Insertion failed");
+            return;
         }
         /* Insert document */
         client.docPostAsync(CAT_INDEX_NAME, doc.toString(), postRes -> {
@@ -298,9 +321,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     String req = "";
 
 
-    if (itemType.equalsIgnoreCase("instances")) {
-      req = LIST_INSTANCES_QUERY;
-    } else if (itemType.equalsIgnoreCase(TAGS)) {
+    if (itemType.equalsIgnoreCase(TAGS)) {
       if (instanceID == null || instanceID == "") {
         req = LIST_TAGS_QUERY;
       } else {

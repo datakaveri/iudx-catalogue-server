@@ -250,13 +250,27 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
 
+        /* Create instance - Instance name in query param */
         router.post(ROUTE_INSTANCE)
-          .consumes(MIME_APPLICATION_JSON)
           .produces(MIME_APPLICATION_JSON)
           .handler(routingContext -> {
           /* checking auhthentication info in requests */
           if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            crudApis.newInstanceHandler(routingContext, catAdmin);
+            crudApis.createInstanceHandler(routingContext, catAdmin);
+          } else {
+            LOGGER.warn("Fail: Unathorized CRUD operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
+
+        /* Delete instance - Instance name in query param */
+        router.delete(ROUTE_INSTANCE)
+          .produces(MIME_APPLICATION_JSON)
+          .handler(routingContext -> {
+          /* checking auhthentication info in requests */
+          LOGGER.debug("Info: HIT instance");
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            crudApis.deleteInstanceHandler(routingContext, catAdmin);
           } else {
             LOGGER.warn("Fail: Unathorized CRUD operation");
             routingContext.response().setStatusCode(401).end();
