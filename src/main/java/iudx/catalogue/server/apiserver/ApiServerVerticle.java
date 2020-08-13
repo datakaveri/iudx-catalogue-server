@@ -73,6 +73,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   @SuppressWarnings("unused")
   private Router router;
 
+  private String catAdmin;
   private String keystore;
   private String keystorePassword;
 
@@ -106,6 +107,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         try {
           inputstream = new FileInputStream(CONFIG_FILE);
           properties.load(inputstream);
+          catAdmin = properties.getProperty(CAT_ADMIN);
           keystore = properties.getProperty(KEYSTORE_FILE_NAME);
           keystorePassword = properties.getProperty(KEYSTORE_FILE_PASSWORD);
         } catch (Exception ex) {
@@ -220,9 +222,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 
         /* Update Item - Body contains data */
         router.put(ROUTE_UPDATE_ITEMS)
-          .consumes(MIME_APPLICATION_JSON)
-          .produces(MIME_APPLICATION_JSON)
-          .handler( routingContext -> {
+              .consumes(MIME_APPLICATION_JSON)
+              .produces(MIME_APPLICATION_JSON)
+              .handler(routingContext -> {
           /* checking auhthentication info in requests */
           if (routingContext.request().headers().contains(HEADER_TOKEN)) {
             /** Update params checked in createItemHandler */
@@ -236,7 +238,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* Delete Item - Query param contains id */
         router.delete(ROUTE_DELETE_ITEMS)
           .produces(MIME_APPLICATION_JSON)
-          .handler( routingContext -> {
+          .handler(routingContext -> {
           /* checking auhthentication info in requests */
           if (routingContext.request().headers().contains(HEADER_TOKEN) &&
               routingContext.queryParams().contains(ID)) {
@@ -248,6 +250,18 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
 
+        router.post(ROUTE_INSTANCE)
+          .consumes(MIME_APPLICATION_JSON)
+          .produces(MIME_APPLICATION_JSON)
+          .handler(routingContext -> {
+          /* checking auhthentication info in requests */
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            crudApis.newInstanceHandler(routingContext, catAdmin);
+          } else {
+            LOGGER.warn("Fail: Unathorized CRUD operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
 
         /**
          * Routes for search and count
@@ -273,7 +287,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         /* list the item from database using itemId */
         router.get(ROUTE_LIST_ITEMS)
           .produces(MIME_APPLICATION_JSON)
-          .handler( routingContext -> { 
+          .handler(routingContext -> { 
             listApis.listItemsHandler(routingContext);
           });
         /* Get list types with the database for an item */

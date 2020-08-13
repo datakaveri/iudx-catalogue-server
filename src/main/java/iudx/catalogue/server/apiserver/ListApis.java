@@ -128,10 +128,10 @@ public final class ListApis {
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().host();
+    String instanceID = routingContext.request().getHeader(HEADER_INSTANCE);
     String id = routingContext.request().getParam(ID);
     queryJson
-        .put(INSTANCE_ID_KEY, instanceID)
+        .put(HEADER_INSTANCE, instanceID)
         .put(ID, id)
         .put(RELATIONSHIP, REL_TYPE);
     dbService.listTypes(

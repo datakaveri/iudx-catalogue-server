@@ -11,23 +11,24 @@
             "type": [
                 "iudx:Provider"
             ],
-            "id": "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531",
-            "name": "IUDXAdmin",
-            "description": "Administrator of the IUDX platform",
-            "tags": "IUDX, Admin, Platform",
-            "itemStatus": "ACTIVE",
-            "itemCreatedAt": "2020-07-01T10:03:26+0000",
+            "id": "<provider-id>",
+            "name": "<provider-name>",
+            "description": "<some-description>",
+            "tags": [
+                "optional",
+                "tags"
+            ],
             "providerOrg": {
-                "name": "iudx",
-                "additionalInfoURL": "https://iudx.org.in",
+                "name": "<name-of-provider-org>",
+                "additionalInfoURL": "<additional-info-of-provider-org>",
                 "location": {
                     "type": "Place",
-                    "address": "ABD area, Pune",
+                    "address": "<optional-address>",
                     "geometry": {
                         "type": "Point",
                         "coordinates": [
-                            75.92,
-                            14.5
+                            79.92,
+                            15.5
                         ]
                     }
                 }
@@ -40,15 +41,11 @@
         "id",
         "name",
         "description",
-        "tags",
-        "itemStatus",
-        "itemCreatedAt",
         "providerOrg"
     ],
-    "additionalProperties": true,
     "properties": {
         "@context": {
-            "$id": "#/properties/@context",
+            "$id": "#/properties/%40context",
             "type": "string",
             "title": "The @context schema",
             "description": "An explanation about the purpose of this instance.",
@@ -70,6 +67,7 @@
             ],
             "additionalItems": true,
             "items": {
+                "$id": "#/properties/type/items",
                 "anyOf": [
                     {
                         "$id": "#/properties/type/items/anyOf/0",
@@ -81,8 +79,7 @@
                             "iudx:Provider"
                         ]
                     }
-                ],
-                "$id": "#/properties/type/items"
+                ]
             }
         },
         "id": {
@@ -92,7 +89,7 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531"
+                "<provider-id>"
             ]
         },
         "name": {
@@ -102,7 +99,7 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "IUDXAdmin"
+                "<provider-name>"
             ]
         },
         "description": {
@@ -112,38 +109,38 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "Administrator of the IUDX platform"
+                "<some-description>"
             ]
         },
         "tags": {
             "$id": "#/properties/tags",
-            "type": "string",
+            "type": "array",
             "title": "The tags schema",
             "description": "An explanation about the purpose of this instance.",
-            "default": "",
+            "default": [],
             "examples": [
-                "IUDX, Admin, Platform"
-            ]
-        },
-        "itemStatus": {
-            "$id": "#/properties/itemStatus",
-            "type": "string",
-            "title": "The itemStatus schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "ACTIVE"
-            ]
-        },
-        "itemCreatedAt": {
-            "$id": "#/properties/itemCreatedAt",
-            "type": "string",
-            "title": "The itemCreatedAt schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "2020-07-01T10:03:26+0000"
-            ]
+                [
+                    "optional",
+                    "tags"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "$id": "#/properties/tags/items",
+                "anyOf": [
+                    {
+                        "$id": "#/properties/tags/items/anyOf/0",
+                        "type": "string",
+                        "title": "The first anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "examples": [
+                            "optional",
+                            "tags"
+                        ]
+                    }
+                ]
+            }
         },
         "providerOrg": {
             "$id": "#/properties/providerOrg",
@@ -153,16 +150,16 @@
             "default": {},
             "examples": [
                 {
-                    "name": "iudx",
-                    "additionalInfoURL": "https://iudx.org.in",
+                    "name": "<name-of-provider-org>",
+                    "additionalInfoURL": "<additional-info-of-provider-org>",
                     "location": {
                         "type": "Place",
-                        "address": "ABD area, Pune",
+                        "address": "<optional-address>",
                         "geometry": {
                             "type": "Point",
                             "coordinates": [
-                                75.92,
-                                14.5
+                                79.92,
+                                15.5
                             ]
                         }
                     }
@@ -173,7 +170,6 @@
                 "additionalInfoURL",
                 "location"
             ],
-            "additionalProperties": true,
             "properties": {
                 "name": {
                     "$id": "#/properties/providerOrg/properties/name",
@@ -182,7 +178,7 @@
                     "description": "An explanation about the purpose of this instance.",
                     "default": "",
                     "examples": [
-                        "iudx"
+                        "<name-of-provider-org>"
                     ]
                 },
                 "additionalInfoURL": {
@@ -192,7 +188,7 @@
                     "description": "An explanation about the purpose of this instance.",
                     "default": "",
                     "examples": [
-                        "https://iudx.org.in"
+                        "<additional-info-of-provider-org>"
                     ]
                 },
                 "location": {
@@ -204,12 +200,12 @@
                     "examples": [
                         {
                             "type": "Place",
-                            "address": "ABD area, Pune",
+                            "address": "<optional-address>",
                             "geometry": {
                                 "type": "Point",
                                 "coordinates": [
-                                    75.92,
-                                    14.5
+                                    79.92,
+                                    15.5
                                 ]
                             }
                         }
@@ -219,7 +215,6 @@
                         "address",
                         "geometry"
                     ],
-                    "additionalProperties": true,
                     "properties": {
                         "type": {
                             "$id": "#/properties/providerOrg/properties/location/properties/type",
@@ -238,7 +233,7 @@
                             "description": "An explanation about the purpose of this instance.",
                             "default": "",
                             "examples": [
-                                "ABD area, Pune"
+                                "<optional-address>"
                             ]
                         },
                         "geometry": {
@@ -251,8 +246,8 @@
                                 {
                                     "type": "Point",
                                     "coordinates": [
-                                        75.92,
-                                        14.5
+                                        79.92,
+                                        15.5
                                     ]
                                 }
                             ],
@@ -260,7 +255,6 @@
                                 "type",
                                 "coordinates"
                             ],
-                            "additionalProperties": true,
                             "properties": {
                                 "type": {
                                     "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/type",
@@ -280,12 +274,13 @@
                                     "default": [],
                                     "examples": [
                                         [
-                                            75.92,
-                                            14.5
+                                            79.92,
+                                            15.5
                                         ]
                                     ],
                                     "additionalItems": true,
                                     "items": {
+                                        "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates/items",
                                         "anyOf": [
                                             {
                                                 "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates/items/anyOf/0",
@@ -294,19 +289,22 @@
                                                 "description": "An explanation about the purpose of this instance.",
                                                 "default": 0.0,
                                                 "examples": [
-                                                    75.92,
-                                                    14.5
+                                                    79.92,
+                                                    15.5
                                                 ]
                                             }
-                                        ],
-                                        "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates/items"
+                                        ]
                                     }
                                 }
-                            }
+                            },
+                            "additionalProperties": true
                         }
-                    }
+                    },
+                    "additionalProperties": true
                 }
-            }
+            },
+            "additionalProperties": true
         }
-    }
+    },
+    "additionalProperties": true
 }

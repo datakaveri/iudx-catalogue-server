@@ -36,6 +36,8 @@ public class Constants {
   public static final String ROUTE_UPDATE_ITEMS = basePath.concat("/item");
   public static final String ROUTE_DELETE_ITEMS = basePath.concat("/item");
 
+  public static final String ROUTE_INSTANCE = basePath.concat("/instance");
+
   public static final String ROUTE_LIST_RESOURCE_REL = basePath.concat("\\/(?<id>.*)\\/resource");
   public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
       basePath.concat("\\/(?<id>.*)\\/resourceGroup");
@@ -91,13 +93,13 @@ public class Constants {
 
 
   public static final String CONFIG_FILE = "config.properties";
+  public static final String CAT_ADMIN = "catAdmin";
   public static final String KEYSTORE_FILE_NAME = "keystore";
   public static final String KEYSTORE_FILE_PASSWORD = "keystorePassword";
   public static final int PORT = 8443;
 
   public static final String PROPERTY = "property";
   public static final String VALUE = "value";
-  public static final String INSTANCE_ID_KEY = "instanceID";
 
   public static final String GEOPROPERTY = "geoproperty";
   public static final String GEOREL = "georel";

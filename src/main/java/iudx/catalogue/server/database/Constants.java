@@ -158,4 +158,33 @@ public class Constants {
   public static final String WILDCARD_KEY = "wildcard";
 
   public static final String AGGREGATION_ONLY = "AGGREGATION";
+
+  /** Some queries */
+
+  public static final String LIST_INSTANCES_QUERY = "{\"size\": 0, \"aggs\":"
+    + "{\"results\": {\"terms\":"
+    + "{\"field\":instances.keyword,"
+    + "\"size\": 10000}}}}";
+
+  public static final String LIST_INSTANCE_TAGS_QUERY = 
+    "{\"query\": {\"bool\": {\"filter\": {\"term\": {\"instance.keyword\": \"$1\"}}}},"
+    + "\"aggs\":"
+    + "{\"results\": {\"terms\":"
+    + "{\"field\":\"tags.keyword\","
+    + "\"size\": 10000}}}}";
+
+  public static final String  LIST_TAGS_QUERY = 
+    "{ \"aggs\":"
+    + "{\"results\": {\"terms\":"
+    + "{\"field\":\"tags.keyword\","
+    + "\"size\": 10000}}}}";
+
+  public static final String LIST_INSTANCE_TYPES_QUERY = 
+    "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}},"
+                          + "{\"term\": {\"instance.keyword\": \"$2\"}}]}},"
+    + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": 10000}}}}";
+
+  public static final String LIST_TYPES_QUERY = 
+    "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}} ]}},"
+    + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": 10000}}}}";
 }

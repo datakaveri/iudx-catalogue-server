@@ -77,7 +77,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     /* Initialize elastic clients and JsonObjects */
     JsonObject errorJson = new JsonObject();
-    request.put(SEARCH, true);
+    request.put(SEARCH, false);
     /* Validate the Request */
     if (!request.containsKey(SEARCH_TYPE)) {
       errorJson.put(STATUS, FAILED).put(DESCRIPTION,
@@ -102,6 +102,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
+          LOGGER.error("Fail: DB Request;" + searchRes.cause());
           handler.handle(Future.failedFuture(errorJson.toString()));
       }
     });
@@ -294,65 +295,29 @@ public class DatabaseServiceImpl implements DatabaseService {
     String itemType = request.getString(ITEM_TYPE);
     String type = request.getString(TYPE_KEY);
     String instanceID = request.getString(INSTANCE);
-    String query = "";
-    JsonObject req = new JsonObject();
+    String req = "";
+
+
     if (itemType.equalsIgnoreCase("instances")) {
-      req.put(SIZE, 0)
-          .put(
-              AGGREGATION_KEY,
-              new JsonObject()
-                  .put(
-                      RESULTS,
-                      new JsonObject()
-                          .put(
-                              TERMS_KEY,
-                              new JsonObject()
-                                  .put(FIELD, INSTANCE_ID_KEYWORD)
-                                  .put(SIZE, 10000))));
+      req = LIST_INSTANCES_QUERY;
     } else if (itemType.equalsIgnoreCase(TAGS)) {
-      LOGGER.debug("Info: Listing tags");
-      req.put(
-            AGGREGATION_KEY,
-            new JsonObject()
-                .put(
-                    RESULTS,
-                    new JsonObject()
-                        .put(
-                            TERMS_KEY,
-                            new JsonObject()
-                                .put(FIELD, TAGS_KEYWORD)
-                                .put(SIZE_KEY, 10000))));
+      if (instanceID == null || instanceID == "") {
+        req = LIST_TAGS_QUERY;
+      } else {
+        req = LIST_INSTANCE_TAGS_QUERY.replace("$1", instanceID);
+      }
     } else {
-      req.put(
-              QUERY_KEY,
-              new JsonObject()
-                  .put(
-                      BOOL_KEY,
-                      new JsonObject()
-                          .put(
-                              FILTER_KEY,
-                              new JsonArray()
-                                  .add(
-                                      new JsonObject()
-                                          .put(
-                                              MATCH_KEY,
-                                              new JsonObject().put(TYPE_KEY, type))))))
-          .put(
-              AGGREGATION_KEY,
-              new JsonObject()
-                  .put(
-                      RESULTS,
-                      new JsonObject()
-                          .put(
-                              TERMS_KEY,
-                              new JsonObject()
-                                  .put(FIELD, ID_KEYWORD)
-                                  .put(SIZE_KEY, 10000))));
+      if (instanceID == null || instanceID == "") {
+        req = LIST_TYPES_QUERY.replace("$1", type);
+      } else {
+        req = LIST_INSTANCE_TYPES_QUERY.replace("$1", type)
+                                      .replace("$2", instanceID);
+      }
     }
-    LOGGER.debug("Info: Listing items;" + req.toString());
+    LOGGER.debug("Info: Listing items;" + req);
     client.listAggregationAsync(
         CAT_INDEX_NAME,
-        req.toString(),
+        req,
         clientHandler -> {
           if (clientHandler.succeeded()) {
             LOGGER.info("Success: List request");

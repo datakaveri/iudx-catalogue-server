@@ -64,7 +64,7 @@ public final class RelationshipApis {
 
     if (id != null && !id.isBlank()) {
       requestBody.put(ID, id);
-      requestBody.put(INSTANCE_ID_KEY, instanceID);
+      requestBody.put(INSTANCE, instanceID);
       requestBody.put(RELATIONSHIP, REL_RESOURCE);
 
       /*
@@ -114,7 +114,7 @@ public final class RelationshipApis {
     if (id != null && !id.isBlank()) {
 
       requestBody.put(ID, id);
-      requestBody.put(INSTANCE_ID_KEY, instanceID);
+      requestBody.put(INSTANCE, instanceID);
       requestBody.put(RELATIONSHIP, REL_RESOURCE_GRP);
 
       /*
@@ -154,7 +154,7 @@ public final class RelationshipApis {
     JsonObject queryJson = new JsonObject();
     String instanceID = routingContext.request().host();
     String id = routingContext.request().getParam(ID);
-    queryJson.put(INSTANCE_ID_KEY, instanceID).put(ID, id)
+    queryJson.put(INSTANCE, instanceID).put(ID, id)
         .put(RELATIONSHIP, REL_RESOURCE_SVR);
     LOGGER.debug("Info: search query : " + queryJson);
     dbService.listResourceServerRelationship(queryJson, handler -> {
@@ -193,7 +193,7 @@ public final class RelationshipApis {
     String instanceID = routingContext.request().host();
     String id = routingContext.request().getParam(ID);
     queryJson
-        .put(INSTANCE_ID_KEY, instanceID)
+        .put(INSTANCE, instanceID)
         .put(ID, id)
         .put(RELATIONSHIP, REL_PROVIDER);
     LOGGER.debug("Info: search query : " + queryJson);
@@ -247,7 +247,7 @@ public final class RelationshipApis {
 
       if (requestBody != null) {
 
-        requestBody.put(INSTANCE_ID_KEY, instanceID);
+        requestBody.put(INSTANCE, instanceID);
 
         /* Request database service with requestBody for listing domains */
         dbService.relSearch(requestBody, dbhandler -> {

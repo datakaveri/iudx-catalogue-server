@@ -76,14 +76,7 @@ public final class CrudApis {
     JsonObject authenticationInfo = new JsonObject();
     JsonObject authRequest = new JsonObject();
 
-    String instanceID = request.getHeader(HEADER_INSTANCE);
-    requestBody.put(HEADER_INSTANCE, instanceID);
-
-
-    String itemId = routingContext.queryParams().get(ID);
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-
-    requestBody.put(ID, itemId);
 
     Set<String> type = new HashSet<String>(new JsonArray().getList());
     try {
@@ -96,11 +89,17 @@ public final class CrudApis {
     type.retainAll(ITEM_TYPES);
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
 
+    if (itemType != ITEM_TYPE_PROVIDER)  {
+      String instanceID = request.getHeader(HEADER_INSTANCE);
+      if (instanceID == null || instanceID == "") {
+      requestBody.put(HEADER_INSTANCE, "");
+      }
+      requestBody.put(HEADER_INSTANCE, instanceID);
+    }
 
     /**
      * Start insertion flow 
      **/
-
 
     /** Json schema validate item */
     validatorService.validateSchema(requestBody, schValHandler -> {
@@ -114,7 +113,7 @@ public final class CrudApis {
         authenticationInfo.put(HEADER_TOKEN,
                                 request.getHeader(HEADER_TOKEN))
                                 .put(OPERATION, routingContext.request().method().toString());
-        if (itemType == REL_PROVIDER) {
+        if (itemType == ITEM_TYPE_PROVIDER) {
           authRequest.put(REL_PROVIDER, requestBody.getString(ID));
         } else {
           authRequest.put(REL_PROVIDER, requestBody.getString(REL_PROVIDER));
@@ -148,6 +147,7 @@ public final class CrudApis {
                 /** If post, create. If put, update */
                 if (routingContext.request().method().toString() == POST) {
                   /* Requesting database service, creating a item */
+                  LOGGER.debug("Info: Inserting item;" + valhandler.result().toString());
                   dbService.createItem(valhandler.result(), dbhandler -> {
                     if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item creation;"
@@ -282,6 +282,45 @@ public final class CrudApis {
                       .concat(authhandler.cause().toString()));
         response.setStatusCode(401)
                 .end(authhandler.cause().toString());
+      }
+    });
+  }
+
+  public void newInstanceHandler(RoutingContext routingContext, String catAdmin) {
+
+    LOGGER.debug("Info: Creating new instance");
+
+    HttpServerResponse response = routingContext.response();
+    HttpServerRequest request = routingContext.request();
+
+    JsonObject authenticationInfo = new JsonObject();
+    JsonObject authRequest = new JsonObject();
+
+    String instance = routingContext.queryParams().get(INSTANCE);
+
+    /**
+     * Start insertion flow 
+     **/
+
+    /** Json schema validate item */
+    authenticationInfo.put(HEADER_TOKEN,
+                            request.getHeader(HEADER_TOKEN))
+                            .put(OPERATION, routingContext.request().method().toString());
+    authRequest.put(REL_PROVIDER, catAdmin);
+    /** Introspect token and authorize operation */
+    authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
+      if (authhandler.failed()) {
+          response.setStatusCode(401)
+                .end(authhandler.cause().toString());
+        return;
+      }
+      else if (authhandler.result().getString(STATUS).equals(ERROR)) {
+        LOGGER.error("Fail: Authentication;" 
+                      + authhandler.result().getString(MESSAGE));
+        response.setStatusCode(401).end();
+      }
+      else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
+        LOGGER.debug("Success: Authenticated instance creation request");
       }
     });
   }
