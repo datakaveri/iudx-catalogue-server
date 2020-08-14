@@ -209,9 +209,16 @@ public final class CrudApis {
 
     dbService.getItem(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
-        LOGGER.info("Success: Retreived item");
-        response.setStatusCode(200)
-                .end(dbhandler.result().toString());
+        if(dbhandler.result().getInteger(TOTAL_HITS) == 0) {
+          LOGGER.error("Fail: Item not found;"
+                        .concat(dbhandler.cause().toString()));
+          response.setStatusCode(400)
+                  .end(dbhandler.cause().toString());
+        } else {
+          LOGGER.info("Success: Retreived item");
+          response.setStatusCode(200)
+                  .end(dbhandler.result().toString());
+        }
       } else if (dbhandler.failed()) {
         LOGGER.error("Fail: Item not found;"
                       .concat(dbhandler.cause().toString()));
