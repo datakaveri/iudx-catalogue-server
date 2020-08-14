@@ -52,7 +52,7 @@ public final class SearchApis {
    */
   public void searchHandler(RoutingContext routingContext) {
 
-    String path = routingContext.normalisedPath().split("/")[4];
+    String path =  routingContext.normalisedPath();
     LOGGER.debug("Info: Route;" + path);
 
     HttpServerRequest request = routingContext.request();
@@ -116,7 +116,9 @@ public final class SearchApis {
       LOGGER.debug("Info: instanceID;" + instanceID);
       requestBody.put(HEADER_INSTANCE, instanceID);
       
-      if (path == ROUTE_SEARCH) {
+      LOGGER.debug("Info: Search Query");
+      if (path.equals(ROUTE_SEARCH)) {
+        LOGGER.debug("Info: Search Query");
         dbService.searchQuery(requestBody, handler -> {
           if (handler.succeeded()) {
             JsonObject resultJson = handler.result();
@@ -131,7 +133,6 @@ public final class SearchApis {
             response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                 .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            LOGGER.info("response: " + resultJson);
             response.end();
           } else if (handler.failed()) {
             LOGGER.error(handler.cause().getMessage());

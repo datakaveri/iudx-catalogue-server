@@ -250,7 +250,7 @@ public final class ElasticClient {
                                   .getJsonArray(BUCKETS);
             }
             for (int i=0; i<results.size(); i++) {
-              if ( options == SOURCE_ONLY) {
+              if (options == SOURCE_ONLY) {
                 responseMsg.addResult(results.getJsonObject(i).getJsonObject(SOURCE));
               }
               if (options == DOC_IDS_ONLY) {

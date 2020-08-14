@@ -89,12 +89,14 @@ public final class CrudApis {
     type.retainAll(ITEM_TYPES);
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
 
-    if (itemType != ITEM_TYPE_PROVIDER)  {
+    LOGGER.debug("Info: itemType;" + itemType);
+    if (!itemType.equals(ITEM_TYPE_PROVIDER))  {
       String instanceID = request.getHeader(HEADER_INSTANCE);
-      if (instanceID == null || instanceID == "") {
-      requestBody.put(HEADER_INSTANCE, "");
+      if (instanceID == null || instanceID.equals("")) {
+        requestBody.put(HEADER_INSTANCE, "");
+      } else {
+        requestBody.put(HEADER_INSTANCE, instanceID);
       }
-      requestBody.put(HEADER_INSTANCE, instanceID);
     }
 
     /**
@@ -113,7 +115,7 @@ public final class CrudApis {
         authenticationInfo.put(HEADER_TOKEN,
                                 request.getHeader(HEADER_TOKEN))
                                 .put(OPERATION, routingContext.request().method().toString());
-        if (itemType == ITEM_TYPE_PROVIDER) {
+        if (itemType.equals(ITEM_TYPE_PROVIDER)) {
           authRequest.put(REL_PROVIDER, requestBody.getString(ID));
         } else {
           authRequest.put(REL_PROVIDER, requestBody.getString(REL_PROVIDER));
@@ -210,10 +212,11 @@ public final class CrudApis {
     dbService.getItem(requestBody, dbhandler -> {
       if (dbhandler.succeeded()) {
         if(dbhandler.result().getInteger(TOTAL_HITS) == 0) {
-          LOGGER.error("Fail: Item not found;"
-                        .concat(dbhandler.cause().toString()));
-          response.setStatusCode(400)
-                  .end(dbhandler.cause().toString());
+          LOGGER.error("Fail: Item not found");
+          JsonObject result = dbhandler.result();
+          result.put(STATUS, ERROR);
+          response.setStatusCode(200)
+                  .end(dbhandler.result().toString());
         } else {
           LOGGER.info("Success: Retreived item");
           response.setStatusCode(200)

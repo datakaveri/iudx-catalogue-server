@@ -129,21 +129,29 @@ public class DatabaseServiceImpl implements DatabaseService {
         new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, id)));
 
     var isInstanceValid = new Object(){ boolean value  = true; };
-    if (!instanceId.equals("")) {
-      String checkInstance = "{\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}"
-                                  .replace("$1", instanceId);
-      client.searchAsync(CAT_INDEX_NAME, checkInstance, checkRes -> {
-        if (checkRes.failed()) {
-          handler.handle(Future.failedFuture("Fail: Doc Exists"));
-          isInstanceValid.value = false;
-          return;
-        } else {
-          if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
-            isInstanceValid.value = false;
-          }
-        }
-      });
+    if (instanceId == null) {
+      LOGGER.debug("Info: InstanceID null. Provider Item");
     }
+    else {
+      if (!instanceId.equals("")) {
+        String checkInstance = "{\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}"
+          .replace("$1", instanceId);
+        client.searchAsync(CAT_INDEX_NAME, checkInstance, checkRes -> {
+          if (checkRes.failed()) {
+            handler.handle(Future.failedFuture("Fail: Doc Exists"));
+            isInstanceValid.value = false;
+            return;
+          } else {
+            if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
+              LOGGER.debug("Info: No instance exists");
+              isInstanceValid.value = false;
+            }
+          }
+        });
+      }
+    }
+
+    LOGGER.debug("Info: Instance info;" + isInstanceValid.value);
 
     client.searchAsync(CAT_INDEX_NAME, checkItem.toString(), checkRes -> {
       if (checkRes.failed()) {
@@ -152,12 +160,13 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (checkRes.succeeded()) {
         if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
           handler.handle(Future.failedFuture("Fail: Doc Exists"));
+          LOGGER.error("Fail: Insertion failed;" + checkRes.cause());
           LOGGER.error("Fail: Insertion failed");
           return;
         }
         if (isInstanceValid.value == false) {
             handler.handle(Future.failedFuture(errorJson.toString()));
-            LOGGER.error("Fail: Insertion failed");
+            LOGGER.error("Fail: Invalid Instance Insertion failed");
             return;
         }
         /* Insert document */
@@ -173,12 +182,12 @@ public class DatabaseServiceImpl implements DatabaseService {
             handler.handle(Future.succeededFuture(responseJson));
           } else {
             handler.handle(Future.failedFuture(errorJson.toString()));
-            LOGGER.error("Fail: Insertion failed");
+            LOGGER.error("Fail: Insertion failed;" + postRes.cause());
           }
         });
       } else {
         handler.handle(Future.failedFuture("Fail: Failed checking doc existence"));
-        LOGGER.error("Fail: Insertion failed");
+        LOGGER.error("Fail: Insertion failed;" + checkRes.cause());
       }
     });
     return this;

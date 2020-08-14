@@ -162,13 +162,11 @@ public class ValidatorServiceImpl implements ValidatorService {
      * TODO: More checks and auth rules
      **/
     else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-      handler.handle(
-          Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
+      handler.handle(Future.succeededFuture(request));
     }
     /** Validate if Provider */
     else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
-      handler.handle(
-          Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
+      handler.handle(Future.succeededFuture(request));
     }
     /** Validate if ResourceGroup */
     else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
