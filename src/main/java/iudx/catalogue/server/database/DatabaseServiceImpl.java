@@ -67,7 +67,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
           LOGGER.error("Fail: DB Request;" + errorJson.toString());
-          handler.handle(Future.failedFuture(errorJson.toString()));
+        handler.handle(Future.failedFuture(searchRes.cause().getMessage()));
       }
     });
     return this;
@@ -569,7 +569,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           LOGGER.debug("Success: Successful DB request");
           handler.handle(Future.succeededFuture(searchRes.result()));
         } else {
-          handler.handle(Future.failedFuture(errorJson.toString()));
+          handler.handle(Future.failedFuture(searchRes.cause()));
         }
       });
     }
@@ -638,7 +638,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       elasticQuery.put(QUERY_KEY, boolObject).put(SOURCE, ID);
       
       /* Initial db query to filter matching attributes */
-      client.searchAsync(REL_API_INDEX_NAME, elasticQuery.toString(), searchRes -> {
+      client.searchAsync(CAT_INDEX_NAME, elasticQuery.toString(), searchRes -> {
         if (searchRes.succeeded()) {
 
           JsonArray resultValues = searchRes.result().getJsonArray(RESULTS);
@@ -647,14 +647,17 @@ public class DatabaseServiceImpl implements DatabaseService {
           JsonArray idCollection = new JsonArray();
 
           /* iterating over the filtered response json array */
-          for (Object idIndex : resultValues) {
-            JsonObject id = (JsonObject) idIndex;
+          if (!resultValues.isEmpty()) {
+            for (Object idIndex : resultValues) {
+              JsonObject id = (JsonObject) idIndex;
 
-            if (!id.isEmpty()) {
-              idCollection
-                  .add(new JsonObject().put(WILDCARD_KEY,
-                      new JsonObject().put(ID_KEYWORD, id.getString(ID).concat("*"))));
+              if (!id.isEmpty()) {
+                idCollection.add(new JsonObject().put(WILDCARD_KEY,
+                    new JsonObject().put(ID_KEYWORD, id.getString(ID).concat("*"))));
+              }
             }
+          } else {
+            handler.handle(Future.succeededFuture(searchRes.result()));
           }
           
           /* constructing the db query */
@@ -676,7 +679,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           LOGGER.debug("INFO: Query constructed;" + elasticQuery.toString());
 
           /* db query to find the relationship to the initial query */
-          client.searchAsync(REL_API_INDEX_NAME, elasticQuery.toString(), relSearchRes -> {
+          client.searchAsync(CAT_INDEX_NAME, elasticQuery.toString(), relSearchRes -> {
             if (relSearchRes.succeeded()) {
               
               LOGGER.debug("Success: Successful DB request");
@@ -687,7 +690,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
           });
         } else {
-          handler.handle(Future.failedFuture(errorJson.toString()));
+          handler.handle(Future.failedFuture(searchRes.cause().getMessage()));
         }
       });
     }

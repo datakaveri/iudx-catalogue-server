@@ -147,13 +147,14 @@ public final class ListApis {
             } else {
               response.setStatusCode(400);
             }
+            response.headers().add(HEADER_CONTENT_LENGTH,
+                String.valueOf(resultJson.toString().length()));
             response.write(resultJson.toString());
-            LOGGER.info("Success: Listed type;" + resultJson.toString() );
             response.end();
           } else if (handler.failed()) {
             LOGGER.error(handler.cause().getMessage());
-            response.setStatusCode(500);
-            response.end(INTERNAL_SERVER_ERROR);
+            response.setStatusCode(400);
+            response.end(handler.cause().getLocalizedMessage());
           }
         });
   }
