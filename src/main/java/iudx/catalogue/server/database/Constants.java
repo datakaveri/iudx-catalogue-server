@@ -191,4 +191,8 @@ public class Constants {
     "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}} ]}},"
     + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": 10000}}}}";
 
+  public static final String GEO_SHAPE =
+      "{ \"geo_shape\": { \"$4\": { \"shape\": { \"type\": \"$1\", \"coordinates\": $2 },"
+          + " \"relation\": \"$3\" } } }";
+
 }

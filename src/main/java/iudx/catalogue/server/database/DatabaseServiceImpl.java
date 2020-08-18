@@ -44,8 +44,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     request.put(SEARCH, true);
     /* Validate the Request */
     if (!request.containsKey(SEARCH_TYPE)) {
-      errorJson.put(STATUS, FAILED).put(DESCRIPTION,
-          NO_SEARCH_TYPE_FOUND);
+      errorJson.put(STATUS, FAILED).put(DESCRIPTION, NO_SEARCH_TYPE_FOUND);
       handler.handle(Future.failedFuture(errorJson.toString()));
       return null;
     }
@@ -54,8 +53,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonObject query = queryDecoder(request);
     if (query.containsKey(ERROR)) {
       LOGGER.error("Fail: Query returned with an error");
-      errorJson.put(STATUS, FAILED).put(DESCRIPTION,
-          query.getString(ERROR));
+      errorJson.put(STATUS, FAILED).put(DESCRIPTION, query.getString(ERROR));
       handler.handle(Future.failedFuture(errorJson.toString()));
       return null;
     }
@@ -66,7 +64,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
-          LOGGER.error("Fail: DB Request;" + errorJson.toString());
+        LOGGER.error("Fail: DB Request;" + errorJson.toString());
         handler.handle(Future.failedFuture(searchRes.cause().getMessage()));
       }
     });
@@ -80,8 +78,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     request.put(SEARCH, false);
     /* Validate the Request */
     if (!request.containsKey(SEARCH_TYPE)) {
-      errorJson.put(STATUS, FAILED).put(DESCRIPTION,
-          NO_SEARCH_TYPE_FOUND);
+      errorJson.put(STATUS, FAILED).put(DESCRIPTION, NO_SEARCH_TYPE_FOUND);
       handler.handle(Future.failedFuture(errorJson.toString()));
       return null;
     }
@@ -90,8 +87,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonObject query = queryDecoder(request);
     if (query.containsKey(ERROR)) {
       LOGGER.error("Fail: Query returned with an error");
-      errorJson.put(STATUS, FAILED).put(DESCRIPTION,
-          query.getString(ERROR));
+      errorJson.put(STATUS, FAILED).put(DESCRIPTION, query.getString(ERROR));
       handler.handle(Future.failedFuture(errorJson.toString()));
       return null;
     }
@@ -102,8 +98,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
-          LOGGER.error("Fail: DB Request;" + searchRes.cause());
-          handler.handle(Future.failedFuture(errorJson.toString()));
+        LOGGER.error("Fail: DB Request;" + searchRes.cause());
+        handler.handle(Future.failedFuture(errorJson.toString()));
       }
     });
     return this;
@@ -121,21 +117,21 @@ public class DatabaseServiceImpl implements DatabaseService {
     String instanceId = doc.getString("instance");
 
     errorJson.put(STATUS, FAILED).put(RESULTS,
-        new JsonArray().add(new JsonObject().put(ID, id)
-            .put(METHOD, INSERT).put(STATUS, FAILED)));
+        new JsonArray().add(new JsonObject().put(ID, id).put(METHOD, INSERT).put(STATUS, FAILED)));
 
 
     checkItem.put(SOURCE, "[\"\"]").put(QUERY_KEY,
         new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, id)));
 
-    var isInstanceValid = new Object(){ boolean value  = true; };
+    var isInstanceValid = new Object() {
+      boolean value = true;
+    };
     if (instanceId == null) {
       LOGGER.debug("Info: InstanceID null. Provider Item");
-    }
-    else {
+    } else {
       if (!instanceId.equals("")) {
-        String checkInstance = "{\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}"
-          .replace("$1", instanceId);
+        String checkInstance =
+            "{\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}".replace("$1", instanceId);
         client.searchAsync(CAT_INDEX_NAME, checkInstance, checkRes -> {
           if (checkRes.failed()) {
             handler.handle(Future.failedFuture("Fail: Doc Exists"));
@@ -165,20 +161,17 @@ public class DatabaseServiceImpl implements DatabaseService {
           return;
         }
         if (isInstanceValid.value == false) {
-            handler.handle(Future.failedFuture(errorJson.toString()));
-            LOGGER.error("Fail: Invalid Instance Insertion failed");
-            return;
+          handler.handle(Future.failedFuture(errorJson.toString()));
+          LOGGER.error("Fail: Invalid Instance Insertion failed");
+          return;
         }
         /* Insert document */
         client.docPostAsync(CAT_INDEX_NAME, doc.toString(), postRes -> {
           if (postRes.succeeded()) {
             LOGGER.info("Success: Inserted doc");
             JsonObject responseJson = new JsonObject();
-            responseJson.put(STATUS, SUCCESS)
-                        .put(RESULTS, new JsonArray()
-                                        .add(new JsonObject().put(ID, id)
-                                                              .put(METHOD, INSERT)
-                                                              .put(STATUS, SUCCESS)));
+            responseJson.put(STATUS, SUCCESS).put(RESULTS, new JsonArray()
+                .add(new JsonObject().put(ID, id).put(METHOD, INSERT).put(STATUS, SUCCESS)));
             handler.handle(Future.succeededFuture(responseJson));
           } else {
             handler.handle(Future.failedFuture(errorJson.toString()));
@@ -198,14 +191,13 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService updateItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
-    String checkQuery = "{\"_source\": [\"id\"],"
-                        +"\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}";
+    String checkQuery =
+        "{\"_source\": [\"id\"]," + "\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}";
     JsonObject errorJson = new JsonObject();
     String id = doc.getString("id");
 
     errorJson.put(STATUS, FAILED).put(RESULTS,
-        new JsonArray().add(new JsonObject().put(ID, id)
-            .put(METHOD, UPDATE).put(STATUS, FAILED)));
+        new JsonArray().add(new JsonObject().put(ID, id).put(METHOD, UPDATE).put(STATUS, FAILED)));
 
 
     client.searchGetId(CAT_INDEX_NAME, checkQuery.replace("$1", id), checkRes -> {
@@ -226,11 +218,8 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (putRes.succeeded()) {
             LOGGER.info("Success: Updated doc");
             JsonObject responseJson = new JsonObject();
-            responseJson.put(STATUS, SUCCESS)
-                        .put(RESULTS, new JsonArray()
-                                        .add(new JsonObject().put(ID, id)
-                                                              .put(METHOD, UPDATE)
-                                                              .put(STATUS, SUCCESS)));
+            responseJson.put(STATUS, SUCCESS).put(RESULTS, new JsonArray()
+                .add(new JsonObject().put(ID, id).put(METHOD, UPDATE).put(STATUS, SUCCESS)));
             handler.handle(Future.succeededFuture(responseJson));
           } else {
             handler.handle(Future.failedFuture(errorJson.toString()));
@@ -254,8 +243,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     LOGGER.debug("Info: Updating item");
 
     errorJson.put(STATUS, FAILED).put(RESULTS,
-        new JsonArray().add(new JsonObject().put(ID, id)
-            .put(METHOD, UPDATE).put(STATUS, FAILED)));
+        new JsonArray().add(new JsonObject().put(ID, id).put(METHOD, UPDATE).put(STATUS, FAILED)));
 
     checkQuery.put(SOURCE, "[\"\"]").put(QUERY_KEY,
         new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, id)));
@@ -277,11 +265,8 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (delRes.succeeded()) {
             LOGGER.info("Success: Deleted doc");
             JsonObject responseJson = new JsonObject();
-            responseJson.put(STATUS, SUCCESS)
-                        .put(RESULTS, new JsonArray()
-                                        .add(new JsonObject().put(ID, id)
-                                                              .put(METHOD, DELETE)
-                                                              .put(STATUS, SUCCESS)));
+            responseJson.put(STATUS, SUCCESS).put(RESULTS, new JsonArray()
+                .add(new JsonObject().put(ID, id).put(METHOD, DELETE).put(STATUS, SUCCESS)));
             handler.handle(Future.succeededFuture(responseJson));
           } else {
             handler.handle(Future.failedFuture(errorJson.toString()));
@@ -298,25 +283,18 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String itemId = request.getString(ID);
     JsonObject req = new JsonObject();
-    req.put(
-        QUERY_KEY,
-        new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, itemId)));
-    client.searchAsync(
-        CAT_INDEX_NAME,
-        req.toString(),
-        clientHandler -> {
-          if (clientHandler.succeeded()) {
-            LOGGER.info("Success: Retreived item");
-            JsonObject responseJson = clientHandler.result();
-            handler.handle(Future.succeededFuture(responseJson));
-          } else {
-            LOGGER.error("Fail: Failed getting item");
-            /* Handle request error */
-            handler.handle(
-                Future.failedFuture(
-                    new JsonObject().put(STATUS, FAILED).toString()));
-          }
-        });
+    req.put(QUERY_KEY, new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, itemId)));
+    client.searchAsync(CAT_INDEX_NAME, req.toString(), clientHandler -> {
+      if (clientHandler.succeeded()) {
+        LOGGER.info("Success: Retreived item");
+        JsonObject responseJson = clientHandler.result();
+        handler.handle(Future.succeededFuture(responseJson));
+      } else {
+        LOGGER.error("Fail: Failed getting item");
+        /* Handle request error */
+        handler.handle(Future.failedFuture(new JsonObject().put(STATUS, FAILED).toString()));
+      }
+    });
     return this;
   }
 
@@ -340,27 +318,21 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (instanceID == null || instanceID == "") {
         req = LIST_TYPES_QUERY.replace("$1", type);
       } else {
-        req = LIST_INSTANCE_TYPES_QUERY.replace("$1", type)
-                                      .replace("$2", instanceID);
+        req = LIST_INSTANCE_TYPES_QUERY.replace("$1", type).replace("$2", instanceID);
       }
     }
     LOGGER.debug("Info: Listing items;" + req);
-    client.listAggregationAsync(
-        CAT_INDEX_NAME,
-        req,
-        clientHandler -> {
-          if (clientHandler.succeeded()) {
-            LOGGER.info("Success: List request");
-            JsonObject responseJson = clientHandler.result();
-            handler.handle(Future.succeededFuture(responseJson));
-          } else {
-            LOGGER.error("Fail: DB request has failed");
-            /* Handle request error */
-            handler.handle(
-                Future.failedFuture(
-                    new JsonObject().put(STATUS, FAILED).toString()));
-          }
-        });
+    client.listAggregationAsync(CAT_INDEX_NAME, req, clientHandler -> {
+      if (clientHandler.succeeded()) {
+        LOGGER.info("Success: List request");
+        JsonObject responseJson = clientHandler.result();
+        handler.handle(Future.succeededFuture(responseJson));
+      } else {
+        LOGGER.error("Fail: DB request has failed");
+        /* Handle request error */
+        handler.handle(Future.failedFuture(new JsonObject().put(STATUS, FAILED).toString()));
+      }
+    });
     return this;
   }
 
@@ -384,13 +356,15 @@ public class DatabaseServiceImpl implements DatabaseService {
       String resourceGroupId = request.getString(ID);
 
       /* Constructing db queries */
-      boolObject.put(BOOL_KEY, new JsonObject().put(MUST_KEY,
-              new JsonArray()
-              .add(new JsonObject().put(TERM,
-                  new JsonObject().put(REL_RESOURCE_GRP.concat(KEYWORD_KEY),
-                          resourceGroupId)))
-              .add(new JsonObject().put(TERM,
-                  new JsonObject().put(TYPE_KEY.concat(KEYWORD_KEY), ITEM_TYPE_RESOURCE)))));
+      boolObject
+          .put(BOOL_KEY,
+              new JsonObject().put(MUST_KEY,
+                  new JsonArray()
+                      .add(new JsonObject().put(TERM,
+                          new JsonObject().put(REL_RESOURCE_GRP.concat(KEYWORD_KEY),
+                              resourceGroupId)))
+                      .add(new JsonObject().put(TERM, new JsonObject()
+                          .put(TYPE_KEY.concat(KEYWORD_KEY), ITEM_TYPE_RESOURCE)))));
 
       elasticQuery.put(QUERY_KEY, boolObject);
 
@@ -401,7 +375,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           LOGGER.debug("Success: Successful DB request");
           handler.handle(Future.succeededFuture(searchRes.result()));
         } else {
-            handler.handle(Future.failedFuture(errorJson.toString()));
+          handler.handle(Future.failedFuture(errorJson.toString()));
         }
       });
     }
@@ -429,8 +403,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           StringUtils.substringBeforeLast(request.getString(ID), FORWARD_SLASH);
 
       /* constructing the query */
-      boolObject.put(BOOL_KEY, new JsonObject().put(MUST_KEY,
-              new JsonArray()
+      boolObject.put(BOOL_KEY, new JsonObject().put(MUST_KEY, new JsonArray()
               .add(new JsonObject().put(TERM, new JsonObject().put(ID_KEYWORD, resourceGroupId)))
               .add(new JsonObject().put(TERM,
                   new JsonObject().put(TYPE_KEY.concat(KEYWORD_KEY), ITEM_TYPE_RESOURCE_GROUP)))));
@@ -623,20 +596,18 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         /* Constructing the db query */
-        boolObject.put(BOOL_KEY,
-            new JsonObject().put(MUST_KEY, new JsonArray()
-                .add(new JsonObject().put(TERM,
-                    new JsonObject().put(TYPE_KEY.concat(KEYWORD_KEY), typeValue)))
-                .add(new JsonObject().put(MATCH_KEY,
-                    new JsonObject().put(relReqsKey, relReqsValue)))));
+        boolObject.put(BOOL_KEY, new JsonObject().put(MUST_KEY, new JsonArray()
+            .add(new JsonObject().put(TERM,
+                new JsonObject().put(TYPE_KEY.concat(KEYWORD_KEY), typeValue)))
+            .add(new JsonObject().put(MATCH_KEY, new JsonObject().put(relReqsKey, relReqsValue)))));
 
       } else {
         handler.handle(Future.failedFuture(errorJson.toString()));
         return null;
       }
-      
+
       elasticQuery.put(QUERY_KEY, boolObject).put(SOURCE, ID);
-      
+
       /* Initial db query to filter matching attributes */
       client.searchAsync(CAT_INDEX_NAME, elasticQuery.toString(), searchRes -> {
         if (searchRes.succeeded()) {
@@ -659,11 +630,11 @@ public class DatabaseServiceImpl implements DatabaseService {
           } else {
             handler.handle(Future.succeededFuture(searchRes.result()));
           }
-          
+
           /* constructing the db query */
           boolObject.put(BOOL_KEY, new JsonObject().put(SHOULD_KEY, idCollection));
           elasticQuery.put(QUERY_KEY, boolObject);
-          
+
           /* checking the requests for limit attribute */
           if (request.containsKey(LIMIT)) {
             Integer sizeFilter = request.getInteger(LIMIT);
@@ -675,17 +646,16 @@ public class DatabaseServiceImpl implements DatabaseService {
             Integer offsetFilter = request.getInteger(OFFSET);
             elasticQuery.put(FROM, offsetFilter);
           }
-          
+
           LOGGER.debug("INFO: Query constructed;" + elasticQuery.toString());
 
           /* db query to find the relationship to the initial query */
           client.searchAsync(CAT_INDEX_NAME, elasticQuery.toString(), relSearchRes -> {
             if (relSearchRes.succeeded()) {
-              
+
               LOGGER.debug("Success: Successful DB request");
               handler.handle(Future.succeededFuture(relSearchRes.result()));
-            }
-            else if (relSearchRes.failed()) {
+            } else if (relSearchRes.failed()) {
               handler.handle(Future.failedFuture(relSearchRes.cause().getMessage()));
             }
           });
@@ -705,6 +675,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @return JsonObject which contains fully formed ElasticSearch query.
    */
   public JsonObject queryDecoder(JsonObject request) {
+    
     String searchType = request.getString(SEARCH_TYPE);
     JsonObject elasticQuery = new JsonObject();
     Boolean match = false;
@@ -715,40 +686,41 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
     // Will be used for multi-tenancy
     String instanceId = request.getString(INSTANCE);
-    JsonArray filterQuery = new JsonArray();
+    // JsonArray filterQuery = new JsonArray();
+    String queryGeoShape = null;
     JsonArray mustQuery = new JsonArray();
 
     /* Handle the search type */
     if (searchType.matches(GEOSEARCH_REGEX)) {
+      
       LOGGER.info("In geoSearch block---------");
+      
       match = true;
       JsonObject shapeJson = new JsonObject();
       JsonObject geoSearch = new JsonObject();
       String relation;
       JsonArray coordinates;
+
       /* Construct the search query */
-      if (request.containsKey(GEOMETRY)
-          && request.getString(GEOMETRY).equalsIgnoreCase(POINT)
-          && request.containsKey(GEORELATION)
-          && request.containsKey(COORDINATES_KEY)
-          && request.containsKey(GEOPROPERTY)
-          && request.containsKey(MAX_DISTANCE)) {
+      if (request.containsKey(GEOMETRY) && request.getString(GEOMETRY).equalsIgnoreCase(POINT)
+          && request.containsKey(GEORELATION) && request.containsKey(COORDINATES_KEY)
+          && request.containsKey(GEOPROPERTY) && request.containsKey(MAX_DISTANCE)) {
+
         /* Construct the query for Circle */
         coordinates = request.getJsonArray(COORDINATES_KEY);
         int radius = request.getInteger(MAX_DISTANCE);
-        // int radius = Integer.parseInt(request.getString(MAX_DISTANCE));
         relation = request.getString(GEORELATION);
-        shapeJson
-            .put(SHAPE_KEY,
-                new JsonObject().put(TYPE_KEY, GEO_CIRCLE)
-                    .put(COORDINATES_KEY, coordinates)
-                    .put(GEO_RADIUS, radius + DISTANCE_IN_METERS))
-            .put(GEO_RELATION_KEY, relation);
+
+        String radiusStr = ",\"radius\": \"$1m\"".replace("$1", Integer.toString(radius));
+
+        /* Constructing query for Point/Circle Geo search */
+        queryGeoShape = GEO_SHAPE.replace("$1", GEO_CIRCLE)
+            .replace("$2", coordinates.toString().concat(radiusStr)).replace("$3", relation);
+
       } else if (request.containsKey(GEOMETRY)
           && (request.getString(GEOMETRY).equalsIgnoreCase(POLYGON)
               || request.getString(GEOMETRY).equalsIgnoreCase(LINESTRING))
-          && request.containsKey(GEORELATION)
-          && request.containsKey(COORDINATES_KEY)
+          && request.containsKey(GEORELATION) && request.containsKey(COORDINATES_KEY)
           && request.containsKey(GEOPROPERTY)) {
         /* Construct the query for Line String, Polygon */
         String geometry = request.getString(GEOMETRY);
@@ -762,38 +734,38 @@ public class DatabaseServiceImpl implements DatabaseService {
                 .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(1))) {
           return new JsonObject().put(ERROR, ERROR_INVALID_COORDINATE_POLYGON);
         }
-        shapeJson
-            .put(SHAPE_KEY, new JsonObject().put(TYPE_KEY, geometry)
-                .put(COORDINATES_KEY, coordinates))
-            .put(GEO_RELATION_KEY, relation);
-      } else if (request.containsKey(GEOMETRY)
-          && request.getString(GEOMETRY).equalsIgnoreCase(BBOX)
-          && request.containsKey(GEORELATION)
-          && request.containsKey(COORDINATES_KEY)
+
+        /* Constructing query for Polygon Geo search */
+        queryGeoShape = GEO_SHAPE.replace("$1", geometry).replace("$2", coordinates.toString())
+            .replace("$3", relation);
+
+      } else if (request.containsKey(GEOMETRY) && request.getString(GEOMETRY).equalsIgnoreCase(BBOX)
+          && request.containsKey(GEORELATION) && request.containsKey(COORDINATES_KEY)
           && request.containsKey(GEOPROPERTY)) {
         /* Construct the query for BBOX */
         relation = request.getString(GEORELATION);
         coordinates = request.getJsonArray(COORDINATES_KEY);
-        shapeJson = new JsonObject();
-        shapeJson
-            .put(SHAPE_KEY,
-                new JsonObject().put(TYPE_KEY, GEO_BBOX)
-                    .put(COORDINATES_KEY, coordinates))
-            .put(GEO_RELATION_KEY, relation);
+
+        /* Constructing query for Bbox Geo search */
+        queryGeoShape = GEO_SHAPE.replace("$1", GEO_BBOX).replace("$2", coordinates.toString())
+            .replace("$3", relation);
 
       } else {
         return new JsonObject().put(ERROR, ERROR_INVALID_GEO_PARAMETER);
       }
-      geoSearch.put(GEO_SHAPE_KEY, new JsonObject().put(GEO_KEY, shapeJson));
-      filterQuery.add(geoSearch);
 
+      if (queryGeoShape != null) {
+        queryGeoShape = queryGeoShape.replace("$4", GEO_KEY);
+      }
     }
 
     /* Construct the query for text based search */
     if (searchType.matches(TEXTSEARCH_REGEX)) {
+
       LOGGER.info("Text search block");
 
       match = true;
+
       /* validating tag search attributes */
       if (request.containsKey(Q_KEY) && !request.getString(Q_KEY).isBlank()) {
 
@@ -801,8 +773,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         String textAttr = request.getString(Q_KEY);
 
         /* constructing db queries */
-        mustQuery.add(new JsonObject().put(STRING_QUERY_KEY,
-            new JsonObject().put(QUERY_KEY, textAttr)));
+        mustQuery
+            .add(new JsonObject().put(STRING_QUERY_KEY, new JsonObject().put(QUERY_KEY, textAttr)));
       }
     }
 
@@ -813,10 +785,8 @@ public class DatabaseServiceImpl implements DatabaseService {
       match = true;
 
       /* validating tag search attributes */
-      if (request.containsKey(PROPERTY)
-          && !request.getJsonArray(PROPERTY).isEmpty()
-          && request.containsKey(VALUE)
-          && !request.getJsonArray(VALUE).isEmpty()) {
+      if (request.containsKey(PROPERTY) && !request.getJsonArray(PROPERTY).isEmpty()
+          && request.containsKey(VALUE) && !request.getJsonArray(VALUE).isEmpty()) {
 
         /* fetching values from request */
         JsonArray propertyAttrs = request.getJsonArray(PROPERTY);
@@ -848,7 +818,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 if (propertyAttrs.getString(i).endsWith(KEYWORD_KEY)) {
                   matchQuery.put(propertyAttrs.getString(i), valueArray.getString(j));
 
-                }else {
+                } else {
 
                   /* add keyword if not avaialble */
                   matchQuery.put(propertyAttrs.getString(i).concat(KEYWORD_KEY),
@@ -857,8 +827,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 shouldQuery.add(new JsonObject().put(MATCH_KEY, matchQuery));
               }
             }
-            mustQuery.add(new JsonObject().put(BOOL_KEY,
-                boolQuery.put(SHOULD_KEY, shouldQuery)));
+            mustQuery.add(new JsonObject().put(BOOL_KEY, boolQuery.put(SHOULD_KEY, shouldQuery)));
           }
         } else {
           return new JsonObject().put(ERROR, ERROR_INVALID_PARAMETER);
@@ -867,8 +836,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     if (instanceId != null) {
-      String instanceFilter = "{\"match\":"
-                              + "{\"instance\": \"" + instanceId + "\"}}";
+      String instanceFilter = "{\"match\":" + "{\"instance\": \"" + instanceId + "\"}}";
       LOGGER.debug("Info: Instance found in query;" + instanceFilter);
       mustQuery.add(new JsonObject(instanceFilter));
 
@@ -908,9 +876,18 @@ public class DatabaseServiceImpl implements DatabaseService {
     if (!match) {
       return new JsonObject().put("Error", INVALID_SEARCH);
     } else {
+
       /* return fully formed elastic query */
-      boolObject.getJsonObject(BOOL_KEY).put(FILTER_KEY, filterQuery)
-          .put(MUST_KEY, mustQuery);
+      if (queryGeoShape == null) {
+
+        boolObject.getJsonObject(BOOL_KEY).put(MUST_KEY, mustQuery);
+
+      } else if (queryGeoShape != null) {
+
+        boolObject.getJsonObject(BOOL_KEY).put(FILTER_KEY, new JsonObject(queryGeoShape))
+            .put(MUST_KEY, mustQuery);
+
+      }
       return elasticQuery.put(QUERY_KEY, boolObject);
     }
   }
