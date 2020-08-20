@@ -21,12 +21,11 @@ public class Constants {
   static final String SEARCH_TYPE = "searchType";
   static final String SEARCH_TYPE_GEO = "geoSearch_";
   static final String SHAPE_KEY = "shape";
-  static final String SIZE = "size";
+  static final String SIZE_KEY = "size";
   static final String SOURCE = "_source";
   static final String STATUS = "status";
   static final String SUCCESS = "success";
   static final String INSTANCE= "instance";
-  static final String INSTANCE_ID_KEY = "instance";
   static final String CONFIG_FILE = "config.properties";
   static final String RESOURCE = "resource";
   static final String ITEM_TYPE = "itemType";
@@ -66,7 +65,6 @@ public class Constants {
   static final String TYPE_KEY = "type";
   static final String VALUE = "value";
   static final String WITHIN = "within";
-  static final String SIZE_KEY = "size";
   static final String INSERT = "insert";
   static final String UPDATE = "update";
   static final String DELETE = "delete";
@@ -161,6 +159,7 @@ public class Constants {
   public static final String WILDCARD_KEY = "wildcard";
 
   public static final String AGGREGATION_ONLY = "AGGREGATION";
+  public static final String TYPE_KEYWORD = "type.keyword";
 
   /** Some queries */
 
@@ -191,8 +190,25 @@ public class Constants {
     "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}} ]}},"
     + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": 10000}}}}";
 
-  public static final String GEO_SHAPE =
+  public static final String GEO_SHAPE_QUERY =
       "{ \"geo_shape\": { \"$4\": { \"shape\": { \"type\": \"$1\", \"coordinates\": $2 },"
           + " \"relation\": \"$3\" } } }";
+
+  public static final String TEXT_QUERY =
+      "{\"query_string\":{\"query\":\"$1\"}}";
+
+  public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
+
+  public static final String TERM_COMPLEX_QUERY =
+      "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
+
+  public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
+  public static final String BOOL_SHOULD_QUERY = "{\"bool\":{\"should\":$1}}";
+  public static final String MUST_QUERY = "{\"bool\":{\"must\":[$1]}}";
+  public static final String FILTER_QUERY = "{\"bool\":{\"filter\":[$1]}}";
+
+  public static final String MATCH_QUERY = "{\"match\":{\"$1\":\"$2\"}}";
+
+  public static final String TERM_QUERY = "{\"term\":{\"$1\":\"$2\"}}";
 
 }

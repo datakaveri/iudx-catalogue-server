@@ -91,67 +91,16 @@ public interface DatabaseService {
   DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The listTags implements the list tags operation with the database.
+   * The listRelationship implements the list resource, resourceGroup, provider, resourceServer,
+   * type relationships operation with the database.
    * 
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService listResourceRelationship(JsonObject request,
+  DatabaseService listRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The listResourceGroupRelationship implements the list group relationships operation with the
-   * database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-  @Fluent
-  DatabaseService listResourceGroupRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The listProviderRelationship implements the list provider relationships with the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-  @Fluent
-  DatabaseService listProviderRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The listResourceServerRelationship implements the list resource server relationship with the
-   * database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-  @Fluent
-  DatabaseService listResourceServerRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler);
-  /**
-   * The listTypes implements the list types with the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
-
-  @Fluent
-  DatabaseService listTypes(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-  /**
-   * The getCities gets the cities configuration from the database.
-   * 
-   * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
-   */
 
   /**
    * The relSearch implements the Relationship searches with the database.
