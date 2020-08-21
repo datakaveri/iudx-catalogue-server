@@ -136,7 +136,7 @@ public final class ListApis {
         .put(HEADER_INSTANCE, instanceID)
         .put(ID, id)
         .put(RELATIONSHIP, REL_TYPE);
-    dbService.listTypes(
+    dbService.listRelationship(
         queryJson,
         handler -> {
           if (handler.succeeded()) {

@@ -165,7 +165,7 @@ public final class QueryDecoder {
                 shouldQuery.add(new JsonObject(matchQuery));
               }
             }
-            mustQuery.add(new JsonObject(BOOL_SHOULD_QUERY.replace("$1", shouldQuery.toString())));
+            mustQuery.add(new JsonObject(SHOULD_QUERY.replace("$1", shouldQuery.toString())));
           }
         } else {
           return new JsonObject().put(ERROR, ERROR_INVALID_PARAMETER);
@@ -221,7 +221,7 @@ public final class QueryDecoder {
       return new JsonObject().put("Error", INVALID_SEARCH);
     } else {
 
-      String boolQuery = null;
+      String boolQuery = "";
 
       /* return fully formed elastic query */
       if (queryGeoShape == null) {
@@ -247,7 +247,7 @@ public final class QueryDecoder {
   public String listRelationshipQuery(JsonObject request) {
 
     String relationshipType = request.getString(RELATIONSHIP);
-    String subQuery = null;
+    String subQuery = "";
 
     /* Validating the request */
     if (request.containsKey(ID) && REL_RESOURCE.equals(relationshipType)) {
@@ -310,6 +310,37 @@ public final class QueryDecoder {
     }
 
     String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    return elasticQuery;
+  }
+
+  /**
+   * Decodes and constructs Elastic query for listing items based on the parameters passed in the
+   * request.
+   *
+   * @param request Json object containing various fields related to query-type.
+   * @return JsonObject which contains fully formed ElasticSearch query.
+   */
+  public String listItemQuery(JsonObject request) {
+
+    LOGGER.debug("Info: Reached list items;" + request.toString());
+    String itemType = request.getString(ITEM_TYPE);
+    String type = request.getString(TYPE_KEY);
+    String instanceID = request.getString(INSTANCE);
+    String elasticQuery = "";
+
+    if (itemType.equalsIgnoreCase(TAGS)) {
+      if (instanceID == null || instanceID == "") {
+        elasticQuery = LIST_TAGS_QUERY;
+      } else {
+        elasticQuery = LIST_INSTANCE_TAGS_QUERY.replace("$1", instanceID);
+      }
+    } else {
+      if (instanceID == null || instanceID == "") {
+        elasticQuery = LIST_TYPES_QUERY.replace("$1", type);
+      } else {
+        elasticQuery = LIST_INSTANCE_TYPES_QUERY.replace("$1", type).replace("$2", instanceID);
+      }
+    }
     return elasticQuery;
   }
 }
