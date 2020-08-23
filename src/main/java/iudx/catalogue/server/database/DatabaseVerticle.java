@@ -42,7 +42,7 @@ public class DatabaseVerticle extends AbstractVerticle {
    */
 
   @Override
-  public void start(Future<Void> startFuture) throws Exception {
+  public void start() throws Exception {
 
     properties = new Properties();
     inputstream = null;

@@ -1,8 +1,6 @@
 package iudx.catalogue.server.validator;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -28,7 +26,6 @@ public class ValidatorVerticle extends AbstractVerticle {
   private static final String VALIDATION_SERVICE_ADDRESS = "iudx.catalogue.validator.service";
   private static final Logger LOGGER = LogManager.getLogger(ValidatorVerticle.class);
 
-  private Vertx vertx;
   private ValidatorService validator;
   private Properties properties;
   private InputStream inputstream;
@@ -42,7 +39,7 @@ public class ValidatorVerticle extends AbstractVerticle {
    * interface.
    */
   @Override
-  public void start(Future<Void> startFuture) throws Exception {
+  public void start() throws Exception {
 
     properties = new Properties();
     inputstream = null;
