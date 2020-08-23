@@ -29,6 +29,11 @@
 			<appender-ref ref="ConsoleAppender" />
 			<appender-ref ref="RollingFile" />
 		</logger>
+		<logger name="com.hazelcast" level="DEBUG" additivity="false">
+			>
+			<appender-ref ref="ConsoleAppender" />
+			<!-- <appender-ref ref="RollingFile" /> -->
+		</logger>
 		<Root level="ALL">
 			<AppenderRef ref="ConsoleAppender" />
 			<AppenderRef ref="RollingFile" />

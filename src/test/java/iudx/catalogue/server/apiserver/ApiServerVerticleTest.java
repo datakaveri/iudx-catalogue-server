@@ -40,7 +40,7 @@ public class ApiServerVerticleTest {
   private static final String BASE_URL = "/iudx/cat/v1/";
 
   /** Token for crud apis */
-  private static final String TOKEN = "";
+  private static final String TOKEN = "auth.iudx.org.in/rakshit.ramesh@datakaveri.org/0a75ed757eaac5ad94f90723b7ecc1b6";
 
   private static WebClient client;
   private static FileSystem fileSytem;
@@ -120,6 +120,7 @@ public class ApiServerVerticleTest {
           // Send the file to the server using POST
           client.post(PORT, HOST, BASE_URL.concat("item")).putHeader("token", TOKEN)
               .putHeader("Content-Type", "application/json")
+              .putHeader("instance", "pune")
               .sendJson(objectIterator.next(), serverResponse -> {
                 if (serverResponse.succeeded()) {
                   if (serverResponse.result().statusCode() == 201) {

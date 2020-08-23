@@ -1,27 +1,15 @@
 package iudx.catalogue.server.apiserver;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
-import io.vertx.core.MultiMap;
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JksOptions;
-import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.ext.web.Router;
-import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.servicediscovery.ServiceDiscovery;
 import io.vertx.servicediscovery.types.EventBusService;
-import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
-import iudx.catalogue.server.apiserver.util.QueryMapper;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
@@ -54,16 +42,6 @@ import static iudx.catalogue.server.apiserver.util.Constants.*;
  */
 public class ApiServerVerticle extends AbstractVerticle {
 
-
-  private ClusterManager mgr;
-  private VertxOptions options;
-
-  private ServiceDiscovery discovery;
-
-  private DatabaseService dbService;
-  private ValidatorService validationService;
-  private AuthenticationService authService;
-
   private HttpServer server;
   private CrudApis crudApis;
   private SearchApis searchApis;
@@ -80,6 +58,11 @@ public class ApiServerVerticle extends AbstractVerticle {
   private Properties properties;
   private InputStream inputstream;
 
+  /* Addresses */
+  private static final String DATABASE_SERVICE_ADDRESS = "iudx.catalogue.database.service";
+  private static final String AUTH_SERVICE_ADDRESS = "iudx.catalogue.auth.service";
+  private static final String VALIDATION_SERVICE_ADDRESS = "iudx.catalogue.validator.service";
+
   private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
 
   /**
@@ -90,269 +73,228 @@ public class ApiServerVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    mgr = new HazelcastClusterManager();
-    options = new VertxOptions().setClusterManager(mgr);
+    router = Router.router(vertx);
 
-    /* Create or Join a Vert.x Cluster. */
-    Vertx.clusteredVertx(options, res -> {
-      if (res.succeeded()) {
+    properties = new Properties();
+    inputstream = null;
 
-        Vertx vertx = res.result();
-        router = Router.router(vertx);
+    /* Read the configuration and set the HTTPs server properties. */
+    try {
+      inputstream = new FileInputStream(CONFIG_FILE);
+      properties.load(inputstream);
+      catAdmin = properties.getProperty(CAT_ADMIN);
+      keystore = properties.getProperty(KEYSTORE_FILE_NAME);
+      keystorePassword = properties.getProperty(KEYSTORE_FILE_PASSWORD);
+    } catch (Exception ex) {
+      LOGGER.info(ex.toString());
+    }
 
-        properties = new Properties();
-        inputstream = null;
-        
-        /* Read the configuration and set the HTTPs server properties. */
-        try {
-          inputstream = new FileInputStream(CONFIG_FILE);
-          properties.load(inputstream);
-          catAdmin = properties.getProperty(CAT_ADMIN);
-          keystore = properties.getProperty(KEYSTORE_FILE_NAME);
-          keystorePassword = properties.getProperty(KEYSTORE_FILE_PASSWORD);
-        } catch (Exception ex) {
-          LOGGER.info(ex.toString());
+
+    /** Instantiate this server */
+    server = vertx.createHttpServer(new HttpServerOptions()
+        .setSsl(true)
+        .setKeyStoreOptions(new JksOptions()
+          .setPath(keystore)
+          .setPassword(keystorePassword)));
+
+    /** API Callback managers */
+    crudApis = new CrudApis();
+    searchApis = new SearchApis();
+    listApis = new ListApis();
+    relApis = new RelationshipApis();
+
+    /**
+     *
+     * Get proxies and handlers
+     *
+     */
+
+
+    DatabaseService dbService 
+      = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
+
+    crudApis.setDbService(dbService);
+    listApis.setDbService(dbService);
+    searchApis.setDbService(dbService);
+    relApis.setDbService(dbService);
+
+    AuthenticationService authService =
+        AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
+    crudApis.setAuthService(authService);
+
+    ValidatorService validationService =
+        ValidatorService.createProxy(vertx, VALIDATION_SERVICE_ADDRESS);
+    crudApis.setValidatorService(validationService);
+
+    /**
+     *
+     * API Routes and Callbacks
+     *
+     */
+
+    /** 
+     * Routes - Defines the routes and callbacks
+     */
+    Router router = Router.router(vertx);
+    router.route().handler(BodyHandler.create());
+    router.route().handler(CorsHandler.create("*").allowedHeaders(ALLOWED_HEADERS));
+
+    /** Static Resource Handler */
+    router.route(ROUTE_STATIC).handler(StaticHandler.create());
+
+    /**
+     * Routes for item CRUD
+     */
+    /* Create Item - Body contains data */
+    router.post(ROUTE_ITEMS)
+      .consumes(MIME_APPLICATION_JSON)
+      .produces(MIME_APPLICATION_JSON)
+      .handler( routingContext -> {
+        /* checking auhthentication info in requests */
+        if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+          crudApis.createItemHandler(routingContext);
+        } else {
+          LOGGER.warn("Fail: Unathorized CRUD operation");
+          routingContext.response().setStatusCode(401).end();
         }
+      });
+
+    /* Get Item */
+    router.get(ROUTE_ITEMS)
+      .produces(MIME_APPLICATION_JSON)
+      .handler( routingContext -> {
+        crudApis.getItemHandler(routingContext);
+      });
+
+    /* Update Item - Body contains data */
+    router.put(ROUTE_UPDATE_ITEMS)
+      .consumes(MIME_APPLICATION_JSON)
+      .produces(MIME_APPLICATION_JSON)
+      .handler(routingContext -> {
+        /* checking auhthentication info in requests */
+        if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+          /** Update params checked in createItemHandler */
+          crudApis.createItemHandler(routingContext);
+        } else {
+          LOGGER.warn("Unathorized CRUD operation");
+          routingContext.response().setStatusCode(401).end();
+        }
+      });
+
+    /* Delete Item - Query param contains id */
+    router.delete(ROUTE_DELETE_ITEMS)
+      .produces(MIME_APPLICATION_JSON)
+      .handler(routingContext -> {
+        /* checking auhthentication info in requests */
+        if (routingContext.request().headers().contains(HEADER_TOKEN) &&
+            routingContext.queryParams().contains(ID)) {
+          /** Update params checked in createItemHandler */
+          crudApis.deleteItemHandler(routingContext);
+        } else {
+          LOGGER.warn("Unathorized CRUD operation");
+          routingContext.response().setStatusCode(401).end();
+        }
+      });
+
+    /* Create instance - Instance name in query param */
+    router.post(ROUTE_INSTANCE)
+      .produces(MIME_APPLICATION_JSON)
+      .handler(routingContext -> {
+        /* checking auhthentication info in requests */
+        if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+          crudApis.createInstanceHandler(routingContext, catAdmin);
+        } else {
+          LOGGER.warn("Fail: Unathorized CRUD operation");
+          routingContext.response().setStatusCode(401).end();
+        }
+      });
+
+    /* Delete instance - Instance name in query param */
+    router.delete(ROUTE_INSTANCE)
+      .produces(MIME_APPLICATION_JSON)
+      .handler(routingContext -> {
+        /* checking auhthentication info in requests */
+        LOGGER.debug("Info: HIT instance");
+        if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+          crudApis.deleteInstanceHandler(routingContext, catAdmin);
+        } else {
+          LOGGER.warn("Fail: Unathorized CRUD operation");
+          routingContext.response().setStatusCode(401).end();
+        }
+      });
+
+    /**
+     * Routes for search and count
+     */
+    /* Search for an item */
+    router.get(ROUTE_SEARCH)
+      .produces(MIME_APPLICATION_JSON)
+      .handler( routingContext -> {
+        searchApis.searchHandler(routingContext);
+      });
+
+    /* Count the Cataloque server items */
+    router.get(ROUTE_COUNT)
+      .produces(MIME_APPLICATION_JSON)
+      .handler( routingContext -> {
+        searchApis.searchHandler(routingContext);
+      });
 
 
-        /** Instantiate this server */
-        server = vertx.createHttpServer(new HttpServerOptions()
-                                            .setSsl(true)
-                                            .setKeyStoreOptions(new JksOptions()
-                                                                .setPath(keystore)
-                                                                .setPassword(keystorePassword)));
-
-        /** API Callback managers */
-        crudApis = new CrudApis();
-        searchApis = new SearchApis();
-        listApis = new ListApis();
-        relApis = new RelationshipApis();
-
-        /**
-         *
-         * Get proxies and handlers
-         *
-        */
-
-        /* Handler for service discovery */
-        discovery = ServiceDiscovery.create(vertx);
-
-        /* Handler for DatabaseService from service discovery */
-        EventBusService.getProxy(discovery, DatabaseService.class,
-            ar -> {
-              if (ar.succeeded()) {
-                dbService = ar.result();
-                crudApis.setDbService(dbService);
-                listApis.setDbService(dbService);
-                searchApis.setDbService(dbService);
-                relApis.setDbService(dbService);
-                LOGGER.info("Service Discovery Success. Service name is : "
-                        + dbService.getClass().getName());
-              } else {
-                LOGGER.fatal("DatabaseService Discovery Failed");
-              }
-            });
-
-        /* Handler for AuthenticationService from service discovery*/
-        EventBusService.getProxy(discovery, AuthenticationService.class,
-            ar -> {
-              if (ar.succeeded()) {
-                authService = ar.result();
-                crudApis.setAuthService(authService);
-                LOGGER.info("Service Discovery Success. Service name is : "
-                        + authService.getClass().getName());
-              } else {
-                LOGGER.fatal("Auth Discovery Failed");
-              }
-            });
-
-        /* Handler for ValidatorService from service discovery*/
-        EventBusService.getProxy(discovery, ValidatorService.class,
-            ar -> {
-              if (ar.succeeded()) {
-                validationService = ar.result();
-                crudApis.setValidatorService(validationService);
-                LOGGER.info("Service Discovery Success. Service name is : "
-                        + validationService.getClass().getName());
-              } else {
-                LOGGER.fatal("ValidatorService Discovery Failed");
-              }
-            });
+    /**
+     * Routes for list
+     */
+    /* list the item from database using itemId */
+    router.get(ROUTE_LIST_ITEMS)
+      .produces(MIME_APPLICATION_JSON)
+      .handler(routingContext -> { 
+        listApis.listItemsHandler(routingContext);
+      });
+    /* Get list types with the database for an item */
+    /* list the item from database using itemId */
+    router.getWithRegex(ROUTE_DATA_TYPE)
+      .produces(MIME_APPLICATION_JSON)
+      .handler( routingContext -> { 
+        listApis.listTypesHandler(routingContext);
+      });
 
 
-        /**
-         *
-         * API Routes and Callbacks
-         *
-         */
-
-        /** 
-         * Routes - Defines the routes and callbacks
-         */
-        Router router = Router.router(vertx);
-        router.route().handler(BodyHandler.create());
-        router.route().handler(CorsHandler.create("*").allowedHeaders(ALLOWED_HEADERS));
-
-        /** Static Resource Handler */
-        router.route(ROUTE_STATIC).handler(StaticHandler.create());
-
-        /**
-         * Routes for item CRUD
-         */
-        /* Create Item - Body contains data */
-        router.post(ROUTE_ITEMS)
-          .consumes(MIME_APPLICATION_JSON)
-          .produces(MIME_APPLICATION_JSON)
-          .handler( routingContext -> {
-          /* checking auhthentication info in requests */
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            crudApis.createItemHandler(routingContext);
-          } else {
-            LOGGER.warn("Fail: Unathorized CRUD operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
-
-        /* Get Item */
-        router.get(ROUTE_ITEMS)
-          .produces(MIME_APPLICATION_JSON)
-          .handler( routingContext -> {
-          crudApis.getItemHandler(routingContext);
-        });
-
-        /* Update Item - Body contains data */
-        router.put(ROUTE_UPDATE_ITEMS)
-              .consumes(MIME_APPLICATION_JSON)
-              .produces(MIME_APPLICATION_JSON)
-              .handler(routingContext -> {
-          /* checking auhthentication info in requests */
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            /** Update params checked in createItemHandler */
-            crudApis.createItemHandler(routingContext);
-          } else {
-            LOGGER.warn("Unathorized CRUD operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
-
-        /* Delete Item - Query param contains id */
-        router.delete(ROUTE_DELETE_ITEMS)
-          .produces(MIME_APPLICATION_JSON)
-          .handler(routingContext -> {
-          /* checking auhthentication info in requests */
-          if (routingContext.request().headers().contains(HEADER_TOKEN) &&
-              routingContext.queryParams().contains(ID)) {
-            /** Update params checked in createItemHandler */
-            crudApis.deleteItemHandler(routingContext);
-          } else {
-            LOGGER.warn("Unathorized CRUD operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
-
-        /* Create instance - Instance name in query param */
-        router.post(ROUTE_INSTANCE)
-          .produces(MIME_APPLICATION_JSON)
-          .handler(routingContext -> {
-          /* checking auhthentication info in requests */
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            crudApis.createInstanceHandler(routingContext, catAdmin);
-          } else {
-            LOGGER.warn("Fail: Unathorized CRUD operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
-
-        /* Delete instance - Instance name in query param */
-        router.delete(ROUTE_INSTANCE)
-          .produces(MIME_APPLICATION_JSON)
-          .handler(routingContext -> {
-          /* checking auhthentication info in requests */
-          LOGGER.debug("Info: HIT instance");
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            crudApis.deleteInstanceHandler(routingContext, catAdmin);
-          } else {
-            LOGGER.warn("Fail: Unathorized CRUD operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
-
-        /**
-         * Routes for search and count
-         */
-        /* Search for an item */
-        router.get(ROUTE_SEARCH)
-          .produces(MIME_APPLICATION_JSON)
-          .handler( routingContext -> {
-          searchApis.searchHandler(routingContext);
-        });
-
-        /* Count the Cataloque server items */
-        router.get(ROUTE_COUNT)
-          .produces(MIME_APPLICATION_JSON)
-          .handler( routingContext -> {
-          searchApis.searchHandler(routingContext);
-        });
-
-        
-        /**
-         * Routes for list
-         */
-        /* list the item from database using itemId */
-        router.get(ROUTE_LIST_ITEMS)
-          .produces(MIME_APPLICATION_JSON)
-          .handler(routingContext -> { 
-            listApis.listItemsHandler(routingContext);
-          });
-        /* Get list types with the database for an item */
-        /* list the item from database using itemId */
-        router.getWithRegex(ROUTE_DATA_TYPE)
-          .produces(MIME_APPLICATION_JSON)
-          .handler( routingContext -> { 
-            listApis.listTypesHandler(routingContext);
-          });
-
-
-        /**
-         * Routes for relationships
-         */
-        /* Get all resources belonging to a resource group */
-        router.getWithRegex(ROUTE_LIST_RESOURCE_REL)
-            .handler( routingContext -> {
-              relApis.resourceRelationshipHandler(routingContext);
-            });
-        /* Get resource group of an item belonging to a resource */
-        router.getWithRegex(ROUTE_LIST_RESOURCE_GROUP_REL)
-            .handler( routingContext -> {
-              relApis.resourceGroupRelationshipHandler(routingContext);
-            });
-        /* Get provider relationship to an item */
-        router.getWithRegex(ROUTE_PROVIDER_REL)
-            .handler( routingContext -> {
-              relApis.providerRelationshipHandler(routingContext);
-            });
-        /* Get resource server relationship to an item */
-        router.getWithRegex(ROUTE_RESOURCE_SERVER_REL)
-            .handler( routingContext -> {
-              relApis.resourceServerRelationshipHandler(routingContext);
-            });
-        /* Relationship related search */
-        router.get(ROUTE_REL_SEARCH)
-            .handler( routingContext -> {
-              relApis.relSearchHandler(routingContext);
-            });
+    /**
+     * Routes for relationships
+     */
+    /* Get all resources belonging to a resource group */
+    router.getWithRegex(ROUTE_LIST_RESOURCE_REL)
+      .handler( routingContext -> {
+        relApis.resourceRelationshipHandler(routingContext);
+      });
+    /* Get resource group of an item belonging to a resource */
+    router.getWithRegex(ROUTE_LIST_RESOURCE_GROUP_REL)
+      .handler( routingContext -> {
+        relApis.resourceGroupRelationshipHandler(routingContext);
+      });
+    /* Get provider relationship to an item */
+    router.getWithRegex(ROUTE_PROVIDER_REL)
+      .handler( routingContext -> {
+        relApis.providerRelationshipHandler(routingContext);
+      });
+    /* Get resource server relationship to an item */
+    router.getWithRegex(ROUTE_RESOURCE_SERVER_REL)
+      .handler( routingContext -> {
+        relApis.resourceServerRelationshipHandler(routingContext);
+      });
+    /* Relationship related search */
+    router.get(ROUTE_REL_SEARCH)
+      .handler( routingContext -> {
+        relApis.relSearchHandler(routingContext);
+      });
 
 
 
 
-        /**
-         * Start server 
-         */
-        server.requestHandler(router).listen(PORT);
+    /**
+     * Start server 
+     */
+    server.requestHandler(router).listen(PORT);
 
-      }
-    });
   }
-
-
 }

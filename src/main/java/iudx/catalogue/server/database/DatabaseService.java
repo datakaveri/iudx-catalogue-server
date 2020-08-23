@@ -163,26 +163,21 @@ public interface DatabaseService {
   @Fluent
   DatabaseService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
-  /**
-   * The create implements the count operation with the database.
-   * 
-   * @param client RestClient to perform ES queries.
-   * @return DatabaseService object.
-   */
-  @GenIgnore
-  static DatabaseService create(ElasticClient client) {
-    return new DatabaseServiceImpl(client);
-  }
   @Fluent
   DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The createProxy helps the code generation blocks to generate proxy code.
+   * Codegen
    * 
    * @param vertx which is the vertx instance
    * @param address which is the proxy address
    * @return DatabaseServiceVertxEBProxy which is a service proxy
    */
+  @GenIgnore
+  static DatabaseService create(ElasticClient client) {
+    return new DatabaseServiceImpl(client);
+  }
+
   @GenIgnore
   static DatabaseService createProxy(Vertx vertx, String address) {
     return new DatabaseServiceVertxEBProxy(vertx, address);
