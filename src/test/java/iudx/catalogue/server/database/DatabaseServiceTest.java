@@ -77,7 +77,7 @@ public class DatabaseServiceTest {
   @DisplayName("Test CreateItem")
   void createItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
+    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
         "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.createItem(request, testContext.succeeding(response -> testContext.verify(() -> {
       String status = response.getString(STATUS);
@@ -93,7 +93,7 @@ public class DatabaseServiceTest {
   @DisplayName("Test updateItem")
   void updateItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
+    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
             "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
         .put("test", "test");
     dbService.updateItem(request, testContext.succeeding(response -> testContext.verify(() -> {
@@ -110,7 +110,7 @@ public class DatabaseServiceTest {
   @DisplayName("Test deleteItem")
   void deleteItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
+    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
         "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.deleteItem(request, testContext.succeeding(response -> testContext.verify(() -> {
       String status = response.getString(STATUS);
@@ -126,7 +126,7 @@ public class DatabaseServiceTest {
   @DisplayName("Deleting Non Existant Item")
   void deleteNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
+    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
         "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.deleteItem(request, testContext.failing(response -> testContext.verify(() -> {
       String status = response.getMessage();
@@ -142,7 +142,7 @@ public class DatabaseServiceTest {
   @DisplayName("Update non existant Item")
   void updateNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
+    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
             "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
         .put("test", "test");
     dbService.updateItem(request, testContext.succeeding(response -> testContext.verify(() -> {
@@ -159,7 +159,7 @@ public class DatabaseServiceTest {
   @DisplayName("Create existing item")
   void createExistingItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
+    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
         "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.createItem(request, testContext.failing(response -> testContext.verify(() -> {
       String status = response.getMessage();
@@ -919,7 +919,7 @@ public class DatabaseServiceTest {
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo")
         .put(RELATIONSHIP, REL_RESOURCE);
 
-    dbService.listResourceRelationship(request, testContext.succeeding(response -> {
+    dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
         assertEquals(73.874537,
@@ -942,7 +942,7 @@ public class DatabaseServiceTest {
                 + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, REL_RESOURCE_GRP);
 
-    dbService.listResourceGroupRelationship(request, testContext.succeeding(response -> {
+    dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
         assertEquals(
@@ -964,7 +964,7 @@ public class DatabaseServiceTest {
                 + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, REL_PROVIDER);
 
-    dbService.listProviderRelationship(request, testContext.succeeding(response -> {
+    dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
         assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
@@ -986,7 +986,7 @@ public class DatabaseServiceTest {
                 + "/rs.iudx.org.in/aqm-bosch-climo")
         .put(RELATIONSHIP, REL_PROVIDER);
 
-    dbService.listProviderRelationship(request, testContext.succeeding(response -> {
+    dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
         assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
@@ -1008,7 +1008,7 @@ public class DatabaseServiceTest {
                 + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, REL_RESOURCE_SVR);
 
-    dbService.listResourceServerRelationship(request, testContext.succeeding(response -> {
+    dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
         assertEquals("datakaveri.org/00D75505FD5256B142AFD9C0E32790FA7180D500/rs.iudx.org.in",
@@ -1029,7 +1029,7 @@ public class DatabaseServiceTest {
                 + "/rs.iudx.org.in/aqm-bosch-climo")
         .put(RELATIONSHIP, REL_RESOURCE_SVR);
 
-    dbService.listResourceServerRelationship(request, testContext.succeeding(response -> {
+    dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
         assertEquals("datakaveri.org/00D75505FD5256B142AFD9C0E32790FA7180D500/rs.iudx.org.in",
@@ -1050,7 +1050,7 @@ public class DatabaseServiceTest {
                 + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, REL_TYPE);
 
-    dbService.listTypes(request, testContext.succeeding(response -> {
+    dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
         assertEquals("iudx:Resource",
@@ -1071,7 +1071,7 @@ public class DatabaseServiceTest {
                 + "/rs.iudx.org.in/aqm-bosch-climo")
         .put(RELATIONSHIP, REL_TYPE);
 
-    dbService.listTypes(request, testContext.succeeding(response -> {
+    dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
         assertEquals("iudx:ResourceGroup",

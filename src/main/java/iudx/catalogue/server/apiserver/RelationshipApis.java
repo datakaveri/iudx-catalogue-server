@@ -70,7 +70,7 @@ public final class RelationshipApis {
       /*
        * Request database service with requestBody for listing resource relationship
        */
-      dbService.listResourceRelationship(requestBody, dbhandler -> {
+      dbService.listRelationship(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
           LOGGER.info("Success: List of resources belonging to resourceGroups");
           response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
@@ -120,7 +120,7 @@ public final class RelationshipApis {
       /*
        * Request database service with requestBody for listing resource group relationship
        */
-      dbService.listResourceGroupRelationship(requestBody, dbhandler -> {
+      dbService.listRelationship(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
           LOGGER.info("Success: List of resourceGroup belonging to resource");
           response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
@@ -157,7 +157,7 @@ public final class RelationshipApis {
     queryJson.put(INSTANCE, instanceID).put(ID, id)
         .put(RELATIONSHIP, REL_RESOURCE_SVR);
     LOGGER.debug("Info: search query : " + queryJson);
-    dbService.listResourceServerRelationship(queryJson, handler -> {
+    dbService.listRelationship(queryJson, handler -> {
       if (handler.succeeded()) {
         JsonObject resultJson = handler.result();
         String status = resultJson.getString(STATUS);
@@ -197,7 +197,7 @@ public final class RelationshipApis {
         .put(ID, id)
         .put(RELATIONSHIP, REL_PROVIDER);
     LOGGER.debug("Info: search query : " + queryJson);
-    dbService.listProviderRelationship(queryJson, handler -> {
+    dbService.listRelationship(queryJson, handler -> {
       if (handler.succeeded()) {
         JsonObject resultJson = handler.result();
         String status = resultJson.getString(STATUS);

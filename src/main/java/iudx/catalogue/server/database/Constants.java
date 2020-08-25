@@ -21,20 +21,15 @@ public class Constants {
   static final String SEARCH_TYPE = "searchType";
   static final String SEARCH_TYPE_GEO = "geoSearch_";
   static final String SHAPE_KEY = "shape";
-  static final String SIZE = "size";
+  static final String SIZE_KEY = "size";
   static final String SOURCE = "_source";
   static final String STATUS = "status";
   static final String SUCCESS = "success";
-  static final String INSTANCE= "instance";
-  static final String INSTANCE_ID_KEY = "instance";
+  static final String INSTANCE = "instance";
   static final String CONFIG_FILE = "config.properties";
-  static final String RESOURCE = "resource";
   static final String ITEM_TYPE = "itemType";
 
-  static final JsonObject ERROR_JSON_RESP = new JsonObject();
-
   /* Database */
-
   static final String CAT_INDEX_NAME = "testindex";
   static final String CAT_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
   static final String CAT_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
@@ -45,7 +40,6 @@ public class Constants {
   
   static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
   static final String AGGREGATION_KEY = "aggs";
-  static final String BOOL_KEY = "bool";
   static final String FILTER_KEY = "filter";
   
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source&size=10000";
@@ -54,8 +48,6 @@ public class Constants {
   static final String HITS = "hits";
   static final String AGGREGATIONS = "aggregations";
   static final String QUERY_KEY = "query";
-  static final String SCRIPT_KEY = "script";
-  static final String PARAM_KEY = "params";
   static final String REQUEST_GET = "GET";
   static final String REQUEST_POST = "POST";
   static final String REQUEST_PUT = "PUT";
@@ -66,7 +58,6 @@ public class Constants {
   static final String TYPE_KEY = "type";
   static final String VALUE = "value";
   static final String WITHIN = "within";
-  static final String SIZE_KEY = "size";
   static final String INSERT = "insert";
   static final String UPDATE = "update";
   static final String DELETE = "delete";
@@ -109,6 +100,7 @@ public class Constants {
   static final String NO_SEARCH_TYPE_FOUND = "No searchType found";
   static final String COUNT_UNSUPPORTED = "Count is not supported with filtering";
   static final String INVALID_SEARCH = "Invalid search request";
+  static final String ERROR_DB_REQUEST = "DB request has failed";
 
   public static final String TAGSEARCH_REGEX = "(.*)tagsSearch(.*)";
   public static final String TEXTSEARCH_REGEX = "(.*)textSearch(.*)";
@@ -124,8 +116,6 @@ public class Constants {
 
   public static final String ATTRIBUTE_SEARCH_REGEX = "(.*)attributeSearch(.*)";
   public static final String KEYWORD_KEY = ".keyword";
-  public static final String SHOULD_KEY = "should";
-  public static final String MUST_KEY = "must";
 
   public static final String TEXT_SEARCH = "textSearch_";
   public static final String ATTRIBUTE_SEARCH = "attributeSearch_";
@@ -133,10 +123,6 @@ public class Constants {
   public static final String TAG_AQM = "aqm";
   public static final String GEO_SEARCH = "geoSearch_";
   public static final String DESCRIPTION_ATTR = "description";
-
-  public static final String FIELD = "field";
-  public static final String INSTANCE_ID_KEYWORD = "instance.keyword";
-  public static final String TAGS_KEYWORD = "tags.keyword";
 
   /** ElasticClient search types */
   public static final String DOC_IDS_ONLY = "DOCIDS";
@@ -161,6 +147,7 @@ public class Constants {
   public static final String WILDCARD_KEY = "wildcard";
 
   public static final String AGGREGATION_ONLY = "AGGREGATION";
+  public static final String TYPE_KEYWORD = "type.keyword";
 
   /** Some queries */
 
@@ -190,5 +177,26 @@ public class Constants {
   public static final String LIST_TYPES_QUERY = 
     "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}} ]}},"
     + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": 10000}}}}";
+
+  public static final String GEO_SHAPE_QUERY =
+      "{ \"geo_shape\": { \"$4\": { \"shape\": { \"type\": \"$1\", \"coordinates\": $2 },"
+          + " \"relation\": \"$3\" } } }";
+
+  public static final String TEXT_QUERY =
+      "{\"query_string\":{\"query\":\"$1\"}}";
+
+  public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
+
+  public static final String TERM_COMPLEX_QUERY =
+      "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
+
+  public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
+  public static final String SHOULD_QUERY = "{\"bool\":{\"should\":$1}}";
+  public static final String MUST_QUERY = "{\"bool\":{\"must\":[$1]}}";
+  public static final String FILTER_QUERY = "{\"bool\":{\"filter\":[$1]}}";
+
+  public static final String MATCH_QUERY = "{\"match\":{\"$1\":\"$2\"}}";
+
+  public static final String TERM_QUERY = "{\"term\":{\"$1\":\"$2\"}}";
 
 }
