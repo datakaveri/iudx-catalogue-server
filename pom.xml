@@ -15,6 +15,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <exec.mainClass>iudx.catalogue.server.deploy.Deployer</exec.mainClass>
+        <exec.mainClassDev>iudx.catalogue.server.deploy.DeployerDev</exec.mainClassDev>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -125,6 +126,39 @@
                 <version>2.3</version>
                 <executions>
                     <execution>
+                        <id>dev</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/maven/**</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>${exec.mainClassDev}</Main-Class>
+                                    </manifestEntries>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/services/io.vertx.core.spi.VerticleFactory</resource>
+                                </transformer>
+                            </transformers>
+                            <artifactSet></artifactSet>
+                            <outputFile>${project.build.directory}/${project.artifactId}-dev-${project.version}-fat.jar</outputFile>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>cluster</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
@@ -152,7 +186,7 @@
                                 </transformer>
                             </transformers>
                             <artifactSet></artifactSet>
-                            <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</outputFile>
+                            <outputFile>${project.build.directory}/${project.artifactId}-cluster-${project.version}-fat.jar</outputFile>
                         </configuration>
                     </execution>
                 </executions>
@@ -187,10 +221,10 @@
 					<execution>
 						<id>catalogue-server</id>
 						<configuration>
-							<mainClass>iudx.catalogue.server.deploy.DeploySingle </mainClass>
+							<mainClass>iudx.catalogue.server.deploy.DeployerDev </mainClass>
                             <arguments>
                                 <argument>-jar</argument>
-                                <argument>{project.build.directory}/${project.artifactId}-${project.version}-fat.jar</argument>
+                                <argument>{project.build.directory}/${project.artifactId}-dev-${project.version}-fat.jar</argument>
                                 <argument>-m</argument>
                                 <argument>db</argument>
                                 <argument>auth</argument>

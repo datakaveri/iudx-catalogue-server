@@ -154,7 +154,7 @@ public class Deployer {
       String host = commandLine.getOptionValue("host");
       deploy(modules, zookeepers, host);
     } else {
-      System.out.println(usageString);
+      LOGGER.info(usageString);
     }
   }
 

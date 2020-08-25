@@ -4,6 +4,8 @@
 logs/
 config.properties
 python_scripts
+notes.md
+notes2.md
 
 ### STS ###
 .apt_generated

@@ -26,8 +26,8 @@ import org.apache.logging.log4j.Logger;
 /**
  * DeploySingle - Deploy a single non-clustered catalogue instance
  **/
-public class DeploySingle {
-  private static final Logger LOGGER = LogManager.getLogger(DeploySingle.class);
+public class DeployerDev {
+  private static final Logger LOGGER = LogManager.getLogger(DeployerDev.class);
 
   private static AbstractVerticle getVerticle(String name) {
     switch (name) {
@@ -59,7 +59,7 @@ public class DeploySingle {
     });
   }
 
-  public static void deploy(List<String> modules, String host) {
+  public static void deploy(List<String> modules) {
     EventBusOptions ebOptions = new EventBusOptions();
     VertxOptions options = new VertxOptions().setEventBusOptions(ebOptions);
     Vertx vertx = Vertx.vertx(options);
@@ -72,19 +72,16 @@ public class DeploySingle {
             .setDescription("display help"))
         .addOption(new Option().setLongName("modules").setShortName("m").setMultiValued(true)
             .setRequired(true).setDescription("modules to launch").addChoice("api")
-            .addChoice("db").addChoice("auth").addChoice("val"))
-        .addOption(new Option().setLongName("host").setShortName("i").setRequired(true)
-            .setDescription("public host"));
+            .addChoice("db").addChoice("auth").addChoice("val"));
 
     StringBuilder usageString = new StringBuilder();
     cli.usage(usageString);
     CommandLine commandLine = cli.parse(Arrays.asList(args), false);
     if (commandLine.isValid() && !commandLine.isFlagEnabled("help")) {
       List<String> modules = new ArrayList<String>(commandLine.getOptionValues("modules"));
-      String host = commandLine.getOptionValue("host");
-      deploy(modules, host);
+      deploy(modules);
     } else {
-      System.out.println(usageString);
+      LOGGER.info(usageString);
     }
   }
 }
