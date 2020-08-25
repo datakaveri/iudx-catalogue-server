@@ -184,13 +184,10 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.5.0</version>
                 <executions>
-                    <execution>
-                        <id>catalogue-server</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>java</executable>
+					<execution>
+						<id>catalogue-server</id>
+						<configuration>
+							<mainClass>iudx.catalogue.server.deploy.DeploySingle </mainClass>
                             <arguments>
                                 <argument>-jar</argument>
                                 <argument>{project.build.directory}/${project.artifactId}-${project.version}-fat.jar</argument>
@@ -201,11 +198,9 @@
                                 <argument>api</argument>
                                 <argument>--host</argument>
                                 <argument>localhost</argument>
-                                <argument>--zookeeper</argument>
-                                <argument>localhost</argument>
                             </arguments>
-                        </configuration>
-                    </execution>
+						</configuration>
+					</execution>
                 </executions>
             </plugin>
             <plugin>

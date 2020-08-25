@@ -3,8 +3,8 @@ package iudx.catalogue.server.authenticator;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -18,7 +18,7 @@ import java.util.Random;
 
 @ExtendWith(VertxExtension.class)
 public class AuthenticationServiceTest {
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationServiceTest.class);
+    private static final Logger LOGGER = LogManager.getLogger(AuthenticationServiceTest.class);
     private static final Properties properties = new Properties();
     private static Vertx vertxObj;
     private static AuthenticationService authenticationService;
@@ -35,14 +35,14 @@ public class AuthenticationServiceTest {
         vertxObj = vertx;
         WebClient client = AuthenticationVerticle.createWebClient(vertxObj, properties, true);
         authenticationService = new AuthenticationServiceImpl(client);
-        logger.info("Auth tests setup complete");
+        LOGGER.info("Auth tests setup complete");
         testContext.completeNow();
     }
 
     @Test
     @DisplayName("Testing setup")
     public void shouldSucceed(VertxTestContext testContext) {
-        logger.info("Default test is passing");
+        LOGGER.info("Default test is passing");
         testContext.completeNow();
     }
 
@@ -58,11 +58,11 @@ public class AuthenticationServiceTest {
         String host = properties.getProperty(Constants.AUTH_SERVER_HOST);
         client.post(443, host, Constants.AUTH_CERTINFO_PATH).send(httpResponseAsyncResult -> {
             if (httpResponseAsyncResult.failed()) {
-                logger.error("Cert info call to auth server failed");
+                LOGGER.error("Cert info call to auth server failed");
                 testContext.failNow(httpResponseAsyncResult.cause());
                 return;
             }
-            logger.info("Cert info call to auth server succeeded");
+            LOGGER.info("Cert info call to auth server succeeded");
             testContext.completeNow();
         });
     }
@@ -86,11 +86,11 @@ public class AuthenticationServiceTest {
         authInfo.put("operation", dummyMethod);
         try {
             AuthenticationServiceImpl.validateAuthInfo(authInfo);
-            logger.info("Dummy token value: " + dummyToken);
-            logger.info("Dummy operation value: " + dummyMethod);
-            logger.info("Validation of proper auth info arg succeeded");
+            LOGGER.info("Dummy token value: " + dummyToken);
+            LOGGER.info("Dummy operation value: " + dummyMethod);
+            LOGGER.info("Validation of proper auth info arg succeeded");
         } catch (IllegalArgumentException e) {
-            logger.error("Valid auth info arg failed validation");
+            LOGGER.error("Valid auth info arg failed validation");
             testContext.failNow(e.getCause());
             return;
         }
@@ -98,12 +98,12 @@ public class AuthenticationServiceTest {
         authInfo.clear();
         try {
             AuthenticationServiceImpl.validateAuthInfo(authInfo);
-            logger.error("Empty authInfo without token/operation passed validation");
+            LOGGER.error("Empty authInfo without token/operation passed validation");
             testContext.failNow(new IllegalArgumentException());
             return;
         } catch (IllegalArgumentException e) {
-            logger.info(e.getMessage());
-            logger.info("Empty authInfo failed validation");
+            LOGGER.info(e.getMessage());
+            LOGGER.info("Empty authInfo failed validation");
         }
 
         authInfo.clear();
@@ -111,12 +111,12 @@ public class AuthenticationServiceTest {
         authInfo.put("operation", "");
         try {
             AuthenticationServiceImpl.validateAuthInfo(authInfo);
-            logger.error("Blank token/operation in authInfo passed validation");
+            LOGGER.error("Blank token/operation in authInfo passed validation");
             testContext.failNow(new IllegalArgumentException());
             return;
         } catch (IllegalArgumentException e) {
-            logger.info(e.getMessage());
-            logger.info("Blank token/operation in authInfo failed validation");
+            LOGGER.info(e.getMessage());
+            LOGGER.info("Blank token/operation in authInfo failed validation");
         }
 
         authInfo.clear();
@@ -124,12 +124,12 @@ public class AuthenticationServiceTest {
         authInfo.put("operation", "NONSENSE");
         try {
             AuthenticationServiceImpl.validateAuthInfo(authInfo);
-            logger.error("Invalid operation in authInfo passed validation");
+            LOGGER.error("Invalid operation in authInfo passed validation");
             testContext.failNow(new IllegalArgumentException());
             return;
         } catch (IllegalArgumentException e) {
-            logger.info(e.getMessage());
-            logger.info("Invalid operation in authInfo failed validation");
+            LOGGER.info(e.getMessage());
+            LOGGER.info("Invalid operation in authInfo failed validation");
         }
 
         testContext.completeNow();
@@ -145,17 +145,17 @@ public class AuthenticationServiceTest {
         authInfo.put("operation", HttpMethod.PUT.toString());
         authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
             if (jsonObjectAsyncResult.failed()) {
-                logger.error("Async response of valid TIP call failed");
+                LOGGER.error("Async response of valid TIP call failed");
                 testContext.failNow(jsonObjectAsyncResult.cause());
                 return;
             }
             JsonObject result = jsonObjectAsyncResult.result();
             String status = result.getString("status");
             if (status.equals("error")) {
-                logger.error("Valid TIP call failed");
+                LOGGER.error("Valid TIP call failed");
                 testContext.failNow(new Exception(result.getString("message")));
             } else if (status.equals("success")) {
-                logger.info("Valid TIP call success");
+                LOGGER.info("Valid TIP call success");
                 testContext.completeNow();
             }
         });
@@ -172,10 +172,10 @@ public class AuthenticationServiceTest {
             JsonObject result = jsonObjectAsyncResult.result();
             String status = result.getString("status");
             if (status.equals("error")) {
-                logger.info("Missing provider info failed validation in TIP call");
+                LOGGER.info("Missing provider info failed validation in TIP call");
                 testContext.completeNow();
             } else {
-                logger.error("Missing provider info succeeded validation in TIP call");
+                LOGGER.error("Missing provider info succeeded validation in TIP call");
                 testContext.failNow(new IllegalArgumentException());
             }
         });
@@ -195,11 +195,11 @@ public class AuthenticationServiceTest {
             JsonObject result = jsonObjectAsyncResult.result();
             String status = result.getString("status");
             if (status.equals("error")) {
-                logger.info("Invalid token failed TIP call");
-                logger.info(result.getString("message"));
+                LOGGER.info("Invalid token failed TIP call");
+                LOGGER.info(result.getString("message"));
                 testContext.completeNow();
             } else {
-                logger.error("Invalid token succeeded TIP call");
+                LOGGER.error("Invalid token succeeded TIP call");
                 testContext.failNow(new IllegalArgumentException());
             }
         });
@@ -217,11 +217,11 @@ public class AuthenticationServiceTest {
             JsonObject result = jsonObjectAsyncResult.result();
             String status = result.getString("status");
             if (status.equals("error")) {
-                logger.info("Invalid operation failed TIP call");
-                logger.info(result.getString("message"));
+                LOGGER.info("Invalid operation failed TIP call");
+                LOGGER.info(result.getString("message"));
                 testContext.completeNow();
             } else {
-                logger.error("Invalid operation succeeded TIP call");
+                LOGGER.error("Invalid operation succeeded TIP call");
                 testContext.failNow(new IllegalArgumentException());
             }
         });

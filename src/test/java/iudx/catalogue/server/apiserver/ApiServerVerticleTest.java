@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.junit5.VertxExtension;
@@ -33,8 +33,8 @@ import java.util.Iterator;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ApiServerVerticleTest {
 
-  /* logger instance */
-  private static final Logger logger = LoggerFactory.getLogger(ApiServerVerticleTest.class);
+  /* LOGGER instance */
+  private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticleTest.class);
   private static final String HOST = "127.0.0.1";
   private static final int PORT = 8443;
   private static final String BASE_URL = "/iudx/cat/v1/";
@@ -78,7 +78,7 @@ public class ApiServerVerticleTest {
     // result.onComplete(resultHandler -> {
     // if (resultHandler.succeeded()) {
     // vertx.setTimer(15000, id -> {
-    // logger.info("!!!!!!!!\n\n!!!!!!!!!");
+    // LOGGER.info("!!!!!!!!\n\n!!!!!!!!!");
     // testContext.completeNow();
     // });
     // }
@@ -112,7 +112,7 @@ public class ApiServerVerticleTest {
 
         JsonArray resources = fileRes.result().toJsonArray();
         int numItems = resources.size();
-        logger.info("Total items = " + String.valueOf(resources.size()));
+        LOGGER.info("Total items = " + String.valueOf(resources.size()));
         Iterator<Object> objectIterator = resources.iterator();
 
 
@@ -136,7 +136,7 @@ public class ApiServerVerticleTest {
               });
         }
       } else if (fileRes.failed()) {
-        logger.error("Problem in reading test data file: ".concat(fileRes.cause().toString()));
+        LOGGER.error("Problem in reading test data file: ".concat(fileRes.cause().toString()));
       }
     });
   }
@@ -173,7 +173,7 @@ public class ApiServerVerticleTest {
               }
             });
       } else if (fileRes.failed()) {
-        logger.error("Problem in reading test data file: ".concat(fileRes.cause().toString()));
+        LOGGER.error("Problem in reading test data file: ".concat(fileRes.cause().toString()));
       }
     });
   }
@@ -211,7 +211,7 @@ public class ApiServerVerticleTest {
               }
             });
       } else if (fileRes.failed()) {
-        logger.error("Problem in reading test data file: ".concat(fileRes.cause().toString()));
+        LOGGER.error("Problem in reading test data file: ".concat(fileRes.cause().toString()));
       }
     });
   }
@@ -250,7 +250,7 @@ public class ApiServerVerticleTest {
               }
             });
       } else if (fileRes.failed()) {
-        logger.error("Problem in reading test data file: ".concat(fileRes.cause().toString()));
+        LOGGER.error("Problem in reading test data file: ".concat(fileRes.cause().toString()));
       }
     });
   }
@@ -280,7 +280,7 @@ public class ApiServerVerticleTest {
 
           JsonObject item = (JsonObject) objectIterator.next();
           /* Send the file to the server using DELETE */
-          logger.info("Deleting " + item.getString("id"));
+          LOGGER.info("Deleting " + item.getString("id"));
           client.delete(PORT, HOST, BASE_URL.concat("item/"))
               .addQueryParam("id", item.getString("id")).putHeader("token", TOKEN)
               .putHeader("Content-Type", "application/json").send(serverResponse -> {
@@ -352,7 +352,7 @@ public class ApiServerVerticleTest {
                         .putHeader("token", TOKEN)
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
-            logger.info(serverResponse.result().bodyAsString());
+            LOGGER.info(serverResponse.result().bodyAsString());
             /* comparing the response */
             assertEquals(201, serverResponse.result().statusCode());
             assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -380,7 +380,7 @@ public class ApiServerVerticleTest {
                         .putHeader("Content-Type", "application/json")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
-            logger.info(serverResponse.result().bodyAsString());
+            LOGGER.info(serverResponse.result().bodyAsString());
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -410,7 +410,7 @@ public class ApiServerVerticleTest {
                         .putHeader("token", TOKEN)
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
-            logger.info(serverResponse.result().bodyAsString());
+            LOGGER.info(serverResponse.result().bodyAsString());
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -526,7 +526,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Search Item[Geometry:Polygon, Status:200, Endpoint: /search]")
   void searchItemPolygon200(VertxTestContext testContext) {
 
-    logger.info(
+    LOGGER.info(
         "starting searchItemPolygon200 !!!!!!!!@@@@@@@@##############$$$$$$$$$$$$%%%%%%%%%%%%");
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
@@ -709,8 +709,8 @@ public class ApiServerVerticleTest {
           .send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
-        logger.info("Received response");
-        logger.info(serverResponse.result().bodyAsString());
+        LOGGER.info("Received response");
+        LOGGER.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -765,7 +765,7 @@ public class ApiServerVerticleTest {
     client.get(PORT, HOST, BASE_URL.concat("/list/tags")).send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
-        logger.info(serverResponse.result().bodyAsString());
+        LOGGER.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -874,7 +874,7 @@ public class ApiServerVerticleTest {
     client.get(PORT, HOST, BASE_URL.concat("/list/provider")).send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
-        logger.info(serverResponse.result().bodyAsString());
+        LOGGER.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -902,7 +902,7 @@ public class ApiServerVerticleTest {
     client.get(PORT, HOST, BASE_URL.concat("/list/resourceGroup")).send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
-        logger.info(serverResponse.result().bodyAsString());
+        LOGGER.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -934,7 +934,7 @@ public class ApiServerVerticleTest {
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
-            logger.info(serverResponse.result().bodyAsString());
+            LOGGER.info(serverResponse.result().bodyAsString());
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals("application/json", serverResponse.result().getHeader("content-type"));
@@ -986,7 +986,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Single Attribute search")
   void singleAttributeSearchTest(VertxTestContext testContext) {
 
-    logger.info("singleAttributeSearchTest");
+    LOGGER.info("singleAttributeSearchTest");
 
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
         .addQueryParam("value", "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/"
@@ -996,7 +996,7 @@ public class ApiServerVerticleTest {
             assertEquals(200, ar.result().statusCode());
             testContext.completeNow();
           } else if (ar.failed()) {
-            logger.info(ar.cause());
+            LOGGER.info(ar.cause());
             testContext.failed();
           }
         });
@@ -1008,7 +1008,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Single Attribute multiple value")
   void singleAttributeMultiValueTest(VertxTestContext testContext) {
 
-    logger.info("singleAttributeMultiValueTest");
+    LOGGER.info("singleAttributeMultiValueTest");
 
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
         .addQueryParam("value", "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.i"
@@ -1019,7 +1019,7 @@ public class ApiServerVerticleTest {
             assertEquals(200, ar.result().statusCode());
             testContext.completeNow();
           } else if (ar.failed()) {
-            logger.info(ar.cause());
+            LOGGER.info(ar.cause());
             testContext.failed();
           }
         });
@@ -1034,14 +1034,14 @@ public class ApiServerVerticleTest {
    * 
    * String apiURL = "search?property=[id]&value=[[rbccps.org/aa9d66a000d94a788" +
    * "95de8d4c0b3a67f3450e531/pscdcl/aqm-bosch-climo/Appa_Balwant_Square_900]]";
-   * logger.info("Url is " + BASE_URL + apiURL); client.get(PORT, HOST,
+   * LOGGER.info("Url is " + BASE_URL + apiURL); client.get(PORT, HOST,
    * BASE_URL.concat(apiURL)).send(ar -> { if (ar.succeeded()) {
    * 
    * Due to stub code in DBservice, the query succeeds and 200 code is obtained which causes the
    * test to fail
    * 
    * assertEquals(400, ar.result().statusCode()); testContext.completeNow(); } else if (ar.failed())
-   * { logger.info(ar.cause()); testContext.failed(); } }); }
+   * { LOGGER.info(ar.cause()); testContext.failed(); } }); }
    */
 
   @Test
@@ -1049,13 +1049,13 @@ public class ApiServerVerticleTest {
   @DisplayName("Attribute Search Invalid Syntax")
   void attributeSearchInvalidSyntax(VertxTestContext testContext) {
     String apiURL = "search?prop=[id]&val=[[existing-value]]";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(400, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info(ar.cause());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1067,14 +1067,14 @@ public class ApiServerVerticleTest {
   void relsearch(VertxTestContext testContext) {
     String apiURL =
         "relsearch?relationship=[resourceGroup.authServerInfo.authType]&value=[[iudx-auth]]";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1086,14 +1086,14 @@ public class ApiServerVerticleTest {
   void multiAttributeSearchtest(VertxTestContext testContext) {
     String apiURL =
         "search?property=[tags,deviceId]&value=[[aqm],[8cff12b2-b8be-1230-c5f6-ca96b4e4e441,climo]]";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1104,14 +1104,14 @@ public class ApiServerVerticleTest {
   @DisplayName("Nested Attribute search")
   void nestedAttributeSearchtest(VertxTestContext testContext) {
     String apiURL = "search?property=[deviceModel.modelName]&value=[[Bosch-Climo]]";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1123,14 +1123,14 @@ public class ApiServerVerticleTest {
   void bboxSearchtest(VertxTestContext testContext) {
     String apiURL =
         "search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1142,14 +1142,14 @@ public class ApiServerVerticleTest {
   void LineStringSearchtest(VertxTestContext testContext) {
     String apiURL = "search?geoproperty=location&georel=intersects&geometry=LineString&coordinates"
         + "=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1162,14 +1162,14 @@ public class ApiServerVerticleTest {
     String apiURL =
         "search?geoproperty=location&georel=within&geometry=abc123&coordinates=[[[73.696975"
             + "70800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(400, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1182,14 +1182,14 @@ public class ApiServerVerticleTest {
     String apiURL =
         "search?geoproperty=location&georel=abc123&geometry=LineString&coordinates=[[[73.696975"
             + "70800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(400, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1202,14 +1202,14 @@ public class ApiServerVerticleTest {
     String apiURL =
         "search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[[73.69697570"
             + "800781,18.592236436157137],[73.69697570800781,abc123]]]";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(400, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1222,14 +1222,14 @@ public class ApiServerVerticleTest {
     String apiURL =
         "search?invalidsyntax=location&abc123=within&geometry=bbox&coordinates=[[[73.6969757"
             + "0800781,18.592236436157137],[73.69697570800781,abc123]]]";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(400, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1242,14 +1242,14 @@ public class ApiServerVerticleTest {
     /* Encoded whitespaces to get appropriate response */
     String apiURL = "search?q=\"climo\"";
 
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1263,14 +1263,14 @@ public class ApiServerVerticleTest {
 
     String apiURL = "search?q=\"climo*\"";
 
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1282,14 +1282,14 @@ public class ApiServerVerticleTest {
   void specialCharactersTextSearchTest(VertxTestContext testContext) {
     /* Encoded characters to get appropriate response */
     String apiURL = "search?q=\"@!$%432\"&limit=50&offset=100";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(400, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1301,14 +1301,14 @@ public class ApiServerVerticleTest {
   void textSearchInvalidSyntaxTest(VertxTestContext testContext) {
     /* Encoded whitespaces to get appropriate response */
     String apiURL = "search?abc123=\"text%20to%20search\"&limit=50&offset=100";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(400, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1320,14 +1320,14 @@ public class ApiServerVerticleTest {
   void getProviderTest(VertxTestContext testContext) {
     String apiURL =
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/provider";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1339,14 +1339,14 @@ public class ApiServerVerticleTest {
   void getResourceServerTest(VertxTestContext testContext) {
     String apiURL =
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/resourceServer";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1358,14 +1358,14 @@ public class ApiServerVerticleTest {
   void getDataModelTest(VertxTestContext testContext) {
     String apiURL =
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/type";
-    logger.info("Url is " + BASE_URL + apiURL);
+    LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
       } else if (ar.failed()) {
-        logger.info("status code received : " + ar.result().statusCode());
-        logger.info(ar.cause());
+        LOGGER.info("status code received : " + ar.result().statusCode());
+        LOGGER.info(ar.cause());
         testContext.failed();
       }
     });
@@ -1411,7 +1411,7 @@ public class ApiServerVerticleTest {
   @DisplayName("count Item[Geometry:Polygon, Status:200, Endpoint: /count]")
   void countItemPolygon200(VertxTestContext testContext) {
 
-    logger.info("starting countItemPolygon200");
+    LOGGER.info("starting countItemPolygon200");
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
         .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
@@ -1444,7 +1444,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count Attribute[Status:200, Endpoint: /count]")
   void countAttribute200(VertxTestContext testContext) {
 
-    logger.info("starting countAttribute200");
+    LOGGER.info("starting countAttribute200");
 
     String id =
         "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]";
@@ -1460,7 +1460,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1476,7 +1476,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count SingleAttr multiValue[Status:200, Endpoint: /count]")
   void countAttributeMultiValue200(VertxTestContext testContext) {
 
-    logger.info("starting countAttributeMultiValue200");
+    LOGGER.info("starting countAttributeMultiValue200");
 
     String id1 =
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28";
@@ -1497,7 +1497,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1513,7 +1513,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count Attribute[Status:400 invalidSyntax, Endpoint: /count]")
   void countAttribute400(VertxTestContext testContext) {
 
-    logger.info("starting countAttribute400");
+    LOGGER.info("starting countAttribute400");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("prop", "[id]")
@@ -1525,7 +1525,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1541,7 +1541,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count multiAttr[Status:200, Endpoint: /count]")
   void countMultiAttribute200(VertxTestContext testContext) {
 
-    logger.info("starting countMultiAttribute200");
+    LOGGER.info("starting countMultiAttribute200");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count"))
@@ -1557,7 +1557,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1573,7 +1573,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count nestedAttr[Status:200, Endpoint: /count]")
   void countNestedAttribute200(VertxTestContext testContext) {
 
-    logger.info("starting countNestedAttribute200");
+    LOGGER.info("starting countNestedAttribute200");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count"))
@@ -1588,7 +1588,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1604,7 +1604,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count bbox[Status:200, Endpoint: /count]")
   void countBbox200(VertxTestContext testContext) {
 
-    logger.info("starting countBbox200");
+    LOGGER.info("starting countBbox200");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
@@ -1622,7 +1622,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1638,7 +1638,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count LineString[Status:200, Endpoint: /count]")
   void countLineString200(VertxTestContext testContext) {
 
-    logger.info("starting countLineString200");
+    LOGGER.info("starting countLineString200");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
@@ -1655,7 +1655,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1671,7 +1671,7 @@ public class ApiServerVerticleTest {
   @DisplayName("count geometry[Status:400 invalidValue, Endpoint: /count]")
   void countGeometry400(VertxTestContext testContext) {
 
-    logger.info("starting countGeometry400");
+    LOGGER.info("starting countGeometry400");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
@@ -1686,8 +1686,8 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info("status code received : " + serverResponse.result().statusCode());
-            logger.info(serverResponse.cause());
+            LOGGER.info("status code received : " + serverResponse.result().statusCode());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1703,7 +1703,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count georel[Status:400 invalidValue, Endpoint: /count]")
   void countGeorel400(VertxTestContext testContext) {
 
-    logger.info("starting countGeorel400");
+    LOGGER.info("starting countGeorel400");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
@@ -1718,7 +1718,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1734,7 +1734,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count geoSpatial[Status:400 invalidSyntax, Endpoint: /count]")
   void countGeoSpatial400(VertxTestContext testContext) {
 
-    logger.info("starting countGeoSpatial400");
+    LOGGER.info("starting countGeoSpatial400");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("invalidsyntax", "location")
@@ -1749,7 +1749,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1765,7 +1765,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count text[Status:200, Endpoint: /count]")
   void countText200(VertxTestContext testContext) {
 
-    logger.info("starting countText200");
+    LOGGER.info("starting countText200");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("q", "\"climo\"")
@@ -1779,8 +1779,8 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info("status code received : " + serverResponse.result().statusCode());
-            logger.info(serverResponse.cause());
+            LOGGER.info("status code received : " + serverResponse.result().statusCode());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1796,7 +1796,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count text*[Status:200, Endpoint: /count]")
   void countTextAcceptableSpecialChar200(VertxTestContext testContext) {
 
-    logger.info("starting countTextAcceptableSpecialChar200");
+    LOGGER.info("starting countTextAcceptableSpecialChar200");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("q", "\"climo*\"")
@@ -1810,7 +1810,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1826,7 +1826,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count text SpecialChar[Status:400, Endpoint: /count]")
   void countSpecialCharactersText400(VertxTestContext testContext) {
 
-    logger.info("starting countSpecialCharactersText400");
+    LOGGER.info("starting countSpecialCharactersText400");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("q", "\"@!$%432\"")
@@ -1838,7 +1838,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1854,7 +1854,7 @@ public class ApiServerVerticleTest {
   @DisplayName("count text[Status:400 invalidSyntax, Endpoint: /count]")
   void countText400(VertxTestContext testContext) {
 
-    logger.info("starting countText400 invalidSyntax");
+    LOGGER.info("starting countText400 invalidSyntax");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("abc123", "\"text to count\"")
@@ -1866,7 +1866,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1882,7 +1882,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count Item[Geometry:Polygon, Status:400 invalidValue, Endpoint: /count]")
   void countItemPolygon400_1(VertxTestContext testContext) {
 
-    logger.info("starting countItemPolygon400 invalidSyntax");
+    LOGGER.info("starting countItemPolygon400 invalidSyntax");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("geoproperty", "location")
@@ -1915,7 +1915,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Count coordinates[Status:400 invalidValue, Endpoint: /count]")
   void countCoordinate400(VertxTestContext testContext) {
 
-    logger.info("starting countGeorel400");
+    LOGGER.info("starting countGeorel400");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
@@ -1930,7 +1930,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1946,7 +1946,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Tag search[Status:200, Endpoint: /search]")
   void singleTagSearch200(VertxTestContext testContext) {
 
-    logger.info("starting singleTagSearch200");
+    LOGGER.info("starting singleTagSearch200");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
@@ -1958,7 +1958,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -1975,7 +1975,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Tag search[Status:200, Endpoint: /search]")
   void singleTagSearchWithFilter200(VertxTestContext testContext) {
 
-    logger.info("starting singleTagSearchWithFilter200");
+    LOGGER.info("starting singleTagSearchWithFilter200");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
@@ -1988,7 +1988,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -2004,7 +2004,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Tag search[Status:400, Endpoint: /search]")
   void singleTagSearch400_1(VertxTestContext testContext) {
 
-    logger.info("starting singleTagSearch400_1");
+    LOGGER.info("starting singleTagSearch400_1");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
@@ -2016,7 +2016,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -2032,7 +2032,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Tag search[Status:400, Endpoint: /search]")
   void singleTagSearch400_2(VertxTestContext testContext) {
 
-    logger.info("starting singleTagSearch400_2");
+    LOGGER.info("starting singleTagSearch400_2");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[abc123]")
@@ -2044,7 +2044,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -2060,7 +2060,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Tag search[Status:400, Endpoint: /search]")
   void singleTagSearch400_3(VertxTestContext testContext) {
 
-    logger.info("starting singleTagSearch400_3");
+    LOGGER.info("starting singleTagSearch400_3");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("invalidProperty", "[abc123]")
@@ -2072,7 +2072,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -2088,7 +2088,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Tag MultiSearch[Status:200, Endpoint: /search]")
   void multiTagSearch200(VertxTestContext testContext) {
 
-    logger.info("starting multiTagSearch200");
+    LOGGER.info("starting multiTagSearch200");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
@@ -2100,7 +2100,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -2116,7 +2116,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Tag MultiSearch[Status:400, Endpoint: /search]")
   void multiTagSearch400_1(VertxTestContext testContext) {
 
-    logger.info("starting multiTagSearch400_1");
+    LOGGER.info("starting multiTagSearch400_1");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
@@ -2128,7 +2128,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -2144,7 +2144,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Tag MultiSearch[Status:400, Endpoint: /search]")
   void multiTagSearch400_2(VertxTestContext testContext) {
 
-    logger.info("starting multiTagSearch400_2");
+    LOGGER.info("starting multiTagSearch400_2");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[abc123]")
@@ -2156,7 +2156,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -2172,7 +2172,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Tag MultiSearch[Status:400, Endpoint: /search]")
   void multiTagSearch400_3(VertxTestContext testContext) {
 
-    logger.info("starting singleTagSearch400_3");
+    LOGGER.info("starting singleTagSearch400_3");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("invalidProperty", "[abc123]")
@@ -2184,7 +2184,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });
@@ -2200,7 +2200,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Tag MultiSearch[Status:200, Endpoint: /search]")
   void multiTagSearchPartial200(VertxTestContext testContext) {
 
-    logger.info("starting multiTagSearch200");
+    LOGGER.info("starting multiTagSearch200");
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
@@ -2212,7 +2212,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            logger.info(serverResponse.cause());
+            LOGGER.info(serverResponse.cause());
             testContext.failed();
           }
         });

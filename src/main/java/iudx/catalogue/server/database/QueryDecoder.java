@@ -36,108 +36,81 @@ public final class QueryDecoder {
 
     /* Handle the search type */
     if (searchType.matches(GEOSEARCH_REGEX)) {
-
-      LOGGER.info("Geo search block");
+      LOGGER.debug("Info: Geo search block");
 
       match = true;
       String relation;
       JsonArray coordinates;
       String geometry = request.getString(GEOMETRY);
-
       /* Construct the search query */
       if (POINT.equalsIgnoreCase(geometry)) {
-
         /* Construct the query for Circle */
         coordinates = request.getJsonArray(COORDINATES_KEY);
         relation = request.getString(GEORELATION);
         int radius = request.getInteger(MAX_DISTANCE);
-
         String radiusStr = ",\"radius\": \"$1m\"".replace("$1", Integer.toString(radius));
-
         queryGeoShape = GEO_SHAPE_QUERY.replace("$1", GEO_CIRCLE)
             .replace("$2", coordinates.toString().concat(radiusStr)).replace("$3", relation)
             .replace("$4", GEO_KEY);
-
       } else if (POLYGON.equalsIgnoreCase(geometry) || LINESTRING.equalsIgnoreCase(geometry)) {
-
-        /* Construct the query for LineString, Polygon */
         relation = request.getString(GEORELATION);
         coordinates = request.getJsonArray(COORDINATES_KEY);
         int length = coordinates.getJsonArray(0).size();
-
+        /* Check if valid polygon */
         if (geometry.equalsIgnoreCase(POLYGON)
             && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(0)
                 .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(0))
             && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(1)
                 .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(1))) {
-
           return new JsonObject().put(ERROR, ERROR_INVALID_COORDINATE_POLYGON);
-
         }
-
         queryGeoShape = GEO_SHAPE_QUERY.replace("$1", geometry).replace("$2", coordinates.toString())
             .replace("$3", relation).replace("$4", GEO_KEY);
 
       } else if (BBOX.equalsIgnoreCase(geometry)) {
-
         /* Construct the query for BBOX */
         relation = request.getString(GEORELATION);
         coordinates = request.getJsonArray(COORDINATES_KEY);
-
         queryGeoShape = GEO_SHAPE_QUERY.replace("$1", GEO_BBOX).replace("$2", coordinates.toString())
             .replace("$3", relation).replace("$4", GEO_KEY);
-
       } else {
-
         return new JsonObject().put(ERROR, ERROR_INVALID_GEO_PARAMETER);
-
       }
     }
 
     /* Construct the query for text based search */
     if (searchType.matches(TEXTSEARCH_REGEX)) {
-
-      LOGGER.info("Text search block");
+      LOGGER.debug("Info: Text search block");
 
       match = true;
-
       /* validating tag search attributes */
       if (request.containsKey(Q_KEY) && !request.getString(Q_KEY).isBlank()) {
-
         /* constructing db queries */
         String textAttr = request.getString(Q_KEY);
         String textQuery = TEXT_QUERY.replace("$1", textAttr);
-
         mustQuery.add(new JsonObject(textQuery));
       }
     }
 
     /* Construct the query for attribute based search */
     if (searchType.matches(ATTRIBUTE_SEARCH_REGEX)) {
-
-      LOGGER.info("Attribute search block");
+      LOGGER.debug("Info: Attribute search block");
 
       match = true;
-
       /* validating tag search attributes */
       if (request.containsKey(PROPERTY) && !request.getJsonArray(PROPERTY).isEmpty()
           && request.containsKey(VALUE) && !request.getJsonArray(VALUE).isEmpty()) {
-
         /* fetching values from request */
         JsonArray propertyAttrs = request.getJsonArray(PROPERTY);
         JsonArray valueAttrs = request.getJsonArray(VALUE);
-
         /* For attribute property and values search */
         if (propertyAttrs.size() == valueAttrs.size()) {
-
           /* Mapping and constructing the value attributes with the property attributes for query */
           for (int i = 0; i < valueAttrs.size(); i++) {
             JsonArray shouldQuery = new JsonArray();
             JsonArray valueArray = valueAttrs.getJsonArray(i);
-
             for (int j = 0; j < valueArray.size(); j++) {
               String matchQuery;
-
               /* Attribute related queries using "match" and without the ".keyword" */
               if (propertyAttrs.getString(i).equals(TAGS)
                   || propertyAttrs.getString(i).equals(DESCRIPTION_ATTR)
@@ -145,17 +118,13 @@ public final class QueryDecoder {
 
                 matchQuery = MATCH_QUERY.replace("$1", propertyAttrs.getString(i))
                                         .replace("$2", valueArray.getString(j));
-
                 shouldQuery.add(new JsonObject(matchQuery));
-
                 /* Attribute related queries using "match" and with the ".keyword" */
               } else {
                 /* checking keyword in the query paramters */
                 if (propertyAttrs.getString(i).endsWith(KEYWORD_KEY)) {
-                  
                   matchQuery = MATCH_QUERY.replace("$1", propertyAttrs.getString(i))
                                           .replace("$2", valueArray.getString(j));
-
                 } else {
 
                   /* add keyword if not avaialble */
@@ -177,7 +146,6 @@ public final class QueryDecoder {
       String instanceFilter = INSTANCE_FILTER.replace("$1", instanceId);
       LOGGER.debug("Info: Instance found in query;" + instanceFilter);
       mustQuery.add(new JsonObject(instanceFilter));
-
     }
 
     /* checking the requests for limit attribute */
@@ -195,7 +163,7 @@ public final class QueryDecoder {
     if (searchType.matches(RESPONSE_FILTER_REGEX)) {
      
       /* Construct the filter for response */
-      LOGGER.info("In responseFilter block---------");
+      LOGGER.debug("Info: Adding responseFilter");
       match = true;
       
       if (!request.getBoolean(SEARCH)) {
@@ -203,15 +171,11 @@ public final class QueryDecoder {
       }
       
       if (request.containsKey(ATTRIBUTE)) {
-       
         JsonArray sourceFilter = request.getJsonArray(ATTRIBUTE);
         elasticQuery.put(SOURCE, sourceFilter);
-        
       } else if (request.containsKey(FILTER_KEY)) {
-        
         JsonArray sourceFilter = request.getJsonArray(FILTER_KEY);
         elasticQuery.put(SOURCE, sourceFilter);
-        
       } else {
         return new JsonObject().put(ERROR, ERROR_INVALID_RESPONSE_FILTER);
       }
@@ -222,16 +186,11 @@ public final class QueryDecoder {
     } else {
 
       String boolQuery = "";
-
       /* return fully formed elastic query */
       if (queryGeoShape == null) {
-
         boolQuery = MUST_QUERY.replace("$1", mustQuery.toString());
-
       } else if (queryGeoShape != null) {
-
         boolQuery = FILTER_QUERY.replace("$1", queryGeoShape);
-
       }
       return elasticQuery.put(QUERY_KEY, new JsonObject(boolQuery));
     }

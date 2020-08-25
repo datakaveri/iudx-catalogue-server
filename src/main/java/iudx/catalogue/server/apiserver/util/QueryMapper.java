@@ -4,21 +4,21 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * QueryMapper class to convert NGSILD query into json object for the purpose of information
+ * QueryMapper class to convert NGSILD query into json object for the purpose of debugrmation
  * exchange among different verticals.
  *
  */
 public class QueryMapper {
 
-  private static final Logger logger = LoggerFactory.getLogger(QueryMapper.class);
+  private static final Logger LOGGER = LogManager.getLogger(QueryMapper.class);
 
   /**
    * Converts the query parameters to jsonObject and jsonArray.
@@ -50,7 +50,7 @@ public class QueryMapper {
           jsonBody.put(entry.getKey(), Integer.parseInt(paramValue));
         } else if (entry.getKey().equals(Constants.Q_VALUE)
             && !regPatternText.matcher(paramValue).matches()) {
-          logger.info("Invalid text string");
+          LOGGER.debug("Error: Invalid text string");
           return null;
         } else {
           jsonBody.put(entry.getKey(), paramValue);
@@ -64,7 +64,7 @@ public class QueryMapper {
           try {
             jsonBody.put(entry.getKey(), new JsonArray(paramValue));
           } catch (DecodeException decodeException) {
-            logger.error("Invalid Json value ".concat(decodeException.getMessage()));
+            LOGGER.error("Info: Invalid Json value ".concat(decodeException.getMessage()));
             return null;
           }
         }
@@ -96,7 +96,7 @@ public class QueryMapper {
           jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.RESPONSE_FILTER));
     }
 
-    logger.info("Json Query Mapped: " + jsonBody);
+    LOGGER.debug("Info: Json Query Mapped: " + jsonBody);
 
     return jsonBody;
   }

@@ -4,8 +4,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -17,8 +15,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 
@@ -28,7 +26,7 @@ import iudx.catalogue.server.database.ElasticClient;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ValidatorServiceTest {
 
-  private static Logger logger = LoggerFactory.getLogger(ValidatorServiceTest.class);
+  private static final Logger LOGGER = LogManager.getLogger(ValidatorServiceTest.class);
   private static ValidatorService validator;
   private static Vertx vertxObj;
   private static ElasticClient client;
@@ -55,7 +53,7 @@ public class ValidatorServiceTest {
 
     } catch (Exception ex) {
 
-      logger.info(ex.toString());
+      LOGGER.info(ex.toString());
     }
 
     // TODO : Need to enable TLS using xpack security
@@ -66,7 +64,7 @@ public class ValidatorServiceTest {
 
   @AfterEach
   public void finish(VertxTestContext testContext) {
-    logger.info("Finishing....");
+    LOGGER.info("Finishing....");
     vertxObj.close(testContext.succeeding(response -> testContext.completeNow()));
   }
 

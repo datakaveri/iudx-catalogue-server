@@ -7,8 +7,8 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.predicate.ResponsePredicate;
@@ -33,7 +33,7 @@ import java.util.Properties;
 
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
+    private static final Logger LOGGER = LogManager.getLogger(AuthenticationServiceImpl.class);
     private static final Properties properties = new Properties();
     private final WebClient webClient;
 
@@ -43,7 +43,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             FileInputStream configFile = new FileInputStream(Constants.CONFIG_FILE);
             if (properties.isEmpty()) properties.load(configFile);
         } catch (IOException e) {
-            logger.error("Could not load properties from config file", e);
+            LOGGER.error("Could not load properties from config file", e);
         }
     }
 
@@ -89,7 +89,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     if (httpResponseAsyncResult.failed()) {
                         result.put("status", "error");
                         result.put("message", "Error calling the Auth Server");
-                        logger.error("Error calling the auth server", httpResponseAsyncResult.cause());
+                        LOGGER.error("Error calling the auth server", httpResponseAsyncResult.cause());
                         handler.handle(Future.succeededFuture(result));
                         return;
                     }

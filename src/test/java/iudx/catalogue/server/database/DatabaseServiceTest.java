@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import java.io.FileInputStream;
@@ -29,7 +29,7 @@ import static iudx.catalogue.server.database.Constants.*;
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DatabaseServiceTest {
-  private static Logger logger = LoggerFactory.getLogger(DatabaseServiceTest.class);
+  private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceTest.class);
   private static DatabaseService dbService;
   private static Vertx vertxObj;
   private static ElasticClient client;
@@ -57,7 +57,7 @@ public class DatabaseServiceTest {
 
     } catch (Exception ex) {
 
-      logger.info(ex.toString());
+      LOGGER.info(ex.toString());
     }
 
     // TODO : Need to enable TLS using xpack security
@@ -68,7 +68,7 @@ public class DatabaseServiceTest {
 
   @AfterEach
   public void finish(VertxTestContext testContext) {
-    logger.info("Finishing....");
+    LOGGER.info("Finishing....");
     vertxObj.close(testContext.succeeding(response -> testContext.completeNow()));
   }
 

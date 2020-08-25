@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -32,7 +32,7 @@ import iudx.catalogue.server.database.ElasticClient;
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ElasticClientTest {
-  private static Logger logger = LoggerFactory.getLogger(ElasticClientTest.class);
+  private static final Logger LOGGER = LogManager.getLogger(ElasticClientTest.class);
   private static ElasticClient client;
   private static Properties properties;
   private static InputStream inputstream;
@@ -53,12 +53,12 @@ public class ElasticClientTest {
       databasePort = Integer.parseInt(properties.getProperty(Constants.DATABASE_PORT));
       client = new ElasticClient(databaseIP, databasePort);
 
-      logger.info("Read config file");
-      logger.info("IP is " + databaseIP);
+      LOGGER.info("Read config file");
+      LOGGER.info("IP is " + databaseIP);
 
     } catch (Exception ex) {
 
-      logger.info(ex.toString());
+      LOGGER.info(ex.toString());
     }
 
     testContext.completeNow();
@@ -72,13 +72,13 @@ public class ElasticClientTest {
                                         .put("match_all", new JsonObject()));
     client.searchAsync("testindex", query.toString(), res -> {
       if (res.succeeded()) {
-        logger.info("Succeeded");
-        logger.info(res.result());
-        logger.info("Computed size = " + res.result().getJsonArray("results").size());
+        LOGGER.info("Succeeded");
+        LOGGER.info(res.result());
+        LOGGER.info("Computed size = " + res.result().getJsonArray("results").size());
         testContext.completeNow();
       } else {
-        logger.info("Failed");
-        logger.info(res.cause());
+        LOGGER.info("Failed");
+        LOGGER.info(res.cause());
         testContext.failed();
       }
     });
@@ -89,19 +89,19 @@ public class ElasticClientTest {
   @DisplayName("Test Get aggregations")
   void TestGetAggregations(VertxTestContext testContext) {
 
-    logger.info("Reached get aggregations");
+    LOGGER.info("Reached get aggregations");
 
     String req = "{\"query\":{\"bool\":{\"filter\":[{\"match\":{\"type\":\"iudx:ResourceGroup\"}}]}},\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\",\"size\":10000}}}}";
-    logger.info("Aggregation query is " + req);
+    LOGGER.info("Aggregation query is " + req);
     client.listAggregationAsync("testindex", req, res -> {
       if (res.succeeded()) {
-        logger.info("Succeeded");
-        logger.info(res.result());
-        logger.info("Computed size = " + res.result().getJsonArray("results").size());
+        LOGGER.info("Succeeded");
+        LOGGER.info(res.result());
+        LOGGER.info("Computed size = " + res.result().getJsonArray("results").size());
         testContext.completeNow();
       } else {
-        logger.info("Failed");
-        logger.info(res.cause());
+        LOGGER.info("Failed");
+        LOGGER.info(res.cause());
         testContext.failed();
       }
     });
