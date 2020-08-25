@@ -7,19 +7,32 @@ networks:
 services:
 
   server:
-    build:
-      dockerfile: ./Dockerfile
-      context: .
+    image: iudx/cat-all:latest
+    environment:
+      - HOSTNAME=server
+      - ZOOKEEPER=zookeeper
+      - CAT_URL=https://catalogue.iudx.org.in
+    volumes:
+      - ./config.properties:/usr/share/app/config.properties
+      - ./keystore.jks:/usr/share/app/keystore.jks
+    depends_on:
+      - "zookeeper"
     ports:
       - "8443:8443"
+      - "9000:9000"
     restart: on-failure
     networks: 
       - cat-net
-    volumes:
-      - ./:/cat
-    command: sh -c "cd cat && mvn clean compile exec:java@catalogue-server"
     logging:
          driver: "json-file"
          options:
              max-file: "5"
              max-size: "100m"
+
+
+  zookeeper:
+    image: zookeeper:latest
+    expose: 
+      - "2181"
+    networks:
+      - cat-net
