@@ -93,7 +93,10 @@ public class ApiServerVerticle extends AbstractVerticle {
         .setSsl(true)
         .setKeyStoreOptions(new JksOptions()
           .setPath(keystore)
-          .setPassword(keystorePassword)));
+          .setPassword(keystorePassword))
+        .setCompressionSupported(true)
+        .setCompressionLevel(5));
+
 
     /** API Callback managers */
     crudApis = new CrudApis();
