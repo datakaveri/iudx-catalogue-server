@@ -54,7 +54,7 @@ public class ValidatorVerticle extends AbstractVerticle {
 
     } catch (Exception ex) {
 
-      LOGGER.info(ex.toString());
+      LOGGER.error(ex.toString());
     }
     /* Create a reference to HazelcastClusterManager. */
 

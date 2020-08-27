@@ -58,7 +58,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
   /* Addresses */
   private static final String DATABASE_SERVICE_ADDRESS = "iudx.catalogue.database.service";
-  private static final String AUTH_SERVICE_ADDRESS = "iudx.catalogue.auth.service";
+  private static final String AUTH_SERVICE_ADDRESS = "iudx.catalogue.authentication.service";
   private static final String VALIDATION_SERVICE_ADDRESS = "iudx.catalogue.validator.service";
 
   private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);

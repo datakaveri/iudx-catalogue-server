@@ -120,9 +120,12 @@ public final class CrudApis {
         } else {
           authRequest.put(REL_PROVIDER, requestBody.getString(REL_PROVIDER));
         }
+        LOGGER.debug("Info: AuthRequest;" + authRequest.toString());
+        LOGGER.debug("Info: AuthenticationInfo;" + authenticationInfo.toString());
         /** Introspect token and authorize operation */
         authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
           if (authhandler.failed()) {
+            LOGGER.error("Error: Invalid token");
             response.setStatusCode(401)
                     .end(authhandler.cause().toString());
             return;

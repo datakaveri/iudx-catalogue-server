@@ -230,8 +230,6 @@
                                 <argument>auth</argument>
                                 <argument>val</argument>
                                 <argument>api</argument>
-                                <argument>--host</argument>
-                                <argument>localhost</argument>
                             </arguments>
 						</configuration>
 					</execution>

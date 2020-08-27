@@ -161,7 +161,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (checkRes.succeeded()) {
         if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
           handler.handle(Future.failedFuture("Fail: Doc Exists"));
-          LOGGER.error("Fail: Insertion failed;" + checkRes.result());
+          LOGGER.error("Fail: Insertion failed");
           return;
         }
         if (isInstanceValid.value == false) {

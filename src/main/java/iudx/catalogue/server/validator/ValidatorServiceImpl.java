@@ -8,7 +8,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import io.vertx.core.Promise;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -121,6 +120,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       type = new HashSet<String>(request.getJsonArray(TYPE).getList());
     } catch (Exception e) {
       LOGGER.error("Item type mismatch");
+      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
     }
     type.retainAll(ITEM_TYPES);
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");

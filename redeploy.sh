@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 export LAUNCHER="io.vertx.core.Launcher"
-export VERTICLE="iudx.catalogue.server.deploy.helper.CatMainVerticle"
+export VERTICLE="iudx.catalogue.server.deploy.ReDeployerDev"
 export CMD="mvn compile"
 export VERTX_CMD="run"
 
