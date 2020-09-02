@@ -160,8 +160,9 @@ public class DatabaseServiceImpl implements DatabaseService {
       }
       if (checkRes.succeeded()) {
         if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
-          handler.handle(Future.failedFuture("Fail: Doc Exists"));
-          LOGGER.error("Fail: Insertion failed");
+          handler.handle(Future.failedFuture(
+              errorRespBuilder.withStatus(ERROR).withResult(id, INSERT, FAILED)
+                  .withDescription("Fail: Doc Exists").getResponse()));
           return;
         }
         if (isInstanceValid.value == false) {
@@ -172,8 +173,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         /* Insert document */
         client.docPostAsync(CAT_INDEX_NAME, doc.toString(), postRes -> {
           if (postRes.succeeded()) {
-            LOGGER.info("Success: Inserted doc");
-
             handler.handle(Future.succeededFuture(
                 errorRespBuilder.withStatus(SUCCESS).withResult(id, INSERT, SUCCESS)
                     .getJsonResponse()));
@@ -182,9 +181,6 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.error("Fail: Insertion failed;" + postRes.cause());
           }
         });
-      } else {
-        handler.handle(Future.failedFuture("Fail: Failed checking doc existence"));
-        LOGGER.error("Fail: Insertion failed;" + checkRes.cause());
       }
     });
     return this;
@@ -210,7 +206,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         return;
       }
       if (checkRes.succeeded()) {
-        LOGGER.debug("Success: Check index for doc");
         if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
           LOGGER.error("Fail: Doc doesn't exist, can't update");
           handler.handle(Future.failedFuture(errorJson));
@@ -219,8 +214,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
         client.docPutAsync(CAT_INDEX_NAME, docId, doc.toString(), putRes -> {
           if (putRes.succeeded()) {
-            LOGGER.info("Success: Updated doc");
-
             handler.handle(Future.succeededFuture(
                 errorRespBuilder.withStatus(SUCCESS).withResult(id, UPDATE, SUCCESS)
                     .getJsonResponse()));
@@ -266,8 +259,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
         client.docDelAsync(CAT_INDEX_NAME, docId, delRes -> {
           if (delRes.succeeded()) {
-            LOGGER.info("Success: Deleted doc");
-
             handler.handle(Future.succeededFuture(
                 errorRespBuilder.withStatus(SUCCESS).withResult(id, DELETE, SUCCESS)
                     .getJsonResponse()));
@@ -295,7 +286,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     client.searchAsync(CAT_INDEX_NAME, getQuery, clientHandler -> {
       if (clientHandler.succeeded()) {
-        LOGGER.info("Success: Retreived item");
+        LOGGER.debug("Success: Successful DB request");
         JsonObject responseJson = clientHandler.result();
         handler.handle(Future.succeededFuture(responseJson));
       } else {
@@ -323,7 +314,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     client.listAggregationAsync(CAT_INDEX_NAME, elasticQuery, clientHandler -> {
       if (clientHandler.succeeded()) {
-        LOGGER.info("Success: List request");
+        LOGGER.debug("Success: Successful DB request");
         JsonObject responseJson = clientHandler.result();
         handler.handle(Future.succeededFuture(responseJson));
       } else {

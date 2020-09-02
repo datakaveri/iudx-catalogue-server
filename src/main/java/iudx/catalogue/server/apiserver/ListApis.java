@@ -17,7 +17,9 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
-
+import static iudx.catalogue.server.validator.Constants.FAILED;
+import static iudx.catalogue.server.validator.Constants.INVALID_SCHEMA_MSG;
+import static iudx.catalogue.server.validator.Constants.STATUS;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 
@@ -74,29 +76,29 @@ public final class ListApis {
     String type = null;
 
     switch (itemType) {
-      case "instance":
+      case INSTANCE:
         type = ITEM_TYPE_INSTANCE;
         break;
-      case "resourceGroup":
+      case REL_RESOURCE_GRP:
         type = ITEM_TYPE_RESOURCE_GROUP;
         break;
-      case "resourceServer":
+      case REL_RESOURCE_SVR:
     	  type = ITEM_TYPE_RESOURCE_SERVER;
         break;
-      case "provider":
+      case REL_PROVIDER:
     	  type = ITEM_TYPE_PROVIDER;
         break;
-      case "tags":
+      case TAGS:
         type = itemType;
         break;
       default:
-        LOGGER.info("invalid itemType:" + itemType);
+        LOGGER.error("Fail: Invalid itemType:" + itemType);
         response
             .setStatusCode(400)
-            .end("Invalid itemType");
+            .end(new JsonObject().put(STATUS, ERROR).put("message", "Invalid itemType").toString());
         return;
     }
-    requestBody.put("type", type);
+    requestBody.put(TYPE, type);
 
 
     /* Request database service with requestBody for listing items */
@@ -104,7 +106,7 @@ public final class ListApis {
         requestBody,
         dbhandler -> {
           if (dbhandler.succeeded()) {
-            LOGGER.info("Success: Successfull DB request");
+            LOGGER.info("Success: Item listing");
             response
                 .setStatusCode(200)
                 .end(dbhandler.result().toString());
@@ -143,6 +145,7 @@ public final class ListApis {
             JsonObject resultJson = handler.result();
             String status = resultJson.getString(STATUS);
             if (status.equalsIgnoreCase(SUCCESS)) {
+              LOGGER.info("Success: Retreived item type");
               response.setStatusCode(200);
             } else {
               response.setStatusCode(400);

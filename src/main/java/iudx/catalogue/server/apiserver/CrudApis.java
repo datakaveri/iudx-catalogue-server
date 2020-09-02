@@ -106,8 +106,7 @@ public final class CrudApis {
     /** Json schema validate item */
     validatorService.validateSchema(requestBody, schValHandler -> {
       if (schValHandler.failed()) {
-        LOGGER.error("Fail: Item validation");
-        response.setStatusCode(400).end();
+        response.setStatusCode(400).end(schValHandler.cause().getMessage());
         return;
       }
       if (schValHandler.succeeded()) {
@@ -120,20 +119,21 @@ public final class CrudApis {
         } else {
           authRequest.put(REL_PROVIDER, requestBody.getString(REL_PROVIDER));
         }
+
         LOGGER.debug("Info: AuthRequest;" + authRequest.toString());
-        LOGGER.debug("Info: AuthenticationInfo;" + authenticationInfo.toString());
+
         /** Introspect token and authorize operation */
         authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
           if (authhandler.failed()) {
             LOGGER.error("Error: Invalid token");
             response.setStatusCode(401)
-                    .end(authhandler.cause().toString());
+                .end(authhandler.cause().getMessage());
             return;
           }
           else if (authhandler.result().getString(STATUS).equals(ERROR)) {
             LOGGER.error("Fail: Authentication;" 
                           + authhandler.result().getString(MESSAGE));
-            response.setStatusCode(401).end();
+            response.setStatusCode(401).end(authhandler.result().toString());
           }
           else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
             LOGGER.debug("Success: Authenticated item creation request");
@@ -142,9 +142,9 @@ public final class CrudApis {
             validatorService.validateItem(requestBody, valhandler -> {
               if (valhandler.failed()) {
                 LOGGER.error("Fail: Item validation failed;"
-                              .concat(valhandler.cause().toString()));
+                    .concat(valhandler.cause().getMessage()));
                 response.setStatusCode(500)
-                        .end(valhandler.cause().toString());
+                    .end(valhandler.cause().getMessage());
               }
               if (valhandler.succeeded()) {
                 LOGGER.debug("Success: Item link validation");
@@ -156,13 +156,12 @@ public final class CrudApis {
                   dbService.createItem(valhandler.result(), dbhandler -> {
                     if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item creation;"
-                                    .concat(dbhandler.cause().toString()));
+                          .concat(dbhandler.cause().getMessage()));
                       response.setStatusCode(500)
-                              .end(dbhandler.cause().toString());
+                          .end(dbhandler.cause().getMessage());
                     }
                     if (dbhandler.succeeded()) {
-                      LOGGER.info("Success: Item created;"
-                                  .concat(dbhandler.result().toString()));
+                      LOGGER.info("Success: Item created;");
                       response.setStatusCode(201)
                               .end(dbhandler.result().toString());
                     }
@@ -172,15 +171,14 @@ public final class CrudApis {
                   /* Requesting database service, creating a item */
                   dbService.updateItem(valhandler.result(), dbhandler -> {
                     if (dbhandler.succeeded()) {
-                      LOGGER.info("Success: Item updated;"
-                                  .concat(dbhandler.result().toString()));
+                      LOGGER.info("Success: Item updated;");
                       response.setStatusCode(200)
                               .end(dbhandler.result().toString());
                     } else if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item update;"
-                                    .concat(dbhandler.cause().toString()));
+                          .concat(dbhandler.cause().getMessage()));
                       response.setStatusCode(500)
-                              .end(dbhandler.cause().toString());
+                          .end(dbhandler.cause().getMessage());
                     }
                   });
                 }
@@ -227,9 +225,9 @@ public final class CrudApis {
         }
       } else if (dbhandler.failed()) {
         LOGGER.error("Fail: Item not found;"
-                      .concat(dbhandler.cause().toString()));
+            .concat(dbhandler.cause().getMessage()));
         response.setStatusCode(400)
-                .end(dbhandler.cause().toString());
+            .end(dbhandler.cause().getMessage());
       }
     });
   }
@@ -279,22 +277,19 @@ public final class CrudApis {
         /* Requesting database service, creating a item */
         dbService.deleteItem(requestBody, dbhandler -> {
           if (dbhandler.succeeded()) {
-            LOGGER.info("Success: Item deleted;"
-                        .concat(dbhandler.result().toString()));
+            LOGGER.info("Success: Item deleted;");
             response.setStatusCode(200)
                     .end(dbhandler.result().toString());
           } else if (dbhandler.failed()) {
-            LOGGER.error("Fail: Item deletion;"
-                          .concat(dbhandler.cause().toString()));
             response.setStatusCode(400)
-                    .end(dbhandler.cause().toString());
+                .end(dbhandler.cause().getMessage());
           }
         });
       } else {
         LOGGER.error("Fail: Unathorized request"
-                      .concat(authhandler.cause().toString()));
+            .concat(authhandler.cause().getMessage()));
         response.setStatusCode(401)
-                .end(authhandler.cause().toString());
+            .end(authhandler.cause().getMessage());
       }
     });
   }
@@ -327,7 +322,7 @@ public final class CrudApis {
     authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
           response.setStatusCode(401)
-                .end(authhandler.cause().toString());
+            .end(authhandler.cause().getMessage());
         return;
       }
       else if (authhandler.result().getString(STATUS).equals(ERROR)) {
@@ -342,13 +337,12 @@ public final class CrudApis {
                                           .put(INSTANCE, "");
         dbService.createItem(body, res -> {
           if (res.succeeded()) {
-            LOGGER.info("Success: Instance created;"
-                .concat(res.result().toString()));
+            LOGGER.info("Success: Instance created;");
             response.setStatusCode(201)
               .end(res.result().toString());
           } else {
             LOGGER.error("Fail: Creating instance");
-            response.setStatusCode(500).end();
+            response.setStatusCode(500).end(res.cause().getMessage());
           }
         });
         LOGGER.debug("Success: Authenticated instance creation request");
@@ -382,7 +376,7 @@ public final class CrudApis {
     authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
           response.setStatusCode(401)
-                .end(authhandler.cause().toString());
+            .end(authhandler.cause().getMessage());
         return;
       }
       else if (authhandler.result().getString(STATUS).equals(ERROR)) {
@@ -396,8 +390,7 @@ public final class CrudApis {
                                           .put(INSTANCE, "");
         dbService.deleteItem(body, res -> {
           if (res.succeeded()) {
-            LOGGER.info("Success: Instance deleted;"
-                .concat(res.result().toString()));
+            LOGGER.info("Success: Instance deleted;");
             response.setStatusCode(200)
               .end(res.result().toString());
           }

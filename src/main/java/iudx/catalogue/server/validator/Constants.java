@@ -48,4 +48,5 @@ public class Constants {
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
   public static final String NON_EXISTING_LINK_MSG = "No such cat item exists: ";
   public static final String VALIDATION_FAILURE_MSG = "Validation failed";
+  public static final String INVALID_SCHEMA_MSG = "Invalid Schema";
 }
