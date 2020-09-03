@@ -3,6 +3,8 @@ package iudx.catalogue.server.database;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -36,15 +38,17 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    LOGGER.debug("Info: searchQuery;" + request.toString());
+    LOGGER.debug("Info: searchQuery");
 
-    ErrorRespBuilder errorRespBuilder = new ErrorRespBuilder();
+    RespBuilder respBuilder = new RespBuilder();
     request.put(SEARCH, true);
 
     /* Validate the Request */
     if (!request.containsKey(SEARCH_TYPE)) {
-      handler.handle(Future.failedFuture(errorRespBuilder.withStatus(FAILED)
-          .withDescription(NO_SEARCH_TYPE_FOUND).getResponse()));
+      handler.handle(Future.failedFuture(
+            respBuilder.withStatus(FAILED)
+                        .withDescription(NO_SEARCH_TYPE_FOUND)
+                        .getResponse()));
       return null;
     }
 
@@ -53,8 +57,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     if (query.containsKey(ERROR)) {
 
       LOGGER.error("Fail: Query returned with an error");
-      handler.handle(Future.failedFuture(errorRespBuilder.withStatus(FAILED)
-          .withDescription(query.getString(ERROR)).getResponse()));
+      handler.handle(Future.failedFuture(
+            respBuilder.withStatus(FAILED)
+                        .withDescription(query.getString(ERROR))
+                        .getResponse()));
       return null;
     }
 
@@ -66,8 +72,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB Request;" + searchRes.cause().getMessage());
-        handler.handle(Future.failedFuture(errorRespBuilder.withStatus(FAILED)
-            .withDescription(DATABASE_ERROR).getResponse()));
+        handler.handle(Future.failedFuture(
+              respBuilder.withStatus(FAILED)
+                          .withDescription(DATABASE_ERROR)
+                          .getResponse()));
       }
     });
     return this;
@@ -76,13 +84,15 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    ErrorRespBuilder errorRespBuilder = new ErrorRespBuilder();
+    RespBuilder respBuilder = new RespBuilder();
     request.put(SEARCH, false);
 
     /* Validate the Request */
     if (!request.containsKey(SEARCH_TYPE)) {
-      handler.handle(Future.failedFuture(errorRespBuilder.withStatus(FAILED)
-          .withDescription(NO_SEARCH_TYPE_FOUND).getResponse()));
+      handler.handle(Future.failedFuture(
+            respBuilder.withStatus(FAILED)
+                        .withDescription(NO_SEARCH_TYPE_FOUND)
+                        .getResponse()));
       return null;
     }
 
@@ -92,8 +102,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
       LOGGER.error("Fail: Query returned with an error");
 
-      handler.handle(Future.failedFuture(errorRespBuilder.withStatus(FAILED)
-          .withDescription(query.getString(ERROR)).getResponse()));
+      handler.handle(Future.failedFuture(
+            respBuilder.withStatus(FAILED)
+                        .withDescription(query.getString(ERROR))
+                        .getResponse()));
       return null;
     }
 
@@ -105,8 +117,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB Request;" + searchRes.cause().getMessage());
-        handler.handle(Future.failedFuture(errorRespBuilder.withStatus(FAILED)
-            .withDescription(DATABASE_ERROR).getResponse()));
+        handler.handle(Future.failedFuture(
+              respBuilder.withStatus(FAILED)
+                          .withDescription(DATABASE_ERROR)
+                          .getResponse()));
       }
     });
     return this;
@@ -118,37 +132,57 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService createItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
 
-    ErrorRespBuilder errorRespBuilder = new ErrorRespBuilder();
+    RespBuilder respBuilder = new RespBuilder();
     String id = doc.getString("id");
     String instanceId = doc.getString("instance");
+    CountDownLatch instanceCheckLatch = new CountDownLatch(1);
 
-    String errorJson =
-        errorRespBuilder.withStatus(FAILED).withResult(id, INSERT, FAILED).getResponse();
+    String errorJson = respBuilder.withStatus(FAILED)
+                                  .withResult(id, INSERT, FAILED)
+                                  .getResponse();
 
-    String checkItem = TERM_COMPLEX_QUERY.replace("$1", id).replace("$2", "");
+    String checkItem = TERM_COMPLEX_QUERY.replace("$1", id)
+                                          .replace("$2", "");
 
     var isInstanceValid = new Object() {
       boolean value = true;
     };
 
+    /* Latch used to avoid nesting with multiple conditions */
     if (instanceId == null) {
-      LOGGER.debug("Info: InstanceID null. Provider Item");
-    } else {
-      if (!instanceId.equals("")) {
-        String checkInstance = TERM_COMPLEX_QUERY.replace("$1", instanceId).replace("$2", "");
+      LOGGER.debug("Info: InstanceID null. Maybe provider item");
+      /* Checks for provider would have already been done in validation */
+      instanceCheckLatch.countDown();
+    } else if(!instanceId.equals("")) {
+        String checkInstance = TERM_COMPLEX_QUERY.replace("$1", instanceId)
+                                                  .replace("$2", "");
         client.searchAsync(CAT_INDEX_NAME, checkInstance, checkRes -> {
           if (checkRes.failed()) {
-            handler.handle(Future.failedFuture("Fail: Doc Exists"));
+            handler.handle(Future.failedFuture("Fail: DBError"));
             isInstanceValid.value = false;
             return;
+          } 
+          if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
+            LOGGER.debug("Info: No instance exists");
+            isInstanceValid.value = false;
+            instanceCheckLatch.countDown();
           } else {
-            if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
-              LOGGER.debug("Info: No instance exists");
-              isInstanceValid.value = false;
-            }
+            /* instance exists */
+            instanceCheckLatch.countDown();
           }
         });
-      }
+    } 
+
+    /* Wait for instance check to complete */
+    try {
+      instanceCheckLatch.await(10L, TimeUnit.SECONDS);
+    } catch (Exception e) {
+      handler.handle(Future.failedFuture(
+            respBuilder.withStatus(ERROR)
+                        .withResult(id, INSERT, FAILED)
+                        .withDescription("Fail: time out")
+                        .getResponse()));
+      return this;
     }
 
     LOGGER.debug("Info: Instance info;" + isInstanceValid.value);
@@ -161,12 +195,18 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (checkRes.succeeded()) {
         if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
           handler.handle(Future.failedFuture(
-              errorRespBuilder.withStatus(ERROR).withResult(id, INSERT, FAILED)
-                  .withDescription("Fail: Doc Exists").getResponse()));
+              respBuilder.withStatus(ERROR)
+                          .withResult(id, INSERT, FAILED)
+                          .withDescription("Fail: Doc Exists")
+                          .getResponse()));
           return;
         }
         if (isInstanceValid.value == false) {
-          handler.handle(Future.failedFuture(errorJson));
+          handler.handle(Future.failedFuture(
+              respBuilder.withStatus(ERROR)
+                          .withResult(id, INSERT, FAILED)
+                          .withDescription("Fail: Instance doesn't exist/registered")
+                          .getResponse()));
           LOGGER.error("Fail: Invalid Instance Insertion failed");
           return;
         }
@@ -174,8 +214,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         client.docPostAsync(CAT_INDEX_NAME, doc.toString(), postRes -> {
           if (postRes.succeeded()) {
             handler.handle(Future.succeededFuture(
-                errorRespBuilder.withStatus(SUCCESS).withResult(id, INSERT, SUCCESS)
-                    .getJsonResponse()));
+                respBuilder.withStatus(SUCCESS)
+                            .withResult(id, INSERT, SUCCESS)
+                            .getJsonResponse()));
           } else {
             handler.handle(Future.failedFuture(errorJson));
             LOGGER.error("Fail: Insertion failed;" + postRes.cause());
@@ -192,12 +233,13 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService updateItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
 
-    ErrorRespBuilder errorRespBuilder = new ErrorRespBuilder();
+    RespBuilder respBuilder = new RespBuilder();
     String id = doc.getString("id");
     String checkQuery = TERM_COMPLEX_QUERY.replace("$1", id).replace("$2", "\"" + id + "\"");
 
-    String errorJson =
-        errorRespBuilder.withStatus(FAILED).withResult(id, UPDATE, FAILED).getResponse();
+    String errorJson = respBuilder.withStatus(ERROR)
+                                  .withResult(id, UPDATE, FAILED)
+                                  .getResponse();
 
     client.searchGetId(CAT_INDEX_NAME, checkQuery, checkRes -> {
       if (checkRes.failed()) {
@@ -208,15 +250,20 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (checkRes.succeeded()) {
         if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
           LOGGER.error("Fail: Doc doesn't exist, can't update");
-          handler.handle(Future.failedFuture(errorJson));
+            handler.handle(Future.succeededFuture(
+              respBuilder.withStatus(ERROR)
+                .withResult(id, UPDATE, FAILED)
+                .withDescription("Fail: Doc doesn't exist, can't update")
+                .getJsonResponse()));
           return;
         }
         String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
         client.docPutAsync(CAT_INDEX_NAME, docId, doc.toString(), putRes -> {
           if (putRes.succeeded()) {
             handler.handle(Future.succeededFuture(
-                errorRespBuilder.withStatus(SUCCESS).withResult(id, UPDATE, SUCCESS)
-                    .getJsonResponse()));
+                respBuilder.withStatus(SUCCESS)
+                            .withResult(id, UPDATE, SUCCESS)
+                            .getJsonResponse()));
           } else {
             handler.handle(Future.failedFuture(errorJson));
             LOGGER.error("Fail: Updation failed;" + putRes.cause());
@@ -235,10 +282,11 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     LOGGER.debug("Info: Updating item");
 
-    ErrorRespBuilder errorRespBuilder = new ErrorRespBuilder();
+    RespBuilder respBuilder = new RespBuilder();
     String id = request.getString("id");
-    String errorJson =
-        errorRespBuilder.withStatus(FAILED).withResult(id, DELETE, FAILED).getResponse();
+    String errorJson = respBuilder.withStatus(FAILED)
+                                  .withResult(id, DELETE, FAILED)
+                                  .getResponse();
 
     String checkQuery = TERM_COMPLEX_QUERY.replace("$1", id).replace("$2", "");
 
@@ -252,7 +300,11 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.debug("Success: Check index for doc");
         if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
           LOGGER.error("Fail: Doc doesn't exist, can't delete;");
-          handler.handle(Future.failedFuture(errorJson));
+          handler.handle(Future.succeededFuture(
+                respBuilder.withStatus(ERROR)
+                .withResult(id, DELETE, FAILED)
+                .withDescription("Fail: Doc doesn't exist, can't delete")
+                .getJsonResponse()));
           return;
         }
 
@@ -260,8 +312,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         client.docDelAsync(CAT_INDEX_NAME, docId, delRes -> {
           if (delRes.succeeded()) {
             handler.handle(Future.succeededFuture(
-                errorRespBuilder.withStatus(SUCCESS).withResult(id, DELETE, SUCCESS)
-                    .getJsonResponse()));
+                respBuilder.withStatus(SUCCESS)
+                            .withResult(id, DELETE, SUCCESS)
+                            .getJsonResponse()));
           } else {
             handler.handle(Future.failedFuture(errorJson));
             LOGGER.error("Fail: Deletion failed;" + delRes.cause());
@@ -280,7 +333,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     LOGGER.debug("Info: Get item");
 
-    ErrorRespBuilder errorRespBuilder = new ErrorRespBuilder();
+    RespBuilder respBuilder = new RespBuilder();
     String itemId = request.getString(ID);
     String getQuery = TERM_COMPLEX_QUERY.replace("$1", itemId).replace("$2", "");
 
@@ -293,9 +346,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: Failed getting item;" + clientHandler.cause());
         /* Handle request error */
         handler.handle(
-            Future.failedFuture(
-                errorRespBuilder.withStatus(FAILED).withDescription(ERROR_DB_REQUEST)
-                    .getResponse()));
+            Future.failedFuture(respBuilder.withStatus(FAILED)
+                                            .withDescription(ERROR_DB_REQUEST)
+                                            .getResponse()));
       }
     });
     return this;
@@ -307,7 +360,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    ErrorRespBuilder errorRespBuilder = new ErrorRespBuilder();
+    RespBuilder respBuilder = new RespBuilder();
     String elasticQuery = queryDecoder.listItemQuery(request);
 
     LOGGER.debug("Info: Listing items;" + elasticQuery);
@@ -321,8 +374,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: DB request has failed;" + clientHandler.cause());
         /* Handle request error */
         handler.handle(
-            Future.failedFuture(errorRespBuilder.withStatus(FAILED)
-                .withDescription(ERROR_DB_REQUEST).getResponse()));
+            Future.failedFuture(respBuilder.withStatus(FAILED)
+                                            .withDescription(ERROR_DB_REQUEST)
+                                            .getResponse()));
       }
     });
     return this;
@@ -335,7 +389,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService listRelationship(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
 
-    ErrorRespBuilder errorRespBuilder = new ErrorRespBuilder();
+    RespBuilder respBuilder = new RespBuilder();
     String elasticQuery = queryDecoder.listRelationshipQuery(request);
 
     LOGGER.debug("Info: Query constructed;" + elasticQuery);
@@ -348,8 +402,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
         /* Handle request error */
         handler.handle(
-            Future.failedFuture(errorRespBuilder.withStatus(FAILED)
-                .withDescription(ERROR_DB_REQUEST).getResponse()));
+            Future.failedFuture(respBuilder.withStatus(FAILED)
+                                            .withDescription(ERROR_DB_REQUEST)
+                                            .getResponse()));
       }
     });
     return this;
@@ -361,10 +416,11 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    ErrorRespBuilder errorRespBuilder = new ErrorRespBuilder();
+    RespBuilder respBuilder = new RespBuilder();
     String subQuery = "";
-    String errorJson =
-        errorRespBuilder.withStatus(FAILED).withDescription(ERROR_INVALID_PARAMETER).getResponse();
+    String errorJson = respBuilder.withStatus(FAILED)
+                                  .withDescription(ERROR_INVALID_PARAMETER)
+                                  .getResponse();
 
     /* Validating the request */
     if (request.containsKey(RELATIONSHIP) && request.containsKey(VALUE)) {
@@ -379,7 +435,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         String typeValue = null;
         String[] relReqs = relReq.split("\\.", 2);
         String relReqsKey = relReqs[1];
-        String relReqsValue = request.getJsonArray(VALUE).getJsonArray(0).getString(0);
+        String relReqsValue = request.getJsonArray(VALUE)
+                                      .getJsonArray(0).getString(0);
 
         if (relReqs[0].equalsIgnoreCase(REL_PROVIDER)) {
           typeValue = ITEM_TYPE_PROVIDER;
@@ -428,7 +485,8 @@ public class DatabaseServiceImpl implements DatabaseService {
               JsonObject id = (JsonObject) idIndex;
               if (!id.isEmpty()) {
                 idCollection.add(new JsonObject().put(WILDCARD_KEY,
-                    new JsonObject().put(ID_KEYWORD, id.getString(ID) + "*")));
+                                    new JsonObject().put(ID_KEYWORD,
+                                                          id.getString(ID) + "*")));
               }
             }
           } else {
@@ -460,14 +518,18 @@ public class DatabaseServiceImpl implements DatabaseService {
               handler.handle(Future.succeededFuture(relSearchRes.result()));
             } else if (relSearchRes.failed()) {
               LOGGER.error("Fail: DB request has failed;" + relSearchRes.cause());
-              handler.handle(Future.failedFuture(errorRespBuilder.withStatus(FAILED)
-                  .withDescription(ERROR_DB_REQUEST).getResponse()));
+              handler.handle(Future.failedFuture(
+                              respBuilder.withStatus(FAILED)
+                                          .withDescription(ERROR_DB_REQUEST)
+                                          .getResponse()));
             }
           });
         } else {
           LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
           handler.handle(Future.failedFuture(
-              errorRespBuilder.withStatus(FAILED).withDescription(ERROR_DB_REQUEST).getResponse()));
+              respBuilder.withStatus(FAILED)
+                          .withDescription(ERROR_DB_REQUEST)
+                          .getResponse()));
         }
       });
     }
@@ -475,28 +537,30 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   /**
-   * ErrorRespBuilder Response Message builder for search APIs
+   * RespBuilder Response Message builder for search APIs
    */
-  private class ErrorRespBuilder {
+  private class RespBuilder {
     private JsonObject response = new JsonObject();
 
-    public ErrorRespBuilder withStatus(String status) {
+    public RespBuilder withStatus(String status) {
       response.put(STATUS, status);
       return this;
     }
 
-    public ErrorRespBuilder withDescription(String description) {
+    public RespBuilder withDescription(String description) {
       response.put(DESCRIPTION, description);
       return this;
     }
 
-    public ErrorRespBuilder withResult(String id, String method, String status) {
-      JsonObject resultAttrs = new JsonObject().put(ID, id).put(METHOD, method).put(STATUS, status);
+    public RespBuilder withResult(String id, String method, String status) {
+      JsonObject resultAttrs = new JsonObject().put(ID, id)
+                                                .put(METHOD, method)
+                                                .put(STATUS, status);
       response.put(RESULTS, new JsonArray().add(resultAttrs));
       return this;
     }
 
-    public ErrorRespBuilder withResult() {
+    public RespBuilder withResult() {
       response.put(RESULTS, new JsonArray());
       return this;
     }

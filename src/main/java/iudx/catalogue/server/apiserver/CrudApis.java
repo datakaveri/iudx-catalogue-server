@@ -83,7 +83,7 @@ public final class CrudApis {
       type = new HashSet<String>(requestBody.getJsonArray(TYPE).getList());
     } catch (Exception e) {
       LOGGER.error("Fail: Invalid type");
-      response.setStatusCode(500)
+      response.setStatusCode(400)
               .end("Fail: Invalid type");
     }
     type.retainAll(ITEM_TYPES);
@@ -142,7 +142,7 @@ public final class CrudApis {
             validatorService.validateItem(requestBody, valhandler -> {
               if (valhandler.failed()) {
                 LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
-                response.setStatusCode(500)
+                response.setStatusCode(400)
                     .end(valhandler.cause().getMessage());
               }
               if (valhandler.succeeded()) {
@@ -155,7 +155,7 @@ public final class CrudApis {
                   dbService.createItem(valhandler.result(), dbhandler -> {
                     if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item creation;" + dbhandler.cause().getMessage());
-                      response.setStatusCode(500)
+                      response.setStatusCode(400)
                           .end(dbhandler.cause().getMessage());
                     }
                     if (dbhandler.succeeded()) {
@@ -174,7 +174,7 @@ public final class CrudApis {
                               .end(dbhandler.result().toString());
                     } else if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item update;" + dbhandler.cause().getMessage());
-                      response.setStatusCode(500)
+                      response.setStatusCode(400)
                           .end(dbhandler.cause().getMessage());
                     }
                   });
@@ -337,7 +337,7 @@ public final class CrudApis {
               .end(res.result().toString());
           } else {
             LOGGER.error("Fail: Creating instance");
-            response.setStatusCode(500).end(res.cause().getMessage());
+            response.setStatusCode(400).end(res.cause().getMessage());
           }
         });
         LOGGER.debug("Success: Authenticated instance creation request");

@@ -11,6 +11,8 @@ public class Constants {
   static final String COUNT = "count";
   static final String DESCRIPTION = "desc";
   static final String FAILED = "failed";
+  static final String DOC_EXISTS = "item already exists";
+  static final String INSTANCE_NOT_EXISTS = "instance doesn't exist";
   static final String GEOSEARCH_REGEX = "(.*)geoSearch(.*)";
   static final String HTTP = "http";
   static final String ID = "id";

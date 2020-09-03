@@ -53,10 +53,11 @@ public final class SearchApis {
   public void searchHandler(RoutingContext routingContext) {
 
     String path =  routingContext.normalisedPath();
-    LOGGER.debug("Info: Route;" + path);
 
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
 
     JsonObject requestBody = new JsonObject();
 
@@ -65,7 +66,8 @@ public final class SearchApis {
 
     MultiMap queryParameters = routingContext.queryParams();
 
-    LOGGER.debug("Info: routed to search;" + request.params().toString().replace("\n", ", "));
+    LOGGER.debug("Info: routed to search/count");
+    LOGGER.debug("Info: instance;" + instanceID);
 
     /* validating proper actual query parameters from request */
     if ((request.getParam(PROPERTY) == null || request.getParam(VALUE) == null)
@@ -74,15 +76,13 @@ public final class SearchApis {
             || request.getParam(GEOMETRY) == null
             || request.getParam(COORDINATES) == null)
         && request
-            .getParam(Q_VALUE) == null /*
-                                                  * || request.getParam(LIMIT) == null ||
-                                                  * request.getParam(OFFSET) == null
-                                                  */) {
+            .getParam(Q_VALUE) == null) {
 
       LOGGER.error("Fail: Invalid Syntax");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX)
-              .build().toJsonString());
+      response.setStatusCode(400)
+        .end(new ResponseHandler.Builder()
+                                .withStatus(INVALID_SYNTAX)
+                                .build().toJsonString());
       return;
 
       /* checking the values of the query parameters */
@@ -94,50 +94,46 @@ public final class SearchApis {
 
       /* checking the values of the query parameters for geo related count */
     } else if (LOCATION.equals(request.getParam(GEOPROPERTY))
-        && GEOMETRIES.contains(request.getParam(GEOMETRY))
-        && GEORELS.contains(request.getParam(GEOREL))) {
-
+                && GEOMETRIES.contains(request.getParam(GEOMETRY))
+                && GEORELS.contains(request.getParam(GEOREL))) {
       requestBody = QueryMapper.map2Json(queryParameters);
-
-      /* checking the values of the query parameters */
     } else if (request.getParam(Q_VALUE) != null
         && !request.getParam(Q_VALUE).isBlank()) {
+      /* checking the values of the query parameters */
 
       requestBody = QueryMapper.map2Json(queryParameters);
 
     } else {
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_VALUE)
-              .build().toJsonString());
+          response.setStatusCode(400)
+                  .end(new ResponseHandler.Builder()
+                                          .withStatus(INVALID_VALUE)
+                                          .build().toJsonString());
       return;
     }
 
     if (requestBody != null) {
-      LOGGER.debug("Info: instanceID;" + instanceID);
       requestBody.put(HEADER_INSTANCE, instanceID);
       
-      LOGGER.debug("Info: Search Query");
       if (path.equals(ROUTE_SEARCH)) {
-        LOGGER.debug("Info: Search Query");
         dbService.searchQuery(requestBody, handler -> {
           if (handler.succeeded()) {
             JsonObject resultJson = handler.result();
             String status = resultJson.getString(STATUS);
             if (status.equalsIgnoreCase(SUCCESS)) {
+              LOGGER.info("Success: search query");
               response.setStatusCode(200);
             } else if (status.equalsIgnoreCase(PARTIAL_CONTENT)) {
+              LOGGER.info("Success: search query");
               response.setStatusCode(206);
             } else {
+              LOGGER.error("Fail: search query");
               response.setStatusCode(400);
             }
-            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            response.end();
+            response.end(resultJson.toString());
           } else if (handler.failed()) {
-            LOGGER.error(handler.cause().getMessage());
-            response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .setStatusCode(400).end(handler.cause().getMessage());
+            LOGGER.error("Fail: Search;" + handler.cause().getMessage());
+                response.setStatusCode(400)
+                        .end(handler.cause().getMessage());
           }
         });
       }
@@ -147,29 +143,28 @@ public final class SearchApis {
             JsonObject resultJson = handler.result();
             String status = resultJson.getString(STATUS);
             if (status.equalsIgnoreCase(SUCCESS)) {
+              LOGGER.info("Success: count query");
               response.setStatusCode(200);
             } else if (status.equalsIgnoreCase(PARTIAL_CONTENT)) {
+              LOGGER.info("Success: count query");
               response.setStatusCode(206);
             } else {
+              LOGGER.error("Fail: count query");
               response.setStatusCode(400);
             }
-            response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            LOGGER.info("response: " + resultJson);
-            response.end();
+            response.end(resultJson.toString());
           } else if (handler.failed()) {
-            LOGGER.error(handler.cause().getMessage());
-            response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .setStatusCode(400).end(handler.cause().getMessage());
+            LOGGER.error("Fail: Count;" + handler.cause().getMessage());
+            response.setStatusCode(400).end(handler.cause().getMessage());
           }
         });
       }
     } else {
-      LOGGER.error("Invalid request query parameters");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .setStatusCode(400).end(new ResponseHandler.Builder().withStatus(INVALID_VALUE)
-              .build().toJsonString());
+      LOGGER.error("Fail: Search/Count; Invalid request query parameters");
+          response.setStatusCode(400)
+                  .end(new ResponseHandler.Builder()
+                                          .withStatus(INVALID_SYNTAX)
+                                          .build().toJsonString());
     }
 
   }

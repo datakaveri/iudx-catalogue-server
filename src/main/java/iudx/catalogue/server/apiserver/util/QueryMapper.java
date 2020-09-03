@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+
 /**
  * QueryMapper class to convert NGSILD query into json object for the purpose of debugrmation
  * exchange among different verticals.
@@ -31,14 +33,16 @@ public class QueryMapper {
     JsonObject jsonBody = new JsonObject();
 
     ArrayList<String> excepAttribute = new ArrayList<String>();
-    excepAttribute.add(Constants.COORDINATES);
-    excepAttribute.add(Constants.OFFSET);
-    excepAttribute.add(Constants.LIMIT);
-    excepAttribute.add(Constants.MAX_DISTANCE);
-    excepAttribute.add(Constants.Q_VALUE);
+    excepAttribute.add(COORDINATES);
+    excepAttribute.add(OFFSET);
+    excepAttribute.add(LIMIT);
+    excepAttribute.add(MAX_DISTANCE);
+    excepAttribute.add(Q_VALUE);
 
     Pattern regPatternMatchString = Pattern.compile("[\\w]+[^\\,]*(?:\\.*[\\w])");
     Pattern regPatternText = Pattern.compile("^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}");
+
+    LOGGER.debug("In query mapper");
 
     for (Entry<String, String> entry : queryParameters.entries()) {
 
@@ -48,7 +52,7 @@ public class QueryMapper {
           jsonBody.put(entry.getKey(), paramValue);
         } else if (excepAttribute.contains(entry.getKey()) && !entry.getKey().equals("q")) {
           jsonBody.put(entry.getKey(), Integer.parseInt(paramValue));
-        } else if (entry.getKey().equals(Constants.Q_VALUE)
+        } else if (entry.getKey().equals(Q_VALUE)
             && !regPatternText.matcher(paramValue).matches()) {
           LOGGER.debug("Error: Invalid text string");
           return null;
@@ -56,44 +60,49 @@ public class QueryMapper {
           jsonBody.put(entry.getKey(), paramValue);
         }
       } else {
-        Matcher matcher = regPatternMatchString.matcher(entry.getValue());
-        if (matcher.find() && !excepAttribute.contains(entry.getKey())) {
-          String replacedValue = paramValue.replaceAll("[\\w]+[^\\,]*(?:\\.*[\\w])", "\"$0\"");
-          jsonBody.put(entry.getKey(), new JsonArray(replacedValue));
-        } else if (excepAttribute.contains(entry.getKey())) {
-          try {
-            jsonBody.put(entry.getKey(), new JsonArray(paramValue));
-          } catch (DecodeException decodeException) {
-            LOGGER.error("Info: Invalid Json value " + decodeException.getMessage());
-            return null;
+        try {
+          Matcher matcher = regPatternMatchString.matcher(entry.getValue());
+          if (matcher.find() && !excepAttribute.contains(entry.getKey())) {
+            String replacedValue = paramValue.replaceAll("[\\w]+[^\\,]*(?:\\.*[\\w])", "\"$0\"");
+            jsonBody.put(entry.getKey(), new JsonArray(replacedValue));
+          } else if (excepAttribute.contains(entry.getKey())) {
+            try {
+              jsonBody.put(entry.getKey(), new JsonArray(paramValue));
+            } catch (DecodeException decodeException) {
+              LOGGER.error("Info: Invalid Json value " + decodeException.getMessage());
+              return null;
+            }
           }
+        } catch (Exception e) {
+          LOGGER.error("Info: Invalid Json value ");
+          return null;
         }
       }
     }
 
     /* adding search type for geo related search */
-    if (jsonBody.containsKey(Constants.GEOMETRY)) {
-      jsonBody.put(Constants.SEARCH_TYPE,
-          jsonBody.getString(Constants.SEARCH_TYPE, "") + Constants.GEO_SEARCH);
+    if (jsonBody.containsKey(GEOMETRY)) {
+      jsonBody.put(SEARCH_TYPE,
+          jsonBody.getString(SEARCH_TYPE, "") + GEO_SEARCH);
     }
 
     /* adding search type for text related search */
-    if (jsonBody.containsKey(Constants.Q_VALUE)) {
-      jsonBody.put(Constants.SEARCH_TYPE,
-          jsonBody.getString(Constants.SEARCH_TYPE, "") + Constants.TEXT_SEARCH);
+    if (jsonBody.containsKey(Q_VALUE)) {
+      jsonBody.put(SEARCH_TYPE,
+          jsonBody.getString(SEARCH_TYPE, "") + TEXT_SEARCH);
     }
 
     /* Tag related search are to be considered as attribute search and are being merged as one */
-    if (jsonBody.containsKey(Constants.PROPERTY)) {
+    if (jsonBody.containsKey(PROPERTY)) {
 
-      jsonBody.put(Constants.SEARCH_TYPE,
-          jsonBody.getString(Constants.SEARCH_TYPE, "") + Constants.ATTRIBUTE_SEARCH);
+      jsonBody.put(SEARCH_TYPE,
+          jsonBody.getString(SEARCH_TYPE, "") + ATTRIBUTE_SEARCH);
     }
 
     /* adding response filter */
-    if (jsonBody.containsKey(Constants.FILTER)) {
-      jsonBody.put(Constants.SEARCH_TYPE,
-          jsonBody.getString(Constants.SEARCH_TYPE, "") + Constants.RESPONSE_FILTER);
+    if (jsonBody.containsKey(FILTER)) {
+      jsonBody.put(SEARCH_TYPE,
+          jsonBody.getString(SEARCH_TYPE, "") + RESPONSE_FILTER);
     }
 
     LOGGER.debug("Info: Json Query Mapped: " + jsonBody);
