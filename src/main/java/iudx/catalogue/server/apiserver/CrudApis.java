@@ -141,8 +141,7 @@ public final class CrudApis {
             /* Link Validating the request to ensure item correctness */
             validatorService.validateItem(requestBody, valhandler -> {
               if (valhandler.failed()) {
-                LOGGER.error("Fail: Item validation failed;"
-                    .concat(valhandler.cause().getMessage()));
+                LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
                 response.setStatusCode(500)
                     .end(valhandler.cause().getMessage());
               }
@@ -155,8 +154,7 @@ public final class CrudApis {
                   LOGGER.debug("Info: Inserting item");
                   dbService.createItem(valhandler.result(), dbhandler -> {
                     if (dbhandler.failed()) {
-                      LOGGER.error("Fail: Item creation;"
-                          .concat(dbhandler.cause().getMessage()));
+                      LOGGER.error("Fail: Item creation;" + dbhandler.cause().getMessage());
                       response.setStatusCode(500)
                           .end(dbhandler.cause().getMessage());
                     }
@@ -175,8 +173,7 @@ public final class CrudApis {
                       response.setStatusCode(200)
                               .end(dbhandler.result().toString());
                     } else if (dbhandler.failed()) {
-                      LOGGER.error("Fail: Item update;"
-                          .concat(dbhandler.cause().getMessage()));
+                      LOGGER.error("Fail: Item update;" + dbhandler.cause().getMessage());
                       response.setStatusCode(500)
                           .end(dbhandler.cause().getMessage());
                     }
@@ -204,7 +201,7 @@ public final class CrudApis {
 
     String itemId = routingContext.queryParams().get(ID);
 
-    LOGGER.debug("Info: Getting item; id=".concat(itemId));
+    LOGGER.debug("Info: Getting item; id=" + itemId);
 
     JsonObject requestBody = new JsonObject().put(ID, itemId);
 
@@ -224,8 +221,7 @@ public final class CrudApis {
                   .end(dbhandler.result().toString());
         }
       } else if (dbhandler.failed()) {
-        LOGGER.error("Fail: Item not found;"
-            .concat(dbhandler.cause().getMessage()));
+        LOGGER.error("Fail: Item not found;" + dbhandler.cause().getMessage());
         response.setStatusCode(400)
             .end(dbhandler.cause().getMessage());
       }
@@ -259,7 +255,7 @@ public final class CrudApis {
     requestBody.put(HEADER_INSTANCE, instanceID);
     requestBody.put(ID, itemId);
 
-    LOGGER.debug("Info: Deleting item; id=".concat(itemId));
+    LOGGER.debug("Info: Deleting item; id=" + itemId);
 
 
     String providerId = String.join("/",
@@ -286,8 +282,7 @@ public final class CrudApis {
           }
         });
       } else {
-        LOGGER.error("Fail: Unathorized request"
-            .concat(authhandler.cause().getMessage()));
+        LOGGER.error("Fail: Unathorized request" + authhandler.cause().getMessage());
         response.setStatusCode(401)
             .end(authhandler.cause().getMessage());
       }

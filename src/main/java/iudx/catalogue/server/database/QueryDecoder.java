@@ -50,7 +50,7 @@ public final class QueryDecoder {
         int radius = request.getInteger(MAX_DISTANCE);
         String radiusStr = ",\"radius\": \"$1m\"".replace("$1", Integer.toString(radius));
         queryGeoShape = GEO_SHAPE_QUERY.replace("$1", GEO_CIRCLE)
-            .replace("$2", coordinates.toString().concat(radiusStr)).replace("$3", relation)
+            .replace("$2", coordinates.toString() + radiusStr).replace("$3", relation)
             .replace("$4", GEO_KEY);
       } else if (POLYGON.equalsIgnoreCase(geometry) || LINESTRING.equalsIgnoreCase(geometry)) {
         relation = request.getString(GEORELATION);
@@ -128,7 +128,7 @@ public final class QueryDecoder {
                 } else {
 
                   /* add keyword if not avaialble */
-                  matchQuery = MATCH_QUERY.replace("$1", propertyAttrs.getString(i).concat(KEYWORD_KEY))
+                  matchQuery = MATCH_QUERY.replace("$1", propertyAttrs.getString(i) + KEYWORD_KEY)
                                           .replace("$2", valueArray.getString(j));
                 }
                 shouldQuery.add(new JsonObject(matchQuery));
@@ -214,7 +214,7 @@ public final class QueryDecoder {
       /* parsing resourceGroupId from the request */
       String resourceGroupId = request.getString(ID);
       
-      subQuery = TERM_QUERY.replace("$1", REL_RESOURCE_GRP.concat(KEYWORD_KEY))
+      subQuery = TERM_QUERY.replace("$1", REL_RESOURCE_GRP + KEYWORD_KEY)
                            .replace("$2", resourceGroupId) 
                             + "," + 
                  TERM_QUERY.replace("$1", TYPE_KEYWORD)

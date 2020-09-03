@@ -78,7 +78,7 @@ public final class RelationshipApis {
                   .end(dbhandler.result().toString());
         } else if (dbhandler.failed()) {
           LOGGER.error("Fail: Issue in listing resource relationship;"
-                          .concat(dbhandler.cause().toString()));
+                           + dbhandler.cause().toString());
           response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                   .setStatusCode(400)
                   .end(dbhandler.cause().toString());
@@ -128,7 +128,7 @@ public final class RelationshipApis {
                   .end(dbhandler.result().toString());
         } else if (dbhandler.failed()) {
           LOGGER.error("Fail: Issue in listing resourceGroup relationship;"
-                        .concat(dbhandler.cause().toString()));
+                         + dbhandler.cause().toString());
           response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                   .setStatusCode(400)
                   .end(dbhandler.cause().getLocalizedMessage());
@@ -152,7 +152,7 @@ public final class RelationshipApis {
   public void resourceServerRelationshipHandler(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().host();
+    String instanceID = routingContext.request().getHeader(HEADER_INSTANCE);
     String id = routingContext.request().getParam(ID);
     queryJson.put(INSTANCE, instanceID).put(ID, id)
         .put(RELATIONSHIP, REL_RESOURCE_SVR);
@@ -190,7 +190,7 @@ public final class RelationshipApis {
   public void providerRelationshipHandler(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().host();
+    String instanceID = routingContext.request().getHeader(HEADER_INSTANCE);
     String id = routingContext.request().getParam(ID);
     queryJson
         .put(INSTANCE, instanceID)
@@ -252,14 +252,13 @@ public final class RelationshipApis {
         /* Request database service with requestBody for listing domains */
         dbService.relSearch(requestBody, dbhandler -> {
           if (dbhandler.succeeded()) {
-            LOGGER.info("Info: Relationship search completed, response: "
-                          .concat(dbhandler.result().toString()));
+            LOGGER.info("Info: Relationship search completed");
             response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                     .setStatusCode(200)
                     .end(dbhandler.result().toString());
           } else if (dbhandler.failed()) {
             LOGGER.error("Fail: Issue in relationship search "
-                          .concat(dbhandler.cause().toString()));
+                           + dbhandler.cause().toString());
             response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                     .setStatusCode(400)
                     .end(dbhandler.cause().getLocalizedMessage());

@@ -32,19 +32,19 @@ public class Constants {
    *Routes
    */
   /** CRUD Routes */
-  public static final String ROUTE_ITEMS = basePath.concat("/item");
-  public static final String ROUTE_UPDATE_ITEMS = basePath.concat("/item");
-  public static final String ROUTE_DELETE_ITEMS = basePath.concat("/item");
+  public static final String ROUTE_ITEMS = basePath + "/item";
+  public static final String ROUTE_UPDATE_ITEMS = basePath + "/item";
+  public static final String ROUTE_DELETE_ITEMS = basePath + "/item";
 
-  public static final String ROUTE_INSTANCE = basePath.concat("/instance");
+  public static final String ROUTE_INSTANCE = basePath + "/instance";
 
-  public static final String ROUTE_LIST_RESOURCE_REL = basePath.concat("\\/(?<id>.*)\\/resource");
+  public static final String ROUTE_LIST_RESOURCE_REL = basePath + "\\/(?<id>.*)\\/resource";
   public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
-      basePath.concat("\\/(?<id>.*)\\/resourceGroup");
+      basePath + "\\/(?<id>.*)\\/resourceGroup";
 
 
-  public static final String ROUTE_SEARCH = basePath.concat("/search");
-  public static final String ROUTE_LIST_ITEMS = basePath.concat("/list/:itemType");
+  public static final String ROUTE_SEARCH = basePath + "/search";
+  public static final String ROUTE_LIST_ITEMS = basePath + "/list/:itemType";
 
   public static final String AGGREGATIONS = "aggregations";
   public static final String INSTANCE = "instance";
@@ -63,15 +63,15 @@ public class Constants {
 
 
   public static final String ROUTE_GET_ITEM =
-      basePath.concat("/items");
+      basePath + "/items";
 
-  public static final String ROUTE_UI_CITIES = basePath.concat("/ui/cities");
-  public static final String ROUTE_UI_CONFIG = basePath.concat("/ui/config");
-  public static final String ROUTE_PROVIDER_REL = basePath.concat("\\/(?<id>.*)\\/provider");
+  public static final String ROUTE_UI_CITIES = basePath + "/ui/cities";
+  public static final String ROUTE_UI_CONFIG = basePath + "/ui/config";
+  public static final String ROUTE_PROVIDER_REL = basePath + "\\/(?<id>.*)\\/provider";
   public static final String ROUTE_RESOURCE_SERVER_REL =
-      basePath.concat("\\/(?<id>.*)\\/resourceServer");
-  public static final String ROUTE_DATA_TYPE = basePath.concat("\\/(?<id>.*)\\/type");
-  public static final String ROUTE_COUNT = basePath.concat("/count");
+      basePath + "\\/(?<id>.*)\\/resourceServer";
+  public static final String ROUTE_DATA_TYPE = basePath + "\\/(?<id>.*)\\/type";
+  public static final String ROUTE_COUNT = basePath + "/count";
 
   /** Item types */
   public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
@@ -173,5 +173,5 @@ public class Constants {
   public static final String PUT = "PUT";
   public static final String DELETE = "DELETE";
 
-  public static final String ROUTE_REL_SEARCH = basePath.concat("/relsearch");
+  public static final String ROUTE_REL_SEARCH = basePath + "/relsearch";
 }

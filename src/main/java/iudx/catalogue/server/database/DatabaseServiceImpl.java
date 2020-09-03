@@ -428,7 +428,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               JsonObject id = (JsonObject) idIndex;
               if (!id.isEmpty()) {
                 idCollection.add(new JsonObject().put(WILDCARD_KEY,
-                    new JsonObject().put(ID_KEYWORD, id.getString(ID).concat("*"))));
+                    new JsonObject().put(ID_KEYWORD, id.getString(ID) + "*")));
               }
             }
           } else {

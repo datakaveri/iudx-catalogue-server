@@ -112,7 +112,7 @@ public final class ListApis {
                 .end(dbhandler.result().toString());
           } else if (dbhandler.failed()) {
             LOGGER.error(
-                "Fail: Issue in listing " + itemType + ": ".concat(dbhandler.cause().toString()));
+                "Fail: Issue in listing " + itemType + ": " + dbhandler.cause().toString());
             response
                 .setStatusCode(400)
                 .end(dbhandler.cause().toString());

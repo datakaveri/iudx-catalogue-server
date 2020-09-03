@@ -67,7 +67,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationService tokenInterospect(JsonObject request, JsonObject authenticationInfo,
                                                   Handler<AsyncResult<JsonObject>> handler) {
 
-        LOGGER.debug("Info: tokenInterospecting");
         JsonObject result = new JsonObject();
         String providerID;
         try {

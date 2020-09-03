@@ -64,7 +64,7 @@ public class QueryMapper {
           try {
             jsonBody.put(entry.getKey(), new JsonArray(paramValue));
           } catch (DecodeException decodeException) {
-            LOGGER.error("Info: Invalid Json value ".concat(decodeException.getMessage()));
+            LOGGER.error("Info: Invalid Json value " + decodeException.getMessage());
             return null;
           }
         }
@@ -74,26 +74,26 @@ public class QueryMapper {
     /* adding search type for geo related search */
     if (jsonBody.containsKey(Constants.GEOMETRY)) {
       jsonBody.put(Constants.SEARCH_TYPE,
-          jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.GEO_SEARCH));
+          jsonBody.getString(Constants.SEARCH_TYPE, "") + Constants.GEO_SEARCH);
     }
 
     /* adding search type for text related search */
     if (jsonBody.containsKey(Constants.Q_VALUE)) {
       jsonBody.put(Constants.SEARCH_TYPE,
-          jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.TEXT_SEARCH));
+          jsonBody.getString(Constants.SEARCH_TYPE, "") + Constants.TEXT_SEARCH);
     }
 
     /* Tag related search are to be considered as attribute search and are being merged as one */
     if (jsonBody.containsKey(Constants.PROPERTY)) {
 
       jsonBody.put(Constants.SEARCH_TYPE,
-          jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.ATTRIBUTE_SEARCH));
+          jsonBody.getString(Constants.SEARCH_TYPE, "") + Constants.ATTRIBUTE_SEARCH);
     }
 
     /* adding response filter */
     if (jsonBody.containsKey(Constants.FILTER)) {
       jsonBody.put(Constants.SEARCH_TYPE,
-          jsonBody.getString(Constants.SEARCH_TYPE, "").concat(Constants.RESPONSE_FILTER));
+          jsonBody.getString(Constants.SEARCH_TYPE, "") + Constants.RESPONSE_FILTER);
     }
 
     LOGGER.debug("Info: Json Query Mapped: " + jsonBody);

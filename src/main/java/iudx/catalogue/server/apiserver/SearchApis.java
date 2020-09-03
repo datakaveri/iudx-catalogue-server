@@ -65,7 +65,7 @@ public final class SearchApis {
 
     MultiMap queryParameters = routingContext.queryParams();
 
-    LOGGER.debug("Info: routed to search;" + request.params().toString());
+    LOGGER.debug("Info: routed to search;" + request.params().toString().replace("\n", ", "));
 
     /* validating proper actual query parameters from request */
     if ((request.getParam(PROPERTY) == null || request.getParam(VALUE) == null)

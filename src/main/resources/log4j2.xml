@@ -8,10 +8,13 @@
     </Properties>
     <Appenders>
         <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
+            <!-- 
             <JSONLayout compact="true" eventEol="true" stacktraceAsString="true" includeTimeMillis="true">
-            <KeyValuePair key="source" value="cat"/>
-            <KeyValuePair key="sourceURL" value="$${env:CAT_URL}"/>
+            <KeyValuePair key="source" value="rs"/>
+            <KeyValuePair key="sourceURL" value="$${env:RS_URL}"/>
             </JSONLayout>
+            -->
+            <PatternLayout pattern="${CONSOLE_LOG_PATTERN}" />
         </Console>
     </Appenders>
     <Loggers>
