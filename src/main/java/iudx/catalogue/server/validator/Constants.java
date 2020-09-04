@@ -9,7 +9,7 @@ public class Constants {
   public static final String REQUEST_GET = "GET";
   public static final String REQUEST_POST = "POST";
   public static final String CAT_TEST_SEARCH_INDEX = "testindex";
-  public static final String CAT_INDEX_NAME = CAT_TEST_SEARCH_INDEX;
+  public static final String CAT_INDEX_NAME = "cat";
   public static final String SOURCE = "_source";
   public static final String QUERY_KEY = "query";
   public static final String TERM = "term";

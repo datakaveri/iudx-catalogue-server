@@ -32,7 +32,7 @@ public class Constants {
   static final String ITEM_TYPE = "itemType";
 
   /* Database */
-  static final String CAT_INDEX_NAME = "testindex";
+  static final String CAT_INDEX_NAME = "cat";
   static final String CAT_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
   static final String CAT_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
   static final String CAT_GET_TAG = CAT_SEARCH_INDEX + "?filter_path=aggregations.instance.tags.buckets";
