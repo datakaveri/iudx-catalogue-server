@@ -194,7 +194,7 @@ public class Constants {
 
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
   public static final String SHOULD_QUERY = "{\"bool\":{\"should\":$1}}";
-  public static final String MUST_QUERY = "{\"bool\":{\"must\":[$1]}}";
+  public static final String MUST_QUERY = "{\"bool\":{\"must\":$1}}";
   public static final String FILTER_QUERY = "{\"bool\":{\"filter\":[$1]}}";
 
   public static final String MATCH_QUERY = "{\"match\":{\"$1\":\"$2\"}}";

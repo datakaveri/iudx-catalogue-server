@@ -158,7 +158,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                                                   .replace("$2", "");
         client.searchAsync(CAT_INDEX_NAME, checkInstance, checkRes -> {
           if (checkRes.failed()) {
-            handler.handle(Future.failedFuture("Fail: DBError"));
+            handler.handle(Future.failedFuture(
+                    respBuilder.withStatus(FAILED)
+                               .withDescription("Fail: DBError")
+                               .getResponse()));
             isInstanceValid.value = false;
             return;
           } 

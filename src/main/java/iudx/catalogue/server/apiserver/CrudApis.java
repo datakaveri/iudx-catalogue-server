@@ -282,9 +282,9 @@ public final class CrudApis {
           }
         });
       } else {
-        LOGGER.error("Fail: Unathorized request" + authhandler.cause().getMessage());
+        LOGGER.error("Fail: Unathorized request" + authhandler.result());
         response.setStatusCode(401)
-            .end(authhandler.cause().getMessage());
+            .end(authhandler.result().toString());
       }
     });
   }
