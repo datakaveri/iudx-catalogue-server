@@ -1,559 +1,789 @@
 {
-  "openapi": "3.0.2",
-  "info": {
-    "title": "catalogue",
-    "version": "1.0.0",
-    "description": "API Object for IUDX-Catalogue-Server"
-  },
-  "paths": {
-    "/search": {
-      "description": "Generic catalogue item query.",
-      "get": {
-        "parameters": [
-          {
-            "name": "property",
-            "description": "Array of properties on which query is to be made. The mapping between a property and a value is one-to-one.",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "in": "query",
-            "required": false
-          },
-          {
-            "name": "value",
-            "description": "Values of the one-to-one mapped properties.",
-            "schema": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
-            "in": "query",
-            "required": false
-          },
-          {
-            "name": "geoproperty",
-            "description": "Name of the property if the query is on a geospatial property.",
-            "schema": {
-              "type": "string"
-            },
-            "in": "query"
-          },
-          {
-            "name": "georel",
-            "description": "Type of geoquery, for e.g, within, near, outside.",
-            "schema": {
-              "type": "string"
-            },
-            "in": "query",
-            "required": false
-          },
-          {
-            "name": "geometry",
-            "description": "Geometry of the geo-query, for e.g, linstring, bbox, polygon.",
-            "schema": {
-              "type": "string"
-            },
-            "in": "query"
-          },
-          {
-            "name": "coordinates",
-            "description": "Coordinates for the specific query type. For e.g, [[1,2], [3,4]]. Note: The data-type of this field is a string, therefore the coordinates are a string encoded multidimensional array.",
-            "schema": {
-              "type": "string"
-            },
-            "in": "query",
-            "required": false
-          },
-          {
-            "name": "q",
-            "description": "query for text/fuzzy search.",
-            "schema": {
-              "type": "string"
-            },
-            "in": "query",
-            "required": false
-          },
-          {
-            "name": "limit",
-            "description": "Limit number of records in search response.",
-            "schema": {
-              "type": "integer"
-            },
-            "in": "query",
-            "required": false
-          },
-          {
-            "name": "offset",
-            "description": "Offset from where the next batch of results should be returned.",
-            "schema": {
-              "type": "integer"
-            },
-            "in": "query",
-            "required": false
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/searchResponseBody"
-                }
-              }
-            },
-            "description": "All the query parameters yielded results."
-          },
-          "204": {
-            "description": "None of the query parameters yielded results."
-          },
-          "206": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/searchResponseBody"
-                }
-              }
-            },
-            "description": "Some of the query parameters yielded results."
-          },
-          "400": {
-            "description": "Bad query."
-          }
-        },
-        "description": "Search items in the catalogue"
-      }
+    "openapi": "3.0.2",
+    "info": {
+        "title": "catalogue",
+        "version": "1.0.0",
+        "description": "API Object for IUDX-Catalogue-Server"
     },
-    "/ui/cities": {
-      "description": "Get cities/instance registered to this catalogue.",
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/citiesResponseBody"
-                }
-              }
-            },
-            "description": "The query yielded results."
-          },
-          "204": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/invalidSearchResponesBody"
-                }
-              }
-            },
-            "description": "No cities were registered."
-          },
-          "400": {
-            "description": "Bad query."
-          }
-        },
-        "description": "Get all cities registered to a catalogue."
-      }
-    },
-    "/ui/config/": {
-      "description": "Get configuration of a specific instance registered to this catalogue.",
-      "get": {
-        "parameters": [
-          {
-            "name": "instanceid",
-            "description": "Instance id for which config is required.",
-            "schema": {
-              "type": "string"
-            },
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/citiesResponseBody"
-                }
-              }
-            },
-            "description": "The query yielded results."
-          },
-          "204": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/invalidSearchResponesBody"
-                }
-              }
-            },
-            "description": "Configuration was not loaded."
-          },
-          "400": {
-            "description": "Bad query."
-          }
-        },
-        "operationId": "getconfig",
-        "description": "Get a UI configuation file for an instance id."
-      },
-      "put": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/configBody"
-              }
-            }
-          },
-          "required": true
-        },
-        "parameters": [
-          {
-            "name": "instanceid",
-            "description": "Instance id for which config needs to be updated.",
-            "schema": {
-              "type": "string"
-            },
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Successfully updated."
-          },
-          "400": {
-            "description": "Invalid body."
-          }
-        },
-        "description": "Update a configuration."
-      },
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/configBody"
-              }
-            }
-          },
-          "required": true
-        },
-        "parameters": [
-          {
-            "name": "instanceid",
-            "description": "Instance id for which config is to be inserted.",
-            "schema": {
-              "type": "string"
-            },
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Config created."
-          }
-        },
-        "description": "Insert a configuration for an instance."
-      },
-      "delete": {
-        "parameters": [
-          {
-            "name": "instanceid",
-            "description": "Instance id whose config should be deleted.",
-            "schema": {
-              "type": "string"
-            },
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Config deleted."
-          }
-        },
-        "description": "Delete a configuration."
-      }
-    },
-    "/items/{id}": {
-      "description": "Operations on a specific catalogue item.",
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/item"
-                }
-              }
-            },
-            "description": "Found the item."
-          },
-          "404": {
-            "content": {
-              "application/json": {}
-            },
-            "description": "Didn't find the item."
-          }
-        },
-        "operationId": "getItem",
-        "description": "Get the item."
-      },
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/item"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/item"
-                }
-              }
-            },
-            "description": "Successfully inserted."
-          },
-          "400": {
-            "description": "Schema of item didn't match."
-          },
-          "401": {
-            "description": "Don't have sufficient permission to insert items into the catalogue."
-          }
-        },
-        "description": "Insert an item into the catalogue. The item's body specifies the type of item."
-      },
-      "delete": {
-        "responses": {
-          "204": {
-            "description": "Successfully deleted."
-          },
-          "401": {
-            "description": "Not allowed to delete item."
-          },
-          "404": {
-            "description": "Didn't find the item."
-          }
-        },
-        "description": "Delete an item."
-      },
-      "parameters": [
-        {
-          "name": "id",
-          "description": "id of the item",
-          "schema": {
-            "type": "string"
-          },
-          "in": "path",
-          "required": true
-        }
-      ]
-    },
-    "/cities": {
-      "description": "Get all cities registered to this catalogue.",
-      "get": {
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/listOfCities"
-                }
-              }
-            },
-            "description": "List of cities"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "searchResponseBody": {
-        "title": "Root Type for searchResponseBody",
-        "description": "Response body of a search request.",
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "totalHits": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "limit": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "offset": {
-            "format": "int32",
-            "type": "integer"
-          },
-          "results": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
-          }
-        },
-        "example": {
-          "status": "success",
-          "totalHits": 200,
-          "limit": 1,
-          "offset": 100,
-          "results": [
-            {}
-          ]
-        }
-      },
-      "invalidSearchResponesBody": {
-        "title": "Root Type for invalidSearchResponesBody",
-        "description": "Response body for invalid requests.",
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "results": {
-            "type": "array",
-            "items": {}
-          }
-        },
-        "example": {
-          "status": "invalidValue",
-          "results": []
-        }
-      },
-      "citiesResponseBody": {
-        "title": "Root Type for citiesResponseBody",
-        "description": "Response body for a ui/cities query",
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "results": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "__instance-id": {
-                  "type": "string"
-                },
-                "configurations": {
-                  "type": "object",
-                  "properties": {
-                    "smart_city_name": {
-                      "type": "string"
+    "paths": {
+        "/search": {
+            "description": "Generic catalogue search query. Searches for entites that meet the query criteria.",
+            "get": {
+                "parameters": [
+                    {
+                        "name": "property",
+                        "description": "Array of properties on which query is to be made. The mapping between a property and a value is one-to-one.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "in": "query",
+                        "required": false
                     },
-                    "map_default_view_lat_lng": {
-                      "type": "array",
-                      "items": {
-                        "format": "double",
-                        "type": "number"
-                      }
+                    {
+                        "name": "value",
+                        "description": "Values of the one-to-one mapped properties.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "geoproperty",
+                        "description": "Name of the property if the query is on a geospatial property.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "georel",
+                        "description": "Type of geoquery, for e.g, within, near, outside.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "geometry",
+                        "description": "Geometry of the geo-query, for e.g, linstring, bbox, polygon.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "coordinates",
+                        "description": "Coordinates for the specific query type. For e.g, [[1,2], [3,4]]. Note: The data-type of this field is a string, therefore the coordinates are a string encoded multidimensional array.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "q",
+                        "description": "query for text/fuzzy search.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "limit",
+                        "description": "Limit number of records in search response.",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "offset",
+                        "description": "Offset from where the next batch of results should be returned.",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "filter",
+                        "description": "Filter properties to display. This is an array of strings.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "in": "query"
                     }
-                  }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardResponseWithObjects"
+                                }
+                            }
+                        },
+                        "description": "All the query parameters yielded results."
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad query."
+                    }
+                },
+                "operationId": "search",
+                "description": "Search items in the catalogue"
+            }
+        },
+        "/list/{type}": {
+            "description": "List entities or properties. If entites, then type must be resource, resourceGroup, resourceServer, provider. If properties then only tags is supported.",
+            "get": {
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardResponseWithStrings"
+                                }
+                            }
+                        },
+                        "description": "Success"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Fail"
+                    }
+                },
+                "operationId": "listTypes",
+                "description": "List a particular type"
+            },
+            "parameters": [
+                {
+                    "name": "type",
+                    "description": "If entites, then type must be resource, resourceGroup, resourceServer, provider. If properties then only tags is supported.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
                 }
-              }
-            }
-          }
+            ]
         },
-        "example": {
-          "status": "success",
-          "results": [
-            {
-              "__instance-id": "pudx.catalogue.iudx.org.in",
-              "configurations": {
-                "smart_city_name": "PSCDCL",
-                "map_default_view_lat_lng": [
-                  18.5644,
-                  73.7858
-                ]
-              }
+        "/item": {
+            "description": "Operations on a specific catalogue item.",
+            "get": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "description": "ID of the IUDX Entity",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardResponseWithObjects"
+                                }
+                            }
+                        },
+                        "description": "Found the item."
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Didn't find the item."
+                    }
+                },
+                "operationId": "getItem",
+                "description": "Get an item"
+            },
+            "put": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/exapmleEntityWId"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardCrudResponse"
+                                }
+                            }
+                        },
+                        "description": "Success"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardCrudResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid document"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardCrudResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized access"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardCrudResponse"
+                                }
+                            }
+                        },
+                        "description": "Document doesn't exist"
+                    }
+                },
+                "operationId": "updateItem",
+                "description": "Update an item where the body contains a fully valid item with id"
+            },
+            "post": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/exampleEntityWoID"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardCrudResponse"
+                                }
+                            }
+                        },
+                        "description": "Successfully inserted"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardCrudResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid document"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardCrudResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized access"
+                    }
+                },
+                "operationId": "createItem",
+                "description": "Insert an item into the catalogue where the item's body specifies the type of item"
+            },
+            "delete": {
+                "parameters": [
+                    {
+                        "name": "id",
+                        "description": "ID of the IUDX Entity",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardCrudResponse"
+                                }
+                            }
+                        },
+                        "description": "Successfully deleted"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardCrudResponse"
+                                }
+                            }
+                        },
+                        "description": "Unauthorized access"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardCrudResponse"
+                                }
+                            }
+                        },
+                        "description": "Didn't find the item"
+                    }
+                },
+                "operationId": "deleteItem",
+                "description": "Delete an item"
             }
-          ]
-        }
-      },
-      "configResponse": {
-        "description": "Response of the configuration request.",
-        "type": "object",
-        "example": {
-          "status": "success",
-          "results": [
-            {
-              "instanceId": "varanasi.iudx.org.in",
-              "configurations": {
-                "cat_base_URL": "https://varanasi.iudx.org.in/catalogue/v1"
-              },
-              "legends": {},
-              "global_configuration": {}
+        },
+        "/relsearch": {
+            "description": "Catalogue relationship search. This is much like normal search except the query explores properties that resides inside a related entity.\nFor e.g, for  a Resource entity -> Doc A - {id: some-id, provider: example-provider-id}, and Provider entity -> Doc B- {id: example-provider-id, name: some-name},\nthis api allows you to make a query saying provider.name=some-name which will return Doc A.",
+            "get": {
+                "parameters": [
+                    {
+                        "name": "relationship",
+                        "description": "Relationship attribute on which the query is to be made. For e.g, entities whose related provider entity's name needs to match xyz will have this field as \"[provider.name]\". The relationship is enclosed in []. If there are two relationships, then they must be comma separated. For e.g, [provider.name, resourceGroup.name].",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "value",
+                        "description": "Value of the relationhsip. Multiple values for a single relationship are supported, for e.g, [[val1, val2]].\nIf multiple relationships are specified, then their values will occur as so - [[rel1-val1],[rel2-val1]]",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "in": "query",
+                        "required": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardResponseWithObjects"
+                                }
+                            }
+                        },
+                        "description": "All the query parameters yielded results."
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad query."
+                    }
+                },
+                "operationId": "relationship",
+                "description": "Search related items in the catalogue "
             }
-          ]
-        }
-      },
-      "configBody": {
-        "title": "Root Type for configBody",
-        "description": "Body of the configuration request",
-        "type": "object",
-        "properties": {
-          "instanceId": {
-            "type": "string"
-          },
-          "configurations": {
-            "type": "object",
-            "properties": {
-              "cat_base_URL": {
-                "type": "string"
-              }
+        },
+        "/count": {
+            "description": "Generic catalogue count query. Searches for entites that meet the query criteria and returns a count of such entities.",
+            "get": {
+                "parameters": [
+                    {
+                        "name": "property",
+                        "description": "Array of properties on which query is to be made. The mapping between a property and a value is one-to-one.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "value",
+                        "description": "Values of the one-to-one mapped properties.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "geoproperty",
+                        "description": "Name of the property if the query is on a geospatial property.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "georel",
+                        "description": "Type of geoquery, for e.g, within, near, outside.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "geometry",
+                        "description": "Geometry of the geo-query, for e.g, linstring, bbox, polygon.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "coordinates",
+                        "description": "Coordinates for the specific query type. For e.g, [[1,2], [3,4]]. Note: The data-type of this field is a string, therefore the coordinates are a string encoded multidimensional array.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "q",
+                        "description": "query for text/fuzzy search.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "limit",
+                        "description": "Limit number of records in search response.",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "offset",
+                        "description": "Offset from where the next batch of results should be returned.",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in": "query",
+                        "required": false
+                    },
+                    {
+                        "name": "filter",
+                        "description": "Filter properties to display. This is an array of strings.",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardResponseWithObjects"
+                                }
+                            }
+                        },
+                        "description": "All the query parameters yielded results."
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Bad query."
+                    }
+                },
+                "operationId": "count",
+                "description": "Search items in the catalogue"
             }
-          }
         },
-        "example": {
-          "instanceId": "varanasi.iudx.org.in",
-          "configurations": {
-            "cat_base_URL": "https://varanasi.iudx.org.in/catalogue/v1"
-          }
+        "/relationship": {
+            "description": "Relationship api. This api will give you the document which is pointed by a cerain relationship attribute in an entity.\nFor e.g, for Resource.provider, this api will give the Provider entity associated with this Resource.",
+            "get": {
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardResponseWithObjects"
+                                }
+                            }
+                        },
+                        "description": "Success"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardResponseWithObjects"
+                                }
+                            }
+                        },
+                        "description": "Item oor relationship doesn't exist"
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/standardResponseWithObjects"
+                                }
+                            }
+                        },
+                        "description": "Not authorized"
+                    }
+                },
+                "operationId": "getRelEntity",
+                "description": "Get the related entity"
+            },
+            "parameters": [
+                {
+                    "name": "id",
+                    "description": "ID of the entity",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "name": "rel",
+                    "description": "Relationship attribute of the entity whose id is provided. For e.g provider, resourceGroup, resourceServer, etc.",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                }
+            ]
         }
-      },
-      "item": {
-        "title": "Root Type for itemResponse",
-        "description": "A catalogue item.",
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          }
-        },
-        "example": {
-          "id": "hash/group/resourceId"
+    },
+    "components": {
+        "schemas": {
+            "standardResponseWithObjects": {
+                "title": "Root Type for standardResponse",
+                "description": "Standard Response for all requests",
+                "type": "object",
+                "properties": {
+                    "totalHits": {
+                        "format": "int32",
+                        "description": "Total number of documents which matched the query.",
+                        "type": "integer"
+                    },
+                    "results": {
+                        "description": "Results which matched the query. This is an array of objects.",
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "description": {
+                        "description": "Detailed description of the message"
+                    },
+                    "status": {
+                        "description": "Status of the request. Could be success, fail, invalidSyntax.",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "totalHits": 10,
+                    "results": [
+                        {}
+                    ],
+                    "message": "success",
+                    "description": "a detailed description"
+                }
+            },
+            "standardResponseWithStrings": {
+                "title": "Root Type for standardResponse",
+                "description": "Standard Response for all requests",
+                "type": "object",
+                "properties": {
+                    "totalHits": {
+                        "format": "int32",
+                        "description": "Total number of documents which matched the query.",
+                        "type": "integer"
+                    },
+                    "results": {
+                        "description": "Results which matched the query. This is an array of strings.",
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "description": {
+                        "description": "Detailed description of the message"
+                    },
+                    "status": {
+                        "description": "Status of the request. Could be success, fail, invalidSyntax.",
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "totalHits": 10,
+                    "results": [
+                        {}
+                    ],
+                    "message": "success",
+                    "description": "a detailed description"
+                }
+            },
+            "standardErrorResponse": {
+                "title": "Root Type for standardErrorResponse",
+                "description": "Stand response body for error messages",
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "status": "fail",
+                    "description": "failed due to invalid query"
+                }
+            },
+            "exampleEntityWoID": {
+                "title": "Root Type for exampleEntityWoID",
+                "description": "An example entity without ID (For first time onboarding)",
+                "type": "object",
+                "properties": {
+                    "@context": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "example": {
+                    "@context": "context-url",
+                    "name": "some-name",
+                    "type": [
+                        "iudx:Resource"
+                    ]
+                }
+            },
+            "exapmleEntityWId": {
+                "title": "Root Type for exapmleEntityWId",
+                "description": "And example entity with id for updates",
+                "type": "object",
+                "properties": {
+                    "@context": {
+                        "type": "string"
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "example": {
+                    "@context": "context-url",
+                    "id": "some-id",
+                    "name": "some-name",
+                    "type": [
+                        "iudx:Resource"
+                    ]
+                }
+            },
+            "standardCrudResponse": {
+                "title": "Root Type for standardCrudResponse",
+                "description": "Standard response for crud apis",
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "method": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "example": {
+                    "status": "success or fail",
+                    "results": [
+                        {
+                            "id": "some-id",
+                            "method": "insert/delete/update",
+                            "status": "success"
+                        }
+                    ]
+                }
+            }
         }
-      },
-      "listOfCities": {
-        "title": "Root Type for listOfCities",
-        "description": "List of cities.",
-        "type": "array",
-        "items": {
-          "type": "string"
-        },
-        "example": [
-          "id1",
-          "id2"
-        ]
-      }
     }
-  }
 }
