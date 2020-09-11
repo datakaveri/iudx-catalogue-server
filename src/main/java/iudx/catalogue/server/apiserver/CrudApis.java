@@ -20,9 +20,11 @@ import java.util.Set;
 import java.util.HashSet;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.Constants.*;
 
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
+import iudx.catalogue.server.apiserver.util.ResponseHandler;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 
 
@@ -99,6 +101,10 @@ public final class CrudApis {
       }
     }
 
+    /* checking the operation type */
+    String methodType =
+        routingContext.request().method().toString() == REQUEST_POST ? INSERT : UPDATE;
+
     /**
      * Start insertion flow 
      **/
@@ -106,7 +112,15 @@ public final class CrudApis {
     /** Json schema validate item */
     validatorService.validateSchema(requestBody, schValHandler -> {
       if (schValHandler.failed()) {
-        response.setStatusCode(400).end(schValHandler.cause().getMessage());
+        // response.setStatusCode(400).end(schValHandler.cause().getMessage());
+        response.setStatusCode(400)
+                .end(new ResponseHandler.Builder()
+                                        .withStatus(FAILED)
+                                        .withResults(requestBody.getString(ID, ""),
+                                            methodType, FAILED,
+                                            schValHandler.cause().getMessage())
+                                        .build()
+                                        .toJsonString());
         return;
       }
       if (schValHandler.succeeded()) {
@@ -115,9 +129,9 @@ public final class CrudApis {
                                 request.getHeader(HEADER_TOKEN))
                                 .put(OPERATION, routingContext.request().method().toString());
         if (itemType.equals(ITEM_TYPE_PROVIDER)) {
-          authRequest.put(REL_PROVIDER, requestBody.getString(ID));
+          authRequest.put(PROVIDER, requestBody.getString(ID));
         } else {
-          authRequest.put(REL_PROVIDER, requestBody.getString(REL_PROVIDER));
+          authRequest.put(PROVIDER, requestBody.getString(PROVIDER));
         }
 
         LOGGER.debug("Info: AuthRequest;" + authRequest.toString());
@@ -127,13 +141,26 @@ public final class CrudApis {
           if (authhandler.failed()) {
             LOGGER.error("Error: Invalid token");
             response.setStatusCode(401)
-                .end(authhandler.cause().getMessage());
+                .end(new ResponseHandler.Builder()
+                                    .withStatus(FAILED)
+                                    .withResults(requestBody.getString(ID, ""),
+                                        methodType, ERROR,
+                                        authhandler.cause().getMessage())
+                                    .build()
+                                    .toJsonString());
             return;
-          }
-          else if (authhandler.result().getString(STATUS).equals(ERROR)) {
+          } else if (authhandler.result().getString(STATUS).equals(ERROR)) {
             LOGGER.error("Fail: Authentication;" 
                           + authhandler.result().getString(MESSAGE));
-            response.setStatusCode(401).end(authhandler.result().toString());
+           // response.setStatusCode(401).end(authhandler.result().toString());
+            response.setStatusCode(401)
+            .end(new ResponseHandler.Builder()
+                                    .withStatus(FAILED)
+                                    .withResults(requestBody.getString(ID, ""),
+                                        methodType, ERROR,
+                                        authhandler.result().getString(MESSAGE))
+                                    .build()
+                                    .toJsonString());
           }
           else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
             LOGGER.debug("Success: Authenticated item creation request");
@@ -143,13 +170,19 @@ public final class CrudApis {
               if (valhandler.failed()) {
                 LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
                 response.setStatusCode(400)
-                    .end(valhandler.cause().getMessage());
+                .end(new ResponseHandler.Builder()
+                                        .withStatus(FAILED)
+                                        .withResults(requestBody.getString(ID, ""),
+                                            methodType, FAILED,
+                                            valhandler.cause().getMessage())
+                                        .build()
+                                        .toJsonString());
               }
               if (valhandler.succeeded()) {
                 LOGGER.debug("Success: Item link validation");
 
                 /** If post, create. If put, update */
-                if (routingContext.request().method().toString() == POST) {
+                if (routingContext.request().method().toString() == REQUEST_POST) {
                   /* Requesting database service, creating a item */
                   LOGGER.debug("Info: Inserting item");
                   dbService.createItem(valhandler.result(), dbhandler -> {
@@ -262,9 +295,9 @@ public final class CrudApis {
                           Arrays.copyOfRange(itemId.split("/"), 0, 2));
     LOGGER.debug("Info: Provider ID is  " + providerId);
 
-    JsonObject authRequest = new JsonObject().put(REL_PROVIDER, providerId);
+    JsonObject authRequest = new JsonObject().put(PROVIDER, providerId);
     authenticationInfo.put(HEADER_TOKEN, request.getHeader(HEADER_TOKEN))
-                                                .put(OPERATION, DELETE);
+                                                .put(OPERATION, REQUEST_DELETE);
 
     /* Authenticating the request */
     authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
@@ -284,7 +317,13 @@ public final class CrudApis {
       } else {
         LOGGER.error("Fail: Unathorized request" + authhandler.result());
         response.setStatusCode(401)
-            .end(authhandler.result().toString());
+            .end(new ResponseHandler.Builder()
+                                    .withStatus(FAILED)
+                                    .withResults(itemId, 
+                                        DELETE, ERROR,
+                                        authhandler.result().getString(MESSAGE))
+                                    .build()
+                                    .toJsonString());
       }
     });
   }
@@ -312,18 +351,31 @@ public final class CrudApis {
     authenticationInfo.put(HEADER_TOKEN,
                             request.getHeader(HEADER_TOKEN))
                             .put(OPERATION, routingContext.request().method().toString());
-    authRequest.put(REL_PROVIDER, catAdmin);
+    authRequest.put(PROVIDER, catAdmin);
     /** Introspect token and authorize operation */
     authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
           response.setStatusCode(401)
-            .end(authhandler.cause().getMessage());
+              .end(new ResponseHandler.Builder()
+                                  .withStatus(FAILED)
+                                  .withResults(instance, 
+                                      INSERT, ERROR,
+                                      authhandler.cause().getMessage())
+                                  .build()
+                                  .toJsonString());
         return;
       }
       else if (authhandler.result().getString(STATUS).equals(ERROR)) {
         LOGGER.error("Fail: Authentication;" 
                       + authhandler.result().getString(MESSAGE));
-        response.setStatusCode(401).end();
+        response.setStatusCode(401)
+          .end(new ResponseHandler.Builder()
+                            .withStatus(FAILED)
+                            .withResults(instance, 
+                                INSERT, ERROR,
+                                authhandler.result().getString(MESSAGE))
+                            .build()
+                            .toJsonString());
       }
       else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
         /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */
@@ -366,18 +418,31 @@ public final class CrudApis {
     authenticationInfo.put(HEADER_TOKEN,
                             request.getHeader(HEADER_TOKEN))
                             .put(OPERATION, routingContext.request().method().toString());
-    authRequest.put(REL_PROVIDER, catAdmin);
+    authRequest.put(PROVIDER, catAdmin);
     /** Introspect token and authorize operation */
     authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
-          response.setStatusCode(401)
-            .end(authhandler.cause().getMessage());
+        response.setStatusCode(401)
+            .end(new ResponseHandler.Builder()
+                            .withStatus(FAILED)
+                            .withResults(instance, 
+                                INSERT, ERROR,
+                                authhandler.cause().getMessage())
+                            .build()
+                            .toJsonString());
         return;
       }
       else if (authhandler.result().getString(STATUS).equals(ERROR)) {
         LOGGER.error("Fail: Authentication;" 
                       + authhandler.result().getString(MESSAGE));
-        response.setStatusCode(401).end();
+        response.setStatusCode(401)
+          .end(new ResponseHandler.Builder()
+                          .withStatus(FAILED)
+                          .withResults(instance, 
+                              INSERT, ERROR,
+                              authhandler.result().getString(MESSAGE))
+                          .build()
+                          .toJsonString());
       }
       else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
         /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */

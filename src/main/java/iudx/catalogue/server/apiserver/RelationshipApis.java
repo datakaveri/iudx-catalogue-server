@@ -17,6 +17,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.Constants.*;
 
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
@@ -45,180 +46,58 @@ public final class RelationshipApis {
   }
 
   /**
-   * Get all resources belonging to a resourceGroup.
+   * Get all items belonging to the itemType.
    *
    * @param routingContext handles web requests in Vert.x Web
    */
-  public void resourceRelationshipHandler(RoutingContext routingContext) {
+  public void listRelationshipHandler(RoutingContext routingContext) {
 
     LOGGER.info("Info: Searching for relationship of resource");
 
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     JsonObject requestBody = new JsonObject();
-
     String instanceID = request.getHeader(HEADER_INSTANCE);
 
-    String id = request.getParam(ID);
+    if (request.getParam(ID) != null && request.getParam(REL_KEY) != null) {
+      String id = request.getParam(ID);
+      String itemType = request.getParam(REL_KEY);
 
-    if (id != null && !id.isBlank()) {
-      requestBody.put(ID, id);
-      requestBody.put(INSTANCE, instanceID);
-      requestBody.put(RELATIONSHIP, REL_RESOURCE);
+      if (!id.isBlank() && ITEMS_KEY.contains(itemType)) {
+        requestBody.put(ID, id);
+        requestBody.put(INSTANCE, instanceID);
+        requestBody.put(RELATIONSHIP, itemType);
 
-      /*
-       * Request database service with requestBody for listing resource relationship
-       */
-      dbService.listRelationship(requestBody, dbhandler -> {
-        if (dbhandler.succeeded()) {
-          LOGGER.info("Success: List of resources belonging to resourceGroups");
-          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                  .setStatusCode(200)
-                  .end(dbhandler.result().toString());
-        } else if (dbhandler.failed()) {
-          LOGGER.error("Fail: Issue in listing resource relationship;"
-                           + dbhandler.cause().toString());
-          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                  .setStatusCode(400)
-                  .end(dbhandler.cause().toString());
-        }
-      });
-    } else {
-      LOGGER.error("Fail: Issue in path parameter");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-              .setStatusCode(400)
-              .end(new ResponseHandler.Builder()
-                                      .withStatus(INVALID_SYNTAX)
-                                      .build().toJsonString());
-    }
-  }
-
-  /**
-   * Get all resourceGroup relationships.
-   *
-   * @param routingContext handles web requests in Vert.x Web
-   */
-  public void resourceGroupRelationshipHandler(RoutingContext routingContext) {
-
-    LOGGER.info("Info: Searching for relationship of resource and resourceGroup");
-
-    HttpServerRequest request = routingContext.request();
-    HttpServerResponse response = routingContext.response();
-
-    JsonObject requestBody = new JsonObject();
-
-    String instanceID = request.getHeader(HEADER_INSTANCE);
-    String id = request.getParam(ID);
-
-    if (id != null && !id.isBlank()) {
-
-      requestBody.put(ID, id);
-      requestBody.put(INSTANCE, instanceID);
-      requestBody.put(RELATIONSHIP, REL_RESOURCE_GRP);
-
-      /*
-       * Request database service with requestBody for listing resource group relationship
-       */
-      dbService.listRelationship(requestBody, dbhandler -> {
-        if (dbhandler.succeeded()) {
-          LOGGER.info("Success: List of resourceGroup belonging to resource");
-          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                  .setStatusCode(200)
-                  .end(dbhandler.result().toString());
-        } else if (dbhandler.failed()) {
-          LOGGER.error("Fail: Issue in listing resourceGroup relationship;"
-                         + dbhandler.cause().toString());
-          response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                  .setStatusCode(400)
-                  .end(dbhandler.cause().getLocalizedMessage());
-        }
-      });
-    } else {
-      LOGGER.error("Fail: Issue in path parameter");
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-              .setStatusCode(400)
-              .end(new ResponseHandler.Builder().withStatus(INVALID_SYNTAX)
-              .build().toJsonString());
-    }
-  }
-
-
-  /**
-   * Queries the database and returns all resource servers belonging to an item.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void resourceServerRelationshipHandler(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().getHeader(HEADER_INSTANCE);
-    String id = routingContext.request().getParam(ID);
-    queryJson.put(INSTANCE, instanceID).put(ID, id)
-        .put(RELATIONSHIP, REL_RESOURCE_SVR);
-    LOGGER.debug("Info: search query : " + queryJson);
-    dbService.listRelationship(queryJson, handler -> {
-      if (handler.succeeded()) {
-        JsonObject resultJson = handler.result();
-        String status = resultJson.getString(STATUS);
-        if (status.equalsIgnoreCase(SUCCESS)) {
-          response.setStatusCode(200);
-        } else {
-          response.setStatusCode(400);
-        }
-        LOGGER.info("Success: Retrieved relationships");
-        response.headers()
-                .add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(HEADER_CONTENT_LENGTH,
-                      String.valueOf(resultJson.toString().length()));
-        response.write(resultJson.toString());
-        response.end();
-      } else if (handler.failed()) {
-        LOGGER.error(handler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-        response.setStatusCode(400);
-        response.end(handler.cause().getLocalizedMessage());
+        /*
+         * Request database service with requestBody for listing resource relationship
+         */
+        dbService.listRelationship(requestBody, dbhandler -> {
+          if (dbhandler.succeeded()) {
+            LOGGER.info("Success: Retrieved relationships of " + itemType);
+            response.setStatusCode(200)
+                    .end(dbhandler.result().toString());
+          } else if (dbhandler.failed()) {
+            LOGGER.error("Fail: Issue in listing relationship;" + dbhandler.cause().getMessage());
+            response.setStatusCode(400)
+                    .end(dbhandler.cause().getMessage());
+          }
+        });
+      } else {
+        LOGGER.error("Fail: Issue in query parameter");
+        response.setStatusCode(400)
+            .end(new ResponseHandler.Builder()
+                                    .withStatus(INVALID_VALUE)
+                                    .build().toJsonString());
       }
-    });
-  }
-
-  /**
-   * Queries the database and returns provider of an item.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void providerRelationshipHandler(RoutingContext routingContext) {
-    HttpServerResponse response = routingContext.response();
-    JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().getHeader(HEADER_INSTANCE);
-    String id = routingContext.request().getParam(ID);
-    queryJson
-        .put(INSTANCE, instanceID)
-        .put(ID, id)
-        .put(RELATIONSHIP, REL_PROVIDER);
-    LOGGER.debug("Info: search query : " + queryJson);
-    dbService.listRelationship(queryJson, handler -> {
-      if (handler.succeeded()) {
-        JsonObject resultJson = handler.result();
-        String status = resultJson.getString(STATUS);
-        if (status.equalsIgnoreCase(SUCCESS)) {
-          response.setStatusCode(200);
-        } else {
-          response.setStatusCode(400);
-        }
-        LOGGER.info("Success: Retrieved relationships");
-        response.headers()
-                .add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                .add(HEADER_CONTENT_LENGTH, String.valueOf(resultJson.toString().length()));
-        response.write(resultJson.toString());
-        response.end();
-      } else if (handler.failed()) {
-        LOGGER.error(handler.cause().getMessage());
-        response.headers().add(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-        response.setStatusCode(400);
-        response.end(handler.cause().getLocalizedMessage());
-      }
-    });
+    } else {
+      LOGGER.error("Fail: Issue in query parameter");
+      response.setStatusCode(400)
+          .end(new ResponseHandler.Builder()
+                                  .withStatus(INVALID_SYNTAX)
+                                  .build().toJsonString());
+    }
   }
 
 
@@ -258,10 +137,10 @@ public final class RelationshipApis {
                     .end(dbhandler.result().toString());
           } else if (dbhandler.failed()) {
             LOGGER.error("Fail: Issue in relationship search "
-                           + dbhandler.cause().toString());
+                + dbhandler.cause().getMessage());
             response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                     .setStatusCode(400)
-                    .end(dbhandler.cause().getLocalizedMessage());
+                .end(dbhandler.cause().getMessage());
           }
         });
       } else {

@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.Constants.*;
 
 
 /**
@@ -74,7 +75,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: DB Request;" + searchRes.cause().getMessage());
         handler.handle(Future.failedFuture(
               respBuilder.withStatus(FAILED)
-                          .withDescription(DATABASE_ERROR)
+                          .withDescription(INTERNAL_SERVER_ERROR)
                           .getResponse()));
       }
     });
@@ -119,7 +120,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: DB Request;" + searchRes.cause().getMessage());
         handler.handle(Future.failedFuture(
               respBuilder.withStatus(FAILED)
-                          .withDescription(DATABASE_ERROR)
+                          .withDescription(INTERNAL_SERVER_ERROR)
                           .getResponse()));
       }
     });
@@ -153,14 +154,15 @@ public class DatabaseServiceImpl implements DatabaseService {
       LOGGER.debug("Info: InstanceID null. Maybe provider item");
       /* Checks for provider would have already been done in validation */
       instanceCheckLatch.countDown();
-    } else if(!instanceId.equals("")) {
+    } else if (!instanceId.equals("")) {
         String checkInstance = TERM_COMPLEX_QUERY.replace("$1", instanceId)
                                                   .replace("$2", "");
         client.searchAsync(CAT_INDEX_NAME, checkInstance, checkRes -> {
           if (checkRes.failed()) {
+            LOGGER.error("Fail: DB Request;" + checkRes.cause().getMessage());
             handler.handle(Future.failedFuture(
                     respBuilder.withStatus(FAILED)
-                               .withDescription("Fail: DBError")
+                               .withDescription(INTERNAL_SERVER_ERROR)
                                .getResponse()));
             isInstanceValid.value = false;
             return;
@@ -182,8 +184,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     } catch (Exception e) {
       handler.handle(Future.failedFuture(
             respBuilder.withStatus(ERROR)
-                        .withResult(id, INSERT, FAILED)
-                        .withDescription("Fail: time out")
+                        .withResult(id, INSERT, FAILED,"Fail: time out")
                         .getResponse()));
       return this;
     }
@@ -199,16 +200,14 @@ public class DatabaseServiceImpl implements DatabaseService {
         if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
           handler.handle(Future.failedFuture(
               respBuilder.withStatus(ERROR)
-                          .withResult(id, INSERT, FAILED)
-                          .withDescription("Fail: Doc Exists")
+                          .withResult(id, INSERT, FAILED,"Fail: Doc Exists")
                           .getResponse()));
           return;
         }
         if (isInstanceValid.value == false) {
           handler.handle(Future.failedFuture(
               respBuilder.withStatus(ERROR)
-                          .withResult(id, INSERT, FAILED)
-                          .withDescription("Fail: Instance doesn't exist/registered")
+                          .withResult(id, INSERT, FAILED,"Fail: Instance doesn't exist/registered")
                           .getResponse()));
           LOGGER.error("Fail: Invalid Instance Insertion failed");
           return;
@@ -255,9 +254,8 @@ public class DatabaseServiceImpl implements DatabaseService {
           LOGGER.error("Fail: Doc doesn't exist, can't update");
             handler.handle(Future.succeededFuture(
               respBuilder.withStatus(ERROR)
-                .withResult(id, UPDATE, FAILED)
-                .withDescription("Fail: Doc doesn't exist, can't update")
-                .getJsonResponse()));
+                         .withResult(id, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
+                         .getJsonResponse()));
           return;
         }
         String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
@@ -295,7 +293,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     client.searchGetId(CAT_INDEX_NAME, checkQuery, checkRes -> {
       if (checkRes.failed()) {
-        LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+        LOGGER.error("Fail: Check query fail;" + checkRes.cause().getMessage());
         handler.handle(Future.failedFuture(errorJson));
       }
 
@@ -305,9 +303,8 @@ public class DatabaseServiceImpl implements DatabaseService {
           LOGGER.error("Fail: Doc doesn't exist, can't delete;");
           handler.handle(Future.succeededFuture(
                 respBuilder.withStatus(ERROR)
-                .withResult(id, DELETE, FAILED)
-                .withDescription("Fail: Doc doesn't exist, can't delete")
-                .getJsonResponse()));
+                           .withResult(id, DELETE, FAILED,"Fail: Doc doesn't exist, can't delete")
+                           .getJsonResponse()));
           return;
         }
 
@@ -320,7 +317,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                             .getJsonResponse()));
           } else {
             handler.handle(Future.failedFuture(errorJson));
-            LOGGER.error("Fail: Deletion failed;" + delRes.cause());
+            LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
           }
         });
       }
@@ -350,7 +347,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         /* Handle request error */
         handler.handle(
             Future.failedFuture(respBuilder.withStatus(FAILED)
-                                            .withDescription(ERROR_DB_REQUEST)
+                                            .withDescription(INTERNAL_SERVER_ERROR)
                                             .getResponse()));
       }
     });
@@ -378,7 +375,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         /* Handle request error */
         handler.handle(
             Future.failedFuture(respBuilder.withStatus(FAILED)
-                                            .withDescription(ERROR_DB_REQUEST)
+                                            .withDescription(INTERNAL_SERVER_ERROR)
                                             .getResponse()));
       }
     });
@@ -406,7 +403,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         /* Handle request error */
         handler.handle(
             Future.failedFuture(respBuilder.withStatus(FAILED)
-                                            .withDescription(ERROR_DB_REQUEST)
+                                            .withDescription(INTERNAL_SERVER_ERROR)
                                             .getResponse()));
       }
     });
@@ -441,16 +438,16 @@ public class DatabaseServiceImpl implements DatabaseService {
         String relReqsValue = request.getJsonArray(VALUE)
                                       .getJsonArray(0).getString(0);
 
-        if (relReqs[0].equalsIgnoreCase(REL_PROVIDER)) {
+        if (relReqs[0].equalsIgnoreCase(PROVIDER)) {
           typeValue = ITEM_TYPE_PROVIDER;
 
-        } else if (relReqs[0].equalsIgnoreCase(REL_RESOURCE)) {
+        } else if (relReqs[0].equalsIgnoreCase(RESOURCE)) {
           typeValue = ITEM_TYPE_RESOURCE;
 
-        } else if (relReqs[0].equalsIgnoreCase(REL_RESOURCE_GRP)) {
+        } else if (relReqs[0].equalsIgnoreCase(RESOURCE_GRP)) {
           typeValue = ITEM_TYPE_RESOURCE_GROUP;
 
-        } else if (relReqs[0].equalsIgnoreCase(REL_RESOURCE_SVR)) {
+        } else if (relReqs[0].equalsIgnoreCase(RESOURCE_SVR)) {
           typeValue = ITEM_TYPE_RESOURCE_SERVER;
 
         } else {
@@ -520,18 +517,18 @@ public class DatabaseServiceImpl implements DatabaseService {
               LOGGER.debug("Success: Successful DB request");
               handler.handle(Future.succeededFuture(relSearchRes.result()));
             } else if (relSearchRes.failed()) {
-              LOGGER.error("Fail: DB request has failed;" + relSearchRes.cause());
+              LOGGER.error("Fail: DB request has failed;" + relSearchRes.cause().getMessage());
               handler.handle(Future.failedFuture(
                               respBuilder.withStatus(FAILED)
-                                          .withDescription(ERROR_DB_REQUEST)
+                                          .withDescription(INTERNAL_SERVER_ERROR)
                                           .getResponse()));
             }
           });
         } else {
-          LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
+          LOGGER.error("Fail: DB request has failed;" + searchRes.cause().getMessage());
           handler.handle(Future.failedFuture(
               respBuilder.withStatus(FAILED)
-                          .withDescription(ERROR_DB_REQUEST)
+                          .withDescription(INTERNAL_SERVER_ERROR)
                           .getResponse()));
         }
       });
@@ -559,6 +556,15 @@ public class DatabaseServiceImpl implements DatabaseService {
       JsonObject resultAttrs = new JsonObject().put(ID, id)
                                                 .put(METHOD, method)
                                                 .put(STATUS, status);
+      response.put(RESULTS, new JsonArray().add(resultAttrs));
+      return this;
+    }
+    
+    public RespBuilder withResult(String id, String method, String status, String description) {
+      JsonObject resultAttrs = new JsonObject().put(ID, id)
+                                                .put(METHOD, method)
+                                                .put(STATUS, status)
+                                                .put(DESCRIPTION,description);
       response.put(RESULTS, new JsonArray().add(resultAttrs));
       return this;
     }

@@ -1,8 +1,5 @@
 package iudx.catalogue.server.database;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,13 +8,7 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import org.apache.http.HttpHost;
-import org.elasticsearch.client.RestClient;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -25,9 +16,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.elasticsearch.client.Request;
 
-import iudx.catalogue.server.database.ElasticClient;
+import static iudx.catalogue.server.Constants.*;
 
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -38,7 +28,6 @@ public class ElasticClientTest {
   private static InputStream inputstream;
   private static String databaseIP;
   private static int databasePort;
-  private Request elasticRequest;
 
   @BeforeAll
   @DisplayName("")
@@ -47,10 +36,10 @@ public class ElasticClientTest {
     properties = new Properties();
 
     try {
-      inputstream = new FileInputStream(Constants.CONFIG_FILE);
+      inputstream = new FileInputStream(CONFIG_FILE);
       properties.load(inputstream);
-      databaseIP = properties.getProperty(Constants.DATABASE_IP);
-      databasePort = Integer.parseInt(properties.getProperty(Constants.DATABASE_PORT));
+      databaseIP = properties.getProperty(DATABASE_IP);
+      databasePort = Integer.parseInt(properties.getProperty(DATABASE_PORT));
       client = new ElasticClient(databaseIP, databasePort);
 
       LOGGER.info("Read config file");

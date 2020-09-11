@@ -1,11 +1,13 @@
 package iudx.catalogue.server.database;
 
-import static iudx.catalogue.server.database.Constants.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.Constants.*;
 
 public final class QueryDecoder {
 
@@ -84,9 +86,9 @@ public final class QueryDecoder {
 
       match = true;
       /* validating tag search attributes */
-      if (request.containsKey(Q_KEY) && !request.getString(Q_KEY).isBlank()) {
+      if (request.containsKey(Q_VALUE) && !request.getString(Q_VALUE).isBlank()) {
         /* constructing db queries */
-        String textAttr = request.getString(Q_KEY);
+        String textAttr = request.getString(Q_VALUE);
         String textQuery = TEXT_QUERY.replace("$1", textAttr);
         mustQuery.add(new JsonObject(textQuery));
       }
@@ -173,8 +175,8 @@ public final class QueryDecoder {
       if (request.containsKey(ATTRIBUTE)) {
         JsonArray sourceFilter = request.getJsonArray(ATTRIBUTE);
         elasticQuery.put(SOURCE, sourceFilter);
-      } else if (request.containsKey(FILTER_KEY)) {
-        JsonArray sourceFilter = request.getJsonArray(FILTER_KEY);
+      } else if (request.containsKey(FILTER)) {
+        JsonArray sourceFilter = request.getJsonArray(FILTER);
         elasticQuery.put(SOURCE, sourceFilter);
       } else {
         return new JsonObject().put(ERROR, ERROR_INVALID_RESPONSE_FILTER);
@@ -209,18 +211,18 @@ public final class QueryDecoder {
     String subQuery = "";
 
     /* Validating the request */
-    if (request.containsKey(ID) && REL_RESOURCE.equals(relationshipType)) {
+    if (request.containsKey(ID) && RESOURCE.equals(relationshipType)) {
 
       /* parsing resourceGroupId from the request */
       String resourceGroupId = request.getString(ID);
       
-      subQuery = TERM_QUERY.replace("$1", REL_RESOURCE_GRP + KEYWORD_KEY)
+      subQuery = TERM_QUERY.replace("$1", RESOURCE_GRP + KEYWORD_KEY)
                            .replace("$2", resourceGroupId) 
                             + "," + 
                  TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_RESOURCE);
 
-    } else if (request.containsKey(ID) && REL_RESOURCE_GRP.equals(relationshipType)) {
+    } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType)) {
 
       String resourceGroupId =
           StringUtils.substringBeforeLast(request.getString(ID), FORWARD_SLASH);
@@ -231,7 +233,7 @@ public final class QueryDecoder {
                  TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
 
-    } else if (request.containsKey(ID) && REL_PROVIDER.equals(relationshipType)) {
+    } else if (request.containsKey(ID) && PROVIDER.equals(relationshipType)) {
 
       /* parsing id/providerId from the request */
       String id = request.getString(ID);
@@ -243,7 +245,7 @@ public final class QueryDecoder {
                  TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_PROVIDER);
 
-    } else if (request.containsKey(ID) && REL_RESOURCE_SVR.equals(relationshipType)) {
+    } else if (request.containsKey(ID) && RESOURCE_SVR.equals(relationshipType)) {
             
       /* parsing id from the request */
       String[] id = request.getString(ID).split(FORWARD_SLASH);

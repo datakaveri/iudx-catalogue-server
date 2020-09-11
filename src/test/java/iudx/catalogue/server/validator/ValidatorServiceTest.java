@@ -21,6 +21,7 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 
 import iudx.catalogue.server.database.ElasticClient;
+import static iudx.catalogue.server.Constants.*;
 
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -45,11 +46,11 @@ public class ValidatorServiceTest {
 
     try {
 
-      inputstream = new FileInputStream(Constants.CONFIG_FILE);
+      inputstream = new FileInputStream(CONFIG_FILE);
       properties.load(inputstream);
 
-      databaseIP = properties.getProperty(Constants.DATABASE_IP);
-      databasePort = Integer.parseInt(properties.getProperty(Constants.DATABASE_PORT));
+      databaseIP = properties.getProperty(DATABASE_IP);
+      databasePort = Integer.parseInt(properties.getProperty(DATABASE_PORT));
 
     } catch (Exception ex) {
 

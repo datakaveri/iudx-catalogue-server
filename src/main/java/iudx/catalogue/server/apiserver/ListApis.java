@@ -9,19 +9,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
-import io.vertx.core.MultiMap;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.validator.Constants.FAILED;
-import static iudx.catalogue.server.validator.Constants.INVALID_SCHEMA_MSG;
-import static iudx.catalogue.server.validator.Constants.STATUS;
+import static iudx.catalogue.server.Constants.*;
 import iudx.catalogue.server.database.DatabaseService;
-import iudx.catalogue.server.apiserver.util.QueryMapper;
 
 
 public final class ListApis {
@@ -79,13 +74,13 @@ public final class ListApis {
       case INSTANCE:
         type = ITEM_TYPE_INSTANCE;
         break;
-      case REL_RESOURCE_GRP:
+      case RESOURCE_GRP:
         type = ITEM_TYPE_RESOURCE_GROUP;
         break;
-      case REL_RESOURCE_SVR:
+      case RESOURCE_SVR:
     	  type = ITEM_TYPE_RESOURCE_SERVER;
         break;
-      case REL_PROVIDER:
+      case PROVIDER:
     	  type = ITEM_TYPE_PROVIDER;
         break;
       case TAGS:
@@ -112,10 +107,10 @@ public final class ListApis {
                 .end(dbhandler.result().toString());
           } else if (dbhandler.failed()) {
             LOGGER.error(
-                "Fail: Issue in listing " + itemType + ": " + dbhandler.cause().toString());
+                "Fail: Issue in listing " + itemType + ": " + dbhandler.cause().getMessage());
             response
                 .setStatusCode(400)
-                .end(dbhandler.cause().toString());
+                .end(dbhandler.cause().getMessage());
           }
         });
   }
@@ -137,7 +132,7 @@ public final class ListApis {
     queryJson
         .put(HEADER_INSTANCE, instanceID)
         .put(ID, id)
-        .put(RELATIONSHIP, REL_TYPE);
+        .put(RELATIONSHIP, TYPE);
     dbService.listRelationship(
         queryJson,
         handler -> {
@@ -157,7 +152,7 @@ public final class ListApis {
           } else if (handler.failed()) {
             LOGGER.error(handler.cause().getMessage());
             response.setStatusCode(400);
-            response.end(handler.cause().getLocalizedMessage());
+            response.end(handler.cause().getMessage());
           }
         });
   }

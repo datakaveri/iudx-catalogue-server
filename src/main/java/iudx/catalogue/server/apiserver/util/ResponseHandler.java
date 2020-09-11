@@ -1,5 +1,6 @@
 package iudx.catalogue.server.apiserver.util;
 
+import static iudx.catalogue.server.Constants.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
@@ -59,6 +60,36 @@ public class ResponseHandler {
       } else {
         this.results = results;
       }
+      return this;
+    }
+
+    /**
+     * 
+     * @param id of the item
+     * @param method of the request, insert/update/delete
+     * @param status of the request, whether success/failed
+     * @return
+     */
+    public Builder withResults(String id, String method, String status) {
+
+      JsonObject resultAttrs = new JsonObject().put(ID, id).put(METHOD, method).put(STATUS, status);
+      results.add(resultAttrs);
+      return this;
+    }
+
+    /**
+     * 
+     * @param id of the item
+     * @param method of the request, insert/update/delete
+     * @param status of the request, whether success/failed
+     * @param desc description messages of the failed error request
+     * @return
+     */
+    public Builder withResults(String id, String method, String status, String desc) {
+
+      JsonObject resultAttrs =
+          new JsonObject().put(ID, id).put(METHOD, method).put(STATUS, status).put(DESC, desc);
+      results.add(resultAttrs);
       return this;
     }
 
