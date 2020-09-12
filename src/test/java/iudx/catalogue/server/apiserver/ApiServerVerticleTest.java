@@ -40,8 +40,7 @@ public class ApiServerVerticleTest {
   private static final String BASE_URL = "/iudx/cat/v1/";
 
   /** Token for crud apis */
-  private static final String TOKEN =
-      "auth.iudx.org.in/md.adil@datakaveri.org/a64be46caee002546332f1f624bf4218";
+  private static final String TOKEN = "";
 
   private static WebClient client;
   private static FileSystem fileSytem;
