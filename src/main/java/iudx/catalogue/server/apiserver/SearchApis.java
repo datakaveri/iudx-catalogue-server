@@ -16,10 +16,11 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
+
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.Constants.*;
 
 
 public final class SearchApis {
@@ -72,7 +73,7 @@ public final class SearchApis {
     /* validating proper actual query parameters from request */
     if ((request.getParam(PROPERTY) == null || request.getParam(VALUE) == null)
         && (request.getParam(GEOPROPERTY) == null
-            || request.getParam(GEOREL) == null
+            || request.getParam(GEORELATION) == null
             || request.getParam(GEOMETRY) == null
             || request.getParam(COORDINATES) == null)
         && request
@@ -95,7 +96,7 @@ public final class SearchApis {
       /* checking the values of the query parameters for geo related count */
     } else if (LOCATION.equals(request.getParam(GEOPROPERTY))
                 && GEOMETRIES.contains(request.getParam(GEOMETRY))
-                && GEORELS.contains(request.getParam(GEOREL))) {
+        && GEORELS.contains(request.getParam(GEORELATION))) {
       requestBody = QueryMapper.map2Json(queryParameters);
     } else if (request.getParam(Q_VALUE) != null
         && !request.getParam(Q_VALUE).isBlank()) {

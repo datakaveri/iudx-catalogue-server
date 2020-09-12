@@ -19,6 +19,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 
+import static iudx.catalogue.server.authenticator.Constants.*;
+import static iudx.catalogue.server.Constants.*;
+
 /**
  * The Authentication Service Implementation.
  * <h1>Authentication Service Implementation</h1>
@@ -40,7 +43,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationServiceImpl(WebClient client) {
         webClient = client;
         try {
-            FileInputStream configFile = new FileInputStream(Constants.CONFIG_FILE);
+          FileInputStream configFile = new FileInputStream(CONFIG_FILE);
             if (properties.isEmpty()) properties.load(configFile);
         } catch (IOException e) {
             LOGGER.error("Could not load properties from config file", e);
@@ -49,8 +52,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     static void validateAuthInfo(JsonObject authInfo) throws IllegalArgumentException {
         if (authInfo.isEmpty()) throw new IllegalArgumentException("AuthInfo argument is empty/missing");
-        String token = authInfo.getString("token", "");
-        String operation = authInfo.getString("operation", "");
+        String token = authInfo.getString(TOKEN, "");
+        String operation = authInfo.getString(OPERATION, "");
         if (token.isBlank() || operation.isBlank())
             throw new IllegalArgumentException("Token/Operation in authenticationInfo is blank/missing");
         try {
@@ -71,55 +74,55 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String providerID;
         try {
             validateAuthInfo(authenticationInfo);
-            providerID = request.getString("provider", "");
+            providerID = request.getString(PROVIDER, "");
             if (providerID.isBlank()) throw new IllegalArgumentException("Missing provider in request object");
         } catch (IllegalArgumentException e) {
-            result.put("status", "error");
-            result.put("message", e.getMessage());
+            result.put(STATUS, ERROR);
+            result.put(MESSAGE, e.getMessage());
             handler.handle(Future.succeededFuture(result));
             return this;
         }
 
         JsonObject body = new JsonObject();
-        body.put("token", authenticationInfo.getString("token"));
+        body.put(TOKEN, authenticationInfo.getString(TOKEN));
         webClient
-                .post(443, properties.getProperty(Constants.AUTH_SERVER_HOST), Constants.AUTH_TIP_PATH)
+            .post(443, properties.getProperty(AUTH_SERVER_HOST), AUTH_TIP_PATH)
                 .expect(ResponsePredicate.JSON)
                 .sendJsonObject(body, httpResponseAsyncResult -> {
                     if (httpResponseAsyncResult.failed()) {
-                        result.put("status", "error");
-                        result.put("message", "Error calling the Auth Server");
-                        LOGGER.error("Error calling the auth server", httpResponseAsyncResult.cause());
+                        result.put(STATUS, ERROR);
+                        result.put(MESSAGE, AUTH_SERVER_ERROR);
+                        LOGGER.error(AUTH_SERVER_ERROR+";", httpResponseAsyncResult.cause());
                         handler.handle(Future.succeededFuture(result));
                         return;
                     }
                     HttpResponse<Buffer> response = httpResponseAsyncResult.result();
                     if (response.statusCode() != HttpStatus.SC_OK) {
-                        result.put("status", "error");
-                        result.put("message", response
+                        result.put(STATUS, ERROR);
+                        result.put(MESSAGE, response
                                 .bodyAsJsonObject()
-                                .getJsonObject("error")
-                                .getString("message"));
+                                .getJsonObject(ERROR)
+                                .getString(MESSAGE));
                         handler.handle(Future.succeededFuture(result));
                         return;
                     }
 
-                    JsonArray responseRequests = response.bodyAsJsonObject().getJsonArray("request");
+                    JsonArray responseRequests = response.bodyAsJsonObject().getJsonArray(REQUEST);
                     for (Object req : responseRequests) {
                         JsonObject requestEntry = (JsonObject) req;
-                        String requestID = requestEntry.getString("id", "");
+                        String requestID = requestEntry.getString(ID, "");
                         JsonArray requestMethods = requestEntry.getJsonArray("methods");
-                        String operation = authenticationInfo.getString("operation");
+                        String operation = authenticationInfo.getString(OPERATION);
                         if (isPermittedMethod(requestMethods, operation) && isPermittedProviderID(requestID, providerID)) {
-                            result.put("status", "success");
-                            result.put("body", new JsonObject());
+                            result.put(STATUS, SUCCESS);
+                            result.put(BODY, new JsonObject());
                             handler.handle(Future.succeededFuture(result));
                             return;
                         }
                     }
 
-                    result.put("status", "error");
-                    result.put("message", "ID/Operations not permitted with presented token");
+                    result.put(STATUS, ERROR);
+                    result.put(MESSAGE, "ID/Operations not permitted with presented token");
                     handler.handle(Future.succeededFuture(result));
                 });
 

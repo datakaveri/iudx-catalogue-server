@@ -25,6 +25,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.Constants.*;
 
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -77,7 +78,7 @@ public class DatabaseServiceTest {
   @DisplayName("Test CreateItem")
   void createItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
+    request.put(ITEM_TYPE, RESOURCE).put(ID,
         "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.createItem(request, testContext.succeeding(response -> testContext.verify(() -> {
       String status = response.getString(STATUS);
@@ -93,7 +94,7 @@ public class DatabaseServiceTest {
   @DisplayName("Test updateItem")
   void updateItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
+    request.put(ITEM_TYPE, RESOURCE).put(ID,
             "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
         .put("test", "test");
     dbService.updateItem(request, testContext.succeeding(response -> testContext.verify(() -> {
@@ -110,7 +111,7 @@ public class DatabaseServiceTest {
   @DisplayName("Test deleteItem")
   void deleteItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
+    request.put(ITEM_TYPE, RESOURCE).put(ID,
         "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.deleteItem(request, testContext.succeeding(response -> testContext.verify(() -> {
       String status = response.getString(STATUS);
@@ -126,7 +127,7 @@ public class DatabaseServiceTest {
   @DisplayName("Deleting Non Existant Item")
   void deleteNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
+    request.put(ITEM_TYPE, RESOURCE).put(ID,
         "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.deleteItem(request, testContext.failing(response -> testContext.verify(() -> {
       String status = response.getMessage();
@@ -142,7 +143,7 @@ public class DatabaseServiceTest {
   @DisplayName("Update non existant Item")
   void updateNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
+    request.put(ITEM_TYPE, RESOURCE).put(ID,
             "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
         .put("test", "test");
     dbService.updateItem(request, testContext.succeeding(response -> testContext.verify(() -> {
@@ -159,7 +160,7 @@ public class DatabaseServiceTest {
   @DisplayName("Create existing item")
   void createExistingItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, REL_RESOURCE).put(ID,
+    request.put(ITEM_TYPE, RESOURCE).put(ID,
         "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.createItem(request, testContext.failing(response -> testContext.verify(() -> {
       String status = response.getMessage();
@@ -218,7 +219,7 @@ public class DatabaseServiceTest {
      * [[[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5],[lo1,la1]]]
      */
     JsonObject request =
-        new JsonObject().put(GEOMETRY, POLYGON).put(GEORELATION, WITHIN).put(COORDINATES_KEY,
+        new JsonObject().put(GEOMETRY, POLYGON).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(new JsonArray().add(75.9).add(14.5))
                 .add(new JsonArray().add(72).add(13)).add(new JsonArray().add(73).add(20))
                 .add(new JsonArray().add(75.9).add(14.5))))
@@ -249,7 +250,7 @@ public class DatabaseServiceTest {
   @DisplayName("Testing Geo Polygon Exceptions (First and Last coordinates don't match)")
   void searchPolygonFirstLastNoMatch(VertxTestContext testContext) {
     JsonObject request =
-        new JsonObject().put(GEOMETRY, POLYGON).put(GEORELATION, WITHIN).put(COORDINATES_KEY,
+        new JsonObject().put(GEOMETRY, POLYGON).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(new JsonArray().add(75.9).add(14.5))
                 .add(new JsonArray().add(72).add(13)).add(new JsonArray().add(73).add(20))))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
@@ -286,7 +287,7 @@ public class DatabaseServiceTest {
   void searchGeoBbox(VertxTestContext testContext) {
     /** coordinates should look like this [[lo1,la1],[lo3,la3]] */
     JsonObject request =
-        new JsonObject().put(GEOMETRY, BBOX).put(GEORELATION, WITHIN).put(COORDINATES_KEY,
+        new JsonObject().put(GEOMETRY, BBOX).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(73).add(20))
                 .add(new JsonArray().add(75).add(14)))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
@@ -305,7 +306,7 @@ public class DatabaseServiceTest {
   void searchBboxEmptyResponse(VertxTestContext testContext) {
     /** COORDINATES_KEY should look like this [[lo1,la1],[lo3,la3]] */
     JsonObject request =
-        new JsonObject().put(GEOMETRY, BBOX).put(GEORELATION, WITHIN).put(COORDINATES_KEY,
+        new JsonObject().put(GEOMETRY, BBOX).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(82).add(25.33))
                 .add(new JsonArray().add(82.01).add(25.317)))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
@@ -388,7 +389,7 @@ public class DatabaseServiceTest {
   void countGeoCircle(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_GEO)
         .put(COORDINATES_KEY, new JsonArray().add(73.9).add(18.6)).put(MAX_DISTANCE, 5000)
-        .put(GEOMETRY, POINT).put(GEORELATION, WITHIN).put(GEOPROPERTY, GEO_KEY);
+        .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, GEO_KEY);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
       assertEquals(5, response.getInteger(COUNT));
@@ -415,7 +416,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER_GEO)
         .put("attrs", new JsonArray().add(ID).add(TAGS))
         .put(COORDINATES_KEY, new JsonArray().add(73.9).add(18.6)).put(MAX_DISTANCE, 5000)
-        .put(GEOMETRY, POINT).put(GEORELATION, WITHIN).put(GEOPROPERTY, GEO_KEY);;
+        .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, GEO_KEY);;
 
     dbService.countQuery(request, testContext.failing(response -> testContext.verify(() -> {
       JsonObject res = new JsonObject(response.getMessage());
@@ -446,7 +447,7 @@ public class DatabaseServiceTest {
   void countGeoBbox(VertxTestContext testContext) {
     /** coordinates should look like this [[lo1,la1],[lo3,la3]] */
     JsonObject request =
-        new JsonObject().put(GEOMETRY, BBOX).put(GEORELATION, WITHIN).put(COORDINATES_KEY,
+        new JsonObject().put(GEOMETRY, BBOX).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(73).add(20))
                 .add(new JsonArray().add(75).add(14)))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
@@ -461,7 +462,7 @@ public class DatabaseServiceTest {
   @DisplayName("Testing invalid Search request")
   void searchInvalidType(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, "response!@$_geoS241")
-        .put(GEOMETRY, BBOX).put(GEORELATION, WITHIN).put(COORDINATES_KEY,
+        .put(GEOMETRY, BBOX).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(73).add(20))
                 .add(new JsonArray().add(75).add(14)))
         .put(GEOPROPERTY, GEO_KEY);
@@ -483,7 +484,7 @@ public class DatabaseServiceTest {
   void simpleAttributeSearch(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, ATTRIBUTE_SEARCH)
+    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
         .put(PROPERTY, new JsonArray().add(ID)).put(VALUE,
             new JsonArray().add(
                 new JsonArray().add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
@@ -510,7 +511,7 @@ public class DatabaseServiceTest {
   void simpleAttributeMultiValueSearch(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, ATTRIBUTE_SEARCH)
+    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
         .put(PROPERTY, new JsonArray().add(ID)).put(VALUE,
             new JsonArray().add(new JsonArray()
                 .add(
@@ -540,7 +541,7 @@ public class DatabaseServiceTest {
   void simpleAttributeSearchInvalidProperty(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, ATTRIBUTE_SEARCH)
+    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
         .put(PROPERTY, new JsonArray().add("invalidProperty"))
         .put(VALUE, new JsonArray().add(new JsonArray().add("rbccps.org/aa9d66a000d94a78"
             + "895de8d4c0b3a67f3450e531/pscdcl/aqm-bosch-climo/Ambedkar society circle_29")));
@@ -565,7 +566,8 @@ public class DatabaseServiceTest {
 
     /* Constructing request Json Body */
     JsonObject request =
-        new JsonObject().put(SEARCH_TYPE, ATTRIBUTE_SEARCH).put(PROPERTY, new JsonArray().add(ID))
+        new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
+            .put(PROPERTY, new JsonArray().add(ID))
             .put(VALUE, new JsonArray().add(new JsonArray().add("non-existing-id")));
 
     /* requesting db service */
@@ -587,7 +589,7 @@ public class DatabaseServiceTest {
   void multiAttributeSearch(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, ATTRIBUTE_SEARCH)
+    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
             .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
@@ -614,7 +616,7 @@ public class DatabaseServiceTest {
   void multiAttributeSearchInvalidProperty(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, ATTRIBUTE_SEARCH)
+    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY.concat("invalid")))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
             .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
@@ -638,7 +640,7 @@ public class DatabaseServiceTest {
   void multiAttributeSearchInvalidId(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, ATTRIBUTE_SEARCH)
+    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM.concat("invalidTag")))
                 .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
@@ -663,11 +665,11 @@ public class DatabaseServiceTest {
 
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
-        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(ATTRIBUTE_SEARCH))
+        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE))
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
                 .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")))
-        .put(FILTER_KEY, new JsonArray().add(ID).add(TAGS).add(LOCATION));
+        .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION));
 
     Set<String> attrs = new HashSet<>();
     attrs.add(ID);
@@ -707,11 +709,11 @@ public class DatabaseServiceTest {
 
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
-        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(ATTRIBUTE_SEARCH).concat(GEO_SEARCH))
+        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE).concat(SEARCH_TYPE_GEO))
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
                 .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")))
-        .put(FILTER_KEY, new JsonArray().add(ID).add(TAGS).add(LOCATION))
+        .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
         .put(COORDINATES_KEY, new JsonArray().add(73.87).add(18.55)).put(MAX_DISTANCE, 5000)
         .put(GEOMETRY, POINT).put(GEORELATION, INTERSECTS).put(GEOPROPERTY, GEO_KEY);
 
@@ -752,11 +754,11 @@ public class DatabaseServiceTest {
 
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
-        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(ATTRIBUTE_SEARCH).concat(TEXT_SEARCH))
+        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE).concat(SEARCH_TYPE_TEXT))
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
                 .add(new JsonArray().add("05fbae93-d3f7-0bbe-dd5d-2c2b4180edc7")))
-        .put(Q_KEY, "climo").put(FILTER_KEY, new JsonArray().add(ID).add(TAGS).add(LOCATION));
+        .put(Q_VALUE, "climo").put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION));
 
 
     Set<String> attrs = new HashSet<>();
@@ -797,11 +799,11 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request =
         new JsonObject()
-            .put(SEARCH_TYPE, RESPONSE_FILTER.concat(TEXT_SEARCH).concat(GEO_SEARCH))
-            .put(FILTER_KEY, new JsonArray().add(ID).add(TAGS).add(LOCATION))
+            .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_TEXT).concat(SEARCH_TYPE_GEO))
+            .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
             .put(COORDINATES_KEY, new JsonArray().add(73.878603).add(18.502865))
-            .put(MAX_DISTANCE, 500).put(GEOMETRY, POINT).put(GEORELATION, WITHIN)
-            .put(GEOPROPERTY, GEO_KEY).put(Q_KEY, "Golibar Square");
+            .put(MAX_DISTANCE, 500).put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN)
+            .put(GEOPROPERTY, GEO_KEY).put(Q_VALUE, "Golibar Square");
 
 
     Set<String> attrs = new HashSet<>();
@@ -840,9 +842,9 @@ public class DatabaseServiceTest {
 
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
-        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(TEXT_SEARCH))
-        .put(FILTER_KEY, new JsonArray().add(ID).add(TAGS).add(LOCATION))
-        .put(Q_KEY, "Golibar Square");
+        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_TEXT))
+        .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
+        .put(Q_VALUE, "Golibar Square");
 
 
     Set<String> attrs = new HashSet<>();
@@ -876,14 +878,15 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
         .put(SEARCH_TYPE,
-            RESPONSE_FILTER.concat(ATTRIBUTE_SEARCH).concat(GEO_SEARCH).concat(TEXT_SEARCH))
+            RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE).concat(SEARCH_TYPE_GEO)
+                .concat(SEARCH_TYPE_TEXT))
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
                 .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")))
-        .put(FILTER_KEY, new JsonArray().add(ID).add(TAGS).add(LOCATION))
+        .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
         .put(COORDINATES_KEY, new JsonArray().add(73.87).add(18.55)).put(MAX_DISTANCE, 5000)
         .put(GEOMETRY, POINT).put(GEORELATION, INTERSECTS).put(GEOPROPERTY, GEO_KEY)
-        .put(Q_KEY, "society circle");
+        .put(Q_VALUE, "society circle");
 
     Set<String> attrs = new HashSet<>();
     attrs.add(ID);
@@ -917,7 +920,7 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject().put(ID,
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo")
-        .put(RELATIONSHIP, REL_RESOURCE);
+        .put(RELATIONSHIP, RESOURCE);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
@@ -940,7 +943,7 @@ public class DatabaseServiceTest {
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
                 + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
-        .put(RELATIONSHIP, REL_RESOURCE_GRP);
+        .put(RELATIONSHIP, RESOURCE_GRP);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
@@ -962,7 +965,7 @@ public class DatabaseServiceTest {
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
                 + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
-        .put(RELATIONSHIP, REL_PROVIDER);
+        .put(RELATIONSHIP, PROVIDER);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
@@ -984,7 +987,7 @@ public class DatabaseServiceTest {
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
                 + "/rs.iudx.org.in/aqm-bosch-climo")
-        .put(RELATIONSHIP, REL_PROVIDER);
+        .put(RELATIONSHIP, PROVIDER);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
@@ -1006,7 +1009,7 @@ public class DatabaseServiceTest {
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
                 + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
-        .put(RELATIONSHIP, REL_RESOURCE_SVR);
+        .put(RELATIONSHIP, RESOURCE_SVR);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
@@ -1027,7 +1030,7 @@ public class DatabaseServiceTest {
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
                 + "/rs.iudx.org.in/aqm-bosch-climo")
-        .put(RELATIONSHIP, REL_RESOURCE_SVR);
+        .put(RELATIONSHIP, RESOURCE_SVR);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
@@ -1048,7 +1051,7 @@ public class DatabaseServiceTest {
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
                 + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
-        .put(RELATIONSHIP, REL_TYPE);
+        .put(RELATIONSHIP, TYPE);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
@@ -1069,7 +1072,7 @@ public class DatabaseServiceTest {
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
                 + "/rs.iudx.org.in/aqm-bosch-climo")
-        .put(RELATIONSHIP, REL_TYPE);
+        .put(RELATIONSHIP, TYPE);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
@@ -1088,7 +1091,7 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request =
         new JsonObject()
-            .put(RELATIONSHIP, new JsonArray().add(REL_PROVIDER.concat(".").concat(NAME_KEY)))
+            .put(RELATIONSHIP, new JsonArray().add(PROVIDER.concat(".").concat(NAME)))
             .put(VALUE, new JsonArray().add(new JsonArray().add("IUDXAdmin")));
 
     dbService.relSearch(request, testContext.succeeding(response -> {

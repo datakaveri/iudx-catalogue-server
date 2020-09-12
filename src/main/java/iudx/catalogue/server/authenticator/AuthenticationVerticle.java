@@ -13,6 +13,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import static iudx.catalogue.server.authenticator.Constants.*;
+import static iudx.catalogue.server.Constants.*;
+
 /**
  * The Authentication Verticle.
  * <h1>Authentication Verticle</h1>
@@ -67,7 +70,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
   static WebClient createWebClient(Vertx vertx, Properties properties, boolean testing) {
     /* Initialize properties from the config file */
     try {
-      FileInputStream configFile = new FileInputStream(Constants.CONFIG_FILE);
+      FileInputStream configFile = new FileInputStream(CONFIG_FILE);
       if (properties.isEmpty()) properties.load(configFile);
     } catch (IOException e) {
       LOGGER.error("Could not load properties from config file", e);
@@ -79,8 +82,8 @@ public class AuthenticationVerticle extends AbstractVerticle {
     webClientOptions
             .setSsl(true)
             .setKeyStoreOptions(new JksOptions()
-                    .setPath(properties.getProperty(Constants.KEYSTORE_PATH))
-                    .setPassword(properties.getProperty(Constants.KEYSTORE_PASSWORD)));
+                    .setPath(properties.getProperty(KEYSTORE_PATH))
+                    .setPassword(properties.getProperty(KEYSTORE_PASSWORD)));
     return WebClient.create(vertx, webClientOptions);
   }
 }

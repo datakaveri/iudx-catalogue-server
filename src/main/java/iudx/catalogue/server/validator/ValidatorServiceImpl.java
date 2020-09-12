@@ -18,6 +18,7 @@ import java.util.TimeZone;
 
 import iudx.catalogue.server.database.ElasticClient;
 import static iudx.catalogue.server.validator.Constants.*;
+import static iudx.catalogue.server.Constants.*;
 
 /**
  * The Validator Service Implementation.
@@ -43,7 +44,6 @@ public class ValidatorServiceImpl implements ValidatorService {
 
   /** ES client */
   private final ElasticClient client;
-
 
   public ValidatorServiceImpl(ElasticClient client) {
 
@@ -101,8 +101,7 @@ public class ValidatorServiceImpl implements ValidatorService {
           Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
       handler.handle(
-          Future.failedFuture(
-              new JsonObject().put(STATUS, FAILED).put("message", INVALID_SCHEMA_MSG).toString()));
+          Future.failedFuture(INVALID_SCHEMA_MSG));
     }
     return this;
   }
@@ -119,8 +118,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       type = new HashSet<String>(request.getJsonArray(TYPE).getList());
     } catch (Exception e) {
       LOGGER.error("Item type mismatch");
-      handler.handle(Future.failedFuture(
-          new JsonObject().put(STATUS, FAILED).put("message", VALIDATION_FAILURE_MSG).toString()));
+      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
     }
     type.retainAll(ITEM_TYPES);
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
@@ -133,7 +131,7 @@ public class ValidatorServiceImpl implements ValidatorService {
 
     /** Validate if Resource */
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-      String resourceGroup = request.getString(RESOURCE_GROUP_KEY);
+      String resourceGroup = request.getString(RESOURCE_GRP);
       String id = resourceGroup + "/" + request.getString(NAME);
       LOGGER.debug("Info: id generated: " + id);
       request.put(ID, id).put(ITEM_STATUS,
@@ -141,19 +139,18 @@ public class ValidatorServiceImpl implements ValidatorService {
           .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
       LOGGER.debug("Info: Verifying resourceGroup " + resourceGroup);
-      client.searchGetId(CAT_INDEX_NAME,
-          checkQuery.replace("$1", resourceGroup), checkRes -> {
+      client.searchGetId(CAT_INDEX_NAME, checkQuery.replace("$1", resourceGroup), checkRes -> {
         if (checkRes.failed()) {
-          LOGGER.error("Fail: ResourceGroup doesn't exist");
-              handler.handle(Future.failedFuture(new JsonObject().put(STATUS, FAILED)
-                  .put("message", VALIDATION_FAILURE_MSG).toString()));
+          LOGGER.error("Fail: DB request has failed;" + checkRes.cause().getMessage());
+          handler.handle(Future.failedFuture(INTERNAL_SERVER_ERROR));
           return;
-        } 
+        }
+
         if (checkRes.result().getInteger(TOTAL_HITS) == 1) {
           handler.handle(Future.succeededFuture(request));
         } else {
-              handler.handle(Future.failedFuture(new JsonObject().put(STATUS, FAILED)
-                  .put("message", VALIDATION_FAILURE_MSG).toString()));
+          LOGGER.error("Fail: ResourceGroup doesn't exist");
+          handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
           return;
         }
       });
@@ -171,9 +168,9 @@ public class ValidatorServiceImpl implements ValidatorService {
     }
     /** Validate if ResourceGroup */
     else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
-      String resourceServer = request.getString(RESOURCE_SERVER_KEY);
+      String resourceServer = request.getString(RESOURCE_SVR);
       String[] domain = resourceServer.split("/");
-      String provider = request.getString(PROVIDER_KEY);
+      String provider = request.getString(PROVIDER);
       String name = request.getString(NAME);
       String id = provider + "/" + domain[2] + "/" + name;
       LOGGER.debug("Info: id generated: " + id);
@@ -183,28 +180,24 @@ public class ValidatorServiceImpl implements ValidatorService {
       client.searchGetId(CAT_INDEX_NAME,
           checkQuery.replace("$1", provider), providerRes -> {
         if (providerRes.failed()) {
-              handler.handle(Future.failedFuture(new JsonObject().put(STATUS, FAILED)
-                  .put("message", VALIDATION_FAILURE_MSG).toString()));
+              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
           return;
         }
         if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
           client.searchGetId(CAT_INDEX_NAME,
               checkQuery.replace("$1", resourceServer), serverRes -> {
               if (serverRes.failed()) {
-                      handler.handle(Future.failedFuture(new JsonObject().put(STATUS, FAILED)
-                          .put("message", VALIDATION_FAILURE_MSG).toString()));
+                      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
                 return;
               } 
               if (serverRes.result().getInteger(TOTAL_HITS) == 1) {
                 handler.handle(Future.succeededFuture(request));
               } else {
-                      handler.handle(Future.failedFuture(new JsonObject().put(STATUS, FAILED)
-                          .put("message", VALIDATION_FAILURE_MSG).toString()));
+                      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
               }
           });
         } else {
-              handler.handle(Future.failedFuture(new JsonObject().put(STATUS, FAILED)
-                  .put("message", VALIDATION_FAILURE_MSG).toString()));
+              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
         }
       });
     }

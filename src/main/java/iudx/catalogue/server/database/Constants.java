@@ -1,38 +1,21 @@
 package iudx.catalogue.server.database;
 
-import io.vertx.core.json.JsonObject;
+import static iudx.catalogue.server.Constants.*;
 
 public class Constants {
 
   /* General purpose */
-  static final String DATABASE_IP = "databaseIP";
-  static final String DATABASE_PORT = "databasePort";
   static final String SEARCH = "search";
   static final String COUNT = "count";
   static final String DESCRIPTION = "desc";
-  static final String FAILED = "failed";
-  static final String DOC_EXISTS = "item already exists";
-  static final String INSTANCE_NOT_EXISTS = "instance doesn't exist";
-  static final String GEOSEARCH_REGEX = "(.*)geoSearch(.*)";
   static final String HTTP = "http";
-  static final String ID = "id";
-  static final String RESPONSE_FILTER = "responseFilter_";
-  static final String RESPONSE_FILTER_GEO = "responseFilter_geoSearch_";
-  static final String RESPONSE_FILTER_REGEX = "(.*)responseFilter(.*)";
+  static final String ATTRIBUTE = "attrs";
   static final String RESULT = "results";
-  static final String SEARCH_TYPE = "searchType";
-  static final String SEARCH_TYPE_GEO = "geoSearch_";
   static final String SHAPE_KEY = "shape";
   static final String SIZE_KEY = "size";
-  static final String SOURCE = "_source";
-  static final String STATUS = "status";
-  static final String SUCCESS = "success";
-  static final String INSTANCE = "instance";
-  static final String CONFIG_FILE = "config.properties";
-  static final String ITEM_TYPE = "itemType";
 
   /* Database */
-  static final String CAT_INDEX_NAME = "cat";
+  // static final String CAT_INDEX_NAME = "cat";
   static final String CAT_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
   static final String CAT_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
   static final String CAT_GET_TAG = CAT_SEARCH_INDEX + "?filter_path=aggregations.instance.tags.buckets";
@@ -42,36 +25,17 @@ public class Constants {
   
   static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
   static final String AGGREGATION_KEY = "aggs";
-  static final String FILTER_KEY = "filter";
   
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source&size=10000";
   static final String FILTER_PATH_AGGREGATION = "?filter_path=hits.total.value,aggregations.results.buckets&size=10000";
   static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
-  static final String HITS = "hits";
-  static final String AGGREGATIONS = "aggregations";
-  static final String QUERY_KEY = "query";
-  static final String REQUEST_GET = "GET";
-  static final String REQUEST_POST = "POST";
-  static final String REQUEST_PUT = "PUT";
-  static final String REQUEST_DELETE = "DELETE";
-  static final String TAGS = "tags";
-  static final String TOTAL = "total";
-  static final String TOTAL_HITS = "totalHits";
+
   static final String TYPE_KEY = "type";
-  static final String VALUE = "value";
-  static final String WITHIN = "within";
-  static final String INSERT = "insert";
-  static final String UPDATE = "update";
-  static final String DELETE = "delete";
   static final String ID_KEYWORD = "id.keyword";
   static final String DOC_ID = "_id";
-  static final String METHOD = "method";
-  static final String RESULTS = "results";
-  static final String BUCKETS = "buckets";
   static final String KEY = "key";
-  static final String TERM = "term";
+
   /* Geo-Spatial */
-  static final String BBOX = "bbox";
   static final String COORDINATES_KEY = "coordinates";
   static final String DISTANCE_IN_METERS = "m";
   static final String GEO_BBOX = "envelope";
@@ -80,22 +44,10 @@ public class Constants {
   static final String GEO_RADIUS = "radius";
   static final String GEO_RELATION_KEY = "relation";
   static final String GEO_SHAPE_KEY = "geo_shape";
-  static final String GEOMETRY = "geometry";
-  static final String GEOPROPERTY = "geoproperty";
-  static final String GEORELATION = "georel";
-  static final String INTERSECTS = "intersects";
-  static final String LINESTRING = "linestring";
-  static final String LOCATION = "location";
-  static final String MAX_DISTANCE = "maxDistance";
-  static final String POINT = "point";
-  static final String POLYGON = "polygon";
-  /* Response Filter */
-  static final String ATTRIBUTE = "attrs";
+
   /* Error */
-  static final String DATABASE_ERROR = "DB Error. Check logs for more information";
   static final String DATABASE_BAD_QUERY = "Query Failed with status != 20x";
   static final String EMPTY_RESPONSE = "Empty response";
-  static final String ERROR = "Error";
   static final String ERROR_INVALID_COORDINATE_POLYGON = "Coordinate mismatch (Polygon)";
   static final String ERROR_INVALID_GEO_PARAMETER = "Missing/Invalid geo parameters";
   static final String ERROR_INVALID_RESPONSE_FILTER = "Missing/Invalid responseFilter parameters";
@@ -103,27 +55,26 @@ public class Constants {
   static final String COUNT_UNSUPPORTED = "Count is not supported with filtering";
   static final String INVALID_SEARCH = "Invalid search request";
   static final String ERROR_DB_REQUEST = "DB request has failed";
+  public static final String ERROR_INVALID_PARAMETER = "Incorrect/missing query parameters";
+  static final String DOC_EXISTS = "item already exists";
+  static final String INSTANCE_NOT_EXISTS = "instance doesn't exist";
 
+  /** Search type regex */
   public static final String TAGSEARCH_REGEX = "(.*)tagsSearch(.*)";
   public static final String TEXTSEARCH_REGEX = "(.*)textSearch(.*)";
-  public static final String PROPERTY = "property";
+  public static final String ATTRIBUTE_SEARCH_REGEX = "(.*)attributeSearch(.*)";
+  public static final String GEOSEARCH_REGEX = "(.*)geoSearch(.*)";
+  public static final String RESPONSE_FILTER_GEO = "responseFilter_geoSearch_";
+  public static final String RESPONSE_FILTER_REGEX = "(.*)responseFilter(.*)";
+
+  /** DB Query related */
   public static final String MATCH_KEY = "match";
   public static final String TERMS_KEY = "terms";
   public static final String STRING_QUERY_KEY = "query_string";
-  public static final String LIMIT = "limit";
-  public static final String OFFSET = "offset";
   public static final String FROM = "from";
-  public static final String ERROR_INVALID_PARAMETER = "Incorrect/missing query parameters";
-  public static final String Q_KEY = "q";
-
-  public static final String ATTRIBUTE_SEARCH_REGEX = "(.*)attributeSearch(.*)";
   public static final String KEYWORD_KEY = ".keyword";
-
-  public static final String TEXT_SEARCH = "textSearch_";
-  public static final String ATTRIBUTE_SEARCH = "attributeSearch_";
   public static final String DEVICEID_KEY = "deviceId";
   public static final String TAG_AQM = "aqm";
-  public static final String GEO_SEARCH = "geoSearch_";
   public static final String DESCRIPTION_ATTR = "description";
 
   /** ElasticClient search types */
@@ -133,26 +84,11 @@ public class Constants {
   static final String REL_API_SEARCH_INDEX = REL_API_INDEX_NAME + "/_search";
 
   public static final String FORWARD_SLASH = "/";
-  public static final String RELATIONSHIP = "relationship";
-  public static final String REL_RESOURCE = "resource";
-  public static final String REL_RESOURCE_GRP = "resourceGroup";
-  public static final String REL_RESOURCE_SVR = "resourceServer";
-  public static final String REL_PROVIDER = "provider";
-  public static final String ITEM_TYPE_INSTANCE = "iudx:Instance";
-  public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
-  public static final String ITEM_TYPE_RESOURCE_GROUP = "iudx:ResourceGroup";
-  public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
-  public static final String ITEM_TYPE_PROVIDER = "iudx:Provider";
-  public static final String REL_TYPE = "type";
-
-  public static final String NAME_KEY = "name";
   public static final String WILDCARD_KEY = "wildcard";
-
   public static final String AGGREGATION_ONLY = "AGGREGATION";
   public static final String TYPE_KEYWORD = "type.keyword";
 
   /** Some queries */
-
   public static final String LIST_INSTANCES_QUERY = "{\"size\": 0, \"aggs\":"
     + "{\"results\": {\"terms\":"
     + "{\"field\":instances.keyword,"
@@ -187,18 +123,15 @@ public class Constants {
   public static final String TEXT_QUERY =
       "{\"query_string\":{\"query\":\"$1\"}}";
 
-  public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
-
   public static final String TERM_COMPLEX_QUERY =
       "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
 
+  public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
   public static final String SHOULD_QUERY = "{\"bool\":{\"should\":$1}}";
   public static final String MUST_QUERY = "{\"bool\":{\"must\":$1}}";
   public static final String FILTER_QUERY = "{\"bool\":{\"filter\":[$1]}}";
-
   public static final String MATCH_QUERY = "{\"match\":{\"$1\":\"$2\"}}";
-
   public static final String TERM_QUERY = "{\"term\":{\"$1\":\"$2\"}}";
 
 }

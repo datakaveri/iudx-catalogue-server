@@ -4,7 +4,7 @@
         "iudx:Resource",
         "iudx:EnvAQM"
     ],
-    "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28",
+    "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28",
     "name": "Pune Railway Station_28",
     "description": "Description for Bosch-Climo AQM resource",
     "tags": [
@@ -13,7 +13,7 @@
     "provider": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
     "itemStatus": "ACTIVE",
     "deviceId": "b3ec32ff-fa7d-64fa-c0af-272e25d314e9",
-    "resourceGroup": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo",
+    "resourceGroup": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo",
     "location": {
         "type": "Place",
         "address": "ABD area, Pune",

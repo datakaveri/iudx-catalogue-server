@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.Constants.*;
 
 public final class ElasticClient {
   private final RestClient client;

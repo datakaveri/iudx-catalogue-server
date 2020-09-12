@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.Constants.*;
 
 /**
  * The Catalogue Server API Verticle.
@@ -81,8 +82,8 @@ public class ApiServerVerticle extends AbstractVerticle {
       inputstream = new FileInputStream(CONFIG_FILE);
       properties.load(inputstream);
       catAdmin = properties.getProperty(CAT_ADMIN);
-      keystore = properties.getProperty(KEYSTORE_FILE_NAME);
-      keystorePassword = properties.getProperty(KEYSTORE_FILE_PASSWORD);
+      keystore = properties.getProperty(KEYSTORE_PATH);
+      keystorePassword = properties.getProperty(KEYSTORE_PASSWORD);
     } catch (Exception ex) {
       LOGGER.info(ex.toString());
     }
@@ -263,32 +264,16 @@ public class ApiServerVerticle extends AbstractVerticle {
     /**
      * Routes for relationships
      */
-    /* Get all resources belonging to a resource group */
-    router.getWithRegex(ROUTE_LIST_RESOURCE_REL)
-      .handler( routingContext -> {
-        relApis.resourceRelationshipHandler(routingContext);
-      });
-    /* Get resource group of an item belonging to a resource */
-    router.getWithRegex(ROUTE_LIST_RESOURCE_GROUP_REL)
-      .handler( routingContext -> {
-        relApis.resourceGroupRelationshipHandler(routingContext);
-      });
-    /* Get provider relationship to an item */
-    router.getWithRegex(ROUTE_PROVIDER_REL)
-      .handler( routingContext -> {
-        relApis.providerRelationshipHandler(routingContext);
-      });
-    /* Get resource server relationship to an item */
-    router.getWithRegex(ROUTE_RESOURCE_SERVER_REL)
-      .handler( routingContext -> {
-        relApis.resourceServerRelationshipHandler(routingContext);
-      });
     /* Relationship related search */
     router.get(ROUTE_REL_SEARCH)
       .handler( routingContext -> {
         relApis.relSearchHandler(routingContext);
       });
 
+    /* Get all resources belonging to a resource group */
+    router.get(ROUTE_RELATIONSHIP).handler(routingContext -> {
+      relApis.listRelationshipHandler(routingContext);
+    });
 
 
 

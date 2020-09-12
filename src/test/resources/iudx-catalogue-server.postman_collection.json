@@ -49,7 +49,8 @@
 									{
 										"key": "instance",
 										"value": "pune",
-										"type": "text"
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"body": {
@@ -94,7 +95,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"error\");\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
 											"});\r",
 											"\r",
 											""
@@ -342,7 +343,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"error\");\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
 											"});\r",
 											"\r",
 											""
@@ -548,7 +549,8 @@
 									{
 										"key": "instance",
 										"value": "pune",
-										"type": "text"
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"url": {
@@ -588,7 +590,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"Error\");\r",
+											"    pm.expect(body).to.have.property(\"status\", \"error\");\r",
 											"});\r",
 											"\r",
 											""
@@ -1096,18 +1098,23 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/resourceGroup",
+							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
 							],
 							"path": [
-								"datakaveri.org",
-								"f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-								"rs.iudx.org.in",
-								"aqm-bosch-climo",
-								"Sadhu_Wasvani_Square_24",
-								"resourceGroup"
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+								},
+								{
+									"key": "rel",
+									"value": "resourceGroup"
+								}
 							]
 						}
 					},
@@ -1144,17 +1151,23 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/resource",
+							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resource",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
 							],
 							"path": [
-								"datakaveri.org",
-								"f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-								"rs.iudx.org.in",
-								"aqm-bosch-climo",
-								"resource"
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo"
+								},
+								{
+									"key": "rel",
+									"value": "resource"
+								}
 							]
 						}
 					},
@@ -1191,18 +1204,23 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/provider",
+							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=provider",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
 							],
 							"path": [
-								"datakaveri.org",
-								"f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-								"rs.iudx.org.in",
-								"aqm-bosch-climo",
-								"Sadhu_Wasvani_Square_24",
-								"provider"
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+								},
+								{
+									"key": "rel",
+									"value": "provider"
+								}
 							]
 						}
 					},
@@ -1239,17 +1257,23 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/provider",
+							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo&rel=provider",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
 							],
 							"path": [
-								"datakaveri.org",
-								"f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-								"rs.iudx.org.in",
-								"aqm-bosch-climo",
-								"provider"
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo"
+								},
+								{
+									"key": "rel",
+									"value": "provider"
+								}
 							]
 						}
 					},
@@ -1284,18 +1308,23 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/resourceServer",
+							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceServer",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
 							],
 							"path": [
-								"datakaveri.org",
-								"f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-								"rs.iudx.org.in",
-								"aqm-bosch-climo",
-								"Sadhu_Wasvani_Square_24",
-								"resourceServer"
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+								},
+								{
+									"key": "rel",
+									"value": "resourceServer"
+								}
 							]
 						}
 					},
@@ -1330,17 +1359,23 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/resourceServer",
+							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resourceServer",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
 							],
 							"path": [
-								"datakaveri.org",
-								"f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-								"rs.iudx.org.in",
-								"aqm-bosch-climo",
-								"resourceServer"
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo"
+								},
+								{
+									"key": "rel",
+									"value": "resourceServer"
+								}
 							]
 						}
 					},

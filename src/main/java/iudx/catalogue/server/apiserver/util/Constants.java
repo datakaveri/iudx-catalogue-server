@@ -5,9 +5,13 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.HashSet;
 
+import static iudx.catalogue.server.Constants.*;
+
 public class Constants {
 
-  private static String basePath = "/iudx/cat/v1";
+  /** General purpose */
+  public static final String CAT_ADMIN = "catAdmin";
+  public static final int PORT = 8443;
 
   /** Accept Headers and CORS */
   public static final String HEADER_ACCEPT = "Accept";
@@ -26,33 +30,23 @@ public class Constants {
 
   public static final String MIME_APPLICATION_JSON = "application/json";
 
-  public static final String ROUTE_STATIC = "/apis/*";
-
   /**
    *Routes
    */
-  /** CRUD Routes */
+  private static String basePath = "/iudx/cat/v1";
+  public static final String ROUTE_STATIC = "/apis/*";
   public static final String ROUTE_ITEMS = basePath + "/item";
   public static final String ROUTE_UPDATE_ITEMS = basePath + "/item";
   public static final String ROUTE_DELETE_ITEMS = basePath + "/item";
-
   public static final String ROUTE_INSTANCE = basePath + "/instance";
-
   public static final String ROUTE_LIST_RESOURCE_REL = basePath + "\\/(?<id>.*)\\/resource";
   public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
       basePath + "\\/(?<id>.*)\\/resourceGroup";
 
-
+  public static final String ROUTE_RELATIONSHIP = basePath + "/relationship";
   public static final String ROUTE_SEARCH = basePath + "/search";
   public static final String ROUTE_LIST_ITEMS = basePath + "/list/:itemType";
 
-  public static final String AGGREGATIONS = "aggregations";
-  public static final String INSTANCE = "instance";
-  public static final String BUCKETS = "buckets";
-
-  public static final String ID = "id";
-  public static final String TYPE = "type";
-  public static final String ITEM_TYPE = "itemType";
   public static final String RESOURCE_ITEM = "resItem";
   public static final String RESOURCE_GRP_ITEM = "resGrpItem";
   public static final String RESOURCE_SVR_ITEM = "resSvrItem";
@@ -60,78 +54,23 @@ public class Constants {
   public static final String PROVIDER_ITEM = "pvdrItem";
   public static final String DATA_DES_ITEM = "dataDesItem";
 
-
-
-  public static final String ROUTE_GET_ITEM =
-      basePath + "/items";
-
-  public static final String ROUTE_UI_CITIES = basePath + "/ui/cities";
-  public static final String ROUTE_UI_CONFIG = basePath + "/ui/config";
+  public static final String ROUTE_GET_ITEM = basePath + "/items";
   public static final String ROUTE_PROVIDER_REL = basePath + "\\/(?<id>.*)\\/provider";
-  public static final String ROUTE_RESOURCE_SERVER_REL =
-      basePath + "\\/(?<id>.*)\\/resourceServer";
+  public static final String ROUTE_RESOURCE_SERVER_REL = basePath + "\\/(?<id>.*)\\/resourceServer";
   public static final String ROUTE_DATA_TYPE = basePath + "\\/(?<id>.*)\\/type";
   public static final String ROUTE_COUNT = basePath + "/count";
-
-  /** Item types */
-  public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
-  public static final String ITEM_TYPE_RESOURCE_GROUP = "iudx:ResourceGroup";
-  public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
-  public static final String ITEM_TYPE_PROVIDER = "iudx:Provider";
-  public static final String ITEM_TYPE_INSTANCE = "iudx:Instance";
-  public static final ArrayList<String> ITEM_TYPES 
-    = new ArrayList<String>(Arrays.asList(ITEM_TYPE_RESOURCE, ITEM_TYPE_RESOURCE_GROUP,
-                                          ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_PROVIDER,
-                                          ITEM_TYPE_INSTANCE));
+  public static final String ROUTE_REL_SEARCH = basePath + "/relsearch";
 
 
-
-  public static final String RELATIONSHIP = "relationship";
-  public static final String REL_RESOURCE = "resource";
-  public static final String REL_RESOURCE_GRP = "resourceGroup";
-  public static final String REL_RESOURCE_SVR = "resourceServer";
-  public static final String REL_PROVIDER = "provider";
-  public static final String REL_TYPE = "type";
-
-
-  public static final String CONFIG_FILE = "config.properties";
-  public static final String CAT_ADMIN = "catAdmin";
-  public static final String KEYSTORE_FILE_NAME = "keystore";
-  public static final String KEYSTORE_FILE_PASSWORD = "keystorePassword";
-  public static final int PORT = 8443;
-
-  public static final String PROPERTY = "property";
-  public static final String VALUE = "value";
-
-  public static final String GEOPROPERTY = "geoproperty";
-  public static final String GEOREL = "georel";
-  public static final String GEOMETRY = "geometry";
-  public static final String COORDINATES = "coordinates";
-  public static final String Q_VALUE = "q";
-  public static final String LIMIT = "limit";
-  public static final String OFFSET = "offset";
   public static final String PROVIDER_NAME = "provider.name";
-  public static final String LOCATION = "location";
   public static final String PARTIAL_CONTENT = "partial-content";
   public static final String TEXT = "text";
-  public static final String MAX_DISTANCE = "maxDistance";
 
-
-  /** GeoRels */
-  public static final String GEOREL_WITHIN = "within";
-  public static final String GEOREL_NEAR = "near";
-  public static final String GEOREL_COVERED_BY = "coveredBy";
-  public static final String GEOREL_INTERSECTS = "intersects";
-  public static final String GEOREL_EQUALS = "equals";
-  public static final String GEOREL_DISJOINT = "disjoint";
   public static final ArrayList<String> GEORELS 
     = new ArrayList<String>(Arrays.asList(GEOREL_WITHIN, GEOREL_NEAR,
                                           GEOREL_COVERED_BY, GEOREL_INTERSECTS,
                                           GEOREL_EQUALS, GEOREL_DISJOINT));
-
-
   /** Geometries */
-  public static final String BBOX = "bbox";
   public static final String POLYGON = "Polygon";
   public static final String LINE_STRING = "LineString";
   public static final String POINT = "Point";
@@ -139,39 +78,19 @@ public class Constants {
     = new ArrayList<String>(Arrays.asList(BBOX, POLYGON,
                                           LINE_STRING, POINT));
 
-  public static final String SEARCH_TYPE = "searchType";
-  public static final String GEO_SEARCH = "geoSearch_";
-  public static final String TEXT_SEARCH = "textSearch_";
-  public static final String TAGS_SEARCH = "tagsSearch_";
-  public static final String ATTRIBUTE_SEARCH = "attributeSearch_";
-  public static final String RESPONSE_FILTER = "responseFilter_";
-  public static final String FILTER = "filter";
-  public static final String TAGS = "tags";
-
-
   public static final String OPERATION = "operation";
-  public static final String GET_CITIES = "getCities";
   public static final String ATTRIBUTE_FILTER = "attribute-filter";
 
-  public static final String STATUS = "status";
+  /** Errors */
   public static final String INVALID_SYNTAX = "invalidSyntax";
   public static final String INVALID_VALUE = "invalidValue";
-  public static final String INVALID_HEADER = "invalidHeader";
-  public static final String RESULTS = "results";
-  public static final String SUCCESS = "success";
-  public static final String ERROR = "error";
-  public static final String MESSAGE = "message";
   public static final String BAD_REQUEST = "Bad Request";
-  public static final String INTERNAL_SERVER_ERROR = "Internal server error";
-  public static final String TOTAL_HITS="totalHits";
 
+  /** Query Pattern */
   public static final String PATTERN_TEXT = "^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}";
   public static final String PATTERN_ARRAY = "^\\[.*\\]$";
 
-
-  public static final String POST = "POST";
-  public static final String PUT = "PUT";
-  public static final String DELETE = "DELETE";
-
-  public static final String ROUTE_REL_SEARCH = basePath + "/relsearch";
+  public static final String REL_KEY = "rel";
+  public static final ArrayList<String> ITEMS_KEY =
+      new ArrayList<String>(Arrays.asList(RESOURCE, RESOURCE_GRP, RESOURCE_SVR, PROVIDER));
 }

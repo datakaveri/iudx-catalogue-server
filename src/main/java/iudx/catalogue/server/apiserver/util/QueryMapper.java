@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.Constants.*;
 
 /**
  * QueryMapper class to convert NGSILD query into json object for the purpose of debugrmation
@@ -83,20 +84,20 @@ public class QueryMapper {
     /* adding search type for geo related search */
     if (jsonBody.containsKey(GEOMETRY)) {
       jsonBody.put(SEARCH_TYPE,
-          jsonBody.getString(SEARCH_TYPE, "") + GEO_SEARCH);
+          jsonBody.getString(SEARCH_TYPE, "") + SEARCH_TYPE_GEO);
     }
 
     /* adding search type for text related search */
     if (jsonBody.containsKey(Q_VALUE)) {
       jsonBody.put(SEARCH_TYPE,
-          jsonBody.getString(SEARCH_TYPE, "") + TEXT_SEARCH);
+          jsonBody.getString(SEARCH_TYPE, "") + SEARCH_TYPE_TEXT);
     }
 
     /* Tag related search are to be considered as attribute search and are being merged as one */
     if (jsonBody.containsKey(PROPERTY)) {
 
       jsonBody.put(SEARCH_TYPE,
-          jsonBody.getString(SEARCH_TYPE, "") + ATTRIBUTE_SEARCH);
+          jsonBody.getString(SEARCH_TYPE, "") + SEARCH_TYPE_ATTRIBUTE);
     }
 
     /* adding response filter */
