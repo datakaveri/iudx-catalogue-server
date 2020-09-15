@@ -3,7 +3,7 @@
     "$id": "http://example.com/example.json",
     "type": "object",
     "title": "The root schema",
-    "description": "The root schema comprises the entire JSON document.",
+    "description": "Schema for resourceGroup item",
     "default": {},
     "examples": [
         {
