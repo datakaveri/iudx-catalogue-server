@@ -29,12 +29,14 @@ public class Constants {
                                     HEADER_REFERER, HEADER_CORS));
 
   public static final String MIME_APPLICATION_JSON = "application/json";
+  public static final String MIME_TEXT_HTML = "text/html";
 
   /**
    *Routes
    */
   private static String basePath = "/iudx/cat/v1";
-  public static final String ROUTE_STATIC = "/apis/*";
+  public static final String ROUTE_STATIC_SPEC = "/apis/spec";
+  public static final String ROUTE_DOC = "/apis";
   public static final String ROUTE_ITEMS = basePath + "/item";
   public static final String ROUTE_UPDATE_ITEMS = basePath + "/item";
   public static final String ROUTE_DELETE_ITEMS = basePath + "/item";

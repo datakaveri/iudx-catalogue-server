@@ -14,6 +14,7 @@ services:
       - CAT_URL=https://catalogue.iudx.org.in
     volumes:
       - ./config.properties:/usr/share/app/config.properties
+      - ./docs/:/usr/share/app/docs
       - ./keystore.jks:/usr/share/app/keystore.jks
     depends_on:
       - "zookeeper"

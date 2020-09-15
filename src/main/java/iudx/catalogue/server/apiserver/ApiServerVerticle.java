@@ -8,14 +8,16 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-import iudx.catalogue.server.authenticator.AuthenticationService;
-import iudx.catalogue.server.database.DatabaseService;
-import iudx.catalogue.server.validator.ValidatorService;
+import io.vertx.core.http.HttpServerResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
+
+import iudx.catalogue.server.authenticator.AuthenticationService;
+import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.validator.ValidatorService;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.Constants.*;
@@ -141,8 +143,25 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.route().handler(BodyHandler.create());
     router.route().handler(CorsHandler.create("*").allowedHeaders(ALLOWED_HEADERS));
 
-    /** Static Resource Handler */
-    router.route(ROUTE_STATIC).handler(StaticHandler.create());
+    /**
+     * Documentation routes
+     */
+    /* Static Resource Handler */
+    /* Get openapiv3 spec */
+    router.get(ROUTE_STATIC_SPEC)
+      .produces(MIME_APPLICATION_JSON)
+      .handler( routingContext -> {
+        HttpServerResponse response = routingContext.response();
+        response.sendFile("docs/openapi.json");
+      });
+    /* Get redoc */
+    router.get(ROUTE_DOC)
+      .produces(MIME_TEXT_HTML)
+      .handler( routingContext -> {
+        HttpServerResponse response = routingContext.response();
+        response.sendFile("docs/apidoc.html");
+      });
+
 
     /**
      * Routes for item CRUD
