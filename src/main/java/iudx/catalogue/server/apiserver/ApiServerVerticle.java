@@ -152,7 +152,7 @@ public class ApiServerVerticle extends AbstractVerticle {
       .produces(MIME_APPLICATION_JSON)
       .handler( routingContext -> {
         HttpServerResponse response = routingContext.response();
-        response.sendFile("docs/openapi.json");
+        response.sendFile("docs/openapi.yaml");
       });
     /* Get redoc */
     router.get(ROUTE_DOC)
