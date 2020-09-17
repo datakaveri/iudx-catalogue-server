@@ -1,13 +1,12 @@
 package iudx.catalogue.server.database;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Properties;
+
+
+import static iudx.catalogue.server.Constants.*;
 
 import iudx.catalogue.server.database.ElasticClient;
 /**
@@ -26,12 +25,9 @@ public class DatabaseVerticle extends AbstractVerticle {
 
   private static final Logger LOGGER = LogManager.getLogger(DatabaseVerticle.class);
   private DatabaseService database;
-  private Properties properties;
-  private InputStream inputstream;
   private String databaseIP;
   private int databasePort;
   private ElasticClient client;
-  private static final String DATABASE_SERVICE_ADDRESS = "iudx.catalogue.database.service";
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -44,22 +40,9 @@ public class DatabaseVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    properties = new Properties();
-    inputstream = null;
+    databaseIP = config().getString(DATABASE_IP);
+    databasePort = config().getInteger(DATABASE_PORT);
 
-    try {
-
-      inputstream = new FileInputStream("config.properties");
-      properties.load(inputstream);
-
-      databaseIP = properties.getProperty("databaseIP");
-      databasePort = Integer.parseInt(properties.getProperty("databasePort"));
-
-    } catch (Exception ex) {
-
-      LOGGER.info(ex.toString());
-
-    }
 
     client = new ElasticClient(databaseIP, databasePort);
 

@@ -4,9 +4,8 @@ import io.vertx.core.AbstractVerticle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Properties;
+
+import static iudx.catalogue.server.Constants.*;
 
 import iudx.catalogue.server.database.ElasticClient;
 
@@ -23,12 +22,9 @@ import iudx.catalogue.server.database.ElasticClient;
  */
 public class ValidatorVerticle extends AbstractVerticle {
 
-  private static final String VALIDATION_SERVICE_ADDRESS = "iudx.catalogue.validator.service";
   private static final Logger LOGGER = LogManager.getLogger(ValidatorVerticle.class);
 
   private ValidatorService validator;
-  private Properties properties;
-  private InputStream inputstream;
   private String databaseIP;
   private int databasePort;
   private ElasticClient client;
@@ -41,21 +37,8 @@ public class ValidatorVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    properties = new Properties();
-    inputstream = null;
-
-    try {
-
-      inputstream = new FileInputStream("config.properties");
-      properties.load(inputstream);
-
-      databaseIP = properties.getProperty("databaseIP");
-      databasePort = Integer.parseInt(properties.getProperty("databasePort"));
-
-    } catch (Exception ex) {
-
-      LOGGER.error(ex.toString());
-    }
+    databaseIP = config().getString(DATABASE_IP);
+    databasePort = config().getInteger(DATABASE_PORT);
     /* Create a reference to HazelcastClusterManager. */
 
     client = new ElasticClient(databaseIP, databasePort);
