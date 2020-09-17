@@ -11,9 +11,6 @@ import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.core.http.HttpServerResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Properties;
 
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
@@ -56,13 +53,6 @@ public class ApiServerVerticle extends AbstractVerticle {
   private String keystore;
   private String keystorePassword;
 
-  private Properties properties;
-  private InputStream inputstream;
-
-  /* Addresses */
-  private static final String DATABASE_SERVICE_ADDRESS = "iudx.catalogue.database.service";
-  private static final String AUTH_SERVICE_ADDRESS = "iudx.catalogue.authentication.service";
-  private static final String VALIDATION_SERVICE_ADDRESS = "iudx.catalogue.validator.service";
 
   private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
 
@@ -76,19 +66,10 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     router = Router.router(vertx);
 
-    properties = new Properties();
-    inputstream = null;
-
-    /* Read the configuration and set the HTTPs server properties. */
-    try {
-      inputstream = new FileInputStream(CONFIG_FILE);
-      properties.load(inputstream);
-      catAdmin = properties.getProperty(CAT_ADMIN);
-      keystore = properties.getProperty(KEYSTORE_PATH);
-      keystorePassword = properties.getProperty(KEYSTORE_PASSWORD);
-    } catch (Exception ex) {
-      LOGGER.info(ex.toString());
-    }
+    /* Configure */
+    catAdmin = config().getString(CAT_ADMIN);
+    keystore = config().getString(KEYSTORE_PATH);
+    keystorePassword = config().getString(KEYSTORE_PASSWORD);
 
 
     /** Instantiate this server */

@@ -698,7 +698,7 @@ components:
           items:
             type: object
         description:
-          description: Detailed description of the message
+          description: Detailed description of the status
         status:
           description: Status of the request. Could be success, fail, invalidSyntax.
           type: string
@@ -706,7 +706,7 @@ components:
         totalHits: 10
         results:
         - {}
-        message: success
+        status: success
         description: a detailed description
     standardResponseWithStrings:
       title: Root Type for standardResponse
@@ -723,7 +723,7 @@ components:
           items:
             type: object
         description:
-          description: Detailed description of the message
+          description: Detailed description of the status
         status:
           description: Status of the request. Could be success, fail, invalidSyntax.
           type: string
@@ -731,11 +731,11 @@ components:
         totalHits: 10
         results:
         - {}
-        message: success
+        status: success
         description: a detailed description
     standardErrorResponse:
       title: Root Type for standardErrorResponse
-      description: Stand response body for error messages
+      description: Stand response body for error status
       type: object
       properties:
         status:

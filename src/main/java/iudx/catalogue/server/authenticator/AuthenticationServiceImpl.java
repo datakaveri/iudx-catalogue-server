@@ -14,10 +14,7 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.predicate.ResponsePredicate;
 import org.apache.http.HttpStatus;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.Properties;
 
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.Constants.*;
@@ -37,17 +34,12 @@ import static iudx.catalogue.server.Constants.*;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private static final Logger LOGGER = LogManager.getLogger(AuthenticationServiceImpl.class);
-    private static final Properties properties = new Properties();
     private final WebClient webClient;
+    private String authHost;
 
-    public AuthenticationServiceImpl(WebClient client) {
+    public AuthenticationServiceImpl(WebClient client, String authHost) {
         webClient = client;
-        try {
-          FileInputStream configFile = new FileInputStream(CONFIG_FILE);
-            if (properties.isEmpty()) properties.load(configFile);
-        } catch (IOException e) {
-            LOGGER.error("Could not load properties from config file", e);
-        }
+        this.authHost = authHost;
     }
 
     static void validateAuthInfo(JsonObject authInfo) throws IllegalArgumentException {
@@ -86,7 +78,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         JsonObject body = new JsonObject();
         body.put(TOKEN, authenticationInfo.getString(TOKEN));
         webClient
-            .post(443, properties.getProperty(AUTH_SERVER_HOST), AUTH_TIP_PATH)
+            .post(443, authHost, AUTH_TIP_PATH)
                 .expect(ResponsePredicate.JSON)
                 .sendJsonObject(body, httpResponseAsyncResult -> {
                     if (httpResponseAsyncResult.failed()) {

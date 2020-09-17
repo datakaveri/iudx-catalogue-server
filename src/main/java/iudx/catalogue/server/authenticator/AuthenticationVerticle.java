@@ -4,14 +4,12 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.serviceproxy.ServiceBinder;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
 
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.Constants.*;
@@ -30,11 +28,9 @@ import static iudx.catalogue.server.Constants.*;
 
 public class AuthenticationVerticle extends AbstractVerticle {
 
-  private static final String AUTH_SERVICE_ADDRESS = "iudx.catalogue.authentication.service";
 
   private static final Logger LOGGER = LogManager.getLogger(AuthenticationVerticle.class);
   private AuthenticationService authentication;
-  private final Properties properties = new Properties();
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -47,15 +43,16 @@ public class AuthenticationVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    authentication = new AuthenticationServiceImpl(createWebClient(vertx, properties));
+    String authHost = config().getString(AUTH_SERVER_HOST);
+    authentication = new AuthenticationServiceImpl(createWebClient(vertx, config()), authHost);
 
 
     new ServiceBinder(vertx).setAddress(AUTH_SERVICE_ADDRESS)
       .register(AuthenticationService.class, authentication);
   }
 
-  static WebClient createWebClient(Vertx vertx, Properties properties) {
-    return createWebClient(vertx, properties, false);
+  static WebClient createWebClient(Vertx vertx, JsonObject config) {
+    return createWebClient(vertx, config, false);
   }
 
   /**
@@ -67,23 +64,15 @@ public class AuthenticationVerticle extends AbstractVerticle {
    * @param testing a bool which is used to disable client side ssl checks for testing purposes
    * @return a web client initialized with the relevant client certificate
    */
-  static WebClient createWebClient(Vertx vertx, Properties properties, boolean testing) {
+  static WebClient createWebClient(Vertx vertx, JsonObject config, boolean testing) {
     /* Initialize properties from the config file */
-    try {
-      FileInputStream configFile = new FileInputStream(CONFIG_FILE);
-      if (properties.isEmpty()) properties.load(configFile);
-    } catch (IOException e) {
-      LOGGER.error("Could not load properties from config file", e);
-      //TODO: Decide if anything else is required beyond logging?
-    }
-
     WebClientOptions webClientOptions = new WebClientOptions();
     if (testing) webClientOptions.setTrustAll(true).setVerifyHost(false);
     webClientOptions
             .setSsl(true)
             .setKeyStoreOptions(new JksOptions()
-                    .setPath(properties.getProperty(KEYSTORE_PATH))
-                    .setPassword(properties.getProperty(KEYSTORE_PASSWORD)));
+                    .setPath(config.getString((KEYSTORE_PATH)))
+                    .setPassword(config.getString(KEYSTORE_PASSWORD)));
     return WebClient.create(vertx, webClientOptions);
   }
 }

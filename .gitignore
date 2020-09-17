@@ -2,6 +2,8 @@
 !.mvn/wrapper/maven-wrapper.jar
 
 logs/
+configs/config-dev.json
+configs/config-depl.json
 config.properties
 python_scripts
 notes.md

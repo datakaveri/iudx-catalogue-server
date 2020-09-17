@@ -5,12 +5,18 @@ import java.util.Arrays;
 
 public class Constants {
 
+  /** Service Addresses */
+  public static final String DATABASE_SERVICE_ADDRESS = "iudx.catalogue.database.service";
+  public static final String AUTH_SERVICE_ADDRESS = "iudx.catalogue.authentication.service";
+  public static final String VALIDATION_SERVICE_ADDRESS = "iudx.catalogue.validator.service";
+
+
   /** General */
   public static final String CAT_TEST_SEARCH_INDEX = "testindex";
   public static final String CAT_INDEX_NAME = "cat";
 
   public static final String CONFIG_FILE = "config.properties";
-  public static final String KEYSTORE_PATH = "keystore";
+  public static final String KEYSTORE_PATH = "keystorePath";
   public static final String KEYSTORE_PASSWORD = "keystorePassword";
   public static final String DATABASE_IP = "databaseIP";
   public static final String DATABASE_PORT = "databasePort";
