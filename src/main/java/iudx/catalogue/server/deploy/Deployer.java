@@ -1,6 +1,5 @@
 package iudx.catalogue.server.deploy;
 
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import java.util.EnumSet;
@@ -19,12 +18,6 @@ import io.vertx.core.cli.CommandLine;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.DeploymentOptions;
 
-import iudx.catalogue.server.apiserver.ApiServerVerticle;
-import iudx.catalogue.server.authenticator.AuthenticationVerticle;
-import iudx.catalogue.server.database.DatabaseVerticle;
-import iudx.catalogue.server.validator.ValidatorVerticle;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.nio.charset.StandardCharsets;
