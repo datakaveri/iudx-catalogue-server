@@ -5,6 +5,8 @@
             "id": "iudx.catalogue.server.database.DatabaseVerticle",
             "verticleInstances": 2,
             "databaseIP": "127.0.0.1",
+            "databaseUser": "user",
+            "databasePassword": "password",
             "databasePort": 9200,
             "databasePassword": ""
         },
@@ -19,6 +21,8 @@
             "id": "iudx.catalogue.server.validator.ValidatorVerticle",
             "databaseIP": "127.0.0.1",
             "databasePort": 9201,
+            "databaseUser": "user",
+            "databasePassword": "password",
             "verticleInstances": 2
         },
         {

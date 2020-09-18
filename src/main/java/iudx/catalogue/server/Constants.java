@@ -20,6 +20,8 @@ public class Constants {
   public static final String KEYSTORE_PASSWORD = "keystorePassword";
   public static final String DATABASE_IP = "databaseIP";
   public static final String DATABASE_PORT = "databasePort";
+  public static final String DATABASE_UNAME = "databaseUser";
+  public static final String DATABASE_PASSWD = "databasePassword";
   public static final String SOURCE = "_source";
 
   /** Item type */

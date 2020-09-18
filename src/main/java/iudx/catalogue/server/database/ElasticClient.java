@@ -12,6 +12,10 @@ import io.vertx.core.Promise;
 import io.vertx.core.Handler;
 import io.vertx.core.AsyncResult;
 import org.apache.http.util.EntityUtils;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.auth.AuthScope;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,8 +37,13 @@ public final class ElasticClient {
    * @param databasePort Port
    * @TODO XPack Security
    */
-  public ElasticClient(String databaseIP, int databasePort) {
-    client = RestClient.builder(new HttpHost(databaseIP, databasePort, "http")).build();
+  public ElasticClient(String databaseIP, int databasePort,
+                        String databaseUser, String databasePassword) {
+    CredentialsProvider credentials = new BasicCredentialsProvider();
+    credentials.setCredentials(AuthScope.ANY,
+                                new UsernamePasswordCredentials(databaseUser, databasePassword));
+    client = RestClient.builder(new HttpHost(databaseIP, databasePort)).setHttpClientConfigCallback(
+        httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentials)).build();
   }
 
   /**
