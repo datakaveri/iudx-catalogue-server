@@ -184,17 +184,16 @@ public final class QueryDecoder {
     }
 
     if (!match) {
-      return new JsonObject().put("Error", INVALID_SEARCH);
+      return new JsonObject().put(ERROR, INVALID_SEARCH);
     } else {
 
-      String boolQuery = "";
+      JsonObject boolQuery = new JsonObject(MUST_QUERY.replace("$1", mustQuery.toString()));
       /* return fully formed elastic query */
-      if (queryGeoShape == null) {
-        boolQuery = MUST_QUERY.replace("$1", mustQuery.toString());
-      } else if (queryGeoShape != null) {
-        boolQuery = FILTER_QUERY.replace("$1", queryGeoShape);
+      if (queryGeoShape != null) {
+        boolQuery.getJsonObject("bool").put(FILTER,
+            new JsonArray().add(new JsonObject(queryGeoShape)));
       }
-      return elasticQuery.put(QUERY_KEY, new JsonObject(boolQuery));
+      return elasticQuery.put(QUERY_KEY, boolQuery);
     }
   }
 
@@ -271,6 +270,11 @@ public final class QueryDecoder {
     }
 
     String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+
+    if (TYPE_KEY.equals(relationshipType)) {
+      elasticQuery = new JsonObject(elasticQuery).put(SOURCE, TYPE_KEY).toString();
+    }
+
     return elasticQuery;
   }
 
