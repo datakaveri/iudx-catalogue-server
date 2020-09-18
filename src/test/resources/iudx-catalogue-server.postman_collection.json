@@ -614,10 +614,10 @@
 									}
 								],
 								"url": {
-									"raw": "https://{{host_server}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Bus Station_123",
+									"raw": "https://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Bus Station_123",
 									"protocol": "https",
 									"host": [
-										"{{host_server}}{{base}}"
+										"{{host}}{{base}}"
 									],
 									"path": [
 										"item"
@@ -671,10 +671,10 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host_server}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35",
+									"raw": "https://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35",
 									"protocol": "https",
 									"host": [
-										"{{host_server}}{{base}}"
+										"{{host}}{{base}}"
 									],
 									"path": [
 										"item"
@@ -769,18 +769,23 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Noble Hospital junction_35/type",
+									"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35&rel=type",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
 									],
 									"path": [
-										"datakaveri.org",
-										"f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-										"rs.iudx.org.in",
-										"aqm-bosch-climo",
-										"Noble Hospital junction_35",
-										"type"
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35"
+										},
+										{
+											"key": "rel",
+											"value": "type"
+										}
 									]
 								}
 							},
@@ -815,17 +820,23 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/type",
+									"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=type",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
 									],
 									"path": [
-										"datakaveri.org",
-										"f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-										"rs.iudx.org.in",
-										"aqm-bosch-climo",
-										"type"
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo"
+										},
+										{
+											"key": "rel",
+											"value": "type"
+										}
 									]
 								}
 							},
@@ -834,6 +845,266 @@
 					],
 					"protocolProfileBehavior": {},
 					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Instance APIs",
+			"item": [
+				{
+					"name": "Create Instance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a472d877-fbe1-49e0-9c97-65aa0c9efcfd",
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}{{base}}/instance?id=pune",
+							"protocol": "https",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"instance"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "pune"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Instance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "70caf88e-309d-4da5-bef3-ffa9ce355354",
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{admin_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}{{base}}/instance?id=pune",
+							"protocol": "https",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"instance"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "pune"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Instance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a7edbb60-1d6e-4346-b18d-59762600bbc4",
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "auth.iudx.org.in/rakshit.ramesh@datakaveri.org/c4fd7318be270d44c69da4ec40b1c6e4",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}{{base}}/list/instance",
+							"protocol": "https",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"list",
+								"instance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UnAuthorized request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "a472d877-fbe1-49e0-9c97-65aa0c9efcfd",
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{admin_token1}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{host}}{{base}}/instance?id=pune",
+							"protocol": "https",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"instance"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "pune"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
@@ -2932,10 +3203,10 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "https://{{host_server}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.8420,18.5305],[73.8665,18.5126]]",
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.8420,18.5305],[73.8665,18.5126]]",
 											"protocol": "https",
 											"host": [
-												"{{host_server}}{{base}}"
+												"{{host}}{{base}}"
 											],
 											"path": [
 												"search"
@@ -4005,14 +4276,9 @@
 											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
 											"});\r",
 											"\r",
-											"pm.test(\"Check response body 1\", function () {    \r",
+											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body 2\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"totalHits\", 2);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -4224,14 +4490,9 @@
 											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
 											"});\r",
 											"\r",
-											"pm.test(\"Check response body 1\", function () {    \r",
+											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body 2\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"totalHits\", 1);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -5582,14 +5843,9 @@
 									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
 									"});\r",
 									"\r",
-									"pm.test(\"Check response body 1\", function () {    \r",
+									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body 2\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 1);\r",
 									"});"
 								],
 								"type": "text/javascript"

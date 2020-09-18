@@ -271,14 +271,6 @@ public class ApiServerVerticle extends AbstractVerticle {
       .handler(routingContext -> { 
         listApis.listItemsHandler(routingContext);
       });
-    /* Get list types with the database for an item */
-    /* list the item from database using itemId */
-    router.getWithRegex(ROUTE_DATA_TYPE)
-      .produces(MIME_APPLICATION_JSON)
-      .handler( routingContext -> { 
-        listApis.listTypesHandler(routingContext);
-      });
-
 
     /**
      * Routes for relationships

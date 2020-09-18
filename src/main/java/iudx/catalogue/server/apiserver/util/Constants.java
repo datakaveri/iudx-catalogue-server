@@ -41,7 +41,6 @@ public class Constants {
   public static final String ROUTE_UPDATE_ITEMS = basePath + "/item";
   public static final String ROUTE_DELETE_ITEMS = basePath + "/item";
   public static final String ROUTE_INSTANCE = basePath + "/instance";
-  public static final String ROUTE_LIST_RESOURCE_REL = basePath + "\\/(?<id>.*)\\/resource";
   public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
       basePath + "\\/(?<id>.*)\\/resourceGroup";
 
@@ -57,9 +56,6 @@ public class Constants {
   public static final String DATA_DES_ITEM = "dataDesItem";
 
   public static final String ROUTE_GET_ITEM = basePath + "/items";
-  public static final String ROUTE_PROVIDER_REL = basePath + "\\/(?<id>.*)\\/provider";
-  public static final String ROUTE_RESOURCE_SERVER_REL = basePath + "\\/(?<id>.*)\\/resourceServer";
-  public static final String ROUTE_DATA_TYPE = basePath + "\\/(?<id>.*)\\/type";
   public static final String ROUTE_COUNT = basePath + "/count";
   public static final String ROUTE_REL_SEARCH = basePath + "/relsearch";
 
@@ -94,5 +90,5 @@ public class Constants {
 
   public static final String REL_KEY = "rel";
   public static final ArrayList<String> ITEMS_KEY =
-      new ArrayList<String>(Arrays.asList(RESOURCE, RESOURCE_GRP, RESOURCE_SVR, PROVIDER));
+      new ArrayList<String>(Arrays.asList(RESOURCE, RESOURCE_GRP, RESOURCE_SVR, PROVIDER, TYPE));
 }

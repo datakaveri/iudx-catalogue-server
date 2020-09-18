@@ -114,46 +114,4 @@ public final class ListApis {
           }
         });
   }
-
-  /**
-   * Queries the database and returns data model of an item.
-   *
-   * @param routingContext Handles web request in Vert.x web
-   */
-  public void listTypesHandler(RoutingContext routingContext) {
-    LOGGER.debug("Listing type of item");
-
-    HttpServerResponse response = routingContext.response();
-    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-
-    JsonObject queryJson = new JsonObject();
-    String instanceID = routingContext.request().getHeader(HEADER_INSTANCE);
-    String id = routingContext.request().getParam(ID);
-    queryJson
-        .put(HEADER_INSTANCE, instanceID)
-        .put(ID, id)
-        .put(RELATIONSHIP, TYPE);
-    dbService.listRelationship(
-        queryJson,
-        handler -> {
-          if (handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              LOGGER.info("Success: Retreived item type");
-              response.setStatusCode(200);
-            } else {
-              response.setStatusCode(400);
-            }
-            response.headers().add(HEADER_CONTENT_LENGTH,
-                String.valueOf(resultJson.toString().length()));
-            response.write(resultJson.toString());
-            response.end();
-          } else if (handler.failed()) {
-            LOGGER.error(handler.cause().getMessage());
-            response.setStatusCode(400);
-            response.end(handler.cause().getMessage());
-          }
-        });
-  }
 }
