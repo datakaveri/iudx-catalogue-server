@@ -27,6 +27,8 @@ public class ValidatorVerticle extends AbstractVerticle {
   private ValidatorService validator;
   private String databaseIP;
   private int databasePort;
+  private String databaseUser;
+  private String databasePassword;
   private ElasticClient client;
 
   /**
@@ -39,9 +41,11 @@ public class ValidatorVerticle extends AbstractVerticle {
 
     databaseIP = config().getString(DATABASE_IP);
     databasePort = config().getInteger(DATABASE_PORT);
+    databaseUser = config().getString(DATABASE_UNAME);
+    databasePassword = config().getString(DATABASE_PASSWD);
     /* Create a reference to HazelcastClusterManager. */
 
-    client = new ElasticClient(databaseIP, databasePort);
+    client = new ElasticClient(databaseIP, databasePort, databaseUser, databasePassword);
 
     /* Create or Join a Vert.x Cluster. */
 

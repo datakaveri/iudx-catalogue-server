@@ -145,6 +145,22 @@ public class ApiServerVerticle extends AbstractVerticle {
 
 
     /**
+     * UI routes
+     */
+    /* Static Resource Handler */
+    router.route("/*").produces("text/html")
+      .handler(StaticHandler.create("ui/dist/dk-customer-ui/"));
+
+    router.route("/assets/*").produces("*/*")
+      .handler(StaticHandler.create("ui/dist/dk-customer-ui/assets/"));
+
+    router.route("/").produces("text/html")
+      .handler(routingContext -> {
+      HttpServerResponse response = routingContext.response();
+      response.sendFile("ui/dist/dk-customer-ui/index.html");
+    });
+
+    /**
      * Routes for item CRUD
      */
     /* Create Item - Body contains data */
