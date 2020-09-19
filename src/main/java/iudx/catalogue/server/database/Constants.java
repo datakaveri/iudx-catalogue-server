@@ -7,7 +7,7 @@ public class Constants {
   /* General purpose */
   static final String SEARCH = "search";
   static final String COUNT = "count";
-  static final String DESCRIPTION = "desc";
+  static final String DESCRIPTION = "description";
   static final String HTTP = "http";
   static final String ATTRIBUTE = "attrs";
   static final String RESULT = "results";

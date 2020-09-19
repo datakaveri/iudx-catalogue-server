@@ -91,7 +91,7 @@ public class Constants {
   public static final String STATUS = "status";
   public static final String FAILED = "failed";
   public static final String ERROR = "error";
-  public static final String DESC = "desc";
+  public static final String DESC = "description";
 
   /** DB Query */
   public static final String TOTAL_HITS = "totalHits";
