@@ -2,7 +2,7 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "http://example.com/example.json",
     "type": "object",
-    "title": "The root schema",
+    "title": "Resource Server Schema",
     "description": "The root schema comprises the entire JSON document.",
     "default": {},
     "examples": [
@@ -11,13 +11,20 @@
             "type": [
                 "iudx:ResourceServer"
             ],
-            "id": "rbccps.org/102aeifjas4934589070adjkshf/rs.iudx.org.in",
-            "name": "iudxResourceServer",
-            "description": "Generic IUDX resource server",
-            "tags": "IUDX, Resource, Server, Platform",
+            "id": "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a/rs.iudx.org.in",
+            "provider": "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a",
+            "name": "IudxResourceServer",
+            "description": "Multi tenanted IUDX resource server",
+            "tags": [
+                "IUDX",
+                "Resource",
+                "Server",
+                "Platform"
+            ],
             "itemStatus": "ACTIVE",
             "itemCreatedAt": "2020-07-01T10:03:26+0000",
-            "resourceServerHTTPAccessURL": "https://rs.iudx.org.in/",
+            "resourceServerHTTPAccessURL": "rs.iudx.org.in",
+            "resourceServerStreamingAccessURL": "databroker.iudx.org.in",
             "resourceServerOrg": {
                 "name": "iudx",
                 "additionalInfoURL": "https://iudx.org.in",
@@ -27,20 +34,20 @@
                     "geometry": {
                         "type": "Point",
                         "coordinates": [
-                            75.92,
-                            13.5
+                            77.570423,
+                            13.013945
                         ]
                     }
                 }
             },
             "location": {
                 "type": "Place",
-                "address": "Pune",
+                "address": "IISc, Bangalore",
                 "geometry": {
                     "type": "Point",
                     "coordinates": [
-                        74.92,
-                        12.5
+                        77.570423,
+                        13.013945
                     ]
                 }
             }
@@ -49,20 +56,15 @@
     "required": [
         "@context",
         "type",
-        "id",
+        "provider",
         "name",
         "description",
         "tags",
-        "itemStatus",
-        "itemCreatedAt",
-        "resourceServerHTTPAccessURL",
-        "resourceServerOrg",
-        "location"
+        "resourceServerOrg"
     ],
-    "additionalProperties": true,
     "properties": {
         "@context": {
-            "$id": "#/properties/@context",
+            "$id": "#/properties/%40context",
             "type": "string",
             "title": "The @context schema",
             "description": "An explanation about the purpose of this instance.",
@@ -84,6 +86,7 @@
             ],
             "additionalItems": true,
             "items": {
+                "$id": "#/properties/type/items",
                 "anyOf": [
                     {
                         "$id": "#/properties/type/items/anyOf/0",
@@ -95,8 +98,7 @@
                             "iudx:ResourceServer"
                         ]
                     }
-                ],
-                "$id": "#/properties/type/items"
+                ]
             }
         },
         "id": {
@@ -106,7 +108,17 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "rbccps.org/102aeifjas4934589070adjkshf/rs.iudx.org.in"
+                "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a/rs.iudx.org.in"
+            ]
+        },
+        "provider": {
+            "$id": "#/properties/provider",
+            "type": "string",
+            "title": "The provider schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a"
             ]
         },
         "name": {
@@ -116,7 +128,7 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "iudxResourceServer"
+                "IudxResourceServer"
             ]
         },
         "description": {
@@ -126,18 +138,38 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "Generic IUDX resource server"
+                "Multi tenanted IUDX resource server"
             ]
         },
         "tags": {
             "$id": "#/properties/tags",
-            "type": "string",
+            "type": "array",
             "title": "The tags schema",
             "description": "An explanation about the purpose of this instance.",
-            "default": "",
+            "default": [],
             "examples": [
-                "IUDX, Resource, Server, Platform"
-            ]
+                [
+                    "IUDX",
+                    "Resource"
+                ]
+            ],
+            "additionalItems": true,
+            "items": {
+                "$id": "#/properties/tags/items",
+                "anyOf": [
+                    {
+                        "$id": "#/properties/tags/items/anyOf/0",
+                        "type": "string",
+                        "title": "The first anyOf schema",
+                        "description": "An explanation about the purpose of this instance.",
+                        "default": "",
+                        "examples": [
+                            "IUDX",
+                            "Resource"
+                        ]
+                    }
+                ]
+            }
         },
         "itemStatus": {
             "$id": "#/properties/itemStatus",
@@ -166,7 +198,17 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "https://rs.iudx.org.in/"
+                "rs.iudx.org.in"
+            ]
+        },
+        "resourceServerStreamingAccessURL": {
+            "$id": "#/properties/resourceServerStreamingAccessURL",
+            "type": "string",
+            "title": "The resourceServerStreamingAccessURL schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "databroker.iudx.org.in"
             ]
         },
         "resourceServerOrg": {
@@ -185,8 +227,8 @@
                         "geometry": {
                             "type": "Point",
                             "coordinates": [
-                                75.92,
-                                13.5
+                                77.570423,
+                                13.013945
                             ]
                         }
                     }
@@ -197,7 +239,6 @@
                 "additionalInfoURL",
                 "location"
             ],
-            "additionalProperties": true,
             "properties": {
                 "name": {
                     "$id": "#/properties/resourceServerOrg/properties/name",
@@ -232,8 +273,8 @@
                             "geometry": {
                                 "type": "Point",
                                 "coordinates": [
-                                    75.92,
-                                    13.5
+                                    77.570423,
+                                    13.013945
                                 ]
                             }
                         }
@@ -243,7 +284,6 @@
                         "address",
                         "geometry"
                     ],
-                    "additionalProperties": true,
                     "properties": {
                         "type": {
                             "$id": "#/properties/resourceServerOrg/properties/location/properties/type",
@@ -275,8 +315,8 @@
                                 {
                                     "type": "Point",
                                     "coordinates": [
-                                        75.92,
-                                        13.5
+                                        77.570423,
+                                        13.013945
                                     ]
                                 }
                             ],
@@ -284,7 +324,6 @@
                                 "type",
                                 "coordinates"
                             ],
-                            "additionalProperties": true,
                             "properties": {
                                 "type": {
                                     "$id": "#/properties/resourceServerOrg/properties/location/properties/geometry/properties/type",
@@ -304,12 +343,13 @@
                                     "default": [],
                                     "examples": [
                                         [
-                                            75.92,
-                                            13.5
+                                            77.570423,
+                                            13.013945
                                         ]
                                     ],
                                     "additionalItems": true,
                                     "items": {
+                                        "$id": "#/properties/resourceServerOrg/properties/location/properties/geometry/properties/coordinates/items",
                                         "anyOf": [
                                             {
                                                 "$id": "#/properties/resourceServerOrg/properties/location/properties/geometry/properties/coordinates/items/anyOf/0",
@@ -318,19 +358,21 @@
                                                 "description": "An explanation about the purpose of this instance.",
                                                 "default": 0.0,
                                                 "examples": [
-                                                    75.92,
-                                                    13.5
+                                                    77.570423,
+                                                    13.013945
                                                 ]
                                             }
-                                        ],
-                                        "$id": "#/properties/resourceServerOrg/properties/location/properties/geometry/properties/coordinates/items"
+                                        ]
                                     }
                                 }
-                            }
+                            },
+                            "additionalProperties": true
                         }
-                    }
+                    },
+                    "additionalProperties": true
                 }
-            }
+            },
+            "additionalProperties": true
         },
         "location": {
             "$id": "#/properties/location",
@@ -341,12 +383,12 @@
             "examples": [
                 {
                     "type": "Place",
-                    "address": "Pune",
+                    "address": "IISc, Bangalore",
                     "geometry": {
                         "type": "Point",
                         "coordinates": [
-                            74.92,
-                            12.5
+                            77.570423,
+                            13.013945
                         ]
                     }
                 }
@@ -356,7 +398,6 @@
                 "address",
                 "geometry"
             ],
-            "additionalProperties": true,
             "properties": {
                 "type": {
                     "$id": "#/properties/location/properties/type",
@@ -375,7 +416,7 @@
                     "description": "An explanation about the purpose of this instance.",
                     "default": "",
                     "examples": [
-                        "Pune"
+                        "IISc, Bangalore"
                     ]
                 },
                 "geometry": {
@@ -388,8 +429,8 @@
                         {
                             "type": "Point",
                             "coordinates": [
-                                74.92,
-                                12.5
+                                77.570423,
+                                13.013945
                             ]
                         }
                     ],
@@ -397,7 +438,6 @@
                         "type",
                         "coordinates"
                     ],
-                    "additionalProperties": true,
                     "properties": {
                         "type": {
                             "$id": "#/properties/location/properties/geometry/properties/type",
@@ -417,12 +457,13 @@
                             "default": [],
                             "examples": [
                                 [
-                                    74.92,
-                                    12.5
+                                    77.570423,
+                                    13.013945
                                 ]
                             ],
                             "additionalItems": true,
                             "items": {
+                                "$id": "#/properties/location/properties/geometry/properties/coordinates/items",
                                 "anyOf": [
                                     {
                                         "$id": "#/properties/location/properties/geometry/properties/coordinates/items/anyOf/0",
@@ -431,17 +472,19 @@
                                         "description": "An explanation about the purpose of this instance.",
                                         "default": 0.0,
                                         "examples": [
-                                            74.92,
-                                            12.5
+                                            77.570423,
+                                            13.013945
                                         ]
                                     }
-                                ],
-                                "$id": "#/properties/location/properties/geometry/properties/coordinates/items"
+                                ]
                             }
                         }
-                    }
+                    },
+                    "additionalProperties": true
                 }
-            }
+            },
+            "additionalProperties": true
         }
-    }
+    },
+    "additionalProperties": true
 }
