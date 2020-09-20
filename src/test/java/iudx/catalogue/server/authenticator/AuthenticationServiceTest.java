@@ -22,6 +22,9 @@ public class AuthenticationServiceTest {
     private static final Properties properties = new Properties();
     private static Vertx vertxObj;
     private static AuthenticationService authenticationService;
+    private static JsonObject config;
+    private static String TOKEN = "";
+    private static String authHost = "";
 
     /**
      * Initialize and start the auth service for testing.
@@ -33,8 +36,8 @@ public class AuthenticationServiceTest {
     @DisplayName("Initialize Vertx and deploy AuthenticationVerticle")
     static void initialize(Vertx vertx, VertxTestContext testContext) {
         vertxObj = vertx;
-        WebClient client = AuthenticationVerticle.createWebClient(vertxObj, properties, true);
-        authenticationService = new AuthenticationServiceImpl(client);
+        WebClient client = AuthenticationVerticle.createWebClient(vertxObj, config, true);
+        authenticationService = new AuthenticationServiceImpl(client, authHost);
         LOGGER.info("Auth tests setup complete");
         testContext.completeNow();
     }
@@ -54,7 +57,7 @@ public class AuthenticationServiceTest {
     @Test
     @DisplayName("Test if WebClient has been initialized correctly")
     public void testWebClientSetup(VertxTestContext testContext) {
-        WebClient client = AuthenticationVerticle.createWebClient(vertxObj, properties, true);
+        WebClient client = AuthenticationVerticle.createWebClient(vertxObj, config, true);
         String host = properties.getProperty(Constants.AUTH_SERVER_HOST);
         client.post(443, host, Constants.AUTH_CERTINFO_PATH).send(httpResponseAsyncResult -> {
             if (httpResponseAsyncResult.failed()) {
@@ -141,7 +144,7 @@ public class AuthenticationServiceTest {
         JsonObject request = new JsonObject();
         request.put("provider", Constants.DUMMY_PROVIDER_PREFIX);
         JsonObject authInfo = new JsonObject();
-        authInfo.put("token", properties.getProperty("authDummyToken"));
+        authInfo.put("token", TOKEN);
         authInfo.put("operation", HttpMethod.PUT.toString());
         authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
             if (jsonObjectAsyncResult.failed()) {
@@ -166,7 +169,7 @@ public class AuthenticationServiceTest {
     public void testMissingProviderInTIP(VertxTestContext testContext) {
         JsonObject request = new JsonObject();
         JsonObject authInfo = new JsonObject();
-        authInfo.put("token", properties.getProperty("authDummyToken"));
+        authInfo.put("token", TOKEN);
         authInfo.put("operation", HttpMethod.PUT.toString());
         authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
             JsonObject result = jsonObjectAsyncResult.result();
@@ -187,7 +190,7 @@ public class AuthenticationServiceTest {
         JsonObject request = new JsonObject();
         request.put("provider", Constants.DUMMY_PROVIDER_PREFIX);
         JsonObject authInfo = new JsonObject();
-        String dummyToken = properties.getProperty("authDummyToken");
+        String dummyToken = TOKEN;
         String invalidToken = dummyToken.substring(0, dummyToken.length() - 1);
         authInfo.put("token", invalidToken);
         authInfo.put("operation", HttpMethod.PUT.toString());
@@ -211,7 +214,7 @@ public class AuthenticationServiceTest {
         JsonObject request = new JsonObject();
         request.put("provider", Constants.DUMMY_PROVIDER_PREFIX);
         JsonObject authInfo = new JsonObject();
-        authInfo.put("token", properties.getProperty("authDummyToken"));
+        authInfo.put("token", TOKEN);
         authInfo.put("operation", HttpMethod.OTHER.toString());
         authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
             JsonObject result = jsonObjectAsyncResult.result();

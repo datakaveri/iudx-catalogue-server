@@ -28,6 +28,8 @@ public class ElasticClientTest {
   private static InputStream inputstream;
   private static String databaseIP;
   private static int databasePort;
+  private static String databaseUser;
+  private static String databasePassword;
 
   @BeforeAll
   @DisplayName("")
@@ -40,7 +42,7 @@ public class ElasticClientTest {
       properties.load(inputstream);
       databaseIP = properties.getProperty(DATABASE_IP);
       databasePort = Integer.parseInt(properties.getProperty(DATABASE_PORT));
-      client = new ElasticClient(databaseIP, databasePort);
+      client = new ElasticClient(databaseIP, databasePort, databaseUser, databasePassword);
 
       LOGGER.info("Read config file");
       LOGGER.info("IP is " + databaseIP);

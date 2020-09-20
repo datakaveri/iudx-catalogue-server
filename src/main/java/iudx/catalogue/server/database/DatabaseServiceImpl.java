@@ -212,6 +212,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           LOGGER.error("Fail: Invalid Instance Insertion failed");
           return;
         }
+        doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
         /* Insert document */
         client.docPostAsync(CAT_INDEX_NAME, doc.toString(), postRes -> {
           if (postRes.succeeded()) {

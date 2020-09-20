@@ -38,31 +38,25 @@ public class DatabaseServiceTest {
   private static InputStream inputstream;
   private static String databaseIP;
   private static int databasePort;
+  private static String databaseUser;
+  private static String databasePassword;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
   static void startVertx(Vertx vertx, VertxTestContext testContext) {
     vertxObj = vertx;
 
-    /* Read the configuration and set the rabbitMQ server properties. */
     properties = new Properties();
     inputstream = null;
 
-    try {
+    databaseIP = "";
+    databasePort = 9201;
+    databaseUser = "";
+    databasePassword = "";
 
-      inputstream = new FileInputStream(CONFIG_FILE);
-      properties.load(inputstream);
-
-      databaseIP = properties.getProperty(DATABASE_IP);
-      databasePort = Integer.parseInt(properties.getProperty(DATABASE_PORT));
-
-    } catch (Exception ex) {
-
-      LOGGER.info(ex.toString());
-    }
 
     // TODO : Need to enable TLS using xpack security
-    client = new ElasticClient(databaseIP, databasePort);
+    client = new ElasticClient(databaseIP, databasePort, databaseUser, databasePassword);
     dbService = new DatabaseServiceImpl(client);
     testContext.completeNow();
   }

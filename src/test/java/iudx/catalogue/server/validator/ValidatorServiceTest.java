@@ -33,6 +33,8 @@ public class ValidatorServiceTest {
   private static ElasticClient client;
   private static String databaseIP;
   private static int databasePort;
+  private static String databaseUser;
+  private static String databasePassword;
   private static Properties properties;
   private static InputStream inputstream;
 
@@ -58,7 +60,7 @@ public class ValidatorServiceTest {
     }
 
     // TODO : Need to enable TLS using xpack security
-    client = new ElasticClient(databaseIP, databasePort);
+    client = new ElasticClient(databaseIP, databasePort, databaseUser, databasePassword);
     validator = new ValidatorServiceImpl(client);
     testContext.completeNow();
   }

@@ -8,7 +8,7 @@ export VERTX_CMD="run"
 mvn compile dependency:copy-dependencies
 java \
   -cp  $(echo target/dependency/*.jar | tr ' ' ':'):"target/classes" \
-  $LAUNCHER $VERTX_CMD $VERTICLE -conf "configs/config-dev.json" \
+  $LAUNCHER $VERTX_CMD $VERTICLE -conf "configs/config-depl.json" \
   --redeploy="src/main/**/*" --on-redeploy="$CMD" \
   --launcher-class=$LAUNCHER \
   $@

@@ -34,10 +34,7 @@
         "name",
         "tags",
         "provider",
-        "resourceServer",
-        "resourceAuthControlLevel",
-        "resourceType",
-        "iudxResourceAPIs"
+        "resourceServer"
     ],
     "properties": {
         "@context": {

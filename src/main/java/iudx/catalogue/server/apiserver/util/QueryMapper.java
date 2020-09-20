@@ -41,7 +41,7 @@ public class QueryMapper {
     excepAttribute.add(Q_VALUE);
 
     Pattern regPatternMatchString = Pattern.compile("[\\w]+[^\\,]*(?:\\.*[\\w])");
-    Pattern regPatternText = Pattern.compile("^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}");
+    Pattern regPatternText = Pattern.compile("^[\\*]{0,1}[A-Za-z0-9\\-\\_ ]+[\\*]{0,1}");
 
     LOGGER.debug("In query mapper");
 

@@ -34,6 +34,7 @@ public class Constants {
   static final String ID_KEYWORD = "id.keyword";
   static final String DOC_ID = "_id";
   static final String KEY = "key";
+  static final String SUMMARY_KEY = "_summary";
 
   /* Geo-Spatial */
   static final String COORDINATES_KEY = "coordinates";
