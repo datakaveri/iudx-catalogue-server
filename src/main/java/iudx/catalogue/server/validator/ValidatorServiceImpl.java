@@ -100,6 +100,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       handler.handle(
           Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
+      LOGGER.debug("Fail: Invalid Schema");
       handler.handle(
           Future.failedFuture(INVALID_SCHEMA_MSG));
     }
@@ -180,24 +181,28 @@ public class ValidatorServiceImpl implements ValidatorService {
       client.searchGetId(CAT_INDEX_NAME,
           checkQuery.replace("$1", provider), providerRes -> {
         if (providerRes.failed()) {
-              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+          LOGGER.debug("Fail: DB Error");
+          handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
           return;
         }
         if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
           client.searchGetId(CAT_INDEX_NAME,
               checkQuery.replace("$1", resourceServer), serverRes -> {
               if (serverRes.failed()) {
-                      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                LOGGER.debug("Fail: DB error");
+                handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
                 return;
               } 
               if (serverRes.result().getInteger(TOTAL_HITS) == 1) {
                 handler.handle(Future.succeededFuture(request));
               } else {
-                      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                LOGGER.debug("Fail: Server doesn't exist");
+                handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
               }
           });
         } else {
-              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+          LOGGER.debug("Fail: Provider doesn't exist");
+          handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
         }
       });
     }
