@@ -1,16 +1,19 @@
 package iudx.catalogue.server.database;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.MultiMap;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import io.vertx.reactivex.core.Vertx;
+import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.apiserver.ApiServerVerticle;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -27,12 +30,20 @@ import static iudx.catalogue.server.Constants.*;
 public class QueryDecoderTest {
 
   private static final Logger LOGGER = LogManager.getLogger(QueryDecoderTest.class);
-  private QueryDecoder queryDecoder;
+  private static QueryDecoder queryDecoder;
+  private static Configuration config;
 
-  @BeforeEach
-  public void setup(Vertx vertx, VertxTestContext testContext) {
-    vertx.deployVerticle(new DatabaseVerticle(), testContext.completing());
+  @BeforeAll
+  @DisplayName("Deploying Verticle")
+  static void startVertx(Vertx vertx, VertxTestContext testContext) {
+    
+    config = new Configuration();
+    JsonObject elasticConfig = config.configLoader(0, vertx);
+    
+     vertx.deployVerticle(new DatabaseVerticle(), new
+     DeploymentOptions().setConfig(elasticConfig), testContext.completing());
     queryDecoder = new QueryDecoder();
+    testContext.completed();
   }
 
   @Test
@@ -198,7 +209,7 @@ public class QueryDecoderTest {
             + "iudx.io/aqm-bosch-climo/Ambedkar society circle_29",
         json.getJsonObject(QUERY_KEY).getJsonObject("bool").getJsonArray("must").getJsonObject(0)
             .getJsonObject("bool").getJsonArray("should").getJsonObject(0).getJsonObject(MATCH_KEY)
-            .getString(ID_KEYWORD));
+            .getString(ID));
     testContext.completeNow();
   }
   
@@ -235,7 +246,7 @@ public class QueryDecoderTest {
 
     assertEquals(ITEM_TYPE_RESOURCE_GROUP,
         json.getJsonObject(QUERY_KEY).getJsonObject("bool").getJsonArray("must").getJsonObject(1)
-            .getJsonObject(TERM).getString("type.keyword"));
+            .getJsonObject(MATCH_KEY).getString(TYPE));
     testContext.completeNow();
   }
 
@@ -253,7 +264,7 @@ public class QueryDecoderTest {
     JsonObject json = new JsonObject(queryDecoder.listRelationshipQuery(requests));
 
     assertEquals(ITEM_TYPE_RESOURCE_SERVER, json.getJsonObject(QUERY_KEY).getJsonObject("bool")
-        .getJsonArray("must").getJsonObject(2).getJsonObject(TERM).getString("type.keyword"));
+        .getJsonArray("must").getJsonObject(2).getJsonObject(MATCH_KEY).getString(TYPE));
     testContext.completeNow();
   }
 
@@ -269,7 +280,7 @@ public class QueryDecoderTest {
 
     JsonObject json = new JsonObject(queryDecoder.listItemQuery(requests));
 
-    assertEquals("tags.keyword", json.getJsonObject(AGGREGATION_KEY).getJsonObject(RESULTS)
+    assertEquals(TAGS + KEYWORD_KEY, json.getJsonObject(AGGREGATION_KEY).getJsonObject(RESULTS)
         .getJsonObject(TERMS_KEY).getString("field"));
     testContext.completeNow();
   }

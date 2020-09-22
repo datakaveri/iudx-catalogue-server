@@ -13,8 +13,8 @@ import io.vertx.junit5.VertxTestContext;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.file.FileSystem;
 import io.vertx.reactivex.ext.web.client.WebClient;
+import iudx.catalogue.server.Configuration;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -22,6 +22,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.Iterator;
+
+import static iudx.catalogue.server.Constants.*;
 
 /**
  * Test class for ApiServerVerticle api handlers TODO Need to update count test cases. TODO Update
@@ -40,10 +42,13 @@ public class ApiServerVerticleTest {
   private static final String BASE_URL = "/iudx/cat/v1/";
 
   /** Token for crud apis */
-  private static final String TOKEN = "";
+  private static String TOKEN = "";
+  private static String ADMIN_TOKEN ="";
+  private static String CAT_ADMIN_TOKEN = "";
 
   private static WebClient client;
-  private static FileSystem fileSytem;
+  private static FileSystem fileSystem;
+  private static Configuration config;
 
   ApiServerVerticleTest() {}
 
@@ -58,14 +63,29 @@ public class ApiServerVerticleTest {
   @DisplayName("Deploy a apiserver")
   static void startVertx(VertxTestContext testContext, Vertx vertx) throws InterruptedException {
 
+    fileSystem = vertx.fileSystem();
+    config = new Configuration();
+
+    /* configuration setup */
+    JsonObject apiVerticleConfig = config.configLoader(3, vertx);
+
+    String keyStore = apiVerticleConfig.getString(KEYSTORE_PATH);
+    String keyStorePassword = apiVerticleConfig.getString(KEYSTORE_PASSWORD);
+    CAT_ADMIN_TOKEN = apiVerticleConfig.getString("catAdmin");
+    TOKEN = apiVerticleConfig.getString("token");
+    ADMIN_TOKEN = apiVerticleConfig.getString("admin_token");
+    
+
     /* Options for the web client connections */
+    JksOptions options = new JksOptions().setPath(keyStore).setPassword(keyStorePassword);
 
-    JksOptions options = new JksOptions().setPath("keystore.jks").setPassword("password");
-
-    WebClientOptions clientOptions = new WebClientOptions().setSsl(true).setVerifyHost(false)
-        .setTrustAll(true).setTrustStoreOptions(options);
-    fileSytem = vertx.fileSystem();
+    WebClientOptions clientOptions = new WebClientOptions()
+                                            .setSsl(true)
+                                            .setVerifyHost(false)
+                                            .setTrustAll(true)
+                                            .setTrustStoreOptions(options);
     client = WebClient.create(vertx, clientOptions);
+
     testContext.completeNow();
 
     /**
@@ -107,7 +127,7 @@ public class ApiServerVerticleTest {
       int count = 0;
     };
 
-    fileSytem.readFile("src/test/resources/resources.json", fileRes -> {
+    fileSystem.readFile("src/test/resources/resources.json", fileRes -> {
       if (fileRes.succeeded()) {
 
         JsonArray resources = fileRes.result().toJsonArray();
@@ -153,7 +173,7 @@ public class ApiServerVerticleTest {
   public void createItem400(VertxTestContext testContext) {
 
     /* open and read the entire test file mentioned in the path */
-    fileSytem.readFile("src/test/resources/resourceBadBody.json", fileRes -> {
+    fileSystem.readFile("src/test/resources/resourceBadBody.json", fileRes -> {
       if (fileRes.succeeded()) {
 
         /* mapping the file as JsonObject */
@@ -190,7 +210,7 @@ public class ApiServerVerticleTest {
   void updateItem200(VertxTestContext testContext) {
 
     /* open and read the entire test file mentioned in the path */
-    fileSytem.readFile("src/test/resources/resourceToUpdate.json", fileRes -> {
+    fileSystem.readFile("src/test/resources/resourceToUpdate.json", fileRes -> {
       if (fileRes.succeeded()) {
 
         /* mapping the file as JsonObject */
@@ -228,7 +248,7 @@ public class ApiServerVerticleTest {
   void updateItem400(VertxTestContext testContext) {
 
     /* open and read the entire test file mentioned in the path */
-    fileSytem.readFile("src/test/resources/resourceBadBody.json", fileRes -> {
+    fileSystem.readFile("src/test/resources/resourceBadBody.json", fileRes -> {
       if (fileRes.succeeded()) {
 
         /* mapping the file as JsonObject */
@@ -270,7 +290,7 @@ public class ApiServerVerticleTest {
       int count = 0;
     };
 
-    fileSytem.readFile("src/test/resources/resourcesToDelete.json", fileRes -> {
+    fileSystem.readFile("src/test/resources/resourcesToDelete.json", fileRes -> {
       if (fileRes.succeeded()) {
         JsonArray resources = fileRes.result().toJsonArray();
         Iterator<Object> objectIterator = resources.iterator();
@@ -316,8 +336,8 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     /* Should give only one item */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "5")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
+        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "500")
         .addQueryParam("geometry", "Point").addQueryParam("coordinates", "[ 73.874537, 18.528311 ]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
@@ -349,7 +369,7 @@ public class ApiServerVerticleTest {
                 BASE_URL.concat("instance"))
                         .addQueryParam("id", "pune")
                         .putHeader("Content-Type", "application/json")
-                        .putHeader("token", TOKEN)
+                        .putHeader("token", ADMIN_TOKEN)
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
             LOGGER.info(serverResponse.result().bodyAsString());
@@ -407,7 +427,7 @@ public class ApiServerVerticleTest {
                 BASE_URL.concat("instance"))
                         .addQueryParam("id", "someTestInstance")
                         .putHeader("Content-Type", "application/json")
-                        .putHeader("token", TOKEN)
+                        .putHeader("token", ADMIN_TOKEN)
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
             LOGGER.info(serverResponse.result().bodyAsString());
@@ -433,7 +453,7 @@ public class ApiServerVerticleTest {
   void searchItemCircle400_1(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
         .addQueryParam("georel", "near").addQueryParam("maxDistance", "5000")
         .addQueryParam("geometry", "Point").addQueryParam("coordinates", "[75.9,abc123]")
         .send(serverResponse -> {
@@ -464,7 +484,7 @@ public class ApiServerVerticleTest {
   void searchItemCircle400_2(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("invalidsyntax", "location")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidsyntax", "location")
         .addQueryParam("georel", "near").addQueryParam("maxDistance", "500")
         .addQueryParam("geometry", "Point")
         .addQueryParam("coordinates", "[73.85534405708313,abc123]").send(serverResponse -> {
@@ -495,7 +515,7 @@ public class ApiServerVerticleTest {
   void searchItemCircle400_3(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
         .addQueryParam("abc123", "near").addQueryParam("maxDistance", "500")
         .addQueryParam("geometry", "Point")
         .addQueryParam("coordinates", "[73.85534405708313,18.52008289032131]")
@@ -529,7 +549,7 @@ public class ApiServerVerticleTest {
     LOGGER.info(
         "starting searchItemPolygon200 !!!!!!!!@@@@@@@@##############$$$$$$$$$$$$%%%%%%%%%%%%");
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
         .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
         .addQueryParam("geometry", "Polygon")
         .addQueryParam("coordinates",
@@ -562,7 +582,7 @@ public class ApiServerVerticleTest {
   void searchItemPolygon400_1(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
         .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
         .addQueryParam("geometry", "Polygon")
         .addQueryParam("coordinates",
@@ -597,7 +617,7 @@ public class ApiServerVerticleTest {
   void searchItemPolygon400_2(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
         .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
         .addQueryParam("geometry", "abc123")
         .addQueryParam("coordinates",
@@ -632,7 +652,7 @@ public class ApiServerVerticleTest {
   void searchItemPolygon400_3(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("invalidsyntax", "location")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidsyntax", "location")
         .addQueryParam("abc123", "within").addQueryParam("maxDistance", "500")
         .addQueryParam("geometry", "Polygon")
         .addQueryParam("coordinates",
@@ -667,7 +687,7 @@ public class ApiServerVerticleTest {
   void searchItemPolygon400_4(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("geoproperty", "location")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
         .addQueryParam("abc123", "within").addQueryParam("maxDistance", "500")
         .addQueryParam("geometry", "Polygon")
         .addQueryParam("coordinates",
@@ -1949,7 +1969,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting singleTagSearch200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
         .addQueryParam("value", "[[pollution]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -1978,7 +1998,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting singleTagSearchWithFilter200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
         .addQueryParam("value", "[[pollution]]").addQueryParam("filter", "[id,tags]")
         .addQueryParam("offset", "0").addQueryParam("limit", "1").send(serverResponse -> {
           if (serverResponse.succeeded()) {
@@ -2007,7 +2027,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting singleTagSearch400_1");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
         .addQueryParam("value", "[[abc123]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -2035,7 +2055,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting singleTagSearch400_2");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[abc123]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[abc123]")
         .addQueryParam("value", "[[abc123]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -2063,7 +2083,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting singleTagSearch400_3");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("invalidProperty", "[abc123]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidProperty", "[abc123]")
         .addQueryParam("value", "[[abc123]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -2091,7 +2111,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting multiTagSearch200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
         .addQueryParam("value", "[[pollution,flood]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -2119,7 +2139,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting multiTagSearch400_1");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
         .addQueryParam("value", "[[abc, abc123]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -2147,7 +2167,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting multiTagSearch400_2");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[abc123]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[abc123]")
         .addQueryParam("value", "[[abc, abc123]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -2175,7 +2195,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting singleTagSearch400_3");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("invalidProperty", "[abc123]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidProperty", "[abc123]")
         .addQueryParam("value", "[[abc, abc123]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -2203,7 +2223,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting multiTagSearch200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search/")).addQueryParam("property", "[tags]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
         .addQueryParam("value", "[[pollution,abc123]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 

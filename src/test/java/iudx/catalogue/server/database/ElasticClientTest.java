@@ -3,9 +3,10 @@ package iudx.catalogue.server.database;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import io.vertx.core.Vertx;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import io.vertx.reactivex.core.Vertx;
+import iudx.catalogue.server.Configuration;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Properties;
@@ -30,27 +31,25 @@ public class ElasticClientTest {
   private static int databasePort;
   private static String databaseUser;
   private static String databasePassword;
+  private static Configuration config;
 
   @BeforeAll
   @DisplayName("")
   static void initClient(Vertx vertx, VertxTestContext testContext) {
     /* Read the configuration and set the rabbitMQ server properties. */
-    properties = new Properties();
 
-    try {
-      inputstream = new FileInputStream(CONFIG_FILE);
-      properties.load(inputstream);
-      databaseIP = properties.getProperty(DATABASE_IP);
-      databasePort = Integer.parseInt(properties.getProperty(DATABASE_PORT));
-      client = new ElasticClient(databaseIP, databasePort, databaseUser, databasePassword);
+    config = new Configuration();
+    JsonObject elasticConfig = config.configLoader(0, vertx);
 
-      LOGGER.info("Read config file");
-      LOGGER.info("IP is " + databaseIP);
+    databaseIP = elasticConfig.getString(DATABASE_IP);
+    databasePort = elasticConfig.getInteger(DATABASE_PORT);
+    databaseUser = elasticConfig.getString(DATABASE_UNAME);
+    databasePassword = elasticConfig.getString(DATABASE_PASSWD);
 
-    } catch (Exception ex) {
+    client = new ElasticClient(databaseIP, databasePort, databaseUser, databasePassword);
 
-      LOGGER.info(ex.toString());
-    }
+    LOGGER.info("Read config file");
+    LOGGER.info("IP is " + databaseIP);
 
     testContext.completeNow();
   }
@@ -61,7 +60,7 @@ public class ElasticClientTest {
   void TestGetAll(VertxTestContext testContext) {
     JsonObject query = new JsonObject().put("query", new JsonObject()
                                         .put("match_all", new JsonObject()));
-    client.searchAsync("testindex", query.toString(), res -> {
+    client.searchAsync("cat", query.toString(), res -> {
       if (res.succeeded()) {
         LOGGER.info("Succeeded");
         LOGGER.info(res.result());

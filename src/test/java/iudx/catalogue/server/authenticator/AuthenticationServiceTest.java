@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import iudx.catalogue.server.Configuration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,8 @@ public class AuthenticationServiceTest {
     private static JsonObject config;
     private static String TOKEN = "";
     private static String authHost = "";
+    private static String dummyToken = "";
+    private static Configuration authConfig;
 
     /**
      * Initialize and start the auth service for testing.
@@ -34,8 +37,16 @@ public class AuthenticationServiceTest {
      */
     @BeforeAll
     @DisplayName("Initialize Vertx and deploy AuthenticationVerticle")
-    static void initialize(Vertx vertx, VertxTestContext testContext) {
+    static void initialize(Vertx vertx, io.vertx.reactivex.core.Vertx vertx2,
+        VertxTestContext testContext) {
         vertxObj = vertx;
+        authConfig = new Configuration();
+
+        config = authConfig.configLoader(1, vertx2);
+        authHost = config.getString("authServerHost");
+        TOKEN = config.getString("token");
+        dummyToken = config.getString("dummyToken");
+
         WebClient client = AuthenticationVerticle.createWebClient(vertxObj, config, true);
         authenticationService = new AuthenticationServiceImpl(client, authHost);
         LOGGER.info("Auth tests setup complete");
@@ -58,7 +69,7 @@ public class AuthenticationServiceTest {
     @DisplayName("Test if WebClient has been initialized correctly")
     public void testWebClientSetup(VertxTestContext testContext) {
         WebClient client = AuthenticationVerticle.createWebClient(vertxObj, config, true);
-        String host = properties.getProperty(Constants.AUTH_SERVER_HOST);
+        String host = config.getString("authServerHost");
         client.post(443, host, Constants.AUTH_CERTINFO_PATH).send(httpResponseAsyncResult -> {
             if (httpResponseAsyncResult.failed()) {
                 LOGGER.error("Cert info call to auth server failed");
@@ -82,7 +93,6 @@ public class AuthenticationServiceTest {
     @DisplayName("Test authInfo validation of the tokenInterospect call")
     public void testTIPAuthInfoArgValidation(VertxTestContext testContext) {
         JsonObject authInfo = new JsonObject();
-        String dummyToken = properties.getProperty(Constants.DUMMY_TOKEN_KEY);
         int rnd = new Random().nextInt(HttpMethod.values().length);
         String dummyMethod = HttpMethod.values()[rnd].toString();
         authInfo.put("token", dummyToken);
@@ -169,7 +179,7 @@ public class AuthenticationServiceTest {
     public void testMissingProviderInTIP(VertxTestContext testContext) {
         JsonObject request = new JsonObject();
         JsonObject authInfo = new JsonObject();
-        authInfo.put("token", TOKEN);
+        authInfo.put("token", dummyToken);
         authInfo.put("operation", HttpMethod.PUT.toString());
         authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
             JsonObject result = jsonObjectAsyncResult.result();
@@ -190,7 +200,6 @@ public class AuthenticationServiceTest {
         JsonObject request = new JsonObject();
         request.put("provider", Constants.DUMMY_PROVIDER_PREFIX);
         JsonObject authInfo = new JsonObject();
-        String dummyToken = TOKEN;
         String invalidToken = dummyToken.substring(0, dummyToken.length() - 1);
         authInfo.put("token", invalidToken);
         authInfo.put("operation", HttpMethod.PUT.toString());
@@ -214,7 +223,7 @@ public class AuthenticationServiceTest {
         JsonObject request = new JsonObject();
         request.put("provider", Constants.DUMMY_PROVIDER_PREFIX);
         JsonObject authInfo = new JsonObject();
-        authInfo.put("token", TOKEN);
+        authInfo.put("token", dummyToken);
         authInfo.put("operation", HttpMethod.OTHER.toString());
         authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
             JsonObject result = jsonObjectAsyncResult.result();
