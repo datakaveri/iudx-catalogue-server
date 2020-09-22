@@ -2,17 +2,15 @@ package iudx.catalogue.server.database;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import java.io.FileInputStream;
-import java.io.InputStream;
+import io.vertx.reactivex.core.Vertx;
+import iudx.catalogue.server.Configuration;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
@@ -34,25 +32,25 @@ public class DatabaseServiceTest {
   private static DatabaseService dbService;
   private static Vertx vertxObj;
   private static ElasticClient client;
-  private static Properties properties;
-  private static InputStream inputstream;
   private static String databaseIP;
   private static int databasePort;
   private static String databaseUser;
   private static String databasePassword;
+  private static Configuration config;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
   static void startVertx(Vertx vertx, VertxTestContext testContext) {
+
     vertxObj = vertx;
+    config = new Configuration();
+    JsonObject dbConfig = config.configLoader(0, vertx);
 
-    properties = new Properties();
-    inputstream = null;
-
-    databaseIP = "";
-    databasePort = 9201;
-    databaseUser = "";
-    databasePassword = "";
+    /* Configuration setup */
+    databaseIP = dbConfig.getString(DATABASE_IP);
+    databasePort = dbConfig.getInteger(DATABASE_PORT);
+    databaseUser = dbConfig.getString(DATABASE_UNAME);
+    databasePassword = dbConfig.getString(DATABASE_PASSWD);
 
 
     // TODO : Need to enable TLS using xpack security
@@ -122,11 +120,11 @@ public class DatabaseServiceTest {
   void deleteNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, RESOURCE).put(ID,
-        "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
-    dbService.deleteItem(request, testContext.failing(response -> testContext.verify(() -> {
-      String status = response.getMessage();
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_3512345");
+    dbService.deleteItem(request, testContext.succeeding(response -> testContext.verify(() -> {
+      String status = response.getString(STATUS);
       System.out.println(status);
-      assertTrue(status.contains("\"status\":\"failed\""));
+      assertEquals(ERROR, status);
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
@@ -138,12 +136,12 @@ public class DatabaseServiceTest {
   void updateNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, RESOURCE).put(ID,
-            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_354567")
         .put("test", "test");
     dbService.updateItem(request, testContext.succeeding(response -> testContext.verify(() -> {
       String status = response.getString(STATUS);
       System.out.println(response);
-      assertEquals(SUCCESS, status);
+      assertEquals(ERROR, status);
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
@@ -155,10 +153,10 @@ public class DatabaseServiceTest {
   void createExistingItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, RESOURCE).put(ID,
-        "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35");
     dbService.createItem(request, testContext.failing(response -> testContext.verify(() -> {
       String status = response.getMessage();
-      assertTrue(status.contains("\"status\":\"failed\""));
+      assertTrue(status.contains("\"status\":\"error\""));
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
@@ -228,17 +226,19 @@ public class DatabaseServiceTest {
     })));
   }
 
-  @Test
-  @DisplayName("Testing Geo Exceptions (Missing necessary parameters [coordinates, geoproperty, georel)")
-  void searchMissingGeoParamsGeometry(VertxTestContext testContext) {
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_GEO).put(GEOMETRY, POLYGON);
-
-    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getMessage());
-      assertEquals("Missing/Invalid geo parameters", res.getString(DESCRIPTION));
-      testContext.completeNow();
-    })));
-  }
+  // @Test
+  // @DisplayName("Testing Geo Exceptions (Missing necessary parameters [coordinates, geoproperty,
+  // georel)")
+  // void searchMissingGeoParamsGeometry(VertxTestContext testContext) {
+  // JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_GEO).put(GEOMETRY, POLYGON);
+  //
+  // dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
+  // JsonObject res = new JsonObject(response.getMessage());
+  // // assertEquals("Missing/Invalid geo parameters", res.getString(DESCRIPTION));
+  // assertTrue(response.getCause() instanceof NullPointerException);
+  // testContext.completeNow();
+  // })));
+  // }
 
   @Test
   @DisplayName("Testing Geo Polygon Exceptions (First and Last coordinates don't match)")
@@ -268,7 +268,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.874537,
+      assertEquals(73.836808,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -287,7 +287,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.874537,
+      assertEquals(73.836808,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -305,9 +305,9 @@ public class DatabaseServiceTest {
                 .add(new JsonArray().add(82.01).add(25.317)))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
-    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getMessage());
-      assertEquals("Empty response", res.getString(DESCRIPTION));
+    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+      Integer res = response.getInteger(TOTAL_HITS);
+      assertEquals(0, res);
       testContext.completeNow();
     })));
   }
@@ -316,18 +316,14 @@ public class DatabaseServiceTest {
   @DisplayName("Testing Response Filter")
   void searchResponseFilter(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER).put("attrs",
-        new JsonArray().add(ID).add(TAGS));
+        new JsonArray().add(ID).add(TAGS)).put(LIMIT, 1);
     Set<String> attrs = new HashSet<>();
     attrs.add(ID);
     attrs.add(TAGS);
     dbService.searchQuery(request, testContext.succeeding(response -> {
       Set<String> resAttrs = new HashSet<>();
-      for (Object obj : response.getJsonArray(RESULT)) {
-        JsonObject jsonObj = (JsonObject) obj;
-        if (resAttrs != attrs) {
-          resAttrs = jsonObj.fieldNames();
-        }
-      }
+      resAttrs = response.getJsonArray(RESULTS).getJsonObject(0).fieldNames();
+
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
         assertEquals(attrs, finalResAttrs);
@@ -386,7 +382,7 @@ public class DatabaseServiceTest {
         .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, GEO_KEY);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(5, response.getInteger(COUNT));
+      assertEquals(5, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -431,7 +427,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(3, response.getInteger(COUNT));
+      assertEquals(2, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -443,11 +439,11 @@ public class DatabaseServiceTest {
     JsonObject request =
         new JsonObject().put(GEOMETRY, BBOX).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(73).add(20))
-                .add(new JsonArray().add(75).add(14)))
+                .add(new JsonArray().add(75).add(18)))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(50, response.getInteger(COUNT));
+      assertEquals(49, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -509,9 +505,9 @@ public class DatabaseServiceTest {
         .put(PROPERTY, new JsonArray().add(ID)).put(VALUE,
             new JsonArray().add(new JsonArray()
                 .add(
-                    "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bos"
+                    "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bos"
                         + "ch-climo/Ambedkar society circle_29")
-                .add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in"
+                .add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io"
                         + "/aqm-bosch-climo/Blue Diamond Square (Hotel Taj)_10")));
 
     /* requesting db service */
@@ -541,9 +537,9 @@ public class DatabaseServiceTest {
             + "895de8d4c0b3a67f3450e531/pscdcl/aqm-bosch-climo/Ambedkar society circle_29")));
 
     /* requesting db service */
-    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getLocalizedMessage());
-      assertEquals("failed", res.getString("status"));
+    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+      Integer res = response.getInteger(TOTAL_HITS);
+      assertEquals(0, res);
       testContext.completeNow();
     })));
   }
@@ -565,9 +561,9 @@ public class DatabaseServiceTest {
             .put(VALUE, new JsonArray().add(new JsonArray().add("non-existing-id")));
 
     /* requesting db service */
-    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getLocalizedMessage());
-      assertEquals("failed", res.getString("status"));
+    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+      Integer res = response.getInteger(TOTAL_HITS);
+      assertEquals(0, res);
       testContext.completeNow();
     })));
   }
@@ -616,9 +612,9 @@ public class DatabaseServiceTest {
             .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
 
     /* requesting db service */
-    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getLocalizedMessage());
-      assertEquals("failed", res.getString("status"));
+    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+      Integer res = response.getInteger(TOTAL_HITS);
+      assertEquals(0, res);
       testContext.completeNow();
     })));
   }
@@ -640,9 +636,9 @@ public class DatabaseServiceTest {
                 .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
 
     /* requesting db service */
-    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getLocalizedMessage());
-      assertEquals("failed", res.getString("status"));
+    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+      Integer res = response.getInteger(TOTAL_HITS);
+      assertEquals(0, res);
       testContext.completeNow();
     })));
   }
@@ -913,13 +909,13 @@ public class DatabaseServiceTest {
 
     /* Constructing request Json Body */
     JsonObject request = new JsonObject().put(ID,
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo")
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo")
         .put(RELATIONSHIP, RESOURCE);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals(73.874537,
+        assertEquals(73.836808,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         testContext.completeNow();
@@ -936,14 +932,14 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject()
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
-                + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+                + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, RESOURCE_GRP);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
         assertEquals(
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo",
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo",
             response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
         testContext.completeNow();
       });
@@ -958,7 +954,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject()
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
-                + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+                + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, PROVIDER);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
@@ -980,7 +976,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject()
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
-                + "/rs.iudx.org.in/aqm-bosch-climo")
+                + "/rs.iudx.io/aqm-bosch-climo")
         .put(RELATIONSHIP, PROVIDER);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
@@ -1002,13 +998,13 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject()
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
-                + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+                + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, RESOURCE_SVR);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals("datakaveri.org/00D75505FD5256B142AFD9C0E32790FA7180D500/rs.iudx.org.in",
+        assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io",
             response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
         testContext.completeNow();
       });
@@ -1022,14 +1018,13 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
         .put(ID,
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
-                + "/rs.iudx.org.in/aqm-bosch-climo")
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo")
         .put(RELATIONSHIP, RESOURCE_SVR);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals("datakaveri.org/00D75505FD5256B142AFD9C0E32790FA7180D500/rs.iudx.org.in",
+        assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io",
             response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
         testContext.completeNow();
       });
@@ -1044,7 +1039,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject()
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
-                + "/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+                + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, TYPE);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
@@ -1065,7 +1060,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject()
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
-                + "/rs.iudx.org.in/aqm-bosch-climo")
+                + "/rs.iudx.io/aqm-bosch-climo")
         .put(RELATIONSHIP, TYPE);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
@@ -1091,7 +1086,7 @@ public class DatabaseServiceTest {
     dbService.relSearch(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals(ITEM_TYPE_PROVIDER,
+        assertEquals(ITEM_TYPE_RESOURCE_GROUP,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonArray(TYPE_KEY).getString(0));
         testContext.completeNow();
       });
@@ -1110,7 +1105,7 @@ public class DatabaseServiceTest {
     dbService.relSearch(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals(ITEM_TYPE_RESOURCE,
+        assertEquals(ITEM_TYPE_RESOURCE_GROUP,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonArray(TYPE_KEY).getString(0));
         testContext.completeNow();
       });

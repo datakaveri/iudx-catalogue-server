@@ -1,0 +1,40 @@
+{
+    "version": "1.0",
+    "modules": [
+        {
+            "id": "iudx.catalogue.server.database.DatabaseVerticle",
+            "verticleInstances": 2,
+            "databaseIP": "139.59.31.45",
+            "databasePort": 9201,
+            "databasePassword": "",
+            "databaseUser": ""
+        },
+        {
+            "id": "iudx.catalogue.server.authenticator.AuthenticationVerticle",
+            "verticleInstances": 2,
+            "keystorePath": "configs/keystore.jks",
+            "keystorePassword": "password",
+            "authServerHost": "auth.iudx.org.in",
+            "dummyToken": "abc",
+            "token": ""
+        },
+        {
+            "id": "iudx.catalogue.server.validator.ValidatorVerticle",
+            "databaseIP": "139.59.31.45",
+            "databasePort": 9201,
+            "verticleInstances": 2,
+            "databaseUser": "",
+            "databasePassword": ""
+        },
+        {
+            "id": "iudx.catalogue.server.apiserver.ApiServerVerticle",
+            "keystorePath": "configs/keystore.jks",
+            "keystorePassword": "password",
+            "token":"",
+            "admin_token":"",
+            "catAdmin": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+            "verticleInstances": 2
+
+        }
+    ]
+}
