@@ -24,10 +24,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.Iterator;
 
 import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.apiserver.util.Constants.*;
 
 /**
- * Test class for ApiServerVerticle api handlers TODO Need to update count test cases. TODO Update
- * all the end to end test cases. TODO Use Constants file for all query strings.
+ * Test class for ApiServerVerticle api handlers.
  * 
  * @see {@link ApiServerVerticle}
  */
@@ -37,14 +37,13 @@ public class ApiServerVerticleTest {
 
   /* LOGGER instance */
   private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticleTest.class);
-  private static final String HOST = "127.0.0.1";
-  private static final int PORT = 8443;
+  private static String HOST = "";
+  private static int PORT;
   private static final String BASE_URL = "/iudx/cat/v1/";
 
   /** Token for crud apis */
   private static String TOKEN = "";
   private static String ADMIN_TOKEN ="";
-  private static String CAT_ADMIN_TOKEN = "";
 
   private static WebClient client;
   private static FileSystem fileSystem;
@@ -71,8 +70,9 @@ public class ApiServerVerticleTest {
 
     String keyStore = apiVerticleConfig.getString(KEYSTORE_PATH);
     String keyStorePassword = apiVerticleConfig.getString(KEYSTORE_PASSWORD);
-    CAT_ADMIN_TOKEN = apiVerticleConfig.getString("catAdmin");
-    TOKEN = apiVerticleConfig.getString("token");
+    HOST = apiVerticleConfig.getString("catIP");
+    PORT = apiVerticleConfig.getInteger("catPort");
+    TOKEN = apiVerticleConfig.getString(HEADER_TOKEN);
     ADMIN_TOKEN = apiVerticleConfig.getString("admin_token");
     
 
@@ -138,13 +138,14 @@ public class ApiServerVerticleTest {
 
         while (objectIterator.hasNext()) {
           // Send the file to the server using POST
-          client.post(PORT, HOST, BASE_URL.concat("item")).putHeader("token", TOKEN)
-              .putHeader("Content-Type", "application/json")
+          client.post(PORT, HOST, BASE_URL.concat("item")).putHeader(HEADER_TOKEN, TOKEN)
+              .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
               // .putHeader("instance", "pune")
               .sendJson(objectIterator.next(), serverResponse -> {
                 if (serverResponse.succeeded()) {
                   if (serverResponse.result().statusCode() == 201) {
                     wrapper.count++;
+                    testContext.completeNow();
                   }
                   if (wrapper.count == numItems - 1) {
                     testContext.completeNow();
@@ -179,10 +180,10 @@ public class ApiServerVerticleTest {
         /* mapping the file as JsonObject */
         JsonObject jsonBody = fileRes.result().toJsonObject();
 
-
         /* Send the file to the server using POST */
-        client.post(PORT, HOST, BASE_URL.concat("item")).putHeader("token", TOKEN)
-            .putHeader("Content-Type", "application/json").sendJson(jsonBody, serverResponse -> {
+        client.post(PORT, HOST, BASE_URL.concat("item")).putHeader(HEADER_TOKEN, TOKEN)
+            .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+            .sendJson(jsonBody, serverResponse -> {
               if (serverResponse.succeeded()) {
 
                 /* comparing the response */
@@ -217,13 +218,15 @@ public class ApiServerVerticleTest {
         JsonObject jsonBody = fileRes.result().toJsonObject();
 
         /* Send the file to the server using PUT */
-        client.put(PORT, HOST, BASE_URL.concat("item")).putHeader("token", TOKEN)
-            .putHeader("Content-Type", "application/json").sendJson(jsonBody, serverResponse -> {
+        client.put(PORT, HOST, BASE_URL.concat("item")).putHeader(HEADER_TOKEN, TOKEN)
+            .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+            .sendJson(jsonBody, serverResponse -> {
               if (serverResponse.succeeded()) {
 
                 /* comparing the response */
                 assertEquals(200, serverResponse.result().statusCode());
-                assertEquals("application/json", serverResponse.result().getHeader("content-type"));
+                assertEquals(MIME_APPLICATION_JSON,
+                    serverResponse.result().getHeader("content-type"));
 
                 testContext.completeNow();
               } else if (serverResponse.failed()) {
@@ -255,16 +258,17 @@ public class ApiServerVerticleTest {
         JsonObject jsonBody = fileRes.result().toJsonObject();
 
         /* Send the file to the server using PUT */
-        client.put(PORT, HOST, BASE_URL.concat("item/").concat(jsonBody.getString("id")))
-            .putHeader("token", TOKEN).putHeader("Content-Type", "application/json")
+        client.put(PORT, HOST, BASE_URL.concat("item/"))
+            .putHeader(HEADER_TOKEN, TOKEN).putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
             .sendJson(jsonBody, serverResponse -> {
               if (serverResponse.succeeded()) {
 
                 /* comparing the response */
                 assertEquals(400, serverResponse.result().statusCode());
-                assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-
+                assertEquals(MIME_APPLICATION_JSON,
+                    serverResponse.result().getHeader("content-type"));
                 testContext.completeNow();
+
               } else if (serverResponse.failed()) {
                 testContext.failed();
               }
@@ -300,14 +304,15 @@ public class ApiServerVerticleTest {
 
           JsonObject item = (JsonObject) objectIterator.next();
           /* Send the file to the server using DELETE */
-          LOGGER.info("Deleting " + item.getString("id"));
+          LOGGER.info("Deleting " + item.getString(ID));
           client.delete(PORT, HOST, BASE_URL.concat("item/"))
-              .addQueryParam("id", item.getString("id")).putHeader("token", TOKEN)
-              .putHeader("Content-Type", "application/json").send(serverResponse -> {
+              .addQueryParam(ID, item.getString(ID)).putHeader(HEADER_TOKEN, TOKEN)
+              .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).send(serverResponse -> {
                 if (serverResponse.succeeded()) {
 
                   /* comparing the response */
                   assertEquals(200, serverResponse.result().statusCode());
+                  testContext.completeNow();
                   if (serverResponse.result().statusCode() == 200) {
                     wrapper.count++;
                   }
@@ -319,6 +324,7 @@ public class ApiServerVerticleTest {
                 }
               });
         }
+        testContext.completed();
       }
     });
   }
@@ -336,15 +342,15 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     /* Should give only one item */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "Point").addQueryParam("coordinates", "[ 73.874537, 18.528311 ]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, INTERSECTS).addQueryParam(MAX_DISTANCE, "500")
+        .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[ 73.874537, 18.528311 ]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -359,23 +365,22 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(6)
+  @Order(7)
   @DisplayName("create Instance, Status:200, Endpoint: /instance]")
   void createInstance201(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
     /* Should give only one item */
     client.post(PORT, HOST,
-                BASE_URL.concat("instance"))
-                        .addQueryParam("id", "pune")
-                        .putHeader("Content-Type", "application/json")
-                        .putHeader("token", ADMIN_TOKEN)
+                BASE_URL.concat(INSTANCE))
+        .addQueryParam(ID, "bangluru")
+        .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).putHeader(HEADER_TOKEN, ADMIN_TOKEN)
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
             LOGGER.info(serverResponse.result().bodyAsString());
             /* comparing the response */
             assertEquals(201, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
             testContext.completeNow();
           } else if (serverResponse.failed()) {
             testContext.failed();
@@ -389,7 +394,7 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(6)
+  @Order(8)
   @DisplayName("list Instance, Status:200, Endpoint: /instance]")
   void listInstance200(VertxTestContext testContext) {
 
@@ -397,13 +402,13 @@ public class ApiServerVerticleTest {
     /* Should give only one item */
     client.get(PORT, HOST,
                 BASE_URL.concat("list/instance"))
-                        .putHeader("Content-Type", "application/json")
+        .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
             LOGGER.info(serverResponse.result().bodyAsString());
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
             testContext.completeNow();
           } else if (serverResponse.failed()) {
             testContext.failed();
@@ -417,117 +422,22 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(6)
+  @Order(9)
   @DisplayName("delete Instance, Status:200, Endpoint: /instance]")
   void deleteInstance200(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
     /* Should give only one item */
     client.delete(PORT, HOST,
-                BASE_URL.concat("instance"))
-                        .addQueryParam("id", "someTestInstance")
-                        .putHeader("Content-Type", "application/json")
-                        .putHeader("token", ADMIN_TOKEN)
+                BASE_URL.concat(INSTANCE))
+        .addQueryParam(ID, "bangluru")
+        .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).putHeader(HEADER_TOKEN, ADMIN_TOKEN)
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
             LOGGER.info(serverResponse.result().bodyAsString());
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            testContext.failed();
-          }
-        });
-  }
-
-
-  /**
-   * Tests the search api handler of ApiServerVerticle.
-   * 
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(7)
-  @DisplayName("Search Item[Geometry:Point, Status:400 invalidValue, Endpoint: /search]")
-  void searchItemCircle400_1(VertxTestContext testContext) {
-
-    /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "near").addQueryParam("maxDistance", "5000")
-        .addQueryParam("geometry", "Point").addQueryParam("coordinates", "[75.9,abc123]")
-        .send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-
-            /* comparing the response */
-            assertEquals(400, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertEquals("invalidValue",
-                serverResponse.result().body().toJsonObject().getString("status"));
-
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            testContext.failed();
-          }
-        });
-  }
-
-
-  /**
-   * Tests the search api handler of ApiServerVerticle.
-   * 
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(8)
-  @DisplayName("Search Item[Geometry:Point, Status:400 invalidSyntax, Endpoint: /search]")
-  void searchItemCircle400_2(VertxTestContext testContext) {
-
-    /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidsyntax", "location")
-        .addQueryParam("georel", "near").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "Point")
-        .addQueryParam("coordinates", "[73.85534405708313,abc123]").send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-
-            /* comparing the response */
-            assertEquals(400, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertEquals("invalidSyntax",
-                serverResponse.result().body().toJsonObject().getString("status"));
-
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            testContext.failed();
-          }
-        });
-  }
-
-
-  /**
-   * Tests the search api handler of ApiServerVerticle.
-   * 
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(9)
-  @DisplayName("Search Item[Geometry:Point, Status:400 invalidSyntax, Endpoint: /search]")
-  void searchItemCircle400_3(VertxTestContext testContext) {
-
-    /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
-        .addQueryParam("abc123", "near").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "Point")
-        .addQueryParam("coordinates", "[73.85534405708313,18.52008289032131]")
-        .send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-
-            /* comparing the response */
-            assertEquals(400, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertEquals("invalidSyntax",
-                serverResponse.result().body().toJsonObject().getString("status"));
-
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
             testContext.completeNow();
           } else if (serverResponse.failed()) {
             testContext.failed();
@@ -543,25 +453,21 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(10)
-  @DisplayName("Search Item[Geometry:Polygon, Status:200, Endpoint: /search]")
-  void searchItemPolygon200(VertxTestContext testContext) {
+  @DisplayName("Search Item[Geometry:Point, Status:400 invalidValue, Endpoint: /search]")
+  void searchItemCircle400_1(VertxTestContext testContext) {
 
-    LOGGER.info(
-        "starting searchItemPolygon200 !!!!!!!!@@@@@@@@##############$$$$$$$$$$$$%%%%%%%%%%%%");
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "Polygon")
-        .addQueryParam("coordinates",
-            "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
-                + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
-                + "[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_NEAR).addQueryParam(MAX_DISTANCE, "5000")
+        .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[75.9,abc123]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
-            assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
+            assertEquals(400, serverResponse.result().statusCode());
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertEquals(INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(STATUS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -578,25 +484,21 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(11)
-  @DisplayName("Search Item[Geometry:Polygon, Status:400 invalidValue, Endpoint: /search]")
-  void searchItemPolygon400_1(VertxTestContext testContext) {
+  @DisplayName("Search Item[Geometry:Point, Status:400 invalidSyntax, Endpoint: /search]")
+  void searchItemCircle400_2(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "Polygon")
-        .addQueryParam("coordinates",
-            "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
-                + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
-                + "[73.89472961425781,18.689830007518434],[73.69697570800781,abc123]]]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(INVALID_SYNTAX, LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_NEAR).addQueryParam(MAX_DISTANCE, "500")
+        .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[73.85534405708313,abc123]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertEquals("invalidValue",
-                serverResponse.result().body().toJsonObject().getString("status"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertEquals(INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(STATUS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -613,25 +515,22 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(12)
-  @DisplayName("Search Item[Geometry:Polygon, Status:400 invalidValue, Endpoint: /search]")
-  void searchItemPolygon400_2(VertxTestContext testContext) {
+  @DisplayName("Search Item[Geometry:Point, Status:400 invalidSyntax, Endpoint: /search]")
+  void searchItemCircle400_3(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "abc123")
-        .addQueryParam("coordinates",
-            "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
-                + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
-                + "[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam("abc123", "near").addQueryParam(MAX_DISTANCE, "500")
+        .addQueryParam(GEOMETRY, "Point")
+        .addQueryParam(COORDINATES, "[73.85534405708313,18.52008289032131]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertEquals("invalidValue",
-                serverResponse.result().body().toJsonObject().getString("status"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertEquals(INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(STATUS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -648,25 +547,23 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(13)
-  @DisplayName("Search Item[Geometry:Polygon, Status:400 invalidSyntax, Endpoint: /search]")
-  void searchItemPolygon400_3(VertxTestContext testContext) {
+  @DisplayName("Search Item[Geometry:Polygon, Status:200, Endpoint: /search]")
+  void searchItemPolygon200(VertxTestContext testContext) {
 
+    LOGGER.info("starting searchItemPolygon200");
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidsyntax", "location")
-        .addQueryParam("abc123", "within").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "Polygon")
-        .addQueryParam("coordinates",
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "5000")
+        .addQueryParam(GEOMETRY, "Polygon").addQueryParam(COORDINATES,
             "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
                 + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
-                + "[73.89472961425781,18.689830007518434],[73.69697570800781,abc123]]]")
+                + "[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
-            assertEquals(400, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertEquals("invalidSyntax",
-                serverResponse.result().body().toJsonObject().getString("status"));
+            assertEquals(200, serverResponse.result().statusCode());
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -683,14 +580,47 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(14)
-  @DisplayName("Search Item[Geometry:Polygon, Status:400 invalidSyntax, Endpoint: /search]")
-  void searchItemPolygon400_4(VertxTestContext testContext) {
+  @DisplayName("Search Item[Geometry:Polygon, Status:400 invalidValue, Endpoint: /search]")
+  void searchItemPolygon400_1(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("geoproperty", "location")
-        .addQueryParam("abc123", "within").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "Polygon")
-        .addQueryParam("coordinates",
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "500")
+        .addQueryParam(GEOMETRY, "Polygon").addQueryParam(COORDINATES,
+            "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
+                + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
+                + "[73.89472961425781,18.689830007518434],[73.69697570800781,abc123]]]")
+        .send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+
+            /* comparing the response */
+            assertEquals(400, serverResponse.result().statusCode());
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertEquals(INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(STATUS));
+
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            testContext.failed();
+          }
+        });
+  }
+
+
+  /**
+   * Tests the search api handler of ApiServerVerticle.
+   * 
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(15)
+  @DisplayName("Search Item[Geometry:Polygon, Status:400 invalidValue, Endpoint: /search]")
+  void searchItemPolygon400_2(VertxTestContext testContext) {
+
+    /* Send the file to the server using GET with query parameters */
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "500")
+        .addQueryParam(GEOMETRY, "abc123").addQueryParam(COORDINATES,
             "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
                 + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
                 + "[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]")
@@ -699,9 +629,77 @@ public class ApiServerVerticleTest {
 
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertEquals("invalidSyntax",
-                serverResponse.result().body().toJsonObject().getString("status"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertEquals(INVALID_VALUE,
+                serverResponse.result().body().toJsonObject().getString(STATUS));
+
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            testContext.failed();
+          }
+        });
+  }
+
+
+  /**
+   * Tests the search api handler of ApiServerVerticle.
+   * 
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(16)
+  @DisplayName("Search Item[Geometry:Polygon, Status:400 invalidSyntax, Endpoint: /search]")
+  void searchItemPolygon400_3(VertxTestContext testContext) {
+
+    /* Send the file to the server using GET with query parameters */
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidsyntax", LOCATION)
+        .addQueryParam("abc123", GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "500")
+        .addQueryParam(GEOMETRY, "Polygon").addQueryParam(COORDINATES,
+            "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
+                + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
+                + "[73.89472961425781,18.689830007518434],[73.69697570800781,abc123]]]")
+        .send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+
+            /* comparing the response */
+            assertEquals(400, serverResponse.result().statusCode());
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertEquals(INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(STATUS));
+
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            testContext.failed();
+          }
+        });
+  }
+
+
+  /**
+   * Tests the search api handler of ApiServerVerticle.
+   * 
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(17)
+  @DisplayName("Search Item[Geometry:Polygon, Status:400 invalidSyntax, Endpoint: /search]")
+  void searchItemPolygon400_4(VertxTestContext testContext) {
+
+    /* Send the file to the server using GET with query parameters */
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam("abc123", GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "500")
+        .addQueryParam(GEOMETRY, "Polygon").addQueryParam(COORDINATES,
+            "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
+                + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
+                + "[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]")
+        .send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+
+            /* comparing the response */
+            assertEquals(400, serverResponse.result().statusCode());
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertEquals(INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(STATUS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -717,15 +715,16 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(15)
+  @Order(18)
   @DisplayName("List Item[Status:200, Endpoint: /items{itemID}]")
   void listItem200(VertxTestContext testContext) {
 
-    String itemId = "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Hadapsar_Gadital_01";
+    String itemId =
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
 
     /* Send the file to the server using GET */
     client.get(PORT, HOST, BASE_URL.concat("item/"))
-          .addQueryParam("id", itemId)
+        .addQueryParam(ID, itemId)
           .send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
@@ -733,8 +732,8 @@ public class ApiServerVerticleTest {
         LOGGER.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
-        assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-        assertEquals("success", serverResponse.result().body().toJsonObject().getString("status"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -750,18 +749,20 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(16)
+  @Order(19)
   @DisplayName("List Item[Status:404, Endpoint: /items{itemID}]")
   void listItem400(VertxTestContext testContext) {
 
     String itemId = "abc123";
 
     /* Send the file to the server using GET */
-    client.get(PORT, HOST, BASE_URL.concat("items/").concat(itemId)).send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("item/")).addQueryParam(ID, itemId)
+        .send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
         /* comparing the response */
-        assertEquals(404, serverResponse.result().statusCode());
+        assertEquals(200, serverResponse.result().statusCode());
+            assertEquals(ERROR, serverResponse.result().bodyAsJsonObject().getString(STATUS));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -777,7 +778,7 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(17)
+  @Order(20)
   @DisplayName("List tags[Status:200, Endpoint: /tags]")
   void listTags200(VertxTestContext testContext) {
 
@@ -788,8 +789,8 @@ public class ApiServerVerticleTest {
         LOGGER.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
-        assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-        assertEquals("success", serverResponse.result().body().toJsonObject().getString("status"));
+        assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+        assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -797,61 +798,6 @@ public class ApiServerVerticleTest {
       }
     });
   }
-
-
-  /**
-   * Tests the listDomains api handler of ApiServerVerticle.
-   * 
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(18)
-  @DisplayName("List domains[Status:200, Endpoint: /domains]")
-  void listDomains200(VertxTestContext testContext) {
-
-    /* Send the file to the server using GET */
-    client.get(PORT, HOST, BASE_URL.concat("domains")).send(serverResponse -> {
-      if (serverResponse.succeeded()) {
-
-        /* comparing the response */
-        assertEquals(200, serverResponse.result().statusCode());
-        assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-        assertEquals("success", serverResponse.result().body().toJsonObject().getString("status"));
-
-        testContext.completeNow();
-      } else if (serverResponse.failed()) {
-        testContext.failed();
-      }
-    });
-  }
-
-
-  /**
-   * Tests the listCities api handler of ApiServerVerticle.
-   * 
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(19)
-  @DisplayName("List cities[Status:200, Endpoint: /cities]")
-  void listCities200(VertxTestContext testContext) {
-
-    /* Send the file to the server using GET */
-    client.get(PORT, HOST, BASE_URL.concat("cities")).send(serverResponse -> {
-      if (serverResponse.succeeded()) {
-
-        /* comparing the response */
-        assertEquals(200, serverResponse.result().statusCode());
-        assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-        assertEquals("success", serverResponse.result().body().toJsonObject().getString("status"));
-
-        testContext.completeNow();
-      } else if (serverResponse.failed()) {
-        testContext.failed();
-      }
-    });
-  }
-
 
   /**
    * Tests the listResourceServers api handler of ApiServerVerticle.
@@ -859,18 +805,18 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(20)
+  @Order(21)
   @DisplayName("List ResourceServers[Status:200, Endpoint: /resourceservers]")
   void listResourceServers200(VertxTestContext testContext) {
 
     /* Send the file to the server using GET */
-    client.get(PORT, HOST, BASE_URL.concat("resourceservers")).send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("list/resourceServer")).send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
-        assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-        assertEquals("success", serverResponse.result().body().toJsonObject().getString("status"));
+        assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+        assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -886,7 +832,7 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(21)
+  @Order(22)
   @DisplayName("List Providers[Status:200, Endpoint: /providers]")
   void listProviders200(VertxTestContext testContext) {
 
@@ -897,8 +843,8 @@ public class ApiServerVerticleTest {
         LOGGER.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
-        assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-        assertEquals("success", serverResponse.result().body().toJsonObject().getString("status"));
+        assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+        assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -914,7 +860,7 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(22)
+  @Order(23)
   @DisplayName("List ResourceGroups[Status:200, Endpoint: /resourcegroups]")
   void listResourceGroups200(VertxTestContext testContext) {
 
@@ -925,8 +871,8 @@ public class ApiServerVerticleTest {
         LOGGER.info(serverResponse.result().bodyAsString());
         /* comparing the response */
         assertEquals(200, serverResponse.result().statusCode());
-        assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-        assertEquals("success", serverResponse.result().body().toJsonObject().getString("status"));
+        assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+        assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -942,24 +888,24 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(23)
-  @DisplayName("Search Relationship[Status:200, Endpoint: /<resourceGroupID>/resource]")
+  @Order(24)
+  @DisplayName("Search Relationship[Status:200, Endpoint: relationship/id=<resourceGroupID>&rel=resource]")
   void listResourceRelationship200(VertxTestContext testContext) {
 
     String resourceGroupID =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo";
 
     /* Send the file to the server using GET */
-    client.get(PORT, HOST, BASE_URL.concat(resourceGroupID).concat("/resource"))
+    client.get(PORT, HOST, BASE_URL.concat("/relationship")).addQueryParam(ID, resourceGroupID)
+        .addQueryParam(REL_KEY, RESOURCE)
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             LOGGER.info(serverResponse.result().bodyAsString());
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertEquals("success",
-                serverResponse.result().body().toJsonObject().getString("status"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -975,23 +921,23 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(24)
-  @DisplayName("Search Relationship[Status:200, Endpoint: /<resourceID>/resourceGroup]")
+  @Order(25)
+  @DisplayName("Search Relationship[Status:200, Endpoint: relationship?id=<resourceID>&rel=resourceGroup]")
   void listResourceGroupRelationship200(VertxTestContext testContext) {
 
     String resourceID =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
 
     /* Send the file to the server using GET */
-    client.get(PORT, HOST, BASE_URL.concat(resourceID).concat("/resourceGroup"))
+    client.get(PORT, HOST, BASE_URL.concat("/relationship")).addQueryParam(ID, resourceID)
+        .addQueryParam(REL_KEY, RESOURCE_GRP)
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertEquals("success",
-                serverResponse.result().body().toJsonObject().getString("status"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1002,15 +948,15 @@ public class ApiServerVerticleTest {
 
 
   @Test
-  @Order(25)
+  @Order(26)
   @DisplayName("Single Attribute search")
   void singleAttributeSearchTest(VertxTestContext testContext) {
 
     LOGGER.info("singleAttributeSearchTest");
 
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
-        .addQueryParam("value", "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/"
-            + "rs.iudx.org.in/aqm-bosch-climo/Ambedkar society circle_29]]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[id]")
+        .addQueryParam(VALUE, "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/"
+            + "rs.iudx.io/aqm-bosch-climo/Ambedkar society circle_29]]")
         .send(ar -> {
           if (ar.succeeded()) {
             assertEquals(200, ar.result().statusCode());
@@ -1024,16 +970,16 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(26)
+  @Order(27)
   @DisplayName("Single Attribute multiple value")
   void singleAttributeMultiValueTest(VertxTestContext testContext) {
 
     LOGGER.info("singleAttributeMultiValueTest");
 
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[id]")
-        .addQueryParam("value", "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.i"
-            + "udx.org.in/aqm-bosch-climo/Ambedkar society circle_29,datakaveri.org/f7e044e"
-            + "ee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Dr Baba Saheb Ambedkar Sethu Junction_3]]")
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[id]")
+        .addQueryParam(VALUE, "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.i"
+            + "udx.io/aqm-bosch-climo/Ambedkar society circle_29,datakaveri.org/f7e044e"
+            + "ee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Dr Baba Saheb Ambedkar Sethu Junction_3]]")
         .send(ar -> {
           if (ar.succeeded()) {
             assertEquals(200, ar.result().statusCode());
@@ -1044,25 +990,6 @@ public class ApiServerVerticleTest {
           }
         });
   }
-
-  /*
-   * @Test
-   * 
-   * @Order(27)
-   * 
-   * @DisplayName("non-existing value") void nonExistingValueTest(VertxTestContext testContext) {
-   * 
-   * String apiURL = "search?property=[id]&value=[[rbccps.org/aa9d66a000d94a788" +
-   * "95de8d4c0b3a67f3450e531/pscdcl/aqm-bosch-climo/Appa_Balwant_Square_900]]";
-   * LOGGER.info("Url is " + BASE_URL + apiURL); client.get(PORT, HOST,
-   * BASE_URL.concat(apiURL)).send(ar -> { if (ar.succeeded()) {
-   * 
-   * Due to stub code in DBservice, the query succeeds and 200 code is obtained which causes the
-   * test to fail
-   * 
-   * assertEquals(400, ar.result().statusCode()); testContext.completeNow(); } else if (ar.failed())
-   * { LOGGER.info(ar.cause()); testContext.failed(); } }); }
-   */
 
   @Test
   @Order(28)
@@ -1101,7 +1028,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(29)
+  @Order(30)
   @DisplayName("Multi Attribute search")
   void multiAttributeSearchtest(VertxTestContext testContext) {
     String apiURL =
@@ -1120,7 +1047,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(30)
+  @Order(31)
   @DisplayName("Nested Attribute search")
   void nestedAttributeSearchtest(VertxTestContext testContext) {
     String apiURL = "search?property=[deviceModel.modelName]&value=[[Bosch-Climo]]";
@@ -1138,7 +1065,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(31)
+  @Order(32)
   @DisplayName("bbox search")
   void bboxSearchtest(VertxTestContext testContext) {
     String apiURL =
@@ -1157,7 +1084,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(32)
+  @Order(33)
   @DisplayName("LineString search")
   void LineStringSearchtest(VertxTestContext testContext) {
     String apiURL = "search?geoproperty=location&georel=intersects&geometry=LineString&coordinates"
@@ -1176,7 +1103,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(33)
+  @Order(34)
   @DisplayName("Invalid Geometry search")
   void invalidGeometrySearchtest(VertxTestContext testContext) {
     String apiURL =
@@ -1196,7 +1123,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(34)
+  @Order(35)
   @DisplayName("Invalid Georel search")
   void invalidGeorelSearchtest(VertxTestContext testContext) {
     String apiURL =
@@ -1216,7 +1143,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(35)
+  @Order(36)
   @DisplayName("Invalid coordinate search")
   void invalidCoordinateSearchtest(VertxTestContext testContext) {
     String apiURL =
@@ -1236,7 +1163,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(36)
+  @Order(37)
   @DisplayName("Geo Spatial Search Invalid Syntax")
   void geoSpatialInvalidSyntax(VertxTestContext testContext) {
     String apiURL =
@@ -1256,7 +1183,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(37)
+  @Order(38)
   @DisplayName("Text Search")
   void textSearchTest(VertxTestContext testContext) {
     /* Encoded whitespaces to get appropriate response */
@@ -1276,7 +1203,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(38)
+  @Order(39)
   @DisplayName("Text Search with *")
   void textSearchAcceptableSpecialCharTest(VertxTestContext testContext) {
     /* Encoded whitespaces to get appropriate response */
@@ -1297,7 +1224,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(39)
+  @Order(40)
   @DisplayName("Special Characters Text Search")
   void specialCharactersTextSearchTest(VertxTestContext testContext) {
     /* Encoded characters to get appropriate response */
@@ -1316,7 +1243,7 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(40)
+  @Order(41)
   @DisplayName("Text Search Invalid Syntax")
   void textSearchInvalidSyntaxTest(VertxTestContext testContext) {
     /* Encoded whitespaces to get appropriate response */
@@ -1335,32 +1262,14 @@ public class ApiServerVerticleTest {
   }
 
   @Test
-  @Order(41)
+  @Order(42)
   @DisplayName("Get Provider")
   void getProviderTest(VertxTestContext testContext) {
     String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/provider";
-    LOGGER.info("Url is " + BASE_URL + apiURL);
-    client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
-      if (ar.succeeded()) {
-        assertEquals(200, ar.result().statusCode());
-        testContext.completeNow();
-      } else if (ar.failed()) {
-        LOGGER.info("status code received : " + ar.result().statusCode());
-        LOGGER.info(ar.cause());
-        testContext.failed();
-      }
-    });
-  }
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
 
-  @Test
-  @Order(42)
-  @DisplayName("Get resourceServer")
-  void getResourceServerTest(VertxTestContext testContext) {
-    String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/resourceServer";
-    LOGGER.info("Url is " + BASE_URL + apiURL);
-    client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
+    client.get(PORT, HOST, BASE_URL.concat(RELATIONSHIP)).addQueryParam(ID, apiURL)
+        .addQueryParam(REL_KEY, PROVIDER).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
@@ -1374,12 +1283,13 @@ public class ApiServerVerticleTest {
 
   @Test
   @Order(43)
-  @DisplayName("Get data model [type]")
-  void getDataModelTest(VertxTestContext testContext) {
+  @DisplayName("Get resourceServer")
+  void getResourceServerTest(VertxTestContext testContext) {
     String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24/type";
-    LOGGER.info("Url is " + BASE_URL + apiURL);
-    client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(ar -> {
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
+
+    client.get(PORT, HOST, BASE_URL.concat(RELATIONSHIP)).addQueryParam(ID, apiURL)
+        .addQueryParam(REL_KEY, RESOURCE_SVR).send(ar -> {
       if (ar.succeeded()) {
         assertEquals(200, ar.result().statusCode());
         testContext.completeNow();
@@ -1391,28 +1301,48 @@ public class ApiServerVerticleTest {
     });
   }
 
+  @Test
+  @Order(44)
+  @DisplayName("Get data model [type]")
+  void getDataModelTest(VertxTestContext testContext) {
+    String apiURL =
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
+
+    client.get(PORT, HOST, BASE_URL.concat(RELATIONSHIP)).addQueryParam(ID, apiURL)
+        .addQueryParam(REL_KEY, TYPE).send(ar -> {
+          if (ar.succeeded()) {
+            assertEquals(200, ar.result().statusCode());
+            testContext.completeNow();
+          } else if (ar.failed()) {
+            LOGGER.info("status code received : " + ar.result().statusCode());
+            LOGGER.info(ar.cause());
+            testContext.failed();
+          }
+        });
+  }
+
   /**
    * Tests the count api handler of ApiServerVerticle.
    *
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(51)
+  @Order(45)
   @DisplayName("Count Item[Geometry:Point, Status:200, Endpoint: /count]")
   void countItemCircle200(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
     /* Should give only one item */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "intersects").addQueryParam("maxDistance", "5")
-        .addQueryParam("geometry", "Point").addQueryParam("coordinates", "[ 73.874537, 18.528311 ]")
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, "intersects").addQueryParam(MAX_DISTANCE, "5000")
+        .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[ 73.874537, 18.528311 ]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertTrue(serverResponse.result().body().toJsonObject().containsKey("count"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertTrue(serverResponse.result().body().toJsonObject().containsKey(TOTAL_HITS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1427,16 +1357,15 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(52)
+  @Order(46)
   @DisplayName("count Item[Geometry:Polygon, Status:200, Endpoint: /count]")
   void countItemPolygon200(VertxTestContext testContext) {
 
     LOGGER.info("starting countItemPolygon200");
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "Polygon")
-        .addQueryParam("coordinates",
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "5000")
+        .addQueryParam(GEOMETRY, "Polygon").addQueryParam(COORDINATES,
             "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
                 + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
                 + "[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]")
@@ -1445,7 +1374,7 @@ public class ApiServerVerticleTest {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1460,23 +1389,23 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(53)
+  @Order(47)
   @DisplayName("Count Attribute[Status:200, Endpoint: /count]")
   void countAttribute200(VertxTestContext testContext) {
 
     LOGGER.info("starting countAttribute200");
 
     String id =
-        "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]";
+        "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Chandani Square_25]]";
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[id]")
-        .addQueryParam("value", id).send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam(PROPERTY, "[id]")
+        .addQueryParam(VALUE, id).send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertTrue(serverResponse.result().body().toJsonObject().containsKey("count"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertTrue(serverResponse.result().body().toJsonObject().containsKey(TOTAL_HITS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1492,28 +1421,28 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(54)
+  @Order(48)
   @DisplayName("Count SingleAttr multiValue[Status:200, Endpoint: /count]")
   void countAttributeMultiValue200(VertxTestContext testContext) {
 
     LOGGER.info("starting countAttributeMultiValue200");
 
     String id1 =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Chandani Square_25";
     String id2 =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/BopadiSquare_65";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65";
 
     String id = "[[" + id1 + "," + id2 + "]]";
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("property", "[id]")
-        .addQueryParam("value", id).send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam(PROPERTY, "[id]")
+        .addQueryParam(VALUE, id).send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertTrue(serverResponse.result().body().toJsonObject().containsKey("count"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertTrue(serverResponse.result().body().toJsonObject().containsKey(TOTAL_HITS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1529,7 +1458,7 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(55)
+  @Order(49)
   @DisplayName("Count Attribute[Status:400 invalidSyntax, Endpoint: /count]")
   void countAttribute400(VertxTestContext testContext) {
 
@@ -1537,7 +1466,7 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("prop", "[id]")
-        .addQueryParam("value", "[[existing-value]]").send(serverResponse -> {
+        .addQueryParam(VALUE, "[[existing-value]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
@@ -1557,7 +1486,7 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(56)
+  @Order(50)
   @DisplayName("Count multiAttr[Status:200, Endpoint: /count]")
   void countMultiAttribute200(VertxTestContext testContext) {
 
@@ -1565,15 +1494,15 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count"))
-        .addQueryParam("property", "[itemStatus,deviceId]")
-        .addQueryParam("value", "[[ACTIVE, INACTIVE],[b3ec32ff-fa7d-64fa-c0af-272e25d314e9]]")
+        .addQueryParam(PROPERTY, "[itemStatus,deviceId]")
+        .addQueryParam(VALUE, "[[ACTIVE, INACTIVE],[b3ec32ff-fa7d-64fa-c0af-272e25d314e9]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertTrue(serverResponse.result().body().toJsonObject().containsKey("count"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertTrue(serverResponse.result().body().toJsonObject().containsKey(TOTAL_HITS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1589,7 +1518,7 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(57)
+  @Order(51)
   @DisplayName("Count nestedAttr[Status:200, Endpoint: /count]")
   void countNestedAttribute200(VertxTestContext testContext) {
 
@@ -1597,14 +1526,14 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count"))
-        .addQueryParam("property", "[deviceModelInfo.name]")
-        .addQueryParam("value", "[[Bosch-Climo]]").send(serverResponse -> {
+        .addQueryParam(PROPERTY, "[deviceModelInfo.name]").addQueryParam(VALUE, "[[Bosch-Climo]]")
+        .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertTrue(serverResponse.result().body().toJsonObject().containsKey("count"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertTrue(serverResponse.result().body().toJsonObject().containsKey(TOTAL_HITS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1620,25 +1549,24 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(58)
+  @Order(52)
   @DisplayName("Count bbox[Status:200, Endpoint: /count]")
   void countBbox200(VertxTestContext testContext) {
 
     LOGGER.info("starting countBbox200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "bbox")
-        .addQueryParam("coordinates",
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "5000")
+        .addQueryParam(GEOMETRY, BBOX).addQueryParam(COORDINATES,
             "[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertTrue(serverResponse.result().body().toJsonObject().containsKey("count"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertTrue(serverResponse.result().body().toJsonObject().containsKey(TOTAL_HITS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1654,24 +1582,24 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(59)
+  @Order(53)
   @DisplayName("Count LineString[Status:200, Endpoint: /count]")
   void countLineString200(VertxTestContext testContext) {
 
     LOGGER.info("starting countLineString200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "intersects").addQueryParam("geometry", "LineString")
-        .addQueryParam("coordinates",
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, INTERSECTS).addQueryParam(GEOMETRY, LINE_STRING)
+        .addQueryParam(COORDINATES,
             "[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137],[73.876484,18.525007]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertTrue(serverResponse.result().body().toJsonObject().containsKey("count"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertTrue(serverResponse.result().body().toJsonObject().containsKey(TOTAL_HITS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1687,16 +1615,16 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(60)
+  @Order(54)
   @DisplayName("count geometry[Status:400 invalidValue, Endpoint: /count]")
   void countGeometry400(VertxTestContext testContext) {
 
     LOGGER.info("starting countGeometry400");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "within").addQueryParam("geometry", "abc123")
-        .addQueryParam("coordinates",
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(GEOMETRY, "abc123")
+        .addQueryParam(COORDINATES,
             "[[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
@@ -1719,16 +1647,16 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(61)
+  @Order(55)
   @DisplayName("Count georel[Status:400 invalidValue, Endpoint: /count]")
   void countGeorel400(VertxTestContext testContext) {
 
     LOGGER.info("starting countGeorel400");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "abc123").addQueryParam("geometry", "LineString")
-        .addQueryParam("coordinates",
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, "abc123").addQueryParam(GEOMETRY, LINE_STRING)
+        .addQueryParam(COORDINATES,
             "[[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
@@ -1750,16 +1678,16 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(62)
+  @Order(56)
   @DisplayName("Count geoSpatial[Status:400 invalidSyntax, Endpoint: /count]")
   void countGeoSpatial400(VertxTestContext testContext) {
 
     LOGGER.info("starting countGeoSpatial400");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("invalidsyntax", "location")
-        .addQueryParam("georel", "within").addQueryParam("geometry", "bbox")
-        .addQueryParam("coordinates",
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("invalidsyntax", LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(GEOMETRY, BBOX)
+        .addQueryParam(COORDINATES,
             "[[[73.69697570800781,18.592236436157137],[73.69697570800781,abc123]]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
@@ -1781,21 +1709,21 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(63)
+  @Order(57)
   @DisplayName("Count text[Status:200, Endpoint: /count]")
   void countText200(VertxTestContext testContext) {
 
     LOGGER.info("starting countText200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("q", "\"climo\"")
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(Q_VALUE, "\"climo\"")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertTrue(serverResponse.result().body().toJsonObject().containsKey("count"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertTrue(serverResponse.result().body().toJsonObject().containsKey(TOTAL_HITS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1812,21 +1740,21 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(64)
+  @Order(58)
   @DisplayName("Count text*[Status:200, Endpoint: /count]")
   void countTextAcceptableSpecialChar200(VertxTestContext testContext) {
 
     LOGGER.info("starting countTextAcceptableSpecialChar200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("q", "\"climo*\"")
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(Q_VALUE, "\"climo*\"")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
-            assertEquals("application/json", serverResponse.result().getHeader("content-type"));
-            assertTrue(serverResponse.result().body().toJsonObject().containsKey("count"));
+            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+            assertTrue(serverResponse.result().body().toJsonObject().containsKey(TOTAL_HITS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1842,7 +1770,7 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(65)
+  @Order(59)
   @DisplayName("Count text SpecialChar[Status:400, Endpoint: /count]")
   void countSpecialCharactersText400(VertxTestContext testContext) {
 
@@ -1850,7 +1778,7 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("q", "\"@!$%432\"")
-        .addQueryParam("limit", "50").addQueryParam("offset", "100").send(serverResponse -> {
+        .addQueryParam(LIMIT, "50").addQueryParam(OFFSET, "100").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
@@ -1870,7 +1798,7 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(66)
+  @Order(60)
   @DisplayName("count text[Status:400 invalidSyntax, Endpoint: /count]")
   void countText400(VertxTestContext testContext) {
 
@@ -1878,7 +1806,7 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("abc123", "\"text to count\"")
-        .addQueryParam("limit", "50").addQueryParam("offset", "100").send(serverResponse -> {
+        .addQueryParam(LIMIT, "50").addQueryParam(OFFSET, "100").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
@@ -1898,17 +1826,16 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(67)
+  @Order(61)
   @DisplayName("Count Item[Geometry:Polygon, Status:400 invalidValue, Endpoint: /count]")
   void countItemPolygon400_1(VertxTestContext testContext) {
 
     LOGGER.info("starting countItemPolygon400 invalidSyntax");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "within").addQueryParam("maxDistance", "500")
-        .addQueryParam("geometry", "Polygon")
-        .addQueryParam("coordinates",
+    client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "500")
+        .addQueryParam(GEOMETRY, "Polygon").addQueryParam(COORDINATES,
             "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
                 + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
                 + "[73.89472961425781,18.689830007518434],[73.69697570800781,abc123]]]")
@@ -1931,16 +1858,16 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(68)
+  @Order(62)
   @DisplayName("Count coordinates[Status:400 invalidValue, Endpoint: /count]")
   void countCoordinate400(VertxTestContext testContext) {
 
     LOGGER.info("starting countGeorel400");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam("geoproperty", "location")
-        .addQueryParam("georel", "within").addQueryParam("geometry", "LineString")
-        .addQueryParam("coordinates",
+    client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
+        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(GEOMETRY, LINE_STRING)
+        .addQueryParam(COORDINATES,
             "[[[73.69697570800781,18.592236436157137],[73.69697570800781,abc123]]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
@@ -1962,15 +1889,15 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(69)
+  @Order(63)
   @DisplayName("Tag search[Status:200, Endpoint: /search]")
   void singleTagSearch200(VertxTestContext testContext) {
 
     LOGGER.info("starting singleTagSearch200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
-        .addQueryParam("value", "[[pollution]]").send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[tags]")
+        .addQueryParam(VALUE, "[[pollution]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
@@ -1991,20 +1918,192 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    */
   @Test
-  @Order(70)
+  @Order(64)
   @DisplayName("Tag search[Status:200, Endpoint: /search]")
   void singleTagSearchWithFilter200(VertxTestContext testContext) {
 
     LOGGER.info("starting singleTagSearchWithFilter200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
-        .addQueryParam("value", "[[pollution]]").addQueryParam("filter", "[id,tags]")
-        .addQueryParam("offset", "0").addQueryParam("limit", "1").send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[tags]")
+        .addQueryParam(VALUE, "[[pollution]]").addQueryParam(FILTER, "[id,tags]")
+        .addQueryParam(OFFSET, "0").addQueryParam(LIMIT, "1").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
+
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            LOGGER.info(serverResponse.cause());
+            testContext.failed();
+          }
+        });
+  }
+
+  /**
+   * Tests the search handler of ApiServerVerticle.
+   *
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(65)
+  @DisplayName("Tag search[Status:400, Endpoint: /search]")
+  void singleTagSearch400_1(VertxTestContext testContext) {
+
+    LOGGER.info("starting singleTagSearch400_1");
+
+    /* Send the file to the server using GET with query parameters */
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[tags]")
+        .addQueryParam(VALUE, "[[abc123]]").send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+
+            /* comparing the response */
+            assertEquals(200, serverResponse.result().statusCode());
+            assertEquals(0, serverResponse.result().bodyAsJsonObject().getInteger(TOTAL_HITS));
+
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            LOGGER.info(serverResponse.cause());
+            testContext.failed();
+          }
+        });
+  }
+
+  /**
+   * Tests the search handler of ApiServerVerticle.
+   *
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(66)
+  @DisplayName("Tag search[Status:400, Endpoint: /search]")
+  void singleTagSearch400_2(VertxTestContext testContext) {
+
+    LOGGER.info("starting singleTagSearch400_2");
+
+    /* Send the file to the server using GET with query parameters */
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[abc123]")
+        .addQueryParam(VALUE, "[[abc123]]").send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+
+            /* comparing the response */
+            assertEquals(200, serverResponse.result().statusCode());
+            assertEquals(0, serverResponse.result().bodyAsJsonObject().getInteger(TOTAL_HITS));
+
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            LOGGER.info(serverResponse.cause());
+            testContext.failed();
+          }
+        });
+  }
+
+  /**
+   * Tests the search handler of ApiServerVerticle.
+   *
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(67)
+  @DisplayName("Tag search[Status:400, Endpoint: /search]")
+  void singleTagSearch400_3(VertxTestContext testContext) {
+
+    LOGGER.info("starting singleTagSearch400_3");
+
+    /* Send the file to the server using GET with query parameters */
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidProperty", "[abc123]")
+        .addQueryParam(VALUE, "[[abc123]]").send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+
+            /* comparing the response */
+            assertEquals(400, serverResponse.result().statusCode());
+
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            LOGGER.info(serverResponse.cause());
+            testContext.failed();
+          }
+        });
+  }
+
+  /**
+   * Tests the search handler of ApiServerVerticle.
+   *
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(68)
+  @DisplayName("Tag MultiSearch[Status:200, Endpoint: /search]")
+  void multiTagSearch200(VertxTestContext testContext) {
+
+    LOGGER.info("starting multiTagSearch200");
+
+    /* Send the file to the server using GET with query parameters */
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[tags]")
+        .addQueryParam(VALUE, "[[pollution,flood]]").send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+
+            /* comparing the response */
+            assertEquals(200, serverResponse.result().statusCode());
+
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            LOGGER.info(serverResponse.cause());
+            testContext.failed();
+          }
+        });
+  }
+
+  /**
+   * Tests the search handler of ApiServerVerticle.
+   *
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(69)
+  @DisplayName("Tag MultiSearch[Status:400, Endpoint: /search]")
+  void multiTagSearch400_1(VertxTestContext testContext) {
+
+    LOGGER.info("starting multiTagSearch400_1");
+
+    /* Send the file to the server using GET with query parameters */
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[tags]")
+        .addQueryParam(VALUE, "[[abc, abc123]]").send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+
+            /* comparing the response */
+            assertEquals(200, serverResponse.result().statusCode());
+            assertEquals(0, serverResponse.result().bodyAsJsonObject().getInteger(TOTAL_HITS));
+
+            testContext.completeNow();
+          } else if (serverResponse.failed()) {
+            LOGGER.info(serverResponse.cause());
+            testContext.failed();
+          }
+        });
+  }
+
+  /**
+   * Tests the search handler of ApiServerVerticle.
+   *
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(70)
+  @DisplayName("Tag MultiSearch[Status:400, Endpoint: /search]")
+  void multiTagSearch400_2(VertxTestContext testContext) {
+
+    LOGGER.info("starting multiTagSearch400_2");
+
+    /* Send the file to the server using GET with query parameters */
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[abc123]")
+        .addQueryParam(VALUE, "[[abc, abc123]]").send(serverResponse -> {
+          if (serverResponse.succeeded()) {
+
+            /* comparing the response */
+            assertEquals(200, serverResponse.result().statusCode());
+            assertEquals(0, serverResponse.result().bodyAsJsonObject().getInteger(TOTAL_HITS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -2021,14 +2120,14 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(71)
-  @DisplayName("Tag search[Status:400, Endpoint: /search]")
-  void singleTagSearch400_1(VertxTestContext testContext) {
+  @DisplayName("Tag MultiSearch[Status:400, Endpoint: /search]")
+  void multiTagSearch400_3(VertxTestContext testContext) {
 
-    LOGGER.info("starting singleTagSearch400_1");
+    LOGGER.info("starting singleTagSearch400_3");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
-        .addQueryParam("value", "[[abc123]]").send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidProperty", "[abc123]")
+        .addQueryParam(VALUE, "[[abc, abc123]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
@@ -2049,182 +2148,14 @@ public class ApiServerVerticleTest {
    */
   @Test
   @Order(72)
-  @DisplayName("Tag search[Status:400, Endpoint: /search]")
-  void singleTagSearch400_2(VertxTestContext testContext) {
-
-    LOGGER.info("starting singleTagSearch400_2");
-
-    /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[abc123]")
-        .addQueryParam("value", "[[abc123]]").send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-
-            /* comparing the response */
-            assertEquals(400, serverResponse.result().statusCode());
-
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            LOGGER.info(serverResponse.cause());
-            testContext.failed();
-          }
-        });
-  }
-
-  /**
-   * Tests the search handler of ApiServerVerticle.
-   *
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(73)
-  @DisplayName("Tag search[Status:400, Endpoint: /search]")
-  void singleTagSearch400_3(VertxTestContext testContext) {
-
-    LOGGER.info("starting singleTagSearch400_3");
-
-    /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidProperty", "[abc123]")
-        .addQueryParam("value", "[[abc123]]").send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-
-            /* comparing the response */
-            assertEquals(400, serverResponse.result().statusCode());
-
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            LOGGER.info(serverResponse.cause());
-            testContext.failed();
-          }
-        });
-  }
-
-  /**
-   * Tests the search handler of ApiServerVerticle.
-   *
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(74)
-  @DisplayName("Tag MultiSearch[Status:200, Endpoint: /search]")
-  void multiTagSearch200(VertxTestContext testContext) {
-
-    LOGGER.info("starting multiTagSearch200");
-
-    /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
-        .addQueryParam("value", "[[pollution,flood]]").send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-
-            /* comparing the response */
-            assertEquals(200, serverResponse.result().statusCode());
-
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            LOGGER.info(serverResponse.cause());
-            testContext.failed();
-          }
-        });
-  }
-
-  /**
-   * Tests the search handler of ApiServerVerticle.
-   *
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(75)
-  @DisplayName("Tag MultiSearch[Status:400, Endpoint: /search]")
-  void multiTagSearch400_1(VertxTestContext testContext) {
-
-    LOGGER.info("starting multiTagSearch400_1");
-
-    /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
-        .addQueryParam("value", "[[abc, abc123]]").send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-
-            /* comparing the response */
-            assertEquals(400, serverResponse.result().statusCode());
-
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            LOGGER.info(serverResponse.cause());
-            testContext.failed();
-          }
-        });
-  }
-
-  /**
-   * Tests the search handler of ApiServerVerticle.
-   *
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(76)
-  @DisplayName("Tag MultiSearch[Status:400, Endpoint: /search]")
-  void multiTagSearch400_2(VertxTestContext testContext) {
-
-    LOGGER.info("starting multiTagSearch400_2");
-
-    /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[abc123]")
-        .addQueryParam("value", "[[abc, abc123]]").send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-
-            /* comparing the response */
-            assertEquals(400, serverResponse.result().statusCode());
-
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            LOGGER.info(serverResponse.cause());
-            testContext.failed();
-          }
-        });
-  }
-
-  /**
-   * Tests the search handler of ApiServerVerticle.
-   *
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(77)
-  @DisplayName("Tag MultiSearch[Status:400, Endpoint: /search]")
-  void multiTagSearch400_3(VertxTestContext testContext) {
-
-    LOGGER.info("starting singleTagSearch400_3");
-
-    /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("invalidProperty", "[abc123]")
-        .addQueryParam("value", "[[abc, abc123]]").send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-
-            /* comparing the response */
-            assertEquals(400, serverResponse.result().statusCode());
-
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            LOGGER.info(serverResponse.cause());
-            testContext.failed();
-          }
-        });
-  }
-
-  /**
-   * Tests the search handler of ApiServerVerticle.
-   *
-   * @param testContext of asynchronous operations
-   */
-  @Test
-  @Order(78)
   @DisplayName("Tag MultiSearch[Status:200, Endpoint: /search]")
   void multiTagSearchPartial200(VertxTestContext testContext) {
 
     LOGGER.info("starting multiTagSearch200");
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("property", "[tags]")
-        .addQueryParam("value", "[[pollution,abc123]]").send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[tags]")
+        .addQueryParam(VALUE, "[[pollution,abc123]]").send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
