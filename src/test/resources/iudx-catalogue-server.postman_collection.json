@@ -4340,7 +4340,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[tags,deviceId.keyword]\"&value=\"[[aqm],[8cff12b2-b8be-1230-c5f6-ca96b4e4e441,climo]]\"",
+									"raw": "https://{{host}}{{base}}/search?property=\"[tags,deviceId]\"&value=\"[[aqm],[8cff12b2-b8be-1230-c5f6-ca96b4e4e441,climo]]\"",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -4351,7 +4351,7 @@
 									"query": [
 										{
 											"key": "property",
-											"value": "\"[tags,deviceId.keyword]\""
+											"value": "\"[tags,deviceId]\""
 										},
 										{
 											"key": "value",
@@ -6285,7 +6285,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
+							"raw": "https://{{host}}{{base}}/count?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.9,18.6]",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -6312,7 +6312,7 @@
 								},
 								{
 									"key": "coordinates",
-									"value": "[73.927285,18.502712]"
+									"value": "[73.9,18.6]"
 								}
 							]
 						}
@@ -6863,7 +6863,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
+							"raw": "https://{{host}}{{base}}/count?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73,20],[75,18]]",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -6886,7 +6886,7 @@
 								},
 								{
 									"key": "coordinates",
-									"value": "[[73.874537,18.528311],[73.874537,18.528311]]"
+									"value": "[[73,20],[75,18]]"
 								}
 							]
 						}
