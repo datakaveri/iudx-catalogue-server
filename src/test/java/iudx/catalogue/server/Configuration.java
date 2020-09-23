@@ -15,6 +15,13 @@ public class Configuration {
   private static final Logger LOGGER = LogManager.getLogger(Configuration.class);
   private static final String CONFIG_PATH = "./configs/config-test.json";
 
+  /**
+   * This is to read the config.json file from fileSystem to load configuration.
+   * 
+   * @param moduleIndex
+   * @param vertx
+   * @return module JsonObject
+   */
   public JsonObject configLoader(int moduleIndex, Vertx vertx) {
 
     fileSystem = vertx.fileSystem();

@@ -166,26 +166,12 @@ public class ValidatorServiceTest {
   @DisplayName("Valid Schema Test [Resource]")
   void validResourceSchemaTest(VertxTestContext testContext) {
 
-    fileSystem.readFile("./src/test/resources/resources.json", handler -> {
-      if (handler.succeeded()) {
-        JsonObject resource = handler.result().toJsonArray().getJsonObject(0);
-        System.out.println(resource.toString());
-        
-        validator.validateSchema(
-            resource,
-            testContext.succeeding(
-                response ->
-                    testContext.verify(
-                        () -> {
-                          testContext.completeNow();
-                        })));
-      }
+    JsonObject resource = fileSystem.readFileBlocking("./src/test/resources/resources.json")
+        .toJsonArray().getJsonObject(0);
 
-      if (handler.failed()) {
-        LOGGER.fatal(handler.cause());
-        testContext.failed();
-      }
-    });
+    validator.validateSchema(resource, testContext.succeeding(response -> testContext.verify(() -> {
+      testContext.completeNow();
+    })));
   }
 
   @Test
@@ -193,22 +179,15 @@ public class ValidatorServiceTest {
   @DisplayName("Valid Schema Test [ResourceGroup]")
   void validResourceGroupSchemaTest(VertxTestContext testContext) {
 
-    fileSystem.readFile("./src/test/resources/resourceGroup.json", handler -> {
-      if (handler.succeeded()) {
-        JsonObject resourceGrp = handler.result().toJsonObject();
-        System.out.println(resourceGrp.toString());
+    JsonObject resourceGrp =
+        fileSystem.readFileBlocking("./src/test/resources/resourceGroup.json").toJsonObject();
 
-        validator.validateSchema(resourceGrp,
-            testContext.succeeding(response -> testContext.verify(() -> {
-              testContext.completeNow();
-            })));
-      }
+    System.out.println(resourceGrp.toString());
 
-      if (handler.failed()) {
-        LOGGER.fatal(handler.cause());
-        testContext.failed();
-      }
-    });
+    validator.validateSchema(resourceGrp,
+        testContext.succeeding(response -> testContext.verify(() -> {
+          testContext.completeNow();
+        })));
   }
 
   @Test

@@ -137,12 +137,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     String id = doc.getString("id");
     final String instanceId = doc.getString(INSTANCE);
 
-    String errorJson = respBuilder.withStatus(FAILED)
-                                  .withResult(id, INSERT, FAILED)
-                                  .getResponse();
+    String errorJson = respBuilder.withStatus(FAILED).withResult(id, INSERT, FAILED).getResponse();
 
-    String checkItem = TERM_COMPLEX_QUERY.replace("$1", id)
-                                         .replace("$2", "");
+    String checkItem = TERM_COMPLEX_QUERY.replace("$1", id).replace("$2", "");
 
     instance.verify(instanceId).onComplete(instanceHandler -> {
       if (instanceHandler.succeeded()) {
@@ -155,73 +152,36 @@ public class DatabaseServiceImpl implements DatabaseService {
           }
           if (checkRes.succeeded()) {
             if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
-              handler.handle(Future.failedFuture(respBuilder.withStatus(ERROR)
-                  .withResult(id, INSERT, FAILED, "Fail: Doc Exists").getResponse()));
+              handler.handle(Future.failedFuture(
+                  respBuilder.withStatus(ERROR)
+                             .withResult(id, INSERT, FAILED, "Fail: Doc Exists")
+                             .getResponse()));
               return;
-        }
+            }
 
             doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
             /* Insert document */
             client.docPostAsync(CAT_INDEX_NAME, doc.toString(), postRes -> {
               if (postRes.succeeded()) {
-                handler.handle(Future.succeededFuture(respBuilder.withStatus(SUCCESS)
-                    .withResult(id, INSERT, SUCCESS).getJsonResponse()));
+                handler.handle(Future.succeededFuture(
+                    respBuilder.withStatus(SUCCESS)
+                               .withResult(id, INSERT, SUCCESS)
+                               .getJsonResponse()));
               } else {
                 handler.handle(Future.failedFuture(errorJson));
                 LOGGER.error("Fail: Insertion failed;" + postRes.cause());
-          }
+              }
             });
           }
         });
       } else if (instanceHandler.failed()) {
-        handler.handle(Future.failedFuture(respBuilder.withStatus(ERROR)
-            .withResult(id, INSERT, FAILED, instanceHandler.cause().getLocalizedMessage())
-            .getResponse()));
+        handler.handle(Future.failedFuture(
+            respBuilder.withStatus(ERROR)
+                       .withResult(id, INSERT, FAILED, instanceHandler.cause().getLocalizedMessage())
+                       .getResponse()));
       }
     });
 
-
-    // Future<Boolean> future = instance.verify(instanceId);
-    // if (future.isComplete()) {
-    // if (future.succeeded()) {
-    // LOGGER.debug("Info: Instance info;" + future.result());
-    //
-    // client.searchAsync(CAT_INDEX_NAME, checkItem.toString(), checkRes -> {
-    // if (checkRes.failed()) {
-    // LOGGER.error("Fail: Isertion failed;" + checkRes.cause());
-    // handler.handle(Future.failedFuture(errorJson));
-    // }
-    // if (checkRes.succeeded()) {
-    // if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
-    // handler.handle(Future.failedFuture(
-    // respBuilder.withStatus(ERROR)
-    // .withResult(id, INSERT, FAILED, "Fail: Doc Exists")
-    // .getResponse()));
-    // return;
-    // }
-    //
-    // doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
-    // /* Insert document */
-    // client.docPostAsync(CAT_INDEX_NAME, doc.toString(), postRes -> {
-    // if (postRes.succeeded()) {
-    // handler.handle(Future.succeededFuture(
-    // respBuilder.withStatus(SUCCESS)
-    // .withResult(id, INSERT, SUCCESS)
-    // .getJsonResponse()));
-    // } else {
-    // handler.handle(Future.failedFuture(errorJson));
-    // LOGGER.error("Fail: Insertion failed;" + postRes.cause());
-    // }
-    // });
-    // }
-    // });
-    // } else if (future.failed()) {
-    // handler.handle(Future.failedFuture(
-    // respBuilder.withStatus(ERROR)
-    // .withResult(id, INSERT, FAILED, future.cause().getLocalizedMessage())
-    // .getResponse()));
-    // }
-    // }
     return this;
   }
 
