@@ -14,13 +14,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.Properties;
 import java.util.Random;
 
 @ExtendWith(VertxExtension.class)
 public class AuthenticationServiceTest {
     private static final Logger LOGGER = LogManager.getLogger(AuthenticationServiceTest.class);
-    private static final Properties properties = new Properties();
     private static Vertx vertxObj;
     private static AuthenticationService authenticationService;
     private static JsonObject config;
