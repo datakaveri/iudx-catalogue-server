@@ -7,9 +7,6 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import io.vertx.reactivex.core.Vertx;
 import iudx.catalogue.server.Configuration;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Properties;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -25,8 +22,6 @@ import static iudx.catalogue.server.Constants.*;
 public class ElasticClientTest {
   private static final Logger LOGGER = LogManager.getLogger(ElasticClientTest.class);
   private static ElasticClient client;
-  private static Properties properties;
-  private static InputStream inputstream;
   private static String databaseIP;
   private static int databasePort;
   private static String databaseUser;

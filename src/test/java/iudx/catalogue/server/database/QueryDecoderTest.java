@@ -2,19 +2,13 @@ package iudx.catalogue.server.database;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.MultiMap;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import io.vertx.reactivex.core.Vertx;
 import iudx.catalogue.server.Configuration;
-import iudx.catalogue.server.apiserver.ApiServerVerticle;
-import iudx.catalogue.server.apiserver.util.QueryMapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -29,7 +23,6 @@ import static iudx.catalogue.server.Constants.*;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class QueryDecoderTest {
 
-  private static final Logger LOGGER = LogManager.getLogger(QueryDecoderTest.class);
   private static QueryDecoder queryDecoder;
   private static Configuration config;
 

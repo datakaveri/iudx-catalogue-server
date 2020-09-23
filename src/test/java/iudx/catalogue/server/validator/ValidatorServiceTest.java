@@ -1,9 +1,5 @@
 package iudx.catalogue.server.validator;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Properties;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +18,6 @@ import io.vertx.junit5.VertxTestContext;
 import io.vertx.reactivex.core.Vertx;
 import io.vertx.reactivex.core.file.FileSystem;
 import iudx.catalogue.server.Configuration;
-import iudx.catalogue.server.database.DatabaseServiceImpl;
 import iudx.catalogue.server.database.ElasticClient;
 import static iudx.catalogue.server.Constants.*;
 
