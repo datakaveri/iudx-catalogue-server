@@ -33,7 +33,9 @@
             "token":"",
             "admin_token":"",
             "catAdmin": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-            "verticleInstances": 2
+            "verticleInstances": 2,
+            "catIP": "127.0.0.1",
+            "catPort": 8443
 
         }
     ]

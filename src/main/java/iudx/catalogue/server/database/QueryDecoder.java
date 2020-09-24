@@ -113,9 +113,28 @@ public final class QueryDecoder {
             JsonArray valueArray = valueAttrs.getJsonArray(i);
             for (int j = 0; j < valueArray.size(); j++) {
               String matchQuery;
-              matchQuery = MATCH_QUERY.replace("$1", propertyAttrs.getString(i)).replace("$2",
-                  valueArray.getString(j));
-              shouldQuery.add(new JsonObject(matchQuery));
+              /* Attribute related queries using "match" and without the ".keyword" */
+              if (propertyAttrs.getString(i).equals(TAGS)
+                  || propertyAttrs.getString(i).equals(DESCRIPTION_ATTR)
+                  || propertyAttrs.getString(i).startsWith(LOCATION)) {
+
+                matchQuery = MATCH_QUERY.replace("$1", propertyAttrs.getString(i))
+                                        .replace("$2", valueArray.getString(j));
+                shouldQuery.add(new JsonObject(matchQuery));
+                /* Attribute related queries using "match" and with the ".keyword" */
+              } else {
+                /* checking keyword in the query paramters */
+                if (propertyAttrs.getString(i).endsWith(KEYWORD_KEY)) {
+                  matchQuery = MATCH_QUERY.replace("$1", propertyAttrs.getString(i))
+                                          .replace("$2", valueArray.getString(j));
+                } else {
+
+                  /* add keyword if not avaialble */
+                  matchQuery = MATCH_QUERY.replace("$1", propertyAttrs.getString(i) + KEYWORD_KEY)
+                                          .replace("$2", valueArray.getString(j));
+                }
+                shouldQuery.add(new JsonObject(matchQuery));
+              }
             }
             mustQuery.add(new JsonObject(SHOULD_QUERY.replace("$1", shouldQuery.toString())));
           }
@@ -196,10 +215,10 @@ public final class QueryDecoder {
       /* parsing resourceGroupId from the request */
       String resourceGroupId = request.getString(ID);
       
-      subQuery = MATCH_QUERY.replace("$1", RESOURCE_GRP)
+      subQuery = TERM_QUERY.replace("$1", RESOURCE_GRP + KEYWORD_KEY)
                            .replace("$2", resourceGroupId) 
                             + "," + 
-                 MATCH_QUERY.replace("$1", TYPE)
+                 TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_RESOURCE);
 
     } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType)) {
@@ -207,10 +226,10 @@ public final class QueryDecoder {
       String resourceGroupId =
           StringUtils.substringBeforeLast(request.getString(ID), FORWARD_SLASH);
       
-      subQuery = MATCH_QUERY.replace("$1", ID)
+      subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
                            .replace("$2", resourceGroupId) 
                            + "," + 
-                 MATCH_QUERY.replace("$1", TYPE)
+                 TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
 
     } else if (request.containsKey(ID) && PROVIDER.equals(relationshipType)) {
@@ -219,10 +238,10 @@ public final class QueryDecoder {
       String id = request.getString(ID);
       String providerId = StringUtils.substring(id, 0, id.indexOf("/", id.indexOf("/") + 1));
 
-      subQuery = MATCH_QUERY.replace("$1", ID)
+      subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
                            .replace("$2", providerId) 
                            + "," + 
-                 MATCH_QUERY.replace("$1", TYPE)
+                 TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_PROVIDER);
 
     } else if (request.containsKey(ID) && RESOURCE_SVR.equals(relationshipType)) {
@@ -236,7 +255,7 @@ public final class QueryDecoder {
                  MATCH_QUERY.replace("$1", ID)
                             .replace("$2", id[2])
                             + "," + 
-                 MATCH_QUERY.replace("$1", TYPE)
+                 TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_RESOURCE_SERVER);
 
     } else if (request.containsKey(ID) && TYPE_KEY.equals(relationshipType)) {
@@ -244,7 +263,7 @@ public final class QueryDecoder {
       /* parsing id from the request */
       String itemId = request.getString(ID);
 
-      subQuery = MATCH_QUERY.replace("$1", ID)
+      subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
                            .replace("$2", itemId);
     } else {
       return null;

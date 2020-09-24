@@ -268,7 +268,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.836808,
+      assertEquals(73.874537,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -287,7 +287,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.836808,
+      assertEquals(73.874537,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -427,7 +427,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(2, response.getInteger(TOTAL_HITS));
+      assertEquals(4, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -443,7 +443,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(49, response.getInteger(TOTAL_HITS));
+      assertEquals(51, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -478,7 +478,7 @@ public class DatabaseServiceTest {
         .put(PROPERTY, new JsonArray().add(ID)).put(VALUE,
             new JsonArray().add(
                 new JsonArray().add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
-                    + "iudx.org.in/aqm-bosch-climo/Ambedkar society circle_29")));
+                    + "iudx.io/aqm-bosch-climo/Ambedkar society circle_29")));
 
     /* requesting db service */
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
@@ -915,7 +915,7 @@ public class DatabaseServiceTest {
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals(73.836808,
+        assertEquals(73.874537,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         testContext.completeNow();
