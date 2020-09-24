@@ -202,7 +202,7 @@ public class QueryDecoderTest {
             + "iudx.io/aqm-bosch-climo/Ambedkar society circle_29",
         json.getJsonObject(QUERY_KEY).getJsonObject("bool").getJsonArray("must").getJsonObject(0)
             .getJsonObject("bool").getJsonArray("should").getJsonObject(0).getJsonObject(MATCH_KEY)
-            .getString(ID));
+            .getString(ID_KEYWORD));
     testContext.completeNow();
   }
   
@@ -239,7 +239,7 @@ public class QueryDecoderTest {
 
     assertEquals(ITEM_TYPE_RESOURCE_GROUP,
         json.getJsonObject(QUERY_KEY).getJsonObject("bool").getJsonArray("must").getJsonObject(1)
-            .getJsonObject(MATCH_KEY).getString(TYPE));
+            .getJsonObject(TERM).getString("type.keyword"));
     testContext.completeNow();
   }
 
@@ -257,7 +257,7 @@ public class QueryDecoderTest {
     JsonObject json = new JsonObject(queryDecoder.listRelationshipQuery(requests));
 
     assertEquals(ITEM_TYPE_RESOURCE_SERVER, json.getJsonObject(QUERY_KEY).getJsonObject("bool")
-        .getJsonArray("must").getJsonObject(2).getJsonObject(MATCH_KEY).getString(TYPE));
+        .getJsonArray("must").getJsonObject(2).getJsonObject(TERM).getString("type.keyword"));
     testContext.completeNow();
   }
 
