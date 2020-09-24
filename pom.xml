@@ -226,7 +226,7 @@
                                 <argument>-jar</argument>
                                 <argument>{project.build.directory}/${project.artifactId}-dev-${project.version}-fat.jar</argument>
                                 <argument>-c</argument>
-                                <argument>./configs/config-dev.json</argument>
+                                <argument>./configs/config-test.json</argument>
                             </arguments>
 						</configuration>
 					</execution>

@@ -3,10 +3,13 @@ package iudx.catalogue.server.database;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.Constants.*;
@@ -29,12 +32,13 @@ public class DatabaseServiceImpl implements DatabaseService {
   private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceImpl.class);
   private final ElasticClient client;
   private final QueryDecoder queryDecoder = new QueryDecoder();
-  private final Instance instance;
 
   public DatabaseServiceImpl(ElasticClient client) {
     this.client = client;
-    this.instance = new Instance(client);
   }
+
+
+
 
   @Override
   public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -141,7 +145,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     String checkItem = TERM_COMPLEX_QUERY.replace("$1", id).replace("$2", "");
 
-    instance.verify(instanceId).onComplete(instanceHandler -> {
+    verifyInstance(instanceId).onComplete(instanceHandler -> {
       if (instanceHandler.succeeded()) {
         LOGGER.debug("Info: Instance info;" + instanceHandler.result());
 
@@ -491,6 +495,36 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
     return this;
   }
+
+
+  /* Verify the existance of an instance */
+  Future<Boolean> verifyInstance(String instanceId) {
+
+    Promise<Boolean> promise = Promise.promise();
+
+    if (instanceId == null || instanceId.startsWith("\"") || instanceId.isBlank()) {
+      LOGGER.debug("Info: InstanceID null. Maybe provider item");
+      promise.complete(true);
+      return promise.future();
+    }
+
+    String checkInstance = TERM_COMPLEX_QUERY.replace("$1", instanceId).replace("$2", "");
+    client.searchAsync(CAT_INDEX_NAME, checkInstance, checkRes -> {
+      if (checkRes.failed()) {
+        LOGGER.error(ERROR_DB_REQUEST + checkRes.cause().getMessage());
+        promise.fail(INTERNAL_SERVER_ERROR);
+      } else if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
+        LOGGER.debug(INSTANCE_NOT_EXISTS);
+        promise.fail("Fail: Instance doesn't exist/registered");
+      } else {
+        promise.complete(true);
+      }
+      return;
+    });
+
+    return promise.future();
+  }
+
 
   /**
    * RespBuilder Response Message builder for search APIs

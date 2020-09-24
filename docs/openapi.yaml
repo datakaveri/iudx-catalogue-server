@@ -44,6 +44,10 @@ tags:
       Discovery of entities through their relationships.
       These apis are intended to be used by IUDX Data *Consumers*.
 
+  - name: "Administrator"
+    x-displayName: "Administrator"
+    description: |
+      Catalogue administrator specific apis.
 
 
 paths:
@@ -122,6 +126,12 @@ paths:
           items:
             type: string
         in: query
+      - name: instance
+        description: IUDX instance on which this query is to be made.
+        schema:
+          type: string
+        in: header
+        required: false
       responses:
         '200':
           content:
@@ -271,6 +281,12 @@ paths:
           items:
             type: string
         in: query
+      - name: instance
+        description: IUDX instance on which this query is to be made.
+        schema:
+          type: string
+        in: header
+        required: false
       responses:
         '200':
           content:
@@ -389,6 +405,12 @@ paths:
         type: string
       in: path
       required: true
+    - name: instance
+      description: IUDX instance on which this query is to be made.
+      schema:
+        type: string
+      in: header
+      required: false
 
 
   "/item":
@@ -433,6 +455,12 @@ paths:
               "$ref": "#/components/schemas/exapmleEntityWId"
         required: true
       parameters:
+        - name: instance
+          description: IUDX instance specific to this item. If instance is not mentioned, then the default instance is applied.
+          schema:
+            type: string
+          in: header
+          required: false
         - name: token
           description: IUDX Auth token to process the request
           schema:
@@ -610,6 +638,12 @@ paths:
             type: string
         in: query
         required: false
+      - name: instance
+        description: IUDX instance on which this query is to be made.
+        schema:
+          type: string
+        in: header
+        required: false
       responses:
         '200':
           content:
@@ -672,13 +706,96 @@ paths:
       required: true
     - name: rel
       description: Relationship attribute of the entity whose id is provided. For
-        e.g provider, resourceGroup, resourceServer, etc.
+        e.g provider, resourceGroup, resourceServer or instance.
       schema:
         type: string
       in: query
       required: true
+    - name: instance
+      description: IUDX instance on which this query is to be made.
+      schema:
+        type: string
+      in: header
+      required: false
 
-
+  "/instance":
+    description: |-
+      A catalogue administrator api to set an instance (grouping) which will be reflected on the catalogue ui.
+    post:
+      tags:
+        - Administrator
+      parameters:
+      - name: id
+        description: |
+          id of the instance. In most cases this is a city name.
+        schema:
+          type: string
+        in: query
+        required: true
+      - name: token
+        description: IUDX Auth token to process the request
+        schema:
+          type: string
+        in: header
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/standardCrudResponse"
+          description: Successfully inserted
+        '400':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/standardCrudResponse"
+          description: Invalid document
+        '401':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/standardCrudResponse"
+          description: Unauthorized access
+      operationId: createInstance
+      description: 'Create an IUDX instance'
+    delete:
+      tags:
+        - Administrator
+      parameters:
+      - name: id
+        description: |
+          id of the instance. In most cases this is a city name.
+        schema:
+          type: string
+        in: query
+        required: true
+      - name: token
+        description: IUDX Auth token to process the request
+        schema:
+          type: string
+        in: header
+        required: true
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/standardCrudResponse"
+          description: Successfully deleted
+        '401':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/standardCrudResponse"
+          description: Unauthorized access
+        '404':
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/standardCrudResponse"
+          description: Instance doesn't exist
+      operationId: deleteInstance
 
 
 components:
