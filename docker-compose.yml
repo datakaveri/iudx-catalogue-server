@@ -6,7 +6,7 @@ networks:
 
 services:
 
-  server:
+  prod:
     image: iudx/cat-depl:latest
     environment:
       - HOSTNAME=server
