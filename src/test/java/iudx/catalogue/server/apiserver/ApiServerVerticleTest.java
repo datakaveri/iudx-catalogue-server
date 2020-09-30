@@ -363,12 +363,13 @@ public class ApiServerVerticleTest {
    * Tests the create instance api
    * 
    * @param testContext of asynchronous operations
+   * @throws InterruptedException
    */
   @Test
   @Order(7)
   @DisplayName("create Instance, Status:200, Endpoint: /instance]")
-  void createInstance201(VertxTestContext testContext) {
-
+  void createInstance201(VertxTestContext testContext) throws InterruptedException {
+    Thread.sleep(5000);
     /* Send the file to the server using GET with query parameters */
     /* Should give only one item */
     client.post(PORT, HOST,
@@ -420,12 +421,13 @@ public class ApiServerVerticleTest {
    * Tests the create instance api
    * 
    * @param testContext of asynchronous operations
+   * @throws InterruptedException
    */
   @Test
   @Order(9)
   @DisplayName("delete Instance, Status:200, Endpoint: /instance]")
-  void deleteInstance200(VertxTestContext testContext) {
-
+  void deleteInstance200(VertxTestContext testContext) throws InterruptedException {
+    Thread.sleep(5000);
     /* Send the file to the server using GET with query parameters */
     /* Should give only one item */
     client.delete(PORT, HOST,
