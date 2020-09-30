@@ -1,0 +1,6 @@
+{
+    "host": "https://catalogue.iudx.org.in",
+    "base": "/iudx/cat/v1",
+    "token": "<iudx-token-for-crud-apis>",
+    "admin_token": "<iudx-catalogue-admin-token-for-instance-apis>"
+}
