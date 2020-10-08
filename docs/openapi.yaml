@@ -148,16 +148,16 @@ paths:
       x-codeSamples:
         - lang: 'by type'
           source: |
-            https://catalogue.iudx.io/iudx/cat/v1/search?property=[type]&value=[[iudx:ResourceGroup]]
+            https://api.catalogue.iudx.org.in/iudx/cat/v1/search?property=[type]&value=[[iudx:ResourceGroup]]
         - lang: 'by circle'
           source: |
-            https://catalogue.iudx.io/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
+            https://api.catalogue.iudx.org.in/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
         - lang: 'by text'
           source: |
-            https://catalogue.iudx.io/search?q=aqm
+            https://api.catalogue.iudx.org.in/search?q=aqm
         - lang: 'complex'
           source: |
-            https://catalogue.iudx.io/iudx/cat/v1/search?property=[type]&value=[[iudx:Resource]]&geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
+            https://api.catalogue.iudx.org.in/iudx/cat/v1/search?property=[type]&value=[[iudx:Resource]]&geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
 
       operationId: search
       description: |
@@ -303,16 +303,16 @@ paths:
       x-codeSamples:
         - lang: 'by type'
           source: |
-            https://catalogue.iudx.io/iudx/cat/v1/count?property=[type]&value=[[iudx:ResourceGroup]]
+            https://api.catalogue.iudx.org.in/iudx/cat/v1/count?property=[type]&value=[[iudx:ResourceGroup]]
         - lang: 'by circle'
           source: |
-            https://catalogue.iudx.io/count?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
+            https://api.catalogue.iudx.org.in/count?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
         - lang: 'by text'
           source: |
-            https://catalogue.iudx.io/count?q=aqm
+            https://api.catalogue.iudx.org.in/count?q=aqm
         - lang: 'complex'
           source: |
-            https://catalogue.iudx.io/iudx/cat/v1/count?property=[type]&value=[[iudx:Resource]]&geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
+            https://api.catalogue.iudx.org.in/iudx/cat/v1/count?property=[type]&value=[[iudx:Resource]]&geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
       operationId: count
       description: |
         Generic catalogue count query. Searches for entites that meet the
@@ -388,13 +388,13 @@ paths:
       x-codeSamples:
         - lang: 'by tags'
           source: |
-            https://catalogue.iudx.io/iudx/cat/v1/list/tags
+            https://api.catalogue.iudx.org.in/iudx/cat/v1/list/tags
         - lang: 'by resourceGroup'
           source: |
-            https://catalogue.iudx.io/iudx/cat/v1/list/resourceGroup
+            https://api.catalogue.iudx.org.in/iudx/cat/v1/list/resourceGroup
         - lang: 'by provider'
           source: |
-            https://catalogue.iudx.io/iudx/cat/v1/list/provider
+            https://api.catalogue.iudx.org.in/iudx/cat/v1/list/provider
       operationId: listTypes
       description: List a particular type
     parameters:
@@ -442,7 +442,7 @@ paths:
       x-codeSamples:
         - lang: 'item by id'
           source: |
-            https://catalogue.iudx.io/iudx/cat/v1/item?id=<some-id>
+            https://api.catalogue.iudx.org.in/iudx/cat/v1/item?id=<some-id>
       operationId: getItem
       description: Get an item
     put:
@@ -496,7 +496,7 @@ paths:
         - lang: 'update item'
           source: |
             PUT /item HTTP/1.1
-            Host: catalogue.iudx.io
+            Host: api.catalogue.iudx.org.in
             Content-Type: application/json
             token: <iudx-token>
             {
@@ -548,7 +548,7 @@ paths:
         - lang: 'create item'
           source: |
             POST /item HTTP/1.1
-            Host: catalogue.iudx.io
+            Host: api.catalogue.iudx.org.in
             Content-Type: application/json
             token: <iudx-token>
             {
@@ -599,7 +599,7 @@ paths:
         - lang: 'delete item'
           source: |
             DELETE /item?q=<some-id> HTTP/1.1
-            Host: catalogue.iudx.io
+            Host: api.catalogue.iudx.org.in
             Content-Type: application/json
             token: <iudx-token>
       operationId: deleteItem
@@ -660,7 +660,7 @@ paths:
       x-codeSamples:
         - lang: 'search inside relationship'
           source: |
-              https://catalogue.iudx.io/relsearch?relationship="[provider.name]"&value="[[IUDXAdmin]]"
+              https://api.catalogue.iudx.org.in/relsearch?relationship="[provider.name]"&value="[[IUDXAdmin]]"
       operationId: relationshipSearch
       description: 'Search related items in the catalogue '
 
@@ -696,7 +696,7 @@ paths:
       x-codeSamples:
         - lang: 'search by relationship'
           source: |
-            https://catalogue.iudx.io/relationship?id=<some-entity-id>&rel=resourceGroup
+            https://api.catalogue.iudx.org.in/relationship?id=<some-entity-id>&rel=resourceGroup
     parameters:
     - name: id
       description: ID of the entity

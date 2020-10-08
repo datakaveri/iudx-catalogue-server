@@ -30,6 +30,8 @@
         },
         {
             "id": "iudx.catalogue.server.apiserver.ApiServerVerticle",
+            "ssl": true,
+            "port": 8080,
             "keystorePath": "configs/keystore.jks",
             "keystorePassword": "password",
             "catAdmin": "datakaveri.org/h7e844e2e832398d238928abcd64f3266afa41dc",
