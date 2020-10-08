@@ -1,52 +1,5 @@
 package iudx.catalogue.server.database;
 
-import static iudx.catalogue.server.Constants.CAT_INDEX_NAME;
-import static iudx.catalogue.server.Constants.DELETE;
-import static iudx.catalogue.server.Constants.ERROR;
-import static iudx.catalogue.server.Constants.FAILED;
-import static iudx.catalogue.server.Constants.ID;
-import static iudx.catalogue.server.Constants.INSERT;
-import static iudx.catalogue.server.Constants.INSTANCE;
-import static iudx.catalogue.server.Constants.INTERNAL_SERVER_ERROR;
-import static iudx.catalogue.server.Constants.ITEM_TYPE_PROVIDER;
-import static iudx.catalogue.server.Constants.ITEM_TYPE_RESOURCE;
-import static iudx.catalogue.server.Constants.ITEM_TYPE_RESOURCE_GROUP;
-import static iudx.catalogue.server.Constants.ITEM_TYPE_RESOURCE_SERVER;
-import static iudx.catalogue.server.Constants.LIMIT;
-import static iudx.catalogue.server.Constants.METHOD;
-import static iudx.catalogue.server.Constants.OFFSET;
-import static iudx.catalogue.server.Constants.PROVIDER;
-import static iudx.catalogue.server.Constants.QUERY_KEY;
-import static iudx.catalogue.server.Constants.RELATIONSHIP;
-import static iudx.catalogue.server.Constants.RESOURCE;
-import static iudx.catalogue.server.Constants.RESOURCE_GRP;
-import static iudx.catalogue.server.Constants.RESOURCE_SVR;
-import static iudx.catalogue.server.Constants.RESULTS;
-import static iudx.catalogue.server.Constants.SEARCH_TYPE;
-import static iudx.catalogue.server.Constants.SOURCE;
-import static iudx.catalogue.server.Constants.STATUS;
-import static iudx.catalogue.server.Constants.SUCCESS;
-import static iudx.catalogue.server.Constants.TOTAL_HITS;
-import static iudx.catalogue.server.Constants.UPDATE;
-import static iudx.catalogue.server.Constants.VALUE;
-import static iudx.catalogue.server.database.Constants.BOOL_MUST_QUERY;
-import static iudx.catalogue.server.database.Constants.DESCRIPTION;
-import static iudx.catalogue.server.database.Constants.ERROR_DB_REQUEST;
-import static iudx.catalogue.server.database.Constants.ERROR_INVALID_PARAMETER;
-import static iudx.catalogue.server.database.Constants.FROM;
-import static iudx.catalogue.server.database.Constants.ID_KEYWORD;
-import static iudx.catalogue.server.database.Constants.INSTANCE_NOT_EXISTS;
-import static iudx.catalogue.server.database.Constants.MATCH_QUERY;
-import static iudx.catalogue.server.database.Constants.NO_SEARCH_TYPE_FOUND;
-import static iudx.catalogue.server.database.Constants.QUERY_RESOURCE_GRP;
-import static iudx.catalogue.server.database.Constants.SEARCH;
-import static iudx.catalogue.server.database.Constants.SHOULD_QUERY;
-import static iudx.catalogue.server.database.Constants.SIZE_KEY;
-import static iudx.catalogue.server.database.Constants.SUMMARY_KEY;
-import static iudx.catalogue.server.database.Constants.TERM_COMPLEX_QUERY;
-import static iudx.catalogue.server.database.Constants.TERM_QUERY;
-import static iudx.catalogue.server.database.Constants.TYPE_KEYWORD;
-import static iudx.catalogue.server.database.Constants.WILDCARD_KEY;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -55,6 +8,10 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.database.Constants.*;
+
 
 
 /**
