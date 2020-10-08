@@ -52,6 +52,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   private String catAdmin;
   private String keystore;
   private String keystorePassword;
+  private boolean isSsl;
+  private int port;
 
 
   private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
@@ -70,16 +72,23 @@ public class ApiServerVerticle extends AbstractVerticle {
     catAdmin = config().getString(CAT_ADMIN);
     keystore = config().getString(KEYSTORE_PATH);
     keystorePassword = config().getString(KEYSTORE_PASSWORD);
+    isSsl = config().getBoolean(IS_SSL);
+    port = config().getInteger(PORT);
+    
 
+    HttpServerOptions serverOptions = new HttpServerOptions();
 
+    if (isSsl) {
+      serverOptions.setSsl(true)
+                    .setKeyStoreOptions(new JksOptions()
+                                          .setPath(keystore)
+                                          .setPassword(keystorePassword));
+    } else {
+      serverOptions.setSsl(false);
+    }
+    serverOptions.setCompressionSupported(true).setCompressionLevel(5);
     /** Instantiate this server */
-    server = vertx.createHttpServer(new HttpServerOptions()
-        .setSsl(true)
-        .setKeyStoreOptions(new JksOptions()
-          .setPath(keystore)
-          .setPassword(keystorePassword))
-        .setCompressionSupported(true)
-        .setCompressionLevel(5));
+    server = vertx.createHttpServer(serverOptions);
 
 
     /** API Callback managers */
@@ -288,7 +297,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     /**
      * Start server 
      */
-    server.requestHandler(router).listen(PORT);
+    server.requestHandler(router).listen(port);
 
   }
 }

@@ -16,6 +16,8 @@ public class Constants {
   public static final String CAT_INDEX_NAME = "cat";
 
   public static final String CONFIG_FILE = "config.properties";
+  public static final String IS_SSL = "ssl";
+  public static final String PORT = "port";
   public static final String KEYSTORE_PATH = "keystorePath";
   public static final String KEYSTORE_PASSWORD = "keystorePassword";
   public static final String DATABASE_IP = "databaseIP";
