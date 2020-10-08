@@ -10,8 +10,7 @@
             "databaseIP": "127.0.0.1",
             "databaseUser": "user",
             "databasePassword": "password",
-            "databasePort": 9200,
-            "databasePassword": ""
+            "databasePort": 9200
         },
         {
             "id": "iudx.catalogue.server.authenticator.AuthenticationVerticle",
@@ -32,6 +31,7 @@
             "id": "iudx.catalogue.server.apiserver.ApiServerVerticle",
             "ssl": true,
             "port": 8080,
+            "ip": "127.0.0.1",
             "keystorePath": "configs/keystore.jks",
             "keystorePassword": "password",
             "catAdmin": "datakaveri.org/h7e844e2e832398d238928abcd64f3266afa41dc",
