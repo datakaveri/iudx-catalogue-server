@@ -11,7 +11,6 @@ public class Constants {
 
   /** General purpose */
   public static final String CAT_ADMIN = "catAdmin";
-  public static final int PORT = 8443;
 
   /** Accept Headers and CORS */
   public static final String HEADER_ACCEPT = "Accept";
