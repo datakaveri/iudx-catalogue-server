@@ -92,14 +92,6 @@ public final class CrudApis {
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
 
     LOGGER.debug("Info: itemType;" + itemType);
-    if (!itemType.equals(ITEM_TYPE_PROVIDER))  {
-      String instanceID = request.getHeader(HEADER_INSTANCE);
-      if (instanceID == null || instanceID.equals("")) {
-        requestBody.put(HEADER_INSTANCE, "");
-      } else {
-        requestBody.put(HEADER_INSTANCE, instanceID);
-      }
-    }
 
     /* checking the operation type */
     String methodType =

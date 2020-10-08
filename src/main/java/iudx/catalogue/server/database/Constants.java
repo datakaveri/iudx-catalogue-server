@@ -135,4 +135,8 @@ public class Constants {
   public static final String MATCH_QUERY = "{\"match\":{\"$1\":\"$2\"}}";
   public static final String TERM_QUERY = "{\"term\":{\"$1\":\"$2\"}}";
 
+  public static final String QUERY_RESOURCE_GRP =
+      "{ \"query\": { \"bool\": { \"should\": [ { \"term\": { \"id.keyword\": \"$1\" } }, "
+          + "{ \"term\": { \"resourceGroup.keyword\": \"$2\" } } ] } } }";
+
 }

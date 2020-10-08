@@ -3,16 +3,15 @@ package iudx.catalogue.server.database;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
-import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.database.Constants.*;
+
 
 
 /**
@@ -241,15 +240,25 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    LOGGER.debug("Info: Updating item");
+    LOGGER.debug("Info: Deleting item");
 
     RespBuilder respBuilder = new RespBuilder();
     String id = request.getString("id");
     String errorJson = respBuilder.withStatus(FAILED)
                                   .withResult(id, DELETE, FAILED)
                                   .getResponse();
+    
+    String checkQuery = "";
+    var isResourceGrp = new Object() {
+      boolean value = true;
+    };
 
-    String checkQuery = TERM_COMPLEX_QUERY.replace("$1", id).replace("$2", "");
+    if (id.split("/").length == 4) {
+      isResourceGrp.value = true;
+      checkQuery = QUERY_RESOURCE_GRP.replace("$1", id).replace("$2", id);
+    } else {
+      checkQuery = TERM_COMPLEX_QUERY.replace("$1", id).replace("$2", "");
+    }
 
     client.searchGetId(CAT_INDEX_NAME, checkQuery, checkRes -> {
       if (checkRes.failed()) {
@@ -259,28 +268,35 @@ public class DatabaseServiceImpl implements DatabaseService {
 
       if (checkRes.succeeded()) {
         LOGGER.debug("Success: Check index for doc");
-        if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+        if (checkRes.result().getInteger(TOTAL_HITS) > 1 && isResourceGrp.value == true) {
+          LOGGER.error("Fail: Can't delete, resourceGroup has associated item;");
+          handler.handle(Future.succeededFuture(
+              respBuilder.withStatus(ERROR)
+                         .withResult(id, DELETE, FAILED, "Fail: Can't delete, resourceGroup has associated item")
+                         .getJsonResponse()));
+          return;
+        } else if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
           LOGGER.error("Fail: Doc doesn't exist, can't delete;");
           handler.handle(Future.succeededFuture(
-                respBuilder.withStatus(ERROR)
-                           .withResult(id, DELETE, FAILED,"Fail: Doc doesn't exist, can't delete")
-                           .getJsonResponse()));
+              respBuilder.withStatus(ERROR)
+                         .withResult(id, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
+                         .getJsonResponse()));
           return;
         }
-
-        String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-        client.docDelAsync(CAT_INDEX_NAME, docId, delRes -> {
-          if (delRes.succeeded()) {
-            handler.handle(Future.succeededFuture(
-                respBuilder.withStatus(SUCCESS)
-                            .withResult(id, DELETE, SUCCESS)
-                            .getJsonResponse()));
-          } else {
-            handler.handle(Future.failedFuture(errorJson));
-            LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
-          }
-        });
       }
+
+      String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+      client.docDelAsync(CAT_INDEX_NAME, docId, delRes -> {
+        if (delRes.succeeded()) {
+          handler.handle(Future.succeededFuture(
+              respBuilder.withStatus(SUCCESS)
+                         .withResult(id, DELETE, SUCCESS)
+                         .getJsonResponse()));
+        } else {
+          handler.handle(Future.failedFuture(errorJson));
+          LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
+        }
+      });
     });
     return this;
   }
