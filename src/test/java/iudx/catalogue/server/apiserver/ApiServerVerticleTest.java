@@ -70,8 +70,8 @@ public class ApiServerVerticleTest {
 
     String keyStore = apiVerticleConfig.getString(KEYSTORE_PATH);
     String keyStorePassword = apiVerticleConfig.getString(KEYSTORE_PASSWORD);
-    HOST = apiVerticleConfig.getString("catIP");
-    PORT = apiVerticleConfig.getInteger("catPort");
+    HOST = apiVerticleConfig.getString("ip");
+    PORT = apiVerticleConfig.getInteger("port");
     TOKEN = apiVerticleConfig.getString(HEADER_TOKEN);
     ADMIN_TOKEN = apiVerticleConfig.getString("admin_token");
     
