@@ -5,7 +5,7 @@
             "iudx:Resource",
             "iudx:EnvAQM"
         ],
-        "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_test",
+        "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_1",
         "description": "Description for Bosch-Climo AQM resource",
         "tags": [
             "environment",
@@ -40,8 +40,7 @@
             "address": "ABD area, Pune",
             "geometry": {
                 "coordinates": [
-                    73.874537,
-                    18.528311
+                      77.585006, 13.065145
                 ],
                 "type": "Point"
             }
@@ -51,6 +50,59 @@
             "modelName": "Bosch-Climo",
             "modelURL": "http://boschclimo.com"
         },
-        "name": "Pune Railway Station_test"
+        "name": "aqm_test_1"
+    },
+{
+        "@context": "https://voc.iudx.org.in/",
+        "type": [
+            "iudx:Resource",
+            "iudx:EnvAQM"
+        ],
+        "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_test_2",
+        "description": "Description for Bosch-Climo AQM resource",
+        "tags": [
+            "environment",
+            " air quality",
+            " climate",
+            " air",
+            " aqi",
+            " aqm",
+            " climo",
+            " pollution",
+            " so2",
+            " co2",
+            " co",
+            " no",
+            " no2",
+            " pm2.5",
+            " pm10",
+            " humidity",
+            " temperature",
+            " ozone",
+            " o3",
+            " noise",
+            " light",
+            " uv"
+        ],
+        "provider": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+        "itemStatus": "ACTIVE",
+        "deviceId": "b3ec32ff-fa7d-64fa-c0af-272e25d314e9test",
+        "resourceGroup": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm_test_2",
+        "location": {
+            "type": "Place",
+            "address": "ABD area, Pune",
+            "geometry": {
+                "coordinates": [
+                      77.567829, 13.091794
+                ],
+                "type": "Point"
+            }
+        },
+        "deviceModel": {
+            "brandName": "Climo",
+            "modelName": "Bosch-Climo",
+            "modelURL": "http://boschclimo.com"
+        },
+        "name": "aqm_test_2"
     }
 ]

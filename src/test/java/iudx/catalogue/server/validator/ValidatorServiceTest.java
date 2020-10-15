@@ -33,16 +33,14 @@ public class ValidatorServiceTest {
   private static int databasePort;
   private static String databaseUser;
   private static String databasePassword;
-  private static Configuration config;
   private static FileSystem fileSystem;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
   static void startVertx(Vertx vertx, VertxTestContext testContext) {
     vertxObj = vertx;
-    config = new Configuration();
     fileSystem = vertx.fileSystem();
-    JsonObject validatorConfig = config.configLoader(2, vertx);
+    JsonObject validatorConfig = Configuration.getConfiguration("./configs/config-test.json", 2);
 
     /* Configuration setup */
     databaseIP = validatorConfig.getString(DATABASE_IP);

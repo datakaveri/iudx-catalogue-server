@@ -1,0 +1,69 @@
+{
+    "tests": [
+    {
+        "name": "valid-provider-1",
+        "method": "post",
+        "path": "item",
+        "assertion": [
+            {
+                "status": 201
+            }
+        ],
+        "data": {
+            "@context": "https://voc.iudx.org.in/",
+            "type": [ "iudx:Provider" ],
+            "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+            "name": "testProvider",
+            "description": "Test Provider",
+            "providerOrg": {
+                "name": "testorg",
+                "additionalInfoURL": "https://test.in",
+                "location": {
+                    "type": "Place",
+                    "address": "bangalore",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            75.92,
+                            14.5
+                        ]
+                    }
+                }
+            }
+        }
+    },
+    {
+        "name": "invalid-provider-1",
+        "method": "post",
+        "path": "item",
+        "assertion": [
+            {
+                "status": 201
+            }
+        ],
+        "data": {
+            "@context": "https://voc.iudx.org.in/",
+            "type": [ "iudx:Provider" ],
+            "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41da",
+            "name": "testProvider",
+            "description": "Test Provider",
+            "providerOrg": {
+                "name": "testorg",
+                "additionalInfoURL": "https://test.in",
+                "location": {
+                    "type": "Place",
+                    "address": "bangalore",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [
+                            75.92,
+                            14.5
+                        ]
+                    }
+                }
+            }
+        }
+    }
+
+    ]
+}

@@ -32,7 +32,6 @@ public class ReDeployerDev extends AbstractVerticle {
     JsonObject valConfig = config().getJsonArray("modules").getJsonObject(2);
     JsonObject apiConfig = config().getJsonArray("modules").getJsonObject(3);
 
-    LOGGER.info(dbConfig);
     vertx.deployVerticle(new DatabaseVerticle(), new DeploymentOptions().setConfig(dbConfig),
         databaseVerticle -> {
       if (databaseVerticle.succeeded()) {

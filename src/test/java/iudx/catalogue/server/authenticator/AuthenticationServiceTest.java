@@ -25,7 +25,6 @@ public class AuthenticationServiceTest {
     private static String TOKEN = "";
     private static String authHost = "";
     private static String dummyToken = "";
-    private static Configuration authConfig;
 
     /**
      * Initialize and start the auth service for testing.
@@ -38,9 +37,8 @@ public class AuthenticationServiceTest {
     static void initialize(Vertx vertx, io.vertx.reactivex.core.Vertx vertx2,
         VertxTestContext testContext) {
         vertxObj = vertx;
-        authConfig = new Configuration();
 
-        config = authConfig.configLoader(1, vertx2);
+        config = Configuration.getConfiguration("./configs/config-test.json", 1);
         authHost = config.getString("authServerHost");
         TOKEN = config.getString("token");
         dummyToken = config.getString("dummyToken");

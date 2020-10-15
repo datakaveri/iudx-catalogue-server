@@ -26,15 +26,13 @@ public class ElasticClientTest {
   private static int databasePort;
   private static String databaseUser;
   private static String databasePassword;
-  private static Configuration config;
 
   @BeforeAll
   @DisplayName("")
   static void initClient(Vertx vertx, VertxTestContext testContext) {
     /* Read the configuration and set the rabbitMQ server properties. */
 
-    config = new Configuration();
-    JsonObject elasticConfig = config.configLoader(0, vertx);
+    JsonObject elasticConfig = Configuration.getConfiguration("./configs/config-test.json", 0);
 
     databaseIP = elasticConfig.getString(DATABASE_IP);
     databasePort = elasticConfig.getInteger(DATABASE_PORT);
