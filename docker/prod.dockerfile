@@ -3,13 +3,13 @@ ARG VERSION="0.0.1-SNAPSHOT"
 FROM maven:latest as dependencies
 
 WORKDIR /usr/share/app
-COPY ./pom.xml .
+COPY /var/lib/jenkins/workspace/iudx catalogue pipeline/pom.xml .
 RUN mvn clean package
 
 FROM dependencies as builder
 
 WORKDIR /usr/share/app
-COPY ./pom.xml .
+COPY /var/lib/jenkins/workspace/iudx catalogue pipeline/pom.xml .
 COPY src src
 RUN mvn clean package -Dmaven.test.skip=true
 
