@@ -1,8 +1,36 @@
-node {
-  checkout scm
-  docker.withRegistry('https://registry.hub.docker.com','DockerHub') {
-    def custiomImage = docker.build("")
-    
-    customImage.push()
+pipeline {
+  environment {
+    registry = "karunsingh97/iudx"
+    registryCredential = 'DockerHub'
+    dockerImage = ''
+  }
+  agent any
+  stages {
+    stage('Cloning Git') {
+      steps {
+        git 'https://github.com/karun-singh/iudx-resource-server.git'
+      }
+    }
+    stage('Building image') {
+      steps{
+        script {
+          dockerImage = docker.build("test-image", "./dockerfiles/test")
+        }
+      }
+    }
+    stage('Deploy Image') {
+      steps{
+        script {
+          docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+    stage('Remove Unused docker image') {
+      steps{
+        sh "docker rmi $registry:$BUILD_NUMBER"
+      }
+    }
   }
 }
