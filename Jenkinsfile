@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Cloning Git') {
       steps {
-        git 'https://github.com/karun-singh/iudx-resource-server.git'
+        git 'https://github.com/karun-singh/iudx-catalogue-server-1.git'
       }
     }
     stage('Building image') {
