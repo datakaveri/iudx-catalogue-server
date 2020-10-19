@@ -1,6 +1,6 @@
 pipeline {
   environment {
-    registry = "karunsingh97/iudx"
+    registry = "karunsingh97/iudx-dev"
     registryCredential = 'DockerHub'
     dockerImage = ''
   }
