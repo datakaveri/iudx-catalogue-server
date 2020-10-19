@@ -86,7 +86,7 @@ public class IntegrationTest {
   private static final Logger LOGGER = LogManager.getLogger(IntegrationTest.class);
   private static String HOST = "";
   private static int PORT;
-  private static final String BASE_URL = "http://127.0.0.1:8080/iudx/cat/v1/";
+  private static final String BASE_URL = "http://127.0.0.1:8443/iudx/cat/v1/";
   private String URL = "";
 
   /** Token for crud apis */
