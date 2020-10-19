@@ -14,7 +14,7 @@ pipeline {
     stage('Building image') {
       steps{
         script {
-          dockerImage = docker.build("test-image", "-f ./docker/depl.dockerfile .")
+          dockerImage = docker.build( registry, "-f ./docker/depl.dockerfile .")
         }
       }
     }
