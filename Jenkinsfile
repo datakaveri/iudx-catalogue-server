@@ -1,3 +1,4 @@
+properties([pipelineTriggers([githubPush()])])
 pipeline {
   environment {
     registry = "karunsingh97/iudx-dev"
