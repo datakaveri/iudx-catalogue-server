@@ -30,7 +30,7 @@ pipeline {
     }
     stage('Remove Unused docker image') {
       steps{
-        sh "docker rmi test-image"
+        sh "docker rmi karunsingh97/iudx-dev"
       }
     }
   }
