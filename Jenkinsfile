@@ -1,11 +1,10 @@
 properties([pipelineTriggers([githubPush()])])
 pipeline {
   environment {
-    registry = 'https://dockerhub.iudx.io'
+    registry = 'dockerhub.iudx.io/jenkins/catalogue-dev'
     registryUri = 'https://dockerhub.iudx.io'
     registryCredential = 'docker-jenkins'
     imageName = 'iudx-dev'
-    dockerImage = ''
   }
   agent any
   stages {
