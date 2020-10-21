@@ -1,6 +1,7 @@
 properties([pipelineTriggers([githubPush()])])
 pipeline {
   environment {
+    registry = 'https://dockerhub.iudx.io'
     registryUri = 'https://dockerhub.iudx.io'
     registryCredential = 'docker-jenkins'
     imageName = 'iudx-dev'
