@@ -3,7 +3,7 @@ pipeline {
   environment {
     registryUri = 'https://dockerhub.iudx.io'
     registryCredential = 'docker-jenkins'
-    imageName = "iudx-dev"
+    imageName = 'iudx-dev'
     dockerImage = ''
   }
   agent any
