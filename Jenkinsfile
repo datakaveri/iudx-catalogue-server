@@ -1,8 +1,8 @@
 properties([pipelineTriggers([githubPush()])])
 pipeline {
   environment {
-    registry = "karunsingh97/iudx-dev"
-    registryCredential = 'DockerHub'
+    registry = "dockerhub.iudx.io/jenkins/iudx-dev"
+    registryCredential = 'docker-jenkins'
     dockerImage = ''
   }
   agent any
@@ -30,7 +30,7 @@ pipeline {
     }
     stage('Remove Unused docker image') {
       steps{
-        sh "docker rmi karunsingh97/iudx-dev"
+        sh "docker rmi dockerhub.iudx.io/jenkins/iudx-dev"
       }
     }
   }
