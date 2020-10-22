@@ -22,7 +22,9 @@ pipeline {
     }
     stage('run test') {
       steps{
-        def out = sh label: '', returnStdout: true, script: 'docker run alpine echo success'
+        script{
+          def out = sh label: '', returnStdout: true, script: 'docker run alpine echo success'
+        }
       }
     }
     stage('check test') {
