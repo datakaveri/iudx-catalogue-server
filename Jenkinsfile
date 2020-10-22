@@ -20,6 +20,22 @@ pipeline {
         }
       }
     }
+    stage('run test') {
+      steps{
+        def out = sh label: '', returnStdout: true, script: 'docker run alpine echo success'
+      }
+    }
+    stage('check test') {
+      steps{
+        script {
+          if (out == 'success') {
+            echo 'All tests passed, Success'
+          } else {
+            echo 'Failure'
+          }
+        }
+      }
+    }
     stage('Push Image') {
       steps{
         script {
