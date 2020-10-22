@@ -25,7 +25,7 @@ pipeline {
         script{
           def out = sh(returnStdout: true, script: 'docker run alpine echo success')
           echo out
-          if (out == 'success') {
+          if (out.equals('success')) {
             echo 'All tests passed, Success'
           } else {
             echo 'Failure'
