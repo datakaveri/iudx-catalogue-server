@@ -23,7 +23,7 @@ pipeline {
     stage('run test') {
       steps{
         script{
-          def out = sh label: '', returnStdout: true, script: 'docker run alpine echo success'
+          def out = sh(returnStdout: true, script: 'docker run alpine echo success')
           if (out == 'success') {
             echo 'All tests passed, Success'
           } else {
