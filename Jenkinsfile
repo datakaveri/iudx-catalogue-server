@@ -24,6 +24,7 @@ pipeline {
       steps{
         script{
           def out = sh(returnStdout: true, script: 'docker run alpine echo success')
+          echo out
           if (out == 'success') {
             echo 'All tests passed, Success'
           } else {
@@ -43,7 +44,7 @@ pipeline {
     }
     stage('Remove Unused docker image') {
       steps{
-        sh "docker rmi dockerhub.iudx.io/jenkins/iudx-dev"
+        sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-dev"
       }
     }
   }
