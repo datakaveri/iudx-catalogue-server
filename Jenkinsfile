@@ -1,7 +1,8 @@
 properties([pipelineTriggers([githubPush()])])
 pipeline {
   environment {
-    registry = 'dockerhub.iudx.io/jenkins/catalogue-dev'
+    devRegistry = 'dockerhub.iudx.io/jenkins/catalogue-dev'
+    deplRegistry = 'dockerhub.iudx.io/jenkins/catalogue-depl'
     registryUri = 'https://dockerhub.iudx.io'
     registryCredential = 'docker-jenkins'
     imageName = 'iudx-dev'
@@ -13,10 +14,17 @@ pipeline {
         git 'https://github.com/karun-singh/iudx-catalogue-server-1.git'
       }
     }
-    stage('Building image') {
+    stage('Building dev image') {
       steps{
         script {
-          dockerImage = docker.build( registry, "-f ./docker/depl.dockerfile .")
+          devImage = docker.build( devRegistry, "-f ./docker/dev.dockerfile .")
+        }
+      }
+    }
+    stage('Building depl image') {
+      steps{
+        script {
+          deplImage = docker.build( deplRegistry, "-f ./docker/depl.dockerfile .")
         }
       }
     }
@@ -37,7 +45,8 @@ pipeline {
       steps{
         script {
           docker.withRegistry( registryUri, registryCredential ) {
-            dockerImage.push()
+            devImage.push()
+            deplImage.push()
           }
         }
       }
