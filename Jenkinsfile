@@ -51,6 +51,13 @@ pipeline {
         }
       }
     }
+    stage('Deploy containers'){
+      steps{
+        script{
+          sh 'docker-compose up dev' 
+        }
+      }
+    }
     stage('Remove Unused docker image') {
       steps{
         sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-dev"
