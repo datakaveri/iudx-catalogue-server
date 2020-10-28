@@ -34,7 +34,7 @@ services:
     command: "java -jar ./fatjar.jar -c configs/config.json"
 
   dev:
-    image: iudx/cat-dev:latest
+    image: dockerhub.iudx.io/jenkins/catalogue-dev
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - LOG_LEVEL=DEBUG
