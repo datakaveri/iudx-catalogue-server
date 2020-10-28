@@ -58,11 +58,11 @@ pipeline {
         }
       }
     }
-    #stage('Remove Unused docker image') {
-      #steps{
-        #sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-dev"
-        #sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-depl"
-      #}
-    #}
+    // stage('Remove Unused docker image') {
+    //  steps{
+    //    sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-dev"
+    //    sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-depl"
+    //  }
+    //}
   }
 }
