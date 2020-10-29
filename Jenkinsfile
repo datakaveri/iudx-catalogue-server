@@ -58,10 +58,10 @@ pipeline {
         }
       }
     }
-    post {
-        always {
-            junit 'tmp/test/target/surefire-reports/*.xml'
-        }
+    stage('get report'){
+      always {
+          junit 'tmp/test/target/surefire-reports/*.xml'
+      }
     }
     // stage('Remove Unused docker image') {
     //  steps{
