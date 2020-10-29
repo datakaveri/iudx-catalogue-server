@@ -58,6 +58,11 @@ pipeline {
         }
       }
     }
+    post {
+        always {
+            junit 'tmp/test/target/surefire-reports/*.xml'
+        }
+    }
     // stage('Remove Unused docker image') {
     //  steps{
     //    sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-dev"
