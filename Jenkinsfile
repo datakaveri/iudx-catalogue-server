@@ -69,7 +69,7 @@ pipeline {
         node('master'){
         echo "Current workspace is ${env.WORKSPACE}"
         echo "Current workspace is $WORKSPACE"
-        sh 'ls /root/'
+        sh 'ls /var/lib/jenkins/userContent'
         }
       }
     }
