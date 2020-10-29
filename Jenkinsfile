@@ -3,6 +3,7 @@ pipeline {
   environment {
     devRegistry = 'dockerhub.iudx.io/jenkins/catalogue-dev'
     deplRegistry = 'dockerhub.iudx.io/jenkins/catalogue-depl'
+    testRegistry = 'dockerhub.iudx.io/jenkins/catalogue-test'
     registryUri = 'https://dockerhub.iudx.io'
     registryCredential = 'docker-jenkins'
     imageName = 'iudx-dev'
@@ -28,6 +29,13 @@ pipeline {
         }
       }
     }
+    stage('Building test image') {
+      steps{
+        script {
+          testImage = docker.build( testRegistry, "-f ./docker/test.dockerfile .")
+        }
+      }
+    }
     stage('run test') {
       steps{
         script{
@@ -47,6 +55,7 @@ pipeline {
           docker.withRegistry( registryUri, registryCredential ) {
             devImage.push()
             deplImage.push()
+            testImage.push()
           }
         }
       }
