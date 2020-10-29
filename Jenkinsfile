@@ -54,7 +54,7 @@ pipeline {
     stage('Deploy containers'){
       steps{
         script{
-          sh 'docker-compose up dev' 
+          sh 'docker-compose up test' 
         }
       }
     }
