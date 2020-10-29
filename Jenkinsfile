@@ -55,12 +55,8 @@ pipeline {
       steps{
         script{
           sh 'docker-compose up test' 
-        }
-      }
-    }
-    stage('get report'){
-      always {
           junit 'tmp/test/target/surefire-reports/*.xml'
+        }
       }
     }
     // stage('Remove Unused docker image') {
