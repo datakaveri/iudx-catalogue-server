@@ -66,7 +66,7 @@ pipeline {
     //}
     stage('workspace'){
       steps{
-        node('label'){
+        node('master'){
         echo "Current workspace is ${env.WORKSPACE}"
         echo "Current workspace is $WORKSPACE"
         }
