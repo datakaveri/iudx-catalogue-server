@@ -64,7 +64,7 @@ pipeline {
       steps{
         script{
           sh 'docker-compose up test' 
-          junit 'tmp/test/target/surefire-reports/*.xml'
+          junit '/tmp/test/target/surefire-reports/*.xml'
         }
       }
     }
