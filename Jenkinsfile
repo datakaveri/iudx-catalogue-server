@@ -68,6 +68,14 @@ pipeline {
         }
       }
     }
+    stage('Capture Test results'){
+      steps{
+        script{
+          sh 'ls /tmp/test/target/surefire-reports/' 
+          junit '/tmp/test/target/surefire-reports/*.xml'
+        }
+      }
+    }
     // stage('Remove Unused docker image') {
     //  steps{
     //    sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-dev"
@@ -79,7 +87,6 @@ pipeline {
         node('master'){
         echo "Current workspace is ${env.WORKSPACE}"
         echo "Current workspace is $WORKSPACE"
-        sh 'ls /var/lib/jenkins/userContent'
         }
       }
     }
