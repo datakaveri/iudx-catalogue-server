@@ -81,13 +81,5 @@ pipeline {
     //    sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-depl"
     //  }
     //}
-    stage('workspace'){
-      steps{
-        node('master'){
-        echo "Current workspace is ${env.WORKSPACE}"
-        echo "Current workspace is $WORKSPACE"
-        }
-      }
-    }
   }
 }
