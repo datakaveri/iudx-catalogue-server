@@ -1,3 +1,5 @@
+https://img.shields.io/github/license/karun-singh/iudx-catalogue-server-1
+
 ![IUDX](./docs/iudx.png)
 # iudx-catalogue-server
 The catalogue is [IUDXs](https://iudx.org.in) data discovery and dataset metadata publishing portal.
