@@ -69,10 +69,10 @@ pipeline {
     }
     stage('Capture Test results'){
       steps{
-        script{
-          sh 'ls /tmp/test/target/surefire-reports/' 
-          junit '/tmp/test/target/surefire-reports/*.xml'
-        }
+        xunit (
+                thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
+                tools: [ BoostTest(pattern: '/tmp/test/target/surefire-reports/*.xml') ]
+        )
       }
     }
     // stage('Remove Unused docker image') {
