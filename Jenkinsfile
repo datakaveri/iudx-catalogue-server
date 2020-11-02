@@ -71,7 +71,7 @@ pipeline {
       steps{
         xunit (
                 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
-                tools: [ BoostTest(pattern: '/tmp/test/target/surefire-reports/*.xml') ]
+                tools: [ BoostTest(pattern: '*.xml') ]
         )
       }
     }
