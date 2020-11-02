@@ -71,7 +71,7 @@ pipeline {
       steps{
         xunit (
                 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
-                tools: [ JUnit(pattern: '*Test.xml') ]
+                tools: [ JUnit(pattern: '*IntegrationTest.xml') ]
         )
       }
     }
