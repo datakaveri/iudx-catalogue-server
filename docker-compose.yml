@@ -60,10 +60,11 @@ services:
     image: dockerhub.iudx.io/jenkins/catalogue-test
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
+      - WORKSPACE
     volumes:
       - ./src/:/usr/share/app/src
       - ./configs/config-test.json:/usr/share/app/configs/config-test.json
-      - /tmp/test:/tmp/test
+      - ${WORKSPACE}:/tmp/test
     command: bash -c "mvn clean test -Dtest=SummarizerTest && cp -r target /tmp/test"
 
 
