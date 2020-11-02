@@ -1,4 +1,4 @@
-https://img.shields.io/github/license/karun-singh/iudx-catalogue-server-1
+![License](https://img.shields.io/github/license/karun-singh/iudx-catalogue-server-1)
 
 ![IUDX](./docs/iudx.png)
 # iudx-catalogue-server
