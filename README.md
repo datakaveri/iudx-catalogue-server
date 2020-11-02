@@ -1,5 +1,7 @@
 [![License](https://img.shields.io/github/license/karun-singh/iudx-catalogue-server-1)](https://github.com/karun-singh/iudx-catalogue-server-1/blob/master/LICENSE.txt)
 
+[![Build Status](http://128.199.18.230:8080/buildStatus/icon?job=iudx+catalogue+pipeline)](http://128.199.18.230:8080/job/iudx%20catalogue%20pipeline/)
+
 ![IUDX](./docs/iudx.png)
 # iudx-catalogue-server
 The catalogue is [IUDXs](https://iudx.org.in) data discovery and dataset metadata publishing portal.
