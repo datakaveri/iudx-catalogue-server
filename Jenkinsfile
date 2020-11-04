@@ -71,8 +71,13 @@ pipeline {
       steps{
         xunit (
                 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
-                tools: [ JUnit(pattern: 'target/surefire-reports/jacoco/jacoco.xml') ]
+                tools: [ JUnit(pattern: 'target/surefire-reports/*SummarizerTest.xml') ]
         )
+      }
+    }
+    stage('Capture Jacoco results'){
+      steps{
+        jacoco(execPattern: 'target/jacoco.exec')
       }
     }
     // stage('Remove Unused docker image') {
