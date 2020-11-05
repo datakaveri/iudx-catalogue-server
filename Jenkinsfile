@@ -15,52 +15,16 @@ pipeline {
         git 'https://github.com/karun-singh/iudx-catalogue-server-1.git'
       }
     }
-    stage('Building dev image') {
+    stage('Building images') {
       steps{
         script {
           devImage = docker.build( devRegistry, "-f ./docker/dev.dockerfile .")
-        }
-      }
-    }
-    stage('Building depl image') {
-      steps{
-        script {
           deplImage = docker.build( deplRegistry, "-f ./docker/depl.dockerfile .")
-        }
-      }
-    }
-    stage('Building test image') {
-      steps{
-        script {
           testImage = docker.build( testRegistry, "-f ./docker/test.dockerfile .")
         }
       }
     }
-    stage('run test') {
-      steps{
-        script{
-          def out = sh(returnStdout: true, script: 'docker run alpine echo success')
-          echo out
-          if (out.trim().equals('success')) {
-            echo 'All tests passed, Success'
-          } else {
-            echo 'Failure'
-          }
-        }
-      }
-    }
-    stage('Push Image') {
-      steps{
-        script {
-          docker.withRegistry( registryUri, registryCredential ) {
-            devImage.push()
-            deplImage.push()
-            testImage.push()
-          }
-        }
-      }
-    }
-    stage('Deploy containers'){
+    stage('Run Tests'){
       steps{
         script{
           sh 'docker-compose up test'
@@ -78,6 +42,17 @@ pipeline {
     stage('Code Coverage'){
       steps{
         jacoco(execPattern: 'target/jacoco.exec')
+      }
+    }
+    stage('Push Image') {
+      steps{
+        script {
+          docker.withRegistry( registryUri, registryCredential ) {
+            devImage.push()
+            deplImage.push()
+            testImage.push()
+          }
+        }
       }
     }
     // stage('Remove Unused docker image') {
