@@ -75,7 +75,7 @@ pipeline {
         )
       }
     }
-    stage('Capture Jacoco results'){
+    stage('Code Coverage'){
       steps{
         jacoco(execPattern: 'target/jacoco.exec')
       }
