@@ -10,6 +10,7 @@ import iudx.catalogue.server.apiserver.ApiServerVerticle;
 import iudx.catalogue.server.authenticator.AuthenticationVerticle;
 import iudx.catalogue.server.database.DatabaseVerticle;
 import iudx.catalogue.server.validator.ValidatorVerticle;
+import iudx.catalogue.server.geocoding.GeocodingVerticle;
 import io.vertx.core.DeploymentOptions;
 
 import io.vertx.core.AbstractVerticle;
@@ -31,6 +32,7 @@ public class ReDeployerDev extends AbstractVerticle {
     JsonObject authConfig = config().getJsonArray("modules").getJsonObject(1);
     JsonObject valConfig = config().getJsonArray("modules").getJsonObject(2);
     JsonObject apiConfig = config().getJsonArray("modules").getJsonObject(3);
+    JsonObject geoConfig = config().getJsonArray("modules").getJsonObject(4);
 
     vertx.deployVerticle(new DatabaseVerticle(), new DeploymentOptions().setConfig(dbConfig),
         databaseVerticle -> {
@@ -58,7 +60,18 @@ public class ReDeployerDev extends AbstractVerticle {
                     apiServerVerticle -> {
                   if (apiServerVerticle.succeeded()) {
                     LOGGER.info("The Catalogue API Server is ready");
-                    promise.complete();
+
+                    vertx.deployVerticle(new GeocodingVerticle(), new DeploymentOptions().setConfig(geoConfig),
+                    geocodingVerticle -> {
+                      if(geocodingVerticle.succeeded()) {
+                        LOGGER.info("The Geocoding Service is ready");
+                        promise.complete();
+                      }
+                      else {
+                        LOGGER.info("The Geocoding Server starup failed !");
+                      }
+                    });
+                    
                   } else {
                     LOGGER.info("The Catalogue API Server startup failed !");
                   }

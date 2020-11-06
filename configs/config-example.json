@@ -37,6 +37,10 @@
             "catAdmin": "datakaveri.org/h7e844e2e832398d238928abcd64f3266afa41dc",
             "verticleInstances": 2
 
+        },
+        {
+            "id": "iudx.catalogue.server.geocoding.GeocodingVerticle",
+            "verticleInstances": 2
         }
     ]
 }
