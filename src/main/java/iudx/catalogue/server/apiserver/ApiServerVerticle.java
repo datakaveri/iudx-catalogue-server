@@ -303,8 +303,12 @@ public class ApiServerVerticle extends AbstractVerticle {
      */
     router.get(ROUTE_GEO_COORDINATES)
       .handler(routingContext -> {
-        LOGGER.info("API called!");
         geoApis.getCoordinates(routingContext);
+      });
+    
+    router.get(ROUTE_GEO_REVERSE)
+      .handler(routingContext -> {
+        geoApis.getLocation(routingContext);
       });
 
     /**

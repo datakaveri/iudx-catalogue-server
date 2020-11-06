@@ -1,6 +1,6 @@
 /**
  * <h1>GeocodingApis.java</h1>
- * Callback handlers for Relationship APIs
+ * Callback handlers for Geocoding APIs
  */
 
 package iudx.catalogue.server.apiserver;
@@ -33,14 +33,6 @@ public final class GeocodingApis {
 
   private static final Logger LOGGER = LogManager.getLogger(GeocodingApis.class);
 
-
-  /**
-   * Crud  constructor
-   *
-   * @param DBService DataBase Service class
-   * @return void
-   * @TODO Throw error if load failed
-   */
   public GeocodingApis() {
   }
 
@@ -49,13 +41,11 @@ public final class GeocodingApis {
   }
 
   /**
-   * Get all items belonging to the itemType.
-   *
+   * Get bounding box for location
    * @param routingContext handles web requests in Vert.x Web
    */
   public void getCoordinates(RoutingContext routingContext) {
     String location = "";
-    LOGGER.info("heeloo");
     try {
       if(routingContext.queryParams().contains("q")) {
         location = routingContext.queryParams().get("q");
@@ -78,6 +68,43 @@ public final class GeocodingApis {
       }
       else {
         LOGGER.info("Failed to find coordinates");
+        routingContext.response()
+        .putHeader("content-type", "application/json")
+        .setStatusCode(404)
+        .end();
+      }
+    });
+  }
+
+  /**
+   * Get location for coordinates
+   * @param routingContext handles web requests in Vert.x Web
+   */
+  public void getLocation(RoutingContext routingContext) {
+    String lat = "";
+    String lon = "";
+    
+    try {
+      if(routingContext.queryParams().contains("lat")) {
+        lat = routingContext.queryParams().get("lat");
+      }
+      if(routingContext.queryParams().contains("lon")) {
+        lon = routingContext.queryParams().get("lon");
+      }
+    }
+    catch (Exception e) {
+      LOGGER.info("No query parameter");
+      routingContext.response().setStatusCode(404).end();
+      return;
+    }
+    geoService.reverseGeocoder(lat, lon, reply -> {
+      if(reply.succeeded()) {
+        routingContext.response().putHeader("content-type","application/json")
+        .setStatusCode(200)
+        .end(reply.result().encode());
+      }
+      else {
+        LOGGER.info("Failed to find location");
         routingContext.response()
         .putHeader("content-type", "application/json")
         .setStatusCode(404)

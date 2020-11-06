@@ -20,7 +20,7 @@ import io.vertx.core.json.JsonObject;
  * @see io.vertx.codegen.annotations.ProxyGen
  * @see io.vertx.codegen.annotations.VertxGen
  * @version 1.0
- * @since 2020-05-31
+ * @since 2020-11-05
  */
 
 @VertxGen
@@ -30,23 +30,27 @@ public interface GeocodingService {
   /**
    * The tokenInterospect method implements the Geocoding and authorization module using IUDX
    * APIs.
-   * 
-   * @param request which is a JsonObject
-   * @param GeocodingInfo which is a JsonObject
+   * @param location which is a String
    * @param handler which is a request handler
-   * @return GeocodingService which is a service
    */
-
   void geocoder(String location, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The tokenInterospect method implements the Geocoding and authorization module using IUDX
+   * APIs.
+   * @param lat which is a Float
+   * @param lon which is a Float
+   * @param handler which is a request handler
+   */
+  void reverseGeocoder(String lat, String lon, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
    * @param vertx which is the vertx instance
    * @param address which is the proxy address
    * @param GeocodingInfo which is a Json Object
-   * @return void
+   * @return GeocodingService
    */
-  
   @GenIgnore
   static GeocodingService createProxy(Vertx vertx, String address) {
     return new GeocodingServiceVertxEBProxy(vertx, address);

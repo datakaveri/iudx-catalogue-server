@@ -23,7 +23,7 @@ import static iudx.catalogue.server.Constants.*;
  * the {@link iudx.catalogue.server.geocoding.GeocodingService}.
  *
  * @version 1.0
- * @since 2020-05-31
+ * @since 2020-11-05
  */
 public class GeocodingServiceImpl implements GeocodingService {
 
@@ -36,23 +36,40 @@ public class GeocodingServiceImpl implements GeocodingService {
 
   @Override
   public void geocoder(String location, Handler<AsyncResult<JsonObject>> handler) {
-      // to be implemented
-      LOGGER.info(location);
-      webClient
-      .get(4000,"apiserver","/v1/search")
-      .addQueryParam("text", location)
-      // .putHeader("Accept","application/json")
-      .send(ar -> {
-        if(ar.succeeded()) {
-          LOGGER.info("Request succeeded!");
-          LOGGER.info(ar.result());
-          handler.handle(Future.succeededFuture(ar.result().body().toJsonObject()));
-        }
-        else {
-          LOGGER.info("Failed to find coordinates");
-          handler.handle(Future.failedFuture(ar.cause()));
-        }
-      });
-    }
+    LOGGER.info(location);
+    webClient
+    .get(4000,"pelias_api","/v1/search")
+    .addQueryParam("text", location)
+    .putHeader("Accept","application/json").send(ar -> {
+      if(ar.succeeded()) {
+        LOGGER.info("Request succeeded!");
+        LOGGER.info(ar.result());
+        handler.handle(Future.succeededFuture(ar.result().body().toJsonObject()));
+      }
+      else {
+        LOGGER.info("Failed to find coordinates");
+        handler.handle(Future.failedFuture(ar.cause()));
+      }
+    });
+  }
+
+    @Override
+  public void reverseGeocoder(String lat, String lon, Handler<AsyncResult<JsonObject>> handler) {
+    webClient
+    .get(4000,"pelias_api","/v1/reverse")
+    .addQueryParam("point.lon", lon)
+    .addQueryParam("point.lat", lat)
+    .putHeader("Accept","application/json").send(ar -> {
+      if(ar.succeeded()) {
+        LOGGER.info("Request succeeded!");
+        LOGGER.info(ar.result());
+        handler.handle(Future.succeededFuture(ar.result().body().toJsonObject()));
+      }
+      else {
+        LOGGER.info("Failed to find location");
+        handler.handle(Future.failedFuture(ar.cause()));
+      }
+    });
+  }
 }
 

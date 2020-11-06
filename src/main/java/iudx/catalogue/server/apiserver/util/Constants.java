@@ -58,7 +58,9 @@ public class Constants {
   public static final String ROUTE_COUNT = basePath + "/count";
   public static final String ROUTE_REL_SEARCH = basePath + "/relsearch";
 
-  public static final String ROUTE_GEO_COORDINATES = basePath + "/geocoding";
+  public static final String ROUTE_GEO_COORDINATES = basePath + "/geo";
+  public static final String ROUTE_GEO_REVERSE = basePath + "/reversegeo";
+
 
   public static final String PROVIDER_NAME = "provider.name";
   public static final String PARTIAL_CONTENT = "partial-content";
