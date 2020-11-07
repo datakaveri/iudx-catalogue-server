@@ -51,13 +51,13 @@ public final class GeocodingApis {
         location = routingContext.queryParams().get("q");
       }
       if(location.length() == 0) {
-        routingContext.response().setStatusCode(404).end();
+        routingContext.response().setStatusCode(400).end();
         return;
       }
     }
     catch (Exception e) {
       LOGGER.info("No query parameter");
-      routingContext.response().setStatusCode(404).end();
+      routingContext.response().setStatusCode(400).end();
       return;
     }
     geoService.geocoder(location, reply -> {
@@ -70,7 +70,7 @@ public final class GeocodingApis {
         LOGGER.info("Failed to find coordinates");
         routingContext.response()
         .putHeader("content-type", "application/json")
-        .setStatusCode(404)
+        .setStatusCode(400)
         .end();
       }
     });
@@ -94,7 +94,7 @@ public final class GeocodingApis {
     }
     catch (Exception e) {
       LOGGER.info("No query parameter");
-      routingContext.response().setStatusCode(404).end();
+      routingContext.response().setStatusCode(400).end();
       return;
     }
     geoService.reverseGeocoder(lat, lon, reply -> {
@@ -107,7 +107,7 @@ public final class GeocodingApis {
         LOGGER.info("Failed to find location");
         routingContext.response()
         .putHeader("content-type", "application/json")
-        .setStatusCode(404)
+        .setStatusCode(400)
         .end();
       }
     });

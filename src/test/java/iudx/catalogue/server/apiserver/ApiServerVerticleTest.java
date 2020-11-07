@@ -2176,4 +2176,101 @@ public class ApiServerVerticleTest {
           }
         });
   }
+
+  /**
+   * Tests the geocoding handler of ApiServerVerticle.
+   *
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(73)
+  @DisplayName("Return Geocoding[Status:200, Endpoint: /geo]")
+  void geocoding200(VertxTestContext testContext) {
+    LOGGER.info("Starting geocoding200");
+    client.get(PORT, HOST, BASE_URL.concat("geo")).addQueryParam("q", "Bangalore")
+    .send(serverResponse -> {
+      if (serverResponse.succeeded()) {
+
+        /* comparing the response */
+        assertEquals(200, serverResponse.result().statusCode());
+
+        testContext.completeNow();
+      } else if (serverResponse.failed()) {
+        LOGGER.info(serverResponse.cause());
+        testContext.failed();
+      }
+    });
+  }
+
+  /**
+   * Tests the geocoding handler of ApiServerVerticle.
+   *
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(74)
+  @DisplayName("Return Geocoding[Status:400, Endpoint: /geo]")
+  void geocoding400(VertxTestContext testContext) {
+    LOGGER.info("Starting geocoding400");
+    client.get(PORT, HOST, BASE_URL.concat("geo")).addQueryParam("q","xyz")
+    .send(serverResponse -> {
+      if (serverResponse.succeeded()) {
+
+        /* comparing the response */
+        assertEquals(400, serverResponse.result().statusCode());
+
+        testContext.completeNow();
+      } else if (serverResponse.failed()) {
+        LOGGER.info(serverResponse.cause());
+        testContext.failed();
+      }
+    });
+  }
+
+  /**
+   * Tests the reverse geocoding handler of ApiServerVerticle.
+   *
+   * @param testContext of asynchronous operations
+   */
+  @Test
+  @Order(75)
+  @DisplayName("Return Reverse Geocoding[Status:200, Endpoint: /reversegeo]")
+  void revgeocoding200(VertxTestContext testContext) {
+    LOGGER.info("Starting revgeocoding200");
+    client.get(PORT, HOST, BASE_URL.concat("reversegeo")).addQueryParam("lat", "30.729633")
+    .addQueryParam("lon","76.767777")
+    .send(serverResponse -> {
+      if (serverResponse.succeeded()) {
+
+        /* comparing the response */
+        assertEquals(200, serverResponse.result().statusCode());
+
+        testContext.completeNow();
+      } else if (serverResponse.failed()) {
+        LOGGER.info(serverResponse.cause());
+        testContext.failed();
+      }
+    });
+  }
+
+  @Test
+  @Order(76)
+  @DisplayName("Return Reverse Geocoding[Status:400, Endpoint: /reversegeo]")
+  void revgeocoding400(VertxTestContext testContext) {
+    LOGGER.info("Starting revgeocoding200");
+    client.get(PORT, HOST, BASE_URL.concat("reversegeo")).addQueryParam("lat", "30.729633")
+    .addQueryParam("lon","-999")
+    .send(serverResponse -> {
+      if (serverResponse.succeeded()) {
+
+        /* comparing the response */
+        assertEquals(400, serverResponse.result().statusCode());
+
+        testContext.completeNow();
+      } else if (serverResponse.failed()) {
+        LOGGER.info(serverResponse.cause());
+        testContext.failed();
+      }
+    });
+  }
 }
