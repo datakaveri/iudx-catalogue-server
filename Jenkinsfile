@@ -39,7 +39,7 @@ pipeline {
         )
       }
     }
-    Stage('Code Coverage'){
+    stage('Code Coverage'){
       steps{
         jacoco(execPattern: 'target/jacoco.exec')
       }
