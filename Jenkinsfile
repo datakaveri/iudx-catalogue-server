@@ -39,17 +39,11 @@ pipeline {
         )
       }
     }
-    stage('Build') {
-     steps {
-        junit 'target/surefire-reports/jacoco/jacoco/*.xml'
-        step( [ $class: 'JacocoPublisher' ] )
-     }
+    Stage('Code Coverage'){
+      steps{
+        jacoco(execPattern: 'target/jacoco.exec')
+      }
     }
-    //stage('Code Coverage'){
-      //steps{
-        //jacoco(execPattern: 'target/jacoco.exec')
-      //}
-    //}
     stage('Push Image') {
       steps{
         script {
