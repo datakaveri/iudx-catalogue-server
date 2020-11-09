@@ -271,13 +271,10 @@ public final class CrudApis {
     JsonObject authenticationInfo = new JsonObject();
     JsonObject requestBody = new JsonObject();
 
-    /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_INSTANCE);
     String itemId = routingContext.queryParams().get(ID);
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    requestBody.put(HEADER_INSTANCE, instanceID);
     requestBody.put(ID, itemId);
 
     LOGGER.debug("Info: Deleting item; id=" + itemId);

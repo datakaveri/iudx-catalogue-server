@@ -47,7 +47,6 @@ public class ApiServerVerticleTest {
 
   private static WebClient client;
   private static FileSystem fileSystem;
-  private static Configuration config;
 
   ApiServerVerticleTest() {}
 
@@ -63,15 +62,14 @@ public class ApiServerVerticleTest {
   static void startVertx(VertxTestContext testContext, Vertx vertx) throws InterruptedException {
 
     fileSystem = vertx.fileSystem();
-    config = new Configuration();
 
     /* configuration setup */
-    JsonObject apiVerticleConfig = config.configLoader(3, vertx);
+    JsonObject apiVerticleConfig = Configuration.getConfiguration("./configs/config-test.json", 3);
 
     String keyStore = apiVerticleConfig.getString(KEYSTORE_PATH);
     String keyStorePassword = apiVerticleConfig.getString(KEYSTORE_PASSWORD);
-    HOST = apiVerticleConfig.getString("catIP");
-    PORT = apiVerticleConfig.getInteger("catPort");
+    HOST = apiVerticleConfig.getString("ip");
+    PORT = apiVerticleConfig.getInteger("port");
     TOKEN = apiVerticleConfig.getString(HEADER_TOKEN);
     ADMIN_TOKEN = apiVerticleConfig.getString("admin_token");
     
@@ -343,12 +341,14 @@ public class ApiServerVerticleTest {
     /* Send the file to the server using GET with query parameters */
     /* Should give only one item */
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
-        .addQueryParam(GEORELATION, INTERSECTS).addQueryParam(MAX_DISTANCE, "500")
-        .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[ 73.874537, 18.528311 ]")
+        .addQueryParam(GEORELATION, INTERSECTS).addQueryParam(MAX_DISTANCE, "5")
+        .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[77.585006,13.065145]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
+            JsonObject resp = serverResponse.result().bodyAsJsonObject();
+            assertEquals(1, resp.getInteger("totalHits"));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
 
@@ -557,13 +557,13 @@ public class ApiServerVerticleTest {
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
         .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "5000")
         .addQueryParam(GEOMETRY, "Polygon").addQueryParam(COORDINATES,
-            "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
-                + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
-                + "[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]")
+            "[ [ [ 77.51, 12.85 ], [ 77.70, 12.95 ], [ 77.58, 13.07 ], [ 77.44, 13.01 ], [ 77.51, 12.85 ] ] ]") 
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             /* comparing the response */
+            JsonObject resp = serverResponse.result().bodyAsJsonObject();
+            assertEquals(2, resp.getInteger("totalHits"));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
 
@@ -722,7 +722,7 @@ public class ApiServerVerticleTest {
   void listItem200(VertxTestContext testContext) {
 
     String itemId =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_test";
 
     /* Send the file to the server using GET */
     client.get(PORT, HOST, BASE_URL.concat("item/"))
@@ -733,6 +733,8 @@ public class ApiServerVerticleTest {
         LOGGER.info("Received response");
         LOGGER.info(serverResponse.result().bodyAsString());
         /* comparing the response */
+        JsonObject resp = serverResponse.result().bodyAsJsonObject();
+        assertEquals(1, resp.getInteger("totalHits"));
         assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
             assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
@@ -790,6 +792,10 @@ public class ApiServerVerticleTest {
 
         LOGGER.info(serverResponse.result().bodyAsString());
         /* comparing the response */
+        JsonObject resp = serverResponse.result().bodyAsJsonObject();
+        if (resp.getInteger("totalHits") == 0) {
+          testContext.failed();
+        }
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
         assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
@@ -928,7 +934,7 @@ public class ApiServerVerticleTest {
   void listResourceGroupRelationship200(VertxTestContext testContext) {
 
     String resourceID =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_test";
 
     /* Send the file to the server using GET */
     client.get(PORT, HOST, BASE_URL.concat("/relationship")).addQueryParam(ID, resourceID)
@@ -1268,7 +1274,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get Provider")
   void getProviderTest(VertxTestContext testContext) {
     String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_test";
 
     client.get(PORT, HOST, BASE_URL.concat(RELATIONSHIP)).addQueryParam(ID, apiURL)
         .addQueryParam(REL_KEY, PROVIDER).send(ar -> {
@@ -1288,7 +1294,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get resourceServer")
   void getResourceServerTest(VertxTestContext testContext) {
     String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_test";
 
     client.get(PORT, HOST, BASE_URL.concat(RELATIONSHIP)).addQueryParam(ID, apiURL)
         .addQueryParam(REL_KEY, RESOURCE_SVR).send(ar -> {
@@ -1308,7 +1314,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get data model [type]")
   void getDataModelTest(VertxTestContext testContext) {
     String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24";
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_test";
 
     client.get(PORT, HOST, BASE_URL.concat(RELATIONSHIP)).addQueryParam(ID, apiURL)
         .addQueryParam(REL_KEY, TYPE).send(ar -> {

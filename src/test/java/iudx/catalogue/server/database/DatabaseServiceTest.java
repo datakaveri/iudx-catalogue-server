@@ -43,8 +43,7 @@ public class DatabaseServiceTest {
   static void startVertx(Vertx vertx, VertxTestContext testContext) {
 
     vertxObj = vertx;
-    config = new Configuration();
-    JsonObject dbConfig = config.configLoader(0, vertx);
+    JsonObject dbConfig = Configuration.getConfiguration("./configs/config-test.json", 0);
 
     /* Configuration setup */
     databaseIP = dbConfig.getString(DATABASE_IP);

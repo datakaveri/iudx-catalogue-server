@@ -151,10 +151,10 @@ paths:
             https://api.catalogue.iudx.org.in/iudx/cat/v1/search?property=[type]&value=[[iudx:ResourceGroup]]
         - lang: 'by circle'
           source: |
-            https://api.catalogue.iudx.org.in/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
+            https://api.catalogue.iudx.org.in/iudx/cat/v1/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
         - lang: 'by text'
           source: |
-            https://api.catalogue.iudx.org.in/search?q=aqm
+            https://api.catalogue.iudx.org.in/iudx/cat/v1/search?q=aqm
         - lang: 'complex'
           source: |
             https://api.catalogue.iudx.org.in/iudx/cat/v1/search?property=[type]&value=[[iudx:Resource]]&geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]

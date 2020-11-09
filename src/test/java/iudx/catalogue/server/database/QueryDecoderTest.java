@@ -24,14 +24,12 @@ import static iudx.catalogue.server.Constants.*;
 public class QueryDecoderTest {
 
   private static QueryDecoder queryDecoder;
-  private static Configuration config;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
   static void startVertx(Vertx vertx, VertxTestContext testContext) {
     
-    config = new Configuration();
-    JsonObject elasticConfig = config.configLoader(0, vertx);
+    JsonObject elasticConfig = Configuration.getConfiguration("./configs/config-test.json", 0);
     
      vertx.deployVerticle(new DatabaseVerticle(), new
      DeploymentOptions().setConfig(elasticConfig), testContext.completing());
