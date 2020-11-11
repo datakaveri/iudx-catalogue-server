@@ -17,7 +17,7 @@ import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 
 /**
  * The Catalogue Server API Verticle.

@@ -15,7 +15,7 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.database.DatabaseService;
 
 

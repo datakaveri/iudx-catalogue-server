@@ -12,7 +12,7 @@ import io.vertx.serviceproxy.ServiceBinder;
 
 
 import static iudx.catalogue.server.authenticator.Constants.*;
-import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 
 /**
  * The Authentication Verticle.

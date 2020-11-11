@@ -1,5 +1,6 @@
 package iudx.catalogue.server.database;
 
+import static iudx.catalogue.server.util.Constants.*;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,8 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import static iudx.catalogue.server.Constants.*;
-
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ElasticClientTest {
@@ -26,6 +25,7 @@ public class ElasticClientTest {
   private static int databasePort;
   private static String databaseUser;
   private static String databasePassword;
+  private static String databaseIndex;
 
   @BeforeAll
   @DisplayName("")
@@ -33,6 +33,8 @@ public class ElasticClientTest {
     /* Read the configuration and set the rabbitMQ server properties. */
 
     JsonObject elasticConfig = Configuration.getConfiguration("./configs/config-test.json", 0);
+    databaseIndex =
+        Configuration.getConfiguration("./configs/config-test.json").getString("databaseIndex");
 
     databaseIP = elasticConfig.getString(DATABASE_IP);
     databasePort = elasticConfig.getInteger(DATABASE_PORT);
@@ -76,7 +78,7 @@ public class ElasticClientTest {
 
     String req = "{\"query\":{\"bool\":{\"filter\":[{\"match\":{\"type\":\"iudx:ResourceGroup\"}}]}},\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\",\"size\":10000}}}}";
     LOGGER.info("Aggregation query is " + req);
-    client.listAggregationAsync("testindex", req, res -> {
+    client.listAggregationAsync(databaseIndex, req, res -> {
       if (res.succeeded()) {
         LOGGER.info("Succeeded");
         LOGGER.info(res.result());
