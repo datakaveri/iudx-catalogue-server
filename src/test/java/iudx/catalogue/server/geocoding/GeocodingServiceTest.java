@@ -31,8 +31,9 @@ public class GeocodingServiceTest {
     
     private static final Logger LOGGER = LogManager.getLogger(GeocodingServiceTest.class);
 
-    JsonObject doc = new JsonObject("{\"tags\": [\"a\",\"b\",\"c\"], \"description\": \"some description,with characters\", \"name\": \"iudx\", \"label\": \"thisisiudx\", \"descriptor\": {\"co2\": \"high\", \"no2\": [\"low\", \"medium\"]}, \"location\": {\"type\": \"Place\",\"address\": \"ABD area, Pune\"}}");
+    JsonObject doc = new JsonObject("{\"tags\": [\"a\",\"b\",\"c\"], \"description\": \"some description,with characters\", \"name\": \"iudx\", \"label\": \"thisisiudx\", \"descriptor\": {\"co2\": \"high\", \"no2\": [\"low\", \"medium\"]}, \"location\": {\"type\": \"Place\",\"address\": \"Pune\"}}");
 
+    @BeforeAll
     static void startVertx(Vertx vertx, VertxTestContext testContext) {
       vertxObj = vertx;
 
@@ -46,6 +47,12 @@ public class GeocodingServiceTest {
       
       LOGGER.info("Geocoding Service setup complete");
       testContext.completeNow();
+    }
+
+    @AfterEach
+    public void finish(VertxTestContext testContext) {
+      LOGGER.info("Finishing....");
+      vertxObj.close(testContext.succeeding(response -> testContext.completeNow()));
     }
 
     @Test

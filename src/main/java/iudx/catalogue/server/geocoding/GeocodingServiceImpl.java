@@ -51,6 +51,7 @@ public class GeocodingServiceImpl implements GeocodingService {
         handler.handle(Future.succeededFuture(ar.result().body().toJsonObject()));
       }
       else {
+        LOGGER.info(ar);
         LOGGER.info("Failed to find coordinates");
         handler.handle(Future.failedFuture(ar.cause()));
       }
@@ -82,8 +83,8 @@ public class GeocodingServiceImpl implements GeocodingService {
     if(doc.containsKey("geometry")) {
       JsonObject geometry = doc.getJsonObject("geometry");
       JsonArray pos = geometry.getJsonArray("coordinates");
-      String lat = pos.getString(0);
-      String lon = pos.getString(1);
+      String lon = pos.getString(0);
+      String lat = pos.getString(1);
       LOGGER.info(lon);
       reverseGeocoder(lat, lon, reply -> {
         if(reply.succeeded()) {
