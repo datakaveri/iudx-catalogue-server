@@ -28,21 +28,22 @@ import io.vertx.core.json.JsonObject;
 public interface GeocodingService {
 
   /**
-   * The tokenInterospect method implements the Geocoding and authorization module using IUDX
-   * APIs.
    * @param location which is a String
    * @param handler which is a request handler
    */
   void geocoder(String location, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The tokenInterospect method implements the Geocoding and authorization module using IUDX
-   * APIs.
    * @param lat which is a Float
    * @param lon which is a Float
    * @param handler which is a request handler
    */
   void reverseGeocoder(String lat, String lon, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * @param doc which is a JsonObject
+   */
+  public void geoSummarize(JsonObject doc, Handler<AsyncResult<String>> handler);
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
