@@ -86,7 +86,7 @@ public class IntegrationTest {
   private static final Logger LOGGER = LogManager.getLogger(IntegrationTest.class);
   private static String HOST = "";
   private static int PORT;
-  private static final String BASE_URL = "http://127.0.0.1:8443/iudx/cat/v1/";
+  private static final String BASE_URL = "http://127.0.0.1:8080/iudx/cat/v1/";
   private String URL = "";
 
   /** Token for crud apis */
@@ -143,29 +143,56 @@ public class IntegrationTest {
 
   }
 
-  private boolean createItem(JsonObject obj)
+  private boolean asserter(HttpResponse<String> resp, JsonArray assertions) {
+    for (Object a : assertions) {
+      JsonObject asrt = (JsonObject) a;
+      if (asrt.containsKey("status")) {
+        if (asrt.getInteger("status") != resp.statusCode()) {
+          LOGGER.error("Status code failed");
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+
+  private boolean tester(JsonObject obj)
       throws URISyntaxException, IOException, InterruptedException {
 
     LOGGER.info("Info: Testing " + obj.getString("name"));
 
     HttpClient client = HttpClient.newBuilder().build();
-    HttpRequest request = HttpRequest.newBuilder(new URI(BASE_URL + obj.getString("path")))
-                                      .POST(BodyPublishers
-                                            .ofString(obj.getJsonObject("data").toString()))
-                                      .headers("content-type", "application/json")
-                                      .headers("token", TOKEN)
-                                      .build();
-    HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-    boolean assertionStatus = true;
-    for ( Object a : obj.getJsonArray("assertion")) {
-      JsonObject assertion = (JsonObject) a;
-      if (assertion.containsKey("status") &&
-            assertion.getInteger("status") != response.statusCode()){
-        assertionStatus = false;
+
+    String httpMethod = obj.getString("method");
+    String uriPath = BASE_URL + obj.getString("path");
+
+
+    
+    if (httpMethod.equals("post")) {
+      if ( obj.containsKey("data") ) {
+        JsonObject data = obj.getJsonObject("data");
+        HttpRequest request = HttpRequest.newBuilder(new URI(uriPath))
+                                          .POST(BodyPublishers
+                                                .ofString(obj.getJsonObject("data").toString()))
+                                          .headers("content-type", "application/json")
+                                          .headers("token", TOKEN)
+                                          .build();
+        HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+        return asserter(response, obj.getJsonArray("assertion"));
       }
     }
-    return assertionStatus;
 
+    if (httpMethod.equals("get")) {
+        HttpRequest request = HttpRequest.newBuilder(new URI(uriPath))
+                                          .GET()
+                                          .headers("content-type", "application/json")
+                                          .headers("token", TOKEN)
+                                          .build();
+        HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+        return asserter(response, obj.getJsonArray("assertion"));
+    }
+    return false;
   }
 
   /**
@@ -184,7 +211,7 @@ public class IntegrationTest {
       JsonObject test = (JsonObject) t;
       tests.add(dynamicTest(
             test.getString("name"),
-            () -> assertTrue(createItem(test))
+            () -> assertTrue(tester(test))
             ));
     }
     return tests.iterator();
