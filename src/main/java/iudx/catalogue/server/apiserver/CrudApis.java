@@ -20,8 +20,7 @@ import java.util.Set;
 import java.util.HashSet;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.Constants.*;
-
+import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.apiserver.util.ResponseHandler;

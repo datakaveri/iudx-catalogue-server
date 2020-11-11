@@ -53,10 +53,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-
-import static iudx.catalogue.server.Constants.*;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.deploy.ReDeployerDev;
 
 

@@ -3,6 +3,7 @@
     "zookeepers": [ "zookeeper" ],
     "clusterId": "iudx-catalogue-cluster",
     "host": "server",
+    "databaseIndex": "cat",
     "modules": [
         {
             "id": "iudx.catalogue.server.database.DatabaseVerticle",

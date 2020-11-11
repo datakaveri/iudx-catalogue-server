@@ -1,12 +1,10 @@
 package iudx.catalogue.server.validator;
 
+import static iudx.catalogue.server.util.Constants.*;
 import io.vertx.core.AbstractVerticle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
-
-import static iudx.catalogue.server.Constants.*;
-
 import iudx.catalogue.server.database.ElasticClient;
 
 /**

@@ -17,7 +17,7 @@ import org.apache.http.HttpStatus;
 import java.util.Arrays;
 
 import static iudx.catalogue.server.authenticator.Constants.*;
-import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 
 /**
  * The Authentication Service Implementation.

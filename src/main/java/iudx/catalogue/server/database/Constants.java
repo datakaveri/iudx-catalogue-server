@@ -1,6 +1,6 @@
 package iudx.catalogue.server.database;
 
-import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 
 public class Constants {
 
@@ -81,8 +81,6 @@ public class Constants {
   /** ElasticClient search types */
   public static final String DOC_IDS_ONLY = "DOCIDS";
   public static final String SOURCE_ONLY = "SOURCE";
-  static final String REL_API_INDEX_NAME = CAT_INDEX_NAME;
-  static final String REL_API_SEARCH_INDEX = REL_API_INDEX_NAME + "/_search";
 
   public static final String FORWARD_SLASH = "/";
   public static final String WILDCARD_KEY = "wildcard";

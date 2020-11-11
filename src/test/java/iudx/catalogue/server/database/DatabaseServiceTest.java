@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static iudx.catalogue.server.database.Constants.*;
-import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -152,7 +153,7 @@ public class DatabaseServiceTest {
   void createExistingItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, RESOURCE).put(ID,
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35");
+        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_3");
     dbService.createItem(request, testContext.failing(response -> testContext.verify(() -> {
       String status = response.getMessage();
       assertTrue(status.contains("\"status\":\"error\""));
@@ -165,30 +166,17 @@ public class DatabaseServiceTest {
   @DisplayName("Testing Geo-circle query")
   void searchGeoCircle(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_GEO)
-        .put(COORDINATES_KEY, new JsonArray().add(73.9).add(18.6)).put(MAX_DISTANCE, 5000)
-        .put(GEOMETRY, POINT).put(GEORELATION, INTERSECTS).put(GEOPROPERTY, GEO_KEY);
+        .put(COORDINATES_KEY, new JsonArray().add(73.831273).add(18.508766)).put(MAX_DISTANCE, 5000)
+        .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, GEO_KEY);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.9113707,
+      assertEquals(73.831273,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
       testContext.completeNow();
     })));
   }
-
-  // @Test
-  // @DisplayName("Testing Basic Exceptions (No instanceId key)")
-  // void searchWithNoResourceId(VertxTestContext testContext) {
-  // JsonObject request = new JsonObject().put(SEARCH_TYPE,
-  // SEARCH_TYPE_GEO);
-  //
-  // dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-  // JsonObject res = new JsonObject(response.getMessage());
-  // assertEquals("No instanceId found", res.getString(DESCRIPTION));
-  // testContext.completeNow();
-  // })));
-  // }
 
   @Test
   @DisplayName("Testing Basic Exceptions (No searchType key)")
@@ -211,13 +199,13 @@ public class DatabaseServiceTest {
      */
     JsonObject request =
         new JsonObject().put(GEOMETRY, POLYGON).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
-            new JsonArray().add(new JsonArray().add(new JsonArray().add(75.9).add(14.5))
+            new JsonArray().add(new JsonArray().add(new JsonArray().add(76.9).add(14.5))
                 .add(new JsonArray().add(72).add(13)).add(new JsonArray().add(73).add(20))
-                .add(new JsonArray().add(75.9).add(14.5))))
+                .add(new JsonArray().add(76.9).add(14.5))))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.783532,
+      assertEquals(73.927285,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -261,13 +249,13 @@ public class DatabaseServiceTest {
     /** COORDINATES_KEY should look like this [[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5]] */
     JsonObject request =
         new JsonObject().put(GEOMETRY, LINESTRING).put(GEORELATION, INTERSECTS).put(COORDINATES_KEY,
-            new JsonArray().add(new JsonArray().add(73.874537).add(18.528311))
+            new JsonArray().add(new JsonArray().add(77.567829).add(18.528311))
                 .add(new JsonArray().add(73.836808).add(18.572797))
-                .add(new JsonArray().add(73.876484).add(18.525007)))
+                .add(new JsonArray().add(77.567829).add(13.091794)))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.874537,
+      assertEquals(77.567829,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -286,7 +274,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.874537,
+      assertEquals(73.927285,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -348,7 +336,7 @@ public class DatabaseServiceTest {
   void searchComplexGeoResponse(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER_GEO)
         .put("attrs", new JsonArray().add(ID).add(TAGS).add(LOCATION))
-        .put(COORDINATES_KEY, new JsonArray().add(73.9).add(18.6)).put(MAX_DISTANCE, 5000)
+        .put(COORDINATES_KEY, new JsonArray().add(73.927285).add(18.502712)).put(MAX_DISTANCE, 5000)
         .put(GEOMETRY, POINT).put(GEORELATION, INTERSECTS).put(GEOPROPERTY, GEO_KEY);
     Set<String> attrs = new HashSet<>();
     attrs.add(ID);
@@ -364,7 +352,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.9113707,
+        assertEquals(73.927285,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -377,11 +365,11 @@ public class DatabaseServiceTest {
   @DisplayName("Testing Count Geo-circle query")
   void countGeoCircle(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_GEO)
-        .put(COORDINATES_KEY, new JsonArray().add(73.9).add(18.6)).put(MAX_DISTANCE, 5000)
+        .put(COORDINATES_KEY, new JsonArray().add(73.927285).add(18.502712)).put(MAX_DISTANCE, 5000)
         .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, GEO_KEY);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(5, response.getInteger(TOTAL_HITS));
+      assertEquals(1, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -420,13 +408,13 @@ public class DatabaseServiceTest {
     /** COORDINATES_KEY should look like this [[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5]] */
     JsonObject request =
         new JsonObject().put(GEOMETRY, LINESTRING).put(GEORELATION, INTERSECTS).put(COORDINATES_KEY,
-            new JsonArray().add(new JsonArray().add(73.874537).add(18.528311))
+            new JsonArray().add(new JsonArray().add(77.567829).add(13.091794))
                 .add(new JsonArray().add(73.836808).add(18.572797))
-                .add(new JsonArray().add(73.876484).add(18.525007)))
+                .add(new JsonArray().add(77.567829).add(13.091794)))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(4, response.getInteger(TOTAL_HITS));
+      assertEquals(2, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -442,7 +430,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(51, response.getInteger(TOTAL_HITS));
+      assertEquals(2, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -477,11 +465,11 @@ public class DatabaseServiceTest {
         .put(PROPERTY, new JsonArray().add(ID)).put(VALUE,
             new JsonArray().add(
                 new JsonArray().add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
-                    + "iudx.io/aqm-bosch-climo/Ambedkar society circle_29")));
+                    + "iudx.io/aqm-bosch-climo/aqm_test_4")));
 
     /* requesting db service */
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.879657,
+      assertEquals(73.927285,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -505,13 +493,13 @@ public class DatabaseServiceTest {
             new JsonArray().add(new JsonArray()
                 .add(
                     "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bos"
-                        + "ch-climo/Ambedkar society circle_29")
+                        + "ch-climo/aqm_test_4")
                 .add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io"
-                        + "/aqm-bosch-climo/Blue Diamond Square (Hotel Taj)_10")));
+                    + "/aqm-bosch-climo/aqm_test_5")));
 
     /* requesting db service */
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.88559,
+      assertEquals(73.927285,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -581,11 +569,11 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
-            .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
+            .add(new JsonArray().add("db3d6ea0-a84a-b3d6-7ec9-71ae66736273").add("climo")));
 
     /* requesting db service */
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.879657,
+      assertEquals(73.927285,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -657,7 +645,7 @@ public class DatabaseServiceTest {
         .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE))
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
-                .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")))
+            .add(new JsonArray().add("db3d6ea0-a84a-b3d6-7ec9-71ae66736273").add("climo")))
         .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION));
 
     Set<String> attrs = new HashSet<>();
@@ -675,7 +663,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.879657,
+        assertEquals(73.927285,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -701,9 +689,9 @@ public class DatabaseServiceTest {
         .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE).concat(SEARCH_TYPE_GEO))
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
-                .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")))
+            .add(new JsonArray().add("db3d6ea0-a84a-b3d6-7ec9-71ae66736273").add("climo")))
         .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
-        .put(COORDINATES_KEY, new JsonArray().add(73.87).add(18.55)).put(MAX_DISTANCE, 5000)
+        .put(COORDINATES_KEY, new JsonArray().add(73.927285).add(18.502712)).put(MAX_DISTANCE, 5000)
         .put(GEOMETRY, POINT).put(GEORELATION, INTERSECTS).put(GEOPROPERTY, GEO_KEY);
 
     Set<String> attrs = new HashSet<>();
@@ -721,7 +709,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.879657,
+        assertEquals(73.927285,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -746,7 +734,7 @@ public class DatabaseServiceTest {
         .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE).concat(SEARCH_TYPE_TEXT))
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
-                .add(new JsonArray().add("05fbae93-d3f7-0bbe-dd5d-2c2b4180edc7")))
+            .add(new JsonArray().add("db3d6ea0-a84a-b3d6-7ec9-71ae66736273")))
         .put(Q_VALUE, "climo").put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION));
 
 
@@ -765,7 +753,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.8843632,
+        assertEquals(73.927285,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -790,9 +778,9 @@ public class DatabaseServiceTest {
         new JsonObject()
             .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_TEXT).concat(SEARCH_TYPE_GEO))
             .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
-            .put(COORDINATES_KEY, new JsonArray().add(73.878603).add(18.502865))
+            .put(COORDINATES_KEY, new JsonArray().add(73.927285).add(18.502712))
             .put(MAX_DISTANCE, 500).put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN)
-            .put(GEOPROPERTY, GEO_KEY).put(Q_VALUE, "Golibar Square");
+            .put(GEOPROPERTY, GEO_KEY).put(Q_VALUE, "aqm_test_4");
 
 
     Set<String> attrs = new HashSet<>();
@@ -810,7 +798,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.878603,
+        assertEquals(73.927285,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -833,7 +821,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject()
         .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_TEXT))
         .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
-        .put(Q_VALUE, "Golibar Square");
+        .put(Q_VALUE, "aqm_test_2");
 
 
     Set<String> attrs = new HashSet<>();
@@ -851,7 +839,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.878603,
+        assertEquals(77.567829,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -871,11 +859,11 @@ public class DatabaseServiceTest {
                 .concat(SEARCH_TYPE_TEXT))
         .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
-                .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")))
+            .add(new JsonArray().add("db3d6ea0-a84a-b3d6-7ec9-71ae66736273").add("climo")))
         .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
-        .put(COORDINATES_KEY, new JsonArray().add(73.87).add(18.55)).put(MAX_DISTANCE, 5000)
+        .put(COORDINATES_KEY, new JsonArray().add(73.927285).add(18.502712)).put(MAX_DISTANCE, 5000)
         .put(GEOMETRY, POINT).put(GEORELATION, INTERSECTS).put(GEOPROPERTY, GEO_KEY)
-        .put(Q_VALUE, "society circle");
+        .put(Q_VALUE, "aqm_test_4");
 
     Set<String> attrs = new HashSet<>();
     attrs.add(ID);
@@ -892,7 +880,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.879657,
+        assertEquals(73.927285,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -914,7 +902,7 @@ public class DatabaseServiceTest {
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals(73.874537,
+        assertEquals(77.567829,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         testContext.completeNow();
@@ -1038,7 +1026,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject()
         .put(ID,
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
-                + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+                + "/rs.iudx.io/aqm-bosch-climo/aqm_test_2")
         .put(RELATIONSHIP, TYPE);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {

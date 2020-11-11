@@ -18,7 +18,7 @@ import java.util.TimeZone;
 
 import iudx.catalogue.server.database.ElasticClient;
 import static iudx.catalogue.server.validator.Constants.*;
-import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 
 /**
  * The Validator Service Implementation.
