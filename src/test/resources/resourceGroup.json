@@ -1,153 +1,191 @@
-{
-    "@context": "https://voc.iudx.org.in/",
-    "type": ["iudx:ResourceGroup", "iudx:EnvAQM"],
-    "description": "Bosch Climo Air quality monitoring resources",
-    "name": "aqm-bosch-climo",
-    "tags": [
-        "environment",
-        "air quality",
-        "climate",
-        "air",
-        "aqi",
-        "aqm",
-        "climo",
-        "pollution",
-        "so2",
-        "co2",
-        "co",
-        "no",
-        "no2",
-        "pm2.5",
-        "pm10",
-        "humidity",
-        "temperature",
-        "ozone",
-        "o3",
-        "noise",
-        "light",
-        "uv"
-    ],
-    "itemStatus": "ACTIVE",
-    "provider": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-    "resourceServer": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io",
-    "resourceAuthControlLevel": "OPEN",
-    "resourceType": "messageStream",
-    "authServerInfo": {
-        "type": ["AuthServerInfoValue"],
-        "authServerURL": "https://auth.iudx.org.in",
-        "authType": "iudx-auth"
-    },
-    "accessObjectInfo": {
-        "type": ["AccessObjectInfoValue"],
-        "accessObject": "https://example.com/sensorsApis.json",
-        "additionalInfoURL": "https://example.com/sensorsApis",
-        "accessObjectType": "openAPI"
-    },
-    "iudxResourceAPIs": ["attribute", "temporal"],
-    "itemCreatedAt": "2019-02-20T10:30:06.093121",
-    "location": {
-        "type": "Place",
-        "address": "Bangalore"
-    },
-    "dataDescriptor": {
-        "atmosphericPressure": {
-            "type": ["ValueDescriptor"],
-            "description": "Measured Air pressure",
-            "unitCode": "qudt:MILLIBAR",
-            "unitText": "Milli Bar",
-            "dataSchema": "iudx:Number"
-        },
-        "airQualityIndex": {
-            "type": ["ValueDescriptor"],
-            "description": "Overall AQI ",
-            "unitCode": "C62",
-            "unitText": "dimensionless",
-            "dataSchema": "iudx:Number"
-        },
-        "aqiMajorPollutant": {
-            "type": ["ValueDescriptor"],
-            "description": "Major pollutant in the AQI index.",
-            "dataSchema": "iudx:Text"
-        },
-        "co": {
-            "type": ["TimeSeriesAggregation"],
-            "description": "Describes instantaneous and/or aggregated values for carbon monooxide(CO). TimeSeriesAggregations of CO are derived over the last 24 hours",
-            "avgOverTime": {
-                "type": ["ValueDescriptor"],
-                "description": "Average value of CO for the last 24 hours",
-                "dataSchema": "iudx:Number",
-                "aggregationDuration": 24,
-                "unitCode": "X59",
-                "unitText": "part per million (ppm)"
-            },
-            "maxOverTime": {
-                "type": ["ValueDescriptor"],
-                "description": "Maximum value of CO for the last 24 hours",
-                "dataSchema": "iudx:Number",
-                "aggregationDuration": 24,
-                "unitCode": "X59",
-                "unitText": "part per million (ppm)"
-            },
-            "minOverTime": {
-                "type": ["ValueDescriptor"],
-                "description": "Maximum value of CO for the last 24 hours",
-                "dataSchema": "iudx:Number",
-                "aggregationDuration": 24,
-                "unitCode": "X59",
-                "unitText": "part per million (ppm)"
-            }
-        },
-        "pm2p5": {
-            "type": ["TimeSeriesAggregation"],
-            "description": "Describes instantaneous and/or aggregated values for PM2.5. TimeSeriesAggregations of PM2.5 are derived over the last 24 hours",
-            "instValue": {
-                "type": ["ValueDescriptor"],
-                "description": "Instantaneous value of pollutant PM2p5.",
-                "dataSchema": "iudx:Number",
-                "unitCode": "XGQ",
-                "unitText": "micro gram per cubic metre (ug/m3)",
-                "resolution": {
-                    "value": 0.1,
-                    "unitCode": "XGQ"
-                }
-            },
-            "avgOverTime": {
-                "type": ["ValueDescriptor"],
-                "description": "Average value of PM2.5 for the last 24 hours",
-                "dataSchema": "iudx:Number",
-                "aggregationDuration": 24,
-                "unitCode": "XGQ",
-                "unitText": "micro gram per cubic metre (ug/m3)"
-            }
-        },
-        "co2": {
-            "type": ["TimeSeriesAggregation"],
-            "description": "Describes instantaneous and/or aggregated values for CO2. TimeSeriesAggregations of CO2 are derived over the last 24 hours",
-            "avgOverTime": {
-                "type": ["ValueDescriptor"],
-                "description": "Average value of CO2 for the last 24 hours",
-                "dataSchema": "iudx:Number",
-                "aggregationDuration": 24,
-                "unitCode": "X59",
-                "unitText": "part per million (ppm)"
-            }
-        },
-        "pm10": {
-            "type": ["ValueDescriptor"],
-            "description": "Instantaneous value of pollutant PM10.",
-            "dataSchema": "iudx:Number",
-            "unitCode": "XGQ",
-            "unitText": "micro gram per cubic metre (ug/m3)",
-            "resolution": {
-                "value": 0.5,
-                "unitCode": "XGQ"
-            },
-            "measAccuracy": {
-                "minValue": -10,
-                "maxValue": 10, 
-                "unitCode": "qudt:Percent",
-                "unitText": "Percent"
-            }
-        }
-    }
-}
+[
+	{
+		"@context": "https://voc.iudx.org.in/",
+		"type": [
+			"iudx:ResourceGroup",
+			"iudx:EnvAQM"
+		],
+		"description": "Bosch Climo Air quality monitoring resources",
+		"name": "aqm-bosch-climo",
+		"tags": [
+			"environment",
+			"air quality",
+			"climate",
+			"air",
+			"aqi",
+			"aqm",
+			"climo",
+			"pollution",
+			"so2",
+			"co2",
+			"co",
+			"no",
+			"no2",
+			"pm2.5",
+			"pm10",
+			"humidity",
+			"temperature",
+			"ozone",
+			"o3",
+			"noise",
+			"light",
+			"uv"
+		],
+		"itemStatus": "ACTIVE",
+		"provider": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+		"resourceServer": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io",
+		"resourceAuthControlLevel": "OPEN",
+		"resourceType": "messageStream",
+		"authServerInfo": {
+			"type": [
+				"AuthServerInfoValue"
+			],
+			"authServerURL": "https://auth.iudx.org.in",
+			"authType": "iudx-auth"
+		},
+		"accessObjectInfo": {
+			"type": [
+				"AccessObjectInfoValue"
+			],
+			"accessObject": "https://example.com/sensorsApis.json",
+			"additionalInfoURL": "https://example.com/sensorsApis",
+			"accessObjectType": "openAPI"
+		},
+		"iudxResourceAPIs": [
+			"attribute",
+			"temporal"
+		],
+		"itemCreatedAt": "2019-02-20T10:30:06.093121",
+		"location": {
+			"type": "Place",
+			"address": "Bangalore"
+		},
+		"dataDescriptor": {
+			"atmosphericPressure": {
+				"type": [
+					"ValueDescriptor"
+				],
+				"description": "Measured Air pressure",
+				"unitCode": "qudt:MILLIBAR",
+				"unitText": "Milli Bar",
+				"dataSchema": "iudx:Number"
+			},
+			"airQualityIndex": {
+				"type": [
+					"ValueDescriptor"
+				],
+				"description": "Overall AQI ",
+				"unitCode": "C62",
+				"unitText": "dimensionless",
+				"dataSchema": "iudx:Number"
+			},
+			"aqiMajorPollutant": {
+				"type": [
+					"ValueDescriptor"
+				],
+				"description": "Major pollutant in the AQI index.",
+				"dataSchema": "iudx:Text"
+			},
+			"co": {
+				"type": [
+					"TimeSeriesAggregation"
+				],
+				"description": "Describes instantaneous and/or aggregated values for carbon monooxide(CO). TimeSeriesAggregations of CO are derived over the last 24 hours",
+				"avgOverTime": {
+					"type": [
+						"ValueDescriptor"
+					],
+					"description": "Average value of CO for the last 24 hours",
+					"dataSchema": "iudx:Number",
+					"aggregationDuration": 24,
+					"unitCode": "X59",
+					"unitText": "part per million (ppm)"
+				},
+				"maxOverTime": {
+					"type": [
+						"ValueDescriptor"
+					],
+					"description": "Maximum value of CO for the last 24 hours",
+					"dataSchema": "iudx:Number",
+					"aggregationDuration": 24,
+					"unitCode": "X59",
+					"unitText": "part per million (ppm)"
+				},
+				"minOverTime": {
+					"type": [
+						"ValueDescriptor"
+					],
+					"description": "Maximum value of CO for the last 24 hours",
+					"dataSchema": "iudx:Number",
+					"aggregationDuration": 24,
+					"unitCode": "X59",
+					"unitText": "part per million (ppm)"
+				}
+			},
+			"pm2p5": {
+				"type": [
+					"TimeSeriesAggregation"
+				],
+				"description": "Describes instantaneous and/or aggregated values for PM2.5. TimeSeriesAggregations of PM2.5 are derived over the last 24 hours",
+				"instValue": {
+					"type": [
+						"ValueDescriptor"
+					],
+					"description": "Instantaneous value of pollutant PM2p5.",
+					"dataSchema": "iudx:Number",
+					"unitCode": "XGQ",
+					"unitText": "micro gram per cubic metre (ug/m3)",
+					"resolution": {
+						"value": 0.1,
+						"unitCode": "XGQ"
+					}
+				},
+				"avgOverTime": {
+					"type": [
+						"ValueDescriptor"
+					],
+					"description": "Average value of PM2.5 for the last 24 hours",
+					"dataSchema": "iudx:Number",
+					"aggregationDuration": 24,
+					"unitCode": "XGQ",
+					"unitText": "micro gram per cubic metre (ug/m3)"
+				}
+			},
+			"co2": {
+				"type": [
+					"TimeSeriesAggregation"
+				],
+				"description": "Describes instantaneous and/or aggregated values for CO2. TimeSeriesAggregations of CO2 are derived over the last 24 hours",
+				"avgOverTime": {
+					"type": [
+						"ValueDescriptor"
+					],
+					"description": "Average value of CO2 for the last 24 hours",
+					"dataSchema": "iudx:Number",
+					"aggregationDuration": 24,
+					"unitCode": "X59",
+					"unitText": "part per million (ppm)"
+				}
+			},
+			"pm10": {
+				"type": [
+					"ValueDescriptor"
+				],
+				"description": "Instantaneous value of pollutant PM10.",
+				"dataSchema": "iudx:Number",
+				"unitCode": "XGQ",
+				"unitText": "micro gram per cubic metre (ug/m3)",
+				"resolution": {
+					"value": 0.5,
+					"unitCode": "XGQ"
+				},
+				"measAccuracy": {
+					"minValue": -10,
+					"maxValue": 10,
+					"unitCode": "qudt:Percent",
+					"unitText": "Percent"
+				}
+			}
+		}
+	}
+]

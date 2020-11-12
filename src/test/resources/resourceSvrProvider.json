@@ -1,0 +1,71 @@
+[
+    {
+        "@context": "https://voc.iudx.org.in/",
+        "type": [
+            "iudx:ResourceServer"
+        ],
+        "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io",
+        "provider": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+        "name": "iudxResourceServer",
+        "description": "Generic IUDX resource server",
+        "tags": [
+            "IUDX, Resource, Server, Platform"
+        ],
+        "resourceServerHTTPAccessURL": "rs.iudx.io",
+        "itemStatus": "ACTIVE",
+        "itemCreatedAt": "2020-07-01T10:03:26+0000",
+        "resourceServerOrg": {
+            "name": "iudx",
+            "additionalInfoURL": "https://iudx.org.in",
+            "location": {
+                "type": "Place",
+                "address": "IISc, Bangalore",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        75.92,
+                        13.5
+                    ]
+                }
+            }
+        },
+        "location": {
+            "type": "Place",
+            "address": "Pune",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    74.92,
+                    12.5
+                ]
+            }
+        }
+    },
+    {
+        "@context": "https://voc.iudx.org.in/",
+        "type": [
+            "iudx:Provider"
+        ],
+        "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+        "name": "IUDXAdmin",
+        "description": "Administrator of the IUDX platform",
+        "tags": [
+            "IUDX, Admin, Platform"
+        ],
+        "providerOrg": {
+            "name": "iudx",
+            "additionalInfoURL": "https://iudx.org.in",
+            "location": {
+                "type": "Place",
+                "address": "ABD area, Pune",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [
+                        79.92,
+                        15.5
+                    ]
+                }
+            }
+        }
+    }
+]
