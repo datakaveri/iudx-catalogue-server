@@ -2,6 +2,8 @@
 
 [![Build Status](http://128.199.18.230:8080/buildStatus/icon?job=iudx+catalogue+pipeline)](http://128.199.18.230:8080/job/iudx%20catalogue%20pipeline/)
 
+[![Jenkins Coverage](https://img.shields.io/jenkins/coverage/jacoco?jobUrl=http%3A%2F%2F128.199.18.230%3A8080%2Fjob%2Fiudx%2520catalogue%2520pipeline%2F)](http://128.199.18.230:8080/job/iudx%20catalogue%20pipeline/lastBuild/jacoco/)
+
 ![IUDX](./docs/iudx.png)
 # iudx-catalogue-server
 The catalogue is [IUDXs](https://iudx.org.in) data discovery and dataset metadata publishing portal.
