@@ -902,7 +902,7 @@ public class DatabaseServiceTest {
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals(77.567829,
+        assertEquals(77.585006,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         testContext.completeNow();
@@ -1073,18 +1073,18 @@ public class DatabaseServiceTest {
     dbService.relSearch(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals(ITEM_TYPE_RESOURCE_GROUP,
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonArray(TYPE_KEY).getString(0));
-        testContext.completeNow();
+        for (int i=0; i<response.getJsonArray(RESULT).size(); i++) {
+          assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+              response.getJsonArray(RESULT).getJsonObject(i).getString("provider"));
+          testContext.completeNow();
+        }
       });
     }));
   }
-
   @Test
   @DisplayName("Relationship search ResourceGroup")
   void listRelSearchResourceGroupTest(VertxTestContext testContext) {
 
-    /* Constructing request Json Body */
     JsonObject request = new JsonObject()
         .put(RELATIONSHIP, new JsonArray().add("resourceGroup.accessObjectInfo.accessObjectType"))
         .put(VALUE, new JsonArray().add(new JsonArray().add("openAPI")));
@@ -1092,9 +1092,13 @@ public class DatabaseServiceTest {
     dbService.relSearch(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals(ITEM_TYPE_RESOURCE_GROUP,
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonArray(TYPE_KEY).getString(0));
-        testContext.completeNow();
+        for (int i=0; i<response.getJsonArray(RESULT).size(); i++) {
+          if (response.getJsonArray(RESULT).getJsonObject(i).containsKey("resourceGroup")) {
+            assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo",
+                response.getJsonArray(RESULT).getJsonObject(i).getString("resourceGroup"));
+          }
+          testContext.completeNow();
+        }
       });
     }));
   }
