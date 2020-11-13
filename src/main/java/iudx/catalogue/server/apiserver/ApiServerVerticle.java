@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
+import iudx.catalogue.server.geocoding.GeocodingService;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
@@ -45,6 +46,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private SearchApis searchApis;
   private ListApis listApis;
   private RelationshipApis relApis;
+  private GeocodingApis geoApis;
 
   @SuppressWarnings("unused")
   private Router router;
@@ -96,7 +98,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     searchApis = new SearchApis();
     listApis = new ListApis();
     relApis = new RelationshipApis();
-
+    geoApis = new GeocodingApis();
     /**
      *
      * Get proxies and handlers
@@ -119,6 +121,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     ValidatorService validationService =
         ValidatorService.createProxy(vertx, VALIDATION_SERVICE_ADDRESS);
     crudApis.setValidatorService(validationService);
+    
+    GeocodingService geoService 
+      = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
+    geoApis.setGeoService(geoService);
 
     /**
      *
@@ -291,8 +297,19 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.get(ROUTE_RELATIONSHIP).handler(routingContext -> {
       relApis.listRelationshipHandler(routingContext);
     });
-
-
+    
+    /**
+     * Routes for Geocoding
+     */
+    router.get(ROUTE_GEO_COORDINATES)
+      .handler(routingContext -> {
+        geoApis.getCoordinates(routingContext);
+      });
+    
+    router.get(ROUTE_GEO_REVERSE)
+      .handler(routingContext -> {
+        geoApis.getLocation(routingContext);
+      });
 
     /**
      * Start server 
