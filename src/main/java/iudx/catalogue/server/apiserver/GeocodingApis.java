@@ -20,7 +20,7 @@ import static iudx.catalogue.server.apiserver.util.Constants.*;
 
 import javax.naming.Context;
 
-import static iudx.catalogue.server.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.apiserver.util.QueryMapper;

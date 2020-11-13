@@ -60,7 +60,7 @@ public class GeocodingServiceTest {
     void summarize(VertxTestContext testContext) {
       geoService.geoSummarize(doc, ar-> {
         LOGGER.info(ar.result());
-      });
         testContext.completeNow();
+      });
     }
 }
