@@ -40,18 +40,17 @@ public class GeocodingServiceImpl implements GeocodingService {
 
   @Override
   public void geocoder(String location, Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.info(location);
+    // LOGGER.info(location);
     webClient
     .get(4000,"127.0.0.1","/v1/search")
     .addQueryParam("text", location)
     .putHeader("Accept","application/json").send(ar -> {
       if(ar.succeeded()) {
         LOGGER.info("Request succeeded!");
-        LOGGER.info(ar.result());
+        //getJsonArray("bbox")
         handler.handle(Future.succeededFuture(ar.result().body().toJsonObject()));
       }
       else {
-        LOGGER.info(ar);
         LOGGER.info("Failed to find coordinates");
         handler.handle(Future.failedFuture(ar.cause()));
       }
@@ -67,7 +66,7 @@ public class GeocodingServiceImpl implements GeocodingService {
     .putHeader("Accept","application/json").send(ar -> {
       if(ar.succeeded()) {
         LOGGER.info("Request succeeded!");
-        LOGGER.info(ar.result());
+        // LOGGER.info(ar.result().body().toJsonObject().getJsonArray("features").getJsonObject("properties"));
         handler.handle(Future.succeededFuture(ar.result().body().toJsonObject()));
       }
       else {
@@ -79,37 +78,39 @@ public class GeocodingServiceImpl implements GeocodingService {
 
   @Override
   public void geoSummarize(JsonObject doc, Handler<AsyncResult<String>> handler) {
-    /* Reverse Geocoding information */
-    // if(doc.containsKey("geometry")) {
-    //   JsonObject geometry = doc.getJsonObject("geometry");
-    //   JsonArray pos = geometry.getJsonArray("coordinates");
-    //   String lon = pos.getString(0);
-    //   String lat = pos.getString(1);
-    //   LOGGER.info(lon);
-    //   reverseGeocoder(lat, lon, reply -> {
-    //     if(reply.succeeded()) {
-    //     // unwrap the result
-    //       sb.append(reply.result().encode());
-    //     }
-    //     else {
-    //       LOGGER.info("Failed to find location");            
-    //     }
-    //   });
-    // }
-  
-    /* Geocoding information*/
+    JsonArray res = new JsonArray();
     if(doc.containsKey("location")) {
+
+      /* Geocoding information*/
       JsonObject location = doc.getJsonObject("location");
       String address = location.getString("address");
       geocoder(address, reply -> {
       if(reply.succeeded()) {
-        sb.append(reply);
-        handler.handle(Future.succeededFuture(sb.toString()));
+        res.add(reply.result().getJsonArray("bbox"));
       }
       else {
         LOGGER.info("Failed to find coordinates");
         }
       });
+      
+      /* Reverse Geocoding information */
+      if(location.containsKey("geometry")) {
+        JsonObject geometry = location.getJsonObject("geometry");
+        JsonArray pos = geometry.getJsonArray("coordinates");
+        String lon = pos.getString(0);
+        String lat = pos.getString(1);
+        reverseGeocoder(lat, lon, reply -> {
+          if(reply.succeeded()) {
+          // unwrap the result
+            res.add(reply.result().getJsonArray("features"));
+            LOGGER.info("result: ", res);
+            handler.handle(Future.succeededFuture(res.toString()));
+          }
+          else {
+            LOGGER.info("Failed to find location");            
+          }
+        });
+      }
     }
   }
 }

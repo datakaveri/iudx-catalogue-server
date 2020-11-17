@@ -31,7 +31,7 @@ public class GeocodingServiceTest {
     
     private static final Logger LOGGER = LogManager.getLogger(GeocodingServiceTest.class);
 
-    JsonObject doc = new JsonObject("{\"tags\": [\"a\",\"b\",\"c\"], \"description\": \"some description,with characters\", \"name\": \"iudx\", \"label\": \"thisisiudx\", \"descriptor\": {\"co2\": \"high\", \"no2\": [\"low\", \"medium\"]}, \"location\": {\"type\": \"Place\",\"address\": \"Pune\"}}");
+    JsonObject doc = new JsonObject("{\"tags\": [\"a\",\"b\",\"c\"], \"description\": \"some description,with characters\", \"name\": \"iudx\", \"label\": \"thisisiudx\", \"descriptor\": {\"co2\": \"high\", \"no2\": [\"low\", \"medium\"]}, \"location\": {\"type\": \"Place\",\"address\": \"Pune\",\"geometry\": {\"type\": \"Point\", \"coordinates\": [\"77.570423\",\"13.013945\"]}}}");
 
     @BeforeAll
     static void startVertx(Vertx vertx, VertxTestContext testContext) {
@@ -59,7 +59,7 @@ public class GeocodingServiceTest {
     @DisplayName("Summarize test")
     void summarize(VertxTestContext testContext) {
       geoService.geoSummarize(doc, ar-> {
-        LOGGER.info(ar.result());
+        LOGGER.info("Result: ", ar.result());
         testContext.completeNow();
       });
     }
