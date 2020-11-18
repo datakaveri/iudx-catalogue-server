@@ -35,7 +35,7 @@ pipeline {
       steps{
         xunit (
                 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
-                tools: [ JUnit(pattern: 'target/surefire-reports/*SummarizerTest.xml') ]
+                tools: [ JUnit(pattern: 'target/surefire-reports/*Test.xml') ]
         )
       }
     }
