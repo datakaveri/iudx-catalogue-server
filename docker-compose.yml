@@ -66,7 +66,7 @@ services:
       - ./configs/config-test.json:/usr/share/app/configs/config-test.json
       - ./configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ${WORKSPACE}:/tmp/test
-    command: bash -c "mvn clean test -Dtest=ApiServerVerticlePreprareTest,ApiServerVerticleTest,DatabaseServiceTest,ServerVerticleDeboardTest && cp -r target /tmp/test"
+    command: bash -c "mvn clean test -Dtest=ApiServerVerticlePreprareTest && cp -r target /tmp/test"
 
 
     networks: 
