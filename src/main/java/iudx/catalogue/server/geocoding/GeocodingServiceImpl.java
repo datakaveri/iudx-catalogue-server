@@ -139,14 +139,9 @@ public class GeocodingServiceImpl implements GeocodingService {
       JsonObject res = new JsonObject();
       res.put("geocoding", j1);
       res.put("reverseGeocoding",j2);
-      LOGGER.info(res);
       handler.handle(Future.succeededFuture(res));
-    //   }).onFailure(failedHandler -> {
-    //      JsonObject result = new JsonObject();
-    //      result.put("status", "error");
-    //      result.put("message", failedHandler.getMessage());
-    //      handler.handle(Future.failedFuture(result));
     });
+    return;
   }
 }
 

@@ -59,7 +59,7 @@ public class GeocodingServiceTest {
     @DisplayName("Summarize test")
     void summarize(VertxTestContext testContext) {
       geoService.geoSummarize(doc, ar-> {
-        LOGGER.info("Result: ", ar.result());
+        LOGGER.info("Result: " + ar.result().toString());
         testContext.completeNow();
       });
     }

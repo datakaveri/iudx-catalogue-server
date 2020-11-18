@@ -127,6 +127,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .getResponse()));
       }
     });
+    Future<JsonObject> fut = Future.future();
     return this;
   }
 
