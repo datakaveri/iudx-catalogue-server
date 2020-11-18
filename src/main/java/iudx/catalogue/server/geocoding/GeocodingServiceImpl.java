@@ -58,7 +58,7 @@ public class GeocodingServiceImpl implements GeocodingService {
     });
   }
 
-  private Future<JsonObject> Geocoderhelper(String location) {
+  private Promise<JsonObject> Geocoderhelper(String location) {
     Promise<JsonObject> promise = Promise.promise();
     geocoder(location, ar -> {
       if(ar.succeeded()){
@@ -69,7 +69,7 @@ public class GeocodingServiceImpl implements GeocodingService {
       }
      
     });
-   return promise.future();
+   return promise;
   }
 
   @Override
@@ -91,7 +91,7 @@ public class GeocodingServiceImpl implements GeocodingService {
     });
   }
 
-  private Future<JsonObject> reverseGeocoderhelper(String lat, String lon) {
+  private Promise<JsonObject> reverseGeocoderhelper(String lat, String lon) {
     Promise<JsonObject> promise = Promise.promise();
     reverseGeocoder(lat, lon, ar -> {
       if(ar.succeeded()){
@@ -101,13 +101,13 @@ public class GeocodingServiceImpl implements GeocodingService {
         LOGGER.info("Request failed!");
       }
     });
-   return promise.future();
+   return promise;
   }
 
   @Override
   public void geoSummarize(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
-    Future<JsonObject> f1 = Future.future();;
-    Future<JsonObject> f2 = Future.future();
+    Promise<JsonObject> p1 = Promise.promise();
+    Promise<JsonObject> p2 = Promise.promise();
 
     if(doc.containsKey("location")) {
 
@@ -115,10 +115,10 @@ public class GeocodingServiceImpl implements GeocodingService {
       JsonObject location = doc.getJsonObject("location");
       String address = location.getString("address");
       if(address!=null) {
-        f1 = Geocoderhelper(address);
+        p1 = Geocoderhelper(address);
       }
       else {
-        f1.succeededFuture(new JsonObject());
+        p1.complete(new JsonObject());
       }
       
       /* Reverse Geocoding information */
@@ -127,18 +127,18 @@ public class GeocodingServiceImpl implements GeocodingService {
         JsonArray pos = geometry.getJsonArray("coordinates");
         String lon = pos.getString(0);
         String lat = pos.getString(1);
-        f2 = reverseGeocoderhelper(lat, lon);
+        p2 = reverseGeocoderhelper(lat, lon);
       }
       else {
-        f2.succeededFuture(new JsonObject());
+        p2.complete(new JsonObject());
       } 
     }
-    CompositeFuture.all(f1,f2).onSuccess(successHandler-> {
+    CompositeFuture.all(p1.future(),p2.future()).onSuccess(successHandler-> {
       JsonObject j1 = successHandler.resultAt(0);
       JsonObject j2 = successHandler.resultAt(1);
       JsonObject res = new JsonObject();
-      result.put("geocoding", j1);
-      result.put("reverseGeocoding",j2);
+      res.put("geocoding", j1);
+      res.put("reverseGeocoding",j2);
       LOGGER.info(res);
       handler.handle(Future.succeededFuture(res));
     //   }).onFailure(failedHandler -> {
