@@ -43,7 +43,7 @@ public interface GeocodingService {
   /**
    * @param doc which is a JsonObject
    */
-  public void geoSummarize(JsonObject doc, Handler<AsyncResult<String>> handler);
+  public void geoSummarize(JsonObject doc, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.

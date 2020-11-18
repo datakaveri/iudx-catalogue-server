@@ -7,6 +7,7 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.core.CompositeFuture;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -57,6 +58,20 @@ public class GeocodingServiceImpl implements GeocodingService {
     });
   }
 
+  private Future<JsonObject> Geocoderhelper(String location) {
+    Promise<JsonObject> promise = Promise.promise();
+    geocoder(location, ar -> {
+      if(ar.succeeded()){
+        promise.complete(ar.result());
+      }
+      else {
+        LOGGER.info("Request failed!");
+      }
+     
+    });
+   return promise.future();
+  }
+
   @Override
   public void reverseGeocoder(String lat, String lon, Handler<AsyncResult<JsonObject>> handler) {
     webClient
@@ -76,22 +91,29 @@ public class GeocodingServiceImpl implements GeocodingService {
     });
   }
 
+  private Future<JsonObject> reverseGeocoderhelper(String lat, String lon) {
+    Promise<JsonObject> promise = Promise.promise();
+    reverseGeocoder(lat, lon, ar -> {
+      if(ar.succeeded()){
+        promise.complete(ar.result());
+      }
+      else {
+        LOGGER.info("Request failed!");
+      }
+    });
+   return promise.future();
+  }
+
   @Override
-  public void geoSummarize(JsonObject doc, Handler<AsyncResult<String>> handler) {
-    JsonArray res = new JsonArray();
+  public void geoSummarize(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
+    Future<JsonObject> f1 = Future.future();;
+    Future<JsonObject> f2 = Future.future();
     if(doc.containsKey("location")) {
 
       /* Geocoding information*/
       JsonObject location = doc.getJsonObject("location");
       String address = location.getString("address");
-      geocoder(address, reply -> {
-      if(reply.succeeded()) {
-        res.add(reply.result().getJsonArray("bbox"));
-      }
-      else {
-        LOGGER.info("Failed to find coordinates");
-        }
-      });
+      f1 = Geocoderhelper(address);
       
       /* Reverse Geocoding information */
       if(location.containsKey("geometry")) {
@@ -99,18 +121,23 @@ public class GeocodingServiceImpl implements GeocodingService {
         JsonArray pos = geometry.getJsonArray("coordinates");
         String lon = pos.getString(0);
         String lat = pos.getString(1);
-        reverseGeocoder(lat, lon, reply -> {
-          if(reply.succeeded()) {
-          // unwrap the result
-            res.add(reply.result().getJsonArray("features"));
-            LOGGER.info("result: ", res);
-            handler.handle(Future.succeededFuture(res.toString()));
-          }
-          else {
-            LOGGER.info("Failed to find location");            
-          }
-        });
+        f2 = reverseGeocoderhelper(lat, lon);
       }
+      CompositeFuture.all(f1,f2).onSuccess(successHandler-> {
+        JsonObject j1 = successHandler.resultAt(0);
+        JsonObject j2 = successHandler.resultAt(1);
+        JsonObject result = new JsonObject();
+        result.put("geocoding", j1);
+        result.put("reverseGeocoding",j2);
+        LOGGER.info(result);
+        handler.handle(Future.succeededFuture(result));
+      });
+      // }).onFailure(failedHandler -> {
+      //     JsonObject result = new JsonObject();
+      //     result.put("status", "error");
+      //     // result.put("message", failedHandler.getMessage());
+      //     handler.handle(Future.failedFuture(result));
+      // });
     }
   }
 }
