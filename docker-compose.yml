@@ -1,8 +1,8 @@
 version: '3.7'
 
 networks:
-  cat-net:
-    driver: bridge
+  overlay-net:
+    external: true
 
 services:
 
@@ -25,7 +25,7 @@ services:
       - "9000:9000"
     restart: on-failure
     networks: 
-      - cat-net
+      - overlay-net
     logging:
          driver: "json-file"
          options:
@@ -47,7 +47,7 @@ services:
       - "9000:9000"
     restart: on-failure
     networks: 
-      - cat-net
+      - overlay-net
     logging:
          driver: "json-file"
          options:
@@ -70,7 +70,7 @@ services:
 
 
     networks: 
-      - cat-net
+      - overlay-net
     logging:
          driver: "json-file"
          options:
@@ -84,4 +84,4 @@ services:
     expose: 
       - "2181"
     networks:
-      - cat-net
+      - overlay-net
