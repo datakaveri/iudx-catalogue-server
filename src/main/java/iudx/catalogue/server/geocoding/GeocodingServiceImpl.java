@@ -108,12 +108,18 @@ public class GeocodingServiceImpl implements GeocodingService {
   public void geoSummarize(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
     Future<JsonObject> f1 = Future.future();;
     Future<JsonObject> f2 = Future.future();
+
     if(doc.containsKey("location")) {
 
       /* Geocoding information*/
       JsonObject location = doc.getJsonObject("location");
       String address = location.getString("address");
-      f1 = Geocoderhelper(address);
+      if(address!=null) {
+        f1 = Geocoderhelper(address);
+      }
+      else {
+        f1.succeededFuture(new JsonObject());
+      }
       
       /* Reverse Geocoding information */
       if(location.containsKey("geometry")) {
@@ -123,22 +129,24 @@ public class GeocodingServiceImpl implements GeocodingService {
         String lat = pos.getString(1);
         f2 = reverseGeocoderhelper(lat, lon);
       }
-      CompositeFuture.all(f1,f2).onSuccess(successHandler-> {
-        JsonObject j1 = successHandler.resultAt(0);
-        JsonObject j2 = successHandler.resultAt(1);
-        JsonObject result = new JsonObject();
-        result.put("geocoding", j1);
-        result.put("reverseGeocoding",j2);
-        LOGGER.info(result);
-        handler.handle(Future.succeededFuture(result));
-      });
-      // }).onFailure(failedHandler -> {
-      //     JsonObject result = new JsonObject();
-      //     result.put("status", "error");
-      //     // result.put("message", failedHandler.getMessage());
-      //     handler.handle(Future.failedFuture(result));
-      // });
+      else {
+        f2.succeededFuture(new JsonObject());
+      } 
     }
+    CompositeFuture.all(f1,f2).onSuccess(successHandler-> {
+      JsonObject j1 = successHandler.resultAt(0);
+      JsonObject j2 = successHandler.resultAt(1);
+      JsonObject res = new JsonObject();
+      result.put("geocoding", j1);
+      result.put("reverseGeocoding",j2);
+      LOGGER.info(res);
+      handler.handle(Future.succeededFuture(res));
+    //   }).onFailure(failedHandler -> {
+    //      JsonObject result = new JsonObject();
+    //      result.put("status", "error");
+    //      result.put("message", failedHandler.getMessage());
+    //      handler.handle(Future.failedFuture(result));
+    });
   }
 }
 
