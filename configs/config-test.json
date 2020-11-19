@@ -32,7 +32,7 @@
             "keystorePath": "configs/keystore.jks",
             "keystorePassword": "1!cat-admin@123",
             "token":"auth.iudx.org.in/md.adil@datakaveri.org/56571ec7e79fe3c0741005f4c65b7d99",
-            "admin_token":"auth.iudx.org.in/rakshit.ramesh@datakaveri.org/e7fcb0c4ddf7cdbc8ae1f1e5df5743a9",
+            "admin_token":"authdev.iudx.io/md.adil@datakaveri.org/f363335e7148c8b4abde5a0a14249295",
             "catAdmin": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
             "verticleInstances": 2,
             "ip": "127.0.0.1",
