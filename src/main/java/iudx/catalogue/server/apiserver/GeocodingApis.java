@@ -64,7 +64,7 @@ public final class GeocodingApis {
       if(reply.succeeded()) {
         routingContext.response().putHeader("content-type","application/json")
         .setStatusCode(200)
-        .end(reply.result().encode());
+        .end(reply.result());
       }
       else {
         LOGGER.info("Failed to find coordinates");

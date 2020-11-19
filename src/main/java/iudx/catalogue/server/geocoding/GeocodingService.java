@@ -31,7 +31,7 @@ public interface GeocodingService {
    * @param location which is a String
    * @param handler which is a request handler
    */
-  void geocoder(String location, Handler<AsyncResult<JsonObject>> handler);
+  void geocoder(String location, Handler<AsyncResult<String>> handler);
 
   /**
    * @param lat which is a Float
@@ -43,7 +43,7 @@ public interface GeocodingService {
   /**
    * @param doc which is a JsonObject
    */
-  public void geoSummarize(JsonObject doc, Handler<AsyncResult<JsonObject>> handler);
+  public void geoSummarize(JsonObject doc, Handler<AsyncResult<String>> handler);
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
