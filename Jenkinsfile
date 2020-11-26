@@ -9,6 +9,7 @@ pipeline {
     imageName = 'iudx-dev'
   }
   agent any
+  stages {
     stage('Building images') {
       steps{
         script {
