@@ -9,12 +9,6 @@ pipeline {
     imageName = 'iudx-dev'
   }
   agent any
-  stages {
-    stage('Cloning Git') {
-      steps {
-        git 'https://github.com/karun-singh/iudx-catalogue-server-1.git'
-      }
-    }
     stage('Building images') {
       steps{
         script {
