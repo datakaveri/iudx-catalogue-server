@@ -4,6 +4,7 @@
 logs/
 configs/config-dev.json
 configs/config-depl.json
+configs/config-test.json
 config.properties
 python_scripts
 notes.md

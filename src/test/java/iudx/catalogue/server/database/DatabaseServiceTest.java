@@ -33,6 +33,7 @@ public class DatabaseServiceTest {
   private static DatabaseService dbService;
   private static Vertx vertxObj;
   private static ElasticClient client;
+  private static String docIndex;
   private static String databaseIP;
   private static int databasePort;
   private static String databaseUser;
@@ -50,11 +51,10 @@ public class DatabaseServiceTest {
     databaseIP = dbConfig.getString(DATABASE_IP);
     databasePort = dbConfig.getInteger(DATABASE_PORT);
     databaseUser = dbConfig.getString(DATABASE_UNAME);
-    databasePassword = dbConfig.getString(DATABASE_PASSWD);
+    docIndex = dbConfig.getString(DOC_INDEX);
 
 
-    // TODO : Need to enable TLS using xpack security
-    client = new ElasticClient(databaseIP, databasePort, databaseUser, databasePassword);
+    client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
     dbService = new DatabaseServiceImpl(client);
     testContext.completeNow();
   }

@@ -23,6 +23,7 @@ public class DatabaseVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LogManager.getLogger(DatabaseVerticle.class);
   private DatabaseService database;
   private String databaseIP;
+  private String docIndex;
   private String databaseUser;
   private String databasePassword;
   private int databasePort;
@@ -43,9 +44,10 @@ public class DatabaseVerticle extends AbstractVerticle {
     databasePort = config().getInteger(DATABASE_PORT);
     databaseUser = config().getString(DATABASE_UNAME);
     databasePassword = config().getString(DATABASE_PASSWD);
+    docIndex = config().getString(DOC_INDEX);
 
 
-    client = new ElasticClient(databaseIP, databasePort, databaseUser, databasePassword);
+    client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
     database = new DatabaseServiceImpl(client);
     new ServiceBinder(vertx).setAddress(DATABASE_SERVICE_ADDRESS)

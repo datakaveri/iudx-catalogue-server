@@ -15,14 +15,6 @@ public class Constants {
   static final String SIZE_KEY = "size";
 
   /* Database */
-  // static final String CAT_INDEX_NAME = "cat";
-  static final String CAT_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
-  static final String CAT_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
-  static final String CAT_GET_TAG = CAT_SEARCH_INDEX + "?filter_path=aggregations.instance.tags.buckets";
-  static final String CAT_GET_DOMAIN = CAT_SEARCH_INDEX + "?filter_path=aggregations.instances.buckets";
-  static final String CAT_GET_AGGREGATIONS = CAT_SEARCH_INDEX + "?filter_path=aggregations";
-  static final String CAT_GET_ITEM = CAT_SEARCH_INDEX + "?filter_path=hits.hits";
-  
   static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
   static final String AGGREGATION_KEY = "aggs";
   

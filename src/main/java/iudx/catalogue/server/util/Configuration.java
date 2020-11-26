@@ -14,7 +14,7 @@ public class Configuration {
    */
   public static String getDbIndex() {
 
-    String filePath = "./configs/config-test.json";
+    String filePath = "./configs/config-depl.json";
 
     try(FileInputStream inputStream = new FileInputStream(filePath)) {     
     String confFile = IOUtils.toString(inputStream);

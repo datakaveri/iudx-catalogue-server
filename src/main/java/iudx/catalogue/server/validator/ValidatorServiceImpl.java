@@ -140,7 +140,7 @@ public class ValidatorServiceImpl implements ValidatorService {
           .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
       LOGGER.debug("Info: Verifying resourceGroup " + resourceGroup);
-      client.searchGetId(CAT_INDEX_NAME, checkQuery.replace("$1", resourceGroup), checkRes -> {
+      client.searchGetId(checkQuery.replace("$1", resourceGroup), checkRes -> {
         if (checkRes.failed()) {
           LOGGER.error("Fail: DB request has failed;" + checkRes.cause().getMessage());
           handler.handle(Future.failedFuture(INTERNAL_SERVER_ERROR));
@@ -178,7 +178,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       request.put(ID, id).put(ITEM_STATUS, ACTIVE)
           .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
-      client.searchGetId(CAT_INDEX_NAME,
+      client.searchGetId(
           checkQuery.replace("$1", provider), providerRes -> {
         if (providerRes.failed()) {
           LOGGER.debug("Fail: DB Error");
@@ -186,7 +186,7 @@ public class ValidatorServiceImpl implements ValidatorService {
           return;
         }
         if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
-          client.searchGetId(CAT_INDEX_NAME,
+          client.searchGetId(
               checkQuery.replace("$1", resourceServer), serverRes -> {
               if (serverRes.failed()) {
                 LOGGER.debug("Fail: DB error");

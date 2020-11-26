@@ -29,6 +29,7 @@ public class ValidatorServiceTest {
   private static Vertx vertxObj;
   private static ElasticClient client;
   private static String databaseIP;
+  private static String docIndex;
   private static int databasePort;
   private static String databaseUser;
   private static String databasePassword;
@@ -46,9 +47,10 @@ public class ValidatorServiceTest {
     databasePort = validatorConfig.getInteger(DATABASE_PORT);
     databaseUser = validatorConfig.getString(DATABASE_UNAME);
     databasePassword = validatorConfig.getString(DATABASE_PASSWD);
+    docIndex = validatorConfig.getString(DOC_INDEX);
 
     // TODO : Need to enable TLS using xpack security
-    client = new ElasticClient(databaseIP, databasePort, databaseUser, databasePassword);
+    client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
     validator = new ValidatorServiceImpl(client);
     testContext.completeNow();
   }
