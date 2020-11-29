@@ -51,6 +51,7 @@ public class DatabaseServiceTest {
     databaseIP = dbConfig.getString(DATABASE_IP);
     databasePort = dbConfig.getInteger(DATABASE_PORT);
     databaseUser = dbConfig.getString(DATABASE_UNAME);
+    databasePassword = dbConfig.getString(DATABASE_PASSWD);
     docIndex = dbConfig.getString(DOC_INDEX);
 
 

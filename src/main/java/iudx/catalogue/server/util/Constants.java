@@ -12,8 +12,6 @@ public class Constants {
 
 
   /** General */
-  public static final String CAT_TEST_SEARCH_INDEX = "testindex";
-  public static final String CAT_INDEX_NAME = Configuration.getDbIndex();
 
   public static final String CONFIG_FILE = "config.properties";
   public static final String IS_SSL = "ssl";

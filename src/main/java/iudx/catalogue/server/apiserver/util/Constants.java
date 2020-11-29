@@ -89,4 +89,11 @@ public class Constants {
   public static final String REL_KEY = "rel";
   public static final ArrayList<String> ITEMS_KEY =
       new ArrayList<String>(Arrays.asList(RESOURCE, RESOURCE_GRP, RESOURCE_SVR, PROVIDER, TYPE));
+
+  public static final long COORDINATES_SIZE = 10;
+  public static final int COORDINATES_PRECISION = 3;
+  public static final int STRING_SIZE = 1000;
+  public static final int PROPERTY_SIZE = 4;
+  public static final int VALUE_SIZE = 4;
+  public static final int ID_SIZE = 512;
 }

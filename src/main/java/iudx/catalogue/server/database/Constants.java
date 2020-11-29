@@ -15,7 +15,6 @@ public class Constants {
   static final String SIZE_KEY = "size";
 
   /* Database */
-  static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
   static final String AGGREGATION_KEY = "aggs";
   
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source&size=10000";
