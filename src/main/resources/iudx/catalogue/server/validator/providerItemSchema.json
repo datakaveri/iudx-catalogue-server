@@ -1,310 +1,319 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "http://example.com/example.json",
-    "type": "object",
-    "title": "The root schema",
-    "description": "The root schema comprises the entire JSON document.",
-    "default": {},
-    "examples": [
-        {
-            "@context": "https://voc.iudx.org.in/",
-            "type": [
-                "iudx:Provider"
-            ],
-            "id": "<provider-id>",
-            "name": "<provider-name>",
-            "description": "<some-description>",
-            "tags": [
-                "optional",
-                "tags"
-            ],
-            "providerOrg": {
-                "name": "<name-of-provider-org>",
-                "additionalInfoURL": "<additional-info-of-provider-org>",
-                "location": {
-                    "type": "Place",
-                    "address": "<optional-address>",
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [
-                            79.92,
-                            15.5
-                        ]
-                    }
-                }
-            }
-        }
-    ],
-    "required": [
-        "@context",
-        "type",
-        "id",
-        "name",
-        "description",
-        "providerOrg"
-    ],
-    "properties": {
-        "@context": {
-            "$id": "#/properties/%40context",
-            "type": "string",
-            "title": "The @context schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "https://voc.iudx.org.in/"
-            ]
-        },
-        "type": {
-            "$id": "#/properties/type",
-            "type": "array",
-            "title": "The type schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": [],
-            "examples": [
-                [
-                    "iudx:Provider"
-                ]
-            ],
-            "additionalItems": true,
-            "items": {
-                "$id": "#/properties/type/items",
-                "anyOf": [
-                    {
-                        "$id": "#/properties/type/items/anyOf/0",
-                        "type": "string",
-                        "title": "The first anyOf schema",
-                        "description": "An explanation about the purpose of this instance.",
-                        "default": "",
-                        "examples": [
-                            "iudx:Provider"
-                        ]
-                    }
-                ]
-            }
-        },
-        "id": {
-            "$id": "#/properties/id",
-            "type": "string",
-            "title": "The id schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "<provider-id>"
-            ]
-        },
-        "name": {
-            "$id": "#/properties/name",
-            "type": "string",
-            "title": "The name schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "<provider-name>"
-            ]
-        },
-        "description": {
-            "$id": "#/properties/description",
-            "type": "string",
-            "title": "The description schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "<some-description>"
-            ]
-        },
-        "tags": {
-            "$id": "#/properties/tags",
-            "type": "array",
-            "title": "The tags schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": [],
-            "examples": [
-                [
-                    "optional",
-                    "tags"
-                ]
-            ],
-            "additionalItems": true,
-            "items": {
-                "$id": "#/properties/tags/items",
-                "anyOf": [
-                    {
-                        "$id": "#/properties/tags/items/anyOf/0",
-                        "type": "string",
-                        "title": "The first anyOf schema",
-                        "description": "An explanation about the purpose of this instance.",
-                        "default": "",
-                        "examples": [
-                            "optional",
-                            "tags"
-                        ]
-                    }
-                ]
-            }
-        },
-        "providerOrg": {
-            "$id": "#/properties/providerOrg",
-            "type": "object",
-            "title": "The providerOrg schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": {},
-            "examples": [
-                {
-                    "name": "<name-of-provider-org>",
-                    "additionalInfoURL": "<additional-info-of-provider-org>",
-                    "location": {
-                        "type": "Place",
-                        "address": "<optional-address>",
-                        "geometry": {
-                            "type": "Point",
-                            "coordinates": [
-                                79.92,
-                                15.5
-                            ]
-                        }
-                    }
-                }
-            ],
-            "required": [
-                "name",
-                "additionalInfoURL",
-                "location"
-            ],
-            "properties": {
-                "name": {
-                    "$id": "#/properties/providerOrg/properties/name",
-                    "type": "string",
-                    "title": "The name schema",
-                    "description": "An explanation about the purpose of this instance.",
-                    "default": "",
-                    "examples": [
-                        "<name-of-provider-org>"
-                    ]
-                },
-                "additionalInfoURL": {
-                    "$id": "#/properties/providerOrg/properties/additionalInfoURL",
-                    "type": "string",
-                    "title": "The additionalInfoURL schema",
-                    "description": "An explanation about the purpose of this instance.",
-                    "default": "",
-                    "examples": [
-                        "<additional-info-of-provider-org>"
-                    ]
-                },
-                "location": {
-                    "$id": "#/properties/providerOrg/properties/location",
-                    "type": "object",
-                    "title": "The location schema",
-                    "description": "An explanation about the purpose of this instance.",
-                    "default": {},
-                    "examples": [
-                        {
-                            "type": "Place",
-                            "address": "<optional-address>",
-                            "geometry": {
-                                "type": "Point",
-                                "coordinates": [
-                                    79.92,
-                                    15.5
-                                ]
-                            }
-                        }
-                    ],
-                    "required": [
-                        "type",
-                        "address",
-                        "geometry"
-                    ],
-                    "properties": {
-                        "type": {
-                            "$id": "#/properties/providerOrg/properties/location/properties/type",
-                            "type": "string",
-                            "title": "The type schema",
-                            "description": "An explanation about the purpose of this instance.",
-                            "default": "",
-                            "examples": [
-                                "Place"
-                            ]
-                        },
-                        "address": {
-                            "$id": "#/properties/providerOrg/properties/location/properties/address",
-                            "type": "string",
-                            "title": "The address schema",
-                            "description": "An explanation about the purpose of this instance.",
-                            "default": "",
-                            "examples": [
-                                "<optional-address>"
-                            ]
-                        },
-                        "geometry": {
-                            "$id": "#/properties/providerOrg/properties/location/properties/geometry",
-                            "type": "object",
-                            "title": "The geometry schema",
-                            "description": "An explanation about the purpose of this instance.",
-                            "default": {},
-                            "examples": [
-                                {
-                                    "type": "Point",
-                                    "coordinates": [
-                                        79.92,
-                                        15.5
-                                    ]
-                                }
-                            ],
-                            "required": [
-                                "type",
-                                "coordinates"
-                            ],
-                            "properties": {
-                                "type": {
-                                    "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/type",
-                                    "type": "string",
-                                    "title": "The type schema",
-                                    "description": "An explanation about the purpose of this instance.",
-                                    "default": "",
-                                    "examples": [
-                                        "Point"
-                                    ]
-                                },
-                                "coordinates": {
-                                    "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates",
-                                    "type": "array",
-                                    "title": "The coordinates schema",
-                                    "description": "An explanation about the purpose of this instance.",
-                                    "default": [],
-                                    "examples": [
-                                        [
-                                            79.92,
-                                            15.5
-                                        ]
-                                    ],
-                                    "additionalItems": true,
-                                    "items": {
-                                        "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates/items",
-                                        "anyOf": [
-                                            {
-                                                "$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates/items/anyOf/0",
-                                                "type": "number",
-                                                "title": "The first anyOf schema",
-                                                "description": "An explanation about the purpose of this instance.",
-                                                "default": 0.0,
-                                                "examples": [
-                                                    79.92,
-                                                    15.5
-                                                ]
-                                            }
-                                        ]
-                                    }
-                                }
-                            },
-                            "additionalProperties": true
-                        }
-                    },
-                    "additionalProperties": true
-                }
-            },
-            "additionalProperties": true
-        }
-    },
-    "additionalProperties": true
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"$id": "http://example.com/example.json",
+	"type": "object",
+	"title": "The root schema",
+	"description": "The root schema comprises the entire JSON document.",
+	"default": {
+		
+	},
+	"examples": [
+		{
+			"@context": "https://voc.iudx.org.in/",
+			"type": [
+				"iudx:Provider"
+			],
+			"id": "<provider-id>",
+			"name": "<provider-name>",
+			"description": "<some-description>",
+			"tags": [
+				"optional",
+				"tags"
+			],
+			"providerOrg": {
+				"name": "<name-of-provider-org>",
+				"additionalInfoURL": "<additional-info-of-provider-org>",
+				"location": {
+					"type": "Place",
+					"address": "<optional-address>",
+					"geometry": {
+						"type": "Point",
+						"coordinates": [
+							79.92,
+							15.5
+						]
+					}
+				}
+			}
+		}
+	],
+	"required": [
+		"@context",
+		"type",
+		"id",
+		"name",
+		"description",
+		"providerOrg"
+	],
+	"properties": {
+		"@context": {
+			"$id": "#/properties/%40context",
+			"type": "string",
+			"title": "The @context schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [
+				"https://voc.iudx.org.in/"
+			]
+		},
+		"type": {
+			"$id": "#/properties/type",
+			"type": "array",
+			"title": "The type schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": [],
+			"examples": [
+				[
+					"iudx:Provider"
+				]
+			],
+			"additionalItems": true,
+			"items": {
+				"$id": "#/properties/type/items",
+				"anyOf": [
+					{
+						"$id": "#/properties/type/items/anyOf/0",
+						"type": "string",
+						"title": "The first anyOf schema",
+						"description": "An explanation about the purpose of this instance.",
+						"default": "",
+						"examples": [
+							"iudx:Provider"
+						]
+					}
+				]
+			}
+		},
+		"id": {
+			"$id": "#/properties/id",
+			"type": "string",
+			"title": "The id schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [
+				"<provider-id>"
+			],
+			"maxLength": 512
+		},
+		"name": {
+			"$id": "#/properties/name",
+			"type": "string",
+			"title": "The name schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [
+				"<provider-name>"
+			]
+		},
+		"description": {
+			"$id": "#/properties/description",
+			"type": "string",
+			"title": "The description schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [
+				"<some-description>"
+			]
+		},
+		"tags": {
+			"$id": "#/properties/tags",
+			"type": "array",
+			"title": "The tags schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": [],
+			"examples": [
+				[
+					"optional",
+					"tags"
+				]
+			],
+			"additionalItems": true,
+			"items": {
+				"$id": "#/properties/tags/items",
+				"anyOf": [
+					{
+						"$id": "#/properties/tags/items/anyOf/0",
+						"type": "string",
+						"title": "The first anyOf schema",
+						"description": "An explanation about the purpose of this instance.",
+						"default": "",
+						"examples": [
+							"optional",
+							"tags"
+						]
+					}
+				]
+			}
+		},
+		"providerOrg": {
+			"$id": "#/properties/providerOrg",
+			"type": "object",
+			"title": "The providerOrg schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": {
+				
+			},
+			"examples": [
+				{
+					"name": "<name-of-provider-org>",
+					"additionalInfoURL": "<additional-info-of-provider-org>",
+					"location": {
+						"type": "Place",
+						"address": "<optional-address>",
+						"geometry": {
+							"type": "Point",
+							"coordinates": [
+								79.92,
+								15.5
+							]
+						}
+					}
+				}
+			],
+			"required": [
+				"name",
+				"additionalInfoURL",
+				"location"
+			],
+			"properties": {
+				"name": {
+					"$id": "#/properties/providerOrg/properties/name",
+					"type": "string",
+					"title": "The name schema",
+					"description": "An explanation about the purpose of this instance.",
+					"default": "",
+					"examples": [
+						"<name-of-provider-org>"
+					]
+				},
+				"additionalInfoURL": {
+					"$id": "#/properties/providerOrg/properties/additionalInfoURL",
+					"type": "string",
+					"title": "The additionalInfoURL schema",
+					"description": "An explanation about the purpose of this instance.",
+					"default": "",
+					"examples": [
+						"<additional-info-of-provider-org>"
+					]
+				},
+				"location": {
+					"$id": "#/properties/providerOrg/properties/location",
+					"type": "object",
+					"title": "The location schema",
+					"description": "An explanation about the purpose of this instance.",
+					"default": {
+						
+					},
+					"examples": [
+						{
+							"type": "Place",
+							"address": "<optional-address>",
+							"geometry": {
+								"type": "Point",
+								"coordinates": [
+									79.92,
+									15.5
+								]
+							}
+						}
+					],
+					"required": [
+						"type",
+						"address",
+						"geometry"
+					],
+					"properties": {
+						"type": {
+							"$id": "#/properties/providerOrg/properties/location/properties/type",
+							"type": "string",
+							"title": "The type schema",
+							"description": "An explanation about the purpose of this instance.",
+							"default": "",
+							"examples": [
+								"Place"
+							]
+						},
+						"address": {
+							"$id": "#/properties/providerOrg/properties/location/properties/address",
+							"type": "string",
+							"title": "The address schema",
+							"description": "An explanation about the purpose of this instance.",
+							"default": "",
+							"examples": [
+								"<optional-address>"
+							]
+						},
+						"geometry": {
+							"$id": "#/properties/providerOrg/properties/location/properties/geometry",
+							"type": "object",
+							"title": "The geometry schema",
+							"description": "An explanation about the purpose of this instance.",
+							"default": {
+								
+							},
+							"examples": [
+								{
+									"type": "Point",
+									"coordinates": [
+										79.92,
+										15.5
+									]
+								}
+							],
+							"required": [
+								"type",
+								"coordinates"
+							],
+							"properties": {
+								"type": {
+									"$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/type",
+									"type": "string",
+									"title": "The type schema",
+									"description": "An explanation about the purpose of this instance.",
+									"default": "",
+									"examples": [
+										"Point"
+									]
+								},
+								"coordinates": {
+									"$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates",
+									"type": "array",
+									"title": "The coordinates schema",
+									"description": "An explanation about the purpose of this instance.",
+									"default": [],
+									"examples": [
+										[
+											79.92,
+											15.5
+										]
+									],
+									"additionalItems": true,
+									"items": {
+										"$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates/items",
+										"anyOf": [
+											{
+												"$id": "#/properties/providerOrg/properties/location/properties/geometry/properties/coordinates/items/anyOf/0",
+												"type": "number",
+												"title": "The first anyOf schema",
+												"description": "An explanation about the purpose of this instance.",
+												"default": 0.0,
+												"examples": [
+													79.92,
+													15.5
+												]
+											}
+										]
+									}
+								}
+							},
+							"additionalProperties": true
+						}
+					},
+					"additionalProperties": true
+				}
+			},
+			"additionalProperties": true
+		}
+	},
+	"additionalProperties": true
 }

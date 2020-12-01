@@ -15,4 +15,7 @@ public class Constants {
 
     public static final String AUTH_SERVER_ERROR = "Error calling the Auth Server";
 
+    public static final int TOKEN_SIZE = 512;
+    public static final String TOKEN_REGEX = "^[a-zA-Z0-9\\/\\@\\.]*$";
+
 }

@@ -167,11 +167,11 @@ public class DatabaseServiceTest {
   @DisplayName("Testing Geo-circle query")
   void searchGeoCircle(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_GEO)
-        .put(COORDINATES_KEY, new JsonArray().add(73.831273).add(18.508766)).put(MAX_DISTANCE, 5000)
+        .put(COORDINATES_KEY, new JsonArray().add(73.927).add(18.508)).put(MAX_DISTANCE, 5000)
         .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, GEO_KEY);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.831273,
+      assertEquals(73.927,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -206,7 +206,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.927285,
+      assertEquals(73.927,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -250,13 +250,13 @@ public class DatabaseServiceTest {
     /** COORDINATES_KEY should look like this [[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5]] */
     JsonObject request =
         new JsonObject().put(GEOMETRY, LINESTRING).put(GEORELATION, INTERSECTS).put(COORDINATES_KEY,
-            new JsonArray().add(new JsonArray().add(77.567829).add(18.528311))
-                .add(new JsonArray().add(73.836808).add(18.572797))
-                .add(new JsonArray().add(77.567829).add(13.091794)))
+            new JsonArray().add(new JsonArray().add(73.927).add(18.528))
+                .add(new JsonArray().add(73.836).add(18.572))
+                .add(new JsonArray().add(73.927).add(13.091)))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(77.567829,
+      assertEquals(73.927,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -275,7 +275,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.927285,
+      assertEquals(73.927,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -353,7 +353,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.927285,
+        assertEquals(73.927,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -370,7 +370,7 @@ public class DatabaseServiceTest {
         .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, GEO_KEY);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(1, response.getInteger(TOTAL_HITS));
+      assertEquals(2, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -409,9 +409,9 @@ public class DatabaseServiceTest {
     /** COORDINATES_KEY should look like this [[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5]] */
     JsonObject request =
         new JsonObject().put(GEOMETRY, LINESTRING).put(GEORELATION, INTERSECTS).put(COORDINATES_KEY,
-            new JsonArray().add(new JsonArray().add(77.567829).add(13.091794))
-                .add(new JsonArray().add(73.836808).add(18.572797))
-                .add(new JsonArray().add(77.567829).add(13.091794)))
+            new JsonArray().add(new JsonArray().add(73.927).add(13.091))
+                .add(new JsonArray().add(73.836).add(18.57))
+                .add(new JsonArray().add(73.927).add(13.091)))
             .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
@@ -470,7 +470,7 @@ public class DatabaseServiceTest {
 
     /* requesting db service */
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.927285,
+      assertEquals(73.927,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -500,7 +500,7 @@ public class DatabaseServiceTest {
 
     /* requesting db service */
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.927285,
+      assertEquals(73.927,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -574,7 +574,7 @@ public class DatabaseServiceTest {
 
     /* requesting db service */
     dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.927285,
+      assertEquals(73.927,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
               .getDouble(0));
@@ -664,7 +664,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.927285,
+        assertEquals(73.927,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -710,7 +710,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.927285,
+        assertEquals(73.927,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -754,7 +754,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.927285,
+        assertEquals(73.927,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -799,7 +799,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.927285,
+        assertEquals(73.927,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -840,7 +840,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(77.567829,
+        assertEquals(73.927,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -881,7 +881,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.927285,
+        assertEquals(73.927,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
@@ -903,7 +903,7 @@ public class DatabaseServiceTest {
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals(77.585006,
+        assertEquals(73.927,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         testContext.completeNow();

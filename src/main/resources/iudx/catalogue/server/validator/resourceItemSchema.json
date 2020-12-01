@@ -1,65 +1,78 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
-    "$id": "http://example.com/example.json",
-    "type": "object",
-    "title": "The root schema",
-    "description": "The root schema comprises the entire JSON document.",
-    "default": {},
-    "examples": [
-        {
-            "name": "SomePlace",
-            "provider": "SomeID",
-            "resourceGroup": "SomeID",
-            "tags": "SomeTags"
-        }
-    ],
-    "required": [
-        "name",
-        "provider",
-        "resourceGroup",
-        "tags"
-    ],
-    "properties": {
-        "name": {
-            "$id": "#/properties/name",
-            "type": "string",
-            "title": "The name schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "SomePlace"
-            ]
-        },
-        "provider": {
-            "$id": "#/properties/provider",
-            "type": "string",
-            "title": "The provider schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "SomeID"
-            ]
-        },
-        "resourceGroup": {
-            "$id": "#/properties/resourceGroup",
-            "type": "string",
-            "title": "The resourceGroup schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "SomeID"
-            ]
-        },
-        "tags": {
-            "$id": "#/properties/tags",
-            "type": "array",
-            "items": {
-                "type": "string"
-            },
-            "title": "The tags schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": ""
-        }
-    },
-    "additionalProperties": true
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"$id": "http://example.com/example.json",
+	"type": "object",
+	"title": "The root schema",
+	"description": "The root schema comprises the entire JSON document.",
+	"default": {
+		
+	},
+	"examples": [
+		{
+			"name": "SomePlace",
+			"provider": "SomeID",
+			"resourceGroup": "SomeID",
+			"tags": "SomeTags"
+		}
+	],
+	"required": [
+		"name",
+		"provider",
+		"resourceGroup",
+		"tags"
+	],
+	"properties": {
+		"name": {
+			"$id": "#/properties/name",
+			"type": "string",
+			"title": "The name schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [
+				"SomePlace"
+			],
+			"maxLength": 512
+		},
+		"provider": {
+			"$id": "#/properties/provider",
+			"type": "string",
+			"title": "The provider schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [
+				"SomeID"
+			],
+			"maxLength": 512
+		},
+		"resourceGroup": {
+			"$id": "#/properties/resourceGroup",
+			"type": "string",
+			"title": "The resourceGroup schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"examples": [
+				"SomeID"
+			],
+			"maxLength": 512
+		},
+		"tags": {
+			"$id": "#/properties/tags",
+			"type": "array",
+			"items": {
+				"type": "string"
+			},
+			"title": "The tags schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": ""
+		},
+		"instance": {
+			"$id": "#/properties/instance",
+			"type": "string",
+			"title": "The instance  schema",
+			"description": "An explanation about the purpose of this instance.",
+			"default": "",
+			"maxLength":100
+		}
+	},
+	"additionalProperties": true
 }

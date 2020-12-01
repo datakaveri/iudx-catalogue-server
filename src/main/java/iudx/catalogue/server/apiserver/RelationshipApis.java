@@ -55,6 +55,7 @@ public final class RelationshipApis {
 
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
+    MultiMap queryParameters = routingContext.queryParams();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     JsonObject requestBody = new JsonObject();
@@ -65,37 +66,54 @@ public final class RelationshipApis {
       String itemType = request.getParam(REL_KEY);
 
       if (!id.isBlank() && ITEMS_KEY.contains(itemType)) {
-        requestBody.put(ID, id);
-        requestBody.put(INSTANCE, instanceID);
-        requestBody.put(RELATIONSHIP, itemType);
+        requestBody = QueryMapper.map2Json(queryParameters);
 
-        /*
-         * Request database service with requestBody for listing resource relationship
-         */
-        dbService.listRelationship(requestBody, dbhandler -> {
-          if (dbhandler.succeeded()) {
-            LOGGER.info("Success: Retrieved relationships of " + itemType);
-            response.setStatusCode(200)
-                    .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            LOGGER.error("Fail: Issue in listing relationship;" + dbhandler.cause().getMessage());
+        if (requestBody != null) {
+          requestBody.put(INSTANCE, instanceID);
+          requestBody.put(RELATIONSHIP, queryParameters.get(REL_KEY));
+          JsonObject resp = QueryMapper.validateQueryParam(requestBody);
+
+          if (resp.getString(STATUS).equals(SUCCESS)) {
+
+            /*
+             * Request database service with requestBody for listing resource relationship
+             */
+            dbService.listRelationship(requestBody, dbhandler -> {
+              if (dbhandler.succeeded()) {
+                LOGGER.info("Success: Retrieved relationships of " + itemType);
+                response.setStatusCode(200).end(dbhandler.result().toString());
+              } else if (dbhandler.failed()) {
+                LOGGER
+                    .error("Fail: Issue in listing relationship;" + dbhandler.cause().getMessage());
+                response.setStatusCode(400)
+                        .end(dbhandler.cause().getMessage());
+              }
+            });
+          } else {
+            LOGGER.error("Fail: Search; Invalid request query parameters");
             response.setStatusCode(400)
-                    .end(dbhandler.cause().getMessage());
+                    .end(resp.toString());
           }
-        });
+        } else {
+          LOGGER.error("Fail: Search; Invalid request query parameters");
+          response.setStatusCode(400)
+                  .end(new ResponseHandler.Builder()
+                                          .withStatus(INVALID_SYNTAX)
+                                          .build().toJsonString());
+        }
       } else {
         LOGGER.error("Fail: Issue in query parameter");
         response.setStatusCode(400)
-            .end(new ResponseHandler.Builder()
-                                    .withStatus(INVALID_VALUE)
-                                    .build().toJsonString());
+                .end(new ResponseHandler.Builder()
+                                        .withStatus(INVALID_VALUE)
+                                        .build().toJsonString());
       }
     } else {
       LOGGER.error("Fail: Issue in query parameter");
       response.setStatusCode(400)
-          .end(new ResponseHandler.Builder()
-                                  .withStatus(INVALID_SYNTAX)
-                                  .build().toJsonString());
+              .end(new ResponseHandler.Builder()
+                                      .withStatus(INVALID_SYNTAX)
+                                      .build().toJsonString());
     }
   }
 

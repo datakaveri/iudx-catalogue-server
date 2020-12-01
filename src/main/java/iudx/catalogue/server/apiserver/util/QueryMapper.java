@@ -8,14 +8,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
 /**
@@ -120,10 +118,12 @@ public class QueryMapper {
    */
   public static JsonObject validateQueryParam(JsonObject requestBody) {
 
+    LOGGER.debug("Info: Validating attributes limits and  constraints");
     JsonObject errResponse = new JsonObject().put(STATUS, FAILED);
 
     /* Validating GeoSearch limits */
-    if (requestBody.getString(SEARCH_TYPE).contains(SEARCH_TYPE_GEO)) {
+    String searchType = requestBody.getString(SEARCH_TYPE, "");
+    if (searchType.contains(SEARCH_TYPE_GEO)) {
 
       /* Checking limits and precision of coordinate attributes */
       if (requestBody.containsKey(COORDINATES)) {
@@ -140,11 +140,13 @@ public class QueryMapper {
                 (BigDecimal.valueOf(Double.parseDouble(value)).scale() <= COORDINATES_PRECISION);
 
             if (isPrecise == Boolean.FALSE) {
+              LOGGER.error("Error: Overflow coordinate precision");
               return errResponse.put(DESC,
                   "The max point of 'coordinates' precision is " + COORDINATES_PRECISION);
             }
           }
         } else {
+          LOGGER.error("Error: Overflow coordinate pairs");
           return errResponse.put(DESC,
               "The max number of 'coordinates' pair is " + COORDINATES_SIZE);
         }
@@ -152,23 +154,25 @@ public class QueryMapper {
 
       /* Validating maxDistance attribute for positive integer */
       if (requestBody.containsKey(MAX_DISTANCE) && requestBody.getInteger(MAX_DISTANCE) < 0) {
+        LOGGER.error("Error: maxDistance should be positive");
         return errResponse.put(DESC,
             "The 'maxDistance' should be positive number");
       }
     }
 
     /* Validating text search limits */
-    if (requestBody.getString(SEARCH_TYPE).contains(SEARCH_TYPE_TEXT)) {
+    if (searchType.contains(SEARCH_TYPE_TEXT)) {
 
       String searchString = requestBody.getString(Q_VALUE);
       if (searchString.length() > STRING_SIZE) {
+        LOGGER.error("Error: 'q' must be " + STRING_SIZE + " in char");
         return errResponse.put(DESC,
             "The max string(q) size supported is " + STRING_SIZE);
       }
     }
 
     /* Validating AttributeSearch limits */
-    if (requestBody.getString(SEARCH_TYPE).contains(SEARCH_TYPE_ATTRIBUTE)) {
+    if (searchType.contains(SEARCH_TYPE_ATTRIBUTE)) {
       
       /* Checking the number of property and value within the request */
       if (requestBody.getJsonArray(PROPERTY).size() <= PROPERTY_SIZE) {
@@ -178,21 +182,25 @@ public class QueryMapper {
           for (Object value : values) {
             JsonArray nestedValue = (JsonArray) value;
             if (nestedValue.size() > VALUE_SIZE) {
+              LOGGER.error("Error: The value query param has exceeded the limit");
               return errResponse.put(DESC, "The max number of 'value' should be " + VALUE_SIZE);
             }
           }
         } else {
+          LOGGER.error("Error: The value pair query param has exceeded the limit");
           return errResponse.put(DESC, "The max number of 'value' pair should be " + VALUE_SIZE);
         }
       } else {
+        LOGGER.error("Error: The property query param has exceeded the limit");
         return errResponse.put(DESC, "The max number of 'property' should be " + PROPERTY_SIZE);
       }
     }
 
     /* Validating ResponseFilter limits */
-    if (requestBody.getString(SEARCH_TYPE).contains(RESPONSE_FILTER)) {
-      if (requestBody.getJsonArray(FILTER).size() > VALUE_SIZE) {
-        return errResponse.put(DESC, "The max number of 'filter' should be " + VALUE_SIZE);
+    if (searchType.contains(RESPONSE_FILTER)) {
+      if (requestBody.getJsonArray(FILTER, new JsonArray()).size() > FILTER_VALUE_SIZE) {
+        LOGGER.error("Error: The filter in query param has exceeded the limit");
+        return errResponse.put(DESC, "The max number of 'filter' should be " + FILTER_VALUE_SIZE);
       }
     }
 
@@ -200,7 +208,25 @@ public class QueryMapper {
     if (requestBody.containsKey(INSTANCE)) {
       String instance = requestBody.getString(INSTANCE, "");
       if (instance != null && instance.length() > ID_SIZE) {
+        LOGGER.error("Error: The instance length has exceeded the limit");
         return errResponse.put(DESC, "The max length of 'instance' should be " + ID_SIZE);
+      }
+    }
+
+    /* Validating length of limit param */
+    if (requestBody.containsKey(LIMIT)) {
+      Integer limit = requestBody.getInteger(LIMIT, 0);
+      if (limit <= 0 || limit > FILTER_PAGINATION_SIZE) {
+        LOGGER.error("Error: The limit query param has exceeded the limit");
+        return errResponse.put(DESC, "The limit should be between 1 to " + FILTER_PAGINATION_SIZE);
+      }
+    }
+
+    /* Validating length of offset param */
+    if (requestBody.containsKey(OFFSET)) {
+      Integer offset = requestBody.getInteger(OFFSET, 0);
+      if (offset < 0 || offset > OFFSET_PAGINATION_SIZE) {
+        return errResponse.put(DESC, "The offset should be between 0 to " + OFFSET_PAGINATION_SIZE);
       }
     }
 

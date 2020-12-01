@@ -11,11 +11,14 @@ import org.apache.logging.log4j.Logger;
 
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
+import iudx.catalogue.server.apiserver.util.QueryMapper;
+import iudx.catalogue.server.apiserver.util.ResponseHandler;
 import iudx.catalogue.server.database.DatabaseService;
 
 
@@ -52,66 +55,75 @@ public final class ListApis {
 
     /* Handles HTTP request from client */
     HttpServerRequest request = routingContext.request();
+    MultiMap queryParameters = routingContext.queryParams();
 
     /* Handles HTTP response from server to client */
     HttpServerResponse response = routingContext.response();
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    JsonObject requestBody = new JsonObject();
-
     /* HTTP request instance/host details */
     String instanceID = request.getHeader(HEADER_INSTANCE);
 
     String itemType = request.getParam(ITEM_TYPE);
-    requestBody.put(ITEM_TYPE, itemType);
-    /* Populating query mapper */
-    requestBody.put(HEADER_INSTANCE, instanceID);
+    JsonObject requestBody = QueryMapper.map2Json(queryParameters);
+    if (requestBody != null) {
 
-    String type = null;
+      requestBody.put(ITEM_TYPE, itemType);
+      /* Populating query mapper */
+      requestBody.put(HEADER_INSTANCE, instanceID);
 
-    switch (itemType) {
-      case INSTANCE:
-        type = ITEM_TYPE_INSTANCE;
-        break;
-      case RESOURCE_GRP:
-        type = ITEM_TYPE_RESOURCE_GROUP;
-        break;
-      case RESOURCE_SVR:
-    	  type = ITEM_TYPE_RESOURCE_SERVER;
-        break;
-      case PROVIDER:
-    	  type = ITEM_TYPE_PROVIDER;
-        break;
-      case TAGS:
-        type = itemType;
-        break;
-      default:
-        LOGGER.error("Fail: Invalid itemType:" + itemType);
-        response
-            .setStatusCode(400)
-            .end(new JsonObject().put(STATUS, ERROR).put("message", "Invalid itemType").toString());
-        return;
-    }
-    requestBody.put(TYPE, type);
+      JsonObject resp = QueryMapper.validateQueryParam(requestBody);
+      if (resp.getString(STATUS).equals(SUCCESS)) {
 
+        String type = null;
 
-    /* Request database service with requestBody for listing items */
-    dbService.listItems(
-        requestBody,
-        dbhandler -> {
+        switch (itemType) {
+          case INSTANCE:
+            type = ITEM_TYPE_INSTANCE;
+            break;
+          case RESOURCE_GRP:
+            type = ITEM_TYPE_RESOURCE_GROUP;
+            break;
+          case RESOURCE_SVR:
+            type = ITEM_TYPE_RESOURCE_SERVER;
+            break;
+          case PROVIDER:
+            type = ITEM_TYPE_PROVIDER;
+            break;
+          case TAGS:
+            type = itemType;
+            break;
+          default:
+            LOGGER.error("Fail: Invalid itemType:" + itemType);
+            response.setStatusCode(400).end(
+                new JsonObject().put(STATUS, ERROR).put("message", "Invalid itemType").toString());
+            return;
+        }
+        requestBody.put(TYPE, type);
+
+        /* Request database service with requestBody for listing items */
+        dbService.listItems(requestBody, dbhandler -> {
           if (dbhandler.succeeded()) {
             LOGGER.info("Success: Item listing");
-            response
-                .setStatusCode(200)
-                .end(dbhandler.result().toString());
+            response.setStatusCode(200).end(dbhandler.result().toString());
           } else if (dbhandler.failed()) {
             LOGGER.error(
                 "Fail: Issue in listing " + itemType + ": " + dbhandler.cause().getMessage());
-            response
-                .setStatusCode(400)
-                .end(dbhandler.cause().getMessage());
+            response.setStatusCode(400).end(dbhandler.cause().getMessage());
           }
         });
+      } else {
+        LOGGER.error("Fail: Search/Count; Invalid request query parameters");
+        response.setStatusCode(400)
+                .end(resp.toString());
+      }
+    } else {
+      LOGGER.error("Fail: Search/Count; Invalid request query parameters");
+      response.setStatusCode(400)
+              .end(new ResponseHandler.Builder()
+                                      .withStatus(INVALID_SYNTAX)
+                                      .build().toJsonString());
+    }
   }
 }

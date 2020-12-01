@@ -16,11 +16,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.auth.AuthScope;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-
 import java.io.IOException;
 
 import static iudx.catalogue.server.database.Constants.*;
@@ -29,7 +24,6 @@ import static iudx.catalogue.server.util.Constants.*;
 public final class ElasticClient {
   private final RestClient client;
   private final String index;
-  private static final Logger LOGGER = LogManager.getLogger(ElasticClient.class);
 
   /**
    * ElasticClient - Wrapper around ElasticSearch low level client

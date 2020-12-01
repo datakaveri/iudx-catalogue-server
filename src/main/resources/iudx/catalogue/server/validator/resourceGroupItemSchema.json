@@ -131,7 +131,8 @@
             "default": "",
             "examples": [
                 "providerID"
-            ]
+            ],
+            "maxLength":512
         },
         "resourceServer": {
             "$id": "#/properties/resourceServer",
@@ -141,7 +142,8 @@
             "default": "",
             "examples": [
                 "resourceProviderID/example.com"
-            ]
+            ],
+            "maxLength":512
         },
         "resourceAuthControlLevel": {
             "$id": "#/properties/resourceAuthControlLevel",

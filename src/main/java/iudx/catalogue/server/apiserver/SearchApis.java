@@ -94,8 +94,7 @@ public final class SearchApis {
       requestBody = QueryMapper.map2Json(queryParameters);
 
       /* checking the values of the query parameters for geo related count */
-    } else if (LOCATION.equals(request.getParam(GEOPROPERTY))
-                && GEOMETRIES.contains(request.getParam(GEOMETRY))
+    } else if (GEOMETRIES.contains(request.getParam(GEOMETRY))
         && GEORELS.contains(request.getParam(GEORELATION))) {
       requestBody = QueryMapper.map2Json(queryParameters);
     } else if (request.getParam(Q_VALUE) != null

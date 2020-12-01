@@ -109,7 +109,8 @@
             "default": "",
             "examples": [
                 "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a/rs.iudx.org.in"
-            ]
+            ],
+            "maxLength":512
         },
         "provider": {
             "$id": "#/properties/provider",
@@ -119,7 +120,8 @@
             "default": "",
             "examples": [
                 "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a"
-            ]
+            ],
+            "maxLength":512
         },
         "name": {
             "$id": "#/properties/name",
