@@ -294,7 +294,7 @@ public class ApiServerVerticleTest {
     /* Should give only one item */
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
         .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "5000")
-        .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[77.567829,13.091794]")
+        .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[77.567,13.09]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -485,7 +485,7 @@ public class ApiServerVerticleTest {
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(GEOPROPERTY, LOCATION)
         .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "5000")
         .addQueryParam(GEOMETRY, "Polygon").addQueryParam(COORDINATES,
-            "[ [ [ 77.51, 12.85 ], [ 77.70, 12.95 ], [ 77.58, 13.07 ], [ 77.44, 13.01 ], [ 77.51, 12.85 ] ] ]") 
+            "[ [ [ 73.927, 10.85 ], [ 75.70, 12.95 ], [ 73.58, 13.07 ], [ 72.44, 13.01 ], [ 73.927, 10.85 ] ] ]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -1042,7 +1042,7 @@ public class ApiServerVerticleTest {
   @DisplayName("bbox search")
   void bboxSearchtest(VertxTestContext testContext) {
     String apiURL =
-        "search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[77.567829,18.528311],[73.874537,18.528311]]";
+        "search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[77.567,18.528],[73.874,18.528]]";
     LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(serverResponse -> {
       if (serverResponse.succeeded()) {
@@ -1065,7 +1065,7 @@ public class ApiServerVerticleTest {
   @DisplayName("LineString search")
   void LineStringSearchtest(VertxTestContext testContext) {
     String apiURL = "search?geoproperty=location&georel=intersects&geometry=LineString&coordinates"
-        + "=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]";
+        + "=[[73.874,18.528],[73.836,18.572],[73.876,18.525]]";
     LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(serverResponse -> {
       if (serverResponse.succeeded()) {
@@ -1366,7 +1366,7 @@ public class ApiServerVerticleTest {
     /* Should give only one item */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
         .addQueryParam(GEORELATION, INTERSECTS).addQueryParam(MAX_DISTANCE, "5000")
-        .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[77.567829,13.091794]")
+        .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[77.567,13.091]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -1399,9 +1399,8 @@ public class ApiServerVerticleTest {
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
         .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "5000")
         .addQueryParam(GEOMETRY, "Polygon").addQueryParam(COORDINATES,
-            "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066]"
-                + ",[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],"
-                + "[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]")
+            "[[[73.696,18.592],[73.690,18.391]" + ",[73.961,18.364],[74.092,18.526],"
+                + "[73.894,18.689],[73.696,18.592]]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -1600,7 +1599,7 @@ public class ApiServerVerticleTest {
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
         .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(MAX_DISTANCE, "5000")
         .addQueryParam(GEOMETRY, BBOX).addQueryParam(COORDINATES,
-            "[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137]]")
+            "[[73.696,18.592],[73.696,18.592]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
@@ -1633,7 +1632,7 @@ public class ApiServerVerticleTest {
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
         .addQueryParam(GEORELATION, INTERSECTS).addQueryParam(GEOMETRY, LINE_STRING)
         .addQueryParam(COORDINATES,
-            "[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137],[73.876484,18.525007]]")
+            "[[73.696,18.592],[73.696,18.592],[73.876,18.525]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 

@@ -90,7 +90,8 @@
             "default": "",
             "examples": [
                 "<provider-id>"
-            ]
+            ],
+            "maxLength": 512
         },
         "name": {
             "$id": "#/properties/name",

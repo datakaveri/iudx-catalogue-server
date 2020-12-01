@@ -46,8 +46,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (authInfo.isEmpty()) throw new IllegalArgumentException("AuthInfo argument is empty/missing");
         String token = authInfo.getString(TOKEN, "");
         String operation = authInfo.getString(OPERATION, "");
-        if (token.isBlank() || operation.isBlank())
+        if (token.isBlank() || operation.isBlank()) {
             throw new IllegalArgumentException("Token/Operation in authenticationInfo is blank/missing");
+        } else if (token.length() > TOKEN_SIZE) {
+          throw new IllegalArgumentException(
+              "Supported max size of Token in authenticationInfo is " + TOKEN_SIZE);
+        } else if (!token.matches(TOKEN_REGEX)) {
+          throw new IllegalArgumentException(
+              "Invalid Token pattern, supported pattern " + TOKEN_REGEX);
+        }
         try {
             HttpMethod.valueOf(operation);
         } catch (IllegalArgumentException e) {

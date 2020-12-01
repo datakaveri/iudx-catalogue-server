@@ -131,7 +131,8 @@
             "default": "",
             "examples": [
                 "providerID"
-            ]
+            ],
+            "maxLength":512
         },
         "resourceServer": {
             "$id": "#/properties/resourceServer",
@@ -141,7 +142,8 @@
             "default": "",
             "examples": [
                 "resourceProviderID/example.com"
-            ]
+            ],
+            "maxLength":512
         },
         "resourceAuthControlLevel": {
             "$id": "#/properties/resourceAuthControlLevel",
@@ -162,6 +164,14 @@
             "examples": [
                 "messageStream"
             ]
+        },
+        "instance": {
+            "$id": "#/properties/instance",
+            "type": "string",
+            "title": "The instance  schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "maxLength":100
         },
         "iudxResourceAPIs": {
             "$id": "#/properties/iudxResourceAPIs",

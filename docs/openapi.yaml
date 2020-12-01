@@ -91,7 +91,7 @@ paths:
               - bbox
           in: query
         - name: coordinates
-          description: 'Coordinates for the specific query type. For e.g, [[1,2], [3,4]]. Note: The data-type of this field is a string, therefore the coordinates are a string encoded multidimensional array.'
+          description: 'Coordinates for the specific query type. For e.g, [[1,2], [3,4]]. Note: The data-type of this field is a string, therefore the coordinates are a string encoded multidimensional array.Precision supported is 6 decimal places.'
           schema:
             type: array
             minItems: 1
@@ -142,10 +142,10 @@ paths:
             maxItems: 10
           in: query
         - name: instance
-          description: IUDX instance on which this query is to be made.
+          description: IUDX instance on which this query is to be made. Don't mention this if search on entire catalogue is to be made. Else mentioning a specific instance name here restricts search only to that instance.
           schema:
             type: string
-            example: 'pune, surat, varan'
+            example: 'pune, surat, varanasi'
           in: header
           required: false
       responses:
@@ -277,7 +277,7 @@ paths:
               - bbox
           in: query
         - name: coordinates
-          description: 'Coordinates for the specific query type. For e.g, [[1,2], [3,4]]. Note: The data-type of this field is a string, therefore the coordinates are a string encoded multidimensional array.'
+          description: 'Coordinates for the specific query type. For e.g, [[1,2], [3,4]]. Note: The data-type of this field is a string, therefore the coordinates are a string encoded multidimensional array.Precision supported is 6 decimal places.'
           schema:
             type: array
             minItems: 1
@@ -328,7 +328,7 @@ paths:
             maxItems: 10
           in: query
         - name: instance
-          description: IUDX instance on which this query is to be made.
+          description: IUDX instance on which this query is to be made. Don't mention this if count on entire catalogue is to be made. Else mentioning a specific instance name here restricts search only to that instance.
           schema:
             type: string
             example: 'pune, surat, varanasi'
@@ -353,7 +353,7 @@ paths:
             https://api.catalogue.iudx.org.in/iudx/cat/v1/count?property=[type]&value=[[iudx:ResourceGroup]]
         - lang: by circle
           source: |
-            https://api.catalogue.iudx.org.in/count?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
+            https://api.catalogue.iudx.org.in/count?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.92728,18.50271]
         - lang: by text
           source: |
             https://api.catalogue.iudx.org.in/count?q=aqm
@@ -412,8 +412,13 @@ paths:
   '/iudx/cat/v1/list/{type}':
     description: |
       List entities of a certain type or list all possible values of a property(tags only). 
-      If entites, then type must be `resource`, `resourceGroup`, `resourceServer`, `provider`.
+      If entites, then type must be `resourceGroup`, `resourceServer`, `provider`.
       If properties then only `tags` is supported.
+      All documents in the catalogue are of type [IUDXEntity](https://voc.iudx.org.in/IUDXEntity).
+      The entities referenced as the name mentioned in above link in camel case with small case starting.
+      This endpoint essentially lists those entities (except Resource which will be too numerous. In addition, you may also list all the instances by 
+      specifying instance instead of an entity identified.
+      Adding `instance` in header will restrict the list to only that specific instance.
     get:
       tags:
         - List
@@ -445,13 +450,13 @@ paths:
       parameters:
         - schema:
             type: string
-            example: 'surat, varanasi, pune'
+            example: 'pune, surat, varanasi'
           in: header
           name: instance
-          description: Instance for which a list is needed
+          description: IUDX instance on which this query is to be made. Don't mention this is list on entire catalogue is to be made. Else mentioning a specific instance name here restricts search only to that instance.
     parameters:
       - name: type
-        description: 'If entites, then type must be resource, resourceGroup, resourceServer, provider. If properties then only tags is supported.'
+        description: 'If entites, then type must be resource, resourceGroup, resourceServer, provider. If properties then only tags is supported. Additionally all instances can also be mentioned as `instance`.'
         schema:
           type: string
           minLength: 4
@@ -464,7 +469,7 @@ paths:
         in: path
         required: true
       - name: instance
-        description: IUDX instance on which this query is to be made.
+        description: IUDX instance on which this query is to be made. Don't mention this if list on entire catalogue is to be made. Else mentioning a specific instance name here restricts search only to that instance.
         schema:
           type: string
         in: header
@@ -472,6 +477,7 @@ paths:
   /iudx/cat/v1/item:
     description: |
       Operations on a specific catalogue entity. This endpoint is used to create/update/read/delete a catalogue IUDX Entity.
+      To see supported schemas, see subclasses of IUDXEntity [here](https://voc.iudx.org.in/IUDXEntity).
     get:
       tags:
         - Entity
@@ -513,14 +519,6 @@ paths:
               $ref: '#/components/schemas/exapmleEntityWId'
         required: true
       parameters:
-        - name: instance
-          description: 'IUDX instance specific to this item. If instance is not mentioned, then the default instance is applied.'
-          schema:
-            type: string
-            minLength: 0
-            maxLength: 100
-          in: header
-          required: false
         - name: token
           description: IUDX Auth token to process the request
           schema:
@@ -616,13 +614,14 @@ paths:
             Content-Type: application/json
             token: <iudx-token>
             {
+              "instance": "<instance to which this item must belong",
               "name": "<name of the item (this will be used to generate id>",
               "resourceGroup": "<id of group if this is a resource>",
               "provider": "<id of the provider>",
               "resourceServer": "<id of the resourceServer>"
             }
       operationId: createItem
-      description: Insert an item into the catalogue where the item's body specifies the type of item
+      description: Insert an item into the catalogue where the item's body specifies the type of item and instance name. 
     delete:
       tags:
         - Entity
@@ -632,7 +631,7 @@ paths:
           schema:
             type: string
             minLength: 0
-            maxLength: 102
+            maxLength: 512
           in: query
           required: true
         - name: token
@@ -705,12 +704,12 @@ paths:
           in: query
           required: false
         - name: instance
-          description: IUDX instance on which this query is to be made.
+          description: IUDX instance on which this query is to be made. Don't mention this if relsearch on entire catalogue is to be made. Else mentioning a specific instance name here restricts search only to that instance.
           schema:
             type: string
             minLength: 0
             maxLength: 100
-            example: 'pune, varanasi, surat'
+            example: 'pune, surat, varanasi'
           in: header
           required: false
       responses:
@@ -798,7 +797,7 @@ paths:
         in: query
         required: true
       - name: instance
-        description: IUDX instance on which this query is to be made.
+        description: IUDX instance on which this query is to be made. Don't mention this if relationship search on entire catalogue is to be made. Else mentioning a specific instance name here restricts search only to that instance.
         schema:
           type: string
         in: header
@@ -966,6 +965,7 @@ components:
         name: some-name
         type:
           - 'iudx:Resource'
+        'instance': name of the instance to which this item belongs
     exapmleEntityWId:
       title: Root Type for exapmleEntityWId
       description: And example entity with id for updates
@@ -987,6 +987,7 @@ components:
         name: some-name
         type:
           - 'iudx:Resource'
+        'instance': name of the instance to which this item belongs
     standardCrudResponse:
       title: Root Type for standardCrudResponse
       description: Standard response for crud apis

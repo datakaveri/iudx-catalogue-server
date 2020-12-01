@@ -33,7 +33,7 @@ public final class QueryDecoder {
 
     /* TODO: Pagination for large result set */
     if (request.getBoolean(SEARCH)) {
-      elasticQuery.put(SIZE_KEY, 10);
+      elasticQuery.put(SIZE_KEY, FILTER_PAGINATION_SIZE);
     }
 
     /* Handle the search type */
@@ -270,12 +270,30 @@ public final class QueryDecoder {
     }
 
     String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, FILTER_PAGINATION_SIZE);
 
     if (TYPE_KEY.equals(relationshipType)) {
-      elasticQuery = new JsonObject(elasticQuery).put(SOURCE, TYPE_KEY).toString();
+      elasticQuery = tempQuery.put(SOURCE, TYPE_KEY).toString();
     }
 
-    return elasticQuery;
+    /* checking the requests for limit attribute */
+    if (request.containsKey(LIMIT)) {
+      Integer sizeFilter = request.getInteger(LIMIT);
+      tempQuery.put(SIZE_KEY, sizeFilter);
+    }
+
+    /* checking the requests for offset attribute */
+    if (request.containsKey(OFFSET)) {
+      Integer offsetFilter = request.getInteger(OFFSET);
+      tempQuery.put(FROM, offsetFilter);
+    }
+
+    if (request.containsKey(FILTER)) {
+      JsonArray sourceFilter = request.getJsonArray(FILTER, new JsonArray());
+      tempQuery.put(SOURCE, sourceFilter);
+    }
+
+    return tempQuery.toString();
   }
 
   /**
@@ -292,20 +310,24 @@ public final class QueryDecoder {
     String type = request.getString(TYPE_KEY);
     String instanceID = request.getString(INSTANCE);
     String elasticQuery = "";
+    String tempQuery = "";
 
     if (itemType.equalsIgnoreCase(TAGS)) {
       if (instanceID == null || instanceID == "") {
-        elasticQuery = LIST_TAGS_QUERY;
+        tempQuery = LIST_TAGS_QUERY;
       } else {
-        elasticQuery = LIST_INSTANCE_TAGS_QUERY.replace("$1", instanceID);
+        tempQuery = LIST_INSTANCE_TAGS_QUERY.replace("$1", instanceID);
       }
     } else {
       if (instanceID == null || instanceID == "") {
-        elasticQuery = LIST_TYPES_QUERY.replace("$1", type);
+        tempQuery = LIST_TYPES_QUERY.replace("$1", type);
       } else {
-        elasticQuery = LIST_INSTANCE_TYPES_QUERY.replace("$1", type).replace("$2", instanceID);
+        tempQuery = LIST_INSTANCE_TYPES_QUERY.replace("$1", type).replace("$2", instanceID);
       }
     }
+    
+    elasticQuery = tempQuery.replace("$size", request.getInteger(LIMIT, FILTER_PAGINATION_SIZE).toString());
+
     return elasticQuery;
   }
 }

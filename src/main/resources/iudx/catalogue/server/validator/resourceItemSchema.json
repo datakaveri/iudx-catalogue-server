@@ -28,7 +28,8 @@
             "default": "",
             "examples": [
                 "SomePlace"
-            ]
+            ],
+            "maxLength": 512
         },
         "provider": {
             "$id": "#/properties/provider",
@@ -38,7 +39,8 @@
             "default": "",
             "examples": [
                 "SomeID"
-            ]
+            ],
+            "maxLength": 512
         },
         "resourceGroup": {
             "$id": "#/properties/resourceGroup",
@@ -48,7 +50,8 @@
             "default": "",
             "examples": [
                 "SomeID"
-            ]
+            ],
+            "maxLength": 512
         },
         "tags": {
             "$id": "#/properties/tags",
@@ -59,6 +62,14 @@
             "title": "The tags schema",
             "description": "An explanation about the purpose of this instance.",
             "default": ""
+        },
+        "instance": {
+            "$id": "#/properties/instance",
+            "type": "string",
+            "title": "The instance  schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "maxLength":100
         }
     },
     "additionalProperties": true
