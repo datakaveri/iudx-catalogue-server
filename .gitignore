@@ -2,8 +2,11 @@
 !.mvn/wrapper/maven-wrapper.jar
 
 logs/
+configs/catkeystore.ks
+configs/keystore.jks
 configs/config-dev.json
 configs/config-depl.json
+configs/config-test.json
 config.properties
 python_scripts
 notes.md

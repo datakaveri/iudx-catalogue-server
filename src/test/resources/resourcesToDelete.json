@@ -41,8 +41,8 @@
             "address": "ABD area, Pune",
             "geometry": {
                 "coordinates": [
-                    77.585006,
-                    13.065145
+                    77.585,
+                    13.065
                 ],
                 "type": "Point"
             }
@@ -95,8 +95,8 @@
             "address": "ABD area, Pune",
             "geometry": {
                 "coordinates": [
-                    77.567829,
-                    13.091794
+                    77.567,
+                    13.091
                 ],
                 "type": "Point"
             }
@@ -149,8 +149,8 @@
             "address": "ABD area, Pune",
             "geometry": {
                 "coordinates": [
-                    77.365829,
-                    13.691794
+                    77.365,
+                    13.691
                 ],
                 "type": "Point"
             }
@@ -203,8 +203,8 @@
             "address": "ABD area, Pune",
             "geometry": {
                 "coordinates": [
-                    73.927285,
-                    18.502712
+                    73.927,
+                    18.502
                 ],
                 "type": "Point"
             }
@@ -257,8 +257,8 @@
             "address": "ABD area, Pune",
             "geometry": {
                 "coordinates": [
-                    73.831273,
-                    18.508766
+                    73.831,
+                    18.508
                 ],
                 "type": "Point"
             }

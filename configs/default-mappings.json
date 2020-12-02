@@ -148,7 +148,43 @@
             "providerOrg": {
                 "type": "flattened"
             },
+            "accessObjectInfo": {
+                "type": "flattened"
+            },
+            "authServerInfo": {
+                "type": "flattened"
+            },
+            "resourceServerOrg": {
+                "type": "flattened"
+            },
+            "resourceServerStreamingAccessURL": {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "resourceServerHTTPAccessURL": {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
             "resourceGroup" : {
+                "type" : "text",
+                "fields" : {
+                    "keyword" : {
+                        "type" : "keyword",
+                        "ignore_above" : 256
+                    }
+                }
+            },
+            "resourceType" : {
                 "type" : "text",
                 "fields" : {
                     "keyword" : {

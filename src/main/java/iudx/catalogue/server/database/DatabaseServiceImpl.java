@@ -71,7 +71,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     LOGGER.debug("Info: Query constructed;" + query.toString());
 
-    client.searchAsync(CAT_INDEX_NAME, query.toString(), searchRes -> {
+    client.searchAsync(query.toString(), searchRes -> {
       if (searchRes.succeeded()) {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
@@ -137,7 +137,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     LOGGER.debug("Info: Query constructed;" + query.toString());
 
-    client.countAsync(CAT_INDEX_NAME, query.toString(), searchRes -> {
+    client.countAsync(query.toString(), searchRes -> {
       if (searchRes.succeeded()) {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
@@ -171,7 +171,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (instanceHandler.succeeded()) {
         LOGGER.debug("Info: Instance info;" + instanceHandler.result());
 
-        client.searchAsync(CAT_INDEX_NAME, checkItem.toString(), checkRes -> {
+        client.searchAsync(checkItem.toString(), checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Isertion failed;" + checkRes.cause());
             handler.handle(Future.failedFuture(errorJson));
@@ -187,7 +187,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
             /* Insert document */
-            client.docPostAsync(CAT_INDEX_NAME, doc.toString(), postRes -> {
+            client.docPostAsync(doc.toString(), postRes -> {
               if (postRes.succeeded()) {
                 handler.handle(Future.succeededFuture(
                     respBuilder.withStatus(SUCCESS)
@@ -225,7 +225,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                   .withResult(id, UPDATE, FAILED)
                                   .getResponse();
 
-    client.searchGetId(CAT_INDEX_NAME, checkQuery, checkRes -> {
+    client.searchGetId(checkQuery, checkRes -> {
       if (checkRes.failed()) {
         LOGGER.error("Fail: Check query fail;" + checkRes.cause());
         handler.handle(Future.failedFuture(errorJson));
@@ -241,7 +241,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           return;
         }
         String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-        client.docPutAsync(CAT_INDEX_NAME, docId, doc.toString(), putRes -> {
+        client.docPutAsync(docId, doc.toString(), putRes -> {
           if (putRes.succeeded()) {
             handler.handle(Future.succeededFuture(
                 respBuilder.withStatus(SUCCESS)
@@ -283,7 +283,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       checkQuery = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
     }
 
-    client.searchGetId(CAT_INDEX_NAME, checkQuery, checkRes -> {
+    client.searchGetId(checkQuery, checkRes -> {
       if (checkRes.failed()) {
         LOGGER.error("Fail: Check query fail;" + checkRes.cause().getMessage());
         handler.handle(Future.failedFuture(errorJson));
@@ -310,7 +310,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       }
 
       String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-      client.docDelAsync(CAT_INDEX_NAME, docId, delRes -> {
+      client.docDelAsync(docId, delRes -> {
         if (delRes.succeeded()) {
           handler.handle(Future.succeededFuture(
               respBuilder.withStatus(SUCCESS)
@@ -337,7 +337,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     String itemId = request.getString(ID);
     String getQuery = GET_DOC_QUERY.replace("$1", itemId).replace("$2", "");
 
-    client.searchAsync(CAT_INDEX_NAME, getQuery, clientHandler -> {
+    client.searchAsync(getQuery, clientHandler -> {
       if (clientHandler.succeeded()) {
         LOGGER.debug("Success: Successful DB request");
         JsonObject responseJson = clientHandler.result();
@@ -365,7 +365,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     LOGGER.debug("Info: Listing items;" + elasticQuery);
 
-    client.listAggregationAsync(CAT_INDEX_NAME, elasticQuery, clientHandler -> {
+    client.listAggregationAsync(elasticQuery, clientHandler -> {
       if (clientHandler.succeeded()) {
         LOGGER.debug("Success: Successful DB request");
         JsonObject responseJson = clientHandler.result();
@@ -394,7 +394,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     LOGGER.debug("Info: Query constructed;" + elasticQuery);
 
-    client.searchAsync(CAT_INDEX_NAME, elasticQuery, searchRes -> {
+    client.searchAsync(elasticQuery, searchRes -> {
       if (searchRes.succeeded()) {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
@@ -471,7 +471,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           new JsonObject(BOOL_MUST_QUERY.replace("$1", subQuery)).put(SOURCE, ID);
 
       /* Initial db query to filter matching attributes */
-      client.searchAsync(CAT_INDEX_NAME, elasticQuery.toString(), searchRes -> {
+      client.searchAsync(elasticQuery.toString(), searchRes -> {
         if (searchRes.succeeded()) {
 
           JsonArray resultValues = searchRes.result().getJsonArray(RESULTS);
@@ -511,7 +511,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           LOGGER.debug("INFO: Query constructed;" + elasticQuery.toString());
 
           /* db query to find the relationship to the initial query */
-          client.searchAsync(CAT_INDEX_NAME, elasticQuery.toString(), relSearchRes -> {
+          client.searchAsync(elasticQuery.toString(), relSearchRes -> {
             if (relSearchRes.succeeded()) {
 
               LOGGER.debug("Success: Successful DB request");
@@ -549,7 +549,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     String checkInstance = GET_DOC_QUERY.replace("$1", instanceId).replace("$2", "");
-    client.searchAsync(CAT_INDEX_NAME, checkInstance, checkRes -> {
+    client.searchAsync(checkInstance, checkRes -> {
       if (checkRes.failed()) {
         LOGGER.error(ERROR_DB_REQUEST + checkRes.cause().getMessage());
         promise.fail(INTERNAL_SERVER_ERROR);

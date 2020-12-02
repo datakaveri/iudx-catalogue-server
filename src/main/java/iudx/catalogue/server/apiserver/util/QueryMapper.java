@@ -6,12 +6,14 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static iudx.catalogue.server.apiserver.util.Constants.*;
+import java.util.stream.Collectors;
 import static iudx.catalogue.server.util.Constants.*;
 
 /**
@@ -83,31 +85,151 @@ public class QueryMapper {
 
     /* adding search type for geo related search */
     if (jsonBody.containsKey(GEOMETRY)) {
-      jsonBody.put(SEARCH_TYPE,
-          jsonBody.getString(SEARCH_TYPE, "") + SEARCH_TYPE_GEO);
+      jsonBody.put(SEARCH_TYPE, jsonBody.getString(SEARCH_TYPE, "") + SEARCH_TYPE_GEO);
     }
 
     /* adding search type for text related search */
     if (jsonBody.containsKey(Q_VALUE)) {
-      jsonBody.put(SEARCH_TYPE,
-          jsonBody.getString(SEARCH_TYPE, "") + SEARCH_TYPE_TEXT);
+      jsonBody.put(SEARCH_TYPE, jsonBody.getString(SEARCH_TYPE, "") + SEARCH_TYPE_TEXT);
     }
 
     /* Tag related search are to be considered as attribute search and are being merged as one */
     if (jsonBody.containsKey(PROPERTY)) {
 
-      jsonBody.put(SEARCH_TYPE,
-          jsonBody.getString(SEARCH_TYPE, "") + SEARCH_TYPE_ATTRIBUTE);
+      jsonBody.put(SEARCH_TYPE, jsonBody.getString(SEARCH_TYPE, "") + SEARCH_TYPE_ATTRIBUTE);
     }
 
     /* adding response filter */
     if (jsonBody.containsKey(FILTER)) {
-      jsonBody.put(SEARCH_TYPE,
-          jsonBody.getString(SEARCH_TYPE, "") + RESPONSE_FILTER);
+      jsonBody.put(SEARCH_TYPE, jsonBody.getString(SEARCH_TYPE, "") + RESPONSE_FILTER);
     }
 
     LOGGER.debug("Info: Json Query Mapped: " + jsonBody);
 
     return jsonBody;
+  }
+
+
+  /**
+   * Validates the request parameters, headers to compliance with default values.
+   * 
+   * @param JsonObject requestBody
+   * @return JsonObject having success and failure status
+   */
+  public static JsonObject validateQueryParam(JsonObject requestBody) {
+
+    LOGGER.debug("Info: Validating attributes limits and  constraints");
+    JsonObject errResponse = new JsonObject().put(STATUS, FAILED);
+
+    /* Validating GeoSearch limits */
+    String searchType = requestBody.getString(SEARCH_TYPE, "");
+    if (searchType.contains(SEARCH_TYPE_GEO)) {
+
+      /* Checking limits and precision of coordinate attributes */
+      if (requestBody.containsKey(COORDINATES)) {
+
+        Pattern pattern = Pattern.compile("[\\w]+[^\\,]*(?:\\.*[\\w])");
+        Matcher matcher = pattern.matcher(requestBody.getJsonArray(COORDINATES).toString());
+        List<String> coordinatesValues =
+            matcher.results().map(MatchResult::group).collect(Collectors.toList());
+
+        if (coordinatesValues.size() <= COORDINATES_SIZE * 2) {
+          for (String value : coordinatesValues) {
+
+            boolean isPrecise =
+                (BigDecimal.valueOf(Double.parseDouble(value)).scale() <= COORDINATES_PRECISION);
+
+            if (isPrecise == Boolean.FALSE) {
+              LOGGER.error("Error: Overflow coordinate precision");
+              return errResponse.put(DESC,
+                  "The max point of 'coordinates' precision is " + COORDINATES_PRECISION);
+            }
+          }
+        } else {
+          LOGGER.error("Error: Overflow coordinate pairs");
+          return errResponse.put(DESC,
+              "The max number of 'coordinates' pair is " + COORDINATES_SIZE);
+        }
+      }
+
+      /* Validating maxDistance attribute for positive integer */
+      if (requestBody.containsKey(MAX_DISTANCE) && requestBody.getInteger(MAX_DISTANCE) < 0) {
+        LOGGER.error("Error: maxDistance should be positive");
+        return errResponse.put(DESC,
+            "The 'maxDistance' should be positive number");
+      }
+    }
+
+    /* Validating text search limits */
+    if (searchType.contains(SEARCH_TYPE_TEXT)) {
+
+      String searchString = requestBody.getString(Q_VALUE);
+      if (searchString.length() > STRING_SIZE) {
+        LOGGER.error("Error: 'q' must be " + STRING_SIZE + " in char");
+        return errResponse.put(DESC,
+            "The max string(q) size supported is " + STRING_SIZE);
+      }
+    }
+
+    /* Validating AttributeSearch limits */
+    if (searchType.contains(SEARCH_TYPE_ATTRIBUTE)) {
+      
+      /* Checking the number of property and value within the request */
+      if (requestBody.getJsonArray(PROPERTY).size() <= PROPERTY_SIZE) {
+        JsonArray values = requestBody.getJsonArray(VALUE);
+
+        if (values.size() <= VALUE_SIZE) {
+          for (Object value : values) {
+            JsonArray nestedValue = (JsonArray) value;
+            if (nestedValue.size() > VALUE_SIZE) {
+              LOGGER.error("Error: The value query param has exceeded the limit");
+              return errResponse.put(DESC, "The max number of 'value' should be " + VALUE_SIZE);
+            }
+          }
+        } else {
+          LOGGER.error("Error: The value pair query param has exceeded the limit");
+          return errResponse.put(DESC, "The max number of 'value' pair should be " + VALUE_SIZE);
+        }
+      } else {
+        LOGGER.error("Error: The property query param has exceeded the limit");
+        return errResponse.put(DESC, "The max number of 'property' should be " + PROPERTY_SIZE);
+      }
+    }
+
+    /* Validating ResponseFilter limits */
+    if (searchType.contains(RESPONSE_FILTER)) {
+      if (requestBody.getJsonArray(FILTER, new JsonArray()).size() > FILTER_VALUE_SIZE) {
+        LOGGER.error("Error: The filter in query param has exceeded the limit");
+        return errResponse.put(DESC, "The max number of 'filter' should be " + FILTER_VALUE_SIZE);
+      }
+    }
+
+    /* Validating length of instance header */
+    if (requestBody.containsKey(INSTANCE)) {
+      String instance = requestBody.getString(INSTANCE, "");
+      if (instance != null && instance.length() > ID_SIZE) {
+        LOGGER.error("Error: The instance length has exceeded the limit");
+        return errResponse.put(DESC, "The max length of 'instance' should be " + ID_SIZE);
+      }
+    }
+
+    /* Validating length of limit param */
+    if (requestBody.containsKey(LIMIT)) {
+      Integer limit = requestBody.getInteger(LIMIT, 0);
+      if (limit <= 0 || limit > FILTER_PAGINATION_SIZE) {
+        LOGGER.error("Error: The limit query param has exceeded the limit");
+        return errResponse.put(DESC, "The limit should be between 1 to " + FILTER_PAGINATION_SIZE);
+      }
+    }
+
+    /* Validating length of offset param */
+    if (requestBody.containsKey(OFFSET)) {
+      Integer offset = requestBody.getInteger(OFFSET, 0);
+      if (offset < 0 || offset > OFFSET_PAGINATION_SIZE) {
+        return errResponse.put(DESC, "The offset should be between 0 to " + OFFSET_PAGINATION_SIZE);
+      }
+    }
+
+    return new JsonObject().put(STATUS, SUCCESS);
   }
 }

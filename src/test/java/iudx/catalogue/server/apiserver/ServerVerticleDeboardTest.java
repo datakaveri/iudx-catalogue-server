@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -96,6 +97,7 @@ public class ServerVerticleDeboardTest {
    * @param testContext of asynchronous operations
    */
   @Test
+  @Order(1)
   @DisplayName("Delete Item[Status:200, Endpoint: /item]")
   void deleteItem200(VertxTestContext testContext) {
 
@@ -140,12 +142,13 @@ public class ServerVerticleDeboardTest {
 
 
   /**
-   * Tests the create instance api
+   * Tests the deletion of instance api
    * 
    * @param testContext of asynchronous operations
    * @throws InterruptedException
    */
   @Test
+  @Order(2)
   @DisplayName("delete Instance, Status:200, Endpoint: /instance]")
   void deleteInstance200(VertxTestContext testContext) throws InterruptedException {
 
@@ -166,5 +169,54 @@ public class ServerVerticleDeboardTest {
             testContext.failed();
           }
         });
+  }
+
+
+  /**
+   * Deletes all the prepare items- resourceServer, provider and resourceGroup items.
+   * 
+   * @param testContext
+   */
+  @Test
+  @Order(3)
+  void cleanPrepareItems(VertxTestContext testContext) {
+
+    var wrapper = new Object() {
+      int count = 0;
+    };
+
+    fileSystem.readFile("src/test/resources/prepareDeleteItems.json", fileRes -> {
+      if (fileRes.succeeded()) {
+        JsonArray resources = fileRes.result().toJsonArray();
+        Iterator<Object> objectIterator = resources.iterator();
+        int numItems = resources.size();
+
+        while (objectIterator.hasNext()) {
+
+          JsonObject item = (JsonObject) objectIterator.next();
+          /* Send the file to the server using DELETE */
+          LOGGER.info("Deleting " + item.getString(ID));
+          client.delete(PORT, HOST, BASE_URL.concat("item/")).addQueryParam(ID, item.getString(ID))
+              .putHeader(HEADER_TOKEN, TOKEN).putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+              .send(serverResponse -> {
+                if (serverResponse.succeeded()) {
+
+                  /* comparing the response */
+                  assertEquals(200, serverResponse.result().statusCode());
+                  testContext.completeNow();
+                  if (serverResponse.result().statusCode() == 200) {
+                    wrapper.count++;
+                  }
+                  if (wrapper.count == numItems - 1) {
+                    testContext.completeNow();
+                  }
+                } else if (serverResponse.failed()) {
+                  testContext.failed();
+                }
+              });
+        }
+        testContext.completed();
+      }
+    });
   }
 }

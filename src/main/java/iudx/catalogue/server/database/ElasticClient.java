@@ -24,7 +24,6 @@ import java.util.HashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 import java.io.IOException;
 
 import static iudx.catalogue.server.database.Constants.*;
@@ -32,7 +31,7 @@ import static iudx.catalogue.server.util.Constants.*;
 
 public final class ElasticClient {
   private final RestClient client;
-  private static final Logger LOGGER = LogManager.getLogger(ElasticClient.class);
+  private final String index;
 
   /**
    * ElasticClient - Wrapper around ElasticSearch low level client
@@ -41,24 +40,24 @@ public final class ElasticClient {
    * @param databasePort Port
    * @TODO XPack Security
    */
-  public ElasticClient(String databaseIP, int databasePort,
+  public ElasticClient(String databaseIP, int databasePort, String index,
                         String databaseUser, String databasePassword) {
     CredentialsProvider credentials = new BasicCredentialsProvider();
     credentials.setCredentials(AuthScope.ANY,
                                 new UsernamePasswordCredentials(databaseUser, databasePassword));
     client = RestClient.builder(new HttpHost(databaseIP, databasePort)).setHttpClientConfigCallback(
         httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentials)).build();
+    this.index = index;
   }
 
   /**
    * searchAsync - Wrapper around elasticsearch async search requests
    * 
-   * @param index Index to search on
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
    */
-  public ElasticClient searchAsync(String index, String query,
+  public ElasticClient searchAsync(String query,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
@@ -81,12 +80,11 @@ public final class ElasticClient {
   /**
    * searchGetIdAsync - Get document IDs matching a query
    * 
-   * @param index Index to search on
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
    */
-  public ElasticClient searchGetId(String index, String query,
+  public ElasticClient searchGetId(String query,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_ID_ONLY_PATH);
@@ -104,7 +102,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
    */
-  public ElasticClient listAggregationAsync(String index, String query,
+  public ElasticClient listAggregationAsync(String query,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     Request queryRequest = new Request(REQUEST_GET, index 
@@ -124,7 +122,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
    */
-  public ElasticClient countAsync(String index, String query,
+  public ElasticClient countAsync(String query,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_count");
@@ -142,7 +140,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject
    * @TODO XPack Security
    */
-  public ElasticClient docPostAsync(String index, String doc,
+  public ElasticClient docPostAsync(String doc,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     /** TODO: Validation */
@@ -163,7 +161,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject
    * @TODO XPack Security
    */
-  public ElasticClient docPutAsync(String index, String docId, String doc,
+  public ElasticClient docPutAsync(String docId, String doc,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     /** TODO: Validation */
@@ -183,7 +181,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject
    * @TODO XPack Security
    */
-  public ElasticClient docDelAsync(String index, String docId, 
+  public ElasticClient docDelAsync(String docId, 
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     /** TODO: Validation */

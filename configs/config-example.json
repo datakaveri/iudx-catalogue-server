@@ -3,12 +3,12 @@
     "zookeepers": [ "zookeeper" ],
     "clusterId": "iudx-catalogue-cluster",
     "host": "server",
-    "databaseIndex": "cat",
     "modules": [
         {
             "id": "iudx.catalogue.server.database.DatabaseVerticle",
             "verticleInstances": 2,
             "databaseIP": "127.0.0.1",
+            "docIndex": "cattestindex",
             "databaseUser": "user",
             "databasePassword": "password",
             "databasePort": 9200
@@ -24,6 +24,7 @@
             "id": "iudx.catalogue.server.validator.ValidatorVerticle",
             "databaseIP": "127.0.0.1",
             "databasePort": 9201,
+            "docIndex": "cattestindex",
             "databaseUser": "user",
             "databasePassword": "password",
             "verticleInstances": 2

@@ -19,8 +19,8 @@
         "address": "ABD area, Pune",
         "geometry": {
             "coordinates": [
-                73.874537,
-                18.528311
+                73.874,
+                18.528
             ],
             "type": "Point"
         }

@@ -23,6 +23,7 @@ public class ElasticClientTest {
   private static ElasticClient client;
   private static String databaseIP;
   private static int databasePort;
+  private static String docIndex;
   private static String databaseUser;
   private static String databasePassword;
   private static String databaseIndex;
@@ -40,8 +41,9 @@ public class ElasticClientTest {
     databasePort = elasticConfig.getInteger(DATABASE_PORT);
     databaseUser = elasticConfig.getString(DATABASE_UNAME);
     databasePassword = elasticConfig.getString(DATABASE_PASSWD);
+    docIndex = elasticConfig.getString(DOC_INDEX);
 
-    client = new ElasticClient(databaseIP, databasePort, databaseUser, databasePassword);
+    client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
     LOGGER.info("Read config file");
     LOGGER.info("IP is " + databaseIP);
@@ -55,7 +57,7 @@ public class ElasticClientTest {
   void TestGetAll(VertxTestContext testContext) {
     JsonObject query = new JsonObject().put("query", new JsonObject()
                                         .put("match_all", new JsonObject()));
-    client.searchAsync("cat", query.toString(), res -> {
+    client.searchAsync(query.toString(), res -> {
       if (res.succeeded()) {
         LOGGER.info("Succeeded");
         LOGGER.info(res.result());
@@ -78,7 +80,7 @@ public class ElasticClientTest {
 
     String req = "{\"query\":{\"bool\":{\"filter\":[{\"match\":{\"type\":\"iudx:ResourceGroup\"}}]}},\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\",\"size\":10000}}}}";
     LOGGER.info("Aggregation query is " + req);
-    client.listAggregationAsync(databaseIndex, req, res -> {
+    client.listAggregationAsync(req, res -> {
       if (res.succeeded()) {
         LOGGER.info("Succeeded");
         LOGGER.info(res.result());

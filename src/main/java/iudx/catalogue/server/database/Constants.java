@@ -1,7 +1,5 @@
 package iudx.catalogue.server.database;
 
-import static iudx.catalogue.server.util.Constants.*;
-
 public class Constants {
 
   /* General purpose */
@@ -15,21 +13,12 @@ public class Constants {
   static final String SIZE_KEY = "size";
 
   /* Database */
-  // static final String CAT_INDEX_NAME = "cat";
-  static final String CAT_COUNT_INDEX = CAT_INDEX_NAME + "/_count";
-  static final String CAT_SEARCH_INDEX = CAT_INDEX_NAME + "/_search";
-  static final String CAT_GET_TAG = CAT_SEARCH_INDEX + "?filter_path=aggregations.instance.tags.buckets";
-  static final String CAT_GET_DOMAIN = CAT_SEARCH_INDEX + "?filter_path=aggregations.instances.buckets";
-  static final String CAT_GET_AGGREGATIONS = CAT_SEARCH_INDEX + "?filter_path=aggregations";
-  static final String CAT_GET_ITEM = CAT_SEARCH_INDEX + "?filter_path=hits.hits";
-  
-  static final String CAT_DOC = CAT_INDEX_NAME + "/_doc";
   static final String AGGREGATION_KEY = "aggs";
   
-  static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source&size=10000";
-  static final String FILTER_PATH_AGGREGATION = "?filter_path=hits.total.value,aggregations.results.buckets&size=10000";
+  static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
+  static final String FILTER_PATH_AGGREGATION = "?filter_path=hits.total.value,aggregations.results.buckets";
   static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
-
+  
   static final String TYPE_KEY = "type";
   static final String ID_KEYWORD = "id.keyword";
   static final String DOC_ID = "_id";
@@ -98,22 +87,22 @@ public class Constants {
     + "\"aggs\":"
     + "{\"results\": {\"terms\":"
     + "{\"field\":\"tags.keyword\","
-    + "\"size\": 10000}}}}";
+    + "\"size\": $size}}}}";
 
   public static final String  LIST_TAGS_QUERY = 
     "{ \"aggs\":"
     + "{\"results\": {\"terms\":"
     + "{\"field\":\"tags.keyword\","
-    + "\"size\": 10000}}}}";
+    + "\"size\": $size}}}}";
 
   public static final String LIST_INSTANCE_TYPES_QUERY = 
     "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}},"
                           + "{\"term\": {\"instance.keyword\": \"$2\"}}]}},"
-    + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": 10000}}}}";
+    + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": $size}}}}";
 
   public static final String LIST_TYPES_QUERY = 
     "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}} ]}},"
-    + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": 10000}}}}";
+    + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": $size}}}}";
 
   public static final String GEO_SHAPE_QUERY =
       "{ \"geo_shape\": { \"$4\": { \"shape\": { \"type\": \"$1\", \"coordinates\": $2 },"
