@@ -449,4 +449,22 @@ public class ConstraintsValidationTest {
     })));
   }
 
+  @Test
+  @Order(22)
+  @DisplayName("Crud instance validity")
+  void doubleLimitCheckCoordinates(VertxTestContext testContext) {
+
+    JsonObject requests = new JsonObject().put(GEOPROPERTY, LOCATION)
+        .put(GEORELATION, GEOREL_WITHIN).put(MAX_DISTANCE, 5000).put(GEOMETRY, POLYGON)
+        .put(SEARCH_TYPE, SEARCH_TYPE_GEO).put(COORDINATES,
+            new JsonArray()
+                .add(new JsonArray().add(new JsonArray().add(Double.POSITIVE_INFINITY).add(14.5))
+                .add(new JsonArray().add(72).add(13)).add(new JsonArray().add(73).add(20))
+                    .add(new JsonArray().add(Double.POSITIVE_INFINITY).add(14.5))));
+
+    JsonObject json = QueryMapper.validateQueryParam(requests);
+
+    assertEquals(FAILED, json.getString(STATUS));
+    testContext.completeNow();
+  }
 }
