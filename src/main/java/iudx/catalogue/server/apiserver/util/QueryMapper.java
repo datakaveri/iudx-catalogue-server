@@ -136,13 +136,20 @@ public class QueryMapper {
         if (coordinatesValues.size() <= COORDINATES_SIZE * 2) {
           for (String value : coordinatesValues) {
 
-            boolean isPrecise =
-                (BigDecimal.valueOf(Double.parseDouble(value)).scale() <= COORDINATES_PRECISION);
+            Double tempValue = Double.parseDouble(value);
+            if (Double.isFinite(tempValue)) {
 
-            if (isPrecise == Boolean.FALSE) {
-              LOGGER.error("Error: Overflow coordinate precision");
-              return errResponse.put(DESC,
-                  "The max point of 'coordinates' precision is " + COORDINATES_PRECISION);
+              boolean isPrecise =
+                  (BigDecimal.valueOf(tempValue).scale() <= COORDINATES_PRECISION);
+
+              if (isPrecise == Boolean.FALSE) {
+                LOGGER.error("Error: Overflow coordinate precision");
+                return errResponse.put(DESC,
+                    "The max point of 'coordinates' precision is " + COORDINATES_PRECISION);
+              }
+            } else {
+              LOGGER.error("Error: Overflow coordinate value");
+              return errResponse.put(DESC, "The 'coordinates' value is " + tempValue);
             }
           }
         } else {
