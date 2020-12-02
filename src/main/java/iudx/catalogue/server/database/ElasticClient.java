@@ -5,6 +5,7 @@ import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseListener;
 import org.elasticsearch.client.RestClient;
+
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.Future;
@@ -16,6 +17,9 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.auth.AuthScope;
+
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,6 +62,16 @@ public final class ElasticClient {
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
+    queryRequest.setJsonEntity(query);
+    Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
+  public ElasticClient scriptSearch(JsonArray query_vector, String index, 
+    Handler<AsyncResult<JsonObject>> resultHandler) {
+    String query = "{\"query\":{\"bool\":{\"filter\": {\"script\": {\"script\": {\"source\": \"cosineSimilarity(params.query_vector, doc['word_vector']) + 1.0\",\"lang\": \"painless\",\"params\": {{\"query_vector\":" + query_vector.toString() + "}}}}}}}}";
+    Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
     future.onComplete(resultHandler);

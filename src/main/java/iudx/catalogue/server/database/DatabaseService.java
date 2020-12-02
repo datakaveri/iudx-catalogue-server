@@ -8,6 +8,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
 
 import iudx.catalogue.server.database.ElasticClient;
 
@@ -38,6 +39,16 @@ public interface DatabaseService {
    */
   @Fluent
   DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+   /**
+   * The searchQuery implements the nlp search operation with the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService nlpSearchQuery(JsonArray request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The countQuery implements the count operation with the database.

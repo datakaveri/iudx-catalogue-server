@@ -13,8 +13,10 @@ import io.vertx.core.MultiMap;
 import iudx.catalogue.server.apiserver.util.ResponseHandler;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.ext.web.client.WebClient;
 
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
@@ -27,6 +29,7 @@ public final class SearchApis {
 
 
   private DatabaseService dbService;
+  private final WebClient webClient;
 
   private static final Logger LOGGER = LogManager.getLogger(SearchApis.class);
 
@@ -38,7 +41,8 @@ public final class SearchApis {
    * @return void
    * @TODO Throw error if load failed
    */
-  public SearchApis() {
+  public SearchApis(WebClient webClient) {
+    this.webClient = webClient;
   }
 
   public void setDbService(DatabaseService dbService) {
@@ -168,5 +172,57 @@ public final class SearchApis {
                                           .build().toJsonString());
     }
 
+  }
+
+  public void nlpSearchHandler(RoutingContext routingContext) {
+    String query = "";
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    JsonArray embeddings = new JsonArray();
+    try {
+      if(routingContext.queryParams().contains("q")) {
+        query = routingContext.queryParams().get("q");
+      }
+    } catch(Exception e) {
+      LOGGER.info("Missing query parameter");
+      routingContext.response().setStatusCode(400).end();
+      return;
+    }
+    // make call to python service and get embeedings for query vector
+    LOGGER.info(query);
+    webClient
+      .get(5000,"127.0.0.1","/search")
+      .addQueryParam("q", query)
+      .putHeader("Accept","application/json").send(ar -> {
+      if(ar.succeeded()) {
+        LOGGER.info("Request succeeded!");
+        JsonObject res = ar.result().body().toJsonObject();
+        embeddings.add(res.getJsonArray("result"));
+        dbService.nlpSearchQuery(embeddings, handler -> {
+          if(handler.succeeded()) {
+            JsonObject resultJson = handler.result();
+            String status = resultJson.getString(STATUS);
+            if (status.equalsIgnoreCase(SUCCESS)) {
+              LOGGER.info("Success: search query");
+              response.setStatusCode(200);
+            } else if (status.equalsIgnoreCase(PARTIAL_CONTENT)) {
+              LOGGER.info("Success: search query");
+              response.setStatusCode(206);
+            } else {
+              LOGGER.error("Fail: search query");
+              response.setStatusCode(400);
+            }
+            response.end(resultJson.toString());
+          } else if (handler.failed()) {
+            LOGGER.error("Fail: Search;" + handler.cause().getMessage());
+                response.setStatusCode(400)
+                        .end(handler.cause().getMessage());
+          }
+        });
+      } else {
+        LOGGER.info("Failed to get embeddings");
+        response.setStatusCode(400);
+      }
+    });
   }
 }

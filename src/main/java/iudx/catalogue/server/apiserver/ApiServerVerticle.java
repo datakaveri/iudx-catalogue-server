@@ -11,6 +11,8 @@ import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.core.http.HttpServerResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
@@ -48,6 +50,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   private RelationshipApis relApis;
   private GeocodingApis geoApis;
 
+  private WebClient webClient;
+
   @SuppressWarnings("unused")
   private Router router;
 
@@ -77,6 +81,9 @@ public class ApiServerVerticle extends AbstractVerticle {
     isSsl = config().getBoolean(IS_SSL);
     port = config().getInteger(PORT);
     
+    WebClientOptions webClientOptions = new WebClientOptions();
+    webClientOptions.setTrustAll(true).setVerifyHost(false);
+    webClient = WebClient.create(vertx, webClientOptions);
 
     HttpServerOptions serverOptions = new HttpServerOptions();
 
@@ -95,7 +102,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /** API Callback managers */
     crudApis = new CrudApis();
-    searchApis = new SearchApis();
+    searchApis = new SearchApis(webClient);
     listApis = new ListApis();
     relApis = new RelationshipApis();
     geoApis = new GeocodingApis();
@@ -264,6 +271,13 @@ public class ApiServerVerticle extends AbstractVerticle {
       .produces(MIME_APPLICATION_JSON)
       .handler( routingContext -> {
         searchApis.searchHandler(routingContext);
+      });
+
+    /* NLP Search */
+    router.get(ROUTE_NLP_SEARCH)
+      .produces(MIME_APPLICATION_JSON)
+      .handler(routingContext -> {
+        searchApis.nlpSearchHandler(routingContext);
       });
 
     /* Count the Cataloque server items */

@@ -6,6 +6,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -80,6 +81,27 @@ public class DatabaseServiceImpl implements DatabaseService {
               respBuilder.withStatus(FAILED)
                           .withDescription(INTERNAL_SERVER_ERROR)
                           .getResponse()));
+      }
+    });
+    return this;
+  }
+
+  public DatabaseService nlpSearchQuery(JsonArray request, Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.info("Inside db search");
+
+    RespBuilder respBuilder = new RespBuilder();
+    JsonArray embeddings = request.getJsonArray(0);
+    LOGGER.info(embeddings);
+    client.scriptSearch(embeddings, CAT_INDEX_NAME, searchRes -> {
+      if(searchRes.succeeded()) {
+        LOGGER.info("Success:Successful DB request");
+        handler.handle(Future.succeededFuture(searchRes.result()));
+      } else {
+        LOGGER.error("Fail: DB request;" + searchRes.cause().getMessage());
+        handler.handle(Future.failedFuture(
+          respBuilder.withStatus(FAILED)
+                      .withDescription(INTERNAL_SERVER_ERROR)
+                      .getResponse()));
       }
     });
     return this;
