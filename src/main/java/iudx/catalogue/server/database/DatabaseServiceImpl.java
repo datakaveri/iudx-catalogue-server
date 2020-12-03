@@ -92,7 +92,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     RespBuilder respBuilder = new RespBuilder();
     JsonArray embeddings = request.getJsonArray(0);
     LOGGER.info(embeddings);
-    client.scriptSearch(embeddings, CAT_INDEX_NAME, searchRes -> {
+    client.scriptSearch(embeddings, searchRes -> {
       if(searchRes.succeeded()) {
         LOGGER.info("Success:Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));

@@ -195,8 +195,7 @@ public final class SearchApis {
       routingContext.response().setStatusCode(400).end();
       return;
     }
-    // make call to python service and get embeedings for query vector
-    LOGGER.info(query);
+    // replace with service name
     webClient
       .get(5000,"127.0.0.1","/search")
       .addQueryParam("q", query)

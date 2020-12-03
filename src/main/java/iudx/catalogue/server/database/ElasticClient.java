@@ -67,9 +67,9 @@ public final class ElasticClient {
     return this;
   }
 
-  public ElasticClient scriptSearch(JsonArray query_vector, String index, 
+  public ElasticClient scriptSearch(JsonArray query_vector, 
     Handler<AsyncResult<JsonObject>> resultHandler) {
-    String query = "{\"query\":{\"bool\":{\"filter\": {\"script\": {\"script\": {\"source\": \"cosineSimilarity(params.query_vector, doc['word_vector']) + 1.0\",\"lang\": \"painless\",\"params\": {{\"query_vector\":" + query_vector.toString() + "}}}}}}}}";
+    String query = "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}}, \"script\": {\"source\": \"cosineSimilarity(params.query_vector, doc['word_vector']) + 1.0\",\"lang\": \"painless\",\"params\": {\"query_vector\":" + query_vector.toString() + "}}}}}";
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
