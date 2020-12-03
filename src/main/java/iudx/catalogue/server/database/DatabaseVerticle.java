@@ -5,6 +5,8 @@ import io.vertx.core.AbstractVerticle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 import iudx.catalogue.server.database.ElasticClient;
 /**
  * The Database Verticle.
@@ -28,6 +30,7 @@ public class DatabaseVerticle extends AbstractVerticle {
   private String databasePassword;
   private int databasePort;
   private ElasticClient client;
+  private WebClient webClient;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -49,7 +52,11 @@ public class DatabaseVerticle extends AbstractVerticle {
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
-    database = new DatabaseServiceImpl(client);
+    WebClientOptions webClientOptions = new WebClientOptions();
+    webClientOptions.setTrustAll(true).setVerifyHost(false);
+    webClient = WebClient.create(vertx, webClientOptions);
+
+    database = new DatabaseServiceImpl(client, webClient);
     new ServiceBinder(vertx).setAddress(DATABASE_SERVICE_ADDRESS)
       .register(DatabaseService.class, database);
 

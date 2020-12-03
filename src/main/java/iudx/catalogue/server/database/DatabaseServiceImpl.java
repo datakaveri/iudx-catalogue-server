@@ -6,6 +6,8 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,14 +33,13 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceImpl.class);
   private final ElasticClient client;
+  private WebClient webClient;
   private final QueryDecoder queryDecoder = new QueryDecoder();
 
-  public DatabaseServiceImpl(ElasticClient client) {
+  public DatabaseServiceImpl(ElasticClient client, WebClient webClient) {
     this.client = client;
+    this.webClient = webClient;
   }
-
-
-
 
   @Override
   public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -186,9 +187,23 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
 
             doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
+            webClient
+              .post(5000,"127.0.0.1","/indexdoc")
+              .sendJsonObject(doc, ar-> {
+                if(ar.succeeded()) {
+                  LOGGER.info("Info: Document embeddings created");
+                  JsonObject res = ar.result().body().toJsonObject();
+                  LOGGER.info(res.getJsonArray("result"));
+                  doc.put("word_vector", res.getJsonArray("result"));
+                } else {
+                  LOGGER.error("Error: Document embeddings not created");
+                }
+              });
+            
             /* Insert document */
             client.docPostAsync(doc.toString(), postRes -> {
               if (postRes.succeeded()) {
+                LOGGER.info(doc.toString());
                 handler.handle(Future.succeededFuture(
                     respBuilder.withStatus(SUCCESS)
                                .withResult(id, INSERT, SUCCESS)

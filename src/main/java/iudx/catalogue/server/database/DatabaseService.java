@@ -9,6 +9,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
+import io.vertx.ext.web.client.WebClient;
 
 import iudx.catalogue.server.database.ElasticClient;
 
@@ -134,8 +135,8 @@ public interface DatabaseService {
    * @return DatabaseServiceVertxEBProxy which is a service proxy
    */
   @GenIgnore
-  static DatabaseService create(ElasticClient client) {
-    return new DatabaseServiceImpl(client);
+  static DatabaseService create(ElasticClient client, WebClient webClient) {
+    return new DatabaseServiceImpl(client, webClient);
   }
 
   @GenIgnore
