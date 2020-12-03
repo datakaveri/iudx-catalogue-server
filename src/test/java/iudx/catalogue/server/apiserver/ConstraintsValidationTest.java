@@ -468,4 +468,20 @@ public class ConstraintsValidationTest {
     testContext.completeNow();
   }
 
+  @Test
+  @Order(23)
+  @DisplayName("GeoPoint maxDistance limit validation")
+  public void positiveMaxDistanceLimit(VertxTestContext testContext) {
+
+    JsonObject requests = new JsonObject().put(GEOPROPERTY, LOCATION)
+        .put(GEORELATION, GEOREL_WITHIN).put(MAX_DISTANCE, 50000).put(GEOMETRY, "Point")
+        .put(COORDINATES, new JsonArray().add(73.927).add(18.502))
+        .put(SEARCH_TYPE, SEARCH_TYPE_GEO);
+
+    JsonObject json = QueryMapper.validateQueryParam(requests);
+
+    assertEquals(FAILED, json.getString(STATUS));
+    testContext.completeNow();
+  }
+
 }

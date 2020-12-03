@@ -6,6 +6,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +55,7 @@ public class QueryMapper {
         if (!excepAttribute.contains(entry.getKey())) {
           jsonBody.put(entry.getKey(), paramValue);
         } else if (excepAttribute.contains(entry.getKey()) && !entry.getKey().equals("q")) {
-          jsonBody.put(entry.getKey(), Integer.parseInt(paramValue));
+          jsonBody.put(entry.getKey(), Double.valueOf(paramValue).intValue());
         } else if (entry.getKey().equals(Q_VALUE)
             && !regPatternText.matcher(paramValue).matches()) {
           LOGGER.debug("Error: Invalid text string");
@@ -159,10 +160,11 @@ public class QueryMapper {
       }
 
       /* Validating maxDistance attribute for positive integer */
-      if (requestBody.containsKey(MAX_DISTANCE) && requestBody.getInteger(MAX_DISTANCE) < 0) {
-        LOGGER.error("Error: maxDistance should be positive");
+      if (requestBody.containsKey(MAX_DISTANCE)
+          && !Range.closed(0, MAXDISTANCE_LIMIT).contains(requestBody.getInteger(MAX_DISTANCE))) {
+        LOGGER.error("Error: maxDistance should range between 0-10000m");
         return errResponse.put(DESC,
-            "The 'maxDistance' should be positive number");
+            "The 'maxDistance' should range between 0-10000m");
       }
     }
 
