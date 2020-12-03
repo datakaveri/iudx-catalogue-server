@@ -82,7 +82,7 @@ public class DatabaseServiceTest {
     // JsonObject request = new JsonObject();
     // request.put(ITEM_TYPE, RESOURCE).put(ID,
     //     "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
-    JsonObject request = new JsonObject("{\"index\": \"prodtest\",\"id\": \"test_2ddowhdqkl2728\",\"_source\": {\"tags\": [\"light\", \"uv\"],\"description\": \"Air quality monitoring devices (Bosch-Climo) in Pune city.\",\"itemCreatedAt\": \"2020-09-20T05:56:31+0530\"}}");
+    JsonObject request = new JsonObject("{\"index\": \"prodtest\",\"id\": \"test_12ddowhdqkl2728\",\"_source\": {\"tags\": [\"light\", \"uv\"],\"description\": \"Air quality monitoring devices (Bosch-Climo) in Pune city.\",\"itemCreatedAt\": \"2020-09-20T05:56:31+0530\"}}");
     dbService.createItem(request, testContext.succeeding(response -> testContext.verify(() -> {
       String status = response.getString(STATUS);
       System.out.println(response);

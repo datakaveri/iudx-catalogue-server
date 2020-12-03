@@ -198,20 +198,19 @@ public class DatabaseServiceImpl implements DatabaseService {
                 } else {
                   LOGGER.error("Error: Document embeddings not created");
                 }
+                /* Insert document */
+              client.docPostAsync(doc.toString(), postRes -> {
+                if (postRes.succeeded()) {
+                  LOGGER.info(doc.toString());
+                  handler.handle(Future.succeededFuture(
+                      respBuilder.withStatus(SUCCESS)
+                                .withResult(id, INSERT, SUCCESS)
+                                .getJsonResponse()));
+                } else {
+                  handler.handle(Future.failedFuture(errorJson));
+                  LOGGER.error("Fail: Insertion failed;" + postRes.cause());
+                }
               });
-            
-            /* Insert document */
-            client.docPostAsync(doc.toString(), postRes -> {
-              if (postRes.succeeded()) {
-                LOGGER.info(doc.toString());
-                handler.handle(Future.succeededFuture(
-                    respBuilder.withStatus(SUCCESS)
-                               .withResult(id, INSERT, SUCCESS)
-                               .getJsonResponse()));
-              } else {
-                handler.handle(Future.failedFuture(errorJson));
-                LOGGER.error("Fail: Insertion failed;" + postRes.cause());
-              }
             });
           }
         });
