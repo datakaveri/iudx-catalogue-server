@@ -466,6 +466,7 @@ paths:
             - resourceServer
             - resourceGroup
             - instance
+            - provider
         in: path
         required: true
       - name: instance
