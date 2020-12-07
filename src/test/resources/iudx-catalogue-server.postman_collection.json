@@ -258,6 +258,71 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "400 (Invalid schema)- Create IUDX Entity",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "4801ae99-cdcc-490d-8a99-c6360b84cead",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"type": "text",
+										"value": "{{token}}"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"iudx.uttar.pradesh.vanarasi.org/f7e044eee8122b5c87dce6e7ad64f3266044eee8122b5c87dce6e7adafa41dc/vanarasi.resourceserver.iudx.io/aqm--pollution-aqm-pm-co2-bosch-climo/aqm_test_2aqm_test_2 environment  air quality  climate  air  aqi  aqm  climo  pollution  so2  co2  co  no  no2  pm2.5  pm10  humidity temperature  ozone  o3  noise  light  uv Description for Bosch-Climo AQM resource aqm_test_2aqm_test_2 environment  air quality  climate  air  aqi  aqm  climo  pollution  so2  co2  co  no  no2  pm2.5  pm10  humidity  temperature  ozone  o3  noise  light  uv Description for Bosch-Climo AQM resource\"\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://{{host}}{{base}}/item/",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item",
+										""
+									]
+								}
+							},
+							"response": []
 						}
 					],
 					"protocolProfileBehavior": {},
@@ -1009,7 +1074,7 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "auth.iudx.org.in/rakshit.ramesh@datakaveri.org/c4fd7318be270d44c69da4ec40b1c6e4",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
@@ -1585,6 +1650,56 @@
 							"path": [
 								"list",
 								"resource"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400 (Invalid request)- Exceed limit value",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7082710c-691a-46fa-8448-002235e5bd35",
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}{{base}}/list/tags?limit=13323232320",
+							"protocol": "https",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"list",
+								"tags"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "13323232320"
+								}
 							]
 						}
 					},
@@ -2225,6 +2340,120 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "400 (Invalid request)- Response filter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "34fc0eb7-7f6b-4613-a8eb-7901e9feda58",
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
+							"protocol": "https",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+								},
+								{
+									"key": "rel",
+									"value": "resourceGroup"
+								},
+								{
+									"key": "filter",
+									"value": "[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400 (Invalid request)- Exceed limit value",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "34fc0eb7-7f6b-4613-a8eb-7901e9feda58",
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup&limit=1000001",
+							"protocol": "https",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+								},
+								{
+									"key": "rel",
+									"value": "resourceGroup"
+								},
+								{
+									"key": "limit",
+									"value": "1000001"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"protocolProfileBehavior": {}
@@ -2581,7 +2810,7 @@
 												"id": "2cfd4a2b-46d0-4346-af25-a91154d626c0",
 												"exec": [
 													"pm.test(\"Response status\", function () {\r",
-													"    pm.response.to.have.status(400);\r",
+													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Check response header\", function () {\r",
@@ -2590,7 +2819,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"status\", \"invalidValue\");\r",
+													"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -2851,6 +3080,356 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "400 (invalid request)- precision validation",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "ccce5082-1bc9-463d-a025-fc801c9ef69e",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=1000&geometry=Point&coordinates=[73.9272851,18.5027121]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "maxDistance",
+													"value": "1000"
+												},
+												{
+													"key": "geometry",
+													"value": "Point"
+												},
+												{
+													"key": "coordinates",
+													"value": "[73.9272851,18.5027121]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid request)- Coordinate pair",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "044be242-ddac-43f6-a39c-7d2d286b2783",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=100&geometry=Point&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "maxDistance",
+													"value": "100"
+												},
+												{
+													"key": "geometry",
+													"value": "Point"
+												},
+												{
+													"key": "coordinates",
+													"value": "[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid request)- maxDistance Limit",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "ccce5082-1bc9-463d-a025-fc801c9ef69e",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=50000&geometry=Point&coordinates=[73.927285,18.502712]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "maxDistance",
+													"value": "50000"
+												},
+												{
+													"key": "geometry",
+													"value": "Point"
+												},
+												{
+													"key": "coordinates",
+													"value": "[73.927285,18.502712]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid request) Negative maxDistance",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "ccce5082-1bc9-463d-a025-fc801c9ef69e",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=-5000&geometry=Point&coordinates=[73.927285,18.502712]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "maxDistance",
+													"value": "-5000"
+												},
+												{
+													"key": "geometry",
+													"value": "Point"
+												},
+												{
+													"key": "coordinates",
+													"value": "[73.927285,18.502712]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid request)- Coordinate Infinity Check",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "ccce5082-1bc9-463d-a025-fc801c9ef69e",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.502712]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "maxDistance",
+													"value": "5000"
+												},
+												{
+													"key": "geometry",
+													"value": "Point"
+												},
+												{
+													"key": "coordinates",
+													"value": "[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.502712]"
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							],
 							"protocolProfileBehavior": {},
@@ -2934,7 +3513,7 @@
 												"id": "bcb760c3-6bb2-4423-b3cf-1c513447ef94",
 												"exec": [
 													"pm.test(\"Response status\", function () {\r",
-													"    pm.response.to.have.status(400);\r",
+													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Check response header\", function () {\r",
@@ -2943,7 +3522,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"status\", \"invalidValue\");\r",
+													"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -2961,7 +3540,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "https://{{host}}{{base}}/search?geoproperty=abclocation&georel=within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
+											"raw": "https://{{host}}{{base}}/search?geoproperty=abclocation&georel=within&geometry=Polygon&coordinates=[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]",
 											"protocol": "https",
 											"host": [
 												"{{host}}{{base}}"
@@ -2984,7 +3563,7 @@
 												},
 												{
 													"key": "coordinates",
-													"value": "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]"
+													"value": "[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]"
 												}
 											]
 										}
@@ -3320,6 +3899,204 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "400 (Invalid request) precision validation",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "044be242-ddac-43f6-a39c-7d2d286b2783",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9324532,14.5],[72,13],[73,20],[75.9,14.5]]]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "geometry",
+													"value": "Polygon"
+												},
+												{
+													"key": "coordinates",
+													"value": "[[[75.9324532,14.5],[72,13],[73,20],[75.9,14.5]]]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 ( Invalid request)- Coordinates Pair",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "044be242-ddac-43f6-a39c-7d2d286b2783",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "geometry",
+													"value": "Polygon"
+												},
+												{
+													"key": "coordinates",
+													"value": "[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid request)- Coordiante infinity check",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "044be242-ddac-43f6-a39c-7d2d286b2783",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,14.5],[72,13],[73,20],[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,14.5]]]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "geometry",
+													"value": "Polygon"
+												},
+												{
+													"key": "coordinates",
+													"value": "[[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,14.5],[72,13],[73,20],[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,14.5]]]"
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							],
 							"protocolProfileBehavior": {},
@@ -3396,7 +4173,7 @@
 												"id": "4278cb30-40e5-496a-b23e-72dd58ece80d",
 												"exec": [
 													"pm.test(\"Response status\", function () {\r",
-													"    pm.response.to.have.status(400);\r",
+													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Check response header\", function () {\r",
@@ -3405,7 +4182,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"status\", \"invalidValue\");\r",
+													"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -3740,6 +4517,190 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "400 (Invalid Request)- Precision validation",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c1a2f2ff-d9d4-4d0e-b7ef-74263dbbf809",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.8745374,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "intersects"
+												},
+												{
+													"key": "geometry",
+													"value": "LineString"
+												},
+												{
+													"key": "coordinates",
+													"value": "[[73.8745374,18.528311],[73.836808,18.572797],[73.876484,18.525007]]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid request)- Coordinate pair",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "044be242-ddac-43f6-a39c-7d2d286b2783",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=LineString&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "geometry",
+													"value": "LineString"
+												},
+												{
+													"key": "coordinates",
+													"value": "[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid request)- Coordinate inifinity check",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c1a2f2ff-d9d4-4d0e-b7ef-74263dbbf809",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "intersects"
+												},
+												{
+													"key": "geometry",
+													"value": "LineString"
+												},
+												{
+													"key": "coordinates",
+													"value": "[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.528311],[73.836808,18.572797],[73.876484,18.525007]]"
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							],
 							"protocolProfileBehavior": {},
@@ -3816,7 +4777,7 @@
 												"id": "5bb59ea3-a9dc-4f70-950e-d32f5aa6496b",
 												"exec": [
 													"pm.test(\"Response status\", function () {\r",
-													"    pm.response.to.have.status(400);\r",
+													"    pm.response.to.have.status(200);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Check response header\", function () {\r",
@@ -3825,7 +4786,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"status\", \"invalidValue\");\r",
+													"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -4160,6 +5121,190 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "400 (Invalid request)- Precision validation",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "ee3836d1-4940-4c3b-8a8d-cafb15795e7b",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.84231220,18.5305],[73.8665,18.5126]]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "geometry",
+													"value": "bbox"
+												},
+												{
+													"key": "coordinates",
+													"value": "[[73.84231220,18.5305],[73.8665,18.5126]]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid request)- Coordinate pair",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "044be242-ddac-43f6-a39c-7d2d286b2783",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "geometry",
+													"value": "bbox"
+												},
+												{
+													"key": "coordinates",
+													"value": "[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid request)- Coordinate infinity check",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "ee3836d1-4940-4c3b-8a8d-cafb15795e7b",
+												"exec": [
+													"pm.test(\"Response status\", function () {\r",
+													"    pm.response.to.have.status(400);\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response header\", function () {\r",
+													"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+													"});\r",
+													"\r",
+													"pm.test(\"Check response body\", function () {    \r",
+													"    const body = pm.response.json();\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.5305],[73.8665,18.5126]]",
+											"protocol": "https",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"search"
+											],
+											"query": [
+												{
+													"key": "geoproperty",
+													"value": "location"
+												},
+												{
+													"key": "georel",
+													"value": "within"
+												},
+												{
+													"key": "geometry",
+													"value": "bbox"
+												},
+												{
+													"key": "coordinates",
+													"value": "[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.5305],[73.8665,18.5126]]"
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							],
 							"protocolProfileBehavior": {},
@@ -4374,6 +5519,210 @@
 										{
 											"key": "offset",
 											"value": "100"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Search string size",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d0a62be3-91db-48a0-968d-34e83ff22088",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?q=\"Goliber Square Sivaji chowk Maharashtra near Railway station aqm pollution sensor iudx iudxadmin resource\"",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "\"Goliber Square Sivaji chowk Maharashtra near Railway station aqm pollution sensor iudx iudxadmin resource\""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Response filter",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d0a62be3-91db-48a0-968d-34e83ff22088",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?q=\"Bosch Climo\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "\"Bosch Climo\""
+										},
+										{
+											"key": "filter",
+											"value": "[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Exceed limit value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d0a62be3-91db-48a0-968d-34e83ff22088",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?q=\"Bosch Climo\"&limit=1000000",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "\"Bosch Climo\""
+										},
+										{
+											"key": "limit",
+											"value": "1000000"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Request)- Exceed offset value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "d0a62be3-91db-48a0-968d-34e83ff22088",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?q=\"Bosch Climo\"&limit=100&offset=100000",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": "\"Bosch Climo\""
+										},
+										{
+											"key": "limit",
+											"value": "100"
+										},
+										{
+											"key": "offset",
+											"value": "100000"
 										}
 									]
 								}
@@ -4770,6 +6119,195 @@
 										{
 											"key": "value",
 											"value": "[[abc, abc123]]"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Response filter",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "97906447-9f56-4783-a0fb-88532bd61213",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]&limit=100&offset=0",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "property",
+											"value": "\"[tags]\""
+										},
+										{
+											"key": "value",
+											"value": "\"[[pollution]]\""
+										},
+										{
+											"key": "filter",
+											"value": "[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]"
+										},
+										{
+											"key": "limit",
+											"value": "100"
+										},
+										{
+											"key": "offset",
+											"value": "0"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Exceed limit value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "97906447-9f56-4783-a0fb-88532bd61213",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId]&limit=1000000&offset=0",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "property",
+											"value": "\"[tags]\""
+										},
+										{
+											"key": "value",
+											"value": "\"[[pollution]]\""
+										},
+										{
+											"key": "filter",
+											"value": "[id,name,tags,deviceId]"
+										},
+										{
+											"key": "limit",
+											"value": "1000000"
+										},
+										{
+											"key": "offset",
+											"value": "0"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Request)- Exceed offset value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "97906447-9f56-4783-a0fb-88532bd61213",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId]&limit=100&offset=1000000",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "property",
+											"value": "\"[tags]\""
+										},
+										{
+											"key": "value",
+											"value": "\"[[pollution]]\""
+										},
+										{
+											"key": "filter",
+											"value": "[id,name,tags,deviceId]"
+										},
+										{
+											"key": "limit",
+											"value": "100"
+										},
+										{
+											"key": "offset",
+											"value": "1000000"
 										}
 									]
 								}
@@ -5205,6 +6743,336 @@
 										{
 											"key": "value",
 											"value": "[[abc, abc123]]"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Exceed property queryParam",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "abdcab73-9ffa-42b0-b860-e35d223a9a0c",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?property=\"[id,name,tags,location,deviceId]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\"",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "property",
+											"value": "\"[id,name,tags,location,deviceId]\""
+										},
+										{
+											"key": "value",
+											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Exceed value pair queryParam",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "abdcab73-9ffa-42b0-b860-e35d223a9a0c",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?property=\"[id,name,tags,location]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\"",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "property",
+											"value": "\"[id,name,tags,location]\""
+										},
+										{
+											"key": "value",
+											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Exceed Value queryParam",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "abdcab73-9ffa-42b0-b860-e35d223a9a0c",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?property=\"[id,name,tags,location]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1,sensor2,sensor3,sensor4,sensor5],[aqm],[pune]]\"",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "property",
+											"value": "\"[id,name,tags,location]\""
+										},
+										{
+											"key": "value",
+											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1,sensor2,sensor3,sensor4,sensor5],[aqm],[pune]]\""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Response filter",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "abdcab73-9ffa-42b0-b860-e35d223a9a0c",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "property",
+											"value": "\"[id]\""
+										},
+										{
+											"key": "value",
+											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+										},
+										{
+											"key": "filter",
+											"value": "[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Exceed limit value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "abdcab73-9ffa-42b0-b860-e35d223a9a0c",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags]&limit=10000000",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "property",
+											"value": "\"[id]\""
+										},
+										{
+											"key": "value",
+											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+										},
+										{
+											"key": "filter",
+											"value": "[id,name,tags]"
+										},
+										{
+											"key": "limit",
+											"value": "10000000"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Request)- Exceed offset value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "abdcab73-9ffa-42b0-b860-e35d223a9a0c",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags]&limit=10&offset=1001001",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "property",
+											"value": "\"[id]\""
+										},
+										{
+											"key": "value",
+											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+										},
+										{
+											"key": "filter",
+											"value": "[id,name,tags]"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										},
+										{
+											"key": "offset",
+											"value": "1001001"
 										}
 									]
 								}
@@ -5950,6 +7818,207 @@
 										{
 											"key": "filter",
 											"value": "[tags,id,location.geometry.coordinates]"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Response filter",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7e2ecee2-b644-425d-af38-87ffa73efab8",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "geoproperty",
+											"value": "location"
+										},
+										{
+											"key": "georel",
+											"value": "within"
+										},
+										{
+											"key": "geometry",
+											"value": "Polygon"
+										},
+										{
+											"key": "coordinates",
+											"value": "[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]"
+										},
+										{
+											"key": "filter",
+											"value": "[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid request)- Exceed limit value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7e2ecee2-b644-425d-af38-87ffa73efab8",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name]&limit=10001",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "geoproperty",
+											"value": "location"
+										},
+										{
+											"key": "georel",
+											"value": "within"
+										},
+										{
+											"key": "geometry",
+											"value": "Polygon"
+										},
+										{
+											"key": "coordinates",
+											"value": "[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]"
+										},
+										{
+											"key": "filter",
+											"value": "[id,name]"
+										},
+										{
+											"key": "limit",
+											"value": "10001"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Request)- Exceed offset value",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "7e2ecee2-b644-425d-af38-87ffa73efab8",
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name]&limit=1001&offset=1010101",
+									"protocol": "https",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"search"
+									],
+									"query": [
+										{
+											"key": "geoproperty",
+											"value": "location"
+										},
+										{
+											"key": "georel",
+											"value": "within"
+										},
+										{
+											"key": "geometry",
+											"value": "Polygon"
+										},
+										{
+											"key": "coordinates",
+											"value": "[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]"
+										},
+										{
+											"key": "filter",
+											"value": "[id,name]"
+										},
+										{
+											"key": "limit",
+											"value": "1001"
+										},
+										{
+											"key": "offset",
+											"value": "1010101"
 										}
 									]
 								}
@@ -7069,7 +9138,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
+							"raw": "https://{{host}}{{base}}/count?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -7092,7 +9161,7 @@
 								},
 								{
 									"key": "coordinates",
-									"value": "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]"
+									"value": "[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]"
 								}
 							]
 						}
@@ -7108,7 +9177,7 @@
 								"id": "c1750269-8b9e-4942-911c-4fc865c1d5a8",
 								"exec": [
 									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Check response header\", function () {\r",
@@ -7117,7 +9186,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"invalidValue\");\r",
+									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -7135,7 +9204,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?geoproperty=abclocation&georel=within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
+							"raw": "https://{{host}}{{base}}/count?geoproperty=abclocation&georel=within&geometry=Polygon&coordinates=[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -7158,7 +9227,7 @@
 								},
 								{
 									"key": "coordinates",
-									"value": "[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]"
+									"value": "[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]"
 								}
 							]
 						}
@@ -7299,7 +9368,7 @@
 								"id": "78eb7adb-14e2-48b9-88fd-f1ae8f6cfa7b",
 								"exec": [
 									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Check response header\", function () {\r",
@@ -7308,7 +9377,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"invalidValue\");\r",
+									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -7476,7 +9545,7 @@
 								"id": "d57a44dd-30ef-49c3-8c42-ef0bb844cb2e",
 								"exec": [
 									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Check response header\", function () {\r",
@@ -7485,7 +9554,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"invalidValue\");\r",
+									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
 									"});"
 								],
 								"type": "text/javascript"
