@@ -165,7 +165,7 @@ public final class CrudApis {
                                         .withStatus(FAILED)
                                         .withResults(requestBody.getString(ID, ""),
                                             methodType, FAILED,
-                                            valhandler.cause().getMessage())
+                                            valhandler.cause().getMessage()+ " for " +itemType)
                                         .build()
                                         .toJsonString());
               }

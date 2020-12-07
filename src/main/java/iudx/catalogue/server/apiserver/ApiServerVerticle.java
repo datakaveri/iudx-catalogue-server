@@ -9,9 +9,10 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.DecodeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import iudx.catalogue.server.apiserver.util.ResponseHandler;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
@@ -176,6 +177,25 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.post(ROUTE_ITEMS)
       .consumes(MIME_APPLICATION_JSON)
       .produces(MIME_APPLICATION_JSON)
+      .failureHandler(failureHandler -> {
+        /* Handling JsonDecodeException */
+        Throwable failure = failureHandler.failure();
+        if (failure instanceof DecodeException) {
+          
+          failureHandler.response()
+                            .setStatusCode(500)
+                            .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+                            .end(new ResponseHandler.Builder()
+                                      .withStatus(FAILED)
+                                      .withResults(null,
+                                          failureHandler.request().method().toString() == 
+                                              REQUEST_POST ? INSERT : UPDATE,
+                                          FAILED,
+                                          "Invalid Json Format")
+                                      .build()
+                                      .toJsonString());
+        }
+       })
       .handler( routingContext -> {
         /* checking auhthentication info in requests */
         if (routingContext.request().headers().contains(HEADER_TOKEN)) {

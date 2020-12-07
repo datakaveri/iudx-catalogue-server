@@ -6,6 +6,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.io.IOException;
@@ -134,6 +135,13 @@ public class ValidatorServiceImpl implements ValidatorService {
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
       String resourceGroup = request.getString(RESOURCE_GRP);
       String id = resourceGroup + "/" + request.getString(NAME);
+      String resGrpProvider = StringUtils.substring(id, 0, id.indexOf("/", id.indexOf("/") + 1));
+
+      if (!request.getString(PROVIDER).equals(resGrpProvider)) {
+        handler.handle(Future.failedFuture("Link validation failed"));
+        return this;
+      }
+
       LOGGER.debug("Info: id generated: " + id);
       request.put(ID, id).put(ITEM_STATUS,
           ACTIVE)
