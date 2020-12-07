@@ -44,6 +44,7 @@ public final class QueryDecoder {
       String relation;
       JsonArray coordinates;
       String geometry = request.getString(GEOMETRY);
+      String geoProperty = request.getString(GEOPROPERTY);
       /* Construct the search query */
       if (POINT.equalsIgnoreCase(geometry)) {
         /* Construct the query for Circle */
@@ -53,7 +54,7 @@ public final class QueryDecoder {
         String radiusStr = ",\"radius\": \"$1m\"".replace("$1", Integer.toString(radius));
         queryGeoShape = GEO_SHAPE_QUERY.replace("$1", GEO_CIRCLE)
             .replace("$2", coordinates.toString() + radiusStr).replace("$3", relation)
-            .replace("$4", GEO_KEY);
+            .replace("$4", geoProperty + GEO_KEY);
       } else if (POLYGON.equalsIgnoreCase(geometry) || LINESTRING.equalsIgnoreCase(geometry)) {
         relation = request.getString(GEORELATION);
         coordinates = request.getJsonArray(COORDINATES_KEY);
@@ -67,14 +68,14 @@ public final class QueryDecoder {
           return new JsonObject().put(ERROR, ERROR_INVALID_COORDINATE_POLYGON);
         }
         queryGeoShape = GEO_SHAPE_QUERY.replace("$1", geometry).replace("$2", coordinates.toString())
-            .replace("$3", relation).replace("$4", GEO_KEY);
+            .replace("$3", relation).replace("$4", geoProperty + GEO_KEY);
 
       } else if (BBOX.equalsIgnoreCase(geometry)) {
         /* Construct the query for BBOX */
         relation = request.getString(GEORELATION);
         coordinates = request.getJsonArray(COORDINATES_KEY);
         queryGeoShape = GEO_SHAPE_QUERY.replace("$1", GEO_BBOX).replace("$2", coordinates.toString())
-            .replace("$3", relation).replace("$4", GEO_KEY);
+            .replace("$3", relation).replace("$4", geoProperty + GEO_KEY);
       } else {
         return new JsonObject().put(ERROR, ERROR_INVALID_GEO_PARAMETER);
       }

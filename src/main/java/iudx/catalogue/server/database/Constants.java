@@ -30,7 +30,7 @@ public class Constants {
   static final String DISTANCE_IN_METERS = "m";
   static final String GEO_BBOX = "envelope";
   static final String GEO_CIRCLE = "circle";
-  static final String GEO_KEY = "location.geometry";
+  static final String GEO_KEY = ".geometry";
   static final String GEO_RADIUS = "radius";
   static final String GEO_RELATION_KEY = "relation";
   static final String GEO_SHAPE_KEY = "geo_shape";

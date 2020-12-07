@@ -149,13 +149,13 @@ public class QueryMapper {
               }
             } else {
               LOGGER.error("Error: Overflow coordinate value");
-              return errResponse.put(DESC, "The 'coordinates' value is " + tempValue);
+              return errResponse.put(DESC, "Unable to parse 'coordinates'; value is " + tempValue);
             }
           }
         } else {
-          LOGGER.error("Error: Overflow coordinate pairs");
+          LOGGER.error("Error: Overflow coordinate values");
           return errResponse.put(DESC,
-              "The max number of 'coordinates' pair is " + COORDINATES_SIZE);
+              "The max number of 'coordinates' value is " + COORDINATES_SIZE);
         }
       }
 
@@ -195,8 +195,8 @@ public class QueryMapper {
             }
           }
         } else {
-          LOGGER.error("Error: The value pair query param has exceeded the limit");
-          return errResponse.put(DESC, "The max number of 'value' pair should be " + VALUE_SIZE);
+          LOGGER.error("Error: The value query param has exceeded the limit");
+          return errResponse.put(DESC, "The max number of 'value' should be " + VALUE_SIZE);
         }
       } else {
         LOGGER.error("Error: The property query param has exceeded the limit");

@@ -1133,7 +1133,7 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "{{admin_token1}}",
+								"value": "{{admin_token}}",
 								"type": "text"
 							}
 						],
@@ -2810,7 +2810,7 @@
 												"id": "2cfd4a2b-46d0-4346-af25-a91154d626c0",
 												"exec": [
 													"pm.test(\"Response status\", function () {\r",
-													"    pm.response.to.have.status(200);\r",
+													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Check response header\", function () {\r",
@@ -2819,7 +2819,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -3513,7 +3513,7 @@
 												"id": "bcb760c3-6bb2-4423-b3cf-1c513447ef94",
 												"exec": [
 													"pm.test(\"Response status\", function () {\r",
-													"    pm.response.to.have.status(200);\r",
+													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Check response header\", function () {\r",
@@ -3522,7 +3522,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -4173,7 +4173,7 @@
 												"id": "4278cb30-40e5-496a-b23e-72dd58ece80d",
 												"exec": [
 													"pm.test(\"Response status\", function () {\r",
-													"    pm.response.to.have.status(200);\r",
+													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Check response header\", function () {\r",
@@ -4182,7 +4182,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -4777,7 +4777,7 @@
 												"id": "5bb59ea3-a9dc-4f70-950e-d32f5aa6496b",
 												"exec": [
 													"pm.test(\"Response status\", function () {\r",
-													"    pm.response.to.have.status(200);\r",
+													"    pm.response.to.have.status(400);\r",
 													"});\r",
 													"\r",
 													"pm.test(\"Check response header\", function () {\r",
@@ -4786,7 +4786,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -9177,7 +9177,7 @@
 								"id": "c1750269-8b9e-4942-911c-4fc865c1d5a8",
 								"exec": [
 									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.have.status(400);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Check response header\", function () {\r",
@@ -9186,7 +9186,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+									"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9368,7 +9368,7 @@
 								"id": "78eb7adb-14e2-48b9-88fd-f1ae8f6cfa7b",
 								"exec": [
 									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.have.status(400);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Check response header\", function () {\r",
@@ -9377,7 +9377,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+									"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9545,7 +9545,7 @@
 								"id": "d57a44dd-30ef-49c3-8c42-ef0bb844cb2e",
 								"exec": [
 									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.have.status(400);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Check response header\", function () {\r",
@@ -9554,7 +9554,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+									"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
 									"});"
 								],
 								"type": "text/javascript"
