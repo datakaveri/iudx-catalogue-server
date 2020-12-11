@@ -7,7 +7,7 @@ networks:
 services:
 
   prod:
-    image: iudx/cat-depl:latest
+    image: iudx/cat-prod:latest
     environment:
       - HOSTNAME=server
       - ZOOKEEPER=zookeeper
