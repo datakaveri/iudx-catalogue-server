@@ -18,8 +18,6 @@ services:
       - ./docs/:/usr/share/app/docs
       - ./configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./ui/dist/:/usr/share/app/ui/dist
-      - /tmp/iudx/:/tmp/iudx/
-      
     depends_on:
       - "zookeeper"
     ports:
@@ -44,7 +42,6 @@ services:
       - ./configs/config-dev.json:/usr/share/app/configs/config.json
       - ./configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./ui/dist/:/usr/share/app/ui/dist
-      - /tmp/iudx/:/tmp/iudx/
     ports:
       - "8080:8080"
       - "9000:9000"
