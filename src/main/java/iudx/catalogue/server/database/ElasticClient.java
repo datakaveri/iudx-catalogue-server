@@ -77,6 +77,17 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient scriptLocationSearch(JsonArray query_vector, String bbox,
+  Handler<AsyncResult<JsonObject>> resultHandler) {
+    JsonArray coords = new JsonArray(bbox);
+    String query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}},\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",\"coordinates\": [ [" + Float.toString(coords.getFloat(0)) + "," + Float.toString(coords.getFloat(3)) +"], [" + Float.toString(coords.getFloat(2)) + "," + Float.toString(coords.getFloat(1)) + "]]},\"relation\": \"within\"}}}}},\"script\": {\"source\": \"cosineSimilarity(params.query_vector, doc['word_vector']) + 1.0\",\"params\": {\"query_vector\":" + query_vector.toString() + "}}}}}";
+    Request queryRequest = new Request(REQUEST_GET, index + "/_search");
+    queryRequest.setJsonEntity(query);
+    Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
   /**
    * searchGetIdAsync - Get document IDs matching a query
    * 

@@ -20,6 +20,7 @@ import io.vertx.ext.web.client.WebClient;
 
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
+import iudx.catalogue.server.geocoding.GeocodingService;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
@@ -30,6 +31,7 @@ public final class SearchApis {
 
   private DatabaseService dbService;
   private final WebClient webClient;
+  private GeocodingService geoService;
 
   private static final Logger LOGGER = LogManager.getLogger(SearchApis.class);
 
@@ -45,8 +47,9 @@ public final class SearchApis {
     this.webClient = webClient;
   }
 
-  public void setDbService(DatabaseService dbService) {
+  public void setDbService(DatabaseService dbService, GeocodingService geoService) {
     this.dbService = dbService;
+    this.geoService = geoService;
   }
 
   /**
@@ -195,36 +198,72 @@ public final class SearchApis {
       routingContext.response().setStatusCode(400).end();
       return;
     }
-    // replace with service name
+  
     webClient
-      .get(5000,"127.0.0.1","/search")
+      .get(5000,"nlpsearch","/search")
       .addQueryParam("q", query)
       .putHeader("Accept","application/json").send(ar -> {
       if(ar.succeeded()) {
         LOGGER.info("Request succeeded!");
-        JsonObject res = ar.result().body().toJsonObject();
-        embeddings.add(res.getJsonArray("result"));
-        dbService.nlpSearchQuery(embeddings, handler -> {
-          if(handler.succeeded()) {
-            JsonObject resultJson = handler.result();
-            String status = resultJson.getString(STATUS);
-            if (status.equalsIgnoreCase(SUCCESS)) {
-              LOGGER.info("Success: search query");
-              response.setStatusCode(200);
-            } else if (status.equalsIgnoreCase(PARTIAL_CONTENT)) {
-              LOGGER.info("Success: search query");
-              response.setStatusCode(206);
-            } else {
-              LOGGER.error("Fail: search query");
-              response.setStatusCode(400);
+        JsonObject resp = ar.result().body().toJsonObject();
+        embeddings.add(resp.getJsonArray("result"));
+        String location = resp.getString("location");
+        LOGGER.info(location);
+        if(location.equals("EMPTY")){
+          dbService.nlpSearchQuery(embeddings, handler -> {
+            if(handler.succeeded()) {
+              JsonObject resultJson = handler.result();
+              String status = resultJson.getString(STATUS);
+              if (status.equalsIgnoreCase(SUCCESS)) {
+                LOGGER.info("Success: search query");
+                response.setStatusCode(200);
+              } else if (status.equalsIgnoreCase(PARTIAL_CONTENT)) {
+                LOGGER.info("Success: search query");
+                response.setStatusCode(206);
+              } else {
+                LOGGER.error("Fail: search query");
+                response.setStatusCode(400);
+              }
+              response.end(resultJson.toString());
+            } else if (handler.failed()) {
+              LOGGER.error("Fail: Search;" + handler.cause().getMessage());
+                  response.setStatusCode(400)
+                          .end(handler.cause().getMessage());
             }
-            response.end(resultJson.toString());
-          } else if (handler.failed()) {
-            LOGGER.error("Fail: Search;" + handler.cause().getMessage());
-                response.setStatusCode(400)
-                        .end(handler.cause().getMessage());
-          }
-        });
+          });
+        }
+        else {
+          geoService.geocoder(location, res -> {
+            if(res.succeeded()) {
+              String bbox = res.result();
+              LOGGER.info("bbox: " + bbox);
+              dbService.nlpSearchLocationQuery(embeddings, bbox, handler -> {
+                if(handler.succeeded()) {
+                  JsonObject resultJson = handler.result();
+                  String status = resultJson.getString(STATUS);
+                  if (status.equalsIgnoreCase(SUCCESS)) {
+                    LOGGER.info("Success: search query");
+                    response.setStatusCode(200);
+                  } else if (status.equalsIgnoreCase(PARTIAL_CONTENT)) {
+                    LOGGER.info("Success: search query");
+                    response.setStatusCode(206);
+                  } else {
+                    LOGGER.error("Fail: search query");
+                    response.setStatusCode(400);
+                  }
+                  response.end(resultJson.toString());
+                } else if (handler.failed()) {
+                  LOGGER.error("Fail: Search;" + handler.cause().getMessage());
+                      response.setStatusCode(400)
+                              .end(handler.cause().getMessage());
+                }
+              });
+            }
+            else {
+              LOGGER.info("Failed to get bounding box");
+            }
+          });
+        }
       } else {
         LOGGER.info("Failed to get embeddings");
         response.setStatusCode(400);

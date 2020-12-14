@@ -88,11 +88,8 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   public DatabaseService nlpSearchQuery(JsonArray request, Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.info("Inside db search");
-
     RespBuilder respBuilder = new RespBuilder();
     JsonArray embeddings = request.getJsonArray(0);
-    LOGGER.info(embeddings);
     client.scriptSearch(embeddings, searchRes -> {
       if(searchRes.succeeded()) {
         LOGGER.info("Success:Successful DB request");
@@ -105,6 +102,26 @@ public class DatabaseServiceImpl implements DatabaseService {
                       .getResponse()));
       }
     });
+    return this;
+  }
+
+  public DatabaseService nlpSearchLocationQuery(JsonArray request, String location, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    JsonArray embeddings = request.getJsonArray(0);
+    client
+    .scriptLocationSearch(embeddings, location, searchRes -> {
+      if(searchRes.succeeded()) {
+        LOGGER.info("Success:Successful DB request");
+        handler.handle(Future.succeededFuture(searchRes.result()));
+      } else {
+        LOGGER.error("Fail: DB request;" + searchRes.cause().getMessage());
+        handler.handle(Future.failedFuture(
+          respBuilder.withStatus(FAILED)
+                      .withDescription(INTERNAL_SERVER_ERROR)
+                      .getResponse()));
+      }
+    });
+
     return this;
   }
 
@@ -188,7 +205,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
             webClient
-              .post(5000,"127.0.0.1","/indexdoc")
+              .post(5000,"nlpsearch","/indexdoc")
               .sendJsonObject(doc, ar-> {
                 if(ar.succeeded()) {
                   LOGGER.info("Info: Document embeddings created");

@@ -52,6 +52,17 @@ public interface DatabaseService {
   DatabaseService nlpSearchQuery(JsonArray request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
+   * The searchQuery implements the nlp search operation with the database.
+   * 
+   * @param request which is a JsonObject
+   * @param location which is a String
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService nlpSearchLocationQuery(JsonArray request, String location, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
    * The countQuery implements the count operation with the database.
    * 
    * @param request which is a JsonObject

@@ -118,7 +118,6 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     crudApis.setDbService(dbService);
     listApis.setDbService(dbService);
-    searchApis.setDbService(dbService);
     relApis.setDbService(dbService);
 
     AuthenticationService authService =
@@ -132,6 +131,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     GeocodingService geoService 
       = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
     geoApis.setGeoService(geoService);
+
+    searchApis.setDbService(dbService, geoService);
 
     /**
      *
