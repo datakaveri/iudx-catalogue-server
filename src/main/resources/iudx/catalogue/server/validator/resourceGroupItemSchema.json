@@ -93,7 +93,8 @@
             "default": "",
             "examples": [
                 "sensors"
-            ]
+            ],
+            "pattern" : "^[a-zA-Z0-9]+(\\-*\\_*[a-zA-Z0-9]+)*$"
         },
         "tags": {
             "$id": "#/properties/tags",
