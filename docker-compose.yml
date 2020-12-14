@@ -12,12 +12,12 @@ services:
       - HOSTNAME=server
       - ZOOKEEPER=zookeeper
       - CAT_URL=https://catalogue.iudx.org.in
+      - LOG_LEVEL=INFO
     volumes:
       - ./configs/config-depl.json:/usr/share/app/configs/config.json
       - ./docs/:/usr/share/app/docs
       - ./configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./ui/dist/:/usr/share/app/ui/dist
-      - /tmp/iudx/:/tmp/iudx/
     depends_on:
       - "zookeeper"
     ports:
@@ -37,11 +37,11 @@ services:
     image: iudx/cat-dev:latest
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
+      - LOG_LEVEL=DEBUG
     volumes:
       - ./configs/config-dev.json:/usr/share/app/configs/config.json
       - ./configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./ui/dist/:/usr/share/app/ui/dist
-      - /tmp/iudx/:/tmp/iudx/
     ports:
       - "8080:8080"
       - "9000:9000"
@@ -60,10 +60,12 @@ services:
     image: iudx/cat-test:latest
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
+      - LOG_LEVEL=INFO
     volumes:
       - ./src/:/usr/share/app/src
       - ./configs/config-test.json:/usr/share/app/configs/config-test.json
       - /tmp/test:/tmp/test
+      
     command: bash -c "mvn clean test -Dtest=IntegrationTest && cp -r target /tmp/test"
 
 
