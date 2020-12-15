@@ -205,7 +205,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
             webClient
-              .post(5000,"nlpsearch","/indexdoc")
+              .post(5000,"es-vectorised-search_web_1","/indexdoc")
               .sendJsonObject(doc, ar-> {
                 if(ar.succeeded()) {
                   LOGGER.info("Info: Document embeddings created");

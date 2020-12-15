@@ -43,7 +43,7 @@ public class GeocodingServiceImpl implements GeocodingService {
   public void geocoder(String location, Handler<AsyncResult<String>> handler) {
     // LOGGER.info(location);
     webClient
-    .get(4000,"pelias","/v1/search")
+    .get(4000,"pelias_api","/v1/search")
     .addQueryParam("text", location)
     .putHeader("Accept","application/json").send(ar -> {
       if(ar.succeeded()) {
@@ -75,7 +75,7 @@ public class GeocodingServiceImpl implements GeocodingService {
   @Override
   public void reverseGeocoder(String lat, String lon, Handler<AsyncResult<JsonObject>> handler) {
     webClient
-    .get(4000,"pelias","/v1/reverse")
+    .get(4000,"pelias_api","/v1/reverse")
     .addQueryParam("point.lon", lon)
     .addQueryParam("point.lat", lat)
     .putHeader("Accept","application/json").send(ar -> {

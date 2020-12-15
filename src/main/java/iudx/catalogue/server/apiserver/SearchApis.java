@@ -200,7 +200,7 @@ public final class SearchApis {
     }
   
     webClient
-      .get(5000,"nlpsearch","/search")
+      .get(5000,"es-vectorised-search_web_1","/search")
       .addQueryParam("q", query)
       .putHeader("Accept","application/json").send(ar -> {
       if(ar.succeeded()) {
