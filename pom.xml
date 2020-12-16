@@ -305,7 +305,7 @@
 					<useSystemClassLoader>true</useSystemClassLoader>
 					<testFailureIgnore>true</testFailureIgnore>
 					<argLine>
-						-javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.8.10/aspectjweaver-1.8.10.jar"
+						@{argLine} -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.6/aspectjweaver-1.9.6.jar"
 					</argLine>
 					<systemProperties>
 						<property>
@@ -318,7 +318,7 @@
 					<dependency>
 						<groupId>org.aspectj</groupId>
 						<artifactId>aspectjweaver</artifactId>
-						<version>1.8.10</version>
+						<version>1.9.6</version>
 					</dependency>
 				</dependencies>
             </plugin>
