@@ -56,7 +56,7 @@ public final class GeocodingApis {
       }
     }
     catch (Exception e) {
-      LOGGER.info("No query parameter");
+      LOGGER.error("No query parameter");
       routingContext.response().setStatusCode(400).end();
       return;
     }
@@ -67,7 +67,7 @@ public final class GeocodingApis {
         .end(reply.result());
       }
       else {
-        LOGGER.info("Failed to find coordinates");
+        LOGGER.error("Failed to find coordinates");
         routingContext.response()
         .putHeader("content-type", "application/json")
         .setStatusCode(400)
@@ -93,7 +93,7 @@ public final class GeocodingApis {
       }
     }
     catch (Exception e) {
-      LOGGER.info("No query parameter");
+      LOGGER.error("No query parameter");
       routingContext.response().setStatusCode(400).end();
       return;
     }
@@ -104,7 +104,7 @@ public final class GeocodingApis {
         .end(reply.result().encode());
       }
       else {
-        LOGGER.info("Failed to find location");
+        LOGGER.error("Failed to find location");
         routingContext.response()
         .putHeader("content-type", "application/json")
         .setStatusCode(400)

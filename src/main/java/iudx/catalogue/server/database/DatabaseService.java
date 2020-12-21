@@ -12,6 +12,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.ext.web.client.WebClient;
 
 import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
 
 /**
  * The Database Service.
@@ -146,8 +147,8 @@ public interface DatabaseService {
    * @return DatabaseServiceVertxEBProxy which is a service proxy
    */
   @GenIgnore
-  static DatabaseService create(ElasticClient client, WebClient webClient) {
-    return new DatabaseServiceImpl(client, webClient);
+  static DatabaseService create(ElasticClient client, NLPSearchService nlpService) {
+    return new DatabaseServiceImpl(client, nlpService);
   }
 
   @GenIgnore

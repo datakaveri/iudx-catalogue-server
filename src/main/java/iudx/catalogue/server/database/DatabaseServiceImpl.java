@@ -6,15 +6,13 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.WebClientOptions;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.database.Constants.*;
-
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
 
 
 /**
@@ -33,12 +31,12 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceImpl.class);
   private final ElasticClient client;
-  private WebClient webClient;
   private final QueryDecoder queryDecoder = new QueryDecoder();
+  private final NLPSearchService nlpService;
 
-  public DatabaseServiceImpl(ElasticClient client, WebClient webClient) {
+  public DatabaseServiceImpl(ElasticClient client, NLPSearchService nlpService) {
     this.client = client;
-    this.webClient = webClient;
+    this.nlpService = nlpService;
   }
 
   @Override
@@ -92,7 +90,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonArray embeddings = request.getJsonArray(0);
     client.scriptSearch(embeddings, searchRes -> {
       if(searchRes.succeeded()) {
-        LOGGER.info("Success:Successful DB request");
+        LOGGER.debug("Success:Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB request;" + searchRes.cause().getMessage());
@@ -111,7 +109,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     client
     .scriptLocationSearch(embeddings, location, searchRes -> {
       if(searchRes.succeeded()) {
-        LOGGER.info("Success:Successful DB request");
+        LOGGER.debug("Success:Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB request;" + searchRes.cause().getMessage());
@@ -204,30 +202,26 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
 
             doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
-            webClient
-              .post(5000,"es-vectorised-search_web_1","/indexdoc")
-              .sendJsonObject(doc, ar-> {
-                if(ar.succeeded()) {
-                  LOGGER.info("Info: Document embeddings created");
-                  JsonObject res = ar.result().body().toJsonObject();
-                  LOGGER.info(res.getJsonArray("result"));
-                  doc.put("word_vector", res.getJsonArray("result"));
-                } else {
-                  LOGGER.error("Error: Document embeddings not created");
-                }
+            /* Get embeddings and add word_vector field */
+            nlpService.getEmbedding(doc, ar-> {
+              if(ar.succeeded()) {
+                LOGGER.debug("Info: Document embeddings created");
+                doc.put("word_vector", ar.result().getJsonArray("result"));
                 /* Insert document */
-              client.docPostAsync(doc.toString(), postRes -> {
-                if (postRes.succeeded()) {
-                  LOGGER.info(doc.toString());
-                  handler.handle(Future.succeededFuture(
-                      respBuilder.withStatus(SUCCESS)
-                                .withResult(id, INSERT, SUCCESS)
-                                .getJsonResponse()));
-                } else {
-                  handler.handle(Future.failedFuture(errorJson));
-                  LOGGER.error("Fail: Insertion failed;" + postRes.cause());
-                }
-              });
+                client.docPostAsync(doc.toString(), postRes -> {
+                  if (postRes.succeeded()) {
+                    handler.handle(Future.succeededFuture(
+                        respBuilder.withStatus(SUCCESS)
+                                  .withResult(id, INSERT, SUCCESS)
+                                  .getJsonResponse()));
+                  } else {
+                    handler.handle(Future.failedFuture(errorJson));
+                    LOGGER.error("Fail: Insertion failed;" + postRes.cause());
+                  }
+                });
+              } else {
+                LOGGER.error("Error: Document embeddings not created");
+              }
             });
           }
         });
@@ -238,7 +232,6 @@ public class DatabaseServiceImpl implements DatabaseService {
                        .getResponse()));
       }
     });
-
     return this;
   }
 

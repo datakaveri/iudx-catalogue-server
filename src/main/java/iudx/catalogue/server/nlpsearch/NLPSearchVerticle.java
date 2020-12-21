@@ -1,4 +1,4 @@
-package iudx.catalogue.server.geocoding;
+package iudx.catalogue.server.nlpsearch;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
@@ -13,23 +13,23 @@ import io.vertx.serviceproxy.ServiceBinder;
 import static iudx.catalogue.server.util.Constants.*;
 
 /**
- * The Geocoding Verticle.
- * <h1>A Geocoding Verticle</h1>
+ * The NLPSearch Verticle.
+ * <h1>A NLPSearch Verticle</h1>
  * <p>
- * The Geocoding Verticle implementation in the the IUDX Catalogue Server exposes the
- * {@link iudx.catalogue.server.geocoding.GeocodingService} over the Vert.x Event Bus.
+ * The NLPSearch Verticle implementation in the the IUDX Catalogue Server exposes the
+ * {@link iudx.catalogue.server.nlpsearch.NLPSearchService} over the Vert.x Event Bus.
  * </p>
  * 
  * @version 1.0
  * @since 2020-05-31
  */
 
-public class GeocodingVerticle extends AbstractVerticle {
+public class NLPSearchVerticle extends AbstractVerticle {
 
 
-  private static final Logger LOGGER = LogManager.getLogger(GeocodingVerticle.class);
-  private GeocodingService Geocoding;
-  private String pelias;
+  private static final Logger LOGGER = LogManager.getLogger(NLPSearchVerticle.class);
+  private NLPSearchService NlpSearch;
+  private String nlpClient;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -42,11 +42,11 @@ public class GeocodingVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    pelias = config().getString("pelias");
-    Geocoding = new GeocodingServiceImpl(createWebClient(vertx, config()),pelias);
+    nlpClient = config().getString("nlpService");
+    NlpSearch = new NLPSearchServiceImpl(createWebClient(vertx, config()), nlpClient);
 
-    new ServiceBinder(vertx).setAddress(GEOCODING_SERVICE_ADDRESS)
-      .register(GeocodingService.class, Geocoding);
+    new ServiceBinder(vertx).setAddress(NLP_SERVICE_ADDRESS)
+      .register(NLPSearchService.class, NlpSearch);
   }
 
   static WebClient createWebClient(Vertx vertx, JsonObject config) {
@@ -54,7 +54,7 @@ public class GeocodingVerticle extends AbstractVerticle {
   }
 
   /**
-   * Helper function to create a WebClient to talk to the geocoding server.
+   * Helper function to create a WebClient to talk to the nlpsearch server.
    * @param vertx the vertx instance
    * @param properties the properties field of the verticle
    * @param testing a bool which is used to disable client side ssl checks for testing purposes

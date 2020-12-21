@@ -42,7 +42,13 @@
         },
         {
             "id": "iudx.catalogue.server.geocoding.GeocodingVerticle",
+            "pelias": "pelias_api",
             "verticleInstances": 2
+        },
+        {
+            "id": "iudx.catalogue.server.nlpsearch.NLPSearchVerticle",
+            "nlpService": "es-vectorised-search_web_1",
+            "verticleInstances":2
         }
     ]
 }

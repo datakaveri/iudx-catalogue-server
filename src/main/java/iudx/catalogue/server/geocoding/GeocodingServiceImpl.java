@@ -33,26 +33,26 @@ public class GeocodingServiceImpl implements GeocodingService {
 
   private static final Logger LOGGER = LogManager.getLogger(GeocodingServiceImpl.class);
   private final WebClient webClient;
+  private final String pelias;
   StringBuilder sb = new StringBuilder(); 
 
-  public GeocodingServiceImpl(WebClient client) {
+  public GeocodingServiceImpl(WebClient client, String pelias) {
     webClient = client;
+    this.pelias = pelias;
 }
 
   @Override
   public void geocoder(String location, Handler<AsyncResult<String>> handler) {
-    // LOGGER.info(location);
     webClient
-    .get(4000,"pelias_api","/v1/search")
+    .get(4000, pelias,"/v1/search")
     .addQueryParam("text", location)
     .putHeader("Accept","application/json").send(ar -> {
       if(ar.succeeded() && ar.result().body().toJsonObject().containsKey("bbox")) {
-        LOGGER.info("Request succeeded!");
-        LOGGER.info(ar.result().body());
+        LOGGER.debug("Request succeeded!");
         handler.handle(Future.succeededFuture(ar.result().body().toJsonObject().getJsonArray("bbox").toString()));
       }
       else {
-        LOGGER.info("Failed to find coordinates");
+        LOGGER.error("Failed to find coordinates");
         handler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -65,7 +65,7 @@ public class GeocodingServiceImpl implements GeocodingService {
         promise.complete(ar.result());
       }
       else {
-        LOGGER.info("Request failed!");
+        LOGGER.error("Request failed!");
       }
      
     });
@@ -75,17 +75,16 @@ public class GeocodingServiceImpl implements GeocodingService {
   @Override
   public void reverseGeocoder(String lat, String lon, Handler<AsyncResult<JsonObject>> handler) {
     webClient
-    .get(4000,"pelias_api","/v1/reverse")
+    .get(4000, pelias,"/v1/reverse")
     .addQueryParam("point.lon", lon)
     .addQueryParam("point.lat", lat)
     .putHeader("Accept","application/json").send(ar -> {
       if(ar.succeeded()) {
-        LOGGER.info("Request succeeded!");
-        // LOGGER.info(ar.result().body().toJsonObject().getJsonArray("features").getJsonObject("properties"));
+        LOGGER.debug("Request succeeded!");
         handler.handle(Future.succeededFuture(ar.result().body().toJsonObject()));
       }
       else {
-        LOGGER.info("Failed to find location");
+        LOGGER.error("Failed to find location");
         handler.handle(Future.failedFuture(ar.cause()));
       }
     });
@@ -104,7 +103,7 @@ public class GeocodingServiceImpl implements GeocodingService {
         promise.complete(addr.toString());
       }
       else {
-        LOGGER.info("Request failed!");
+        LOGGER.error("Request failed!");
       }
     });
    return promise;

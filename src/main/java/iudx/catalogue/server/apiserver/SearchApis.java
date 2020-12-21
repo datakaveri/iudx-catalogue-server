@@ -16,11 +16,11 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.ext.web.client.WebClient;
 
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.geocoding.GeocodingService;
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
@@ -30,8 +30,8 @@ public final class SearchApis {
 
 
   private DatabaseService dbService;
-  private final WebClient webClient;
   private GeocodingService geoService;
+  private NLPSearchService nlpService;
 
   private static final Logger LOGGER = LogManager.getLogger(SearchApis.class);
 
@@ -43,13 +43,11 @@ public final class SearchApis {
    * @return void
    * @TODO Throw error if load failed
    */
-  public SearchApis(WebClient webClient) {
-    this.webClient = webClient;
-  }
 
-  public void setDbService(DatabaseService dbService, GeocodingService geoService) {
+  public void setService(DatabaseService dbService, GeocodingService geoService, NLPSearchService nlpService) {
     this.dbService = dbService;
     this.geoService = geoService;
+    this.nlpService = nlpService;
   }
 
   /**
@@ -198,44 +196,39 @@ public final class SearchApis {
       routingContext.response().setStatusCode(400).end();
       return;
     }
-  
-    webClient
-      .get(5000,"es-vectorised-search_web_1","/search")
-      .addQueryParam("q", query)
-      .putHeader("Accept","application/json").send(ar -> {
-      if(ar.succeeded()) {
-        LOGGER.info("Request succeeded!");
-        JsonObject resp = ar.result().body().toJsonObject();
-        embeddings.add(resp.getJsonArray("result"));
-        String location = resp.getString("location");
-        LOGGER.info(location);
-        if(location.equals("EMPTY")){
-          dbService.nlpSearchQuery(embeddings, handler -> {
-            if(handler.succeeded()) {
-              JsonObject resultJson = handler.result();
-              String status = resultJson.getString(STATUS);
-              if (status.equalsIgnoreCase(SUCCESS)) {
-                LOGGER.info("Success: search query");
-                response.setStatusCode(200);
-              } else if (status.equalsIgnoreCase(PARTIAL_CONTENT)) {
-                LOGGER.info("Success: search query");
-                response.setStatusCode(206);
-              } else {
-                LOGGER.error("Fail: search query");
-                response.setStatusCode(400);
+    
+    nlpService.search(query, res -> {
+        if(res.succeeded()) {
+          JsonArray result = res.result().getJsonArray("result");
+          embeddings.add(result);
+          String location = res.result().getString("location");
+          if(location.equals("EMPTY")){
+            dbService.nlpSearchQuery(embeddings, handler -> {
+              if(handler.succeeded()) {
+                JsonObject resultJson = handler.result();
+                String status = resultJson.getString(STATUS);
+                if (status.equalsIgnoreCase(SUCCESS)) {
+                  LOGGER.info("Success: search query");
+                  response.setStatusCode(200);
+                } else if (status.equalsIgnoreCase(PARTIAL_CONTENT)) {
+                  LOGGER.info("Success: search query");
+                  response.setStatusCode(206);
+                } else {
+                  LOGGER.error("Fail: search query");
+                  response.setStatusCode(400);
+                }
+                response.end(resultJson.toString());
+              } else if (handler.failed()) {
+                LOGGER.error("Fail: Search;" + handler.cause().getMessage());
+                    response.setStatusCode(400)
+                            .end(handler.cause().getMessage());
               }
-              response.end(resultJson.toString());
-            } else if (handler.failed()) {
-              LOGGER.error("Fail: Search;" + handler.cause().getMessage());
-                  response.setStatusCode(400)
-                          .end(handler.cause().getMessage());
-            }
-          });
-        }
-        else {
-          geoService.geocoder(location, res -> {
-            if(res.succeeded()) {
-              String bbox = res.result();
+            });
+          }
+          else {
+            geoService.geocoder(location, ar -> {
+            if(ar.succeeded()) {
+              String bbox = ar.result();
               LOGGER.info("bbox: " + bbox);
               dbService.nlpSearchLocationQuery(embeddings, bbox, handler -> {
                 if(handler.succeeded()) {
@@ -258,8 +251,7 @@ public final class SearchApis {
                               .end(handler.cause().getMessage());
                 }
               });
-            }
-            else {
+            } else {
               LOGGER.info("Failed to get bounding box");
               routingContext.response().setStatusCode(400).end();
             }
@@ -269,6 +261,6 @@ public final class SearchApis {
         LOGGER.info("Failed to get embeddings");
         routingContext.response().setStatusCode(400).end();
       }
-    });
+    }); 
   }
 }

@@ -11,13 +11,12 @@ import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.core.http.HttpServerResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.WebClientOptions;
 
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.geocoding.GeocodingService;
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
@@ -50,8 +49,6 @@ public class ApiServerVerticle extends AbstractVerticle {
   private RelationshipApis relApis;
   private GeocodingApis geoApis;
 
-  private WebClient webClient;
-
   @SuppressWarnings("unused")
   private Router router;
 
@@ -80,10 +77,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     keystorePassword = config().getString(KEYSTORE_PASSWORD);
     isSsl = config().getBoolean(IS_SSL);
     port = config().getInteger(PORT);
-    
-    WebClientOptions webClientOptions = new WebClientOptions();
-    webClientOptions.setTrustAll(true).setVerifyHost(false);
-    webClient = WebClient.create(vertx, webClientOptions);
 
     HttpServerOptions serverOptions = new HttpServerOptions();
 
@@ -102,7 +95,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /** API Callback managers */
     crudApis = new CrudApis();
-    searchApis = new SearchApis(webClient);
+    searchApis = new SearchApis();
     listApis = new ListApis();
     relApis = new RelationshipApis();
     geoApis = new GeocodingApis();
@@ -132,7 +125,10 @@ public class ApiServerVerticle extends AbstractVerticle {
       = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
     geoApis.setGeoService(geoService);
 
-    searchApis.setDbService(dbService, geoService);
+    NLPSearchService nlpsearchService 
+      = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
+    
+    searchApis.setService(dbService, geoService, nlpsearchService);
 
     /**
      *
