@@ -261,12 +261,13 @@ public final class SearchApis {
             }
             else {
               LOGGER.info("Failed to get bounding box");
+              routingContext.response().setStatusCode(400).end();
             }
           });
         }
       } else {
         LOGGER.info("Failed to get embeddings");
-        response.setStatusCode(400);
+        routingContext.response().setStatusCode(400).end();
       }
     });
   }

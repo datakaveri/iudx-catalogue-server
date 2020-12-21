@@ -46,7 +46,7 @@ public class GeocodingServiceImpl implements GeocodingService {
     .get(4000,"pelias_api","/v1/search")
     .addQueryParam("text", location)
     .putHeader("Accept","application/json").send(ar -> {
-      if(ar.succeeded()) {
+      if(ar.succeeded() && ar.result().body().toJsonObject().containsKey("bbox")) {
         LOGGER.info("Request succeeded!");
         LOGGER.info(ar.result().body());
         handler.handle(Future.succeededFuture(ar.result().body().toJsonObject().getJsonArray("bbox").toString()));
