@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
 
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -43,6 +44,7 @@ public class DatabaseServiceTest {
   private static String databasePassword;
   private static Configuration config;
   private static WebClient webClient;
+  private static NLPSearchService nlpService;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -61,11 +63,8 @@ public class DatabaseServiceTest {
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
-    WebClientOptions webClientOptions = new WebClientOptions();
-    webClientOptions.setTrustAll(true).setVerifyHost(false);
-    webClient = WebClient.create(vertx, webClientOptions);
     
-    dbService = new DatabaseServiceImpl(client, webClient);
+    dbService = new DatabaseServiceImpl(client, nlpService);
     testContext.completeNow();
   }
 
@@ -82,7 +81,7 @@ public class DatabaseServiceTest {
     // JsonObject request = new JsonObject();
     // request.put(ITEM_TYPE, RESOURCE).put(ID,
     //     "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
-    JsonObject request = new JsonObject("{\"index\": \"prodtest\",\"id\": \"test_12ddowhdqkl2728\",\"_source\": {\"tags\": [\"light\", \"uv\"],\"description\": \"Air quality monitoring devices (Bosch-Climo) in Pune city.\",\"itemCreatedAt\": \"2020-09-20T05:56:31+0530\"}}");
+    JsonObject request = new JsonObject("{\"index\": \"prodtest\",\"id\": \"test_12ddohdqkl2728\",\"_source\": {\"tags\": [\"light\", \"uv\"],\"description\": \"Air quality monitoring devices (Bosch-Climo) in Pune city.\",\"itemCreatedAt\": \"2020-09-20T05:56:31+0530\"}}");
     dbService.createItem(request, testContext.succeeding(response -> testContext.verify(() -> {
       String status = response.getString(STATUS);
       System.out.println(response);
