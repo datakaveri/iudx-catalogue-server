@@ -5,7 +5,6 @@ import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseListener;
 import org.elasticsearch.client.RestClient;
-
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.Future;
@@ -69,7 +68,7 @@ public final class ElasticClient {
 
   public ElasticClient scriptSearch(JsonArray query_vector, 
     Handler<AsyncResult<JsonObject>> resultHandler) {
-    String query = "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}}, \"script\": {\"source\": \"cosineSimilarity(params.query_vector, 'word_vector') + 1.0\",\"lang\": \"painless\",\"params\": {\"query_vector\":" + query_vector.toString() + "}}}},\"_source\": {\"excludes\": [\"word_vector\"]}}";
+    String query = NLP_SEARCH.replace("$1", query_vector.toString());
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
@@ -80,7 +79,11 @@ public final class ElasticClient {
   public ElasticClient scriptLocationSearch(JsonArray query_vector, String bbox,
   Handler<AsyncResult<JsonObject>> resultHandler) {
     JsonArray coords = new JsonArray(bbox);
-    String query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}},\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",\"coordinates\": [ [" + Float.toString(coords.getFloat(0)) + "," + Float.toString(coords.getFloat(3)) +"], [" + Float.toString(coords.getFloat(2)) + "," + Float.toString(coords.getFloat(1)) + "]]},\"relation\": \"within\"}}}}},\"script\": {\"source\": \"cosineSimilarity(params.query_vector, 'word_vector') + 1.0\",\"params\": {\"query_vector\":" + query_vector.toString() + "}}}},\"_source\": {\"excludes\": [\"word_vector\"]}}";
+    String query = NLP_LOCATION_SEARCH.replace("$1", Float.toString(coords.getFloat(0)));
+    query.replace("$2", Float.toString(coords.getFloat(1)));
+    query.replace("$3", Float.toString(coords.getFloat(2)));
+    query.replace("$4", Float.toString(coords.getFloat(3)));
+    query.replace("$5", query.toString());
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);

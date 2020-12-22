@@ -26,7 +26,6 @@ import static iudx.catalogue.server.util.Constants.*;
 
 public class NLPSearchVerticle extends AbstractVerticle {
 
-
   private static final Logger LOGGER = LogManager.getLogger(NLPSearchVerticle.class);
   private NLPSearchService NlpSearch;
   private String nlpClient;

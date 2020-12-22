@@ -26,7 +26,6 @@ import static iudx.catalogue.server.util.Constants.*;
 
 public class GeocodingVerticle extends AbstractVerticle {
 
-
   private static final Logger LOGGER = LogManager.getLogger(GeocodingVerticle.class);
   private GeocodingService Geocoding;
   private String pelias;

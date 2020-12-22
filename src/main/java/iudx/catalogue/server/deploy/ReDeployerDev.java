@@ -33,7 +33,7 @@ public class ReDeployerDev extends AbstractVerticle {
     JsonObject valConfig = config().getJsonArray("modules").getJsonObject(2);
     JsonObject apiConfig = config().getJsonArray("modules").getJsonObject(3);
     JsonObject geoConfig = config().getJsonArray("modules").getJsonObject(4);
-
+    JsonObject nlpConfig = config().getJsonArray("modules").getJsonObject(5);
     vertx.deployVerticle(new DatabaseVerticle(), new DeploymentOptions().setConfig(dbConfig),
         databaseVerticle -> {
       if (databaseVerticle.succeeded()) {
@@ -65,7 +65,17 @@ public class ReDeployerDev extends AbstractVerticle {
                     geocodingVerticle -> {
                       if(geocodingVerticle.succeeded()) {
                         LOGGER.info("The Geocoding Service is ready");
-                        promise.complete();
+
+                        vertx.deployVerticle(new NLPSearchVerticle(), new DeploymentOptions().setConfig(nlpConfig),
+                          nlpsearchVerticle -> {
+                            if(nlpsearchVerticle.succeeded()){
+                              LOGGER.info("The NLP Service is ready");
+                              promise.complete();
+                            }
+                            else {
+                              LOGGER.info("The NLP Server startup failed !");
+                            }
+                          });
                       }
                       else {
                         LOGGER.info("The Geocoding Server starup failed !");

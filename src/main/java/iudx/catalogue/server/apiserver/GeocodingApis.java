@@ -7,8 +7,6 @@ package iudx.catalogue.server.apiserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-
 import io.vertx.core.MultiMap;
 import iudx.catalogue.server.apiserver.util.ResponseHandler;
 import io.vertx.ext.web.RoutingContext;
@@ -17,7 +15,6 @@ import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
-
 import javax.naming.Context;
 
 import static iudx.catalogue.server.util.Constants.*;
@@ -25,12 +22,9 @@ import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 
-
 public final class GeocodingApis {
 
-
   private GeocodingService geoService;
-
   private static final Logger LOGGER = LogManager.getLogger(GeocodingApis.class);
 
   public GeocodingApis() {

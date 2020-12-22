@@ -6,7 +6,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -216,7 +215,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                   .getJsonResponse()));
                   } else {
                     handler.handle(Future.failedFuture(errorJson));
-                    LOGGER.error("Fail: Insertion failed;" + postRes.cause());
+                    LOGGER.error("Fail: Insertion failed" + postRes.cause());
                   }
                 });
               } else {

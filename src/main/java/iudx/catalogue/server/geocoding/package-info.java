@@ -3,4 +3,3 @@
 package iudx.catalogue.server.geocoding;
 
 import io.vertx.codegen.annotations.ModuleGen;
-

@@ -62,8 +62,6 @@ public class DatabaseServiceTest {
 
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
-
-    
     dbService = new DatabaseServiceImpl(client, nlpService);
     testContext.completeNow();
   }

@@ -36,8 +36,8 @@ public class GeocodingServiceImpl implements GeocodingService {
   private final String pelias;
   StringBuilder sb = new StringBuilder(); 
 
-  public GeocodingServiceImpl(WebClient client, String pelias) {
-    webClient = client;
+  public GeocodingServiceImpl(WebClient webClient, String pelias) {
+    this.webClient = webClient;
     this.pelias = pelias;
 }
 
@@ -50,24 +50,21 @@ public class GeocodingServiceImpl implements GeocodingService {
       if(ar.succeeded() && ar.result().body().toJsonObject().containsKey("bbox")) {
         LOGGER.debug("Request succeeded!");
         handler.handle(Future.succeededFuture(ar.result().body().toJsonObject().getJsonArray("bbox").toString()));
-      }
-      else {
+      } else {
         LOGGER.error("Failed to find coordinates");
         handler.handle(Future.failedFuture(ar.cause()));
       }
     });
   }
 
-  private Promise<String> geocoderhelper(String location) {
+  private Promise<String> geocoderHelper(String location) {
     Promise<String> promise = Promise.promise();
     geocoder(location, ar -> {
       if(ar.succeeded()){
         promise.complete(ar.result());
-      }
-      else {
+      } else {
         LOGGER.error("Request failed!");
       }
-     
     });
    return promise;
   }
@@ -82,15 +79,14 @@ public class GeocodingServiceImpl implements GeocodingService {
       if(ar.succeeded()) {
         LOGGER.debug("Request succeeded!");
         handler.handle(Future.succeededFuture(ar.result().body().toJsonObject()));
-      }
-      else {
+      } else {
         LOGGER.error("Failed to find location");
         handler.handle(Future.failedFuture(ar.cause()));
       }
     });
   }
 
-  private Promise<String> reverseGeocoderhelper(String lat, String lon) {
+  private Promise<String> reverseGeocoderHelper(String lat, String lon) {
     Promise<String> promise = Promise.promise();
     reverseGeocoder(lat, lon, ar -> {
       if(ar.succeeded()){
@@ -120,9 +116,8 @@ public class GeocodingServiceImpl implements GeocodingService {
       JsonObject location = doc.getJsonObject("location");
       String address = location.getString("address");
       if(address!=null) {
-        p1 = geocoderhelper(address);
-      }
-      else {
+        p1 = geocoderHelper(address);
+      } else {
         p1.complete(new String());
       }
       
@@ -132,9 +127,8 @@ public class GeocodingServiceImpl implements GeocodingService {
         JsonArray pos = geometry.getJsonArray("coordinates");
         String lon = pos.getString(0);
         String lat = pos.getString(1);
-        p2 = reverseGeocoderhelper(lat, lon);
-      }
-      else {
+        p2 = reverseGeocoderHelper(lat, lon);
+      } else {
         p2.complete(new String());
       } 
     }
