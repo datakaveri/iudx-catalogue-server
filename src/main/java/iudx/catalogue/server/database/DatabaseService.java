@@ -8,8 +8,11 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
+import io.vertx.ext.web.client.WebClient;
 
 import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
 
 /**
  * The Database Service.
@@ -38,6 +41,27 @@ public interface DatabaseService {
    */
   @Fluent
   DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+   /**
+   * The searchQuery implements the nlp search operation with the database.
+   * 
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService nlpSearchQuery(JsonArray request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The searchQuery implements the nlp search operation with the database.
+   * 
+   * @param request which is a JsonObject
+   * @param location which is a String
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService nlpSearchLocationQuery(JsonArray request, String location, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The countQuery implements the count operation with the database.
@@ -123,8 +147,8 @@ public interface DatabaseService {
    * @return DatabaseServiceVertxEBProxy which is a service proxy
    */
   @GenIgnore
-  static DatabaseService create(ElasticClient client) {
-    return new DatabaseServiceImpl(client);
+  static DatabaseService create(ElasticClient client, NLPSearchService nlpService) {
+    return new DatabaseServiceImpl(client, nlpService);
   }
 
   @GenIgnore

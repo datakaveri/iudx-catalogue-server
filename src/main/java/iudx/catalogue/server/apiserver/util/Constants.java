@@ -44,6 +44,7 @@ public class Constants {
 
   public static final String ROUTE_RELATIONSHIP = basePath + "/relationship";
   public static final String ROUTE_SEARCH = basePath + "/search";
+  public static final String ROUTE_NLP_SEARCH = basePath + "/nlpsearch";
   public static final String ROUTE_LIST_ITEMS = basePath + "/list/:itemType";
 
   public static final String RESOURCE_ITEM = "resItem";
@@ -57,6 +58,8 @@ public class Constants {
   public static final String ROUTE_COUNT = basePath + "/count";
   public static final String ROUTE_REL_SEARCH = basePath + "/relsearch";
 
+  public static final String ROUTE_GEO_COORDINATES = basePath + "/geo";
+  public static final String ROUTE_GEO_REVERSE = basePath + "/reversegeo";
 
   public static final String PROVIDER_NAME = "provider.name";
   public static final String PARTIAL_CONTENT = "partial-content";

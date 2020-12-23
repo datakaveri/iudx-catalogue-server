@@ -25,6 +25,7 @@ import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.apiserver.util.ResponseHandler;
 import iudx.catalogue.server.authenticator.AuthenticationService;
+import iudx.catalogue.server.geocoding.GeocodingService;
 
 
 public final class CrudApis {
@@ -33,6 +34,7 @@ public final class CrudApis {
   private DatabaseService dbService;
   private AuthenticationService authService;
   private ValidatorService validatorService;
+  private GeocodingService geoService;
 
   private static final Logger LOGGER = LogManager.getLogger(CrudApis.class);
 
@@ -57,6 +59,10 @@ public final class CrudApis {
 
   public void setValidatorService(ValidatorService validatorService) {
     this.validatorService = validatorService;
+  }
+
+  public void setGeoService(GeocodingService geoService) {
+    this.geoService = geoService;
   }
 
   /**
@@ -176,6 +182,20 @@ public final class CrudApis {
                 if (routingContext.request().method().toString() == REQUEST_POST) {
                   /* Requesting database service, creating a item */
                   LOGGER.debug("Info: Inserting item");
+                  
+                  //@TODO: To be tested.
+                  geoService.geoSummarize(valhandler.result(), geohandler -> {
+                    if(geohandler.failed()) {
+                      LOGGER.error("Fail: Geo Summary creation;" + geohandler.cause().getMessage());
+                      response.setStatusCode(400)
+                      .end(geohandler.cause().getMessage());
+                    }
+                    if(geohandler.succeeded()) {
+                      LOGGER.info("Success: summary created");
+                      // @TODO: return result along with dbService.createItem result
+                    }
+                  });
+
                   dbService.createItem(valhandler.result(), dbhandler -> {
                     if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item creation;" + dbhandler.cause().getMessage());
@@ -190,6 +210,19 @@ public final class CrudApis {
                   });
                 } else {
                   LOGGER.debug("Info: Updating item");
+                  //@TODO: To be tested.
+                  geoService.geoSummarize(valhandler.result(), geohandler -> {
+                    if(geohandler.failed()) {
+                      LOGGER.error("Fail: Geo Summarizer;" + geohandler.cause().getMessage());
+                      response.setStatusCode(400)
+                      .end(geohandler.cause().getMessage());
+                    }
+                    if(geohandler.succeeded()) {
+                      LOGGER.info("Success: summary created");
+                      // @TODO: return result along with dbService.createItem result
+                    }
+                  });
+
                   /* Requesting database service, creating a item */
                   dbService.updateItem(valhandler.result(), dbhandler -> {
                     if (dbhandler.succeeded()) {

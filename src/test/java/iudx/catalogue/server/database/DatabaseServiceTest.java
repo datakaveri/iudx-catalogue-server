@@ -8,7 +8,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import io.vertx.reactivex.core.Vertx;
+// import io.vertx.reactivex.core.Vertx;
+import io.vertx.core.Vertx;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 import iudx.catalogue.server.Configuration;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
 
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -39,6 +43,8 @@ public class DatabaseServiceTest {
   private static String databaseUser;
   private static String databasePassword;
   private static Configuration config;
+  private static WebClient webClient;
+  private static NLPSearchService nlpService;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -56,7 +62,7 @@ public class DatabaseServiceTest {
 
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
-    dbService = new DatabaseServiceImpl(client);
+    dbService = new DatabaseServiceImpl(client, nlpService);
     testContext.completeNow();
   }
 
@@ -70,9 +76,10 @@ public class DatabaseServiceTest {
   @Order(1)
   @DisplayName("Test CreateItem")
   void createItemTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
-        "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
+    // JsonObject request = new JsonObject();
+    // request.put(ITEM_TYPE, RESOURCE).put(ID,
+    //     "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
+    JsonObject request = new JsonObject("{\"index\": \"prodtest\",\"id\": \"test_12ddohdqkl2728\",\"_source\": {\"tags\": [\"light\", \"uv\"],\"description\": \"Air quality monitoring devices (Bosch-Climo) in Pune city.\",\"itemCreatedAt\": \"2020-09-20T05:56:31+0530\"}}");
     dbService.createItem(request, testContext.succeeding(response -> testContext.verify(() -> {
       String status = response.getString(STATUS);
       System.out.println(response);

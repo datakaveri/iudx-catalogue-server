@@ -16,6 +16,13 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.auth.AuthScope;
+
+import java.util.Map;
+import java.util.HashMap;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 
 import static iudx.catalogue.server.database.Constants.*;
@@ -53,6 +60,31 @@ public final class ElasticClient {
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
+    queryRequest.setJsonEntity(query);
+    Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
+  public ElasticClient scriptSearch(JsonArray query_vector, 
+    Handler<AsyncResult<JsonObject>> resultHandler) {
+    String query = NLP_SEARCH.replace("$1", query_vector.toString());
+    Request queryRequest = new Request(REQUEST_GET, index + "/_search");
+    queryRequest.setJsonEntity(query);
+    Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
+  public ElasticClient scriptLocationSearch(JsonArray query_vector, String bbox,
+  Handler<AsyncResult<JsonObject>> resultHandler) {
+    JsonArray coords = new JsonArray(bbox);
+    String query = NLP_LOCATION_SEARCH.replace("$1", Float.toString(coords.getFloat(0)));
+    query.replace("$2", Float.toString(coords.getFloat(1)));
+    query.replace("$3", Float.toString(coords.getFloat(2)));
+    query.replace("$4", Float.toString(coords.getFloat(3)));
+    query.replace("$5", query.toString());
+    Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
     future.onComplete(resultHandler);

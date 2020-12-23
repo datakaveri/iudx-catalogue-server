@@ -9,7 +9,8 @@ public class Constants {
   public static final String DATABASE_SERVICE_ADDRESS = "iudx.catalogue.database.service";
   public static final String AUTH_SERVICE_ADDRESS = "iudx.catalogue.authentication.service";
   public static final String VALIDATION_SERVICE_ADDRESS = "iudx.catalogue.validator.service";
-
+  public static final String GEOCODING_SERVICE_ADDRESS = "iudx.catalogue.geocoding.service";
+  public static final String NLP_SERVICE_ADDRESS = "iudx.catalogue.nlpsearch.service";
 
   /** General */
 

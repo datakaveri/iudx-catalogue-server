@@ -210,6 +210,10 @@
                         "ignore_above" : 256
                     }
                 }
+            },
+            "word_vector" : {
+                "type": "dense_vector",
+                "dims": 100
             }
         }
     }
