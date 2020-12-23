@@ -33,23 +33,28 @@ public class GeocodingServiceImpl implements GeocodingService {
 
   private static final Logger LOGGER = LogManager.getLogger(GeocodingServiceImpl.class);
   private final WebClient webClient;
-  private final String pelias;
+  private final String peliasUrl;
+  private final int peliasPort;
   StringBuilder sb = new StringBuilder(); 
 
-  public GeocodingServiceImpl(WebClient webClient, String pelias) {
+  public GeocodingServiceImpl(WebClient webClient, String peliasUrl, int peliasPort) {
     this.webClient = webClient;
-    this.pelias = pelias;
+    this.peliasUrl = peliasUrl;
+    this.peliasPort = peliasPort;
 }
 
   @Override
   public void geocoder(String location, Handler<AsyncResult<String>> handler) {
     webClient
-    .get(4000, pelias,"/v1/search")
+    .get(peliasPort, peliasUrl, "/v1/search")
+    .timeout(SERVICE_TIMEOUT)
     .addQueryParam("text", location)
-    .putHeader("Accept","application/json").send(ar -> {
+    .putHeader("Accept", "application/json").send(ar -> {
       if(ar.succeeded() && ar.result().body().toJsonObject().containsKey("bbox")) {
         LOGGER.debug("Request succeeded!");
-        handler.handle(Future.succeededFuture(ar.result().body().toJsonObject().getJsonArray("bbox").toString()));
+        handler.handle(Future.succeededFuture(ar.result().body()
+                                                .toJsonObject()
+                                                .getJsonArray("bbox").toString()));
       } else {
         LOGGER.error("Failed to find coordinates");
         handler.handle(Future.failedFuture(ar.cause()));
@@ -64,15 +69,18 @@ public class GeocodingServiceImpl implements GeocodingService {
         promise.complete(ar.result());
       } else {
         LOGGER.error("Request failed!");
+        promise.complete("");
       }
     });
    return promise;
   }
 
   @Override
-  public void reverseGeocoder(String lat, String lon, Handler<AsyncResult<JsonObject>> handler) {
+  public void reverseGeocoder(String lat, String lon,
+                                Handler<AsyncResult<JsonObject>> handler) {
     webClient
-    .get(4000, pelias,"/v1/reverse")
+    .get(peliasPort, peliasUrl,"/v1/reverse")
+    .timeout(SERVICE_TIMEOUT)
     .addQueryParam("point.lon", lon)
     .addQueryParam("point.lat", lat)
     .putHeader("Accept","application/json").send(ar -> {
@@ -94,12 +102,13 @@ public class GeocodingServiceImpl implements GeocodingService {
         JsonObject properties = res.getJsonObject(0).getJsonObject("properties");
         JsonObject addr = new JsonObject();
         addr.put("name", properties.getString("name"));
-        addr.put("borough",properties.getString("borough"));
+        addr.put("borough", properties.getString("borough"));
         addr.put("locality", properties.getString("locality"));
         promise.complete(addr.toString());
       }
       else {
         LOGGER.error("Request failed!");
+        promise.complete("{}");
       }
     });
    return promise;
@@ -115,7 +124,7 @@ public class GeocodingServiceImpl implements GeocodingService {
       /* Geocoding information*/
       JsonObject location = doc.getJsonObject("location");
       String address = location.getString("address");
-      if(address!=null) {
+      if(address != null) {
         p1 = geocoderHelper(address);
       } else {
         p1.complete(new String());
@@ -132,12 +141,12 @@ public class GeocodingServiceImpl implements GeocodingService {
         p2.complete(new String());
       } 
     }
-    CompositeFuture.all(p1.future(),p2.future()).onSuccess(successHandler-> {
+    CompositeFuture.all(p1.future(), p2.future()).onSuccess(successHandler-> {
       String j1 = successHandler.resultAt(0);
       String j2 = successHandler.resultAt(1);
       JsonObject res = new JsonObject();
       res.put("_geocoded", j1);
-      res.put("_reverseGeocoded",j2);
+      res.put("_reverseGeocoded", j2);
       handler.handle(Future.succeededFuture(res.toString()));
     });
     return;

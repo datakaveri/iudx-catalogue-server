@@ -211,7 +211,7 @@
                     }
                 }
             },
-            "word_vector" : {
+            "_word_vector" : {
                 "type": "dense_vector",
                 "dims": 100
             }

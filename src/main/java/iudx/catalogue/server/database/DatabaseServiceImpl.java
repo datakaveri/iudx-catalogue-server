@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.database.Constants.*;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
+import iudx.catalogue.server.geocoding.GeocodingService;
 
 
 /**
@@ -32,10 +33,14 @@ public class DatabaseServiceImpl implements DatabaseService {
   private final ElasticClient client;
   private final QueryDecoder queryDecoder = new QueryDecoder();
   private final NLPSearchService nlpService;
+  private final GeocodingService geoService;
 
-  public DatabaseServiceImpl(ElasticClient client, NLPSearchService nlpService) {
+  public DatabaseServiceImpl(ElasticClient client,
+                              NLPSearchService nlpService,
+                              GeocodingService geoService) {
     this.client = client;
     this.nlpService = nlpService;
+    this.geoService = geoService;
   }
 
   @Override
@@ -102,7 +107,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  public DatabaseService nlpSearchLocationQuery(JsonArray request, String location, Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService nlpSearchLocationQuery(JsonArray request,
+                                                String location,
+                                                Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     JsonArray embeddings = request.getJsonArray(0);
     client
@@ -201,26 +208,30 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
 
             doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
-            /* Get embeddings and add word_vector field */
-            nlpService.getEmbedding(doc, ar-> {
-              if(ar.succeeded()) {
-                LOGGER.debug("Info: Document embeddings created");
-                doc.put("word_vector", ar.result().getJsonArray("result"));
-                /* Insert document */
-                client.docPostAsync(doc.toString(), postRes -> {
-                  if (postRes.succeeded()) {
-                    handler.handle(Future.succeededFuture(
-                        respBuilder.withStatus(SUCCESS)
-                                  .withResult(id, INSERT, SUCCESS)
-                                  .getJsonResponse()));
-                  } else {
-                    handler.handle(Future.failedFuture(errorJson));
-                    LOGGER.error("Fail: Insertion failed" + postRes.cause());
-                  }
-                });
-              } else {
-                LOGGER.error("Error: Document embeddings not created");
-              }
+
+            geoService.geoSummarize(doc, geoHandler -> {
+              /* Not going to check if success or fail */
+              doc.put(GEOSUMMARY_KEY, geoHandler.result());
+              nlpService.getEmbedding(doc, ar-> {
+                if(ar.succeeded()) {
+                  LOGGER.debug("Info: Document embeddings created");
+                  doc.put(WORD_VECTOR_KEY, ar.result().getJsonArray("result"));
+                  /* Insert document */
+                  client.docPostAsync(doc.toString(), postRes -> {
+                    if (postRes.succeeded()) {
+                      handler.handle(Future.succeededFuture(
+                            respBuilder.withStatus(SUCCESS)
+                            .withResult(id, INSERT, SUCCESS)
+                            .getJsonResponse()));
+                    } else {
+                      handler.handle(Future.failedFuture(errorJson));
+                      LOGGER.error("Fail: Insertion failed" + postRes.cause());
+                    }
+                  });
+                } else {
+                  LOGGER.error("Error: Document embeddings not created");
+                }
+              });
             });
           }
         });

@@ -43,7 +43,7 @@ public class GeocodingServiceTest {
       webClientOptions.setTrustAll(true).setVerifyHost(false);
       WebClient client =  WebClient.create(vertx, webClientOptions);
       // WebClient client = GeocodingVerticle.createWebClient(vertxObj, config, true);
-      geoService = new GeocodingServiceImpl(client, "pelias_api");
+      geoService = new GeocodingServiceImpl(client, "pelias_api", 4000);
       
       LOGGER.info("Geocoding Service setup complete");
       testContext.completeNow();

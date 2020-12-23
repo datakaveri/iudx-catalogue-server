@@ -69,11 +69,11 @@ public class Constants {
   public static final String GEOPROPERTY = "geoproperty";
   public static final String GEORELATION = "georel";
   public static final String INTERSECTS = "intersects";
-  public static final String LINESTRING = "linestring";
+  public static final String LINESTRING = "LineString";
   public static final String LOCATION = "location";
   public static final String MAX_DISTANCE = "maxDistance";
-  public static final String POINT = "point";
-  public static final String POLYGON = "polygon";
+  public static final String POINT = "Point";
+  public static final String POLYGON = "Polygon";
   public static final String COORDINATES = "coordinates";
   public static final String Q_VALUE = "q";
   public static final String LIMIT = "limit";
@@ -131,4 +131,5 @@ public class Constants {
   public static final int FILTER_PAGINATION_SIZE = 10000;
   public static final int OFFSET_PAGINATION_SIZE = 9999;
   public static final int MAXDISTANCE_LIMIT = 10000; // 10KM
+  public static final int SERVICE_TIMEOUT = 3000;
 }

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
 import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
+import iudx.catalogue.server.geocoding.GeocodingService;
 
 /**
  * The Database Verticle.
@@ -30,7 +31,6 @@ public class DatabaseVerticle extends AbstractVerticle {
   private String databasePassword;
   private int databasePort;
   private ElasticClient client;
-  private NLPSearchService nlpService;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -49,10 +49,13 @@ public class DatabaseVerticle extends AbstractVerticle {
     databasePassword = config().getString(DATABASE_PASSWD);
     docIndex = config().getString(DOC_INDEX);
 
+    /** Create service proxies */
+    NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
+    GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
-    database = new DatabaseServiceImpl(client, nlpService);
+    database = new DatabaseServiceImpl(client, nlpService, geoService);
     new ServiceBinder(vertx).setAddress(DATABASE_SERVICE_ADDRESS)
       .register(DatabaseService.class, database);
 

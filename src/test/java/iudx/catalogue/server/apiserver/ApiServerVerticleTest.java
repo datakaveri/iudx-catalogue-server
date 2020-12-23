@@ -1630,7 +1630,7 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
-        .addQueryParam(GEORELATION, INTERSECTS).addQueryParam(GEOMETRY, LINE_STRING)
+        .addQueryParam(GEORELATION, INTERSECTS).addQueryParam(GEOMETRY, LINESTRING)
         .addQueryParam(COORDINATES,
             "[[73.696,18.592],[73.696,18.592],[73.876,18.525]]")
         .send(serverResponse -> {
@@ -1699,7 +1699,7 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
-        .addQueryParam(GEORELATION, "abc123").addQueryParam(GEOMETRY, LINE_STRING)
+        .addQueryParam(GEORELATION, "abc123").addQueryParam(GEOMETRY, LINESTRING)
         .addQueryParam(COORDINATES,
             "[[[73.69697570800781,18.592236436157137],[73.69697570800781,18.592236436157137]]]")
         .send(serverResponse -> {
@@ -1932,7 +1932,7 @@ public class ApiServerVerticleTest {
 
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count/")).addQueryParam(GEOPROPERTY, LOCATION)
-        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(GEOMETRY, LINE_STRING)
+        .addQueryParam(GEORELATION, GEOREL_WITHIN).addQueryParam(GEOMETRY, LINESTRING)
         .addQueryParam(COORDINATES,
             "[[[73.69697570800781,18.592236436157137],[73.69697570800781,abc123]]]")
         .send(serverResponse -> {
@@ -2325,8 +2325,9 @@ public class ApiServerVerticleTest {
   @DisplayName("Return Reverse Geocoding[Status:200, Endpoint: /reversegeo]")
   void revgeocoding200(VertxTestContext testContext) {
     LOGGER.info("Starting revgeocoding200");
-    client.get(PORT, HOST, BASE_URL.concat("reversegeo")).addQueryParam("lat", "30.729633")
-    .addQueryParam("lon","76.767777")
+    client.get(PORT, HOST, BASE_URL.concat("reversegeo"))
+          .addQueryParam("coordinates", "[76.767777,30.729633]")
+          .addQueryParam("geometry", "Point")
     .send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
@@ -2346,9 +2347,10 @@ public class ApiServerVerticleTest {
   @DisplayName("Return Reverse Geocoding[Status:400, Endpoint: /reversegeo]")
   void revgeocoding400(VertxTestContext testContext) {
     LOGGER.info("Starting revgeocoding200");
-    client.get(PORT, HOST, BASE_URL.concat("reversegeo")).addQueryParam("lat", "30.729633")
-    .addQueryParam("lon","-999")
-    .send(serverResponse -> {
+    client.get(PORT, HOST, BASE_URL.concat("reversegeo"))
+          .addQueryParam("coordinates", "[76.767777,30.729633]")
+          .addQueryParam("geometry", "Point")
+          .send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
         /* comparing the response */

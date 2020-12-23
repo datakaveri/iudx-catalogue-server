@@ -32,33 +32,38 @@ public class NLPSearchServiceImpl implements NLPSearchService {
 
   private static final Logger LOGGER = LogManager.getLogger(NLPSearchServiceImpl.class);
   private final WebClient webClient;
-  private final String nlpService;
+  private final String nlpServiceUrl;
+  private final int nlpServicePort;
 
-  public NLPSearchServiceImpl(WebClient client, String nlpService) {
+  public NLPSearchServiceImpl(WebClient client, String nlpServiceUrl, int nlpServicePort) {
     webClient = client;
-    this.nlpService = nlpService;
+    this.nlpServiceUrl = nlpServiceUrl;
+    this.nlpServicePort = nlpServicePort;
 }
 
   @Override
-  public void search(String query, Handler<AsyncResult<JsonObject>> handler) {
+  public NLPSearchService search(String query, Handler<AsyncResult<JsonObject>> handler) {
     webClient
-    .get(5000, nlpService,"/search")
+    .get(nlpServicePort, nlpServiceUrl, "/search")
+    .timeout(SERVICE_TIMEOUT)
     .addQueryParam("q", query)
     .putHeader("Accept","application/json").send(ar -> {
     if(ar.succeeded()) {
-      LOGGER.debug("NLP Search: Request succeeded");
+      LOGGER.debug("Success: NLP Search; Request succeeded");
       handler.handle(Future.succeededFuture(ar.result().body().toJsonObject()));
     } else {
-      LOGGER.error("Error: NLP Search failed");
+      LOGGER.error("Fail: NLP Search failed");
       handler.handle(Future.failedFuture(ar.cause()));
       }
     });
+    return this;
   }
 
   @Override
-  public void getEmbedding(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
+  public NLPSearchService getEmbedding(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
     webClient
-    .post(5000, nlpService,"/indexdoc")
+    .post(nlpServicePort, nlpServiceUrl, "/indexdoc")
+    .timeout(SERVICE_TIMEOUT)
     .sendJsonObject(doc, ar-> {
       if(ar.succeeded()) {
         LOGGER.debug("Info: Document embeddings created");
@@ -68,5 +73,6 @@ public class NLPSearchServiceImpl implements NLPSearchService {
         handler.handle(Future.failedFuture(ar.cause()));
       }
     });
+    return this;
   }
 }

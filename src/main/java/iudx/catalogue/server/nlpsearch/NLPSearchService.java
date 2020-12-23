@@ -28,11 +28,25 @@ import io.vertx.core.json.JsonObject;
 public interface NLPSearchService {
 
   /**
-   * @param query of type String
+   * Search - NLP Search
+   * 
+   * @param query Query string
+   * @param handler Result handler
+   * @return {@link NLPSearchService}
    */
-  void search(String query, Handler<AsyncResult<JsonObject>> handler);
+  @Fluent
+  NLPSearchService search(String query, Handler<AsyncResult<JsonObject>> handler);
 
-  void getEmbedding(JsonObject doc, Handler<AsyncResult<JsonObject>> handler);
+  /**
+   * Search - NLP Search
+   * 
+   * @param doc the document for which an embedding is required
+   * @param handler Result handler
+   * @return {@link NLPSearchService}
+   */
+  @Fluent
+  NLPSearchService getEmbedding(JsonObject doc, Handler<AsyncResult<JsonObject>> handler);
+
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
    * @param vertx which is the vertx instance

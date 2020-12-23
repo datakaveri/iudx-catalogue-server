@@ -107,6 +107,9 @@ public class ApiServerVerticle extends AbstractVerticle {
      */
 
 
+    /** Todo
+     *    - Set service proxies based on availability?
+     **/
     DatabaseService dbService 
       = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
 

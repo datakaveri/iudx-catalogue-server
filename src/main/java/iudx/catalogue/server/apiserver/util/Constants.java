@@ -70,12 +70,9 @@ public class Constants {
                                           GEOREL_COVERED_BY, GEOREL_INTERSECTS,
                                           GEOREL_EQUALS, GEOREL_DISJOINT));
   /** Geometries */
-  public static final String POLYGON = "Polygon";
-  public static final String LINE_STRING = "LineString";
-  public static final String POINT = "Point";
   public static final ArrayList<String> GEOMETRIES 
     = new ArrayList<String>(Arrays.asList(BBOX, POLYGON,
-                                          LINE_STRING, POINT));
+                                          LINESTRING, POINT));
 
   public static final String OPERATION = "operation";
   public static final String ATTRIBUTE_FILTER = "attribute-filter";

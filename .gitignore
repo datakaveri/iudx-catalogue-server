@@ -11,6 +11,10 @@ config.properties
 python_scripts
 notes.md
 notes2.md
+notes*.md
+todos.md
+docker-run.sh
+test/
 
 ### STS ###
 .apt_generated

@@ -66,9 +66,9 @@ public final class ElasticClient {
     return this;
   }
 
-  public ElasticClient scriptSearch(JsonArray query_vector, 
-    Handler<AsyncResult<JsonObject>> resultHandler) {
-    String query = NLP_SEARCH.replace("$1", query_vector.toString());
+  public ElasticClient scriptSearch(JsonArray queryVector, 
+                                      Handler<AsyncResult<JsonObject>> resultHandler) {
+    String query = NLP_SEARCH.replace("$1", queryVector.toString());
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
@@ -76,7 +76,7 @@ public final class ElasticClient {
     return this;
   }
 
-  public ElasticClient scriptLocationSearch(JsonArray query_vector, String bbox,
+  public ElasticClient scriptLocationSearch(JsonArray queryVector, String bbox,
   Handler<AsyncResult<JsonObject>> resultHandler) {
     JsonArray coords = new JsonArray(bbox);
     String query = NLP_LOCATION_SEARCH.replace("$1", Float.toString(coords.getFloat(0)));
@@ -287,8 +287,11 @@ public final class ElasticClient {
             }
             for (int i=0; i<results.size(); i++) {
               if (options == SOURCE_ONLY) {
-                results.getJsonObject(i).getJsonObject(SOURCE).remove(SUMMARY_KEY);
-                responseMsg.addResult(results.getJsonObject(i).getJsonObject(SOURCE));
+                /** Todo: This might slow system down */
+                JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
+                source.remove(SUMMARY_KEY);
+                source.remove(WORD_VECTOR_KEY);
+                responseMsg.addResult(source);
               }
               if (options == DOC_IDS_ONLY) {
                 responseMsg.addResult(results.getJsonObject(i).getString(DOC_ID));

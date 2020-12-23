@@ -13,6 +13,7 @@ import io.vertx.ext.web.client.WebClient;
 
 import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
+import iudx.catalogue.server.geocoding.GeocodingService;
 
 /**
  * The Database Service.
@@ -61,7 +62,8 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService nlpSearchLocationQuery(JsonArray request, String location, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService nlpSearchLocationQuery(JsonArray request, String location,
+                                          Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The countQuery implements the count operation with the database.
@@ -147,8 +149,10 @@ public interface DatabaseService {
    * @return DatabaseServiceVertxEBProxy which is a service proxy
    */
   @GenIgnore
-  static DatabaseService create(ElasticClient client, NLPSearchService nlpService) {
-    return new DatabaseServiceImpl(client, nlpService);
+  static DatabaseService create(ElasticClient client,
+                                NLPSearchService nlpService,
+                                GeocodingService geoService) {
+    return new DatabaseServiceImpl(client, nlpService, geoService);
   }
 
   @GenIgnore

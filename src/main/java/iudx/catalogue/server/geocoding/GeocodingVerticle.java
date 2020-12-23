@@ -28,7 +28,8 @@ public class GeocodingVerticle extends AbstractVerticle {
 
   private static final Logger LOGGER = LogManager.getLogger(GeocodingVerticle.class);
   private GeocodingService Geocoding;
-  private String pelias;
+  private String peliasUrl;
+  private int peliasPort;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -41,8 +42,9 @@ public class GeocodingVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    pelias = config().getString("pelias");
-    Geocoding = new GeocodingServiceImpl(createWebClient(vertx, config()),pelias);
+    peliasUrl = config().getString("peliasUrl");
+    peliasPort = config().getInteger("peliasPort");
+    Geocoding = new GeocodingServiceImpl(createWebClient(vertx, config()), peliasUrl, peliasPort);
 
     new ServiceBinder(vertx).setAddress(GEOCODING_SERVICE_ADDRESS)
       .register(GeocodingService.class, Geocoding);

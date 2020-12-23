@@ -36,19 +36,24 @@ public final class SearchApis {
   private static final Logger LOGGER = LogManager.getLogger(SearchApis.class);
 
 
-  /**
-   * Crud  constructor
-   *
-   * @param DBService DataBase Service class
-   * @return void
-   * @TODO Throw error if load failed
-   */
-
   public void setService(DatabaseService dbService, GeocodingService geoService, NLPSearchService nlpService) {
     this.dbService = dbService;
     this.geoService = geoService;
     this.nlpService = nlpService;
   }
+
+  public void setDbService(DatabaseService dbService) {
+    this.dbService = dbService;
+  }
+
+  public void setGeoService(GeocodingService geoService) {
+    this.geoService = geoService;
+  }
+
+  public void setNlpService(NLPSearchService nlpService) {
+    this.nlpService = nlpService;
+  }
+
 
   /**
    * Processes the attribute, geoSpatial, and text search requests and returns the results from the
@@ -229,7 +234,7 @@ public final class SearchApis {
             geoService.geocoder(location, ar -> {
             if(ar.succeeded()) {
               String bbox = ar.result();
-              LOGGER.info("bbox: " + bbox);
+              LOGGER.debug("Info: bbox - " + bbox);
               dbService.nlpSearchLocationQuery(embeddings, bbox, handler -> {
                 if(handler.succeeded()) {
                   JsonObject resultJson = handler.result();

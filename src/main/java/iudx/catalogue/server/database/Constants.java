@@ -24,6 +24,7 @@ public class Constants {
   static final String DOC_ID = "_id";
   static final String KEY = "key";
   static final String SUMMARY_KEY = "_summary";
+  static final String GEOSUMMARY_KEY = "_geosummary";
 
   /* Geo-Spatial */
   static final String COORDINATES_KEY = "coordinates";
@@ -75,6 +76,7 @@ public class Constants {
   public static final String WILDCARD_KEY = "wildcard";
   public static final String AGGREGATION_ONLY = "AGGREGATION";
   public static final String TYPE_KEYWORD = "type.keyword";
+  public static final String WORD_VECTOR_KEY = "_word_vector";
 
   /** Some queries */
   public static final String LIST_INSTANCES_QUERY = "{\"size\": 0, \"aggs\":"
@@ -127,12 +129,11 @@ public class Constants {
           + "{ \"term\": { \"resourceGroup.keyword\": \"$2\" } } ] } } }";
 
   public static final String NLP_SEARCH = "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}},\"script\":"
-  + "{\"source\": \"cosineSimilarity(params.query_vector, 'word_vector') + 1.0\",\"lang\":\"painless\",\"params\": "
-  +"{\"query_vector\": \"$1\"}}}},\"_source\": {\"excludes\": [\"word_vector\"]}}";
+  + "{\"source\": \"cosineSimilarity(params.query_vector, '_word_vector'') + 1.0\",\"lang\":\"painless\",\"params\": "
+  +"{\"query_vector\": \"$1\"}}}}}";
   
   public static final String NLP_LOCATION_SEARCH = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\":"
    +"{\"match_all\": {}},\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",\"coordinates\":"
    + "[ [\"$1\" , \"$2\"], [ \"$3\" , \"$4\"]]},\"relation\": \"within\"}}}}},\"script\": {\"source\":"
-   + "\"cosineSimilarity(params.query_vector, 'word_vector') + 1.0\",\"params\": {\"query_vector\": $5 }}}},\"_source\":"
-   + "{\"excludes\": [\"word_vector\"]}}";
+   + "\"cosineSimilarity(params.query_vector, '_word_vector'') + 1.0\",\"params\": {\"query_vector\": $5 }}}}}";
 }

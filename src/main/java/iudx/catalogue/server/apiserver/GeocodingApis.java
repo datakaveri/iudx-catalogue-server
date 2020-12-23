@@ -7,20 +7,17 @@ package iudx.catalogue.server.apiserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import io.vertx.core.MultiMap;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
 import io.vertx.ext.web.RoutingContext;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.JsonArray;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
-import javax.naming.Context;
-
 import static iudx.catalogue.server.util.Constants.*;
+import iudx.catalogue.server.apiserver.util.ResponseHandler;
+
 
 import iudx.catalogue.server.geocoding.GeocodingService;
-import iudx.catalogue.server.apiserver.util.QueryMapper;
 
 public final class GeocodingApis {
 
@@ -56,7 +53,7 @@ public final class GeocodingApis {
     }
     geoService.geocoder(location, reply -> {
       if(reply.succeeded()) {
-        routingContext.response().putHeader("content-type","application/json")
+        routingContext.response().putHeader("content-type", "application/json")
         .setStatusCode(200)
         .end(reply.result());
       }
@@ -75,23 +72,41 @@ public final class GeocodingApis {
    * @param routingContext handles web requests in Vert.x Web
    */
   public void getLocation(RoutingContext routingContext) {
-    String lat = "";
-    String lon = "";
-    
-    try {
-      if(routingContext.queryParams().contains("lat")) {
-        lat = routingContext.queryParams().get("lat");
-      }
-      if(routingContext.queryParams().contains("lon")) {
-        lon = routingContext.queryParams().get("lon");
-      }
-    }
-    catch (Exception e) {
-      LOGGER.error("No query parameter");
-      routingContext.response().setStatusCode(400).end();
+
+    JsonArray coordinates = new JsonArray();
+    String geometry = "Point";
+
+
+    HttpServerRequest request = routingContext.request();
+    HttpServerResponse response = routingContext.response();
+
+    if (request.getParam(COORDINATES) == null 
+        || request.getParam(GEOMETRY) == null) {
+      LOGGER.error("Fail: Invalid Syntax");
+      response.setStatusCode(400)
+        .end(new ResponseHandler.Builder()
+                                .withStatus(INVALID_SYNTAX)
+                                .build().toJsonString());
       return;
     }
-    geoService.reverseGeocoder(lat, lon, reply -> {
+
+
+    try {
+      coordinates = new JsonArray(request.getParam(COORDINATES));
+      geometry = request.getParam(GEOMETRY);
+      if (geometry != POINT) {
+        // go to catch
+        throw new Exception();
+      }
+    } catch (Exception e) {
+      LOGGER.error("Failed to find location");
+      routingContext.response()
+        .putHeader("content-type", "application/json")
+        .setStatusCode(400)
+        .end();
+    }
+
+    geoService.reverseGeocoder(coordinates.getString(1), coordinates.getString(0), reply -> {
       if(reply.succeeded()) {
         routingContext.response().putHeader("content-type","application/json")
         .setStatusCode(200)

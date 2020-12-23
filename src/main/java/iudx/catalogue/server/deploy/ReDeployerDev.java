@@ -11,6 +11,7 @@ import iudx.catalogue.server.authenticator.AuthenticationVerticle;
 import iudx.catalogue.server.database.DatabaseVerticle;
 import iudx.catalogue.server.validator.ValidatorVerticle;
 import iudx.catalogue.server.geocoding.GeocodingVerticle;
+import iudx.catalogue.server.nlpsearch.NLPSearchVerticle;
 import io.vertx.core.DeploymentOptions;
 
 import io.vertx.core.AbstractVerticle;

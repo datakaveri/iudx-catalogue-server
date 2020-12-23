@@ -5,7 +5,6 @@ import io.vertx.core.Vertx;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -28,7 +27,8 @@ public class NLPSearchVerticle extends AbstractVerticle {
 
   private static final Logger LOGGER = LogManager.getLogger(NLPSearchVerticle.class);
   private NLPSearchService NlpSearch;
-  private String nlpClient;
+  private String nlpServiceUrl;
+  private int nlpServicePort;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -41,8 +41,10 @@ public class NLPSearchVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    nlpClient = config().getString("nlpService");
-    NlpSearch = new NLPSearchServiceImpl(createWebClient(vertx, config()), nlpClient);
+    nlpServiceUrl = config().getString("nlpServiceUrl");
+    nlpServicePort = config().getInteger("nlpServicePort");
+    NlpSearch = new NLPSearchServiceImpl(createWebClient(vertx, config()),
+                                          nlpServiceUrl, nlpServicePort);
 
     new ServiceBinder(vertx).setAddress(NLP_SERVICE_ADDRESS)
       .register(NLPSearchService.class, NlpSearch);

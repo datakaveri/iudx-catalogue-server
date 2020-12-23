@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
+import iudx.catalogue.server.geocoding.GeocodingService;
 
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -45,6 +46,7 @@ public class DatabaseServiceTest {
   private static Configuration config;
   private static WebClient webClient;
   private static NLPSearchService nlpService;
+  private static GeocodingService geocodingService;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -62,7 +64,7 @@ public class DatabaseServiceTest {
 
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
-    dbService = new DatabaseServiceImpl(client, nlpService);
+    dbService = new DatabaseServiceImpl(client, nlpService, geocodingService);
     testContext.completeNow();
   }
 
