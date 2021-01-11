@@ -43,7 +43,7 @@ public class NLPSearchServiceImpl implements NLPSearchService {
 
   @Override
   public NLPSearchService search(String query, Handler<AsyncResult<JsonObject>> handler) {
-    webClient
+     webClient
     .get(nlpServicePort, nlpServiceUrl, "/search")
     .timeout(SERVICE_TIMEOUT)
     .addQueryParam("q", query)

@@ -68,7 +68,9 @@ public final class ElasticClient {
 
   public ElasticClient scriptSearch(JsonArray queryVector, 
                                       Handler<AsyncResult<JsonObject>> resultHandler) {
-    String query = NLP_SEARCH.replace("$1", queryVector.toString());
+   // String query = NLP_SEARCH.replace("$1", queryVector.toString());
+       String query = "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}}, \"script\": {\"source\": \"cosineSimilarity(params.query_vector, 'word_vector') + 1.0\",\"lang\": \"painless\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}},\"_source\": {\"excludes\": [\"word_vector\"]}}";
+
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
@@ -79,11 +81,13 @@ public final class ElasticClient {
   public ElasticClient scriptLocationSearch(JsonArray queryVector, String bbox,
   Handler<AsyncResult<JsonObject>> resultHandler) {
     JsonArray coords = new JsonArray(bbox);
-    String query = NLP_LOCATION_SEARCH.replace("$1", Float.toString(coords.getFloat(0)));
-    query.replace("$2", Float.toString(coords.getFloat(1)));
-    query.replace("$3", Float.toString(coords.getFloat(2)));
-    query.replace("$4", Float.toString(coords.getFloat(3)));
-    query.replace("$5", query.toString());
+    //String query = NLP_LOCATION_SEARCH.replace("$1", Float.toString(coords.getFloat(0)));
+    //query.replace("$2", Float.toString(coords.getFloat(1)));
+    //query.replace("$3", Float.toString(coords.getFloat(2)));
+   // query.replace("$4", Float.toString(coords.getFloat(3)));
+    //query.replace("$5", query.toString());
+        String query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}},\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",\"coordinates\": [ [" + Float.toString(coords.getFloat(0)) + "," + Float.toString(coords.getFloat(3)) +"], [" + Float.toString(coords.getFloat(2)) + "," + Float.toString(coords.getFloat(1)) + "]]},\"relation\": \"within\"}}}}},\"script\": {\"source\": \"cosineSimilarity(params.query_vector, 'word_vector') + 1.0\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}},\"_source\": {\"excludes\": [\"word_vector\"]}}";
+
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
