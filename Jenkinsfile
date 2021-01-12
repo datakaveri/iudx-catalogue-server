@@ -13,7 +13,7 @@ pipeline {
       steps{
         script {
           devImage = docker.build( devRegistry, "-f ./docker/dev.dockerfile .")
-          prodImage = docker.build( deplRegistry, "-f ./docker/prod.dockerfile .")
+          prodImage = docker.build( prodRegistry, "-f ./docker/prod.dockerfile .")
           testImage = docker.build( testRegistry, "-f ./docker/test.dockerfile .")
         }
       }
