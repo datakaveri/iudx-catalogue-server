@@ -12,6 +12,7 @@ services:
       - HOSTNAME=server
       - ZOOKEEPER=zookeeper
       - CAT_URL=https://catalogue.iudx.org.in
+      - LOG_LEVEL=INFO
     volumes:
       - ./configs/config-depl.json:/usr/share/app/configs/config.json
       - ./docs/:/usr/share/app/docs
@@ -36,6 +37,7 @@ services:
     image: dockerhub.iudx.io/jenkins/catalogue-dev
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
+      - LOG_LEVEL=DEBUG
     volumes:
       - ./configs/config-dev.json:/usr/share/app/configs/config.json
       - ./configs/keystore.jks:/usr/share/app/configs/keystore.jks
@@ -59,6 +61,7 @@ services:
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - WORKSPACE
+      - LOG_LEVEL=DEBUG
     volumes:
       - ./configs/cat-config-test.json:/usr/share/app/configs/config-test.json
       - ./src/:/usr/share/app/src
