@@ -63,7 +63,7 @@ services:
       - WORKSPACE
       - LOG_LEVEL=DEBUG
     volumes:
-      - ./configs/cat-config-test.json:/usr/share/app/configs/config-test.json
+      - /root/configs/cat-config-test.json:/usr/share/app/configs/config-test.json
       - ./src/:/usr/share/app/src
       - ./configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
