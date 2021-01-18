@@ -53,6 +53,8 @@ public class DatabaseVerticle extends AbstractVerticle {
     docIndex = config().getString(DOC_INDEX);
     optionalModules = config().getJsonArray(OPTIONAL_MODULES);
 
+    client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
+
     if(optionalModules.contains(NLPSEARCH_PACKAGE_NAME) 
         && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
@@ -61,10 +63,6 @@ public class DatabaseVerticle extends AbstractVerticle {
     } else {
       database = new DatabaseServiceImpl(client);
     }
-
-
-
-    client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
     new ServiceBinder(vertx).setAddress(DATABASE_SERVICE_ADDRESS)
       .register(DatabaseService.class, database);
