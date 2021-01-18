@@ -30,10 +30,18 @@ import iudx.catalogue.server.geocoding.GeocodingService;
 public class DatabaseServiceImpl implements DatabaseService {
 
   private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceImpl.class);
-  private final ElasticClient client;
+  private ElasticClient client;
   private final QueryDecoder queryDecoder = new QueryDecoder();
-  private final NLPSearchService nlpService;
-  private final GeocodingService geoService;
+  private NLPSearchService nlpService;
+  private GeocodingService geoService;
+  private boolean nlpPluggedIn;
+  private boolean geoPluggedIn;
+
+  public DatabaseServiceImpl(ElasticClient client) {
+    this.client = client;
+    nlpPluggedIn = false;
+    geoPluggedIn = false;
+  }
 
   public DatabaseServiceImpl(ElasticClient client,
                               NLPSearchService nlpService,
@@ -41,6 +49,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     this.client = client;
     this.nlpService = nlpService;
     this.geoService = geoService;
+    nlpPluggedIn = true;
+    geoPluggedIn = true;
   }
 
   @Override
@@ -209,30 +219,46 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
 
-            geoService.geoSummarize(doc, geoHandler -> {
-              /* Not going to check if success or fail */
-              doc.put(GEOSUMMARY_KEY, geoHandler.result());
-              nlpService.getEmbedding(doc, ar-> {
-                if(ar.succeeded()) {
-                  LOGGER.debug("Info: Document embeddings created");
-                  doc.put(WORD_VECTOR_KEY, ar.result().getJsonArray("result"));
-                  /* Insert document */
-                  client.docPostAsync(doc.toString(), postRes -> {
-                    if (postRes.succeeded()) {
-                      handler.handle(Future.succeededFuture(
-                            respBuilder.withStatus(SUCCESS)
-                            .withResult(id, INSERT, SUCCESS)
-                            .getJsonResponse()));
-                    } else {
-                      handler.handle(Future.failedFuture(errorJson));
-                      LOGGER.error("Fail: Insertion failed" + postRes.cause());
-                    }
-                  });
+            /* If geo and nlp services are initialized */
+            if (geoPluggedIn && nlpPluggedIn) {
+              geoService.geoSummarize(doc, geoHandler -> {
+                /* Not going to check if success or fail */
+                doc.put(GEOSUMMARY_KEY, geoHandler.result());
+                nlpService.getEmbedding(doc, ar-> {
+                  if(ar.succeeded()) {
+                    LOGGER.debug("Info: Document embeddings created");
+                    doc.put(WORD_VECTOR_KEY, ar.result().getJsonArray("result"));
+                    /* Insert document */
+                    client.docPostAsync(doc.toString(), postRes -> {
+                      if (postRes.succeeded()) {
+                        handler.handle(Future.succeededFuture(
+                              respBuilder.withStatus(SUCCESS)
+                              .withResult(id, INSERT, SUCCESS)
+                              .getJsonResponse()));
+                      } else {
+                        handler.handle(Future.failedFuture(errorJson));
+                        LOGGER.error("Fail: Insertion failed" + postRes.cause());
+                      }
+                    });
+                  } else {
+                    LOGGER.error("Error: Document embeddings not created");
+                  }
+                });
+              });
+            } else {
+              /* Insert document */
+              client.docPostAsync(doc.toString(), postRes -> {
+                if (postRes.succeeded()) {
+                  handler.handle(Future.succeededFuture(
+                        respBuilder.withStatus(SUCCESS)
+                        .withResult(id, INSERT, SUCCESS)
+                        .getJsonResponse()));
                 } else {
-                  LOGGER.error("Error: Document embeddings not created");
+                  handler.handle(Future.failedFuture(errorJson));
+                  LOGGER.error("Fail: Insertion failed" + postRes.cause());
                 }
               });
-            });
+            }
           }
         });
       } else if (instanceHandler.failed()) {

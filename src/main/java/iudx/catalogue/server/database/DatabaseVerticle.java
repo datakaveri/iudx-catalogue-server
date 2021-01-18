@@ -8,6 +8,8 @@ import io.vertx.serviceproxy.ServiceBinder;
 import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 /**
  * The Database Verticle.
@@ -31,6 +33,7 @@ public class DatabaseVerticle extends AbstractVerticle {
   private String databasePassword;
   private int databasePort;
   private ElasticClient client;
+  private JsonArray optionalModules;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -48,14 +51,21 @@ public class DatabaseVerticle extends AbstractVerticle {
     databaseUser = config().getString(DATABASE_UNAME);
     databasePassword = config().getString(DATABASE_PASSWD);
     docIndex = config().getString(DOC_INDEX);
+    optionalModules = config().getJsonArray(OPTIONAL_MODULES);
 
-    /** Create service proxies */
-    NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
-    GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
+    if(optionalModules.contains(NLPSEARCH_PACKAGE_NAME) 
+        && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
+      NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
+      GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
+      database = new DatabaseServiceImpl(client, nlpService, geoService);
+    } else {
+      database = new DatabaseServiceImpl(client);
+    }
+
+
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
-    database = new DatabaseServiceImpl(client, nlpService, geoService);
     new ServiceBinder(vertx).setAddress(DATABASE_SERVICE_ADDRESS)
       .register(DatabaseService.class, database);
 

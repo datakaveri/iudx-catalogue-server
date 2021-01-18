@@ -5,6 +5,11 @@ import java.util.Arrays;
 
 public class Constants {
 
+  /** Class Names */
+  public static final String GEOCODING_PACKAGE_NAME = "iudx.catalogue.server.geocoding";
+  public static final String NLPSEARCH_PACKAGE_NAME = "iudx.catalogue.server.nlpsearch";
+
+
   /** Service Addresses */
   public static final String DATABASE_SERVICE_ADDRESS = "iudx.catalogue.database.service";
   public static final String AUTH_SERVICE_ADDRESS = "iudx.catalogue.authentication.service";
@@ -15,6 +20,7 @@ public class Constants {
   /** General */
 
   public static final String CONFIG_FILE = "config.properties";
+  public static final String OPTIONAL_MODULES = "optionalModules";
   public static final String IS_SSL = "ssl";
   public static final String PORT = "port";
   public static final String KEYSTORE_PATH = "keystorePath";

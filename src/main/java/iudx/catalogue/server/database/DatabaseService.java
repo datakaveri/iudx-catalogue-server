@@ -141,18 +141,17 @@ public interface DatabaseService {
   @Fluent
   DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
-  /**
-   * Codegen
-   * 
-   * @param vertx which is the vertx instance
-   * @param address which is the proxy address
-   * @return DatabaseServiceVertxEBProxy which is a service proxy
-   */
+  /* create db service with nlp and geocoding */
   @GenIgnore
   static DatabaseService create(ElasticClient client,
                                 NLPSearchService nlpService,
                                 GeocodingService geoService) {
     return new DatabaseServiceImpl(client, nlpService, geoService);
+  }
+  /* create db service vanilla */
+  @GenIgnore
+  static DatabaseService create(ElasticClient client) {
+    return new DatabaseServiceImpl(client);
   }
 
   @GenIgnore
