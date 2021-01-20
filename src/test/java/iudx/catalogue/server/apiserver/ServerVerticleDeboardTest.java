@@ -147,29 +147,29 @@ public class ServerVerticleDeboardTest {
    * @param testContext of asynchronous operations
    * @throws InterruptedException
    */
-  @Test
-  @Order(2)
-  @DisplayName("delete Instance, Status:200, Endpoint: /instance]")
-  void deleteInstance200(VertxTestContext testContext) throws InterruptedException {
+  // @Test
+  // @Order(2)
+  // @DisplayName("delete Instance, Status:200, Endpoint: /instance]")
+  // void deleteInstance200(VertxTestContext testContext) throws InterruptedException {
 
-    /* Send the file to the server using GET with query parameters */
-    /* Should give only one item */
-    client.delete(PORT, HOST, BASE_URL.concat(INSTANCE)).addQueryParam(ID, "pune")
-        .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).putHeader(HEADER_TOKEN, ADMIN_TOKEN)
-        .send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-            LOGGER.info(serverResponse.result().bodyAsString());
-            /* comparing the response */
-            assertEquals(200, serverResponse.result().statusCode());
-            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+  //   /* Send the file to the server using GET with query parameters */
+  //   /* Should give only one item */
+  //   client.delete(PORT, HOST, BASE_URL.concat(INSTANCE)).addQueryParam(ID, "pune")
+  //       .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON).putHeader(HEADER_TOKEN, ADMIN_TOKEN)
+  //       .send(serverResponse -> {
+  //         if (serverResponse.succeeded()) {
+  //           LOGGER.info(serverResponse.result().bodyAsString());
+  //           /* comparing the response */
+  //           assertEquals(200, serverResponse.result().statusCode());
+  //           assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+  //           assertEquals(SUCCESS, serverResponse.result().bodyAsJsonObject().getString(STATUS));
 
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            testContext.failed();
-          }
-        });
-  }
+  //           testContext.completeNow();
+  //         } else if (serverResponse.failed()) {
+  //           testContext.failed();
+  //         }
+  //       });
+  // }
 
 
   /**

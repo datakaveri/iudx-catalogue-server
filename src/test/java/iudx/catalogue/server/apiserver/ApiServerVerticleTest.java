@@ -318,13 +318,12 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    * @throws InterruptedException
    */
+  /*
   @Test
   @Order(6)
   @DisplayName("create Instance, Status:200, Endpoint: /instance]")
   void createInstance201(VertxTestContext testContext) {
 
-    /* Send the file to the server using GET with query parameters */
-    /* Should give only one item */
     client.post(PORT, HOST,
                 BASE_URL.concat(INSTANCE))
         .addQueryParam(ID, "pune")
@@ -332,7 +331,6 @@ public class ApiServerVerticleTest {
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
             LOGGER.info(serverResponse.result().bodyAsString());
-            /* comparing the response */
             assertEquals(201, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
             testContext.completeNow();
@@ -341,6 +339,7 @@ public class ApiServerVerticleTest {
           }
         });
   }
+  */
 
   /**
    * Tests the list instance api
@@ -348,32 +347,32 @@ public class ApiServerVerticleTest {
    * @param testContext of asynchronous operations
    * @throws InterruptedException
    */
-  @Test
-  @Order(7)
-  @DisplayName("list Instance, Status:200, Endpoint: /instance]")
-  void listInstance200(VertxTestContext testContext) throws InterruptedException {
+  // @Test
+  // @Order(7)
+  // @DisplayName("list Instance, Status:200, Endpoint: /instance]")
+  // void listInstance200(VertxTestContext testContext) throws InterruptedException {
 
-    Thread.sleep(5000);
-    /* Send the file to the server using GET with query parameters */
-    /* Should give only one item */
-    client.get(PORT, HOST,
-                BASE_URL.concat("list/instance"))
-        .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-        .send(serverResponse -> {
-          if (serverResponse.succeeded()) {
-            LOGGER.info(serverResponse.result().bodyAsString());
-            /* comparing the response */
-            JsonObject resp = serverResponse.result().bodyAsJsonObject();
-            assertEquals(1, resp.getInteger(TOTAL_HITS));
-            assertEquals(200, serverResponse.result().statusCode());
-            assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
+  //   Thread.sleep(5000);
+  //   /* Send the file to the server using GET with query parameters */
+  //   /* Should give only one item */
+  //   client.get(PORT, HOST,
+  //               BASE_URL.concat("list/instance"))
+  //       .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+  //       .send(serverResponse -> {
+  //         if (serverResponse.succeeded()) {
+  //           LOGGER.info(serverResponse.result().bodyAsString());
+  //           /* comparing the response */
+  //           JsonObject resp = serverResponse.result().bodyAsJsonObject();
+  //           assertEquals(1, resp.getInteger(TOTAL_HITS));
+  //           assertEquals(200, serverResponse.result().statusCode());
+  //           assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
 
-            testContext.completeNow();
-          } else if (serverResponse.failed()) {
-            testContext.failed();
-          }
-        });
-  }
+  //           testContext.completeNow();
+  //         } else if (serverResponse.failed()) {
+  //           testContext.failed();
+  //         }
+  //       });
+  // }
 
 
   /**
