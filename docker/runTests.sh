@@ -10,3 +10,4 @@ mvn test-compile surefire:test surefire-report:report -Dtest=DatabaseServiceTest
 mv target/jacoco.exec target/DatabaseServiceTest.exec
 mvn test-compile surefire:test surefire-report:report -Dtest=ServerVerticleDeboardTest
 mv target/jacoco.exec target/ServerVerticleDeboardTest.exec
+mvn test-compile surefire:test surefire-report:report -Dtest=ConstraintsValidationTest,AuthenticationServiceTest,ElasticClientTest,QueryDecoderTest,SummarizerTest,ValidatorServiceTest
