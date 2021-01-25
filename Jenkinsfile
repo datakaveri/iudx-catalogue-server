@@ -35,7 +35,7 @@ pipeline {
     }
     stage('Code Coverage'){
       steps{
-        jacoco classPattern: 'target/classes', execPattern: 'target/**.exec', runAlways: true, sourcePattern: 'src/main/java'
+        jacoco classPattern: 'target/classes', execPattern: 'target/**.exec', sourcePattern: 'src/main/java'
       }
     }
     stage('Push Image') {
