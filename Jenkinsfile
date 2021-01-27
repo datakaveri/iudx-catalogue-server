@@ -28,7 +28,7 @@ pipeline {
     stage('Capture Test results'){
       steps{
         xunit (
-                thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
+                thresholds: [ skipped(failureThreshold: '9'), failed(failureThreshold: '0') ],
                 tools: [ JUnit(pattern: 'target/surefire-reports/*Test.xml') ]
         )
       }
