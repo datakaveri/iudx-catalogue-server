@@ -43,7 +43,7 @@ paths:
         - Discovery
       parameters:
         - name: property
-          description: 'Array of properties (strings) on which query is to be made. A logical "and" is performed between the properties. Only a maximum of 4 properties are allowed to be queried at once. The mapping between a property and a value is one-to-one. The only allowed properties to be queried are per the vocabulary schema mentioned in each sub-Class of [IUDXEntity](https://voc.iudx.org.in/IUDXEntities).'
+          description: 'Array of properties (strings) on which query is to be made. A logical "and" is performed between the properties. Only a maximum of 4 properties are allowed to be queried at once. The mapping between a property and a value is one-to-one. The only allowed properties to be queried are per the vocabulary schema mentioned in each sub-Class of [IUDXEntity](https://voc.iudx.org.in/IUDXEntity).'
           schema:
             type: array
             items:
@@ -229,7 +229,7 @@ paths:
         - Discovery
       parameters:
         - name: property
-          description: 'Array of properties (strings) on which query is to be made. A logical "and" is performed between the properties. Only a maximum of 4 properties are allowed to be queried at once. The mapping between a property and a value is one-to-one. The only allowed properties to be queried are per the vocabulary schema mentioned in each sub-Class of [IUDXEntity](https://voc.iudx.org.in/IUDXEntities).'
+          description: 'Array of properties (strings) on which query is to be made. A logical "and" is performed between the properties. Only a maximum of 4 properties are allowed to be queried at once. The mapping between a property and a value is one-to-one. The only allowed properties to be queried are per the vocabulary schema mentioned in each sub-Class of [IUDXEntity](https://voc.iudx.org.in/IUDXEntity).'
           schema:
             type: array
             items:
@@ -568,7 +568,8 @@ paths:
               "oldParamB": "oldParamBNewValue"
             }
       operationId: updateItem
-      description: Update an item where the body contains a fully valid item with id
+      description: Update an item where the body contains a fully valid item with id. Relationship links like
+                    provider, resourceGroup, resourceServer and "name" are not allowed to be updated. itemStatus is added by backend.
     post:
       tags:
         - Entity
@@ -622,7 +623,7 @@ paths:
               "resourceServer": "<id of the resourceServer>"
             }
       operationId: createItem
-      description: Insert an item into the catalogue where the item's body specifies the type of item and instance name. 
+      description: Insert an item into the catalogue where the item's body specifies the type of item and instance name. id and itemStatus are added by server.
     delete:
       tags:
         - Entity
