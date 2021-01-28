@@ -570,6 +570,8 @@ paths:
       operationId: updateItem
       description: Update an item where the body contains a fully valid item with id. Relationship links like
                     provider, resourceGroup, resourceServer and "name" are not allowed to be updated. itemStatus is added by backend.
+                    Items maybe subClasses of type [IUDXEntity](https://voc.iudx.org.in/IUDXEntity). Depedning on this, some properties maybe mandatory.
+                    The json schema for the different types can be found [here](https://github.com/datakaveri/iudx-catalogue-server/tree/master/src/main/resources/iudx/catalogue/server/validator). In the future, we will serve schemas from our own servers.
     post:
       tags:
         - Entity
@@ -624,6 +626,8 @@ paths:
             }
       operationId: createItem
       description: Insert an item into the catalogue where the item's body specifies the type of item and instance name. id and itemStatus are added by server.
+                    Items maybe subClasses of type [IUDXEntity](https://voc.iudx.org.in/IUDXEntity). Depedning on this, some properties maybe mandatory.
+                    The json schema for the different types can be found [here](https://github.com/datakaveri/iudx-catalogue-server/tree/master/src/main/resources/iudx/catalogue/server/validator). In the future, we will serve schemas from our own servers.
     delete:
       tags:
         - Entity
@@ -956,10 +960,13 @@ components:
       properties:
         '@context':
           type: string
+          description: JSON-LD context. Default is https://voc.iudx.org.in.
         name:
           type: string
         type:
           type: array
+          description: JSON-LD type. Must contain the uri of one of the [IUDXEntity](https://voc.iudx.org.in/IUDXEntity) subclasses.
+                        May additionally contain a data model uri which can be found [here](https://voc.iudx.org.in/) in the "Data-Models" tab.
           items:
             type: string
       example:
