@@ -11,6 +11,7 @@ public class Constants {
   static final String RESULT = "results";
   static final String SHAPE_KEY = "shape";
   static final String SIZE_KEY = "size";
+  static final int STATIC_DELAY_TIME = 3000;
 
   /* Database */
   static final String AGGREGATION_KEY = "aggs";

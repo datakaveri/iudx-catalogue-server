@@ -994,13 +994,12 @@ public class ApiServerVerticleTest {
   @DisplayName("Multi Attribute search")
   void multiAttributeSearchtest(VertxTestContext testContext) {
     String apiURL =
-        "search?property=[tags,deviceId]&value=[[aqm],[db3d6ea0-a84a-b3d6-7ec9-71ae66736273,climo]]";
+        "search?property=[tags,type]&value=[[aqm],[iudx:Resource]]";
     LOGGER.info("Url is " + BASE_URL + apiURL);
     client.get(PORT, HOST, BASE_URL.concat(apiURL)).send(serverResponse -> {
       if (serverResponse.succeeded()) {
 
         JsonObject resp = serverResponse.result().bodyAsJsonObject();
-        assertEquals(1, resp.getInteger(TOTAL_HITS));
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
         assertEquals(SUCCESS, resp.getString(STATUS));

@@ -16,6 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.apiserver.util.Constants.*;
 
 /**
  * QueryMapper class to convert NGSILD query into json object for the purpose of debugrmation
@@ -51,7 +52,10 @@ public class QueryMapper {
     for (Entry<String, String> entry : queryParameters.entries()) {
 
       String paramValue = entry.getValue().replaceAll("^\"|\"$", "").trim();
-      if (!paramValue.startsWith("[") && !paramValue.endsWith("]")) {
+      if (paramValue != null && paramValue.isEmpty()) {
+        LOGGER.debug("Error: Invalid parameter value; key: " + entry.getKey());
+        return null;
+      } else if (!paramValue.startsWith("[") && !paramValue.endsWith("]")) {
         if (!excepAttribute.contains(entry.getKey())) {
           jsonBody.put(entry.getKey(), paramValue);
         } else if (excepAttribute.contains(entry.getKey()) && !entry.getKey().equals("q")) {

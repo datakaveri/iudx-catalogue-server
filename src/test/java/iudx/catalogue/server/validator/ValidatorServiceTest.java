@@ -73,7 +73,8 @@ public class ValidatorServiceTest {
             "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_1")
         .put(
             "resourceGroup",
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo");
+            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo")
+        .put("provider", "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc");
     validator.validateItem(
         request,
         testContext.succeeding(
@@ -120,7 +121,8 @@ public class ValidatorServiceTest {
             "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors/sensorA")
         .put(
             "resourceGroup",
-            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors123");
+            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors123")
+        .put("provider", "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc");
     validator.validateItem(
         request,
         testContext.failing(
@@ -174,7 +176,7 @@ public class ValidatorServiceTest {
   void validResourceGroupSchemaTest(VertxTestContext testContext) {
 
     JsonObject resourceGrp =
-        fileSystem.readFileBlocking("./src/test/resources/resourceGroup.json").toJsonObject();
+        fileSystem.readFileBlocking("./src/test/resources/resourceGroup.json").toJsonArray().getJsonObject(0);
 
     System.out.println(resourceGrp.toString());
 

@@ -8,7 +8,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import java.util.Timer;
+import java.util.TimerTask;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.database.Constants.*;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
@@ -247,17 +248,21 @@ public class DatabaseServiceImpl implements DatabaseService {
               });
             } else {
               /* Insert document */
-              client.docPostAsync(doc.toString(), postRes -> {
-                if (postRes.succeeded()) {
-                  handler.handle(Future.succeededFuture(
-                        respBuilder.withStatus(SUCCESS)
-                        .withResult(id, INSERT, SUCCESS)
-                        .getJsonResponse()));
-                } else {
-                  handler.handle(Future.failedFuture(errorJson));
-                  LOGGER.error("Fail: Insertion failed" + postRes.cause());
+              new Timer().schedule(new TimerTask() {
+                public void run() {
+                  client.docPostAsync(doc.toString(), postRes -> {
+                    if (postRes.succeeded()) {
+                      handler.handle(Future.succeededFuture(
+                          respBuilder.withStatus(SUCCESS)
+                                     .withResult(id, INSERT, SUCCESS)
+                                     .getJsonResponse()));
+                    } else {
+                      handler.handle(Future.failedFuture(errorJson));
+                      LOGGER.error("Fail: Insertion failed" + postRes.cause());
+                    }
+                  });
                 }
-              });
+              }, STATIC_DELAY_TIME);
             }
           }
         });
@@ -285,35 +290,40 @@ public class DatabaseServiceImpl implements DatabaseService {
                                   .withResult(id, UPDATE, FAILED)
                                   .getResponse();
 
-    client.searchGetId(checkQuery, checkRes -> {
-      if (checkRes.failed()) {
-        LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-        handler.handle(Future.failedFuture(errorJson));
-        return;
-      }
-      if (checkRes.succeeded()) {
-        if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-          LOGGER.error("Fail: Doc doesn't exist, can't update");
-            handler.handle(Future.succeededFuture(
-              respBuilder.withStatus(ERROR)
-                         .withResult(id, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
-                         .getJsonResponse()));
-          return;
-        }
-        String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-        client.docPutAsync(docId, doc.toString(), putRes -> {
-          if (putRes.succeeded()) {
-            handler.handle(Future.succeededFuture(
-                respBuilder.withStatus(SUCCESS)
-                            .withResult(id, UPDATE, SUCCESS)
-                            .getJsonResponse()));
-          } else {
+    new Timer().schedule(new TimerTask() {
+      public void run() {
+        client.searchGetId(checkQuery, checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
             handler.handle(Future.failedFuture(errorJson));
-            LOGGER.error("Fail: Updation failed;" + putRes.cause());
+            return;
+          }
+          if (checkRes.succeeded()) {
+            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+              LOGGER.error("Fail: Doc doesn't exist, can't update");
+              handler.handle(Future.succeededFuture(
+                  respBuilder.withStatus(ERROR)
+                             .withResult(id, UPDATE, FAILED, 
+                                 "Fail: Doc doesn't exist, can't update")
+                             .getJsonResponse()));
+              return;
+            }
+            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+            client.docPutAsync(docId, doc.toString(), putRes -> {
+              if (putRes.succeeded()) {
+                handler.handle(Future.succeededFuture(
+                    respBuilder.withStatus(SUCCESS)
+                               .withResult(id, UPDATE, SUCCESS)
+                               .getJsonResponse()));
+              } else {
+                handler.handle(Future.failedFuture(errorJson));
+                LOGGER.error("Fail: Updation failed;" + putRes.cause());
+              }
+            });
           }
         });
       }
-    });
+    }, STATIC_DELAY_TIME);
     return this;
   }
 
@@ -330,58 +340,64 @@ public class DatabaseServiceImpl implements DatabaseService {
     String errorJson = respBuilder.withStatus(FAILED)
                                   .withResult(id, DELETE, FAILED)
                                   .getResponse();
-    
-    String checkQuery = "";
-    var isParent = new Object() {
-      boolean value = false;
-    };
 
-    if (id.split("/").length < 5) {
-      isParent.value = true;
-      checkQuery = QUERY_RESOURCE_GRP.replace("$1", id).replace("$2", id);
-    } else {
-      checkQuery = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
-    }
+    new Timer().schedule(new TimerTask() {
+      public void run() {
+        String checkQuery = "";
+        var isParent = new Object() {
+          boolean value = false;
+        };
 
-    client.searchGetId(checkQuery, checkRes -> {
-      if (checkRes.failed()) {
-        LOGGER.error("Fail: Check query fail;" + checkRes.cause().getMessage());
-        handler.handle(Future.failedFuture(errorJson));
-      }
-
-      if (checkRes.succeeded()) {
-        LOGGER.debug("Success: Check index for doc");
-        if (checkRes.result().getInteger(TOTAL_HITS) > 1 && isParent.value == true) {
-          LOGGER.error("Fail: Can't delete, parent doc has associated item;");
-          handler.handle(Future.succeededFuture(
-              respBuilder.withStatus(ERROR)
-                         .withResult(id, DELETE, FAILED,
-                           "Fail: Can't delete, resourceGroup has associated item")
-                         .getJsonResponse()));
-          return;
-        } else if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-          LOGGER.error("Fail: Doc doesn't exist, can't delete;");
-          handler.handle(Future.succeededFuture(
-              respBuilder.withStatus(ERROR)
-                         .withResult(id, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
-                         .getJsonResponse()));
-          return;
-        }
-      }
-
-      String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-      client.docDelAsync(docId, delRes -> {
-        if (delRes.succeeded()) {
-          handler.handle(Future.succeededFuture(
-              respBuilder.withStatus(SUCCESS)
-                         .withResult(id, DELETE, SUCCESS)
-                         .getJsonResponse()));
+        if (id.split("/").length < 5) {
+          isParent.value = true;
+          checkQuery = QUERY_RESOURCE_GRP.replace("$1", id).replace("$2", id);
         } else {
-          handler.handle(Future.failedFuture(errorJson));
-          LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
+          checkQuery = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
         }
-      });
-    });
+
+        client.searchGetId(checkQuery, checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error("Fail: Check query fail;" + checkRes.cause().getMessage());
+            handler.handle(Future.failedFuture(errorJson));
+          }
+
+          if (checkRes.succeeded()) {
+            LOGGER.debug("Success: Check index for doc");
+            if (checkRes.result().getInteger(TOTAL_HITS) > 1 && isParent.value == true) {
+              LOGGER.error("Fail: Can't delete, parent doc has associated item;");
+              handler
+                  .handle(Future.succeededFuture(
+                      respBuilder.withStatus(ERROR)
+                                 .withResult(id, DELETE, FAILED,
+                                     "Fail: Can't delete, resourceGroup has associated item")
+                                 .getJsonResponse()));
+              return;
+            } else if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+              LOGGER.error("Fail: Doc doesn't exist, can't delete;");
+              handler.handle(Future.succeededFuture(
+                  respBuilder.withStatus(ERROR)
+                             .withResult(id, DELETE, FAILED, 
+                                 "Fail: Doc doesn't exist, can't delete")
+                             .getJsonResponse()));
+              return;
+            }
+          }
+
+          String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+          client.docDelAsync(docId, delRes -> {
+            if (delRes.succeeded()) {
+              handler.handle(Future.succeededFuture(
+                  respBuilder.withStatus(SUCCESS)
+                             .withResult(id, DELETE, SUCCESS)
+                             .getJsonResponse()));
+            } else {
+              handler.handle(Future.failedFuture(errorJson));
+              LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
+            }
+          });
+        });
+      }
+    }, STATIC_DELAY_TIME);
     return this;
   }
 
