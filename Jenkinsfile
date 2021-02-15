@@ -46,9 +46,11 @@ pipeline {
     stage('Run Jmeter Performance Tests'){
       steps{
         script{
-          withDockerContainer(args: '-p 8443:8443', image: 'dockerhub.iudx.io/jenkins/catalogue-test') {
-            sh 'nohup mvn clean compile test-compile exec:java@catalogue-server'
-          }
+          //withDockerContainer(args: '-p 8443:8443', image: 'dockerhub.iudx.io/jenkins/catalogue-test') {
+          //  sh 'nohup mvn clean compile test-compile exec:java@catalogue-server'
+          //}
+          sh 'docker run -d --rm -p 8443:8443 --name perfTest dockerhub.iudx.io/jenkins/catalogue-test'
+          sh 'docker exec -it perfTest sh -c "nohup mvn clean compile test-compile exec:java@catalogue-server"'
           sh 'mkdir Jmeter ; /root/jmeter/apache-jmeter-5.4.1/bin/jmeter.sh -n -t iudx-catalogue-server_complex_search_count.jmx -l JmeterTest.jtl -e -o /Jmeter'
         }
       }
