@@ -25,7 +25,7 @@ pipeline {
         }
       }
     }
-    stage('Capture Test results'){
+    stage('Capture Unit Test results'){
       steps{
         xunit (
                 thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '9') ],
@@ -41,6 +41,13 @@ pipeline {
     stage('Code Coverage'){
       steps{
         jacoco classPattern: 'target/classes', execPattern: 'target/**.exec', sourcePattern: 'src/main/java'
+      }
+    }
+    stage('Run Jmeter Tests'){
+      steps{
+        script{
+          sh 'mkdir Jmeter ; /root/jmeter/apache-jmeter-5.4.1/bin/jmeter.sh -n -t iudx-catalogue-server_complex_search_count.jmx -l JmeterTest.jtl -e -o /Jmeter'
+        }
       }
     }
     stage('Push Image') {
