@@ -76,7 +76,7 @@ services:
              max-file: "5"
              max-size: "100m"
         
-  perftTest:
+  perfTest:
     image: dockerhub.iudx.io/jenkins/catalogue-test
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
