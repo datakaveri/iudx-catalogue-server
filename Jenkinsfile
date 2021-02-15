@@ -51,8 +51,8 @@ pipeline {
           //}
           //sh 'docker run -d -p 8443:8443 --name perfTest dockerhub.iudx.io/jenkins/catalogue-test'
           //sh 'docker exec -it perfTest sh -c "nohup mvn clean compile test-compile exec:java@catalogue-server"'
-          sh 'mkdir -p Jmeter'
-          sh 'nohup docker-compose up perfTest & /root/jmeter/apache-jmeter-5.4.1/bin/jmeter.sh -n -t iudx-catalogue-server_complex_search_count.jmx -l JmeterTest.jtl -e -o Jmeter'
+          sh 'nohup docker-compose up perfTest &'
+          sh 'mkdir -p Jmeter ; /root/jmeter/apache-jmeter-5.4.1/bin/jmeter.sh -n -t iudx-catalogue-server_complex_search_count.jmx -l JmeterTest.jtl -e -o Jmeter/'
         }
       }
     }
