@@ -61,6 +61,9 @@ pipeline {
     stage('Capture Jmeter report'){
       steps{
         perfReport filterRegex: '', sourceDataFiles: 'Jmeter/*.jtl'
+        script{
+          sh 'rm -rf Jmeter/' 
+        }
       }
     }
     // stage('Push Image') {
