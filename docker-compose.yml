@@ -88,6 +88,8 @@ services:
       - /root/configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
       - ${WORKSPACE}:/tmp/test
+    ports:
+      - "8443:8443"
     command: bash -c "mvn clean compile exec:java@catalogue-server"
     networks: 
       - overlay-net
