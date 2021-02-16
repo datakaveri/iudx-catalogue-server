@@ -88,7 +88,7 @@ services:
       - /root/configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
       - ${WORKSPACE}:/tmp/test
-    command: bash -c "mvn clean compile test-compile exec:java@catalogue-server"
+    command: bash -c "mvn clean compile exec:java@catalogue-server"
     networks: 
       - overlay-net
     logging:
