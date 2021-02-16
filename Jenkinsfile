@@ -53,9 +53,14 @@ pipeline {
           //sh 'docker exec -it perfTest sh -c "nohup mvn clean compile test-compile exec:java@catalogue-server"'
           sh 'docker-compose up -d perfTest'
           sh 'sleep 45'
-          sh 'mkdir -p Jmeter ; /var/lib/jenkins/apache-jmeter-5.4.1/bin/jmeter.sh -n -t iudx-catalogue-server_complex_search_count.jmx -l JmeterTest.jtl -e -o Jmeter/'
+          sh 'mkdir -p Jmeter ; /var/lib/jenkins/apache-jmeter-5.4.1/bin/jmeter.sh -n -t iudx-catalogue-server_complex_search_count.jmx -l Jmeter/JmeterTest.jtl -e -o Jmeter/'
           sh 'docker-compose down'
         }
+      }
+    }
+    stage('Capture Jmeter report'){
+      steps{
+        perfReport filterRegex: '', sourceDataFiles: 'Jmeter/*.jtl'
       }
     }
     // stage('Push Image') {
