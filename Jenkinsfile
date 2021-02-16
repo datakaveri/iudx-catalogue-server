@@ -54,7 +54,7 @@ pipeline {
           sh 'docker-compose up -d perfTest'
           sh 'sleep 15'
           sh 'mkdir -p Jmeter ; /var/lib/jenkins/apache-jmeter-5.4.1/bin/jmeter.sh -n -t iudx-catalogue-server_complex_search_count.jmx -l JmeterTest.jtl -e -o Jmeter/'
-          sh 'docker-compose down perfTest'
+          sh 'docker-compose down'
         }
       }
     }
