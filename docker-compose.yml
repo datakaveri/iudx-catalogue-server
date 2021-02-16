@@ -77,7 +77,7 @@ services:
              max-size: "100m"
         
   perfTest:
-    image: dockerhub.iudx.io/jenkins/catalogue-dev
+    image: dockerhub.iudx.io/jenkins/catalogue-test
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - WORKSPACE
@@ -88,7 +88,7 @@ services:
       - /root/configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
       - ${WORKSPACE}:/tmp/test
-    #command: bash -c "mvn clean compile exec:java@catalogue-server"
+    command: bash -c "mvn clean compile exec:java@catalogue-server"
     networks: 
       - overlay-net
     logging:
