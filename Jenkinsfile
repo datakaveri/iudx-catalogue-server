@@ -60,7 +60,7 @@ pipeline {
     }
     stage('Capture Jmeter report'){
       steps{
-        perfReport errorUnstableResponseTimeThreshold: '1200', filterRegex: '', sourceDataFiles: 'Jmeter/*.jtl'
+        perfReport errorUnstableResponseTimeThreshold: '600', filterRegex: '', sourceDataFiles: 'Jmeter/*.jtl'
       }
     }
     // stage('Push Image') {
