@@ -2,7 +2,7 @@ properties([pipelineTriggers([githubPush()])])
 pipeline {
   environment {
     devRegistry = 'dockerhub.iudx.io/jenkins/catalogue-dev'
-    prodRegistry = 'dockerhub.iudx.io/jenkins/catalogue-prod'
+    deplRegistry = 'dockerhub.iudx.io/jenkins/catalogue-depl'
     testRegistry = 'dockerhub.iudx.io/jenkins/catalogue-test'
     registryUri = 'https://dockerhub.iudx.io'
     registryCredential = 'docker-jenkins'
@@ -13,7 +13,7 @@ pipeline {
       steps{
         script {
           devImage = docker.build( devRegistry, "-f ./docker/dev.dockerfile .")
-          prodImage = docker.build( prodRegistry, "-f ./docker/prod.dockerfile .")
+          deplImage = docker.build( deplRegistry, "-f ./docker/prod.dockerfile .")
           testImage = docker.build( testRegistry, "-f ./docker/test.dockerfile .")
         }
       }
@@ -67,8 +67,7 @@ pipeline {
     //     script {
     //       docker.withRegistry( registryUri, registryCredential ) {
     //         devImage.push()
-    //         prodImage.push()
-    //         testImage.push()
+    //         deplImage.push()
     //       }
     //     }
     //   }
