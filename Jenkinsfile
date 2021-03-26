@@ -59,21 +59,15 @@ pipeline {
         //perfReport constraints: [absolute(escalationLevel: 'ERROR', meteredValue: 'AVERAGE', operator: 'NOT_GREATER', relatedPerfReport: 'JmeterTest.jtl', success: false, testCaseBlock: testCase('GeoTextAttribute&Filter Search'), value: 800)], filterRegex: '', modeEvaluation: true, modePerformancePerTestCase: true, sourceDataFiles: 'Jmeter/*.jtl'      
       }
     }
-    // stage('Push Image') {
-    //   steps{
-    //     script {
-    //       docker.withRegistry( registryUri, registryCredential ) {
-    //         devImage.push()
-    //         deplImage.push()
-    //       }
-    //     }
-    //   }
-    // }
-    // stage('Remove Unused docker image') {
-    //  steps{
-    //    sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-dev"
-    //    sh "docker rmi dockerhub.iudx.io/jenkins/catalogue-depl"
-    //  }
-    //}
+    stage('Push Image') {
+      steps{
+        script {
+          docker.withRegistry( registryUri, registryCredential ) {
+            devImage.push()
+            deplImage.push()
+          }
+        }
+      }
+    }
   }
 }
