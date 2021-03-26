@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#nohup mvn clean compile test-compile exec:java@catalogue-server & 
-#sleep 20
+nohup mvn clean compile test-compile exec:java@catalogue-server & 
+sleep 20
 mvn test-compile surefire:test surefire-report:report -Dtest=ServerVerticleDeboardTest
 mvn test-compile surefire:test surefire-report:report -Dtest=ApiServerVerticlePreprareTest
 mv target/jacoco.exec target/ApiServerVerticlePreprareTest.exec
