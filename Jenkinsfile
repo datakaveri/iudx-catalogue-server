@@ -49,7 +49,7 @@ pipeline {
           sh 'docker-compose up -d perfTest'
           sh 'sleep 45'
           sh 'rm -rf Jmeter/Report ; mkdir -p Jmeter/Report ; /var/lib/jenkins/apache-jmeter-5.4.1/bin/jmeter.sh -n -t Jmeter/CatalogueServer.jmx -l Jmeter/Report/JmeterTest.jtl -e -o Jmeter/Report'
-	  sh 'docker-compose down'
+	  sh 'docker-compose down --remove-orphans'
         }
       }
     }
