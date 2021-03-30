@@ -87,6 +87,7 @@ services:
     volumes:
       - /root/configs/cat-config-test.json:/usr/share/app/configs/config-test.json
       - ./src/:/usr/share/app/src
+      - /root/configs/authkeystore.ks:/usr/share/app/configs/authkeystore.ks
       - /root/configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
       - ${WORKSPACE}:/tmp/test
