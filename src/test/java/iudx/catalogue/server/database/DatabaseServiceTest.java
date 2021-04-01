@@ -859,7 +859,7 @@ public class DatabaseServiceTest {
       }
       Set<String> finalResAttrs = resAttrs;
       testContext.verify(() -> {
-        assertEquals(73.874,
+        assertEquals(73.927,
             response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
                 .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
         assertEquals(attrs, finalResAttrs);
