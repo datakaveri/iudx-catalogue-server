@@ -295,8 +295,13 @@ public final class CrudApis {
         dbService.deleteItem(requestBody, dbhandler -> {
           if (dbhandler.succeeded()) {
             LOGGER.info("Success: Item deleted;");
-            response.setStatusCode(200)
-                    .end(dbhandler.result().toString());
+            if(dbhandler.result().getString(STATUS).equals(SUCCESS)) {
+              response.setStatusCode(200)
+                  .end(dbhandler.result().toString());
+            } else if (dbhandler.result().getString(STATUS).equals(ERROR)) {
+              response.setStatusCode(404)
+                  .end(dbhandler.result().toString());
+            }
           } else if (dbhandler.failed()) {
             response.setStatusCode(400)
                 .end(dbhandler.cause().getMessage());

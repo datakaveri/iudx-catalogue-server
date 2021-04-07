@@ -207,4 +207,19 @@ public class ValidatorServiceTest {
       e.printStackTrace();
     }
   }
+
+  @Test
+  @Order(9)
+  @DisplayName("Valid Schema Test, large name [Resource]")
+  void validResourceSchemaTestName(VertxTestContext testContext) {
+
+    JsonObject resource = fileSystem.readFileBlocking("./src/test/resources/resources.json")
+        .toJsonArray().getJsonObject(0);
+    resource.put("name",
+        "2AgEk25l7odg91lTOolXHouSDUjbB_JbNvqYrhQUjfIfAbkv03tBqBW_EQK7f733MdtfNcqti7K1xt4o3rLEFVQqVrQZHTm4vf8fAGs8KsqVjDFPGcJM/UgDxrcF7YMnbTdePN7pRr8/9T1o_2bUkH3DoktbOTk3FkD8IsdHm_OdKIuGEvjeMis0oqQiEEXqPNqdUpPA5lqjV1c76ihPoOmO/1XzJkWRcgc_MXSWy8Q2u/2FAPTmOKGSW5LE6wHXIDt/0hPlwCByXNazmQxcO/GRdAznMJKo_Xj7BtJHsx3m/oYus9cJYj1KDTJt2qL98mQ1Z0Al_PsknycOspHWplfesuVSsebZ92Xe5wbpy/4OFSHxUjxevkCSUm38Q/XkUTa1zfByV6P2VOSz3Fc_VN0kRHZyNx32NwcG76CV3QDoUoDDyHNvsK8vgdR3Z/AVSP4P/h/IoX3s6o/rcLLYWD7ioOMHDPYqMLcarkSDMKOG_PvLVCGdJbh44n583VbY");
+
+    validator.validateSchema(resource, testContext.failing(response -> testContext.verify(() -> {
+      testContext.completeNow();
+    })));
+  }
 }

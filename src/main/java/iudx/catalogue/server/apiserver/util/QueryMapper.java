@@ -192,7 +192,12 @@ public class QueryMapper {
 
         if (values.size() <= VALUE_SIZE) {
           for (Object value : values) {
-            JsonArray nestedValue = (JsonArray) value;
+            JsonArray nestedValue = new JsonArray();
+            try {
+              nestedValue = (JsonArray) value;
+            } catch (Exception e) {
+              return errResponse.put(DESC, "Invalid 'value' format");
+            }
             if (nestedValue.size() > VALUE_SIZE) {
               LOGGER.error("Error: The value query param has exceeded the limit");
               return errResponse.put(DESC, "The max number of 'value' should be " + VALUE_SIZE);
