@@ -61,10 +61,11 @@ public final class QueryDecoder {
         int length = coordinates.getJsonArray(0).size();
         /* Check if valid polygon */
         if (geometry.equalsIgnoreCase(POLYGON)
-            && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(0)
+            && (!coordinates.getJsonArray(0).getJsonArray(0).getDouble(0)
                 .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(0))
-            && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(1)
-                .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(1))) {
+            || !coordinates.getJsonArray(0).getJsonArray(0).getDouble(1)
+                .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(1)))) {
+
           return new JsonObject().put(ERROR, ERROR_INVALID_COORDINATE_POLYGON);
         }
         queryGeoShape = GEO_SHAPE_QUERY.replace("$1", geometry).replace("$2", coordinates.toString())
@@ -191,8 +192,12 @@ public final class QueryDecoder {
       JsonObject boolQuery = new JsonObject(MUST_QUERY.replace("$1", mustQuery.toString()));
       /* return fully formed elastic query */
       if (queryGeoShape != null) {
-        boolQuery.getJsonObject("bool").put(FILTER,
-            new JsonArray().add(new JsonObject(queryGeoShape)));
+        try {
+          boolQuery.getJsonObject("bool").put(FILTER,
+              new JsonArray().add(new JsonObject(queryGeoShape)));
+        } catch (Exception e) {
+          return new JsonObject().put(ERROR, "Invalid Json Format");
+        }
       }
       return elasticQuery.put(QUERY_KEY, boolQuery);
     }

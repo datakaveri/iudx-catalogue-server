@@ -69,7 +69,6 @@ public final class SearchApis {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
@@ -145,8 +144,7 @@ public final class SearchApis {
               response.end(resultJson.toString());
             } else if (handler.failed()) {
               LOGGER.error("Fail: Search;" + handler.cause().getMessage());
-              response.setStatusCode(400)
-                      .end(handler.cause().getMessage());
+              response.setStatusCode(400).end(handler.cause().getMessage());
             }
           });
         } else {

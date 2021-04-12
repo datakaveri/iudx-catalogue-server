@@ -289,6 +289,24 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* Search for an item */
     router.get(ROUTE_SEARCH)
       .produces(MIME_APPLICATION_JSON)
+      .failureHandler(failureHandler -> {
+        /* Handling JsonDecodeException */
+        Throwable failure = failureHandler.failure();
+        if (failure instanceof DecodeException) {
+          
+          failureHandler.response()
+                            .setStatusCode(500)
+                            .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+                            .end(new ResponseHandler.Builder()
+                                      .withStatus(FAILED)
+                                      .withResults(null,
+                                          failureHandler.request().method().toString(),
+                                          FAILED,
+                                          "Invalid Json Format")
+                                      .build()
+                                      .toJsonString());
+        }
+       })
       .handler( routingContext -> {
         searchApis.searchHandler(routingContext);
       });
