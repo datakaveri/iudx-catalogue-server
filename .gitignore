@@ -15,6 +15,7 @@ notes*.md
 todos.md
 docker-run.sh
 test/
+temp/
 
 ### STS ###
 .apt_generated
