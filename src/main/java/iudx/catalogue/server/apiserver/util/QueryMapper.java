@@ -131,7 +131,8 @@ public class QueryMapper {
     if (searchType.contains(SEARCH_TYPE_GEO)) {
 
       /* Checking limits and precision of coordinate attributes */
-      if (requestBody.containsKey(COORDINATES)) {
+      if (GEOMETRIES.contains(requestBody.getString(GEOMETRY))
+          && requestBody.containsKey(COORDINATES)) {
 
         Pattern pattern = Pattern.compile("[\\w]+[^\\,]*(?:\\.*[\\w])");
         Matcher matcher = pattern.matcher(requestBody.getJsonArray(COORDINATES).toString());
@@ -164,11 +165,15 @@ public class QueryMapper {
       }
 
       /* Validating maxDistance attribute for positive integer */
-      if (requestBody.containsKey(MAX_DISTANCE)
-          && !Range.closed(0, MAXDISTANCE_LIMIT).contains(requestBody.getInteger(MAX_DISTANCE))) {
-        LOGGER.error("Error: maxDistance should range between 0-10000m");
-        return errResponse.put(DESC,
-            "The 'maxDistance' should range between 0-10000m");
+      if (requestBody.getString(GEOMETRY, "").equals(POINT)) {
+        if (requestBody.containsKey(MAX_DISTANCE)) {
+          if (!Range.closed(0, MAXDISTANCE_LIMIT).contains(requestBody.getInteger(MAX_DISTANCE))) {
+            LOGGER.error("Error: maxDistance should range between 0-10000m");
+            return errResponse.put(DESC, "The 'maxDistance' should range between 0-10000m");
+          }
+        } else {
+          return new ResponseHandler.Builder().withStatus(INVALID_SYNTAX).build().toJson();
+        }
       }
     }
 
