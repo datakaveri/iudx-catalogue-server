@@ -33,7 +33,9 @@ public final class QueryDecoder {
 
     /* TODO: Pagination for large result set */
     if (request.getBoolean(SEARCH)) {
-      elasticQuery.put(SIZE_KEY, FILTER_PAGINATION_SIZE);
+      Integer limit =
+          request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+      elasticQuery.put(SIZE_KEY, limit);
     }
 
     /* Handle the search type */
@@ -276,7 +278,9 @@ public final class QueryDecoder {
     }
 
     String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
-    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, FILTER_PAGINATION_SIZE);
+    Integer limit =
+        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
 
     if (TYPE_KEY.equals(relationshipType)) {
       elasticQuery = tempQuery.put(SOURCE, TYPE_KEY).toString();
@@ -332,7 +336,9 @@ public final class QueryDecoder {
       }
     }
     
-    elasticQuery = tempQuery.replace("$size", request.getInteger(LIMIT, FILTER_PAGINATION_SIZE).toString());
+    Integer limit =
+        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    elasticQuery = tempQuery.replace("$size", limit.toString());
 
     return elasticQuery;
   }

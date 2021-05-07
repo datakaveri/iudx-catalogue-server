@@ -4,9 +4,11 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Range;
+import com.hazelcast.util.StringUtil;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,7 +137,8 @@ public class QueryMapper {
           && requestBody.containsKey(COORDINATES)) {
 
         Pattern pattern = Pattern.compile("[\\w]+[^\\,]*(?:\\.*[\\w])");
-        Matcher matcher = pattern.matcher(requestBody.getJsonArray(COORDINATES).toString());
+        String coordinateStr = requestBody.getJsonArray(COORDINATES, new JsonArray()).toString();
+        Matcher matcher = pattern.matcher(coordinateStr);
         List<String> coordinatesValues =
             matcher.results().map(MatchResult::group).collect(Collectors.toList());
 
@@ -161,6 +164,17 @@ public class QueryMapper {
           LOGGER.error("Error: Overflow coordinate values");
           return errResponse.put(DESC,
               "The max number of 'coordinates' value is " + COORDINATES_SIZE);
+        }
+        
+        String geometry = requestBody.getString(GEOMETRY, "");
+        boolean flag = true;
+        int countStr = StringUtils.countMatches(coordinateStr.substring(0, 5), "[");
+        if (geometry.equals(POLYGON) && countStr == 3) {
+        } else if (geometry.equals(POINT) && countStr == 1) {
+        } else if ((geometry.equals(LINESTRING) || geometry.equals(BBOX)) && countStr == 2) {
+        } else {
+          LOGGER.error("Error: Invalid coordinate format");
+          return errResponse.put(DESC, "Invalid coordinate format");
         }
       }
 
@@ -191,18 +205,27 @@ public class QueryMapper {
     /* Validating AttributeSearch limits */
     if (searchType.contains(SEARCH_TYPE_ATTRIBUTE)) {
       
+      Pattern valuePattern = Pattern.compile("^[a-zA-Z0-9]([\\w-._:\\/]*[a-zA-Z0-9])?$");
+
       /* Checking the number of property and value within the request */
       if (requestBody.getJsonArray(PROPERTY).size() <= PROPERTY_SIZE) {
         JsonArray values = requestBody.getJsonArray(VALUE);
 
         if (values.size() <= VALUE_SIZE) {
           for (Object value : values) {
+
             JsonArray nestedValue = new JsonArray();
             try {
               nestedValue = (JsonArray) value;
+              for (Object entry : nestedValue) {
+                if (!valuePattern.matcher((String) entry).matches()) {
+                  return errResponse.put(DESC, "Invalid 'value' format");
+                }
+              }
             } catch (Exception e) {
               return errResponse.put(DESC, "Invalid 'value' format");
             }
+
             if (nestedValue.size() > VALUE_SIZE) {
               LOGGER.error("Error: The value query param has exceeded the limit");
               return errResponse.put(DESC, "The max number of 'value' should be " + VALUE_SIZE);
@@ -235,20 +258,15 @@ public class QueryMapper {
       }
     }
 
-    /* Validating length of limit param */
-    if (requestBody.containsKey(LIMIT)) {
+    /* Validating length of limit & offset param */
+    if (requestBody.containsKey(LIMIT) || requestBody.containsKey(OFFSET)) {
       Integer limit = requestBody.getInteger(LIMIT, 0);
-      if (limit <= 0 || limit > FILTER_PAGINATION_SIZE) {
-        LOGGER.error("Error: The limit query param has exceeded the limit");
-        return errResponse.put(DESC, "The limit should be between 1 to " + FILTER_PAGINATION_SIZE);
-      }
-    }
-
-    /* Validating length of offset param */
-    if (requestBody.containsKey(OFFSET)) {
       Integer offset = requestBody.getInteger(OFFSET, 0);
-      if (offset < 0 || offset > OFFSET_PAGINATION_SIZE) {
-        return errResponse.put(DESC, "The offset should be between 0 to " + OFFSET_PAGINATION_SIZE);
+      Integer totalSize = limit + offset;
+      if (totalSize <= 0 || totalSize > MAX_RESULT_WINDOW) {
+        LOGGER.error("Error: The limit + offset param has exceeded the limit");
+        return errResponse.put(DESC,
+            "The limit + offset should be between 1 to " + MAX_RESULT_WINDOW);
       }
     }
 

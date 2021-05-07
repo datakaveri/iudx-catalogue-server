@@ -237,7 +237,7 @@ public final class CrudApis {
           LOGGER.error("Fail: Item not found");
           JsonObject result = dbhandler.result();
           result.put(STATUS, ERROR);
-          response.setStatusCode(200)
+          response.setStatusCode(404)
                   .end(dbhandler.result().toString());
         } else {
           LOGGER.info("Success: Retreived item");
