@@ -252,9 +252,9 @@ public class QueryMapper {
     /* Validating length of instance header */
     if (requestBody.containsKey(INSTANCE)) {
       String instance = requestBody.getString(INSTANCE, "");
-      if (instance != null && instance.length() > ID_SIZE) {
+      if (instance != null && instance.length() > INSTANCE_SIZE) {
         LOGGER.error("Error: The instance length has exceeded the limit");
-        return errResponse.put(DESC, "The max length of 'instance' should be " + ID_SIZE);
+        return errResponse.put(DESC, "The max length of 'instance' should be " + INSTANCE_SIZE);
       }
     }
 
