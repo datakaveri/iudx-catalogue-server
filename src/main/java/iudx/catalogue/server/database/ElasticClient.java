@@ -289,19 +289,22 @@ public final class ElasticClient {
                                   .getJsonObject(RESULTS)
                                   .getJsonArray(BUCKETS);
             }
-            for (int i=0; i<results.size(); i++) {
-              if (options == SOURCE_ONLY) {
-                /** Todo: This might slow system down */
-                JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
-                source.remove(SUMMARY_KEY);
-                source.remove(WORD_VECTOR_KEY);
-                responseMsg.addResult(source);
-              }
-              if (options == DOC_IDS_ONLY) {
-                responseMsg.addResult(results.getJsonObject(i).getString(DOC_ID));
-              }
-              if (options == AGGREGATION_ONLY) {
-                responseMsg.addResult(results.getJsonObject(i).getString(KEY));
+
+            if (results != null && !results.isEmpty()) {
+              for (int i = 0; i < results.size(); i++) {
+                if (options == SOURCE_ONLY) {
+                  /** Todo: This might slow system down */
+                  JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
+                  source.remove(SUMMARY_KEY);
+                  source.remove(WORD_VECTOR_KEY);
+                  responseMsg.addResult(source);
+                }
+                if (options == DOC_IDS_ONLY) {
+                  responseMsg.addResult(results.getJsonObject(i).getString(DOC_ID));
+                }
+                if (options == AGGREGATION_ONLY) {
+                  responseMsg.addResult(results.getJsonObject(i).getString(KEY));
+                }
               }
             }
           }
