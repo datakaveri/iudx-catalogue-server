@@ -282,7 +282,9 @@ public final class ElasticClient {
             JsonArray results = new JsonArray();
 
             if ((options == SOURCE_ONLY) || (options == DOC_IDS_ONLY)) {
-              results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
+              if(responseJson.getJsonObject(HITS).containsKey(HITS)) {
+                results = responseJson.getJsonObject(HITS).getJsonArray(HITS); 
+              }
             }
             if (options == AGGREGATION_ONLY) {
               results = responseJson.getJsonObject(AGGREGATIONS)
@@ -290,21 +292,19 @@ public final class ElasticClient {
                                   .getJsonArray(BUCKETS);
             }
 
-            if (results != null && !results.isEmpty()) {
-              for (int i = 0; i < results.size(); i++) {
-                if (options == SOURCE_ONLY) {
-                  /** Todo: This might slow system down */
-                  JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
-                  source.remove(SUMMARY_KEY);
-                  source.remove(WORD_VECTOR_KEY);
-                  responseMsg.addResult(source);
-                }
-                if (options == DOC_IDS_ONLY) {
-                  responseMsg.addResult(results.getJsonObject(i).getString(DOC_ID));
-                }
-                if (options == AGGREGATION_ONLY) {
-                  responseMsg.addResult(results.getJsonObject(i).getString(KEY));
-                }
+            for (int i = 0; i < results.size(); i++) {
+              if (options == SOURCE_ONLY) {
+                /** Todo: This might slow system down */
+                JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
+                source.remove(SUMMARY_KEY);
+                source.remove(WORD_VECTOR_KEY);
+                responseMsg.addResult(source);
+              }
+              if (options == DOC_IDS_ONLY) {
+                responseMsg.addResult(results.getJsonObject(i).getString(DOC_ID));
+              }
+              if (options == AGGREGATION_ONLY) {
+                responseMsg.addResult(results.getJsonObject(i).getString(KEY));
               }
             }
           }
