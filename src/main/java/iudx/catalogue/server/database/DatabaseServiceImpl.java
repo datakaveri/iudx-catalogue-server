@@ -301,9 +301,9 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (checkRes.succeeded()) {
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Doc doesn't exist, can't update");
-              handler.handle(Future.succeededFuture(respBuilder.withStatus(ERROR)
+              handler.handle(Future.failedFuture(respBuilder.withStatus(ERROR)
                   .withResult(id, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
-                  .getJsonResponse()));
+                  .getResponse()));
               return;
             }
             String docId = checkRes.result().getJsonArray(RESULTS).getString(0);

@@ -217,7 +217,7 @@ public class ConstraintsValidationTest {
         .put(VALUE,
             new JsonArray().add(
                 new JsonArray().add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
-                    + "iudx.io/aqm-bosch-climo/Ambedkar society circle_29")))
+                    + "iudx.io/aqm-bosch-climo/Ambedkarsocietycircle_29")))
         .put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE);
 
     JsonObject json = QueryMapper.validateQueryParam(requests);

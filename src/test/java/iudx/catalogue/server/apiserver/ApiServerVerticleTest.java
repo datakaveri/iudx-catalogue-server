@@ -694,7 +694,7 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             JsonObject resp = serverResponse.result().bodyAsJsonObject();
             assertEquals(0, resp.getInteger(TOTAL_HITS));
-            assertEquals(200, serverResponse.result().statusCode());
+            assertEquals(404, serverResponse.result().statusCode());
             assertEquals(ERROR, resp.getString(STATUS));
 
             testContext.completeNow();

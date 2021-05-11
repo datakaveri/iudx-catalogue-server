@@ -158,10 +158,9 @@ public class DatabaseServiceTest {
     request.put(ITEM_TYPE, RESOURCE).put(ID,
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_354567")
         .put("test", "test");
-    dbService.updateItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(STATUS);
-      System.out.println(response);
-      assertEquals(ERROR, status);
+    dbService.updateItem(request, testContext.failing(response -> testContext.verify(() -> {
+      String status = response.getMessage();
+      assertTrue(status.contains("\"status\":\"error\""));
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
