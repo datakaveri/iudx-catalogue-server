@@ -56,6 +56,23 @@ A hot-swappable redeployer is provided for quick development
 `./redeploy.sh`
 
 
+### Keystore
+The server requires certificates to be stored in Java keystore format.
+1. Obtain certs for your domain using Letsencrypt. Note: Self signed certificates using openssl will also work.
+2. Concat all pems into one file 
+`sudo cat /etc/letsencrypt/live/demo.example.com/*.pem > fullcert.pem`
+3. Convert to pkcs format 
+` openssl pkcs12 -export -out fullcert.pkcs12 -in fullcert.pem`
+4. Create new temporary keystore using JDK keytool, will prompt for password 
+`keytool -genkey -keyalg RSA -alias mykeystore -keystore mykeystore.ks`  
+`keytool -delete -alias mykeystore -keystore mykeystore.ks` 
+5. Make JKS, will prompt for password 
+`keytool -v -importkeystore -srckeystore fullcert.pkcs12 -destkeystore mykeystore.ks -deststoretype JKS`
+6. Store JKS in config directory and edit the keyfile name and password entered in previous step
+7. Mention keystore mount path (w.r.t docker-compose) in config.json
+
+
+
 ### Testing
 
 ### Unit tests
