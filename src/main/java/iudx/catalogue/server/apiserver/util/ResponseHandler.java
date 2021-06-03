@@ -8,6 +8,7 @@ public class ResponseHandler {
 
   private final String status;
   private JsonArray results = new JsonArray();
+  private String description;
 
   /**
    * Handles the response format to manage Uniformity of the response body.

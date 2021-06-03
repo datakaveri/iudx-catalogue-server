@@ -54,37 +54,38 @@ public class QueryMapper {
     for (Entry<String, String> entry : queryParameters.entries()) {
 
       String paramValue = entry.getValue().replaceAll("^\"|\"$", "").trim();
+      String paramKey = entry.getKey();
       if (paramValue != null && paramValue.isEmpty()) {
-        LOGGER.debug("Error: Invalid parameter value; key: " + entry.getKey());
+        LOGGER.debug("Error: Invalid parameter value; key: " + paramKey);
         return null;
       } else if (!paramValue.startsWith("[") && !paramValue.endsWith("]")) {
-        if (!excepAttribute.contains(entry.getKey())) {
-          jsonBody.put(entry.getKey(), paramValue);
-        } else if (excepAttribute.contains(entry.getKey()) && !entry.getKey().equals("q")) {
-          jsonBody.put(entry.getKey(), Double.valueOf(paramValue).intValue());
-        } else if (entry.getKey().equals(Q_VALUE)
+        if (!excepAttribute.contains(paramKey)) {
+          jsonBody.put(paramKey, paramValue);
+        } else if (excepAttribute.contains(paramKey) && !paramKey.equals("q")) {
+          jsonBody.put(paramKey, Double.valueOf(paramValue).intValue());
+        } else if (paramKey.equals(Q_VALUE)
             && !regPatternText.matcher(paramValue).matches()) {
-          LOGGER.debug("Error: Invalid text string");
+          LOGGER.error("Error: Invalid text string");
           return null;
         } else {
-          jsonBody.put(entry.getKey(), paramValue);
+          jsonBody.put(paramKey, paramValue);
         }
       } else {
         try {
           Matcher matcher = regPatternMatchString.matcher(entry.getValue());
-          if (matcher.find() && !excepAttribute.contains(entry.getKey())) {
+          if (matcher.find() && !excepAttribute.contains(paramKey)) {
             String replacedValue = paramValue.replaceAll("[\\w]+[^\\,]*(?:\\.*[\\w])", "\"$0\"");
-            jsonBody.put(entry.getKey(), new JsonArray(replacedValue));
-          } else if (excepAttribute.contains(entry.getKey())) {
+            jsonBody.put(paramKey, new JsonArray(replacedValue));
+          } else if (excepAttribute.contains(paramKey)) {
             try {
-              jsonBody.put(entry.getKey(), new JsonArray(paramValue));
+              jsonBody.put(paramKey, new JsonArray(paramValue));
             } catch (DecodeException decodeException) {
-              LOGGER.error("Info: Invalid Json value " + decodeException.getMessage());
+              LOGGER.error("Error: Invalid Json value " + decodeException.getMessage());
               return null;
             }
           }
         } catch (Exception e) {
-          LOGGER.error("Info: Invalid Json value ");
+          LOGGER.error("Error: Invalid Json value ");
           return null;
         }
       }
@@ -139,6 +140,7 @@ public class QueryMapper {
         Pattern pattern = Pattern.compile("[\\w]+[^\\,]*(?:\\.*[\\w])");
         String coordinateStr = requestBody.getJsonArray(COORDINATES, new JsonArray()).toString();
         Matcher matcher = pattern.matcher(coordinateStr);
+
         List<String> coordinatesValues =
             matcher.results().map(MatchResult::group).collect(Collectors.toList());
 
@@ -148,7 +150,8 @@ public class QueryMapper {
             Double tempValue = Double.parseDouble(value);
             if (Double.isFinite(tempValue)) {
 
-              boolean isPrecise = (BigDecimal.valueOf(tempValue).scale() <= COORDINATES_PRECISION);
+              boolean isPrecise = (BigDecimal.valueOf(tempValue).scale() >= 0)
+                  && (BigDecimal.valueOf(tempValue).scale() <= COORDINATES_PRECISION);
 
               if (isPrecise == Boolean.FALSE) {
                 LOGGER.error("Error: Overflow coordinate precision");
@@ -214,16 +217,11 @@ public class QueryMapper {
         if (values.size() <= VALUE_SIZE) {
           for (Object value : values) {
 
-            JsonArray nestedValue = new JsonArray();
-            try {
-              nestedValue = (JsonArray) value;
-              for (Object entry : nestedValue) {
-                if (!valuePattern.matcher((String) entry).matches()) {
-                  return errResponse.put(DESC, "Invalid 'value' format");
-                }
+            JsonArray nestedValue = (JsonArray) value;
+            for (Object entry : nestedValue) {
+              if (!valuePattern.matcher((String) entry).matches()) {
+                return errResponse.put(DESC, "Invalid 'value' format");
               }
-            } catch (Exception e) {
-              return errResponse.put(DESC, "Invalid 'value' format");
             }
 
             if (nestedValue.size() > VALUE_SIZE) {

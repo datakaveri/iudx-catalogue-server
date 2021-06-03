@@ -12,6 +12,7 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import iudx.catalogue.server.apiserver.util.ExceptionHandler;
 import iudx.catalogue.server.apiserver.util.ResponseHandler;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
@@ -134,6 +135,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     
     searchApis.setService(dbService, geoService, nlpsearchService);
 
+    ExceptionHandler exceptionhandler = new ExceptionHandler();
+
     /**
      *
      * API Routes and Callbacks
@@ -145,7 +148,19 @@ public class ApiServerVerticle extends AbstractVerticle {
      */
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
-    router.route().handler(CorsHandler.create("*").allowedHeaders(ALLOWED_HEADERS));
+    router.route().handler(
+        CorsHandler.create("*")
+                   .allowedHeaders(ALLOWED_HEADERS)
+                   .allowedMethods(ALLOWED_METHODS));
+    
+    router.route().handler(routingContext -> {
+      routingContext.response()
+                    .putHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate")
+                    .putHeader("Pragma", "no-cache")
+                    .putHeader("Expires", "0")
+                    .putHeader("X-Content-Type-Options", "nosniff");
+      routingContext.next();
+    });
 
     /**
      * Documentation routes
@@ -190,25 +205,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.post(ROUTE_ITEMS)
       .consumes(MIME_APPLICATION_JSON)
       .produces(MIME_APPLICATION_JSON)
-      .failureHandler(failureHandler -> {
-        /* Handling JsonDecodeException */
-        Throwable failure = failureHandler.failure();
-        if (failure instanceof DecodeException) {
-          
-          failureHandler.response()
-                            .setStatusCode(500)
-                            .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                            .end(new ResponseHandler.Builder()
-                                      .withStatus(FAILED)
-                                      .withResults(null,
-                                          failureHandler.request().method().toString() == 
-                                              REQUEST_POST ? INSERT : UPDATE,
-                                          FAILED,
-                                          "Invalid Json Format")
-                                      .build()
-                                      .toJsonString());
-        }
-       })
+      .failureHandler(exceptionhandler)
       .handler( routingContext -> {
         /* checking auhthentication info in requests */
         if (routingContext.request().headers().contains(HEADER_TOKEN)) {
@@ -289,24 +286,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* Search for an item */
     router.get(ROUTE_SEARCH)
       .produces(MIME_APPLICATION_JSON)
-      .failureHandler(failureHandler -> {
-        /* Handling JsonDecodeException */
-        Throwable failure = failureHandler.failure();
-        if (failure instanceof DecodeException) {
-          
-          failureHandler.response()
-                            .setStatusCode(500)
-                            .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                            .end(new ResponseHandler.Builder()
-                                      .withStatus(FAILED)
-                                      .withResults(null,
-                                          failureHandler.request().method().toString(),
-                                          FAILED,
-                                          "Invalid Json Format")
-                                      .build()
-                                      .toJsonString());
-        }
-       })
+      .failureHandler(exceptionhandler)
       .handler( routingContext -> {
         searchApis.searchHandler(routingContext);
       });

@@ -1,6 +1,7 @@
 package iudx.catalogue.server.apiserver.util;
 
 import static iudx.catalogue.server.util.Constants.*;
+import io.vertx.core.http.HttpMethod;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
@@ -25,6 +26,10 @@ public class Constants {
     = new HashSet<String>(Arrays.asList(HEADER_ACCEPT, HEADER_TOKEN, HEADER_CONTENT_LENGTH,
                                     HEADER_CONTENT_TYPE, HEADER_HOST, HEADER_ORIGIN,
                                     HEADER_REFERER, HEADER_CORS));
+
+  public static final Set<HttpMethod> ALLOWED_METHODS = new HashSet<HttpMethod>(
+      Arrays.asList(HttpMethod.GET, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PUT));
+
 
   public static final String MIME_APPLICATION_JSON = "application/json";
   public static final String MIME_TEXT_HTML = "text/html";
