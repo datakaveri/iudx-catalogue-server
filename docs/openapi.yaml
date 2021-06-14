@@ -106,7 +106,7 @@ paths:
           schema:
             type: number
             minimum: 0
-            maximum: 100000
+            maximum: 10000
           in: query
           required: false
         - name: q
@@ -121,7 +121,7 @@ paths:
           description: Limit number of records in search response.
           schema:
             type: integer
-            maximum: 10000
+            maximum: (10000 - offset)
             minimum: 1
           in: query
           required: false
@@ -129,7 +129,7 @@ paths:
           description: Offset from where the next batch of results should be returned.
           schema:
             type: integer
-            maximum: 9999
+            maximum: (9999 - limit)
           in: query
           required: false
         - name: filter
@@ -223,6 +223,7 @@ paths:
         #### Limits and filters
           - Documents returned can be limited by specifying a limit and offset. For e.g, `limit=100&offset=10` gives 100 documents from the 10th search result.
           - A subset of properties of returned documents can be filtered out. For e.g, `filter=[id]` returns documents with only the `id` property retained in them.
+          - The sum of `offset` and `limit` should `<= 10000`, i.e. if the `offset=100`, then max `limit` should be `9900` and so on.
   /iudx/cat/v1/count:
     get:
       tags:
@@ -292,7 +293,7 @@ paths:
           schema:
             type: number
             minimum: 0
-            maximum: 100000
+            maximum: 10000
           in: query
           required: false  
         - name: q
@@ -307,7 +308,7 @@ paths:
           description: Limit number of records in search response.
           schema:
             type: integer
-            maximum: 10000
+            maximum: (10000 - offset)
             minimum: 1
           in: query
           required: false
@@ -315,7 +316,7 @@ paths:
           description: Offset from where the next batch of results should be returned.
           schema:
             type: integer
-            maximum: 9999
+            maximum: (9999 - limit)
           in: query
           required: false
         - name: filter
@@ -907,6 +908,7 @@ components:
             type: object
         description:
           description: Detailed description of the status
+          type: string
         status:
           description: 'Status of the request. Could be success, fail, invalidSyntax.'
           type: string
@@ -932,6 +934,7 @@ components:
             type: object
         description:
           description: Detailed description of the status
+          type: string
         status:
           description: 'Status of the request. Could be success, fail, invalidSyntax.'
           type: string

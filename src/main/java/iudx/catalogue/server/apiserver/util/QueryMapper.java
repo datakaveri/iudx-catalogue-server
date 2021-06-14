@@ -134,8 +134,7 @@ public class QueryMapper {
     if (searchType.contains(SEARCH_TYPE_GEO)) {
 
       /* Checking limits and precision of coordinate attributes */
-      if (GEOMETRIES.contains(requestBody.getString(GEOMETRY))
-          && requestBody.containsKey(COORDINATES)) {
+      if (requestBody.containsKey(COORDINATES)) {
 
         Pattern pattern = Pattern.compile("[\\w]+[^\\,]*(?:\\.*[\\w])");
         String coordinateStr = requestBody.getJsonArray(COORDINATES, new JsonArray()).toString();
@@ -172,9 +171,10 @@ public class QueryMapper {
         String geometry = requestBody.getString(GEOMETRY, "");
         boolean flag = true;
         int countStr = StringUtils.countMatches(coordinateStr.substring(0, 5), "[");
-        if (geometry.equals(POLYGON) && countStr == 3) {
-        } else if (geometry.equals(POINT) && countStr == 1) {
-        } else if ((geometry.equals(LINESTRING) || geometry.equals(BBOX)) && countStr == 2) {
+        if (geometry.equalsIgnoreCase(POLYGON) && countStr == 3) {
+        } else if (geometry.equalsIgnoreCase(POINT) && countStr == 1) {
+        } else if ((geometry.equalsIgnoreCase(LINESTRING) 
+            || geometry.equals(BBOX)) && countStr == 2) {
         } else {
           LOGGER.error("Error: Invalid coordinate format");
           return errResponse.put(DESC, "Invalid coordinate format");
@@ -182,7 +182,7 @@ public class QueryMapper {
       }
 
       /* Validating maxDistance attribute for positive integer */
-      if (requestBody.getString(GEOMETRY, "").equals(POINT)) {
+      if (requestBody.getString(GEOMETRY, "").equalsIgnoreCase(POINT)) {
         if (requestBody.containsKey(MAX_DISTANCE)) {
           if (!Range.closed(0, MAXDISTANCE_LIMIT).contains(requestBody.getInteger(MAX_DISTANCE))) {
             LOGGER.error("Error: maxDistance should range between 0-10000m");

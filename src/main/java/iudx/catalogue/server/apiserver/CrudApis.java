@@ -199,9 +199,13 @@ public final class CrudApis {
                               .end(dbhandler.result().toString());
                     } else if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item update;" + dbhandler.cause().getMessage());
-                      response.setStatusCode(400)
-                          .end(dbhandler.cause().getMessage());
+                      if (dbhandler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
+                        response.setStatusCode(404);
+                      } else {
+                        response.setStatusCode(400);
+                      }
                     }
+                    response.end(dbhandler.cause().getMessage());
                   });
                 }
               }
