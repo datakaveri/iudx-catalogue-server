@@ -575,10 +575,41 @@ paths:
               "oldParamB": "oldParamBNewValue"
             }
       operationId: updateItem
-      description: Update an item where the body contains a fully valid item with id. Relationship links like
-                    provider, resourceGroup, resourceServer and "name" are not allowed to be updated. itemStatus is added by backend.
-                    Items maybe subClasses of type [IUDXEntity](https://voc.iudx.org.in/IUDXEntity). Depedning on this, some properties maybe mandatory.
-                    The json schema for the different types can be found [here](https://github.com/datakaveri/iudx-catalogue-server/tree/master/src/main/resources/iudx/catalogue/server/validator). In the future, we will serve schemas from our own servers.
+      description: |- 
+        Update an item where the body contains a fully valid item with id. Relationship links like
+        provider, resourceGroup, resourceServer and "name" are not allowed to be updated. itemStatus is added by backend.
+        Items maybe subClasses of type [IUDXEntity](https://voc.iudx.org.in/IUDXEntity). Depedning on this, some properties maybe mandatory.
+        The json schema for the different types can be found [here](https://github.com/datakaveri/iudx-catalogue-server/tree/master/src/main/resources/iudx/catalogue/server/validator). In the future, we will serve schemas from our own servers.
+        #### Non-updateable fields
+        In case update of these fields is required, it is recommended to delete the item
+        and re-upload it.
+        1. iudx:Resource
+           - id
+           - provider
+           - resourceGroup
+           - name 
+           - type (1st element in array non-modifiable)
+           - itemStatus
+
+        2. iudx:ResourceGroup
+           - id
+           - name
+           - provider
+           - resouceServer
+           - type (1st element in array non-modifiable)
+           - itemStatus
+           
+        3. iudx:ResourceServer
+           - id
+           - provider
+           - type (1st element in array non-modifiable)
+           - itemStatus
+           
+        4. iudx:Provider
+           - id
+           - type (1st element in array non-modifiable)
+           - itemStatus
+
     post:
       tags:
         - Entity
@@ -678,7 +709,7 @@ paths:
       x-codeSamples:
         - lang: delete item
           source: |
-            DELETE /item?q=<some-id> HTTP/1.1
+            DELETE /item?id=<some-id> HTTP/1.1
             Host: api.catalogue.iudx.org.in
             Content-Type: application/json
             token: <iudx-token>
