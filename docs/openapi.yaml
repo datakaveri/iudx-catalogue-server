@@ -983,7 +983,7 @@ components:
         description: a detailed description
     standardErrorResponse:
       title: Root Type for standardErrorResponse
-      description: Stand response body for error status
+      description: Standard response body for error status
       type: object
       properties:
         status:
