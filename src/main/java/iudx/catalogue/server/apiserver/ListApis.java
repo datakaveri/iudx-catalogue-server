@@ -97,7 +97,7 @@ public final class ListApis {
           default:
             LOGGER.error("Fail: Invalid itemType:" + itemType);
             response.setStatusCode(400).end(
-                new JsonObject().put(STATUS, ERROR).put("message", "Invalid itemType").toString());
+                new JsonObject().put(STATUS, ERROR).put(DESC, "Invalid itemType").toString());
             return;
         }
         requestBody.put(TYPE, type);

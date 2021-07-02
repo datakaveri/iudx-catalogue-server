@@ -93,7 +93,7 @@ public class Constants {
   public static final String SEARCH_TYPE_TAGS = "tagsSearch_";
   public static final String RESPONSE_FILTER = "responseFilter_";
 
-  public static final String MESSAGE = "message";
+  public static final String MESSAGE = "description";
   public static final String RESULTS = "results";
   public static final String METHOD = "method";
   public static final String STATUS = "status";
