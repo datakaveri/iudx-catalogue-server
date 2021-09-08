@@ -42,6 +42,7 @@ import org.apache.logging.log4j.Logger;
 public class Deployer {
   private static final Logger LOGGER = LogManager.getLogger(Deployer.class);
 
+  private static Vertx vertx;
 
   public static void recursiveDeploy(Vertx vertx, JsonObject configs, int i) {
     if (i >= configs.getJsonArray("modules").size()) {
@@ -129,8 +130,8 @@ public class Deployer {
 
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
-        Vertx vertx = res.result();
-        setJVMmetrics();
+        vertx = res.result();
+        //setJVMmetrics();
         recursiveDeploy(vertx, configuration, 0);
       } else {
         LOGGER.fatal("Could not join cluster");
