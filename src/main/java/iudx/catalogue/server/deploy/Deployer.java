@@ -42,6 +42,7 @@ import org.apache.logging.log4j.Logger;
 public class Deployer {
   private static final Logger LOGGER = LogManager.getLogger(Deployer.class);
 
+  private static Vertx vertx;
 
   public static void recursiveDeploy(Vertx vertx, JsonObject configs, int i) {
     if (i >= configs.getJsonArray("modules").size()) {
@@ -123,13 +124,13 @@ public class Deployer {
     String clusterId = configuration.getString("clusterId");
     String host = configuration.getString("host");
     ClusterManager mgr = getClusterManager(host, zookeepers, clusterId);
-    EventBusOptions ebOptions = new EventBusOptions().setClustered(true).setHost(host);
+    EventBusOptions ebOptions = new EventBusOptions().setClusterPublicHost(host);
     VertxOptions options = new VertxOptions().setClusterManager(mgr).setEventBusOptions(ebOptions)
         .setMetricsOptions(getMetricsOptions());
 
     Vertx.clusteredVertx(options, res -> {
       if (res.succeeded()) {
-        Vertx vertx = res.result();
+        vertx = res.result();
         setJVMmetrics();
         recursiveDeploy(vertx, configuration, 0);
       } else {
