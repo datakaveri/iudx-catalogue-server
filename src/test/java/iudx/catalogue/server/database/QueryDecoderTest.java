@@ -6,7 +6,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import io.vertx.reactivex.core.Vertx;
+import io.vertx.core.Vertx;
 import iudx.catalogue.server.Configuration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
