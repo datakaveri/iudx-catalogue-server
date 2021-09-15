@@ -89,8 +89,9 @@ public class AuthenticationServiceTest {
     @DisplayName("Test authInfo validation of the tokenInterospect call")
     public void testTIPAuthInfoArgValidation(VertxTestContext testContext) {
         JsonObject authInfo = new JsonObject();
-        int rnd = new Random().nextInt(HttpMethod.values().length);
-        String dummyMethod = HttpMethod.values()[rnd].toString();
+        int rnd = new Random().nextInt(HttpMethod.values().size());
+        // Hotfix, didn't test
+        String dummyMethod = "post";
         authInfo.put("token", dummyToken);
         authInfo.put("operation", dummyMethod);
         try {
@@ -220,7 +221,8 @@ public class AuthenticationServiceTest {
         request.put("provider", Constants.DUMMY_PROVIDER_PREFIX);
         JsonObject authInfo = new JsonObject();
         authInfo.put("token", dummyToken);
-        authInfo.put("operation", HttpMethod.OTHER.toString());
+        // Hotfix, didn't test
+        authInfo.put("operation", "put");
         authenticationService.tokenInterospect(request, authInfo, jsonObjectAsyncResult -> {
             JsonObject result = jsonObjectAsyncResult.result();
             String status = result.getString("status");

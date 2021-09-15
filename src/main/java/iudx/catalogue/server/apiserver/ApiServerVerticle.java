@@ -80,6 +80,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     isSsl = config().getBoolean(IS_SSL);
     port = config().getInteger(PORT);
 
+
     HttpServerOptions serverOptions = new HttpServerOptions();
 
     if (isSsl) {

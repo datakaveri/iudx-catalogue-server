@@ -15,8 +15,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import io.vertx.reactivex.core.Vertx;
-import io.vertx.reactivex.core.file.FileSystem;
+import io.vertx.core.Vertx;
+import io.vertx.core.file.FileSystem;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.database.ElasticClient;
 
