@@ -1,11 +1,11 @@
 package iudx.catalogue.server.auditing;
 
-import  static iudx.catalogue.server.auditing.util.Constants.USER_ROLE;
-import  static iudx.catalogue.server.auditing.util.Constants.EMAIL_ID;
-import  static iudx.catalogue.server.auditing.util.Constants.IID;
-import  static iudx.catalogue.server.auditing.util.Constants.API;
-import  static iudx.catalogue.server.auditing.util.Constants.METHOD;
-import  static iudx.catalogue.server.auditing.util.Constants.IUDX_ID;
+import static iudx.catalogue.server.auditing.util.Constants.USER_ROLE;
+import static iudx.catalogue.server.auditing.util.Constants.EMAIL_ID;
+import static iudx.catalogue.server.auditing.util.Constants.IID;
+import static iudx.catalogue.server.auditing.util.Constants.API;
+import static iudx.catalogue.server.auditing.util.Constants.METHOD;
+import static iudx.catalogue.server.auditing.util.Constants.IUDX_ID;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.vertx.core.Vertx;
@@ -38,7 +38,8 @@ public class AuditingServiceTest {
         @DisplayName("Deploying Verticle")
         static void startVertex(Vertx vertx, VertxTestContext vertxTestContext) {
                 vertxObj = vertx;
-                dbConfig = Configuration.getConfiguration("./configs/config-example.json",1);
+                dbConfig = Configuration.getConfiguration("./configs/config-test.json",4);
+                System.out.println(dbConfig.toString());
 //                databaseIP = dbConfig.getString("meteringDatabaseIP");
 //                databasePort = dbConfig.getInteger("meteringDatabasePort");
 //                databaseName = dbConfig.getString("meteringDatabaseName");
