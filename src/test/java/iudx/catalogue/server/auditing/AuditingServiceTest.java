@@ -56,10 +56,10 @@ public class AuditingServiceTest {
                 JsonObject request = new JsonObject();
                 request.put(USER_ROLE,"delegate");
                 request.put(EMAIL_ID,"test.data@iudx.org");
-                request.put(IID,"");
+                request.put(IID,"1234abcd");
                 request.put(API,"/iudx/cat/v1/instance");
                 request.put(METHOD,"POST");
-                request.put(IUDX_ID,"");
+                request.put(IUDX_ID,"abcd1234");
                 auditingService.executeWriteQuery(
                 request,
                 vertxTestContext.succeeding(

@@ -23,7 +23,7 @@ public class Constants {
     public static final String METHOD = "httpMethod";
     public static final String IUDX_ID = "iudxID";
     public static final String WRITE_QUERY =
-            "INSERT INTO auditingtable (id, userRole, emailId, iid, api, method, time, iudxID) VALUES ('$1',$2,'$3','$4','$5','$6','$7','$8')";
+            "INSERT INTO auditingtable (id, userRole, emailId, iid, api, method, time, iudxID) VALUES ('$1','$2','$3','$4','$5','$6',$7,'$8')";
 
     public static final String MESSAGE = "message";
 }
