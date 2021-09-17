@@ -15,9 +15,15 @@ public class QueryBuilder {
     private static final Logger LOGGER = LogManager.getLogger(QueryBuilder.class);
 
     public JsonObject buildWriteQuery(JsonObject request) {
+
+        if(!request.containsKey(API) || !request.containsKey(METHOD) || !request.containsKey(USER_ROLE)
+                || !request.containsKey(USER_ID) || !request.containsKey(IID) || !request.containsKey(IUDX_ID)) {
+            return new JsonObject().put(ERROR,DATA_NOT_FOUND);
+        }
+
         String primaryKey = UUID.randomUUID().toString().replace("-","");
         String userRole = request.getString(USER_ROLE);
-        String emailId = request.getString(EMAIL_ID);
+        String userId = request.getString(USER_ID);
         String iid = request.getString(IID);
         String api = request.getString(API);
         String method = request.getString(METHOD);
@@ -31,7 +37,7 @@ public class QueryBuilder {
                         WRITE_QUERY
                                 .replace("$1", primaryKey)
                                 .replace("$2", userRole)
-                                .replace("$3", emailId)
+                                .replace("$3", userId)
                                 .replace("$4", iid)
                                 .replace("$5", api)
                                 .replace("$6", method)

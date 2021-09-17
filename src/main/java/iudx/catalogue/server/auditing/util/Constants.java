@@ -14,16 +14,17 @@ public class Constants {
     /* Database */
     public static final String ERROR = "Error";
     public static final String QUERY_KEY = "query";
+    public static final String DATA_NOT_FOUND="Required Data not Found";
 
     /* Auditing Service Constants*/
     public static final String USER_ROLE = "userRole";
-    public static final String EMAIL_ID = "emailID";
+    public static final String USER_ID = "userID";
     public static final String IID = "iid";
     public static final String API = "api";
     public static final String METHOD = "httpMethod";
     public static final String IUDX_ID = "iudxID";
     public static final String WRITE_QUERY =
-            "INSERT INTO auditingtable (id, userRole, emailId, iid, api, method, time, iudxID) VALUES ('$1','$2','$3','$4','$5','$6',$7,'$8')";
+            "INSERT INTO auditingtable1 (id, userRole, userId, iid, api, method, time, iudxID) VALUES ('$1','$2','$3','$4','$5','$6',$7,'$8')";
 
     public static final String MESSAGE = "message";
 }
