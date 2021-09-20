@@ -36,6 +36,11 @@ public class ResponseBuilder {
         return this;
     }
 
+    public ResponseBuilder setJsonArray(JsonArray jsonArray) {
+        response.put(RESULTS, jsonArray);
+        return this;
+    }
+
     public JsonObject getResponse() {
         return response;
     }
