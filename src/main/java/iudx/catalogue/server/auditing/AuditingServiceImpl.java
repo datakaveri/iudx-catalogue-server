@@ -117,8 +117,13 @@ public class AuditingServiceImpl implements AuditingService {
         result.onComplete(
                 resultHandler -> {
                     if (resultHandler.succeeded()) {
-                        LOGGER.info("Read from DB succeeded.");
-                        handler.handle(Future.succeededFuture(resultHandler.result()));
+                        if (resultHandler.result().getString(TITLE).equals(FAILED)) {
+                            LOGGER.error("Read from DB failed:" + resultHandler.result());
+                            handler.handle(Future.failedFuture(resultHandler.result().toString()));
+                        } else {
+                            LOGGER.info("Read from DB succeeded.");
+                            handler.handle(Future.succeededFuture(resultHandler.result()));
+                        }
                     } else if (resultHandler.failed()) {
                         LOGGER.error("Read from DB failed:" + resultHandler.cause());
                         handler.handle(Future.failedFuture(resultHandler.cause().getMessage()));
@@ -140,7 +145,6 @@ public class AuditingServiceImpl implements AuditingService {
                                         new ResponseBuilder(FAILED).setTypeAndTitle(204).setMessage(EMPTY_RESPONSE);
                             } else {
                                 for (Row rs : result) {
-                                    LOGGER.debug("rs-es:"+rs.toJson());
                                     jsonArray.add(getJsonObject(rs));
                                 }
                                 if (jsonArray.isEmpty()) {

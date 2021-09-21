@@ -284,6 +284,24 @@ public class AuditingServiceTest {
     }
 
     @Test
+    @DisplayName("Failure-testing Read query for empty response")
+    void readforEmptyResponse(VertxTestContext vertxTestContext) {
+        JsonObject request = readRequest();
+        request.put(END_TIME,"1970-01-01T05:30:00+05:30[Asia/Kolkata]");
+
+        auditingService.executeReadQuery(
+                request,
+                vertxTestContext.failing(
+                        response ->
+                                vertxTestContext.verify(
+                                        () -> {
+                                            LOGGER.debug(response);
+                                            assertEquals(EMPTY_RESPONSE, new JsonObject(response.getMessage()).getString(DETAIL));
+                                            vertxTestContext.completeNow();
+                                        })));
+    }
+
+    @Test
     @DisplayName("Testing Read Query")
     void readData(VertxTestContext vertxTestContext) {
         JsonObject request = readRequest();
@@ -294,7 +312,7 @@ public class AuditingServiceTest {
                                 vertxTestContext.verify(
                                         () -> {
                                             LOGGER.debug(response);
-                                            assertTrue(response.getString(TITLE).equals(SUCCESS));
+                                            assertEquals(SUCCESS, response.getString(TITLE));
                                             vertxTestContext.completeNow();
                                         })));
     }
