@@ -55,16 +55,6 @@
             "nlpServiceUrl": "es-vectorised-search_web_1",
             "nlpServicePort": 5000,
             "verticleInstances":2
-        },
-        {
-            "id": "iudx.catalogue.server.auditing.AuditingVerticle",
-            "verticleInstances": 1,
-            "auditingDatabaseIP": "139.59.69.190",
-            "auditingDatabasePort": 32508,
-            "auditingDatabaseName": "auditing",
-            "auditingDatabaseUserName": "immudb",
-            "auditingDatabasePassword": "immudb",
-            "auditingPoolSize": 25
         }
     ]
 }
