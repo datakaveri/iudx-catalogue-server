@@ -59,6 +59,11 @@
             <artifactId>vertx-web-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-rx-java2</artifactId>
+            <version>${vertx.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-checkstyle-plugin</artifactId>
             <version>3.1.1</version>
@@ -100,7 +105,7 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-micrometer-metrics</artifactId>
-            <version>3.9.2</version>
+            <version>${vertx.version}</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -287,6 +292,7 @@
 						<id>catalogue-server</id>
 						<configuration>
 							<mainClass>iudx.catalogue.server.deploy.DeployerDev </mainClass>
+                            <classpathScope>test</classpathScope>
                             <arguments>
                                 <argument>-jar</argument>
                                 <argument>{project.build.directory}/${project.artifactId}-dev-${project.version}-fat.jar</argument>
