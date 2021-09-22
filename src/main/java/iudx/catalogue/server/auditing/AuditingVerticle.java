@@ -24,57 +24,57 @@ import org.apache.logging.log4j.Logger;
 
 public class AuditingVerticle extends AbstractVerticle{
 
-    private static final String AUDITING_SERVICE_ADDRESS = "iudx.catalogue.auditing.service";
-    private static final Logger LOGGER = LogManager.getLogger(AuditingVerticle.class);
-    PgConnectOptions connectOptions;
-    PoolOptions poolOptions;
-    PgPool pool;
-    private String databaseIP;
-    private int databasePort;
-    private String databaseName;
-    private String databaseUserName;
-    private String databasePassword;
-    private int poolSize;
-    private PgConnectOptions config;
-    private ServiceBinder binder;
-    private MessageConsumer<JsonObject> consumer;
-    private AuditingService auditing;
+  private static final String AUDITING_SERVICE_ADDRESS = "iudx.catalogue.auditing.service";
+  private static final Logger LOGGER = LogManager.getLogger(AuditingVerticle.class);
+  PgConnectOptions connectOptions;
+  PoolOptions poolOptions;
+  PgPool pool;
+  private String databaseIP;
+  private int databasePort;
+  private String databaseName;
+  private String databaseUserName;
+  private String databasePassword;
+  private int poolSize;
+  private PgConnectOptions config;
+  private ServiceBinder binder;
+  private MessageConsumer<JsonObject> consumer;
+  private AuditingService auditing;
 
-    /**
-     * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
-     * service with the Event bus against an address, publishes the service with the service discovery
-     * interface.
-     *
-     * @throws Exception which is a start up exception.
-     */
+  /**
+   * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
+   * service with the Event bus against an address, publishes the service with the service discovery
+   * interface.
+   *
+   * @throws Exception which is a start up exception.
+   */
 
-    @Override
-    public void start() throws Exception {
+  @Override
+  public void start() throws Exception {
 
-        databaseIP = config().getString("auditingDatabaseIP");
-        databasePort = config().getInteger("auditingDatabasePort");
-        databaseName = config().getString("auditingDatabaseName");
-        databaseUserName = config().getString("auditingDatabaseUserName");
-        databasePassword = config().getString("auditingDatabasePassword");
-        poolSize = config().getInteger("auditingPoolSize");
+    databaseIP = config().getString("auditingDatabaseIP");
+    databasePort = config().getInteger("auditingDatabasePort");
+    databaseName = config().getString("auditingDatabaseName");
+    databaseUserName = config().getString("auditingDatabaseUserName");
+    databasePassword = config().getString("auditingDatabasePassword");
+    poolSize = config().getInteger("auditingPoolSize");
 
-        JsonObject propObj = new JsonObject();
-        propObj.put("auditingDatabaseIP", databaseIP);
-        propObj.put("auditingDatabasePort", databasePort);
-        propObj.put("auditingDatabaseName", databaseName);
-        propObj.put("auditingDatabaseUserName", databaseUserName);
-        propObj.put("auditingDatabasePassword", databasePassword);
-        propObj.put("auditingPoolSize", poolSize);
+    JsonObject propObj = new JsonObject();
+    propObj.put("auditingDatabaseIP", databaseIP);
+    propObj.put("auditingDatabasePort", databasePort);
+    propObj.put("auditingDatabaseName", databaseName);
+    propObj.put("auditingDatabaseUserName", databaseUserName);
+    propObj.put("auditingDatabasePassword", databasePassword);
+    propObj.put("auditingPoolSize", poolSize);
 
-        binder = new ServiceBinder(vertx);
-        auditing = new AuditingServiceImpl(propObj, vertx);
-        consumer = binder.setAddress(AUDITING_SERVICE_ADDRESS)
-                .register(AuditingService.class, auditing);
-        LOGGER.info("Auditing Service Started");
-    }
+    binder = new ServiceBinder(vertx);
+    auditing = new AuditingServiceImpl(propObj, vertx);
+    consumer = binder.setAddress(AUDITING_SERVICE_ADDRESS)
+            .register(AuditingService.class, auditing);
+    LOGGER.info("Auditing Service Started");
+  }
 
-    @Override
-    public void stop() {
-        binder.unregister(consumer);
-    }
+  @Override
+  public void stop() {
+    binder.unregister(consumer);
+  }
 }
