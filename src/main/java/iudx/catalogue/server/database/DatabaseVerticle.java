@@ -2,6 +2,7 @@ package iudx.catalogue.server.database;
 
 import static iudx.catalogue.server.util.Constants.*;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.eventbus.MessageConsumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -34,6 +35,8 @@ public class DatabaseVerticle extends AbstractVerticle {
   private int databasePort;
   private ElasticClient client;
   private JsonArray optionalModules;
+  private ServiceBinder binder;
+  private MessageConsumer<JsonObject> consumer;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -45,7 +48,7 @@ public class DatabaseVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-
+    binder = new ServiceBinder(vertx);
     databaseIP = config().getString(DATABASE_IP);
     databasePort = config().getInteger(DATABASE_PORT);
     databaseUser = config().getString(DATABASE_UNAME);
@@ -64,9 +67,14 @@ public class DatabaseVerticle extends AbstractVerticle {
       database = new DatabaseServiceImpl(client);
     }
 
-    new ServiceBinder(vertx).setAddress(DATABASE_SERVICE_ADDRESS)
+    consumer =
+        binder.setAddress(DATABASE_SERVICE_ADDRESS)
       .register(DatabaseService.class, database);
 
   }
 
+  @Override
+  public void stop() {
+    binder.unregister(consumer);
+  }
 }

@@ -2,6 +2,7 @@ package iudx.catalogue.server.nlpsearch;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
@@ -29,6 +30,8 @@ public class NLPSearchVerticle extends AbstractVerticle {
   private NLPSearchService NlpSearch;
   private String nlpServiceUrl;
   private int nlpServicePort;
+  private ServiceBinder binder;
+  private MessageConsumer<JsonObject> consumer;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -40,13 +43,13 @@ public class NLPSearchVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-
+    binder = new ServiceBinder(vertx);
     nlpServiceUrl = config().getString("nlpServiceUrl");
     nlpServicePort = config().getInteger("nlpServicePort");
     NlpSearch = new NLPSearchServiceImpl(createWebClient(vertx, config()),
                                           nlpServiceUrl, nlpServicePort);
-
-    new ServiceBinder(vertx).setAddress(NLP_SERVICE_ADDRESS)
+    consumer =
+        binder.setAddress(NLP_SERVICE_ADDRESS)
       .register(NLPSearchService.class, NlpSearch);
   }
 
@@ -66,5 +69,10 @@ public class NLPSearchVerticle extends AbstractVerticle {
     WebClientOptions webClientOptions = new WebClientOptions();
     if (testing) webClientOptions.setTrustAll(true).setVerifyHost(false);
     return WebClient.create(vertx, webClientOptions);
+  }
+
+  @Override
+  public void stop() {
+    binder.unregister(consumer);
   }
 }

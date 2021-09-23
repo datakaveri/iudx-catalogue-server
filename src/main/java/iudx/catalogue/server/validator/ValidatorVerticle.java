@@ -2,6 +2,8 @@ package iudx.catalogue.server.validator;
 
 import static iudx.catalogue.server.util.Constants.*;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -29,6 +31,8 @@ public class ValidatorVerticle extends AbstractVerticle {
   private String databaseUser;
   private String databasePassword;
   private ElasticClient client;
+  private ServiceBinder binder;
+  private MessageConsumer<JsonObject> consumer;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -37,7 +41,7 @@ public class ValidatorVerticle extends AbstractVerticle {
    */
   @Override
   public void start() throws Exception {
-
+    binder = new ServiceBinder(vertx);
     databaseIP = config().getString(DATABASE_IP);
     databasePort = config().getInteger(DATABASE_PORT);
     databaseUser = config().getString(DATABASE_UNAME);
@@ -52,8 +56,13 @@ public class ValidatorVerticle extends AbstractVerticle {
     /* Publish the Validator service with the Event Bus against an address. */
 
     validator = new ValidatorServiceImpl(client);
-    new ServiceBinder(vertx)
-      .setAddress(VALIDATION_SERVICE_ADDRESS)
+    consumer =
+        binder.setAddress(VALIDATION_SERVICE_ADDRESS)
       .register(ValidatorService.class, validator);
+  }
+
+  @Override
+  public void stop() {
+    binder.unregister(consumer);
   }
 }

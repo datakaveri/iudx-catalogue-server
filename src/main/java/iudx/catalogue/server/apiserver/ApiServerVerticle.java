@@ -350,4 +350,11 @@ public class ApiServerVerticle extends AbstractVerticle {
     server.requestHandler(router).listen(port);
 
   }
+
+  @Override
+  public void stop() {
+    LOGGER.info("Stopping the API server");
+  }
 }
+
+
