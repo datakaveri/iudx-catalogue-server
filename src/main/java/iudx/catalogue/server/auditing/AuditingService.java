@@ -13,14 +13,14 @@ import io.vertx.core.json.JsonObject;
 @VertxGen
 public interface AuditingService {
 
-    @GenIgnore
-    static AuditingService createProxy(Vertx vertx, String address) {
-        return new AuditingServiceVertxEBProxy(vertx, address);
-    }
+  @GenIgnore
+  static AuditingService createProxy(Vertx vertx, String address) {
+    return new AuditingServiceVertxEBProxy(vertx, address);
+  }
 
-    @Fluent
-    AuditingService executeWriteQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  @Fluent
+  AuditingService executeWriteQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
-    @Fluent
-    AuditingService executeReadQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  @Fluent
+  AuditingService executeReadQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 }
