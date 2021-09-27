@@ -2,6 +2,7 @@ package iudx.catalogue.server.authenticator;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
@@ -31,7 +32,8 @@ public class AuthenticationVerticle extends AbstractVerticle {
 
   private static final Logger LOGGER = LogManager.getLogger(AuthenticationVerticle.class);
   private AuthenticationService authentication;
-
+  private ServiceBinder binder;
+  private MessageConsumer<JsonObject> consumer;
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
    * service with the Event bus against an address, publishes the service with the service discovery
@@ -42,12 +44,12 @@ public class AuthenticationVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-
+    binder = new ServiceBinder(vertx);
     String authHost = config().getString(AUTH_SERVER_HOST);
     authentication = new AuthenticationServiceImpl(createWebClient(vertx, config()), authHost);
 
 
-    new ServiceBinder(vertx).setAddress(AUTH_SERVICE_ADDRESS)
+    consumer = binder.setAddress(AUTH_SERVICE_ADDRESS)
       .register(AuthenticationService.class, authentication);
   }
 
@@ -75,4 +77,10 @@ public class AuthenticationVerticle extends AbstractVerticle {
                     .setPassword(config.getString(KEYSTORE_PASSWORD)));
     return WebClient.create(vertx, webClientOptions);
   }
+
+  @Override
+  public void stop() {
+    binder.unregister(consumer);
+  }
 }
+
