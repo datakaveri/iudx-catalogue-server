@@ -15,6 +15,7 @@
             "docIndex": "cattestindex",
             "databaseUser": "user",
             "databasePassword": "password",
+            "bypassAuth": true,
             "databasePort": 9200
         },
         {
