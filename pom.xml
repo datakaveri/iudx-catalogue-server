@@ -34,6 +34,12 @@
             <artifactId>vertx-codegen</artifactId>
             <classifier>processor</classifier>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.22</version>
+        </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-service-proxy</artifactId>
@@ -48,6 +54,11 @@
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
+            <artifactId>vertx-jdbc-client</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
             <artifactId>vertx-core</artifactId>
         </dependency>
         <dependency>
@@ -58,6 +69,11 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web-client</artifactId>
             <version>4.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-rx-java2</artifactId>
+            <version>${vertx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
@@ -101,7 +117,7 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-micrometer-metrics</artifactId>
-            <version>3.9.2</version>
+            <version>${vertx.version}</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
@@ -148,6 +164,11 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-auth-jwt</artifactId>
+            <version>4.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-pg-client</artifactId>
             <version>4.0.3</version>
         </dependency>
     </dependencies>
@@ -293,6 +314,7 @@
 						<id>catalogue-server</id>
 						<configuration>
 							<mainClass>iudx.catalogue.server.deploy.DeployerDev </mainClass>
+                            <classpathScope>test</classpathScope>
                             <arguments>
                                 <argument>-jar</argument>
                                 <argument>{project.build.directory}/${project.artifactId}-dev-${project.version}-fat.jar</argument>

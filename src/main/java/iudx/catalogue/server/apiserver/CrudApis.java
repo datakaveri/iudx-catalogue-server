@@ -187,6 +187,7 @@ public final class CrudApis {
                       LOGGER.info("Success: Item created;");
                       response.setStatusCode(201)
                               .end(dbhandler.result().toString());
+                      // TODO: call auditing service here
                     }
                   });
                 } else {
@@ -197,6 +198,7 @@ public final class CrudApis {
                       LOGGER.info("Success: Item updated;");
                       response.setStatusCode(200)
                               .end(dbhandler.result().toString());
+                      // TODO: call auditing service here
                     } else if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item update;" + dbhandler.cause().getMessage());
                       if (dbhandler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
@@ -308,6 +310,7 @@ public final class CrudApis {
               LOGGER.info("Success: Item deleted;");
               if (dbhandler.result().getString(STATUS).equals(SUCCESS)) {
                 response.setStatusCode(200).end(dbhandler.result().toString());
+                // TODO: call auditing service here
               } else if (dbhandler.result().getString(STATUS).equals(ERROR)) {
                 response.setStatusCode(404)
                         .end(dbhandler.result().toString());
@@ -396,6 +399,7 @@ public final class CrudApis {
             LOGGER.info("Success: Instance created;");
             response.setStatusCode(201)
               .end(res.result().toString());
+            // TODO: call auditing service here
           } else {
             LOGGER.error("Fail: Creating instance");
             response.setStatusCode(400).end(res.cause().getMessage());
@@ -462,6 +466,7 @@ public final class CrudApis {
             LOGGER.info("Success: Instance deleted;");
             response.setStatusCode(200)
               .end(res.result().toString());
+            // TODO: call auditing service here
           }
         });
         LOGGER.debug("Success: Authenticated instance creation request");

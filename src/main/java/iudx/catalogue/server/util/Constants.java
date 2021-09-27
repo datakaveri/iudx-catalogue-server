@@ -16,6 +16,7 @@ public class Constants {
   public static final String VALIDATION_SERVICE_ADDRESS = "iudx.catalogue.validator.service";
   public static final String GEOCODING_SERVICE_ADDRESS = "iudx.catalogue.geocoding.service";
   public static final String NLP_SERVICE_ADDRESS = "iudx.catalogue.nlpsearch.service";
+  public static final String AUDITING_SERVICE_ADDRESS = "iudx.catalogue.auditing.service";
 
   /** General */
 
