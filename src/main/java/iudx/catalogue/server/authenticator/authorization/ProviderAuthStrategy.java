@@ -26,7 +26,7 @@ public class ProviderAuthStrategy implements AuthorizationStratergy{
     accessList.add(new AuthorizationRequest(POST, ITEM));
     accessList.add(new AuthorizationRequest(PUT, ITEM));
     accessList.add(new AuthorizationRequest(DELETE, ITEM));
-    providerAuthorizationRules.put(IudxAccess.API.getAccess(), accessList);
+    providerAuthorizationRules.put("api", accessList);
   }
 
   @Override

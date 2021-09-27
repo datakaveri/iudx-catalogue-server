@@ -20,7 +20,6 @@ public class Constants {
 
     /* JWT specific */
     public static final String JSON_USERID = "userid";
-    public static final String ID = "id";
     public static final String API_ENDPOINT = "apiEndpoint";
     public static final String METHOD = "method";
     public static final String ITEM_ENDPOINT = "/iudx/cat/v1/item";

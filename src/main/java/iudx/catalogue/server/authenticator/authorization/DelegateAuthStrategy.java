@@ -25,7 +25,7 @@ public class DelegateAuthStrategy implements AuthorizationStratergy{
     accessList.add(new AuthorizationRequest(POST, ITEM));
     accessList.add(new AuthorizationRequest(PUT, ITEM));
     accessList.add(new AuthorizationRequest(DELETE, ITEM));
-    delegateAuthorizationRules.put(IudxAccess.API.getAccess(), accessList);
+    delegateAuthorizationRules.put("api", accessList);
   }
 
   @Override
