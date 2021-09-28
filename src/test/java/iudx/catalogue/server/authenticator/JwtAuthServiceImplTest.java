@@ -63,7 +63,7 @@ public class JwtAuthServiceImplTest {
     JsonObject jsonObject = new JsonObject();
     jsonObject
             .put("token", JwtTokenHelper.providerToken)
-            .put("id", "89a36273d77dac4cf38114fca1bbe64392547f86")
+            .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86")
             .put("apiEndpoint", "/iudx/cat/v1/item")
             .put("method", Method.POST);
     return jsonObject;
@@ -83,7 +83,7 @@ public class JwtAuthServiceImplTest {
   }
 
   @Test
-  @DisplayName("allow access to protected endpoint")
+  @DisplayName("successful allow access to protected endpoint")
   public void providerTokenInterospectSuccess(VertxTestContext vertxTestContext) {
     JsonObject authInfo = authJson();
 
@@ -97,7 +97,7 @@ public class JwtAuthServiceImplTest {
   }
 
   @Test
-  @DisplayName("allow access to protected endpoint")
+  @DisplayName("fail: allow access to protected endpoint")
   public void providerTokenInterospectFail(VertxTestContext vertxTestContext) {
     JsonObject authInfo = authJson();
     authInfo.put(TOKEN, "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI4NDRlMjUxYi01NzRiLTQ2ZTYtOTI0Ny1mNzZmMWY3MGE2NadjMDKqd4NjPjKieYSpenWzeIhvbYW21212pbyIsImF1ZCI6ImNhdGFsb2d1ZS5pdWR4LmlvIiwiZXhwIjoxNjMyMjYxMjkxLCJpYXQiOjE2MzIyMTgwOTEsImlpZCI6InJpOmlpc2MuYWMuaW4vODlhMzYyNzNkNzdkYWM0Y2YzODExNGZjYTFiYmU2NDM5MjU0N2Y4Ni9jYXRhbG9ndWUuaXVkeC5pby9jYXRhbG9ndWUvY3J1ZCIsInJvbGUiOiJwcm92aWRlciIsImNvbnMiOnt9fQ.BTNDXRQ90C9wTWGtcYzIgjZgbhoV_ELX6smaJxjbvceKFHbVaHMaxYMMyyTrQUGe3b7BpGgODu4vR6JAycfmRg");
@@ -195,7 +195,7 @@ public class JwtAuthServiceImplTest {
   @DisplayName("successful valid id check")
   public void validIdCheckForJwtToken(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
-    String id = "89a36273d77dac4cf38114fca1bbe64392547f86";
+    String id = "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86";
     if(jwtAuthenticationService.isValidId(jwtData, id)) {
       vertxTestContext.completeNow();
     } else {
@@ -207,7 +207,7 @@ public class JwtAuthServiceImplTest {
   @DisplayName("invalid id check")
   public void invalidIdCheckForJwtToken(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
-    String id = "89a36273d77dac4cf38114fca1bbe64392547fab";
+    String id = "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547fab";
     if(jwtAuthenticationService.isValidId(jwtData, id)) {
       vertxTestContext.failNow("fail");
     } else {
@@ -238,5 +238,38 @@ public class JwtAuthServiceImplTest {
     } else {
       vertxTestContext.failNow("fail");
     }
+  }
+
+  @Test
+  @DisplayName("successful validate access test")
+  public void validvValidateAccessTest(VertxTestContext vertxTestContext) {
+    JwtData jwtData = jwtDataObject();
+    JsonObject authInfo = authJson();
+
+    jwtAuthenticationService.validateAccess(jwtData,authInfo)
+            .onComplete(handler -> {
+              if(handler.succeeded()){
+                vertxTestContext.completeNow();
+              } else {
+                vertxTestContext.failNow(handler.cause());
+              }
+            });
+  }
+
+  @Test
+  @DisplayName("fail validate access test")
+  public void invalidValidateAccessTest(VertxTestContext vertxTestContext) {
+    JwtData jwtData = jwtDataObject();
+    JsonObject authInfo = authJson();
+    authInfo.put("apiEndpoint","/iudx/cat/v1/itemzzz");
+
+    jwtAuthenticationService.validateAccess(jwtData,authInfo)
+            .onComplete(handler -> {
+              if(handler.succeeded()){
+                vertxTestContext.failNow(handler.cause());
+              } else {
+                vertxTestContext.completeNow();
+              }
+            });
   }
 }

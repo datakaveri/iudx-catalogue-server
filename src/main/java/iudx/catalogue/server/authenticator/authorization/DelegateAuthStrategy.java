@@ -18,18 +18,16 @@ import iudx.catalogue.server.authenticator.model.JwtData;
 public class DelegateAuthStrategy implements AuthorizationStratergy{
   private static final Logger LOGGER = LogManager.getLogger(DelegateAuthStrategy.class);
 
-  static Map<String, List<AuthorizationRequest>> delegateAuthorizationRules = new HashMap<>();
+  static List<AuthorizationRequest> accessList = new ArrayList<>();
   static {
     // /item access rules
-    List<AuthorizationRequest> accessList = new ArrayList<>();
     accessList.add(new AuthorizationRequest(POST, ITEM));
     accessList.add(new AuthorizationRequest(PUT, ITEM));
     accessList.add(new AuthorizationRequest(DELETE, ITEM));
-    delegateAuthorizationRules.put("api", accessList);
   }
 
   @Override
   public boolean isAuthorized(AuthorizationRequest authRequest, JwtData jwtData) {
-    return true;
+    return accessList.contains(authRequest);
   }
 }

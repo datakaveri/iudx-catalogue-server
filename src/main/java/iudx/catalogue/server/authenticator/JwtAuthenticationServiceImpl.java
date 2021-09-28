@@ -77,8 +77,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   }
 
   boolean isValidId(JwtData jwtData, String id) {
-    // id is the (substring [1] of Iid with delimiter as ':' )'s substring [1] with delimiter as '/'
-    String jwtId = (jwtData.getIid().split(":")[1]).split("/")[1];
+    // id is the (substring [1] of Iid with delimiter as ':' )'s first 2 substrings with delimiter as '/'
+    String jwtId = (jwtData.getIid().split(":")[1]).split("/")[0]+"/"+(jwtData.getIid().split(":")[1]).split("/")[1];
 
     if (id.equalsIgnoreCase(jwtId)) {
       return true;
@@ -97,12 +97,12 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     }
   }
 
-  public Future<JsonObject> validateAccess(JwtData jwtData, JsonObject authInfo) {
+  public Future<JsonObject> validateAccess(JwtData jwtData, JsonObject authenticationInfo) {
     LOGGER.trace("validateAccess() started");
     Promise<JsonObject> promise = Promise.promise();
 
-    Method method = Method.valueOf(authInfo.getString(METHOD));
-    Api api = Api.fromEndpoint(authInfo.getString(API_ENDPOINT));
+    Method method = Method.valueOf(authenticationInfo.getString(METHOD));
+    Api api = Api.fromEndpoint(authenticationInfo.getString(API_ENDPOINT));
 
     AuthorizationRequest authRequest = new AuthorizationRequest(method,api);
 
@@ -110,14 +110,14 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     LOGGER.info("strategy: " + authStrategy.getClass().getSimpleName());
 
     JwtAuthorization jwtAuthStrategy = new JwtAuthorization(authStrategy);
-    LOGGER.info("endpoint: "+authInfo.getString(API_ENDPOINT));
+    LOGGER.info("endpoint: "+authenticationInfo.getString(API_ENDPOINT));
 
     if(jwtAuthStrategy.isAuthorized(authRequest, jwtData)) {
       LOGGER.info("User access is allowed");
       JsonObject response = new JsonObject().put(JSON_USERID, jwtData.getSub());
       promise.complete(response);
     } else {
-      LOGGER.info("user access denied");
+      LOGGER.error("user access denied");
       JsonObject result = new JsonObject().put("401","no access provided to endpoint");
       promise.fail(result.toString());
     }

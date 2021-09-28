@@ -18,19 +18,16 @@ import iudx.catalogue.server.authenticator.model.JwtData;
 public class ProviderAuthStrategy implements AuthorizationStratergy{
   private static final Logger LOGGER = LogManager.getLogger(ProviderAuthStrategy.class);
 
-  static Map<String, List<AuthorizationRequest>> providerAuthorizationRules = new HashMap<>();
+  static List<AuthorizationRequest> accessList = new ArrayList<>();
   static {
-
     // /item access list
-    List<AuthorizationRequest> accessList = new ArrayList<>();
     accessList.add(new AuthorizationRequest(POST, ITEM));
     accessList.add(new AuthorizationRequest(PUT, ITEM));
     accessList.add(new AuthorizationRequest(DELETE, ITEM));
-    providerAuthorizationRules.put("api", accessList);
   }
 
   @Override
   public boolean isAuthorized(AuthorizationRequest authRequest, JwtData jwtData) {
-    return true;
+    return accessList.contains(authRequest);
   }
 }
