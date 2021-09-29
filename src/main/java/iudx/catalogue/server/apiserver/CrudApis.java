@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 import java.util.HashSet;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
+import static iudx.catalogue.server.authenticator.Constants.TOKEN;
 import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
@@ -76,6 +78,7 @@ public final class CrudApis {
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     JsonObject authenticationInfo = new JsonObject();
+    JsonObject jwtAuthenticationInfo = new JsonObject();
     JsonObject authRequest = new JsonObject();
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
@@ -120,13 +123,97 @@ public final class CrudApis {
         authenticationInfo.put(HEADER_TOKEN,
                                 request.getHeader(HEADER_TOKEN))
                                 .put(OPERATION, routingContext.request().method().toString());
+        // populating jwt authentication info ->
+        jwtAuthenticationInfo
+                .put(TOKEN,request.getHeader(HEADER_TOKEN)) // getHeader
+                .put(METHOD,routingContext.request().method().toString())
+                .put(API_ENDPOINT, request.toString()); //FIXME: not sure about this one, needs verification
+
         if (itemType.equals(ITEM_TYPE_PROVIDER)) {
           authRequest.put(PROVIDER, requestBody.getString(ID));
+          // JWT Auth specific ->
+          jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
         } else {
           authRequest.put(PROVIDER, requestBody.getString(PROVIDER));
+          // JWT Auth specific ->
+          jwtAuthenticationInfo.put(ID, requestBody.getString(PROVIDER));
         }
 
         LOGGER.debug("Info: AuthRequest;" + authRequest.toString());
+        LOGGER.debug("Info: JWT Authentication Info: " + jwtAuthenticationInfo);
+
+        /* JWT implementation of tokenInterospect */
+        authService.tokenInterospect(new JsonObject(), jwtAuthenticationInfo, authHandler -> {
+          if(authHandler.failed()) {
+            LOGGER.error("Error: "+authHandler.cause().getMessage());
+            response.setStatusCode(401)
+                    .end(new ResponseHandler.Builder()
+                            .withStatus(FAILED)
+                            .withResults(requestBody.getString(ID),
+                                    routingContext.request().method().toString(), ERROR,
+                                    authHandler.cause().getMessage())
+                            .build()
+                            .toJsonString());
+          } else {
+            LOGGER.debug("Success: JWT Auth successful");
+
+            /* Link Validating the request to ensure item correctness */
+            validatorService.validateItem(requestBody, valhandler -> {
+              if (valhandler.failed()) {
+                LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
+                response.setStatusCode(400)
+                        .end(new ResponseHandler.Builder()
+                                .withStatus(FAILED)
+                                .withResults(requestBody.getString(ID, ""),
+                                        methodType, FAILED,
+                                        valhandler.cause().getMessage()+ " for " +itemType)
+                                .build()
+                                .toJsonString());
+              }
+              if (valhandler.succeeded()) {
+                LOGGER.debug("Success: Item link validation");
+
+                /** If post, create. If put, update */
+                if (routingContext.request().method().toString() == REQUEST_POST) {
+                  /* Requesting database service, creating a item */
+                  LOGGER.debug("Info: Inserting item");
+                  dbService.createItem(valhandler.result(), dbhandler -> {
+                    if (dbhandler.failed()) {
+                      LOGGER.error("Fail: Item creation;" + dbhandler.cause().getMessage());
+                      response.setStatusCode(400)
+                              .end(dbhandler.cause().getMessage());
+                    }
+                    if (dbhandler.succeeded()) {
+                      LOGGER.info("Success: Item created;");
+                      response.setStatusCode(201)
+                              .end(dbhandler.result().toString());
+                      // TODO: call auditing service here
+                    }
+                  });
+                } else {
+                  LOGGER.debug("Info: Updating item");
+                  /* Requesting database service, creating a item */
+                  dbService.updateItem(valhandler.result(), dbhandler -> {
+                    if (dbhandler.succeeded()) {
+                      LOGGER.info("Success: Item updated;");
+                      response.setStatusCode(200)
+                              .end(dbhandler.result().toString());
+                      // TODO: call auditing service here
+                    } else if (dbhandler.failed()) {
+                      LOGGER.error("Fail: Item update;" + dbhandler.cause().getMessage());
+                      if (dbhandler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
+                        response.setStatusCode(404);
+                      } else {
+                        response.setStatusCode(400);
+                      }
+                    }
+                    response.end(dbhandler.cause().getMessage());
+                  });
+                }
+              }
+            });
+          }
+        });
 
         /** Introspect token and authorize operation */
         authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
@@ -285,6 +372,7 @@ public final class CrudApis {
 
     /* JsonObject of authentication related information */
     JsonObject authenticationInfo = new JsonObject();
+    JsonObject jwtAuthenticationInfo = new JsonObject();
     JsonObject requestBody = new JsonObject();
 
     String itemId = routingContext.queryParams().get(ID);
@@ -299,7 +387,48 @@ public final class CrudApis {
       JsonObject authRequest = new JsonObject().put(PROVIDER, providerId);
       authenticationInfo.put(HEADER_TOKEN, request.getHeader(HEADER_TOKEN)).put(OPERATION,
           REQUEST_DELETE);
-      
+
+      // populating JWT authentication info ->
+      jwtAuthenticationInfo
+              .put(TOKEN, request.getHeader(HEADER_TOKEN))
+                      .put(METHOD,request.method().toString())
+                              .put(API_ENDPOINT,request.toString())
+                                      .put(ID,providerId);
+
+      /* JWT implementation of tokenInterospect */
+      authService.tokenInterospect(new JsonObject(), jwtAuthenticationInfo, authHandler -> {
+        if(authHandler.failed()) {
+          LOGGER.error("Error: "+authHandler.cause().getMessage());
+          response.setStatusCode(401)
+                  .end(new ResponseHandler.Builder()
+                          .withStatus(FAILED)
+                          .withResults(requestBody.getString(ID),
+                                  routingContext.request().method().toString(), ERROR,
+                                  authHandler.cause().getMessage())
+                          .build()
+                          .toJsonString());
+        } else {
+          LOGGER.debug("Success: JWT Auth successful");
+
+          /* Requesting database service, deleting a item */
+          dbService.deleteItem(requestBody, dbHandler -> {
+            if (dbHandler.succeeded()) {
+              LOGGER.info("Success: Item deleted;");
+              if (dbHandler.result().getString(STATUS).equals(SUCCESS)) {
+                response.setStatusCode(200).end(dbHandler.result().toString());
+                // TODO: call auditing service here
+              } else if (dbHandler.result().getString(STATUS).equals(ERROR)) {
+                response.setStatusCode(404)
+                        .end(dbHandler.result().toString());
+              }
+            } else if (dbHandler.failed()) {
+              response.setStatusCode(400)
+                      .end(dbHandler.cause().getMessage());
+            }
+          });
+        }
+      });
+
       /* Authenticating the request */
       authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
         if (authhandler.result().getString(STATUS).equals(SUCCESS)) {

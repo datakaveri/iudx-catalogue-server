@@ -3,6 +3,7 @@ package iudx.catalogue.server.authenticator;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
+import io.vertx.ext.auth.jwt.JWTAuth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
@@ -34,6 +35,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
   private AuthenticationService authentication;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
+  private JWTAuth jwtAuth;
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
    * service with the Event bus against an address, publishes the service with the service discovery
@@ -46,8 +48,11 @@ public class AuthenticationVerticle extends AbstractVerticle {
   public void start() throws Exception {
     binder = new ServiceBinder(vertx);
     String authHost = config().getString(AUTH_SERVER_HOST);
-    authentication = new AuthenticationServiceImpl(createWebClient(vertx, config()), authHost);
-
+    if(config().getString("authType").equals("jwt")) {
+      authentication = new JwtAuthenticationServiceImpl(vertx, jwtAuth, config());
+    } else {
+      authentication = new AuthenticationServiceImpl(createWebClient(vertx, config()), authHost);
+    }
 
     consumer = binder.setAddress(AUTH_SERVICE_ADDRESS)
       .register(AuthenticationService.class, authentication);
