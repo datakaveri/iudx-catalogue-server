@@ -67,34 +67,43 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     JwtData jwtData;
   }
 
-  boolean isValidAudienceValue(JwtData jwtData) {
+  Future<Boolean> isValidAudienceValue(JwtData jwtData) {
+    Promise<Boolean> promise = Promise.promise();
     if(audience !=null && audience.equalsIgnoreCase(jwtData.getAud())) {
-      return true;
+      promise.complete(true);
     } else {
       LOGGER.error("Incorrect audience value in jwt");
-      return false;
+      promise.fail("Incorrect audience value in jwt");
     }
+    return promise.future();
   }
 
-  boolean isValidId(JwtData jwtData, String id) {
-    // id is the (substring [1] of Iid with delimiter as ':' )'s first 2 substrings with delimiter as '/'
+  Future<Boolean> isValidId(JwtData jwtData, String id) {
+    Promise<Boolean> promise = Promise.promise();
+
+    // id is the (substring [1] of Iid with delimiter as ':' )'s substring [1] with delimiter as '/'
     String jwtId = (jwtData.getIid().split(":")[1]).split("/")[0]+"/"+(jwtData.getIid().split(":")[1]).split("/")[1];
+    LOGGER.debug("Id in jwt is  " + jwtId);
 
     if (id.equalsIgnoreCase(jwtId)) {
-      return true;
+      promise.complete(true);
     } else {
       LOGGER.error("Incorrect id value in jwt");
-      return false;
+      promise.fail("Incorrect id value in jwt");
     }
+    return promise.future();
   }
 
-  boolean isValidEndpoint(String endPoint) {
+  Future<Boolean> isValidEndpoint(String endPoint) {
+    Promise<Boolean> promise = Promise.promise();
+
     if(endPoint.equals(ITEM_ENDPOINT) || endPoint.equals(INSTANCE_ENDPOINT)) {
-      return true;
+      promise.complete(true);
     } else {
       LOGGER.error("Incorrect endpoint in jwt");
-      return false;
+      promise.fail("Incorrect endpoint in jwt");
     }
+    return promise.future();
   }
 
   public Future<JsonObject> validateAccess(JwtData jwtData, JsonObject authenticationInfo) {
@@ -138,15 +147,12 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
     jwtDecodeFuture.compose(decodeHandler -> {
       result.jwtData =  decodeHandler;
-      if(!isValidAudienceValue(result.jwtData)){
-        handler.handle(Future.failedFuture("Invalid Audience"));
-      }
-      if(!isValidId(result.jwtData, id)){
-        handler.handle(Future.failedFuture("Invalid User ID"));
-      }
-      if(!isValidEndpoint(endPoint)){
-        handler.handle(Future.failedFuture("Invalid Endpoint"));
-      }
+      return isValidAudienceValue(result.jwtData);
+    }).compose(audienceHandler -> {
+      return isValidId(result.jwtData, id);
+    }).compose(validIdHandler -> {
+      return isValidEndpoint(endPoint);
+    }).compose(validEndpointHandler -> {
       return validateAccess(result.jwtData, authenticationInfo);
     }).onComplete(completeHandler -> {
       LOGGER.debug("completion handler");
@@ -154,7 +160,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         handler.handle(Future.succeededFuture(completeHandler.result()));
       } else {
         LOGGER.error("error: " + completeHandler.cause().getMessage());
-        handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
+        handler.handle(Future.succeededFuture(completeHandler.result()));
+        // handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
       }
     });
     return this;

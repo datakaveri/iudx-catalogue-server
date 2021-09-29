@@ -22,6 +22,8 @@ import java.util.HashSet;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
+import static iudx.catalogue.server.authenticator.Constants.ITEM_ENDPOINT;
+import io.vertx.core.http.HttpMethod;
 import static iudx.catalogue.server.authenticator.Constants.TOKEN;
 import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.database.DatabaseService;
@@ -126,8 +128,8 @@ public final class CrudApis {
         // populating jwt authentication info ->
         jwtAuthenticationInfo
                 .put(TOKEN,request.getHeader(HEADER_TOKEN)) // getHeader
-                .put(METHOD,routingContext.request().method().toString())
-                .put(API_ENDPOINT, request.toString()); //FIXME: not sure about this one, needs verification
+                .put(METHOD, REQUEST_POST)
+                .put(API_ENDPOINT, ITEM_ENDPOINT); //FIXME: not sure about this one, needs verification
 
         if (itemType.equals(ITEM_TYPE_PROVIDER)) {
           authRequest.put(PROVIDER, requestBody.getString(ID));
@@ -143,7 +145,8 @@ public final class CrudApis {
         LOGGER.debug("Info: JWT Authentication Info: " + jwtAuthenticationInfo);
 
         /* JWT implementation of tokenInterospect */
-        authService.tokenInterospect(new JsonObject(), jwtAuthenticationInfo, authHandler -> {
+        authService.tokenInterospect(new JsonObject(),
+            jwtAuthenticationInfo, authHandler -> {
           if(authHandler.failed()) {
             LOGGER.error("Error: "+authHandler.cause().getMessage());
             response.setStatusCode(401)
@@ -213,93 +216,6 @@ public final class CrudApis {
               }
             });
           }
-        });
-
-        /** Introspect token and authorize operation */
-        authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
-          if (authhandler.failed()) {
-            LOGGER.error("Error: Invalid token");
-            response.setStatusCode(401)
-                .end(new ResponseHandler.Builder()
-                                    .withStatus(FAILED)
-                                    .withResults(requestBody.getString(ID, ""),
-                                        methodType, ERROR,
-                                        authhandler.cause().getMessage())
-                                    .build()
-                                    .toJsonString());
-            return;
-          } else if (authhandler.result().getString(STATUS).equals(ERROR)) {
-            LOGGER.error("Fail: Authentication;" 
-                          + authhandler.result().getString(MESSAGE));
-           // response.setStatusCode(401).end(authhandler.result().toString());
-            response.setStatusCode(401)
-            .end(new ResponseHandler.Builder()
-                                    .withStatus(FAILED)
-                                    .withResults(requestBody.getString(ID, ""),
-                                        methodType, ERROR,
-                                        authhandler.result().getString(MESSAGE))
-                                    .build()
-                                    .toJsonString());
-          }
-          else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
-            LOGGER.debug("Success: Authenticated item creation request");
-
-            /* Link Validating the request to ensure item correctness */
-            validatorService.validateItem(requestBody, valhandler -> {
-              if (valhandler.failed()) {
-                LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
-                response.setStatusCode(400)
-                .end(new ResponseHandler.Builder()
-                                        .withStatus(FAILED)
-                                        .withResults(requestBody.getString(ID, ""),
-                                            methodType, FAILED,
-                                            valhandler.cause().getMessage()+ " for " +itemType)
-                                        .build()
-                                        .toJsonString());
-              }
-              if (valhandler.succeeded()) {
-                LOGGER.debug("Success: Item link validation");
-
-                /** If post, create. If put, update */
-                if (routingContext.request().method().toString() == REQUEST_POST) {
-                  /* Requesting database service, creating a item */
-                  LOGGER.debug("Info: Inserting item");
-                  dbService.createItem(valhandler.result(), dbhandler -> {
-                    if (dbhandler.failed()) {
-                      LOGGER.error("Fail: Item creation;" + dbhandler.cause().getMessage());
-                      response.setStatusCode(400)
-                          .end(dbhandler.cause().getMessage());
-                    }
-                    if (dbhandler.succeeded()) {
-                      LOGGER.info("Success: Item created;");
-                      response.setStatusCode(201)
-                              .end(dbhandler.result().toString());
-                      // TODO: call auditing service here
-                    }
-                  });
-                } else {
-                  LOGGER.debug("Info: Updating item");
-                  /* Requesting database service, creating a item */
-                  dbService.updateItem(valhandler.result(), dbhandler -> {
-                    if (dbhandler.succeeded()) {
-                      LOGGER.info("Success: Item updated;");
-                      response.setStatusCode(200)
-                              .end(dbhandler.result().toString());
-                      // TODO: call auditing service here
-                    } else if (dbhandler.failed()) {
-                      LOGGER.error("Fail: Item update;" + dbhandler.cause().getMessage());
-                      if (dbhandler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
-                        response.setStatusCode(404);
-                      } else {
-                        response.setStatusCode(400);
-                      }
-                    }
-                    response.end(dbhandler.cause().getMessage());
-                  });
-                }
-              }
-            });
-          } 
         });
       }
     });

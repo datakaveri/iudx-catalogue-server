@@ -12,6 +12,9 @@ import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.serviceproxy.ServiceBinder;
 
+import io.vertx.ext.auth.jwt.JWTAuthOptions;
+import io.vertx.ext.auth.PubSecKeyOptions;
+
 
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
@@ -35,7 +38,6 @@ public class AuthenticationVerticle extends AbstractVerticle {
   private AuthenticationService authentication;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
-  private JWTAuth jwtAuth;
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
    * service with the Event bus against an address, publishes the service with the service discovery
@@ -49,8 +51,26 @@ public class AuthenticationVerticle extends AbstractVerticle {
     binder = new ServiceBinder(vertx);
     String authHost = config().getString(AUTH_SERVER_HOST);
     if(config().getString("authType").equals("jwt")) {
+      LOGGER.debug("Info: Auth type set to JWT Auth");
+
+
+    JWTAuthOptions jwtAuthOptions = new JWTAuthOptions();
+    jwtAuthOptions.addPubSecKey(
+        new PubSecKeyOptions()
+            .setAlgorithm("ES256")
+            .setBuffer("-----BEGIN PUBLIC KEY-----\n" +
+                "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8BKf2HZ3wt6wNf30SIsbyjYPkkTS\n" +
+                "GGyyM2/MGF/zYTZV9Z28hHwvZgSfnbsrF36BBKnWszlOYW0AieyAUKaKdg==\n" +
+                "-----END PUBLIC KEY-----\n" +
+                ""));
+    
+    jwtAuthOptions.getJWTOptions().setIgnoreExpiration(true);
+    JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
+
+
       authentication = new JwtAuthenticationServiceImpl(vertx, jwtAuth, config());
     } else {
+      LOGGER.debug("Info: Auth type set to Cert Auth");
       authentication = new AuthenticationServiceImpl(createWebClient(vertx, config()), authHost);
     }
 
