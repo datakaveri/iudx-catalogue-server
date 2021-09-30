@@ -35,7 +35,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
 
 
   private static final Logger LOGGER = LogManager.getLogger(AuthenticationVerticle.class);
-  private AuthenticationService authentication;
+  private AuthenticationService jwtAuthenticationService;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
   /**
@@ -49,9 +49,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
     binder = new ServiceBinder(vertx);
-    String authHost = config().getString(AUTH_SERVER_HOST);
-    if(config().getString("authType").equals("jwt")) {
-      LOGGER.debug("Info: Auth type set to JWT Auth");
+    LOGGER.debug("Info: Auth type set to JWT Auth");
 
 
     JWTAuthOptions jwtAuthOptions = new JWTAuthOptions();
@@ -67,15 +65,10 @@ public class AuthenticationVerticle extends AbstractVerticle {
     jwtAuthOptions.getJWTOptions().setIgnoreExpiration(true);
     JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
 
-
-      authentication = new JwtAuthenticationServiceImpl(vertx, jwtAuth, config());
-    } else {
-      LOGGER.debug("Info: Auth type set to Cert Auth");
-      authentication = new AuthenticationServiceImpl(createWebClient(vertx, config()), authHost);
-    }
+    jwtAuthenticationService = new JwtAuthenticationServiceImpl(vertx, jwtAuth, config());
 
     consumer = binder.setAddress(AUTH_SERVICE_ADDRESS)
-      .register(AuthenticationService.class, authentication);
+      .register(AuthenticationService.class, jwtAuthenticationService);
   }
 
   static WebClient createWebClient(Vertx vertx, JsonObject config) {

@@ -79,9 +79,7 @@ public final class CrudApis {
     JsonObject requestBody = routingContext.getBodyAsJson();
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
-    JsonObject authenticationInfo = new JsonObject();
     JsonObject jwtAuthenticationInfo = new JsonObject();
-    JsonObject authRequest = new JsonObject();
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
@@ -122,26 +120,19 @@ public final class CrudApis {
       }
       if (schValHandler.succeeded()) {
         LOGGER.debug("Success: Schema validation");
-        authenticationInfo.put(HEADER_TOKEN,
-                                request.getHeader(HEADER_TOKEN))
-                                .put(OPERATION, routingContext.request().method().toString());
+
         // populating jwt authentication info ->
         jwtAuthenticationInfo
-                .put(TOKEN,request.getHeader(HEADER_TOKEN)) // getHeader
+                .put(TOKEN,request.getHeader(HEADER_TOKEN))
                 .put(METHOD, REQUEST_POST)
-                .put(API_ENDPOINT, ITEM_ENDPOINT); //FIXME: not sure about this one, needs verification
+                .put(API_ENDPOINT, ITEM_ENDPOINT);
 
         if (itemType.equals(ITEM_TYPE_PROVIDER)) {
-          authRequest.put(PROVIDER, requestBody.getString(ID));
-          // JWT Auth specific ->
           jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
         } else {
-          authRequest.put(PROVIDER, requestBody.getString(PROVIDER));
-          // JWT Auth specific ->
           jwtAuthenticationInfo.put(ID, requestBody.getString(PROVIDER));
         }
 
-        LOGGER.debug("Info: AuthRequest;" + authRequest.toString());
         LOGGER.debug("Info: JWT Authentication Info: " + jwtAuthenticationInfo);
 
         /* JWT implementation of tokenInterospect */
@@ -287,7 +278,6 @@ public final class CrudApis {
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     /* JsonObject of authentication related information */
-    JsonObject authenticationInfo = new JsonObject();
     JsonObject jwtAuthenticationInfo = new JsonObject();
     JsonObject requestBody = new JsonObject();
 
@@ -300,16 +290,12 @@ public final class CrudApis {
       String providerId = String.join("/", Arrays.copyOfRange(itemId.split("/"), 0, 2));
       LOGGER.debug("Info: Provider ID is  " + providerId);
 
-      JsonObject authRequest = new JsonObject().put(PROVIDER, providerId);
-      authenticationInfo.put(HEADER_TOKEN, request.getHeader(HEADER_TOKEN)).put(OPERATION,
-          REQUEST_DELETE);
-
       // populating JWT authentication info ->
       jwtAuthenticationInfo
-              .put(TOKEN, request.getHeader(HEADER_TOKEN))
-                      .put(METHOD,request.method().toString())
-                              .put(API_ENDPOINT,request.toString())
-                                      .put(ID,providerId);
+              .put(TOKEN,request.getHeader(HEADER_TOKEN))
+              .put(METHOD, REQUEST_POST)
+              .put(API_ENDPOINT, ITEM_ENDPOINT)
+              .put(ID,providerId);
 
       /* JWT implementation of tokenInterospect */
       authService.tokenInterospect(new JsonObject(), jwtAuthenticationInfo, authHandler -> {
@@ -342,36 +328,6 @@ public final class CrudApis {
                       .end(dbHandler.cause().getMessage());
             }
           });
-        }
-      });
-
-      /* Authenticating the request */
-      authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
-        if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
-          LOGGER.debug("Success: Authenticated item deletion request");
-          /* Requesting database service, creating a item */
-          dbService.deleteItem(requestBody, dbhandler -> {
-            if (dbhandler.succeeded()) {
-              LOGGER.info("Success: Item deleted;");
-              if (dbhandler.result().getString(STATUS).equals(SUCCESS)) {
-                response.setStatusCode(200).end(dbhandler.result().toString());
-                // TODO: call auditing service here
-              } else if (dbhandler.result().getString(STATUS).equals(ERROR)) {
-                response.setStatusCode(404)
-                        .end(dbhandler.result().toString());
-              }
-            } else if (dbhandler.failed()) {
-              response.setStatusCode(400)
-                      .end(dbhandler.cause().getMessage());
-            }
-          });
-        } else {
-          LOGGER.error("Fail: Unathorized request" + authhandler.result());
-          response.setStatusCode(401)
-              .end(new ResponseHandler.Builder().withStatus(FAILED)
-                  .withResults(itemId, DELETE, ERROR, authhandler.result().getString(MESSAGE))
-                  .build()
-                  .toJsonString());
         }
       });
     } else {

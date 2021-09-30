@@ -160,7 +160,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         handler.handle(Future.succeededFuture(completeHandler.result()));
       } else {
         LOGGER.error("error: " + completeHandler.cause().getMessage());
-        handler.handle(Future.succeededFuture(completeHandler.result()));
+        handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
         // handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
       }
     });
