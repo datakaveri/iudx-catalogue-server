@@ -19,6 +19,7 @@ import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
+import iudx.catalogue.server.auditing.AuditingService;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
@@ -133,8 +134,12 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     NLPSearchService nlpsearchService 
       = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
-    
+
     searchApis.setService(dbService, geoService, nlpsearchService);
+
+    AuditingService auditingService
+      = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
+    crudApis.setAuditingService(auditingService);
 
     ExceptionHandler exceptionhandler = new ExceptionHandler();
 

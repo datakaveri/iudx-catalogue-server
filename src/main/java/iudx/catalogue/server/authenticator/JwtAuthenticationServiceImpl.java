@@ -20,6 +20,9 @@ import iudx.catalogue.server.authenticator.authorization.JwtAuthorization;
 import iudx.catalogue.server.authenticator.authorization.Method;
 import iudx.catalogue.server.authenticator.model.JwtData;
 
+import static iudx.catalogue.server.auditing.util.Constants.USER_ROLE;
+import static iudx.catalogue.server.auditing.util.Constants.USER_ID;
+import static iudx.catalogue.server.auditing.util.Constants.IID;
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.util.Constants.ID;
 
@@ -69,6 +72,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
   Future<Boolean> isValidAudienceValue(JwtData jwtData) {
     Promise<Boolean> promise = Promise.promise();
+
+    LOGGER.debug("Audience in jwt is: "+jwtData.getAud());
     if(audience !=null && audience.equalsIgnoreCase(jwtData.getAud())) {
       promise.complete(true);
     } else {
@@ -97,6 +102,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   Future<Boolean> isValidEndpoint(String endPoint) {
     Promise<Boolean> promise = Promise.promise();
 
+    LOGGER.debug("Endpoint in JWt is :" + endPoint);
     if(endPoint.equals(ITEM_ENDPOINT) || endPoint.equals(INSTANCE_ENDPOINT)) {
       promise.complete(true);
     } else {
@@ -123,7 +129,12 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
     if(jwtAuthStrategy.isAuthorized(authRequest, jwtData)) {
       LOGGER.info("User access is allowed");
-      JsonObject response = new JsonObject().put(JSON_USERID, jwtData.getSub());
+      JsonObject response = new JsonObject();
+      // adding user id, user role and iid to response for auditing purpose
+      response
+              .put(USER_ROLE, jwtData.getRole())
+              .put(USER_ID, jwtData.getSub())
+              .put(IID, (jwtData.getIid().split(":")[1]).split("/")[0]+"/"+(jwtData.getIid().split(":")[1]).split("/")[1]);
       promise.complete(response);
     } else {
       LOGGER.error("user access denied");

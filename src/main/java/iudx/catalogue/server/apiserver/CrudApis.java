@@ -5,6 +5,9 @@
 
 package iudx.catalogue.server.apiserver;
 
+import iudx.catalogue.server.auditing.AuditingService;
+import iudx.catalogue.server.auditing.AuditingServiceImpl;
+import iudx.catalogue.server.authenticator.model.JwtData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,6 +24,9 @@ import java.util.regex.Pattern;
 import java.util.HashSet;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.auditing.util.Constants.IUDX_ID;
+import static iudx.catalogue.server.auditing.util.Constants.API;
+//import static iudx.catalogue.server.auditing.util.Constants.METHOD;
 import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
 import static iudx.catalogue.server.authenticator.Constants.ITEM_ENDPOINT;
 import io.vertx.core.http.HttpMethod;
@@ -38,8 +44,9 @@ public final class CrudApis {
   private DatabaseService dbService;
   private AuthenticationService authService;
   private ValidatorService validatorService;
-
+  private AuditingService auditingService;
   private static final Logger LOGGER = LogManager.getLogger(CrudApis.class);
+  private boolean hasAuditService = false;
 
 
   /**
@@ -62,6 +69,11 @@ public final class CrudApis {
 
   public void setValidatorService(ValidatorService validatorService) {
     this.validatorService = validatorService;
+  }
+
+  public void setAuditingService(AuditingService auditingService) {
+    this.auditingService = auditingService;
+    hasAuditService = true;
   }
 
   /**
@@ -150,7 +162,6 @@ public final class CrudApis {
                             .toJsonString());
           } else {
             LOGGER.debug("Success: JWT Auth successful");
-
             /* Link Validating the request to ensure item correctness */
             validatorService.validateItem(requestBody, valhandler -> {
               if (valhandler.failed()) {
@@ -181,7 +192,9 @@ public final class CrudApis {
                       LOGGER.info("Success: Item created;");
                       response.setStatusCode(201)
                               .end(dbhandler.result().toString());
-                      // TODO: call auditing service here
+                      if(hasAuditService) {
+                        updateAuditTable(authHandler.result(), new String[]{valhandler.result().getString(ID), ITEM_ENDPOINT, REQUEST_POST});
+                      }
                     }
                   });
                 } else {
@@ -192,7 +205,9 @@ public final class CrudApis {
                       LOGGER.info("Success: Item updated;");
                       response.setStatusCode(200)
                               .end(dbhandler.result().toString());
-                      // TODO: call auditing service here
+                      if(hasAuditService) {
+                        updateAuditTable(authHandler.result(), new String[]{valhandler.result().getString(ID), ITEM_ENDPOINT, REQUEST_PUT});
+                      }
                     } else if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item update;" + dbhandler.cause().getMessage());
                       if (dbhandler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
@@ -318,7 +333,9 @@ public final class CrudApis {
               LOGGER.info("Success: Item deleted;");
               if (dbHandler.result().getString(STATUS).equals(SUCCESS)) {
                 response.setStatusCode(200).end(dbHandler.result().toString());
-                // TODO: call auditing service here
+                if(hasAuditService) {
+                  updateAuditTable(authHandler.result(), new String[]{itemId, ITEM_ENDPOINT, REQUEST_DELETE});
+                }
               } else if (dbHandler.result().getString(STATUS).equals(ERROR)) {
                 response.setStatusCode(404)
                         .end(dbHandler.result().toString());
@@ -486,5 +503,28 @@ public final class CrudApis {
     boolean flag = pattern.matcher(itemId).find();
 
     return flag;
+  }
+
+  /**
+   * function to handle call to audit service
+   *
+   * @param jwtDecodedInfo contains the user-role, user-id, iid
+   * @param otherInfo contains item-id, api-endpoint and the HTTP method.
+   */
+  private void updateAuditTable(JsonObject jwtDecodedInfo, String[] otherInfo) {
+    LOGGER.info("Updating audit table on successful transaction");
+    JsonObject auditInfo = jwtDecodedInfo;
+    auditInfo
+            .put(IUDX_ID,otherInfo[0])
+            .put(API,otherInfo[1])
+            .put("httpMethod",otherInfo[2]);
+    LOGGER.debug("audit data: "+auditInfo.encodePrettily());
+    auditingService.executeWriteQuery(auditInfo, auditHandler -> {
+      if(auditHandler.succeeded()) {
+        LOGGER.info("audit table updated");
+      } else {
+        LOGGER.error("failed to update audit table");
+      }
+    });
   }
 }
