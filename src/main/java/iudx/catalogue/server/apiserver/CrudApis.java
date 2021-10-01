@@ -215,8 +215,8 @@ public final class CrudApis {
                       } else {
                         response.setStatusCode(400);
                       }
+                      response.end(dbhandler.cause().getMessage());
                     }
-                    response.end(dbhandler.cause().getMessage());
                   });
                 }
               }
