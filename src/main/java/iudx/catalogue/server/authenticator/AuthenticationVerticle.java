@@ -7,9 +7,6 @@ import io.vertx.ext.auth.jwt.JWTAuth;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.net.JksOptions;
-import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.serviceproxy.ServiceBinder;
 
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
@@ -69,31 +66,6 @@ public class AuthenticationVerticle extends AbstractVerticle {
 
     consumer = binder.setAddress(AUTH_SERVICE_ADDRESS)
       .register(AuthenticationService.class, jwtAuthenticationService);
-  }
-
-  static WebClient createWebClient(Vertx vertx, JsonObject config) {
-    return createWebClient(vertx, config, false);
-  }
-
-  /**
-   * Helper function to create a WebClient to talk to the auth server. Uses the keystore to get the client certificate
-   * required to call Auth APIs (has to be class 1). Since it's a pure function, it can be used as a helper in testing
-   * initializations also.
-   * @param vertx the vertx instance
-   * @param properties the properties field of the verticle
-   * @param testing a bool which is used to disable client side ssl checks for testing purposes
-   * @return a web client initialized with the relevant client certificate
-   */
-  static WebClient createWebClient(Vertx vertx, JsonObject config, boolean testing) {
-    /* Initialize properties from the config file */
-    WebClientOptions webClientOptions = new WebClientOptions();
-    if (testing) webClientOptions.setTrustAll(true).setVerifyHost(false);
-    webClientOptions
-            .setSsl(true)
-            .setKeyStoreOptions(new JksOptions()
-                    .setPath(config.getString((KEYSTORE_PATH)))
-                    .setPassword(config.getString(KEYSTORE_PASSWORD)));
-    return WebClient.create(vertx, webClientOptions);
   }
 
   @Override

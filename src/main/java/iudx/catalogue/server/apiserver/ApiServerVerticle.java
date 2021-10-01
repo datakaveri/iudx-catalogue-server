@@ -56,8 +56,6 @@ public class ApiServerVerticle extends AbstractVerticle {
   private Router router;
 
   private String catAdmin;
-  private String keystore;
-  private String keystorePassword;
   private boolean isSsl;
   private int port;
 
@@ -76,14 +74,13 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Configure */
     catAdmin = config().getString(CAT_ADMIN);
-    keystore = config().getString(KEYSTORE_PATH);
-    keystorePassword = config().getString(KEYSTORE_PASSWORD);
     isSsl = config().getBoolean(IS_SSL);
     port = config().getInteger(PORT);
 
 
     HttpServerOptions serverOptions = new HttpServerOptions();
 
+    /*
     if (isSsl) {
       serverOptions.setSsl(true)
                     .setKeyStoreOptions(new JksOptions()
@@ -92,6 +89,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     } else {
       serverOptions.setSsl(false);
     }
+    */
+    serverOptions.setSsl(false);
     serverOptions.setCompressionSupported(true).setCompressionLevel(5);
     /** Instantiate this server */
     server = vertx.createHttpServer(serverOptions);
