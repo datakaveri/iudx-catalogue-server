@@ -39,7 +39,6 @@ public class Constants {
   public static final String RESOURCE_GRP = "resourceGroup";
   public static final String RESOURCE_SVR = "resourceServer";
   public static final String PROVIDER = "provider";
-  public static final String TYPE = "type";
 
   /** Item types */
   public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
@@ -58,7 +57,6 @@ public class Constants {
   public static final String ID = "id";
   public static final String ITEM_TYPE = "itemType";
 
-  public static final String SUCCESS = "success";
   public static final String PROPERTY = "property";
   public static final String VALUE = "value";
 
@@ -94,13 +92,16 @@ public class Constants {
   public static final String SEARCH_TYPE_TAGS = "tagsSearch_";
   public static final String RESPONSE_FILTER = "responseFilter_";
 
-  public static final String MESSAGE = "description";
+  public static final String MESSAGE = "detail";
   public static final String RESULTS = "results";
   public static final String METHOD = "method";
-  public static final String STATUS = "status";
+  public static final String STATUS = "title";
+  public static final String TITLE = "title";
+  public static final String TYPE = "type";
+  public static final String DETAIL = "detail";
   public static final String FAILED = "failed";
   public static final String ERROR = "error";
-  public static final String DESC = "description";
+  public static final String DESC = "detail";
 
   /** DB Query */
   public static final String TOTAL_HITS = "totalHits";
@@ -119,7 +120,6 @@ public class Constants {
   public static final String REQUEST_DELETE = "DELETE";
 
   /** Error Messages */
-  public static final String INTERNAL_SERVER_ERROR = "Internal Server Error";
   public static final String DATABASE_ERROR = "DB Error. Check logs for more information";
 
   /** Operation type */
@@ -141,4 +141,70 @@ public class Constants {
   public static final int MAX_RESULT_WINDOW = 10000;
   public static final int MAXDISTANCE_LIMIT = 10000; // 10KM
   public static final int SERVICE_TIMEOUT = 3000;
+
+
+  public static final String SUCCESS = "success";
+
+  /* URN Codes */
+  public static final String TYPE_WRONG_PROVIDER = "urn:dx:cat:WrongProvider";
+  public static final String TYPE_WRONG_RESOURCESERVER = "urn:dx:cat:WrongResourceServer";
+  public static final String TYPE_WRONG_RESOURCEGROUP = "urn:dx:cat:WrongResourceGroup";
+  public static final String TYPE_INVALID_SCHEMA = "urn:dx:cat:InvalidSchema";
+  public static final String TYPE_ID_NONEXISTANT = "urn:dx:cat:IdNonExistant";
+  public static final String TYPE_ALREADY_EXISTS = "urn:dx:cat:AlreadyExists";
+  public static final String TYPE_SUCCESS = "urn:dx:cat:Success";
+  public static final String TYPE_FAIL = "urn:dx:cat:Fail";
+  public static final String TYPE_TOKEN_INVALID = "urn:dx:cat:InvalidAuthorizationToken";
+  public static final String TYPE_MISSING_TOKEN = "urn:dx:cat:MissingAuthorizationToken";
+  public static final String TYPE_ITEM_NOT_FOUND = "urn:dx:cat:ItemNotFound";
+  public static final String TYPE_INVALID_SYNTAX = "urn:dx:cat:InvalidSyntax";
+  public static final String TYPE_INTERNAL_SERVER_ERROR = "urn:dx:cat:InternalError";
+  public static final String TYPE_OPERATION_NOT_ALLOWED = "urn:dx:cat:OperationNotAllowed";
+  public static final String TYPE_LINK_VALIDATION_FAILED = "urn:dx:cat:LinkValidationFailed";
+
+  public static final String TITLE_WRONG_PROVIDER = "Wrong Provider";
+  public static final String TITLE_WRONG_RESOURCESERVER = "Wrong Resource Server";
+  public static final String TITLE_WRONG_RESOURCEGROUP = "Wrong Resource Group";
+  public static final String TITLE_INVALID_SCHEMA = "Invalid Schema";
+  public static final String TITLE_ID_NONEXISTANT = "ID doesn't exist";
+  public static final String TITLE_ALREADY_EXISTS = "Item already exists";
+  public static final String TITLE_SUCCESS = "Success";
+  public static final String TITLE_TOKEN_INVALID = "Token is invalid";
+  public static final String TITLE_MISSING_TOKEN = "Token is missing";
+  public static final String TITLE_ITEM_NOT_FOUND = "Item is not found";
+  public static final String TITLE_INVALID_SYNTAX = "Invalid Syntax";
+  public static final String TITLE_INTERNAL_SERVER_ERROR = "Internal error";
+  public static final String TITLE_OPERATION_NOT_ALLOWED = "Operation not allowed";
+  public static final String TITLE_LINK_VALIDATION_FAILED = "Link Validation Failed";
+
+
+  public static final String DETAIL_INTERNAL_SERVER_ERROR = "Internal error";
+
+
+  public static final String TYPE_INVALID_GEO_PARAM = "urn:dx:cat:InvalidGeoParam";
+  public static final String TITLE_INVALID_GEO_PARAM = "Geoquery parameter error";
+
+  public static final String TYPE_INVALID_GEO_VALUE = "urn:dx:cat:InvalidGeoValue";
+  public static final String TITLE_INVALID_GEO_VALUE = "Geoquery value error";
+
+
+  public static final String DETAIL_INVALID_COORDINATE_POLYGON = "Coordinate mismatch (Polygon)";
+  public static final String DETAIL_INVALID_BBOX = "Issue with bbox coordinates";
+  public static final String DETAIL_INVALID_GEO_PARAMETER = "Missing/Invalid geo parameters";
+  public static final String DETAIL_INVALID_RESPONSE_FILTER = "Missing/Invalid responseFilter parameters";
+
+
+  public static final String TYPE_INVALID_PROPERTY_PARAM = "urn:dx:cat:InvalidProperty";
+  public static final String TITLE_INVALID_PROPERTY_PARAM = "Invalid Property";
+  public static final String TYPE_INVALID_PROPERTY_VALUE = "urn:dx:cat:InvalidPropertyValue";
+  public static final String TITLE_INVALID_PROPERTY_VALUE = "Invalid Property Values";
+
+
+  public static final String TYPE_BAD_TEXT_QUERY = "urn:dx:cat:BadTextQuery";
+  public static final String TITLE_BAD_TEXT_QUERY = "Bad text query values";
+
+  public static final String TYPE_BAD_FILTER = "urn:dx:cat:BadFilter";
+  public static final String TITLE_BAD_FILTER = "Bad filters applied";
+
 }
+

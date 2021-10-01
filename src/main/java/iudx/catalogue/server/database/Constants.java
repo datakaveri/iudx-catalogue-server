@@ -5,7 +5,7 @@ public class Constants {
   /* General purpose */
   static final String SEARCH = "search";
   static final String COUNT = "count";
-  static final String DESCRIPTION = "description";
+  static final String DESCRIPTION = "detail";
   static final String HTTP = "http";
   static final String ATTRIBUTE = "attrs";
   static final String RESULT = "results";
@@ -40,12 +40,11 @@ public class Constants {
   /* Error */
   static final String DATABASE_BAD_QUERY = "Query Failed with status != 20x";
   static final String EMPTY_RESPONSE = "Empty response";
-  static final String ERROR_INVALID_COORDINATE_POLYGON = "Coordinate mismatch (Polygon)";
-  static final String ERROR_INVALID_GEO_PARAMETER = "Missing/Invalid geo parameters";
-  static final String ERROR_INVALID_RESPONSE_FILTER = "Missing/Invalid responseFilter parameters";
+
   static final String NO_SEARCH_TYPE_FOUND = "No searchType found";
   static final String COUNT_UNSUPPORTED = "Count is not supported with filtering";
   static final String INVALID_SEARCH = "Invalid search request";
+
   static final String ERROR_DB_REQUEST = "DB request has failed";
   public static final String ERROR_INVALID_PARAMETER = "Incorrect/missing query parameters";
   static final String DOC_EXISTS = "item already exists";

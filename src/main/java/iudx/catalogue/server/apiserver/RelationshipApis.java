@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 
 import io.vertx.core.MultiMap;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.http.HttpServerRequest;
@@ -97,23 +97,26 @@ public final class RelationshipApis {
         } else {
           LOGGER.error("Fail: Search; Invalid request query parameters");
           response.setStatusCode(400)
-                  .end(new ResponseHandler.Builder()
-                                          .withStatus(INVALID_SYNTAX)
-                                          .build().toJsonString());
+                  .end(new RespBuilder()
+                        .withType(TYPE_INVALID_SYNTAX)
+                        .withTitle(TITLE_INVALID_SYNTAX)
+                        .getResponse());
         }
       } else {
         LOGGER.error("Fail: Issue in query parameter");
         response.setStatusCode(400)
-                .end(new ResponseHandler.Builder()
-                                        .withStatus(INVALID_VALUE)
-                                        .build().toJsonString());
+                  .end(new RespBuilder()
+                        .withType(TYPE_INVALID_SYNTAX)
+                        .withTitle(TITLE_INVALID_SYNTAX)
+                        .getResponse());
       }
     } else {
       LOGGER.error("Fail: Issue in query parameter");
       response.setStatusCode(400)
-              .end(new ResponseHandler.Builder()
-                                      .withStatus(INVALID_SYNTAX)
-                                      .build().toJsonString());
+                  .end(new RespBuilder()
+                        .withType(TYPE_INVALID_SYNTAX)
+                        .withTitle(TITLE_INVALID_SYNTAX)
+                        .getResponse());
     }
   }
 
@@ -164,17 +167,19 @@ public final class RelationshipApis {
         LOGGER.error("Fail: Invalid request query parameters");
         response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                 .setStatusCode(400)
-                .end(new ResponseHandler.Builder()
-                                        .withStatus(INVALID_VALUE)
-                                        .build().toJsonString());
+                  .end(new RespBuilder()
+                        .withType(TYPE_INVALID_SYNTAX)
+                        .withTitle(TITLE_INVALID_SYNTAX)
+                        .getResponse());
       }
     } else {
       LOGGER.error("Fail: Invalid request query parameters");
       response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
               .setStatusCode(400)
-              .end(new ResponseHandler.Builder()
-                                      .withStatus(INVALID_SYNTAX)
-                                      .build().toJsonString());
+                  .end(new RespBuilder()
+                        .withType(TYPE_INVALID_SYNTAX)
+                        .withTitle(TITLE_INVALID_SYNTAX)
+                        .getResponse());
     }
   }
 }

@@ -156,7 +156,7 @@ public class QueryDecoderTest {
 
     JsonObject json = queryDecoder.searchQuery(requests);
 
-    assertEquals(ERROR_INVALID_GEO_PARAMETER, json.getString(ERROR));
+    assertEquals(DETAIL_INVALID_GEO_PARAMETER, json.getString(ERROR));
     testContext.completeNow();
   }
   

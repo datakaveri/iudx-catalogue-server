@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 
 /**
  * QueryMapper class to convert NGSILD query into json object for the purpose of debugrmation
@@ -188,7 +189,10 @@ public class QueryMapper {
             return errResponse.put(DESC, "The 'maxDistance' should range between 0-10000m");
           }
         } else {
-          return new ResponseHandler.Builder().withStatus(INVALID_SYNTAX).build().toJson();
+            return new RespBuilder()
+                  .withType(TYPE_INVALID_SYNTAX)
+                  .withTitle(TITLE_INVALID_SYNTAX)
+                  .getJsonResponse();
         }
       }
     }

@@ -222,7 +222,8 @@ public final class ElasticClient {
     }
 
     DBRespMsgBuilder statusSuccess() {
-      response.put(STATUS, SUCCESS);
+      response.put(TYPE, TYPE_SUCCESS);
+      response.put(TITLE, TITLE_SUCCESS);
       return this;
     }
 

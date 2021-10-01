@@ -151,7 +151,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       client.searchGetId(checkQuery.replace("$1", resourceGroup), checkRes -> {
         if (checkRes.failed()) {
           LOGGER.error("Fail: DB request has failed;" + checkRes.cause().getMessage());
-          handler.handle(Future.failedFuture(INTERNAL_SERVER_ERROR));
+          handler.handle(Future.failedFuture(TYPE_INTERNAL_SERVER_ERROR));
           return;
         }
 

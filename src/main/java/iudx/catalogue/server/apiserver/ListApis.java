@@ -18,7 +18,7 @@ import io.vertx.core.http.HttpServerResponse;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.database.DatabaseService;
 
 
@@ -121,9 +121,10 @@ public final class ListApis {
     } else {
       LOGGER.error("Fail: Search/Count; Invalid request query parameters");
       response.setStatusCode(400)
-              .end(new ResponseHandler.Builder()
-                                      .withStatus(INVALID_SYNTAX)
-                                      .build().toJsonString());
+              .end(new RespBuilder()
+                    .withType(TYPE_INVALID_SYNTAX)
+                    .withTitle(TITLE_INVALID_SYNTAX)
+                    .getResponse());
     }
   }
 }

@@ -34,11 +34,10 @@ public class ExceptionHandler implements Handler<RoutingContext> {
       routingContext.response()
                     .setStatusCode(400)
                     .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                    .end(new ResponseHandler
-                        .Builder()
-                        .withStatus(INVALID_SYNTAX)
-                        .build()
-                        .toJsonString());
+                    .end(new RespBuilder()
+                              .withType(TYPE_INVALID_SYNTAX)
+                              .withTitle(TITLE_INVALID_SYNTAX)
+                              .getResponse());
     }
   }
 
@@ -54,27 +53,30 @@ public class ExceptionHandler implements Handler<RoutingContext> {
     String response = "";
 
     if (routingContext.request().uri().startsWith(ROUTE_ITEMS)) {
-       response = new ResponseHandler.Builder()
-           .withStatus(FAILED)
-           .withResults(null,
-              routingContext.request().method().toString() == REQUEST_POST ? INSERT : UPDATE,
-              FAILED, "Invalid Json Format")
-           .build().toJsonString();
+       response = new RespBuilder()
+           .withType(TYPE_FAIL)
+           .withResult()
+           .getResponse();
     } else if (routingContext.request().uri().startsWith(ROUTE_SEARCH)) {
       response = new JsonObject().put(STATUS, FAILED)
                                  .put(DESC, "Invalid Json Format")
                                  .encode();
     } else {
-      response = new ResponseHandler.Builder()
-                                    .withStatus(INVALID_SYNTAX)
-                                    .build()
-                                    .toJsonString();
+      response = new RespBuilder()
+                            .withType(TYPE_INVALID_SYNTAX)
+                            .withTitle(TITLE_INVALID_SYNTAX)
+                            .getResponse();
     }
+
+  String INTERNAL_ERROR_RESP = new RespBuilder()
+                                          .withType(TYPE_INTERNAL_SERVER_ERROR)
+                                          .withTitle(TITLE_INTERNAL_SERVER_ERROR)
+                                          .getResponse();
     
     routingContext.response()
                   .setStatusCode(500)
                   .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                  .end(response);
+                  .end(INTERNAL_ERROR_RESP);
     
     routingContext.next();
 
@@ -95,8 +97,8 @@ public class ExceptionHandler implements Handler<RoutingContext> {
                   .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                   .end(
                       new JsonObject()
-                      .put(STATUS, FAILED)
-                      .put(DESC, "Invalid request fields")
+                      .put(TYPE, TYPE_FAIL)
+                      .put(TITLE, "Invalid payload")
                       .encode());
 
     routingContext.next();

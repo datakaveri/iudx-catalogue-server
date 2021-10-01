@@ -1070,7 +1070,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(SUCCESS, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_SUCCESS, serverResponse.result().bodyAsJsonObject().getString(TITLE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {

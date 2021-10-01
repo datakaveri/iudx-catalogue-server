@@ -24,7 +24,7 @@ import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 
 
@@ -105,14 +105,13 @@ public final class CrudApis {
     validatorService.validateSchema(requestBody, schValHandler -> {
       if (schValHandler.failed()) {
         // response.setStatusCode(400).end(schValHandler.cause().getMessage());
+
         response.setStatusCode(400)
-                .end(new ResponseHandler.Builder()
-                                        .withStatus(FAILED)
-                                        .withResults(requestBody.getString(ID, ""),
-                                            methodType, FAILED,
-                                            schValHandler.cause().getMessage())
-                                        .build()
-                                        .toJsonString());
+                .end(new RespBuilder()
+                          .withType(TYPE_INVALID_SCHEMA)
+                          .withTitle(TITLE_INVALID_SCHEMA)
+                          .withDetail(schValHandler.cause().getMessage())
+                          .withResult().getResponse());
         return;
       }
       if (schValHandler.succeeded()) {
@@ -133,26 +132,17 @@ public final class CrudApis {
           if (authhandler.failed()) {
             LOGGER.error("Error: Invalid token");
             response.setStatusCode(401)
-                .end(new ResponseHandler.Builder()
-                                    .withStatus(FAILED)
-                                    .withResults(requestBody.getString(ID, ""),
-                                        methodType, ERROR,
-                                        authhandler.cause().getMessage())
-                                    .build()
-                                    .toJsonString());
+              .end( new RespBuilder()
+                          .withType(TYPE_TOKEN_INVALID)
+                          .withTitle(TITLE_TOKEN_INVALID)
+                          .withDetail(authhandler.cause().getMessage()).getResponse());
             return;
           } else if (authhandler.result().getString(STATUS).equals(ERROR)) {
             LOGGER.error("Fail: Authentication;" 
                           + authhandler.result().getString(MESSAGE));
            // response.setStatusCode(401).end(authhandler.result().toString());
             response.setStatusCode(401)
-            .end(new ResponseHandler.Builder()
-                                    .withStatus(FAILED)
-                                    .withResults(requestBody.getString(ID, ""),
-                                        methodType, ERROR,
-                                        authhandler.result().getString(MESSAGE))
-                                    .build()
-                                    .toJsonString());
+            .end();
           }
           else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
             LOGGER.debug("Success: Authenticated item creation request");
@@ -162,13 +152,10 @@ public final class CrudApis {
               if (valhandler.failed()) {
                 LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
                 response.setStatusCode(400)
-                .end(new ResponseHandler.Builder()
-                                        .withStatus(FAILED)
-                                        .withResults(requestBody.getString(ID, ""),
-                                            methodType, FAILED,
-                                            valhandler.cause().getMessage()+ " for " +itemType)
-                                        .build()
-                                        .toJsonString());
+                .end(new RespBuilder()
+                            .withType(TYPE_LINK_VALIDATION_FAILED)
+                            .withTitle(TITLE_LINK_VALIDATION_FAILED)
+                            .getResponse());
               }
               if (valhandler.succeeded()) {
                 LOGGER.debug("Success: Item link validation");
@@ -260,11 +247,10 @@ public final class CrudApis {
     } else {
       LOGGER.error("Fail: Invalid request payload");
       response.setStatusCode(400)
-              .end(new ResponseHandler
-                  .Builder()
-                  .withStatus(INVALID_VALUE)
-                  .build()
-                  .toJsonString());
+              .end(new RespBuilder()
+                        .withType(TYPE_ID_NONEXISTANT)
+                        .withTitle(TITLE_ID_NONEXISTANT)
+                        .getResponse());
     }
   }
 
@@ -321,22 +307,22 @@ public final class CrudApis {
             }
           });
         } else {
-          LOGGER.error("Fail: Unathorized request" + authhandler.result());
+          LOGGER.error("Fail: Unauthorized request" + authhandler.result());
           response.setStatusCode(401)
-              .end(new ResponseHandler.Builder().withStatus(FAILED)
-                  .withResults(itemId, DELETE, ERROR, authhandler.result().getString(MESSAGE))
-                  .build()
-                  .toJsonString());
+              .end( new RespBuilder()
+                          .withType(TYPE_TOKEN_INVALID)
+                          .withTitle(TITLE_TOKEN_INVALID)
+                          .withDetail(authhandler.result().getString(MESSAGE))
+                          .getResponse());
         }
       });
     } else {
       LOGGER.error("Fail: Invalid request payload");
       response.setStatusCode(400)
-              .end(new ResponseHandler
-                  .Builder()
-                  .withStatus(INVALID_VALUE)
-                  .build()
-                  .toJsonString());
+              .end(new RespBuilder()
+                        .withType(TYPE_ID_NONEXISTANT)
+                        .withTitle(TITLE_ID_NONEXISTANT)
+                        .getResponse());
     }
   }
 
@@ -368,26 +354,22 @@ public final class CrudApis {
     authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
           response.setStatusCode(401)
-              .end(new ResponseHandler.Builder()
-                                  .withStatus(FAILED)
-                                  .withResults(instance, 
-                                      INSERT, ERROR,
-                                      authhandler.cause().getMessage())
-                                  .build()
-                                  .toJsonString());
+              .end( new RespBuilder()
+                          .withType(TYPE_TOKEN_INVALID)
+                          .withTitle(TITLE_TOKEN_INVALID)
+                          .withDetail(authhandler.result().getString(MESSAGE))
+                          .getResponse());
         return;
       }
       else if (authhandler.result().getString(STATUS).equals(ERROR)) {
         LOGGER.error("Fail: Authentication;" 
                       + authhandler.result().getString(MESSAGE));
         response.setStatusCode(401)
-          .end(new ResponseHandler.Builder()
-                            .withStatus(FAILED)
-                            .withResults(instance, 
-                                INSERT, ERROR,
-                                authhandler.result().getString(MESSAGE))
-                            .build()
-                            .toJsonString());
+            .end( new RespBuilder()
+                        .withType(TYPE_TOKEN_INVALID)
+                        .withTitle(TITLE_TOKEN_INVALID)
+                        .withDetail(authhandler.result().getString(MESSAGE))
+                        .getResponse());
       }
       else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
         /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */
@@ -436,26 +418,22 @@ public final class CrudApis {
     authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
         response.setStatusCode(401)
-            .end(new ResponseHandler.Builder()
-                            .withStatus(FAILED)
-                            .withResults(instance, 
-                                INSERT, ERROR,
-                                authhandler.cause().getMessage())
-                            .build()
-                            .toJsonString());
+            .end( new RespBuilder()
+                        .withType(TYPE_TOKEN_INVALID)
+                        .withTitle(TITLE_TOKEN_INVALID)
+                        .withDetail(authhandler.result().getString(MESSAGE))
+                        .getResponse());
         return;
       }
       else if (authhandler.result().getString(STATUS).equals(ERROR)) {
         LOGGER.error("Fail: Authentication;" 
                       + authhandler.result().getString(MESSAGE));
         response.setStatusCode(401)
-          .end(new ResponseHandler.Builder()
-                          .withStatus(FAILED)
-                          .withResults(instance, 
-                              INSERT, ERROR,
-                              authhandler.result().getString(MESSAGE))
-                          .build()
-                          .toJsonString());
+            .end( new RespBuilder()
+                        .withType(TYPE_TOKEN_INVALID)
+                        .withTitle(TITLE_TOKEN_INVALID)
+                        .withDetail(authhandler.result().getString(MESSAGE))
+                        .getResponse());
       }
       else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
         /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */

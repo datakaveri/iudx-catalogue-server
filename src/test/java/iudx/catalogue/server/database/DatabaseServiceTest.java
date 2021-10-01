@@ -344,7 +344,7 @@ public class DatabaseServiceTest {
 
     dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
       JsonObject res = new JsonObject(response.getMessage());
-      assertEquals(ERROR_INVALID_RESPONSE_FILTER, res.getString(DESCRIPTION));
+      assertEquals(DETAIL_INVALID_RESPONSE_FILTER, res.getString(DESCRIPTION));
       testContext.completeNow();
     })));
   }

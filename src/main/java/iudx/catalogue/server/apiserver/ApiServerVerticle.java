@@ -13,7 +13,7 @@ import io.vertx.core.json.DecodeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import iudx.catalogue.server.apiserver.util.ExceptionHandler;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;

@@ -14,7 +14,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 
 
 import iudx.catalogue.server.geocoding.GeocodingService;
@@ -84,9 +84,10 @@ public final class GeocodingApis {
         || request.getParam(GEOMETRY) == null) {
       LOGGER.error("Fail: Invalid Syntax");
       response.setStatusCode(400)
-        .end(new ResponseHandler.Builder()
-                                .withStatus(INVALID_SYNTAX)
-                                .build().toJsonString());
+        .end(new RespBuilder()
+                  .withType(TYPE_INVALID_SYNTAX)
+                  .withTitle(TITLE_INVALID_SYNTAX)
+                  .getResponse());
       return;
     }
 
