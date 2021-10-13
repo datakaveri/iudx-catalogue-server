@@ -69,7 +69,7 @@ public class ApiServerVerticlePreprareTest {
     JksOptions options = new JksOptions().setPath(keyStore).setPassword(keyStorePassword);
 
     WebClientOptions clientOptions = new WebClientOptions()
-                                            .setSsl(true)
+                                            .setSsl(false)
                                             .setVerifyHost(false)
                                             .setTrustAll(true)
                                             .setTrustStoreOptions(options);

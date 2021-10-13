@@ -55,7 +55,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"Pune Railway Station_28\"\r\n    }",
+									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"Pune Railway Station_28\"\r\n    }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -120,7 +120,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": " {\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"Pune Railway Station_28\"\r\n    }",
+									"raw": " {\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"Pune Railway Station_28\"\r\n    }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -179,7 +179,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource\",\r\n  \"tags\": [\r\n    \"environment\",\r\n    \" air quality\",\r\n    \" climate\",\r\n    \" air\",\r\n    \" aqi\",\r\n    \" aqm\",\r\n    \" climo\",\r\n    \" pollution\",\r\n    \" so2\",\r\n    \" co2\",\r\n    \" co\",\r\n    \" no\",\r\n    \" no2\",\r\n    \" pm2.5\",\r\n    \" pm10\",\r\n    \" humidity\",\r\n    \" temperature\",\r\n    \" ozone\",\r\n    \" o3\",\r\n    \" noise\",\r\n    \" light\",\r\n    \" uv\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  },\r\n  \"name\": \"Pune Railway Station_28\"\r\n}",
+									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource\",\r\n  \"tags\": [\r\n    \"environment\",\r\n    \" air quality\",\r\n    \" climate\",\r\n    \" air\",\r\n    \" aqi\",\r\n    \" aqm\",\r\n    \" climo\",\r\n    \" pollution\",\r\n    \" so2\",\r\n    \" co2\",\r\n    \" co\",\r\n    \" no\",\r\n    \" no2\",\r\n    \" pm2.5\",\r\n    \" pm10\",\r\n    \" humidity\",\r\n    \" temperature\",\r\n    \" ozone\",\r\n    \" o3\",\r\n    \" noise\",\r\n    \" light\",\r\n    \" uv\"\r\n  ],\r\n  \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  },\r\n  \"name\": \"Pune Railway Station_28\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -238,7 +238,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource\",\r\n  \"tags\": [\r\n    \"environment\",\r\n    \" air quality\",\r\n    \" climate\",\r\n    \" air\",\r\n    \" aqi\",\r\n    \" aqm\",\r\n    \" climo\",\r\n    \" pollution\",\r\n    \" so2\",\r\n    \" co2\",\r\n    \" co\",\r\n    \" no\",\r\n    \" no2\",\r\n    \" pm2.5\",\r\n    \" pm10\",\r\n    \" humidity\",\r\n    \" temperature\",\r\n    \" ozone\",\r\n    \" o3\",\r\n    \" noise\",\r\n    \" light\",\r\n    \" uv\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo2565\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  },\r\n  \"name\": \"Pune Railway Station_28\"\r\n}",
+									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource\",\r\n  \"tags\": [\r\n    \"environment\",\r\n    \" air quality\",\r\n    \" climate\",\r\n    \" air\",\r\n    \" aqi\",\r\n    \" aqm\",\r\n    \" climo\",\r\n    \" pollution\",\r\n    \" so2\",\r\n    \" co2\",\r\n    \" co\",\r\n    \" no\",\r\n    \" no2\",\r\n    \" pm2.5\",\r\n    \" pm10\",\r\n    \" humidity\",\r\n    \" temperature\",\r\n    \" ozone\",\r\n    \" o3\",\r\n    \" noise\",\r\n    \" light\",\r\n    \" uv\"\r\n  ],\r\n  \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo2565\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  },\r\n  \"name\": \"Pune Railway Station_28\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -303,7 +303,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"iudx.uttar.pradesh.vanarasi.org/f7e044eee8122b5c87dce6e7ad64f3266044eee8122b5c87dce6e7adafa41dc/vanarasi.resourceserver.iudx.io/aqm--pollution-aqm-pm-co2-bosch-climo/aqm_test_2aqm_test_2 environment  air quality  climate  air  aqi  aqm  climo  pollution  so2  co2  co  no  no2  pm2.5  pm10  humidity temperature  ozone  o3  noise  light  uv Description for Bosch-Climo AQM resource aqm_test_2aqm_test_2 environment  air quality  climate  air  aqi  aqm  climo  pollution  so2  co2  co  no  no2  pm2.5  pm10  humidity  temperature  ozone  o3  noise  light  uv Description for Bosch-Climo AQM resource\"\r\n    }",
+									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"iudx.uttar.pradesh.vanarasi.org/f7e044eee8122b5c87dce6e7ad64f3266044eee8122b5c87dce6e7adafa41dc/vanarasi.resourceserver.iudx.io/aqm--pollution-aqm-pm-co2-bosch-climo/aqm_test_2aqm_test_2 environment  air quality  climate  air  aqi  aqm  climo  pollution  so2  co2  co  no  no2  pm2.5  pm10  humidity temperature  ozone  o3  noise  light  uv Description for Bosch-Climo AQM resource aqm_test_2aqm_test_2 environment  air quality  climate  air  aqi  aqm  climo  pollution  so2  co2  co  no  no2  pm2.5  pm10  humidity  temperature  ozone  o3  noise  light  uv Description for Bosch-Climo AQM resource\"\r\n    }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -369,7 +369,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 28\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood.test\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
+									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 28\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood.test\"\r\n  ],\r\n  \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -428,7 +428,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 2\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
+									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 2\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood\"\r\n  ],\r\n  \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -488,7 +488,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 2\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
+									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 2\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood\"\r\n  ],\r\n  \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -548,7 +548,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 2\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo23456\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
+									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 2\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood\"\r\n  ],\r\n  \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo23456\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -619,7 +619,7 @@
 									}
 								],
 								"url": {
-									"raw": "https://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28",
+									"raw": "https://{{host}}{{base}}/item?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -630,7 +630,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28"
 										}
 									]
 								}
@@ -679,7 +679,7 @@
 									}
 								],
 								"url": {
-									"raw": "https://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Bus Station_123",
+									"raw": "https://{{host}}{{base}}/item?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Bus Station_123",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -690,7 +690,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Bus Station_123"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Bus Station_123"
 										}
 									]
 								}
@@ -736,7 +736,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35",
+									"raw": "https://{{host}}{{base}}/item?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -747,7 +747,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35"
 										}
 									]
 								}
@@ -787,7 +787,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Hadapsar_Gadital_03",
+									"raw": "https://{{host}}{{base}}/item?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Hadapsar_Gadital_03",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -798,7 +798,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Hadapsar_Gadital_03"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Hadapsar_Gadital_03"
 										}
 									]
 								}
@@ -834,7 +834,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35&rel=type",
+									"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35&rel=type",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -845,7 +845,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35"
 										},
 										{
 											"key": "rel",
@@ -885,7 +885,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=type",
+									"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo&rel=type",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -896,7 +896,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo"
 										},
 										{
 											"key": "rel",
@@ -1742,7 +1742,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -1753,7 +1753,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
 								},
 								{
 									"key": "rel",
@@ -1795,7 +1795,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resource",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo&rel=resource",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -1806,7 +1806,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo"
 								},
 								{
 									"key": "rel",
@@ -1848,7 +1848,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=provider",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=provider",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -1859,7 +1859,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
 								},
 								{
 									"key": "rel",
@@ -1901,7 +1901,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo&rel=provider",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo&rel=provider",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -1912,7 +1912,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo"
 								},
 								{
 									"key": "rel",
@@ -1952,7 +1952,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceServer",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceServer",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -1963,7 +1963,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
 								},
 								{
 									"key": "rel",
@@ -2003,7 +2003,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resourceServer",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo&rel=resourceServer",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -2014,7 +2014,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo"
 								},
 								{
 									"key": "rel",
@@ -2160,7 +2160,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGrp",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGrp",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -2171,7 +2171,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
 								},
 								{
 									"key": "rel",
@@ -2213,7 +2213,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resrce",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo&rel=resrce",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -2224,7 +2224,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo"
 								},
 								{
 									"key": "rel",
@@ -2266,7 +2266,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&re1l=resource",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo&re1l=resource",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -2277,7 +2277,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo"
 								},
 								{
 									"key": "re1l",
@@ -2319,7 +2319,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?i1d=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceServer",
+							"raw": "https://{{host}}{{base}}/relationship?i1d=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceServer",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -2330,7 +2330,7 @@
 							"query": [
 								{
 									"key": "i1d",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
 								},
 								{
 									"key": "rel",
@@ -2372,7 +2372,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -2383,7 +2383,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
 								},
 								{
 									"key": "rel",
@@ -2429,7 +2429,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup&limit=1000001",
+							"raw": "https://{{host}}{{base}}/relationship?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup&limit=1000001",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -2440,7 +2440,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
+									"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24"
 								},
 								{
 									"key": "rel",
@@ -6350,7 +6350,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
+									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -6365,7 +6365,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+											"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
 										}
 									]
 								}
@@ -6401,7 +6401,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Blue Diamond Square (Hotel Taj)_10]]\"",
+									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Blue Diamond Square (Hotel Taj)_10]]\"",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -6416,7 +6416,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Blue Diamond Square (Hotel Taj)_10]]\""
+											"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Blue Diamond Square (Hotel Taj)_10]]\""
 										}
 									]
 								}
@@ -6615,7 +6615,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\"",
+									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\"",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -6630,7 +6630,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\""
+											"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\""
 										}
 									]
 								}
@@ -6671,7 +6671,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
+									"raw": "https://{{host}}{{base}}/search?property=\"[non-existing property]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -6686,7 +6686,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+											"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
 										}
 									]
 								}
@@ -6778,7 +6778,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[id,name,tags,location,deviceId]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\"",
+									"raw": "https://{{host}}{{base}}/search?property=\"[id,name,tags,location,deviceId]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\"",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -6793,7 +6793,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\""
+											"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\""
 										}
 									]
 								}
@@ -6829,7 +6829,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[id,name,tags,location]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\"",
+									"raw": "https://{{host}}{{base}}/search?property=\"[id,name,tags,location]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\"",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -6844,7 +6844,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\""
+											"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\""
 										}
 									]
 								}
@@ -6880,7 +6880,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[id,name,tags,location]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1,sensor2,sensor3,sensor4,sensor5],[aqm],[pune]]\"",
+									"raw": "https://{{host}}{{base}}/search?property=\"[id,name,tags,location]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1,sensor2,sensor3,sensor4,sensor5],[aqm],[pune]]\"",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -6895,7 +6895,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1,sensor2,sensor3,sensor4,sensor5],[aqm],[pune]]\""
+											"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1,sensor2,sensor3,sensor4,sensor5],[aqm],[pune]]\""
 										}
 									]
 								}
@@ -6931,7 +6931,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
+									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -6946,7 +6946,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+											"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
 										},
 										{
 											"key": "filter",
@@ -6986,7 +6986,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags]&limit=10000000",
+									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags]&limit=10000000",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -7001,7 +7001,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+											"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
 										},
 										{
 											"key": "filter",
@@ -7045,7 +7045,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags]&limit=10&offset=1001001",
+									"raw": "https://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags]&limit=10&offset=1001001",
 									"protocol": "https",
 									"host": [
 										"{{host}}{{base}}"
@@ -7060,7 +7060,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+											"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
 										},
 										{
 											"key": "filter",
@@ -8341,7 +8341,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?property=[id]&value=[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24]]",
+							"raw": "https://{{host}}{{base}}/count?property=[id]&value=[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24]]",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -8356,7 +8356,7 @@
 								},
 								{
 									"key": "value",
-									"value": "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24]]"
+									"value": "[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24]]"
 								}
 							]
 						}
@@ -8392,7 +8392,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?property=[id]&value=[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24,  datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Chandani Square_25]]",
+							"raw": "https://{{host}}{{base}}/count?property=[id]&value=[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24,  iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Chandani Square_25]]",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -8407,7 +8407,7 @@
 								},
 								{
 									"key": "value",
-									"value": "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24,  datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Chandani Square_25]]"
+									"value": "[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24,  iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Chandani Square_25]]"
 								}
 							]
 						}
@@ -8499,7 +8499,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\"",
+							"raw": "https://{{host}}{{base}}/count?property=\"[id]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\"",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -8514,7 +8514,7 @@
 								},
 								{
 									"key": "value",
-									"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\""
+									"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\""
 								}
 							]
 						}
@@ -8662,7 +8662,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
+							"raw": "https://{{host}}{{base}}/count?property=\"[non-existing property]\"&value=\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -8677,7 +8677,7 @@
 								},
 								{
 									"key": "value",
-									"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+									"value": "\"[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
 								}
 							]
 						}

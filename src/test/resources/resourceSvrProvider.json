@@ -4,8 +4,8 @@
         "type": [
             "iudx:ResourceServer"
         ],
-        "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io",
-        "provider": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+        "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io",
+        "provider": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86",
         "name": "iudxResourceServer",
         "description": "Generic IUDX resource server",
         "tags": [
@@ -46,7 +46,7 @@
         "type": [
             "iudx:Provider"
         ],
-        "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+        "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86",
         "name": "IUDXAdmin",
         "description": "Administrator of the IUDX platform",
         "tags": [

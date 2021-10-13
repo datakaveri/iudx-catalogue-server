@@ -89,10 +89,13 @@ public class JwtAuthServiceImplTest {
 
     jwtAuthenticationService
             .tokenInterospect(new JsonObject(), authInfo, handler -> {
-              if(handler.succeeded())
+              if(handler.succeeded()) {
+                LOGGER.debug("Successfuly interospected the token");
                 vertxTestContext.completeNow();
-              else
+              }
+              else  {
                 vertxTestContext.failNow(handler.cause());
+              }
             });
   }
 
@@ -171,11 +174,14 @@ public class JwtAuthServiceImplTest {
   public void validEndpointCheck(VertxTestContext vertxTestContext) {
     JsonObject authInfo = authJson();
 
-    if(jwtAuthenticationService.isValidEndpoint(authInfo.getString("apiEndpoint"))) {
-      vertxTestContext.completeNow();
-    } else {
-      vertxTestContext.failNow("fail");
-    }
+    jwtAuthenticationService.isValidEndpoint(authInfo.getString("apiEndpoint")).onComplete(handler -> {
+      if (handler.failed()) {
+        vertxTestContext.failNow("fail");
+      } else {
+        vertxTestContext.completeNow();
+
+      }
+    });
   }
 
   @Test
@@ -184,11 +190,14 @@ public class JwtAuthServiceImplTest {
     JsonObject authInfo = authJson();
     authInfo.put("apiEndpoint", "/iudx/rs/v1/item");
 
-    if(jwtAuthenticationService.isValidEndpoint(authInfo.getString("apiEndpoint"))) {
-      vertxTestContext.failNow("fail");
-    } else {
-      vertxTestContext.completeNow();
-    }
+    jwtAuthenticationService.isValidEndpoint(authInfo.getString("apiEndpoint")).onComplete(handler -> {
+      if (handler.failed()) {
+        vertxTestContext.completeNow();
+      } else {
+        vertxTestContext.failNow("fail");
+
+      }
+    });
   }
 
   @Test
@@ -196,11 +205,15 @@ public class JwtAuthServiceImplTest {
   public void validIdCheckForJwtToken(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
     String id = "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86";
-    if(jwtAuthenticationService.isValidId(jwtData, id)) {
-      vertxTestContext.completeNow();
-    } else {
-      vertxTestContext.failNow("fail");
+    jwtAuthenticationService.isValidId(jwtData, id).onComplete(handler -> {
+      if (handler.failed()) {
+        vertxTestContext.failNow("fail");
+      } else {
+        vertxTestContext.completeNow();
+
+      }
     }
+    ) ;
   }
 
   @Test
@@ -208,23 +221,29 @@ public class JwtAuthServiceImplTest {
   public void invalidIdCheckForJwtToken(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
     String id = "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547fab";
-    if(jwtAuthenticationService.isValidId(jwtData, id)) {
-      vertxTestContext.failNow("fail");
-    } else {
-      vertxTestContext.completeNow();
-    }
+
+    jwtAuthenticationService.isValidId(jwtData, id).onComplete(handler -> {
+      if (handler.failed()) {
+        vertxTestContext.completeNow();
+      } else {
+        vertxTestContext.failNow("fail");
+
+      }
+    });
   }
 
   @Test
   @DisplayName("successful valid audience check")
   public void validAudienceCheck(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
+    jwtAuthenticationService.isValidAudienceValue(jwtData).onComplete(handler -> {
+          if (handler.failed()) {
+            vertxTestContext.failNow("fail");
+          } else {
+            vertxTestContext.completeNow();
 
-    if(jwtAuthenticationService.isValidAudienceValue(jwtData)) {
-      vertxTestContext.completeNow();
-    } else {
-      vertxTestContext.failNow("fail");
-    }
+          }
+      });
   }
 
   @Test
@@ -233,11 +252,14 @@ public class JwtAuthServiceImplTest {
     JwtData jwtData = jwtDataObject();
     jwtData.setAud("rs.iudx.io");
 
-    if(!jwtAuthenticationService.isValidAudienceValue(jwtData)) {
-      vertxTestContext.completeNow();
-    } else {
-      vertxTestContext.failNow("fail");
-    }
+    jwtAuthenticationService.isValidAudienceValue(jwtData).onComplete(handler -> {
+          if (handler.failed()) {
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow("fail");
+
+          }
+      });
   }
 
   @Test

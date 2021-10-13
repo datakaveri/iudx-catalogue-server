@@ -32,8 +32,8 @@
 			"uv"
 		],
 		"itemStatus": "ACTIVE",
-		"provider": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-		"resourceServer": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io",
+		"provider": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86",
+		"resourceServer": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io",
 		"resourceAuthControlLevel": "OPEN",
 		"resourceType": "messageStream",
 		"authServerInfo": {

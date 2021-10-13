@@ -19,6 +19,7 @@ import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
+import iudx.catalogue.server.auditing.AuditingService;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
@@ -55,8 +56,6 @@ public class ApiServerVerticle extends AbstractVerticle {
   private Router router;
 
   private String catAdmin;
-  private String keystore;
-  private String keystorePassword;
   private boolean isSsl;
   private int port;
 
@@ -75,14 +74,13 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Configure */
     catAdmin = config().getString(CAT_ADMIN);
-    keystore = config().getString(KEYSTORE_PATH);
-    keystorePassword = config().getString(KEYSTORE_PASSWORD);
     isSsl = config().getBoolean(IS_SSL);
     port = config().getInteger(PORT);
 
 
     HttpServerOptions serverOptions = new HttpServerOptions();
 
+    /*
     if (isSsl) {
       serverOptions.setSsl(true)
                     .setKeyStoreOptions(new JksOptions()
@@ -91,6 +89,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     } else {
       serverOptions.setSsl(false);
     }
+    */
+    serverOptions.setSsl(false);
     serverOptions.setCompressionSupported(true).setCompressionLevel(5);
     /** Instantiate this server */
     server = vertx.createHttpServer(serverOptions);
@@ -133,8 +133,12 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     NLPSearchService nlpsearchService 
       = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
-    
+
     searchApis.setService(dbService, geoService, nlpsearchService);
+
+    AuditingService auditingService
+      = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
+    crudApis.setAuditingService(auditingService);
 
     ExceptionHandler exceptionhandler = new ExceptionHandler();
 

@@ -69,7 +69,7 @@ public class MockAuthenticationVerticle extends AbstractVerticle {
     WebClientOptions webClientOptions = new WebClientOptions();
     if (testing) webClientOptions.setTrustAll(true).setVerifyHost(false);
     webClientOptions
-            .setSsl(true)
+            .setSsl(false)
             .setKeyStoreOptions(new JksOptions()
                     .setPath(config.getString((KEYSTORE_PATH)))
                     .setPassword(config.getString(KEYSTORE_PASSWORD)));

@@ -81,7 +81,7 @@ public class ServerVerticleDeboardTest {
     /* Options for the web client connections */
     JksOptions options = new JksOptions().setPath(keyStore).setPassword(keyStorePassword);
 
-    WebClientOptions clientOptions = new WebClientOptions().setSsl(true).setVerifyHost(false)
+    WebClientOptions clientOptions = new WebClientOptions().setSsl(false).setVerifyHost(false)
         .setTrustAll(true).setTrustStoreOptions(options);
     client = WebClient.create(vertx, clientOptions);
 
