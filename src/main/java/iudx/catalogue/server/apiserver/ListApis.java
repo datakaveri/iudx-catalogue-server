@@ -96,9 +96,13 @@ public final class ListApis {
             break;
           default:
             LOGGER.error("Fail: Invalid itemType:" + itemType);
-            response.setStatusCode(400).end(
-                new JsonObject().put(STATUS, ERROR).put(DESC, "Invalid itemType").toString());
-            return;
+            response.setStatusCode(400)
+                    .end(new RespBuilder()
+                              .withType(TYPE_INVALID_SYNTAX)
+                              .withTitle(TITLE_INVALID_SYNTAX)
+                              .withDetail(DETAIL_WRONG_ITEM_TYPE)
+                              .getResponse());
+        return;
         }
         requestBody.put(TYPE, type);
 
@@ -110,21 +114,31 @@ public final class ListApis {
           } else if (dbhandler.failed()) {
             LOGGER.error(
                 "Fail: Issue in listing " + itemType + ": " + dbhandler.cause().getMessage());
-            response.setStatusCode(400).end(dbhandler.cause().getMessage());
+            response.setStatusCode(400)
+                    .end(new RespBuilder()
+                              .withType(TYPE_INVALID_SYNTAX)
+                              .withTitle(TITLE_INVALID_SYNTAX)
+                              .withDetail(DETAIL_WRONG_ITEM_TYPE)
+                              .getResponse());
           }
         });
       } else {
         LOGGER.error("Fail: Search/Count; Invalid request query parameters");
         response.setStatusCode(400)
-                .end(resp.toString());
+          .end(new RespBuilder()
+              .withType(TYPE_INVALID_SYNTAX)
+              .withTitle(TITLE_INVALID_SYNTAX)
+              .withDetail(DETAIL_WRONG_ITEM_TYPE)
+              .getResponse());
       }
     } else {
       LOGGER.error("Fail: Search/Count; Invalid request query parameters");
-      response.setStatusCode(400)
-              .end(new RespBuilder()
-                    .withType(TYPE_INVALID_SYNTAX)
-                    .withTitle(TITLE_INVALID_SYNTAX)
-                    .getResponse());
+        response.setStatusCode(400)
+          .end(new RespBuilder()
+              .withType(TYPE_INVALID_SYNTAX)
+              .withTitle(TITLE_INVALID_SYNTAX)
+              .withDetail(DETAIL_WRONG_ITEM_TYPE)
+              .getResponse());
     }
   }
 }

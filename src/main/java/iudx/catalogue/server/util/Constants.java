@@ -179,6 +179,7 @@ public class Constants {
 
 
   public static final String DETAIL_INTERNAL_SERVER_ERROR = "Internal error";
+  public static final String DETAIL_WRONG_ITEM_TYPE = "Wrong Item Type";
 
 
   public static final String TYPE_INVALID_GEO_PARAM = "urn:dx:cat:InvalidGeoParam";

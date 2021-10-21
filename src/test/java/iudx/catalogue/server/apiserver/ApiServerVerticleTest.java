@@ -395,8 +395,8 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().body().toJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -417,7 +417,7 @@ public class ApiServerVerticleTest {
   void searchItemCircle400_2(VertxTestContext testContext) {
 
     /* Send the file to the server using GET with query parameters */
-    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(INVALID_SYNTAX, LOCATION)
+    client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam("blah", LOCATION)
         .addQueryParam(GEORELATION, GEOREL_NEAR).addQueryParam(MAX_DISTANCE, "500")
         .addQueryParam(GEOMETRY, "Point").addQueryParam(COORDINATES, "[73.85534405708313,abc123]")
         .send(serverResponse -> {
@@ -426,8 +426,8 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().body().toJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -458,8 +458,8 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().body().toJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -490,8 +490,6 @@ public class ApiServerVerticleTest {
 
             /* comparing the response */
             JsonObject resp = serverResponse.result().bodyAsJsonObject();
-            assertEquals(1, resp.getInteger(TOTAL_HITS));
-            assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
 
             testContext.completeNow();
@@ -525,8 +523,8 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().body().toJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -559,8 +557,8 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(INVALID_VALUE,
-                serverResponse.result().body().toJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_GEO_VALUE,
+                serverResponse.result().body().toJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -593,8 +591,8 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().body().toJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -627,8 +625,8 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().body().toJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().body().toJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -664,7 +662,7 @@ public class ApiServerVerticleTest {
             assertEquals(1, resp.getInteger(TOTAL_HITS));
         assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
+            assertEquals(TYPE_SUCCESS, serverResponse.result().body().toJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -695,7 +693,6 @@ public class ApiServerVerticleTest {
             JsonObject resp = serverResponse.result().bodyAsJsonObject();
             assertEquals(0, resp.getInteger(TOTAL_HITS));
             assertEquals(404, serverResponse.result().statusCode());
-            assertEquals(ERROR, resp.getString(STATUS));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -727,7 +724,7 @@ public class ApiServerVerticleTest {
         }
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-        assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
+        assertEquals(TYPE_SUCCESS, serverResponse.result().body().toJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -754,7 +751,7 @@ public class ApiServerVerticleTest {
         JsonObject resp = serverResponse.result().bodyAsJsonObject();
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-        assertEquals(SUCCESS, resp.getString(STATUS));
+        assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -783,7 +780,7 @@ public class ApiServerVerticleTest {
         JsonObject resp = serverResponse.result().bodyAsJsonObject();
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-        assertEquals(SUCCESS, resp.getString(STATUS));
+        assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -812,7 +809,7 @@ public class ApiServerVerticleTest {
         JsonObject resp = serverResponse.result().bodyAsJsonObject();
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-        assertEquals(SUCCESS, resp.getString(STATUS));
+        assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -845,7 +842,7 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
+            assertEquals(TYPE_SUCCESS, serverResponse.result().body().toJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -877,7 +874,7 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, serverResponse.result().body().toJsonObject().getString(STATUS));
+            assertEquals(TYPE_SUCCESS, serverResponse.result().body().toJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -904,7 +901,7 @@ public class ApiServerVerticleTest {
             assertEquals(1, resp.getInteger(TOTAL_HITS));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, resp.getString(STATUS));
+            assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -934,7 +931,7 @@ public class ApiServerVerticleTest {
             assertEquals(2, resp.getInteger(TOTAL_HITS));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, resp.getString(STATUS));
+            assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -956,7 +953,6 @@ public class ApiServerVerticleTest {
         JsonObject resp = serverResponse.result().bodyAsJsonObject();
         assertEquals(400, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-        assertEquals(INVALID_SYNTAX, resp.getString(STATUS));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -978,7 +974,7 @@ public class ApiServerVerticleTest {
         
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-        assertEquals(SUCCESS, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_SUCCESS, serverResponse.result().bodyAsJsonObject().getString(TYPE));
         
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1002,7 +998,7 @@ public class ApiServerVerticleTest {
         JsonObject resp = serverResponse.result().bodyAsJsonObject();
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-        assertEquals(SUCCESS, resp.getString(STATUS));
+        assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1024,7 +1020,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(SUCCESS, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_SUCCESS, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1047,7 +1043,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(SUCCESS, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_SUCCESS, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1070,7 +1066,6 @@ public class ApiServerVerticleTest {
 
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(TYPE_SUCCESS, serverResponse.result().bodyAsJsonObject().getString(TITLE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1094,7 +1089,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(400, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(INVALID_VALUE, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_INVALID_GEO_VALUE, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1118,7 +1113,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(400, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(INVALID_VALUE, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_INVALID_GEO_VALUE, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1142,7 +1137,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(400, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(INVALID_SYNTAX, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_INVALID_SYNTAX, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1166,7 +1161,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(400, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(INVALID_SYNTAX, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_INVALID_SYNTAX, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1190,7 +1185,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(SUCCESS, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_SUCCESS, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1215,7 +1210,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(200, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(SUCCESS, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_SUCCESS, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1238,7 +1233,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(400, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(INVALID_SYNTAX, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_INVALID_SYNTAX, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1261,7 +1256,7 @@ public class ApiServerVerticleTest {
 
         assertEquals(400, serverResponse.result().statusCode());
         assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-        assertEquals(INVALID_SYNTAX, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+        assertEquals(TYPE_INVALID_SYNTAX, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
         testContext.completeNow();
       } else if (serverResponse.failed()) {
@@ -1287,7 +1282,7 @@ public class ApiServerVerticleTest {
             assertEquals(1, resp.getInteger(TOTAL_HITS));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, resp.getString(STATUS));
+            assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1313,7 +1308,7 @@ public class ApiServerVerticleTest {
             assertEquals(1, resp.getInteger(TOTAL_HITS));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, resp.getString(STATUS));
+            assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1339,7 +1334,7 @@ public class ApiServerVerticleTest {
             assertEquals(1, resp.getInteger(TOTAL_HITS));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, resp.getString(STATUS));
+            assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1373,7 +1368,7 @@ public class ApiServerVerticleTest {
             assertTrue(serverResponse.result().body().toJsonObject().containsKey(TOTAL_HITS));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, resp.getString(STATUS));
+            assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1406,7 +1401,7 @@ public class ApiServerVerticleTest {
             JsonObject resp = serverResponse.result().bodyAsJsonObject();
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, resp.getString(STATUS));
+            assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1439,7 +1434,7 @@ public class ApiServerVerticleTest {
             assertEquals(1, resp.getInteger(TOTAL_HITS));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, resp.getString(STATUS));
+            assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1478,7 +1473,7 @@ public class ApiServerVerticleTest {
             assertEquals(2, resp.getInteger(TOTAL_HITS));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
-            assertEquals(SUCCESS, resp.getString(STATUS));
+            assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1508,7 +1503,7 @@ public class ApiServerVerticleTest {
             /* comparing the response */
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(INVALID_SYNTAX, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1671,8 +1666,8 @@ public class ApiServerVerticleTest {
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(INVALID_VALUE,
-                serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_GEO_VALUE,
+                serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1707,8 +1702,8 @@ public class ApiServerVerticleTest {
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(INVALID_VALUE,
-                serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_GEO_VALUE,
+                serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1743,8 +1738,8 @@ public class ApiServerVerticleTest {
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1836,8 +1831,8 @@ public class ApiServerVerticleTest {
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1868,8 +1863,8 @@ public class ApiServerVerticleTest {
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -1905,8 +1900,8 @@ public class ApiServerVerticleTest {
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
 
             testContext.completeNow();
@@ -1941,8 +1936,8 @@ public class ApiServerVerticleTest {
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -2036,8 +2031,8 @@ public class ApiServerVerticleTest {
             assertEquals(0, serverResponse.result().bodyAsJsonObject().getInteger(TOTAL_HITS));
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(SUCCESS,
-                serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_SUCCESS,
+                serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -2069,7 +2064,7 @@ public class ApiServerVerticleTest {
             assertEquals(0, serverResponse.result().bodyAsJsonObject().getInteger(TOTAL_HITS));
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(SUCCESS, serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_SUCCESS, serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -2100,8 +2095,8 @@ public class ApiServerVerticleTest {
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
@@ -2222,8 +2217,8 @@ public class ApiServerVerticleTest {
             assertEquals(400, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON,
                 serverResponse.result().getHeader(HEADER_CONTENT_TYPE));
-            assertEquals(INVALID_SYNTAX,
-                serverResponse.result().bodyAsJsonObject().getString(STATUS));
+            assertEquals(TYPE_INVALID_SYNTAX,
+                serverResponse.result().bodyAsJsonObject().getString(TYPE));
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {

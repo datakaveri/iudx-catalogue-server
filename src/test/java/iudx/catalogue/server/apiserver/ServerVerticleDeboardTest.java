@@ -70,19 +70,15 @@ public class ServerVerticleDeboardTest {
     /* configuration setup */
     JsonObject apiVerticleConfig = Configuration.getConfiguration("./configs/config-test.json", 3);
 
-    String keyStore = apiVerticleConfig.getString(KEYSTORE_PATH);
-    String keyStorePassword = apiVerticleConfig.getString(KEYSTORE_PASSWORD);
     HOST = apiVerticleConfig.getString("ip");
     PORT = apiVerticleConfig.getInteger("port");
     TOKEN = apiVerticleConfig.getString(HEADER_TOKEN);
     ADMIN_TOKEN = apiVerticleConfig.getString("admin_token");
 
 
-    /* Options for the web client connections */
-    JksOptions options = new JksOptions().setPath(keyStore).setPassword(keyStorePassword);
 
     WebClientOptions clientOptions = new WebClientOptions().setSsl(false).setVerifyHost(false)
-        .setTrustAll(true).setTrustStoreOptions(options);
+        .setTrustAll(true);
     client = WebClient.create(vertx, clientOptions);
 
     testContext.completeNow();
