@@ -24,7 +24,7 @@ public class Constants {
   public static final String HEADER_CORS = "Access-Control-Allow-Origin";
   public static final Set<String> ALLOWED_HEADERS
     = new HashSet<String>(Arrays.asList(HEADER_ACCEPT, HEADER_TOKEN, HEADER_CONTENT_LENGTH,
-                                    HEADER_CONTENT_TYPE, HEADER_HOST, HEADER_ORIGIN,
+          HEADER_CONTENT_TYPE, HEADER_HOST, HEADER_INSTANCE, HEADER_ORIGIN,
                                     HEADER_REFERER, HEADER_CORS));
 
   public static final Set<HttpMethod> ALLOWED_METHODS = new HashSet<HttpMethod>(
