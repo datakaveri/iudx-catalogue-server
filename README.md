@@ -93,6 +93,16 @@ Integration tests are through Postman/Newman whose script can be found from [her
    `newman run <postman-collection-path> -e <postman-environment> --insecure -r htmlextra --reporter-htmlextra-export .`
 5. Reports are stored in `./target/`
 
+### JUnit Integration tests
+Run tests in this order for JUnit based integration tests
+1. Cleanup any previous test artifacts from the db
+    `mvn clean test -Dtest=ServerVerticleDeboardTest` 
+2. Prepare the database with items for testing 
+   `mvn clean test -Dtest=ApiServerVerticlePreprareTest`
+3. Test the APIServer 
+   `mvn clean test -Dtest=ApiServerVerticleTest`
+4. Repeat step 1 to clean db of all test artifacts
+
 
 ## Contributing
 We follow Git Merge based workflow 
