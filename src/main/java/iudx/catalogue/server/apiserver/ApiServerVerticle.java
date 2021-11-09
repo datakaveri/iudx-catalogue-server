@@ -118,6 +118,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     crudApis.setDbService(dbService);
     listApis.setDbService(dbService);
     relApis.setDbService(dbService);
+    crudApis.setHost(config().getString(HOST));
 
     AuthenticationService authService =
         AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);

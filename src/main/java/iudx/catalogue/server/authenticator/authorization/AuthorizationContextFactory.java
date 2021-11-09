@@ -10,6 +10,9 @@ public class AuthorizationContextFactory {
       case "delegate": {
         return new DelegateAuthStrategy();
       }
+      case "admin": {
+        return new AdminAuthStrategy();
+      }
       default:
         throw new IllegalArgumentException(role + "role is not defined in IUDX");
     }

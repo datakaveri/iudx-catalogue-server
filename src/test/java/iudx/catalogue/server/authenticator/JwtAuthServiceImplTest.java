@@ -294,4 +294,29 @@ public class JwtAuthServiceImplTest {
               }
             });
   }
+
+
+  @Test
+  @DisplayName("successful allow admin access to protected endpoint")
+  public void adminTokenInterospectSuccess(VertxTestContext vertxTestContext) {
+
+    JsonObject authInfo = new JsonObject();
+    authInfo
+            .put("token", JwtTokenHelper.adminToken)
+            .put("id", "catalogue.iudx.io")
+            .put("apiEndpoint", "/iudx/cat/v1/instance")
+            .put("method", Method.POST);
+
+    jwtAuthenticationService
+            .tokenInterospect(new JsonObject(), authInfo, handler -> {
+              if(handler.succeeded()) {
+                LOGGER.debug("Successfuly interospected the token");
+                vertxTestContext.completeNow();
+              }
+              else  {
+                vertxTestContext.failNow(handler.cause());
+              }
+            });
+  }
+
 }

@@ -347,20 +347,20 @@ public class DatabaseServiceImpl implements DatabaseService {
             if (checkRes.result().getInteger(TOTAL_HITS) > 1 && isParent.value == true) {
               LOGGER.error("Fail: Can't delete, parent doc has associated item;");
               handler
-                  .handle(Future.succeededFuture(
+                  .handle(Future.failedFuture(
                     respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
                                 .withTitle(TITLE_OPERATION_NOT_ALLOWED)
                                 .withResult(id, DELETE, FAILED,
                           "Fail: Can't delete, resourceGroup has associated item")
-                      .getJsonResponse()));
+                      .getResponse()));
               return;
             } else if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Doc doesn't exist, can't delete;");
-              handler.handle(Future.succeededFuture(
+              handler.handle(Future.failedFuture(
                     respBuilder.withType(TYPE_ITEM_NOT_FOUND)
                                 .withTitle(TITLE_ITEM_NOT_FOUND)
                                 .withResult(id, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
-                  .getJsonResponse()));
+                  .getResponse()));
               return;
             }
           }

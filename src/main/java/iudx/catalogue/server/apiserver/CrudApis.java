@@ -29,6 +29,7 @@ import static iudx.catalogue.server.auditing.util.Constants.API;
 //import static iudx.catalogue.server.auditing.util.Constants.METHOD;
 import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
 import static iudx.catalogue.server.authenticator.Constants.ITEM_ENDPOINT;
+import static iudx.catalogue.server.authenticator.Constants.INSTANCE_ENDPOINT;
 import io.vertx.core.http.HttpMethod;
 import static iudx.catalogue.server.authenticator.Constants.TOKEN;
 import static iudx.catalogue.server.util.Constants.*;
@@ -47,6 +48,7 @@ public final class CrudApis {
   private AuditingService auditingService;
   private static final Logger LOGGER = LogManager.getLogger(CrudApis.class);
   private boolean hasAuditService = false;
+  private String host;
 
 
   /**
@@ -74,6 +76,10 @@ public final class CrudApis {
   public void setAuditingService(AuditingService auditingService) {
     this.auditingService = auditingService;
     hasAuditService = true;
+  }
+
+  public void setHost(String host) {
+    this.host = host;
   }
 
   /**
@@ -134,7 +140,7 @@ public final class CrudApis {
 
         // populating jwt authentication info ->
         jwtAuthenticationInfo
-                .put(TOKEN,request.getHeader(HEADER_TOKEN))
+                .put(TOKEN, request.getHeader(HEADER_TOKEN))
                 .put(METHOD, REQUEST_POST)
                 .put(API_ENDPOINT, ITEM_ENDPOINT);
 
@@ -367,32 +373,22 @@ public final class CrudApis {
      **/
 
     /** Json schema validate item */
-    authenticationInfo.put(HEADER_TOKEN,
+    authenticationInfo.put(TOKEN,
                             request.getHeader(HEADER_TOKEN))
-                            .put(OPERATION, routingContext.request().method().toString());
-    authRequest.put(PROVIDER, catAdmin);
+                            .put(METHOD, REQUEST_POST)
+                            .put(API_ENDPOINT, INSTANCE_ENDPOINT)
+                            .put(ID, host);
     /** Introspect token and authorize operation */
-    authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
+    authService.tokenInterospect(new JsonObject(), authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
           response.setStatusCode(401)
               .end( new RespBuilder()
                           .withType(TYPE_TOKEN_INVALID)
                           .withTitle(TITLE_TOKEN_INVALID)
-                          .withDetail(authhandler.result().getString(MESSAGE))
                           .getResponse());
         return;
       }
-      else if (authhandler.result().getString(STATUS).equals(ERROR)) {
-        LOGGER.error("Fail: Authentication;" 
-                      + authhandler.result().getString(MESSAGE));
-        response.setStatusCode(401)
-            .end( new RespBuilder()
-                        .withType(TYPE_TOKEN_INVALID)
-                        .withTitle(TITLE_TOKEN_INVALID)
-                        .withDetail(authhandler.result().getString(MESSAGE))
-                        .getResponse());
-      }
-      else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
+      else {
         /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */
         JsonObject body = new JsonObject().put(ID, instance)
                                           .put(TYPE, new JsonArray().add(ITEM_TYPE_INSTANCE))
@@ -431,32 +427,21 @@ public final class CrudApis {
      **/
 
     /** Json schema validate item */
-    authenticationInfo.put(HEADER_TOKEN,
-                            request.getHeader(HEADER_TOKEN))
-                            .put(OPERATION, routingContext.request().method().toString());
-    authRequest.put(PROVIDER, catAdmin);
+    authenticationInfo.put(TOKEN, request.getHeader(HEADER_TOKEN))
+                      .put(METHOD, REQUEST_DELETE)
+                      .put(API_ENDPOINT, INSTANCE_ENDPOINT)
+                      .put(ID, host);
     /** Introspect token and authorize operation */
-    authService.tokenInterospect(authRequest, authenticationInfo, authhandler -> {
+    authService.tokenInterospect(new JsonObject(), authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
         response.setStatusCode(401)
             .end( new RespBuilder()
                         .withType(TYPE_TOKEN_INVALID)
                         .withTitle(TITLE_TOKEN_INVALID)
-                        .withDetail(authhandler.result().getString(MESSAGE))
                         .getResponse());
         return;
       }
-      else if (authhandler.result().getString(STATUS).equals(ERROR)) {
-        LOGGER.error("Fail: Authentication;" 
-                      + authhandler.result().getString(MESSAGE));
-        response.setStatusCode(401)
-            .end( new RespBuilder()
-                        .withType(TYPE_TOKEN_INVALID)
-                        .withTitle(TITLE_TOKEN_INVALID)
-                        .withDetail(authhandler.result().getString(MESSAGE))
-                        .getResponse());
-      }
-      else if (authhandler.result().getString(STATUS).equals(SUCCESS)) {
+      else {
         /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */
         JsonObject body = new JsonObject().put(ID, instance)
                                           .put(INSTANCE, "");
@@ -466,6 +451,9 @@ public final class CrudApis {
             response.setStatusCode(200)
               .end(res.result().toString());
             // TODO: call auditing service here
+          } else {
+            LOGGER.error("Fail: Deleting instance");
+            response.setStatusCode(400).end(res.cause().getMessage());
           }
         });
         LOGGER.debug("Success: Authenticated instance creation request");

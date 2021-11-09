@@ -87,8 +87,12 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     Promise<Boolean> promise = Promise.promise();
 
     // id is the (substring [1] of Iid with delimiter as ':' )'s substring [1] with delimiter as '/'
-    String jwtId = (jwtData.getIid().split(":")[1]).split("/")[0]+"/"+(jwtData.getIid().split(":")[1]).split("/")[1];
-    LOGGER.debug("Id in jwt is  " + jwtId);
+    String jwtId = "";
+    if (jwtData.getIid().contains("/")) {
+      jwtId = (jwtData.getIid().split(":")[1]).split("/")[0]+"/"+(jwtData.getIid().split(":")[1]).split("/")[1];
+    } else {
+      jwtId = jwtData.getIid().split(":")[1];
+    }
 
     if (id.equalsIgnoreCase(jwtId)) {
       promise.complete(true);
@@ -122,19 +126,24 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     AuthorizationRequest authRequest = new AuthorizationRequest(method,api);
 
     AuthorizationStratergy authStrategy = AuthorizationContextFactory.create(jwtData.getRole());
-    LOGGER.info("strategy: " + authStrategy.getClass().getSimpleName());
+    LOGGER.debug("strategy: " + authStrategy.getClass().getSimpleName());
 
     JwtAuthorization jwtAuthStrategy = new JwtAuthorization(authStrategy);
-    LOGGER.info("endpoint: "+authenticationInfo.getString(API_ENDPOINT));
+    LOGGER.debug("endpoint: "+authenticationInfo.getString(API_ENDPOINT));
 
     if(jwtAuthStrategy.isAuthorized(authRequest, jwtData)) {
-      LOGGER.info("User access is allowed");
+      LOGGER.debug("User access is allowed");
       JsonObject response = new JsonObject();
       // adding user id, user role and iid to response for auditing purpose
       response
               .put(USER_ROLE, jwtData.getRole())
-              .put(USER_ID, jwtData.getSub())
-              .put(IID, (jwtData.getIid().split(":")[1]).split("/")[0]+"/"+(jwtData.getIid().split(":")[1]).split("/")[1]);
+              .put(USER_ID, jwtData.getSub());
+      if (jwtData.getIid().contains("/")) {
+        response.put(IID, (jwtData.getIid().split(":")[1]).split("/")[0]
+            +"/"+(jwtData.getIid().split(":")[1]).split("/")[1]);
+      } else {
+        response.put(IID, (jwtData.getIid().split(":")[1]));
+      }
       promise.complete(response);
     } else {
       LOGGER.error("user access denied");
@@ -156,6 +165,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
     ResultContainer result = new ResultContainer();
 
+
     jwtDecodeFuture.compose(decodeHandler -> {
       result.jwtData =  decodeHandler;
       return isValidAudienceValue(result.jwtData);
@@ -166,7 +176,6 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     }).compose(validEndpointHandler -> {
       return validateAccess(result.jwtData, authenticationInfo);
     }).onComplete(completeHandler -> {
-      LOGGER.debug("completion handler");
       if(completeHandler.succeeded()) {
         handler.handle(Future.succeededFuture(completeHandler.result()));
       } else {
