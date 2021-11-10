@@ -6,7 +6,7 @@ networks:
 
 services:
 
-  prod:
+  cat:
     image: iudx/cat-prod:latest
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
