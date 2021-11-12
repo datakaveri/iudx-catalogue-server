@@ -169,6 +169,11 @@ public class ValidatorServiceImpl implements ValidatorService {
      * TODO: More checks and auth rules
      **/
     else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      String provider = request.getString(PROVIDER);
+      String name = request.getString(NAME);
+      String id = provider + "/" + name;
+      request.put(ID, id).put(ITEM_STATUS, ACTIVE)
+          .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
       handler.handle(Future.succeededFuture(request));
     }
     /** Validate if Provider */
