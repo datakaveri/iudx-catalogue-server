@@ -1,4 +1,4 @@
-[![Build Status](https://jenkins.iudx.io/buildStatus/icon?job=iudx+catalogue+(master)+pipeline)](https://jenkins.iudx.io/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/testReport/)
+[![Build Status](https://jenkins.iudx.io/buildStatus/icon?job=iudx+catalogue+%28master%29+pipeline)](https://jenkins.iudx.io/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/testReport/)
 [![Jenkins Coverage](https://img.shields.io/jenkins/coverage/jacoco?jobUrl=https%3A%2F%2Fjenkins.iudx.io%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F)](htts://jenkins.iudx.io/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/jacoco/)
 
 ![IUDX](./docs/iudx.png)
