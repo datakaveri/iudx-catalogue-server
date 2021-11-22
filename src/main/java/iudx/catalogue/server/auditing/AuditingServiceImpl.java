@@ -26,7 +26,7 @@ public class AuditingServiceImpl implements AuditingService {
   PgConnectOptions connectOptions;
   PoolOptions poolOptions;
   PgPool pool;
-  private QueryBuilder queryBuilder =  new QueryBuilder();
+  private QueryBuilder queryBuilder = new QueryBuilder();
   private JsonObject query = new JsonObject();
   private String databaseIP;
   private int databasePort;
@@ -37,7 +37,7 @@ public class AuditingServiceImpl implements AuditingService {
   private ResponseBuilder responseBuilder;
 
   public AuditingServiceImpl(JsonObject propObj, Vertx vertxInstance) {
-    if(propObj != null && !propObj.isEmpty()) {
+    if (propObj != null && !propObj.isEmpty()) {
       databaseIP = propObj.getString("auditingDatabaseIP");
       databasePort = propObj.getInteger("auditingDatabasePort");
       databaseName = propObj.getString("auditingDatabaseName");
@@ -47,12 +47,14 @@ public class AuditingServiceImpl implements AuditingService {
     }
 
     this.connectOptions =
-            new PgConnectOptions()
-                    .setPort(databasePort)
-                    .setHost(databaseIP)
-                    .setDatabase(databaseName)
-                    .setUser(databaseUserName)
-                    .setPassword(databasePassword);
+        new PgConnectOptions()
+            .setPort(databasePort)
+            .setHost(databaseIP)
+            .setDatabase(databaseName)
+            .setUser(databaseUserName)
+            .setPassword(databasePassword)
+            .setReconnectAttempts(2)
+            .setReconnectInterval(1000);
 
     this.poolOptions = new PoolOptions().setMaxSize(databasePoolSize);
     this.pool = PgPool.pool(vertxInstance, connectOptions, poolOptions);
@@ -66,39 +68,39 @@ public class AuditingServiceImpl implements AuditingService {
 
   @Override
   public AuditingService executeWriteQuery(
-          JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     query = queryBuilder.buildWriteQuery(request);
 
     if (query.containsKey(ERROR)) {
       LOGGER.error("Fail: Query returned with an error: " + query.getString(ERROR));
       responseBuilder =
-              new ResponseBuilder(FAILED).setTypeAndTitle(400).setMessage(query.getString(ERROR));
+          new ResponseBuilder(FAILED).setTypeAndTitle(400).setMessage(query.getString(ERROR));
       handler.handle(Future.failedFuture(responseBuilder.getResponse().toString()));
       return null;
     }
 
     Future<JsonObject> result = writeInDatabase(query);
     result.onComplete(
-            resultHandler -> {
-              if(resultHandler.succeeded()) {
-                handler.handle(Future.succeededFuture(resultHandler.result()));
-              } else if (resultHandler.failed()) {
-                LOGGER.error("failed ::" + resultHandler.cause());
-                handler.handle(Future.failedFuture((resultHandler.cause().getMessage())));
-              }
-            });
+        resultHandler -> {
+          if (resultHandler.succeeded()) {
+            handler.handle(Future.succeededFuture(resultHandler.result()));
+          } else if (resultHandler.failed()) {
+            LOGGER.error("failed ::" + resultHandler.cause());
+            handler.handle(Future.failedFuture((resultHandler.cause().getMessage())));
+          }
+        });
     return this;
   }
 
   @Override
   public AuditingService executeReadQuery(
-          JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.debug("Info: Read Query" + request.toString());
 
     if (!request.containsKey(USER_ID)) {
       LOGGER.debug("Info: " + USERID_NOT_FOUND);
       responseBuilder =
-              new ResponseBuilder(FAILED).setTypeAndTitle(400).setMessage(USERID_NOT_FOUND);
+          new ResponseBuilder(FAILED).setTypeAndTitle(400).setMessage(USERID_NOT_FOUND);
       handler.handle(Future.failedFuture(responseBuilder.getResponse().toString()));
       return null;
     }
@@ -107,7 +109,7 @@ public class AuditingServiceImpl implements AuditingService {
     if (query.containsKey(ERROR)) {
       LOGGER.error("Fail: Query returned with an error: " + query.getString(ERROR));
       responseBuilder =
-              new ResponseBuilder(FAILED).setTypeAndTitle(400).setMessage(query.getString(ERROR));
+          new ResponseBuilder(FAILED).setTypeAndTitle(400).setMessage(query.getString(ERROR));
       handler.handle(Future.failedFuture(responseBuilder.getResponse().toString()));
       return null;
     }
@@ -115,70 +117,69 @@ public class AuditingServiceImpl implements AuditingService {
 
     Future<JsonObject> result = executeReadQuery(query);
     result.onComplete(
-            resultHandler -> {
-              if (resultHandler.succeeded()) {
-                if (resultHandler.result().getString(TITLE).equals(FAILED)) {
-                  LOGGER.error("Read from DB failed:" + resultHandler.result());
-                  handler.handle(Future.failedFuture(resultHandler.result().toString()));
-                } else {
-                  LOGGER.info("Read from DB succeeded.");
-                  handler.handle(Future.succeededFuture(resultHandler.result()));
-                }
-              } else if (resultHandler.failed()) {
-                LOGGER.error("Read from DB failed:" + resultHandler.cause());
-                handler.handle(Future.failedFuture(resultHandler.cause().getMessage()));
-              }
-            });
+        resultHandler -> {
+          if (resultHandler.succeeded()) {
+            if (resultHandler.result().getString(TITLE).equals(FAILED)) {
+              LOGGER.error("Read from DB failed:" + resultHandler.result());
+              handler.handle(Future.failedFuture(resultHandler.result().toString()));
+            } else {
+              LOGGER.info("Read from DB succeeded.");
+              handler.handle(Future.succeededFuture(resultHandler.result()));
+            }
+          } else if (resultHandler.failed()) {
+            LOGGER.error("Read from DB failed:" + resultHandler.cause());
+            handler.handle(Future.failedFuture(resultHandler.cause().getMessage()));
+          }
+        });
     return this;
   }
 
   private Future<JsonObject> executeReadQuery(JsonObject query) {
     Promise<JsonObject> promise = Promise.promise();
     JsonArray jsonArray = new JsonArray();
-    pool.getConnection()
-            .compose(connection -> connection.query(query.getString(QUERY_KEY)).execute())
-            .onComplete(
-                    rows -> {
-                      RowSet<Row> result = rows.result();
-                      if (result == null) {
-                        responseBuilder =
-                                new ResponseBuilder(FAILED).setTypeAndTitle(204).setMessage(EMPTY_RESPONSE);
-                      } else {
-                        for (Row rs : result) {
-                          jsonArray.add(getJsonObject(rs));
-                        }
-                        if (jsonArray.isEmpty()) {
-                          responseBuilder =
-                                  new ResponseBuilder(FAILED).setTypeAndTitle(204).setMessage(EMPTY_RESPONSE);
-                        } else {
-                          responseBuilder =
-                                  new ResponseBuilder(SUCCESS).setTypeAndTitle(200).setJsonArray(jsonArray);
-                          LOGGER.info("Info: RESPONSE" + responseBuilder.getResponse().getString(RESULTS));
-                        }
-                      }
-                      promise.complete(responseBuilder.getResponse());
-                    });
+    pool.withConnection(connection -> connection.query(query.getString(QUERY_KEY)).execute())
+        .onComplete(
+            rows -> {
+              RowSet<Row> result = rows.result();
+              if (result == null) {
+                responseBuilder =
+                    new ResponseBuilder(FAILED).setTypeAndTitle(204).setMessage(EMPTY_RESPONSE);
+              } else {
+                for (Row rs : result) {
+                  jsonArray.add(getJsonObject(rs));
+                }
+                if (jsonArray.isEmpty()) {
+                  responseBuilder =
+                      new ResponseBuilder(FAILED).setTypeAndTitle(204).setMessage(EMPTY_RESPONSE);
+                } else {
+                  responseBuilder =
+                      new ResponseBuilder(SUCCESS).setTypeAndTitle(200).setJsonArray(jsonArray);
+                  LOGGER.info("Info: RESPONSE" + responseBuilder.getResponse().getString(RESULTS));
+                }
+              }
+              promise.complete(responseBuilder.getResponse());
+            });
     return promise.future();
   }
 
   private Object getJsonObject(Row rs) {
     JsonObject entries = new JsonObject();
-    LOGGER.debug("API: "+rs.getString(API_COLUMN_NAME));
-    LOGGER.debug("METHOD: "+rs.getString(METHOD_COLUMN_NAME));
-    LOGGER.debug("USERID: "+rs.getString(USERID_COLUMN_NAME));
-    LOGGER.debug("USERROLE: "+rs.getString(USERROLE_COLUMN_NAME));
-    LOGGER.debug("IID: "+rs.getString(IID_COLUMN_NAME));
-    LOGGER.debug("IUDX_ID: "+rs.getString(IUDX_COLUMN_NAME));
-    LOGGER.debug("TIME: "+rs.getLong(TIME_COLUMN_NAME));
+    LOGGER.debug("API: " + rs.getString(API_COLUMN_NAME));
+    LOGGER.debug("METHOD: " + rs.getString(METHOD_COLUMN_NAME));
+    LOGGER.debug("USERID: " + rs.getString(USERID_COLUMN_NAME));
+    LOGGER.debug("USERROLE: " + rs.getString(USERROLE_COLUMN_NAME));
+    LOGGER.debug("IID: " + rs.getString(IID_COLUMN_NAME));
+    LOGGER.debug("IUDX_ID: " + rs.getString(IUDX_COLUMN_NAME));
+    LOGGER.debug("TIME: " + rs.getLong(TIME_COLUMN_NAME));
 
     entries
-            .put(API,rs.getString(API_COLUMN_NAME))
-            .put(METHOD, rs.getString(METHOD_COLUMN_NAME))
-            .put(USER_ID, rs.getString(USERID_COLUMN_NAME))
-            .put(USER_ROLE,rs.getString(USERROLE_COLUMN_NAME))
-            .put(IID,rs.getString(IID_COLUMN_NAME))
-            .put(IUDX_ID,rs.getString(IUDX_COLUMN_NAME))
-            .put(TIME,rs.getLong(TIME_COLUMN_NAME));
+        .put(API, rs.getString(API_COLUMN_NAME))
+        .put(METHOD, rs.getString(METHOD_COLUMN_NAME))
+        .put(USER_ID, rs.getString(USERID_COLUMN_NAME))
+        .put(USER_ROLE, rs.getString(USERROLE_COLUMN_NAME))
+        .put(IID, rs.getString(IID_COLUMN_NAME))
+        .put(IUDX_ID, rs.getString(IUDX_COLUMN_NAME))
+        .put(TIME, rs.getLong(TIME_COLUMN_NAME));
 
     return entries;
   }
@@ -186,30 +187,29 @@ public class AuditingServiceImpl implements AuditingService {
   private Future<JsonObject> writeInDatabase(JsonObject query) {
     Promise<JsonObject> promise = Promise.promise();
     JsonObject response = new JsonObject();
-    pool.getConnection()
-            .compose(connection -> connection.query(query.getString(QUERY_KEY)).execute())
-            .onComplete(
-                    rows -> {
-                      if (rows.succeeded()) {
-                        response.put(MESSAGE, "Table Updated Successfully");
-                        responseBuilder =
-                                new ResponseBuilder(SUCCESS)
-                                        .setTypeAndTitle(200)
-                                        .setMessage(response.getString(MESSAGE));
-                        LOGGER.info("Info: " + responseBuilder.getResponse().toString());
-                        promise.complete(responseBuilder.getResponse());
-                      }
-                      if (rows.failed()) {
-                        LOGGER.error("Info: failed :" + rows.cause());
-                        response.put(MESSAGE, rows.cause().getMessage());
-                        responseBuilder =
-                                new ResponseBuilder(FAILED)
-                                        .setTypeAndTitle(400)
-                                        .setMessage(response.getString(MESSAGE));
-                        LOGGER.info("Info: " + responseBuilder.getResponse().toString());
-                        promise.fail(responseBuilder.getResponse().toString());
-                      }
-                    });
+    pool.withConnection(connection -> connection.query(query.getString(QUERY_KEY)).execute())
+        .onComplete(
+            rows -> {
+              if (rows.succeeded()) {
+                response.put(MESSAGE, "Table Updated Successfully");
+                responseBuilder =
+                    new ResponseBuilder(SUCCESS)
+                        .setTypeAndTitle(200)
+                        .setMessage(response.getString(MESSAGE));
+                LOGGER.info("Info: " + responseBuilder.getResponse().toString());
+                promise.complete(responseBuilder.getResponse());
+              }
+              if (rows.failed()) {
+                LOGGER.error("Info: failed :" + rows.cause());
+                response.put(MESSAGE, rows.cause().getMessage());
+                responseBuilder =
+                    new ResponseBuilder(FAILED)
+                        .setTypeAndTitle(400)
+                        .setMessage(response.getString(MESSAGE));
+                LOGGER.info("Info: " + responseBuilder.getResponse().toString());
+                promise.fail(responseBuilder.getResponse().toString());
+              }
+            });
     return promise.future();
   }
 
