@@ -3,7 +3,7 @@
         "type": [
             "iudx:EnvAQM"
         ],
-        "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/pscdcl/aqm-bosch-climo/Pune Railway Station_28",
+        "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/pscdcl/aqm-bosch-climo/Pune Railway Station_28",
         "name": "some name",
         "description": "Description for Bosch-Climo AQM resource",
         "tags": [
@@ -30,10 +30,10 @@
             " light",
             " uv"
         ],
-        "provider": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+        "provider": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86",
         "itemStatus": "ACTIVE",
         "deviceId": "b3ec32ff-fa7d-64fa-c0af-272e25d314e9",
-        "resourceGroup": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/pscdcl/aqm-bosch-climo",
+        "resourceGroup": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/pscdcl/aqm-bosch-climo",
         "location": {
             "type": "Place",
             "address": "ABD area, Pune",

@@ -2,7 +2,6 @@
     "version": "1.0",
     "zookeepers": [ "zookeeper" ],
     "clusterId": "iudx-catalogue-cluster",
-    "host": "server",
     "modules": [
         {
             "id": "iudx.catalogue.server.database.DatabaseVerticle",
@@ -15,13 +14,13 @@
             "docIndex": "cattestindex",
             "databaseUser": "user",
             "databasePassword": "password",
+            "bypassAuth": true,
             "databasePort": 9200
         },
         {
             "id": "iudx.catalogue.server.authenticator.AuthenticationVerticle",
+            "host": "catalogue.iudx.io",
             "verticleInstances": 2,
-            "keystorePath": "configs/keystore.jks",
-            "keystorePassword": "password",
             "authServerHost": "auth.iudx.org.in"
         },
         {
@@ -35,11 +34,10 @@
         },
         {
             "id": "iudx.catalogue.server.apiserver.ApiServerVerticle",
-            "ssl": true,
+            "host": "catalogue.iudx.io",
+            "ssl": false,
             "port": 8080,
             "ip": "127.0.0.1",
-            "keystorePath": "configs/keystore.jks",
-            "keystorePassword": "password",
             "catAdmin": "datakaveri.org/h7e844e2e832398d238928abcd64f3266afa41dc",
             "verticleInstances": 2
 

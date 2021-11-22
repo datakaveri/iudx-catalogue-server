@@ -59,6 +59,23 @@ A hot-swappable redeployer is provided for quick development
 `./redeploy.sh`
 
 
+### Keystore
+The server requires certificates to be stored in Java keystore format.
+1. Obtain certs for your domain using Letsencrypt. Note: Self signed certificates using openssl will also work.
+2. Concat all pems into one file 
+`sudo cat /etc/letsencrypt/live/demo.example.com/*.pem > fullcert.pem`
+3. Convert to pkcs format 
+` openssl pkcs12 -export -out fullcert.pkcs12 -in fullcert.pem`
+4. Create new temporary keystore using JDK keytool, will prompt for password 
+`keytool -genkey -keyalg RSA -alias mykeystore -keystore mykeystore.ks`  
+`keytool -delete -alias mykeystore -keystore mykeystore.ks` 
+5. Make JKS, will prompt for password 
+`keytool -v -importkeystore -srckeystore fullcert.pkcs12 -destkeystore mykeystore.ks -deststoretype JKS`
+6. Store JKS in config directory and edit the keyfile name and password entered in previous step
+7. Mention keystore mount path (w.r.t docker-compose) in config.json
+
+
+
 ### Testing
 
 ### Unit tests
@@ -78,6 +95,16 @@ Integration tests are through Postman/Newman whose script can be found from [her
 4. Run the integration tests and generate the newman report 
    `newman run <postman-collection-path> -e <postman-environment> --insecure -r htmlextra --reporter-htmlextra-export .`
 5. Reports are stored in `./target/`
+
+### JUnit Integration tests
+Run tests in this order for JUnit based integration tests
+1. Cleanup any previous test artifacts from the db
+    `mvn clean test -Dtest=ServerVerticleDeboardTest` 
+2. Prepare the database with items for testing 
+   `mvn clean test -Dtest=ApiServerVerticlePreprareTest`
+3. Test the APIServer 
+   `mvn clean test -Dtest=ApiServerVerticleTest`
+4. Repeat step 1 to clean db of all test artifacts
 
 
 ## Contributing

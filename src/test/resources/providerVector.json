@@ -12,7 +12,7 @@
         "data": {
             "@context": "https://voc.iudx.org.in/",
             "type": [ "iudx:Provider" ],
-            "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+            "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86",
             "name": "testProvider",
             "description": "Test Provider",
             "providerOrg": {

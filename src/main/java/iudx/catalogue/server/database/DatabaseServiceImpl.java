@@ -38,6 +38,14 @@ public class DatabaseServiceImpl implements DatabaseService {
   private boolean nlpPluggedIn;
   private boolean geoPluggedIn;
 
+
+  private static String INTERNAL_ERROR_RESP = new RespBuilder()
+                                          .withType(TYPE_INTERNAL_SERVER_ERROR)
+                                          .withTitle(TITLE_INTERNAL_SERVER_ERROR)
+                                          .getResponse();
+
+
+
   public DatabaseServiceImpl(ElasticClient client) {
     this.client = client;
     nlpPluggedIn = false;
@@ -65,8 +73,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     /* Validate the Request */
     if (!request.containsKey(SEARCH_TYPE)) {
       handler.handle(Future.failedFuture(
-            respBuilder.withStatus(FAILED)
-                        .withDescription(NO_SEARCH_TYPE_FOUND)
+            respBuilder.withType(TYPE_INVALID_SYNTAX)
+                        .withTitle(TITLE_INVALID_SYNTAX)
+                        .withDetail(NO_SEARCH_TYPE_FOUND)
                         .getResponse()));
       return null;
     }
@@ -76,10 +85,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     if (query.containsKey(ERROR)) {
 
       LOGGER.error("Fail: Query returned with an error");
-      handler.handle(Future.failedFuture(
-            respBuilder.withStatus(FAILED)
-                        .withDescription(query.getString(ERROR))
-                        .getResponse()));
+      handler.handle(Future.failedFuture(query.getJsonObject(ERROR).toString()));
       return null;
     }
 
@@ -91,17 +97,13 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB Request;" + searchRes.cause().getMessage());
-        handler.handle(Future.failedFuture(
-              respBuilder.withStatus(FAILED)
-                          .withDescription(INTERNAL_SERVER_ERROR)
-                          .getResponse()));
+        handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
       }
     });
     return this;
   }
 
   public DatabaseService nlpSearchQuery(JsonArray request, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
     JsonArray embeddings = request.getJsonArray(0);
     client.scriptSearch(embeddings, searchRes -> {
       if(searchRes.succeeded()) {
@@ -109,10 +111,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB request;" + searchRes.cause().getMessage());
-        handler.handle(Future.failedFuture(
-          respBuilder.withStatus(FAILED)
-                      .withDescription(INTERNAL_SERVER_ERROR)
-                      .getResponse()));
+        handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
       }
     });
     return this;
@@ -121,7 +120,6 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService nlpSearchLocationQuery(JsonArray request,
                                                 String location,
                                                 Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
     JsonArray embeddings = request.getJsonArray(0);
     client
     .scriptLocationSearch(embeddings, location, searchRes -> {
@@ -130,10 +128,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB request;" + searchRes.cause().getMessage());
-        handler.handle(Future.failedFuture(
-          respBuilder.withStatus(FAILED)
-                      .withDescription(INTERNAL_SERVER_ERROR)
-                      .getResponse()));
+        handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
       }
     });
 
@@ -143,15 +138,11 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    RespBuilder respBuilder = new RespBuilder();
     request.put(SEARCH, false);
 
     /* Validate the Request */
     if (!request.containsKey(SEARCH_TYPE)) {
-      handler.handle(Future.failedFuture(
-            respBuilder.withStatus(FAILED)
-                        .withDescription(NO_SEARCH_TYPE_FOUND)
-                        .getResponse()));
+      handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
       return null;
     }
 
@@ -161,10 +152,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
       LOGGER.error("Fail: Query returned with an error");
 
-      handler.handle(Future.failedFuture(
-            respBuilder.withStatus(FAILED)
-                        .withDescription(query.getString(ERROR))
-                        .getResponse()));
+      handler.handle(Future.failedFuture(query.getJsonObject(ERROR).toString()));
       return null;
     }
 
@@ -176,13 +164,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB Request;" + searchRes.cause().getMessage());
-        handler.handle(Future.failedFuture(
-              respBuilder.withStatus(FAILED)
-                          .withDescription(INTERNAL_SERVER_ERROR)
-                          .getResponse()));
+        handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
       }
     });
-    Future<JsonObject> fut = Future.future();
     return this;
   }
 
@@ -196,7 +180,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     String id = doc.getString("id");
     final String instanceId = doc.getString(INSTANCE);
 
-    String errorJson = respBuilder.withStatus(FAILED).withResult(id, INSERT, FAILED).getResponse();
+    String errorJson = respBuilder.withType(FAILED).withResult(id, INSERT, FAILED).getResponse();
 
     String checkItem = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
 
@@ -212,7 +196,8 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (checkRes.succeeded()) {
             if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
               handler.handle(Future.failedFuture(
-                  respBuilder.withStatus(ERROR)
+                  respBuilder.withType(TYPE_ALREADY_EXISTS)
+                             .withTitle(TITLE_ALREADY_EXISTS)
                              .withResult(id, INSERT, FAILED, "Fail: Doc Exists")
                              .getResponse()));
               return;
@@ -233,8 +218,9 @@ public class DatabaseServiceImpl implements DatabaseService {
                     client.docPostAsync(doc.toString(), postRes -> {
                       if (postRes.succeeded()) {
                         handler.handle(Future.succeededFuture(
-                              respBuilder.withStatus(SUCCESS)
-                              .withResult(id, INSERT, SUCCESS)
+                              respBuilder.withType(TYPE_SUCCESS)
+                              .withTitle(TITLE_SUCCESS)
+                              .withResult(id, INSERT, TYPE_SUCCESS)
                               .getJsonResponse()));
                       } else {
                         handler.handle(Future.failedFuture(errorJson));
@@ -253,8 +239,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                   client.docPostAsync(doc.toString(), postRes -> {
                     if (postRes.succeeded()) {
                       handler.handle(Future.succeededFuture(
-                          respBuilder.withStatus(SUCCESS)
-                                     .withResult(id, INSERT, SUCCESS)
+                          respBuilder.withType(TYPE_SUCCESS)
+                                     .withResult(id, INSERT, TYPE_SUCCESS)
                                      .getJsonResponse()));
                     } else {
                       handler.handle(Future.failedFuture(errorJson));
@@ -268,7 +254,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
       } else if (instanceHandler.failed()) {
         handler.handle(Future.failedFuture(
-            respBuilder.withStatus(ERROR)
+            respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
+                        .withTitle(TITLE_OPERATION_NOT_ALLOWED)
                        .withResult(id, INSERT, FAILED, instanceHandler.cause().getLocalizedMessage())
                        .getResponse()));
       }
@@ -286,37 +273,34 @@ public class DatabaseServiceImpl implements DatabaseService {
     String id = doc.getString("id");
     String checkQuery = GET_DOC_QUERY.replace("$1", id).replace("$2", "\"" + id + "\"");
 
-    String errorJson = respBuilder.withStatus(ERROR)
-                                  .withResult(id, UPDATE, FAILED)
-                                  .getResponse();
 
     new Timer().schedule(new TimerTask() {
       public void run() {
         client.searchGetId(checkQuery, checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(errorJson));
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
             return;
           }
           if (checkRes.succeeded()) {
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Doc doesn't exist, can't update");
-              handler.handle(Future.succeededFuture(
-                  respBuilder.withStatus(ERROR)
-                             .withResult(id, UPDATE, FAILED, 
-                                 "Fail: Doc doesn't exist, can't update")
-                             .getJsonResponse()));
+              handler.handle(Future.failedFuture(
+                    respBuilder.withType(TYPE_ITEM_NOT_FOUND)
+                                .withTitle(TITLE_ITEM_NOT_FOUND)
+                                .withResult(id, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
+                  .getResponse()));
               return;
             }
             String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
             client.docPutAsync(docId, doc.toString(), putRes -> {
               if (putRes.succeeded()) {
                 handler.handle(Future.succeededFuture(
-                    respBuilder.withStatus(SUCCESS)
-                               .withResult(id, UPDATE, SUCCESS)
-                               .getJsonResponse()));
+                      respBuilder.withType(TYPE_SUCCESS)
+                                  .withTitle(TYPE_SUCCESS)
+                    .withResult(id, UPDATE, TYPE_SUCCESS).getJsonResponse()));
               } else {
-                handler.handle(Future.failedFuture(errorJson));
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
                 LOGGER.error("Fail: Updation failed;" + putRes.cause());
               }
             });
@@ -337,9 +321,6 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     RespBuilder respBuilder = new RespBuilder();
     String id = request.getString("id");
-    String errorJson = respBuilder.withStatus(FAILED)
-                                  .withResult(id, DELETE, FAILED)
-                                  .getResponse();
 
     new Timer().schedule(new TimerTask() {
       public void run() {
@@ -358,7 +339,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         client.searchGetId(checkQuery, checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause().getMessage());
-            handler.handle(Future.failedFuture(errorJson));
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
           }
 
           if (checkRes.succeeded()) {
@@ -366,19 +347,20 @@ public class DatabaseServiceImpl implements DatabaseService {
             if (checkRes.result().getInteger(TOTAL_HITS) > 1 && isParent.value == true) {
               LOGGER.error("Fail: Can't delete, parent doc has associated item;");
               handler
-                  .handle(Future.succeededFuture(
-                      respBuilder.withStatus(ERROR)
-                                 .withResult(id, DELETE, FAILED,
-                                     "Fail: Can't delete, resourceGroup has associated item")
-                                 .getJsonResponse()));
+                  .handle(Future.failedFuture(
+                    respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
+                                .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                                .withResult(id, DELETE, FAILED,
+                          "Fail: Can't delete, resourceGroup has associated item")
+                      .getResponse()));
               return;
             } else if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Doc doesn't exist, can't delete;");
-              handler.handle(Future.succeededFuture(
-                  respBuilder.withStatus(ERROR)
-                             .withResult(id, DELETE, FAILED, 
-                                 "Fail: Doc doesn't exist, can't delete")
-                             .getJsonResponse()));
+              handler.handle(Future.failedFuture(
+                    respBuilder.withType(TYPE_ITEM_NOT_FOUND)
+                                .withTitle(TITLE_ITEM_NOT_FOUND)
+                                .withResult(id, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
+                  .getResponse()));
               return;
             }
           }
@@ -387,11 +369,11 @@ public class DatabaseServiceImpl implements DatabaseService {
           client.docDelAsync(docId, delRes -> {
             if (delRes.succeeded()) {
               handler.handle(Future.succeededFuture(
-                  respBuilder.withStatus(SUCCESS)
-                             .withResult(id, DELETE, SUCCESS)
-                             .getJsonResponse()));
+                    respBuilder.withType(TYPE_SUCCESS)
+                                .withTitle(TITLE_SUCCESS)
+                  .withResult(id, DELETE, TYPE_SUCCESS).getJsonResponse()));
             } else {
-              handler.handle(Future.failedFuture(errorJson));
+              handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
               LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
             }
           });
@@ -422,8 +404,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: Failed getting item;" + clientHandler.cause());
         /* Handle request error */
         handler.handle(
-            Future.failedFuture(respBuilder.withStatus(FAILED)
-                                            .withDescription(INTERNAL_SERVER_ERROR)
+            Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
+                                            .withTitle(TITLE_INTERNAL_SERVER_ERROR)
                                             .getResponse()));
       }
     });
@@ -450,8 +432,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: DB request has failed;" + clientHandler.cause());
         /* Handle request error */
         handler.handle(
-            Future.failedFuture(respBuilder.withStatus(FAILED)
-                                            .withDescription(INTERNAL_SERVER_ERROR)
+            Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
+                                            .withTitle(TITLE_INTERNAL_SERVER_ERROR)
                                             .getResponse()));
       }
     });
@@ -478,8 +460,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
         /* Handle request error */
         handler.handle(
-            Future.failedFuture(respBuilder.withStatus(FAILED)
-                                            .withDescription(INTERNAL_SERVER_ERROR)
+            Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
+                                            .withDetail(TITLE_INTERNAL_SERVER_ERROR)
                                             .getResponse()));
       }
     });
@@ -494,8 +476,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     RespBuilder respBuilder = new RespBuilder();
     String subQuery = "";
-    String errorJson = respBuilder.withStatus(FAILED)
-                                  .withDescription(ERROR_INVALID_PARAMETER)
+    String errorJson = respBuilder.withType(FAILED)
+                                  .withDetail(ERROR_INVALID_PARAMETER)
                                   .getResponse();
 
     /* Validating the request */
@@ -594,18 +576,12 @@ public class DatabaseServiceImpl implements DatabaseService {
               handler.handle(Future.succeededFuture(relSearchRes.result()));
             } else if (relSearchRes.failed()) {
               LOGGER.error("Fail: DB request has failed;" + relSearchRes.cause().getMessage());
-              handler.handle(Future.failedFuture(
-                              respBuilder.withStatus(FAILED)
-                                          .withDescription(INTERNAL_SERVER_ERROR)
-                                          .getResponse()));
+              handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
             }
           });
         } else {
           LOGGER.error("Fail: DB request has failed;" + searchRes.cause().getMessage());
-          handler.handle(Future.failedFuture(
-              respBuilder.withStatus(FAILED)
-                          .withDescription(INTERNAL_SERVER_ERROR)
-                          .getResponse()));
+          handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
         }
       });
     }
@@ -628,7 +604,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     client.searchAsync(checkInstance, checkRes -> {
       if (checkRes.failed()) {
         LOGGER.error(ERROR_DB_REQUEST + checkRes.cause().getMessage());
-        promise.fail(INTERNAL_SERVER_ERROR);
+        promise.fail(TYPE_INTERNAL_SERVER_ERROR);
       } else if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
         LOGGER.debug(INSTANCE_NOT_EXISTS);
         promise.fail("Fail: Instance doesn't exist/registered");
@@ -641,51 +617,4 @@ public class DatabaseServiceImpl implements DatabaseService {
     return promise.future();
   }
 
-
-  /**
-   * RespBuilder Response Message builder for search APIs
-   */
-  private class RespBuilder {
-    private JsonObject response = new JsonObject();
-
-    public RespBuilder withStatus(String status) {
-      response.put(STATUS, status);
-      return this;
-    }
-
-    public RespBuilder withDescription(String description) {
-      response.put(DESCRIPTION, description);
-      return this;
-    }
-
-    public RespBuilder withResult(String id, String method, String status) {
-      JsonObject resultAttrs = new JsonObject().put(ID, id)
-                                                .put(METHOD, method)
-                                                .put(STATUS, status);
-      response.put(RESULTS, new JsonArray().add(resultAttrs));
-      return this;
-    }
-    
-    public RespBuilder withResult(String id, String method, String status, String description) {
-      JsonObject resultAttrs = new JsonObject().put(ID, id)
-                                                .put(METHOD, method)
-                                                .put(STATUS, status)
-                                                .put(DESCRIPTION,description);
-      response.put(RESULTS, new JsonArray().add(resultAttrs));
-      return this;
-    }
-
-    public RespBuilder withResult() {
-      response.put(RESULTS, new JsonArray());
-      return this;
-    }
-
-    public JsonObject getJsonResponse() {
-      return response;
-    }
-
-    public String getResponse() {
-      return response.toString();
-    }
-  }
 }

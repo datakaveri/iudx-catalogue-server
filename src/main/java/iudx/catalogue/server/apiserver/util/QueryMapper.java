@@ -4,6 +4,7 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Range;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 
 /**
  * QueryMapper class to convert NGSILD query into json object for the purpose of debugrmation
@@ -52,37 +54,38 @@ public class QueryMapper {
     for (Entry<String, String> entry : queryParameters.entries()) {
 
       String paramValue = entry.getValue().replaceAll("^\"|\"$", "").trim();
+      String paramKey = entry.getKey();
       if (paramValue != null && paramValue.isEmpty()) {
-        LOGGER.debug("Error: Invalid parameter value; key: " + entry.getKey());
+        LOGGER.debug("Error: Invalid parameter value; key: " + paramKey);
         return null;
       } else if (!paramValue.startsWith("[") && !paramValue.endsWith("]")) {
-        if (!excepAttribute.contains(entry.getKey())) {
-          jsonBody.put(entry.getKey(), paramValue);
-        } else if (excepAttribute.contains(entry.getKey()) && !entry.getKey().equals("q")) {
-          jsonBody.put(entry.getKey(), Double.valueOf(paramValue).intValue());
-        } else if (entry.getKey().equals(Q_VALUE)
+        if (!excepAttribute.contains(paramKey)) {
+          jsonBody.put(paramKey, paramValue);
+        } else if (excepAttribute.contains(paramKey) && !paramKey.equals("q")) {
+          jsonBody.put(paramKey, Double.valueOf(paramValue).intValue());
+        } else if (paramKey.equals(Q_VALUE)
             && !regPatternText.matcher(paramValue).matches()) {
-          LOGGER.debug("Error: Invalid text string");
+          LOGGER.error("Error: Invalid text string");
           return null;
         } else {
-          jsonBody.put(entry.getKey(), paramValue);
+          jsonBody.put(paramKey, paramValue);
         }
       } else {
         try {
           Matcher matcher = regPatternMatchString.matcher(entry.getValue());
-          if (matcher.find() && !excepAttribute.contains(entry.getKey())) {
+          if (matcher.find() && !excepAttribute.contains(paramKey)) {
             String replacedValue = paramValue.replaceAll("[\\w]+[^\\,]*(?:\\.*[\\w])", "\"$0\"");
-            jsonBody.put(entry.getKey(), new JsonArray(replacedValue));
-          } else if (excepAttribute.contains(entry.getKey())) {
+            jsonBody.put(paramKey, new JsonArray(replacedValue));
+          } else if (excepAttribute.contains(paramKey)) {
             try {
-              jsonBody.put(entry.getKey(), new JsonArray(paramValue));
+              jsonBody.put(paramKey, new JsonArray(paramValue));
             } catch (DecodeException decodeException) {
-              LOGGER.error("Info: Invalid Json value " + decodeException.getMessage());
+              LOGGER.error("Error: Invalid Json value " + decodeException.getMessage());
               return null;
             }
           }
         } catch (Exception e) {
-          LOGGER.error("Info: Invalid Json value ");
+          LOGGER.error("Error: Invalid Json value ");
           return null;
         }
       }
@@ -134,7 +137,9 @@ public class QueryMapper {
       if (requestBody.containsKey(COORDINATES)) {
 
         Pattern pattern = Pattern.compile("[\\w]+[^\\,]*(?:\\.*[\\w])");
-        Matcher matcher = pattern.matcher(requestBody.getJsonArray(COORDINATES).toString());
+        String coordinateStr = requestBody.getJsonArray(COORDINATES, new JsonArray()).toString();
+        Matcher matcher = pattern.matcher(coordinateStr);
+
         List<String> coordinatesValues =
             matcher.results().map(MatchResult::group).collect(Collectors.toList());
 
@@ -144,7 +149,8 @@ public class QueryMapper {
             Double tempValue = Double.parseDouble(value);
             if (Double.isFinite(tempValue)) {
 
-              boolean isPrecise = (BigDecimal.valueOf(tempValue).scale() <= COORDINATES_PRECISION);
+              boolean isPrecise = (BigDecimal.valueOf(tempValue).scale() >= 0)
+                  && (BigDecimal.valueOf(tempValue).scale() <= COORDINATES_PRECISION);
 
               if (isPrecise == Boolean.FALSE) {
                 LOGGER.error("Error: Overflow coordinate precision");
@@ -161,14 +167,33 @@ public class QueryMapper {
           return errResponse.put(DESC,
               "The max number of 'coordinates' value is " + COORDINATES_SIZE);
         }
+        
+        String geometry = requestBody.getString(GEOMETRY, "");
+        boolean flag = true;
+        int countStr = StringUtils.countMatches(coordinateStr.substring(0, 5), "[");
+        if (geometry.equalsIgnoreCase(POLYGON) && countStr == 3) {
+        } else if (geometry.equalsIgnoreCase(POINT) && countStr == 1) {
+        } else if ((geometry.equalsIgnoreCase(LINESTRING) 
+            || geometry.equals(BBOX)) && countStr == 2) {
+        } else {
+          LOGGER.error("Error: Invalid coordinate format");
+          return errResponse.put(DESC, "Invalid coordinate format");
+        }
       }
 
       /* Validating maxDistance attribute for positive integer */
-      if (requestBody.containsKey(MAX_DISTANCE)
-          && !Range.closed(0, MAXDISTANCE_LIMIT).contains(requestBody.getInteger(MAX_DISTANCE))) {
-        LOGGER.error("Error: maxDistance should range between 0-10000m");
-        return errResponse.put(DESC,
-            "The 'maxDistance' should range between 0-10000m");
+      if (requestBody.getString(GEOMETRY, "").equalsIgnoreCase(POINT)) {
+        if (requestBody.containsKey(MAX_DISTANCE)) {
+          if (!Range.closed(0, MAXDISTANCE_LIMIT).contains(requestBody.getInteger(MAX_DISTANCE))) {
+            LOGGER.error("Error: maxDistance should range between 0-10000m");
+            return errResponse.put(DESC, "The 'maxDistance' should range between 0-10000m");
+          }
+        } else {
+            return new RespBuilder()
+                  .withType(TYPE_INVALID_SYNTAX)
+                  .withTitle(TITLE_INVALID_SYNTAX)
+                  .getJsonResponse();
+        }
       }
     }
 
@@ -186,13 +211,22 @@ public class QueryMapper {
     /* Validating AttributeSearch limits */
     if (searchType.contains(SEARCH_TYPE_ATTRIBUTE)) {
       
+      Pattern valuePattern = Pattern.compile("^[a-zA-Z0-9]([\\w-._:\\/]*[a-zA-Z0-9])?$");
+
       /* Checking the number of property and value within the request */
       if (requestBody.getJsonArray(PROPERTY).size() <= PROPERTY_SIZE) {
         JsonArray values = requestBody.getJsonArray(VALUE);
 
         if (values.size() <= VALUE_SIZE) {
           for (Object value : values) {
+
             JsonArray nestedValue = (JsonArray) value;
+            for (Object entry : nestedValue) {
+              if (!valuePattern.matcher((String) entry).matches()) {
+                return errResponse.put(DESC, "Invalid 'value' format");
+              }
+            }
+
             if (nestedValue.size() > VALUE_SIZE) {
               LOGGER.error("Error: The value query param has exceeded the limit");
               return errResponse.put(DESC, "The max number of 'value' should be " + VALUE_SIZE);
@@ -219,26 +253,21 @@ public class QueryMapper {
     /* Validating length of instance header */
     if (requestBody.containsKey(INSTANCE)) {
       String instance = requestBody.getString(INSTANCE, "");
-      if (instance != null && instance.length() > ID_SIZE) {
+      if (instance != null && instance.length() > INSTANCE_SIZE) {
         LOGGER.error("Error: The instance length has exceeded the limit");
-        return errResponse.put(DESC, "The max length of 'instance' should be " + ID_SIZE);
+        return errResponse.put(DESC, "The max length of 'instance' should be " + INSTANCE_SIZE);
       }
     }
 
-    /* Validating length of limit param */
-    if (requestBody.containsKey(LIMIT)) {
+    /* Validating length of limit & offset param */
+    if (requestBody.containsKey(LIMIT) || requestBody.containsKey(OFFSET)) {
       Integer limit = requestBody.getInteger(LIMIT, 0);
-      if (limit <= 0 || limit > FILTER_PAGINATION_SIZE) {
-        LOGGER.error("Error: The limit query param has exceeded the limit");
-        return errResponse.put(DESC, "The limit should be between 1 to " + FILTER_PAGINATION_SIZE);
-      }
-    }
-
-    /* Validating length of offset param */
-    if (requestBody.containsKey(OFFSET)) {
       Integer offset = requestBody.getInteger(OFFSET, 0);
-      if (offset < 0 || offset > OFFSET_PAGINATION_SIZE) {
-        return errResponse.put(DESC, "The offset should be between 0 to " + OFFSET_PAGINATION_SIZE);
+      Integer totalSize = limit + offset;
+      if (totalSize <= 0 || totalSize > MAX_RESULT_WINDOW) {
+        LOGGER.error("Error: The limit + offset param has exceeded the limit");
+        return errResponse.put(DESC,
+            "The limit + offset should be between 1 to " + MAX_RESULT_WINDOW);
       }
     }
 

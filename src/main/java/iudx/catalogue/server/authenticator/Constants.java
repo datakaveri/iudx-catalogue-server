@@ -16,6 +16,12 @@ public class Constants {
     public static final String AUTH_SERVER_ERROR = "Error calling the Auth Server";
 
     public static final int TOKEN_SIZE = 512;
-    public static final String TOKEN_REGEX = "^[a-zA-Z0-9\\/\\@\\.]*$";
+    public static final String TOKEN_REGEX = "^[a-zA-Z0-9\\/\\@\\.\\-]*$";
 
+    /* JWT specific */
+    public static final String JSON_USERID = "userid";
+    public static final String API_ENDPOINT = "apiEndpoint";
+    public static final String METHOD = "method";
+    public static final String ITEM_ENDPOINT = "/iudx/cat/v1/item";
+    public static final String INSTANCE_ENDPOINT = "/iudx/cat/v1/instance";
 }

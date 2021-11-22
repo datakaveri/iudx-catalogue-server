@@ -18,7 +18,7 @@ import io.vertx.core.http.HttpServerResponse;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.database.DatabaseService;
 
 
@@ -96,9 +96,13 @@ public final class ListApis {
             break;
           default:
             LOGGER.error("Fail: Invalid itemType:" + itemType);
-            response.setStatusCode(400).end(
-                new JsonObject().put(STATUS, ERROR).put("message", "Invalid itemType").toString());
-            return;
+            response.setStatusCode(400)
+                    .end(new RespBuilder()
+                              .withType(TYPE_INVALID_SYNTAX)
+                              .withTitle(TITLE_INVALID_SYNTAX)
+                              .withDetail(DETAIL_WRONG_ITEM_TYPE)
+                              .getResponse());
+        return;
         }
         requestBody.put(TYPE, type);
 
@@ -110,20 +114,31 @@ public final class ListApis {
           } else if (dbhandler.failed()) {
             LOGGER.error(
                 "Fail: Issue in listing " + itemType + ": " + dbhandler.cause().getMessage());
-            response.setStatusCode(400).end(dbhandler.cause().getMessage());
+            response.setStatusCode(400)
+                    .end(new RespBuilder()
+                              .withType(TYPE_INVALID_SYNTAX)
+                              .withTitle(TITLE_INVALID_SYNTAX)
+                              .withDetail(DETAIL_WRONG_ITEM_TYPE)
+                              .getResponse());
           }
         });
       } else {
         LOGGER.error("Fail: Search/Count; Invalid request query parameters");
         response.setStatusCode(400)
-                .end(resp.toString());
+          .end(new RespBuilder()
+              .withType(TYPE_INVALID_SYNTAX)
+              .withTitle(TITLE_INVALID_SYNTAX)
+              .withDetail(DETAIL_WRONG_ITEM_TYPE)
+              .getResponse());
       }
     } else {
       LOGGER.error("Fail: Search/Count; Invalid request query parameters");
-      response.setStatusCode(400)
-              .end(new ResponseHandler.Builder()
-                                      .withStatus(INVALID_SYNTAX)
-                                      .build().toJsonString());
+        response.setStatusCode(400)
+          .end(new RespBuilder()
+              .withType(TYPE_INVALID_SYNTAX)
+              .withTitle(TITLE_INVALID_SYNTAX)
+              .withDetail(DETAIL_WRONG_ITEM_TYPE)
+              .getResponse());
     }
   }
 }

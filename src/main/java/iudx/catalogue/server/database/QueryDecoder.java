@@ -33,7 +33,9 @@ public final class QueryDecoder {
 
     /* TODO: Pagination for large result set */
     if (request.getBoolean(SEARCH)) {
-      elasticQuery.put(SIZE_KEY, FILTER_PAGINATION_SIZE);
+      Integer limit =
+          request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+      elasticQuery.put(SIZE_KEY, limit);
     }
 
     /* Handle the search type */
@@ -61,11 +63,16 @@ public final class QueryDecoder {
         int length = coordinates.getJsonArray(0).size();
         /* Check if valid polygon */
         if (geometry.equalsIgnoreCase(POLYGON)
-            && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(0)
+            && (!coordinates.getJsonArray(0).getJsonArray(0).getDouble(0)
                 .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(0))
-            && !coordinates.getJsonArray(0).getJsonArray(0).getDouble(1)
-                .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(1))) {
-          return new JsonObject().put(ERROR, ERROR_INVALID_COORDINATE_POLYGON);
+            || !coordinates.getJsonArray(0).getJsonArray(0).getDouble(1)
+                .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(1)))) {
+
+          return new JsonObject().put(ERROR, new RespBuilder()
+                      .withType(TYPE_INVALID_GEO_VALUE)
+                      .withTitle(TITLE_INVALID_GEO_VALUE)
+                      .withDetail(DETAIL_INVALID_COORDINATE_POLYGON)
+                      .getJsonResponse());
         }
         queryGeoShape = GEO_SHAPE_QUERY.replace("$1", geometry).replace("$2", coordinates.toString())
             .replace("$3", relation).replace("$4", geoProperty + GEO_KEY);
@@ -77,7 +84,10 @@ public final class QueryDecoder {
         queryGeoShape = GEO_SHAPE_QUERY.replace("$1", GEO_BBOX).replace("$2", coordinates.toString())
             .replace("$3", relation).replace("$4", geoProperty + GEO_KEY);
       } else {
-        return new JsonObject().put(ERROR, ERROR_INVALID_GEO_PARAMETER);
+        return new JsonObject().put(ERROR, new RespBuilder()
+                    .withType(TYPE_INVALID_GEO_PARAM)
+                    .withTitle(TITLE_INVALID_GEO_PARAM)
+                    .getJsonResponse());
       }
     }
 
@@ -92,6 +102,11 @@ public final class QueryDecoder {
         String textAttr = request.getString(Q_VALUE);
         String textQuery = TEXT_QUERY.replace("$1", textAttr);
         mustQuery.add(new JsonObject(textQuery));
+      } else {
+        return new JsonObject().put(ERROR, new RespBuilder()
+                    .withType(TYPE_BAD_TEXT_QUERY)
+                    .withTitle(TITLE_BAD_TEXT_QUERY)
+                    .getJsonResponse());
       }
     }
 
@@ -140,7 +155,10 @@ public final class QueryDecoder {
             mustQuery.add(new JsonObject(SHOULD_QUERY.replace("$1", shouldQuery.toString())));
           }
         } else {
-          return new JsonObject().put(ERROR, ERROR_INVALID_PARAMETER);
+          return new JsonObject().put(ERROR, new RespBuilder()
+                      .withType(TYPE_INVALID_PROPERTY_VALUE)
+                      .withTitle(TITLE_INVALID_PROPERTY_VALUE)
+                      .getJsonResponse());
         }
       }
     }
@@ -170,7 +188,10 @@ public final class QueryDecoder {
       match = true;
       
       if (!request.getBoolean(SEARCH)) {
-        return new JsonObject().put(ERROR, COUNT_UNSUPPORTED);
+        return new JsonObject().put(ERROR, new RespBuilder()
+            .withType(TYPE_OPERATION_NOT_ALLOWED)
+            .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+            .getJsonResponse());
       }
       
       if (request.containsKey(ATTRIBUTE)) {
@@ -180,19 +201,33 @@ public final class QueryDecoder {
         JsonArray sourceFilter = request.getJsonArray(FILTER);
         elasticQuery.put(SOURCE, sourceFilter);
       } else {
-        return new JsonObject().put(ERROR, ERROR_INVALID_RESPONSE_FILTER);
+        return new JsonObject().put(ERROR, new RespBuilder()
+            .withType(TYPE_BAD_FILTER)
+            .withTitle(TITLE_BAD_FILTER)
+            .getJsonResponse());
       }
     }
 
     if (!match) {
-      return new JsonObject().put(ERROR, INVALID_SEARCH);
+        return new JsonObject().put(ERROR, new RespBuilder()
+            .withType(TYPE_INVALID_SYNTAX)
+            .withTitle(TITLE_INVALID_SYNTAX)
+            .getJsonResponse());
     } else {
 
       JsonObject boolQuery = new JsonObject(MUST_QUERY.replace("$1", mustQuery.toString()));
       /* return fully formed elastic query */
       if (queryGeoShape != null) {
-        boolQuery.getJsonObject("bool").put(FILTER,
-            new JsonArray().add(new JsonObject(queryGeoShape)));
+        try {
+          boolQuery.getJsonObject("bool").put(FILTER,
+              new JsonArray().add(new JsonObject(queryGeoShape)));
+        } catch (Exception e) {
+          return new JsonObject().put(ERROR, new RespBuilder()
+                      .withType(TYPE_INVALID_GEO_VALUE)
+                      .withTitle(TITLE_INVALID_GEO_VALUE)
+                      .withDetail(DETAIL_INVALID_COORDINATE_POLYGON)
+                      .getJsonResponse());
+        }
       }
       return elasticQuery.put(QUERY_KEY, boolQuery);
     }
@@ -271,7 +306,9 @@ public final class QueryDecoder {
     }
 
     String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
-    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, FILTER_PAGINATION_SIZE);
+    Integer limit =
+        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
 
     if (TYPE_KEY.equals(relationshipType)) {
       elasticQuery = tempQuery.put(SOURCE, TYPE_KEY).toString();
@@ -327,7 +364,9 @@ public final class QueryDecoder {
       }
     }
     
-    elasticQuery = tempQuery.replace("$size", request.getInteger(LIMIT, FILTER_PAGINATION_SIZE).toString());
+    Integer limit =
+        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    elasticQuery = tempQuery.replace("$size", limit.toString());
 
     return elasticQuery;
   }

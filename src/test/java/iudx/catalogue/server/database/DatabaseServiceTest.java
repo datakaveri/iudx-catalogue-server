@@ -1,6 +1,7 @@
 package iudx.catalogue.server.database;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -8,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-// import io.vertx.reactivex.core.Vertx;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
@@ -93,9 +93,8 @@ public class DatabaseServiceTest {
     request.put(ITEM_TYPE, RESOURCE).put(ID,
         "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.createItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(STATUS);
-      System.out.println(response);
-      assertEquals(SUCCESS, status);
+      String status = response.getString(TYPE);
+      assertEquals(TYPE_SUCCESS, status);
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
@@ -110,9 +109,8 @@ public class DatabaseServiceTest {
             "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
         .put("test", "test");
     dbService.updateItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(STATUS);
-      System.out.println(response);
-      assertEquals(SUCCESS, status);
+      String status = response.getString(TYPE);
+      assertEquals(TYPE_SUCCESS, status);
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
@@ -126,9 +124,8 @@ public class DatabaseServiceTest {
     request.put(ITEM_TYPE, RESOURCE).put(ID,
         "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
     dbService.deleteItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(STATUS);
-      System.out.println(response);
-      assertEquals(SUCCESS, status);
+      String status = response.getString(TYPE);
+      assertEquals(TYPE_SUCCESS, status);
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
@@ -142,9 +139,8 @@ public class DatabaseServiceTest {
     request.put(ITEM_TYPE, RESOURCE).put(ID,
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_3512345");
     dbService.deleteItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(STATUS);
-      System.out.println(status);
-      assertEquals(ERROR, status);
+      String status = response.getString(TYPE);
+      assertEquals(TYPE_ITEM_NOT_FOUND, status);
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
@@ -158,10 +154,9 @@ public class DatabaseServiceTest {
     request.put(ITEM_TYPE, RESOURCE).put(ID,
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_354567")
         .put("test", "test");
-    dbService.updateItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(STATUS);
-      System.out.println(response);
-      assertEquals(ERROR, status);
+    dbService.updateItem(request, testContext.failing(response -> testContext.verify(() -> {
+      String status = new JsonObject(response.getMessage()).getString(TYPE);
+      assertEquals(TYPE_ITEM_NOT_FOUND, status);
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
@@ -175,8 +170,8 @@ public class DatabaseServiceTest {
     request.put(ITEM_TYPE, RESOURCE).put(ID,
         "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_3");
     dbService.createItem(request, testContext.failing(response -> testContext.verify(() -> {
-      String status = response.getMessage();
-      assertTrue(status.contains("\"status\":\"error\""));
+      String status = new JsonObject(response.getMessage()).getString(TYPE);
+      assertEquals(TYPE_ALREADY_EXISTS, status);
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
@@ -205,7 +200,7 @@ public class DatabaseServiceTest {
 
     dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
       JsonObject res = new JsonObject(response.getMessage());
-      assertEquals("No searchType found", res.getString(DESCRIPTION));
+      assertEquals("No searchType found", res.getString(DETAIL));
       testContext.completeNow();
     })));
   }
@@ -241,7 +236,7 @@ public class DatabaseServiceTest {
   //
   // dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
   // JsonObject res = new JsonObject(response.getMessage());
-  // // assertEquals("Missing/Invalid geo parameters", res.getString(DESCRIPTION));
+  // // assertEquals("Missing/Invalid geo parameters", res.getString(DETAIL));
   // assertTrue(response.getCause() instanceof NullPointerException);
   // testContext.completeNow();
   // })));
@@ -258,7 +253,7 @@ public class DatabaseServiceTest {
 
     dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
       JsonObject res = new JsonObject(response.getMessage());
-      assertEquals("Coordinate mismatch (Polygon)", res.getString(DESCRIPTION));
+      assertEquals("Coordinate mismatch (Polygon)", res.getString(DETAIL));
       testContext.completeNow();
     })));
   }
@@ -345,8 +340,9 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER);
 
     dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
+      System.out.println(response);
       JsonObject res = new JsonObject(response.getMessage());
-      assertEquals(ERROR_INVALID_RESPONSE_FILTER, res.getString(DESCRIPTION));
+      assertEquals(TYPE_BAD_FILTER, res.getString(TYPE));
       testContext.completeNow();
     })));
   }
@@ -389,7 +385,7 @@ public class DatabaseServiceTest {
         .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, LOCATION);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(2, response.getInteger(TOTAL_HITS));
+      assertNotEquals(0, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -402,7 +398,7 @@ public class DatabaseServiceTest {
 
     dbService.countQuery(request, testContext.failing(response -> testContext.verify(() -> {
       JsonObject res = new JsonObject(response.getMessage());
-      assertEquals(COUNT_UNSUPPORTED, res.getString(DESCRIPTION));
+      assertEquals(TYPE_OPERATION_NOT_ALLOWED, res.getString(TYPE));
       testContext.completeNow();
     })));
   }
@@ -417,7 +413,7 @@ public class DatabaseServiceTest {
 
     dbService.countQuery(request, testContext.failing(response -> testContext.verify(() -> {
       JsonObject res = new JsonObject(response.getMessage());
-      assertEquals(COUNT_UNSUPPORTED, res.getString(DESCRIPTION));
+      assertEquals(TYPE_OPERATION_NOT_ALLOWED, res.getString(TYPE));
       testContext.completeNow();
     })));
   }
@@ -434,7 +430,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, LOCATION).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(1, response.getInteger(TOTAL_HITS));
+      assertNotEquals(0, response.getInteger(TOTAL_HITS));
       testContext.completeNow();
     })));
   }
@@ -450,7 +446,7 @@ public class DatabaseServiceTest {
             .put(GEOPROPERTY, LOCATION).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
     dbService.countQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(SUCCESS, response.getString(STATUS));
+      assertEquals(TYPE_SUCCESS, response.getString(TYPE));
       testContext.completeNow();
     })));
   }
@@ -466,7 +462,7 @@ public class DatabaseServiceTest {
 
     dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
       JsonObject res = new JsonObject(response.getMessage());
-      assertEquals(INVALID_SEARCH, res.getString(DESCRIPTION));
+      assertEquals(TYPE_INVALID_SYNTAX, res.getString(TYPE));
       testContext.completeNow();
     })));
   }
@@ -1093,8 +1089,8 @@ public class DatabaseServiceTest {
     dbService.relSearch(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-          assertEquals(SUCCESS,
-            response.getString(STATUS));
+          assertEquals(TYPE_SUCCESS,
+            response.getString(TYPE));
           testContext.completeNow();
       });
     }));

@@ -7,8 +7,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import io.vertx.reactivex.core.Vertx;
-import io.vertx.reactivex.core.file.FileSystem;
+import io.vertx.core.Vertx;
+import io.vertx.core.file.FileSystem;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.database.ElasticClient;
@@ -217,7 +217,7 @@ public class ConstraintsValidationTest {
         .put(VALUE,
             new JsonArray().add(
                 new JsonArray().add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
-                    + "iudx.io/aqm-bosch-climo/Ambedkar society circle_29")))
+                    + "iudx.io/aqm-bosch-climo/Ambedkarsocietycircle_29")))
         .put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE);
 
     JsonObject json = QueryMapper.validateQueryParam(requests);

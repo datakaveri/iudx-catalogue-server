@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 
 import io.vertx.core.MultiMap;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
@@ -69,7 +69,6 @@ public final class SearchApis {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
@@ -91,9 +90,10 @@ public final class SearchApis {
 
       LOGGER.error("Fail: Invalid Syntax");
       response.setStatusCode(400)
-        .end(new ResponseHandler.Builder()
-                                .withStatus(INVALID_SYNTAX)
-                                .build().toJsonString());
+        .end(new RespBuilder()
+                  .withType(TYPE_INVALID_SYNTAX)
+                  .withTitle(TITLE_INVALID_SYNTAX)
+                  .getResponse());
       return;
 
       /* checking the values of the query parameters */
@@ -115,9 +115,10 @@ public final class SearchApis {
 
     } else {
           response.setStatusCode(400)
-                  .end(new ResponseHandler.Builder()
-                                          .withStatus(INVALID_VALUE)
-                                          .build().toJsonString());
+                  .end(new RespBuilder()
+                              .withType(TYPE_INVALID_GEO_VALUE)
+                              .withTitle(TITLE_INVALID_GEO_VALUE)
+                              .getResponse());
       return;
     }
 
@@ -145,8 +146,7 @@ public final class SearchApis {
               response.end(resultJson.toString());
             } else if (handler.failed()) {
               LOGGER.error("Fail: Search;" + handler.cause().getMessage());
-              response.setStatusCode(400)
-                      .end(handler.cause().getMessage());
+              response.setStatusCode(400).end(handler.cause().getMessage());
             }
           });
         } else {
@@ -180,9 +180,10 @@ public final class SearchApis {
     } else {
       LOGGER.error("Fail: Search/Count; Invalid request query parameters");
       response.setStatusCode(400)
-              .end(new ResponseHandler.Builder()
-                                      .withStatus(INVALID_SYNTAX)
-                                      .build().toJsonString());
+          .end(new RespBuilder()
+                    .withType(TYPE_INVALID_SYNTAX)
+                    .withTitle(TITLE_INVALID_SYNTAX)
+                    .getResponse());
     }
 
   }

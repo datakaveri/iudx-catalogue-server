@@ -2,6 +2,7 @@ package iudx.catalogue.server.geocoding;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
+import io.vertx.core.eventbus.MessageConsumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
@@ -30,6 +31,8 @@ public class GeocodingVerticle extends AbstractVerticle {
   private GeocodingService Geocoding;
   private String peliasUrl;
   private int peliasPort;
+  private ServiceBinder binder;
+  private MessageConsumer<JsonObject> consumer;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -41,12 +44,13 @@ public class GeocodingVerticle extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
-
+    binder = new ServiceBinder(vertx);
     peliasUrl = config().getString("peliasUrl");
     peliasPort = config().getInteger("peliasPort");
     Geocoding = new GeocodingServiceImpl(createWebClient(vertx, config()), peliasUrl, peliasPort);
 
-    new ServiceBinder(vertx).setAddress(GEOCODING_SERVICE_ADDRESS)
+    consumer =
+        binder.setAddress(GEOCODING_SERVICE_ADDRESS)
       .register(GeocodingService.class, Geocoding);
   }
 
@@ -66,5 +70,10 @@ public class GeocodingVerticle extends AbstractVerticle {
     WebClientOptions webClientOptions = new WebClientOptions();
     if (testing) webClientOptions.setTrustAll(true).setVerifyHost(false);
     return WebClient.create(vertx, webClientOptions);
+  }
+
+  @Override
+  public void stop() {
+    binder.unregister(consumer);
   }
 }

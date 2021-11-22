@@ -69,7 +69,7 @@ public final class ElasticClient {
   public ElasticClient scriptSearch(JsonArray queryVector, 
                                       Handler<AsyncResult<JsonObject>> resultHandler) {
    // String query = NLP_SEARCH.replace("$1", queryVector.toString());
-       String query = "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}}, \"script\": {\"source\": \"cosineSimilarity(params.query_vector, 'word_vector') + 1.0\",\"lang\": \"painless\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}},\"_source\": {\"excludes\": [\"word_vector\"]}}";
+       String query = "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}}, \"script\": {\"source\": \"cosineSimilarity(params.query_vector, '_word_vector') + 1.0\",\"lang\": \"painless\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}},\"_source\": {\"excludes\": [\"_word_vector\"]}}";
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
@@ -86,7 +86,7 @@ public final class ElasticClient {
     //query.replace("$3", Float.toString(coords.getFloat(2)));
    // query.replace("$4", Float.toString(coords.getFloat(3)));
     //query.replace("$5", query.toString());
-        String query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}},\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",\"coordinates\": [ [" + Float.toString(coords.getFloat(0)) + "," + Float.toString(coords.getFloat(3)) +"], [" + Float.toString(coords.getFloat(2)) + "," + Float.toString(coords.getFloat(1)) + "]]},\"relation\": \"within\"}}}}},\"script\": {\"source\": \"cosineSimilarity(params.query_vector, 'word_vector') + 1.0\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}},\"_source\": {\"excludes\": [\"word_vector\"]}}";
+        String query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}},\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",\"coordinates\": [ [" + Float.toString(coords.getFloat(0)) + "," + Float.toString(coords.getFloat(3)) +"], [" + Float.toString(coords.getFloat(2)) + "," + Float.toString(coords.getFloat(1)) + "]]},\"relation\": \"within\"}}}}},\"script\": {\"source\": \"cosineSimilarity(params.query_vector, '_word_vector') + 1.0\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}},\"_source\": {\"excludes\": [\"_word_vector\"]}}";
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
@@ -222,7 +222,8 @@ public final class ElasticClient {
     }
 
     DBRespMsgBuilder statusSuccess() {
-      response.put(STATUS, SUCCESS);
+      response.put(TYPE, TYPE_SUCCESS);
+      response.put(TITLE, TITLE_SUCCESS);
       return this;
     }
 
@@ -282,14 +283,17 @@ public final class ElasticClient {
             JsonArray results = new JsonArray();
 
             if ((options == SOURCE_ONLY) || (options == DOC_IDS_ONLY)) {
-              results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
+              if(responseJson.getJsonObject(HITS).containsKey(HITS)) {
+                results = responseJson.getJsonObject(HITS).getJsonArray(HITS); 
+              }
             }
             if (options == AGGREGATION_ONLY) {
               results = responseJson.getJsonObject(AGGREGATIONS)
                                   .getJsonObject(RESULTS)
                                   .getJsonArray(BUCKETS);
             }
-            for (int i=0; i<results.size(); i++) {
+
+            for (int i = 0; i < results.size(); i++) {
               if (options == SOURCE_ONLY) {
                 /** Todo: This might slow system down */
                 JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);

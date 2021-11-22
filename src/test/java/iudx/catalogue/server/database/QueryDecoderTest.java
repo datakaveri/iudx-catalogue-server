@@ -6,7 +6,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import io.vertx.reactivex.core.Vertx;
+import io.vertx.core.Vertx;
 import iudx.catalogue.server.Configuration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -156,7 +156,7 @@ public class QueryDecoderTest {
 
     JsonObject json = queryDecoder.searchQuery(requests);
 
-    assertEquals(ERROR_INVALID_GEO_PARAMETER, json.getString(ERROR));
+    assertEquals(DETAIL_INVALID_GEO_PARAMETER, json.getString(ERROR));
     testContext.completeNow();
   }
   

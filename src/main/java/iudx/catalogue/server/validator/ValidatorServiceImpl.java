@@ -151,7 +151,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       client.searchGetId(checkQuery.replace("$1", resourceGroup), checkRes -> {
         if (checkRes.failed()) {
           LOGGER.error("Fail: DB request has failed;" + checkRes.cause().getMessage());
-          handler.handle(Future.failedFuture(INTERNAL_SERVER_ERROR));
+          handler.handle(Future.failedFuture(TYPE_INTERNAL_SERVER_ERROR));
           return;
         }
 
@@ -169,6 +169,11 @@ public class ValidatorServiceImpl implements ValidatorService {
      * TODO: More checks and auth rules
      **/
     else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      String provider = request.getString(PROVIDER);
+      String name = request.getString(NAME);
+      String id = provider + "/" + name;
+      request.put(ID, id).put(ITEM_STATUS, ACTIVE)
+          .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
       handler.handle(Future.succeededFuture(request));
     }
     /** Validate if Provider */

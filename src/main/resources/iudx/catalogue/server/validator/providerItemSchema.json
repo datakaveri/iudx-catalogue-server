@@ -102,7 +102,7 @@
             "examples": [
                 "<provider-name>"
             ],
-            "pattern" : "^[a-zA-Z0-9]+(\\-*\\_*[a-zA-Z0-9]+)*$"
+            "pattern": "^[a-zA-Z0-9]([\\w-]*[a-zA-Z0-9])?$"
         },
         "description": {
             "$id": "#/properties/description",

@@ -12,12 +12,14 @@ import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import iudx.catalogue.server.apiserver.util.ResponseHandler;
+import iudx.catalogue.server.apiserver.util.ExceptionHandler;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
+import iudx.catalogue.server.auditing.AuditingService;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
@@ -54,8 +56,6 @@ public class ApiServerVerticle extends AbstractVerticle {
   private Router router;
 
   private String catAdmin;
-  private String keystore;
-  private String keystorePassword;
   private boolean isSsl;
   private int port;
 
@@ -74,13 +74,13 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Configure */
     catAdmin = config().getString(CAT_ADMIN);
-    keystore = config().getString(KEYSTORE_PATH);
-    keystorePassword = config().getString(KEYSTORE_PASSWORD);
     isSsl = config().getBoolean(IS_SSL);
     port = config().getInteger(PORT);
 
+
     HttpServerOptions serverOptions = new HttpServerOptions();
 
+    /*
     if (isSsl) {
       serverOptions.setSsl(true)
                     .setKeyStoreOptions(new JksOptions()
@@ -89,6 +89,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     } else {
       serverOptions.setSsl(false);
     }
+    */
+    serverOptions.setSsl(false);
     serverOptions.setCompressionSupported(true).setCompressionLevel(5);
     /** Instantiate this server */
     server = vertx.createHttpServer(serverOptions);
@@ -116,6 +118,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     crudApis.setDbService(dbService);
     listApis.setDbService(dbService);
     relApis.setDbService(dbService);
+    crudApis.setHost(config().getString(HOST));
 
     AuthenticationService authService =
         AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
@@ -131,8 +134,14 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     NLPSearchService nlpsearchService 
       = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
-    
+
     searchApis.setService(dbService, geoService, nlpsearchService);
+
+    AuditingService auditingService
+      = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
+    crudApis.setAuditingService(auditingService);
+
+    ExceptionHandler exceptionhandler = new ExceptionHandler();
 
     /**
      *
@@ -145,7 +154,19 @@ public class ApiServerVerticle extends AbstractVerticle {
      */
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
-    router.route().handler(CorsHandler.create("*").allowedHeaders(ALLOWED_HEADERS));
+    router.route().handler(
+        CorsHandler.create("*")
+                   .allowedHeaders(ALLOWED_HEADERS)
+                   .allowedMethods(ALLOWED_METHODS));
+    
+    router.route().handler(routingContext -> {
+      routingContext.response()
+                    .putHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate")
+                    .putHeader("Pragma", "no-cache")
+                    .putHeader("Expires", "0")
+                    .putHeader("X-Content-Type-Options", "nosniff");
+      routingContext.next();
+    });
 
     /**
      * Documentation routes
@@ -190,25 +211,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.post(ROUTE_ITEMS)
       .consumes(MIME_APPLICATION_JSON)
       .produces(MIME_APPLICATION_JSON)
-      .failureHandler(failureHandler -> {
-        /* Handling JsonDecodeException */
-        Throwable failure = failureHandler.failure();
-        if (failure instanceof DecodeException) {
-          
-          failureHandler.response()
-                            .setStatusCode(500)
-                            .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                            .end(new ResponseHandler.Builder()
-                                      .withStatus(FAILED)
-                                      .withResults(null,
-                                          failureHandler.request().method().toString() == 
-                                              REQUEST_POST ? INSERT : UPDATE,
-                                          FAILED,
-                                          "Invalid Json Format")
-                                      .build()
-                                      .toJsonString());
-        }
-       })
+      .failureHandler(exceptionhandler)
       .handler( routingContext -> {
         /* checking auhthentication info in requests */
         if (routingContext.request().headers().contains(HEADER_TOKEN)) {
@@ -289,6 +292,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* Search for an item */
     router.get(ROUTE_SEARCH)
       .produces(MIME_APPLICATION_JSON)
+      .failureHandler(exceptionhandler)
       .handler( routingContext -> {
         searchApis.searchHandler(routingContext);
       });
@@ -351,4 +355,11 @@ public class ApiServerVerticle extends AbstractVerticle {
     server.requestHandler(router).listen(port);
 
   }
+
+  @Override
+  public void stop() {
+    LOGGER.info("Stopping the API server");
+  }
 }
+
+
