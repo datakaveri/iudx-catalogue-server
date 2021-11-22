@@ -1,14 +1,13 @@
 version: '3.7'
 
 networks:
-  overlay-net:
-    external: true
-    driver: overlay
+  cat-net:
+    driver: bridge
 
 services:
 
   cat:
-    image: iudx/cat-prod:latest
+    image: ghcr.io/datakaveri/iudx-catalogue-server:prod
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - LOG_LEVEL=INFO
@@ -23,7 +22,7 @@ services:
       - "9000:9000"
     restart: on-failure
     networks: 
-      - overlay-net
+      - cat-net
     logging:
          driver: "json-file"
          options:
@@ -32,7 +31,7 @@ services:
     command: bash -c "exec java $$CAT_JAVA_OPTS  -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -jar ./fatjar.jar  --host $$(hostname) -c configs/config.json"
 
   dev:
-    image: dockerhub.iudx.io/jenkins/catalogue-dev
+    image: ghcr.io/datakaveri/iudx-catalogue-server:dev
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - LOG_LEVEL=DEBUG
@@ -45,7 +44,7 @@ services:
       - "9000:9000"
     restart: on-failure
     networks: 
-      - overlay-net
+      - cat-net
     logging:
          driver: "json-file"
          options:
@@ -54,21 +53,21 @@ services:
     command:  bash -c "exec java $$CAT_JAVA_OPTS  -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -jar ./fatjar.jar  --host $$(hostname) -c configs/config.json"
 
   test:
-    image: dockerhub.iudx.io/jenkins/catalogue-test
+    image: ghcr.io/datakaveri/iudx-catalogue-server:test
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - WORKSPACE
       - LOG_LEVEL=DEBUG
     volumes:
-      - /root/configs/cat-config-test.json:/usr/share/app/configs/config-test.json
+      - /home/ubuntu/configs/cat-config-test.json:/usr/share/app/configs/config-test.json
       - ./src/:/usr/share/app/src
-      - /root/configs/keystore.jks:/usr/share/app/configs/keystore.jks
-      - /root/configs/authkeystore.ks:/usr/share/app/configs/authkeystore.ks
+      - /home/ubuntu/configs/keystore.jks:/usr/share/app/configs/keystore.jks
+      - /home/ubuntu/configs/authkeystore.ks:/usr/share/app/configs/authkeystore.ks
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
       - ${WORKSPACE}:/tmp/test
     command: bash -c "docker/runTests.sh && cp -r target /tmp/test"
     networks: 
-      - overlay-net
+      - cat-net
     logging:
          driver: "json-file"
          options:
@@ -76,32 +75,33 @@ services:
              max-size: "100m"
         
   perfTest:
-    image: dockerhub.iudx.io/jenkins/catalogue-test
+    image: ghcr.io/datakaveri/iudx-catalogue-server:test
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - WORKSPACE
       - LOG_LEVEL=DEBUG
     volumes:
-      - /root/configs/cat-config-test.json:/usr/share/app/configs/config-test.json
+      - /home/ubuntu/configs/cat-config-test.json:/usr/share/app/configs/config-test.json
       - ./src/:/usr/share/app/src
-      - /root/configs/authkeystore.ks:/usr/share/app/configs/authkeystore.ks
-      - /root/configs/keystore.jks:/usr/share/app/configs/keystore.jks
+      - /home/ubuntu/configs/authkeystore.ks:/usr/share/app/configs/authkeystore.ks
+      - /home/ubuntu/configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
       - ${WORKSPACE}:/tmp/test
     ports:
       - "8444:8443"
     command: bash -c "mvn clean compile exec:java@catalogue-server"
     networks: 
-      - overlay-net
+      - cat-net
     logging:
          driver: "json-file"
          options:
              max-file: "5"
              max-size: "100m"
 
+
   zookeeper:
     image: zookeeper:latest
     expose: 
       - "2181"
     networks:
-      - overlay-net
+      - cat-net
