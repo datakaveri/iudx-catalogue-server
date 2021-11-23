@@ -55,7 +55,7 @@ services:
   test:
     image: ghcr.io/datakaveri/iudx-catalogue-server:test
     environment:
-      - CAT_URL=https://catalogue.iudx.org.in
+      - CAT_URL=http://catalogue.iudx.io
       - WORKSPACE
       - LOG_LEVEL=DEBUG
     volumes:
@@ -77,7 +77,7 @@ services:
   perfTest:
     image: ghcr.io/datakaveri/iudx-catalogue-server:test
     environment:
-      - CAT_URL=https://catalogue.iudx.org.in
+      - CAT_URL=http://catalogue.iudx.io
       - WORKSPACE
       - LOG_LEVEL=DEBUG
     volumes:
