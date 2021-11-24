@@ -55,7 +55,7 @@ services:
   test:
     image: ghcr.io/datakaveri/iudx-catalogue-server:test
     environment:
-      - CAT_URL=http://catalogue.iudx.io
+      - CAT_URL=https://catalogue.iudx.org.in
       - WORKSPACE
       - LOG_LEVEL=DEBUG
     volumes:
@@ -65,9 +65,6 @@ services:
       - /home/ubuntu/configs/authkeystore.ks:/usr/share/app/configs/authkeystore.ks
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
       - ${WORKSPACE}:/tmp/test
-    ports: 
-      - "8443:8443"
-      - "8080:8080"
     command: bash -c "docker/runTests.sh && cp -r target /tmp/test"
     networks: 
       - cat-net
@@ -80,7 +77,7 @@ services:
   perfTest:
     image: ghcr.io/datakaveri/iudx-catalogue-server:test
     environment:
-      - CAT_URL=http://catalogue.iudx.io
+      - CAT_URL=https://catalogue.iudx.org.in
       - WORKSPACE
       - LOG_LEVEL=DEBUG
     volumes:
