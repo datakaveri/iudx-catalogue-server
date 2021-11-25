@@ -1,6 +1,6 @@
 #!/bin/bash
 
-nohup mvn clean compile test-compile exec:java@catalogue-server & 
+nohup mvn clean compile exec:java@catalogue-server & 
 sleep 20
 mvn test-compile surefire:test surefire-report:report -Dtest=ServerVerticleDeboardTest
 mvn test-compile surefire:test surefire-report:report -Dtest=ApiServerVerticlePreprareTest
