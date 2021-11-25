@@ -1,11 +1,11 @@
 properties([pipelineTriggers([githubPush()])])
 pipeline {
   environment {
-    devRegistry = 'ghcr.io/datakaveri/iudx-catalogue-server:dev'
-    deplRegistry = 'ghcr.io/datakaveri/iudx-catalogue-server:prod'
-    testRegistry = 'ghcr.io/datakaveri/iudx-catalogue-server:test'
+    devRegistry = 'ghcr.io/karun-singh/iudx-catalogue-server:dev'
+    deplRegistry = 'ghcr.io/karun-singh/iudx-catalogue-server:prod'
+    testRegistry = 'ghcr.io/karun-singh/iudx-catalogue-server:test'
     registryUri = 'https://ghcr.io'
-    registryCredential = 'docker-jenkins'
+    registryCredential = 'karun-ghcr'
   }
   agent { 
     node {
