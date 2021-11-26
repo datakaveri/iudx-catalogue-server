@@ -2,6 +2,7 @@
 
 nohup mvn clean compile exec:java@catalogue-server & 
 sleep 20
+mvn clean test-compile
 mvn test surefire:test surefire-report:report -Dtest=ServerVerticleDeboardTest
 mvn test surefire:test surefire-report:report -Dtest=ApiServerVerticlePreprareTest
 mv target/jacoco.exec target/ApiServerVerticlePreprareTest.exec
