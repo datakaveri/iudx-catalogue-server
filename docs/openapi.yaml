@@ -709,7 +709,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/standardCrudResponse'
+                                $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Didn't find the item
             operationId: deleteItem
             description: Delete an item
