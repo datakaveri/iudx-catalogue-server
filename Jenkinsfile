@@ -44,7 +44,7 @@ pipeline {
   }
   stage('Capture Code Coverage'){
     steps{
-      jacoco classPattern: 'target/classes', execPattern: 'target/**.exec', sourcePattern: 'src/main/java'
+      jacoco execPattern: 'target/**.exec'
     }
   }
     stage('Run Cat server for Performance Tests'){
