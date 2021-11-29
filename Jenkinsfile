@@ -86,7 +86,7 @@ pipeline {
     stage('OWASP ZAP pen test'){
       steps{
         node('master') {
-          startZap host: 'localhost', port: '8090', zapHome: 'OWASP_ZAP_HOME'
+          startZap host: 'localhost', port: '8090', zapHome: '$OWASP_ZAP_HOME'
         }
       }
     }
