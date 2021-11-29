@@ -68,7 +68,7 @@ pipeline {
         node('master') {      
           script{
             sh 'rm -rf /var/lib/jenkins/iudx/cat/Jmeter/Report ; mkdir -p /var/lib/jenkins/iudx/cat/Jmeter/Report ; /var/lib/jenkins/apache-jmeter-5.4.1/bin/jmeter.sh -n -t /var/lib/jenkins/iudx/cat/Jmeter/CatalogueServer.jmx -l /var/lib/jenkins/iudx/cat/Jmeter/Report/JmeterTest.jtl -e -o /var/lib/jenkins/iudx/cat/Jmeter/Report'
-            sh 'docker-compose down --remove-orphans'
+            // sh 'docker-compose down --remove-orphans'
           }
         }
       }
@@ -90,7 +90,7 @@ pipeline {
         }
       }
     }
-    
+
     stage('Push Image') {
       steps{
         script {
