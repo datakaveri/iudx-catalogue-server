@@ -91,7 +91,6 @@ pipeline {
             sh 'HTTP_PROXY=\'localhost:8090\' newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server.postman_collection.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/rs/Newman/report/report.html'
           }
           archiveZap failAllAllerts: 20
-          stopZap
         }
       }
     }
