@@ -93,6 +93,13 @@ pipeline {
           archiveZap failAllAllerts: 20
         }
       }
+      post{
+        always{
+          node('master') {
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: false, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'report.html', reportName: 'HTML Report', reportTitles: ''])
+          }
+        }
+      }
     }
 
 //     stage('stop OWASP ZAP'){
