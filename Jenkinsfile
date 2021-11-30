@@ -95,13 +95,13 @@ pipeline {
       }
     }
 
-    stage('stop OWASP ZAP'){
-      steps{
-        node('master') {
-          stopZap
-        }
-      }
-    }
+//     stage('stop OWASP ZAP'){
+//       steps{
+//         node('master') {
+//           stopZap
+//         }
+//       }
+//     }
 
     stage('Push Image') {
       steps{
