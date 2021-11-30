@@ -57,8 +57,8 @@ pipeline {
         script{
             sh 'scp Jmeter/CatalogueServer.jmx jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Jmeter/'
             sh 'scp src/test/resources/iudx-catalogue-server.postman_collection.json jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Newman/'
-            // sh 'docker-compose up -d perfTest'
-            // sh 'sleep 45'
+            sh 'docker-compose up -d perfTest'
+            sh 'sleep 45'
         }
       }
     }
