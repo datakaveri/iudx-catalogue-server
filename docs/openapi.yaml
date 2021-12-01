@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
     title: IUDX Catalogue Server APIs
-    version: 1.0.0
+    version: 3.0.0
     description: >
         The Catalogue is IUDX's dataset discovery portal and metadata store. 
 
@@ -22,8 +22,8 @@ info:
 
         The application should address them accordingly.
     contact:
-        name: Rakshit
-        email: rakshit.ramesh@datakaveri.org
+        name: For support contact IUDX Team at
+        email: support@iudx.org.in
 servers:
     -
         url: 'https://api.catalogue.iudx.org.in'
@@ -709,7 +709,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/standardCrudResponse'
+                                $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Didn't find the item
             operationId: deleteItem
             description: Delete an item
