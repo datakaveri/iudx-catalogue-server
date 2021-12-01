@@ -22,7 +22,9 @@
             "verticleInstances": 2,
             "keystorePath": "configs/keystore.jks",
             "keystorePassword": "password",
-            "authServerHost": "auth.iudx.org.in"
+            "authServerHost": "auth.iudx.org.in",
+	    "jwtIgnoreExpiry": true
+
         },
         {
             "id": "iudx.catalogue.server.validator.ValidatorVerticle",
