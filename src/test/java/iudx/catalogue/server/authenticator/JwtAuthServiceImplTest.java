@@ -4,6 +4,7 @@ import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.util.Constants.ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import io.vertx.ext.web.client.WebClient;
 import iudx.catalogue.server.authenticator.authorization.Method;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +29,8 @@ public class JwtAuthServiceImplTest {
   private static final Logger LOGGER = LogManager.getLogger(JwtAuthServiceImplTest.class);
   private static JsonObject authConfig;
   private static JwtAuthenticationServiceImpl jwtAuthenticationService;
-
+  private static AuthenticationService authenticationService;
+  private static Vertx vertxObj;
   /**
    * Initialize and start the auth service for testing.
    *
@@ -39,15 +41,12 @@ public class JwtAuthServiceImplTest {
   @DisplayName("Initialize Vertx and deploy Auth Verticle")
   static void init(Vertx vertx, VertxTestContext testContext) {
     authConfig = Configuration.getConfiguration("./configs/config-test.json",1);
+    String cert = authConfig.getString("cert");
     JWTAuthOptions jwtAuthOptions = new JWTAuthOptions();
     jwtAuthOptions.addPubSecKey(
             new PubSecKeyOptions()
                     .setAlgorithm("ES256")
-                    .setBuffer("-----BEGIN PUBLIC KEY-----\n" +
-                            "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE8BKf2HZ3wt6wNf30SIsbyjYPkkTS\n" +
-                                    "GGyyM2/MGF/zYTZV9Z28hHwvZgSfnbsrF36BBKnWszlOYW0AieyAUKaKdg==\n" +
-                                    "-----END PUBLIC KEY-----\n" +
-                                    ""));
+                    .setBuffer(cert));
 
     // ignore token expiration only for test
     jwtAuthOptions.getJWTOptions().setIgnoreExpiration(true);
@@ -57,6 +56,37 @@ public class JwtAuthServiceImplTest {
 
     LOGGER.info("Auth tests setup complete");
     testContext.completeNow();
+  }
+
+  @Test
+  @DisplayName("Test getting public key from auth server")
+  public void testPublicKeySetup(Vertx vertx, VertxTestContext testContext) {
+    AuthenticationVerticle.getJwtPublicKey(vertx, authConfig)
+            .onComplete(handler -> {
+              if(handler.succeeded())
+              {
+                testContext.completeNow();
+              } else {
+                LOGGER.info(handler.cause().getMessage());
+                testContext.failNow(handler.cause());
+              }
+            });
+  }
+
+  @Test
+  @DisplayName("Test if webClient has been initialized properly")
+  public void testWebClientSetup(Vertx vertx, VertxTestContext testContext) {
+    WebClient client = AuthenticationVerticle.createWebClient(vertx, authConfig, true);
+    String host = authConfig.getString(Constants.AUTH_SERVER_HOST);
+    client.post(443, host, Constants.AUTH_CERTINFO_PATH).send(httpResponseAsyncResult -> {
+      if (httpResponseAsyncResult.failed()) {
+        LOGGER.error("Cert info call failed");
+        testContext.failNow(httpResponseAsyncResult.cause());
+        return;
+      }
+      LOGGER.info("Cert info call to auth server succeeded");
+      testContext.completeNow();
+    });
   }
 
   private JsonObject authJson() {
