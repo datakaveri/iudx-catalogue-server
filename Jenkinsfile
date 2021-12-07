@@ -48,7 +48,7 @@ pipeline {
 
     stage('Capture Code Coverage'){
       steps{
-        jacoco execPattern: 'target/ApiServerVerticleTest.exec'
+        jacoco execPattern: 'target/**.exec'
       }
     }
 
