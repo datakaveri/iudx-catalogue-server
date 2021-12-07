@@ -90,25 +90,18 @@ pipeline {
           script{
             sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server.postman_collection_test.json -e /home/ubuntu/configs/cat-postman-env.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/report.html'
           }
-          archiveZap failAllAlerts: 20
         }
       }
       post{
         always{
           node('master') {
+            archiveZap failAllAlerts: 20
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: false, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'report.html', reportName: 'HTML Report', reportTitles: ''])
+            stopZap()
           }
         }
       }
     }
-
-//     stage('stop OWASP ZAP'){
-//       steps{
-//         node('master') {
-//           stopZap
-//         }
-//       }
-//     }
 
     stage('Push Image') {
       steps{
