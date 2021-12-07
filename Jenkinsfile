@@ -24,44 +24,44 @@ pipeline {
       }
     }
 
-    // stage('Run Unit Tests and CodeCoverage test'){
-    //   steps{
-    //     script{
-    //       sh 'docker-compose up test'
-    //     }
-    //   }
-    // }
-
-    // stage('Capture Unit Test results'){
-    //   steps{
-    //     xunit (
-    //       thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '20') ],
-    //       tools: [ JUnit(pattern: 'target/surefire-reports/*Test.xml') ]
-    //     )
-    //   }
-    //   post{
-    //     failure{
-    //       error "Test failure. Stopping pipeline execution!"
-    //     }
-    //   }
-    // }
-
-    // stage('Capture Code Coverage'){
-    //   steps{
-    //     jacoco execPattern: 'target/**.exec'
-    //   }
-    // }
-
-    stage('Run Cat server for Performance Tests'){
+    stage('Run Unit Tests and CodeCoverage test'){
       steps{
         script{
-            sh 'scp Jmeter/CatalogueServer.jmx jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Jmeter/'
-            sh 'scp src/test/resources/iudx-catalogue-server.postman_collection_test.json jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Newman/'
-            sh 'docker-compose up -d perfTest'
-            sh 'sleep 45'
+          sh 'docker-compose up test'
         }
       }
     }
+
+    stage('Capture Unit Test results'){
+      steps{
+        xunit (
+          thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '20') ],
+          tools: [ JUnit(pattern: 'target/surefire-reports/*Test.xml') ]
+        )
+      }
+      post{
+        failure{
+          error "Test failure. Stopping pipeline execution!"
+        }
+      }
+    }
+
+    stage('Capture Code Coverage'){
+      steps{
+        jacoco execPattern: 'target/ApiServerVerticleTest.exec'
+      }
+    }
+
+    // stage('Run Cat server for Performance Tests'){
+    //   steps{
+    //     script{
+    //         sh 'scp Jmeter/CatalogueServer.jmx jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Jmeter/'
+    //         sh 'scp src/test/resources/iudx-catalogue-server.postman_collection_test.json jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Newman/'
+    //         sh 'docker-compose up -d perfTest'
+    //         sh 'sleep 45'
+    //     }
+    //   }
+    // }
     
     // stage('Run Jmeter Performance Tests'){
     //   steps{
@@ -83,25 +83,25 @@ pipeline {
     //   }
     // }
 
-    stage('OWASP ZAP pen test'){
-      steps{
-        node('master') {
-          startZap host: 'localhost', port: '8090', zapHome: '/var/lib/jenkins/tools/com.cloudbees.jenkins.plugins.customtools.CustomTool/OWASP_ZAP/ZAP_2.11.0'
-          script{
-            sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server.postman_collection_test.json -e /home/ubuntu/configs/cat-postman-env.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/report.html'
-          }
-        }
-      }
-      post{
-        always{
-          node('master') {
-            archiveZap failAllAlerts: 20
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: false, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'report.html', reportName: 'HTML Report', reportTitles: ''])
-            stopZap()
-          }
-        }
-      }
-    }
+    // stage('OWASP ZAP pen test'){
+    //   steps{
+    //     node('master') {
+    //       startZap host: 'localhost', port: '8090', zapHome: '/var/lib/jenkins/tools/com.cloudbees.jenkins.plugins.customtools.CustomTool/OWASP_ZAP/ZAP_2.11.0'
+    //       script{
+    //         sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server.postman_collection_test.json -e /home/ubuntu/configs/cat-postman-env.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/report.html'
+    //       }
+    //     }
+    //   }
+    //   post{
+    //     always{
+    //       node('master') {
+    //         archiveZap failAllAlerts: 20
+    //         publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: false, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'report.html', reportName: 'HTML Report', reportTitles: ''])
+    //         stopZap()
+    //       }
+    //     }
+    //   }
+    // }
 
     stage('Push Image') {
       steps{
