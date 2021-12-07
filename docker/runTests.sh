@@ -12,5 +12,5 @@ mv target/jacoco.exec target/ApiServerVerticleTest.exec
 #mv target/jacoco.exec target/DatabaseServiceTest.exec
 #mvn test-compile surefire:test surefire-report:report -Dtest=ConstraintsValidationTest,AuthenticationServiceTest,ElasticClientTest,QueryDecoderTest,SummarizerTest,ValidatorServiceTest
 #mv target/jacoco.exec target/jacoco2.exec
-mvn test surefire:test surefire-report:report -Dtest=ServerVerticleDeboardTest
-mv target/jacoco.exec target/ServerVerticleDeboardTest.exec
+# mvn test surefire:test surefire-report:report -Dtest=ServerVerticleDeboardTest
+# mv target/jacoco.exec target/ServerVerticleDeboardTest.exec
