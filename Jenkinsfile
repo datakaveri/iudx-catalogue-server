@@ -48,7 +48,7 @@ pipeline {
 
     stage('Capture Code Coverage'){
       steps{
-        jacoco execPattern: 'target/**.exec'
+        jacoco classPattern: 'target/classes', execPattern: 'target/**.exec', sourcePattern: 'src/main/java'
       }
     }
 
