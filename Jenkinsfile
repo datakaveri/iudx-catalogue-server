@@ -97,6 +97,7 @@ pipeline {
           node('master') {
             archiveZap failAllAlerts: 20
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: false, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'report.html', reportName: 'HTML Report', reportTitles: ''])
+            stopZap()
           }
         }
       }
