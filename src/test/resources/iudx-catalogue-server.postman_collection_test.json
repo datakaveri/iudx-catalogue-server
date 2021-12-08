@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "e1ed3d64-b579-4173-9cc8-addc961edbcb",
+		"_postman_id": "29a23e40-caaa-49e1-8ad8-5804e101d629",
 		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -11,118 +11,6 @@
 				{
 					"name": "Tag Search",
 					"item": [
-						{
-							"name": "200 (success) - Tag Search (filter,limit,offset)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,tags]&limit=100&offset=0",
-									"protocol": "http",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"search"
-									],
-									"query": [
-										{
-											"key": "property",
-											"value": "\"[tags]\""
-										},
-										{
-											"key": "value",
-											"value": "\"[[pollution]]\""
-										},
-										{
-											"key": "filter",
-											"value": "[id,tags]"
-										},
-										{
-											"key": "limit",
-											"value": "100"
-										},
-										{
-											"key": "offset",
-											"value": "0"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "200 (success) - Tag Search multi value",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=[tags]&value=[[pollution, flood]]",
-									"protocol": "http",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"search"
-									],
-									"query": [
-										{
-											"key": "property",
-											"value": "[tags]"
-										},
-										{
-											"key": "value",
-											"value": "[[pollution, flood]]"
-										}
-									]
-								}
-							},
-							"response": []
-						},
 						{
 							"name": "200 (success) - Tag Search 2 (filter,limit,offset)",
 							"event": [
