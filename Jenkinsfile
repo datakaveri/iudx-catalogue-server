@@ -36,7 +36,7 @@ pipeline {
       steps{
         xunit (
           thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '40') ],
-          tools: [ JUnit(pattern: 'target/surefire-reports/*Test.xml') ]
+          tools: [ JUnit(pattern: 'target/surefire-reports/TEST-iudx.catalogue.server.apiserver*.xml') ]
         )
       }
       post{
@@ -48,7 +48,7 @@ pipeline {
 
     stage('Capture Code Coverage'){
       steps{
-        jacoco classPattern: 'target/classes', execPattern: 'target/**.exec', sourcePattern: 'src/main/java', sourceExclusionPattern: 'iudx/catalogue/server/apiserver/*,iudx/catalogue/server/deploy/*,iudx/catalogue/server/mockauthenticator/*,iudx/catalogue/server/apiserver/util/*,iudx/catalogue/server/**/*EBProxy.*,iudx/catalogue/server/**/*ProxyHandler.*,iudx/catalogue/server/**/reactivex/*,iudx/catalogue/server/**/reactivex/*'
+        jacoco classPattern: 'target/classes', execPattern: 'target/DatabaseServiceTest.exec,target/jacoco2.exec', sourcePattern: 'src/main/java', sourceExclusionPattern: 'iudx/catalogue/server/apiserver/*,iudx/catalogue/server/deploy/*,iudx/catalogue/server/mockauthenticator/*,iudx/catalogue/server/apiserver/util/*,iudx/catalogue/server/**/*EBProxy.*,iudx/catalogue/server/**/*ProxyHandler.*,iudx/catalogue/server/**/reactivex/*,iudx/catalogue/server/**/reactivex/*'
       }
     }
 
