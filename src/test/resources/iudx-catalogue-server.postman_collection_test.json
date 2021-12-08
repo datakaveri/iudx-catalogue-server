@@ -28,7 +28,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -90,7 +90,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -140,7 +140,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -190,7 +190,7 @@
 											"\r",
 											"pm.test(\"Check response body 1\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
@@ -245,7 +245,7 @@
 											"\r",
 											"pm.test(\"Check response body 1\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
@@ -300,7 +300,7 @@
 											"\r",
 											"pm.test(\"Check response body 1\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
@@ -355,7 +355,7 @@
 											"\r",
 											"pm.test(\"Check response body 1\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
@@ -410,7 +410,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"failed\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -472,7 +472,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"failed\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -534,7 +534,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"failed\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -601,7 +601,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -663,7 +663,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -729,7 +729,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -795,7 +795,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -865,7 +865,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -936,7 +936,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -990,7 +990,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -1080,7 +1080,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -1134,7 +1134,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -1184,7 +1184,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -1254,7 +1254,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -1328,7 +1328,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"failed\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -1390,7 +1390,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"failed\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -1456,7 +1456,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"failed\");\r",
 											"});"
 										],
 										"type": "text/javascript"
