@@ -98,7 +98,7 @@ pipeline {
         always{
           node('master') {
             script{
-               archiveZap failAllAlerts: 15, failHighAlerts: 5, failMediumAlerts: 5, failLowAlerts: 5, keepAlive: false, falsePositivesFilePath: 'zapfalsePositives.json'
+//                archiveZap failAllAlerts: 15, failHighAlerts: 5, failMediumAlerts: 5, failLowAlerts: 5, keepAlive: false, falsePositivesFilePath: 'zapfalsePositives.json'
                publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: false, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'report.html', reportName: 'HTML Report', reportTitles: ''])
 //                stopZap()
             }  
