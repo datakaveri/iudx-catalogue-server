@@ -21,7 +21,8 @@
             "id": "iudx.catalogue.server.authenticator.AuthenticationVerticle",
             "host": "catalogue.iudx.io",
             "verticleInstances": 2,
-            "authServerHost": "auth.iudx.org.in"
+            "authServerHost": "auth.iudx.org.in",
+	          "jwtIgnoreExpiry": true
         },
         {
             "id": "iudx.catalogue.server.validator.ValidatorVerticle",
