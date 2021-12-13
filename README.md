@@ -1,5 +1,9 @@
-[![Build Status](https://img.shields.io/jenkins/build?jobUrl=http%3A%2F%2F20.193.225.59%3A8080%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F)](http://20.193.225.59:8080/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/testReport/)
-[![Jenkins Coverage](https://img.shields.io/jenkins/coverage/jacoco?jobUrl=http%3A%2F%2F20.193.225.59%3A8080%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F)](http://20.193.225.59:8080/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/jacoco/)
+[![Build Status](https://img.shields.io/jenkins/build?jobUrl=http%3A%2F%2Fjenkins.iudx.io%3A8080%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F)](http://jenkins.iudx.io:8080/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/)
+[![Jenkins Coverage](https://img.shields.io/jenkins/coverage/jacoco?jobUrl=http%3A%2F%2Fjenkins.iudx.io%3A8080%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F)](http://jenkins.iudx.io:8080/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/jacoco/)
+[![Unit Tests](https://img.shields.io/jenkins/tests?jobUrl=http%3A%2F%2Fjenkins.iudx.io%3A8080%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F&label=unit%20tests)](http://jenkins.iudx.io:8080/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/testReport/)
+[![Performance Tests](https://img.shields.io/jenkins/build?jobUrl=http%3A%2F%2Fjenkins.iudx.io%3A8080%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F&label=performance%20tests)](http://jenkins.iudx.io:8080/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/performance/)
+[![Security Tests](https://img.shields.io/jenkins/build?jobUrl=http%3A%2F%2Fjenkins.iudx.io%3A8080%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F&label=security%20tests)](http://jenkins.iudx.io:8080/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/zap/)
+[![Integration Tests](https://img.shields.io/jenkins/build?jobUrl=http%3A%2F%2Fjenkins.iudx.io%3A8080%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F&label=integration%20tests)](http://jenkins.iudx.io:8080/job/iudx%20catalogue%20(master)%20pipeline/HTML_20Report/)
 
 ![IUDX](./docs/iudx.png)
 # iudx-catalogue-server

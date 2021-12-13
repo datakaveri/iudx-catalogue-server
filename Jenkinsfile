@@ -106,8 +106,17 @@ pipeline {
         }
       }
     }
+    
+    stage('Clean up'){
+      steps{
+        sh 'docker-compose down --remove-orphans'
+      }
+    }
 
     stage('Push Image') {
+      when{
+        branch 'master'
+      }
       steps{
         script {
           docker.withRegistry( registryUri, registryCredential ) {
