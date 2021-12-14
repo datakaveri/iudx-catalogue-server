@@ -116,7 +116,9 @@ pipeline {
 
     stage('Push Image') {
       when{
-        branch 'origin/master'
+        expression {
+          return env.GIT_BRANCH = 'origin/master';
+        }
       }
       steps{
         script {
