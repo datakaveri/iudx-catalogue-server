@@ -17,8 +17,7 @@ pipeline {
     stage('Building images') {
       steps{
         script {
-          echo 'Pulling...' + env.BRANCH_NAME
-          echo 'Pulling...' + env.GIT_BRANCH
+          echo 'Pulled -' + env.GIT_BRANCH
           devImage = docker.build( devRegistry, "-f ./docker/dev.dockerfile .")
           deplImage = docker.build( deplRegistry, "-f ./docker/prod.dockerfile .")
           testImage = docker.build( testRegistry, "-f ./docker/test.dockerfile .")
@@ -117,7 +116,7 @@ pipeline {
 
     stage('Push Image') {
       when{
-        branch 'master'
+        branch 'origin/master'
       }
       steps{
         script {
