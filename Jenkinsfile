@@ -17,7 +17,9 @@ pipeline {
     stage('Building images') {
       steps{
         script {
-          echo 'Pulled -' + env.GIT_BRANCH
+          echo 'Pulled - ' + env.GIT_BRANCH
+          echo 'revision - ' + env.GIT_REVISION
+          echo 'commit - ' + env.GIT_COMMIT
           devImage = docker.build( devRegistry, "-f ./docker/dev.dockerfile .")
           deplImage = docker.build( deplRegistry, "-f ./docker/prod.dockerfile .")
           testImage = docker.build( testRegistry, "-f ./docker/test.dockerfile .")
@@ -123,8 +125,8 @@ pipeline {
       steps{
         script {
           docker.withRegistry( registryUri, registryCredential ) {
-            devImage.push("3.0-${env.GIT_REVISION,length=7}")
-            deplImage.push("3.0-${env.GIT_REVISION,length=7}")
+            devImage.push("3.0-${env.GIT_REVISION}")
+            deplImage.push("3.0-${env.GIT_REVISION}")
           }
         }
       }
