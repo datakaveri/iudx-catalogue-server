@@ -123,8 +123,8 @@ pipeline {
       steps{
         script {
           docker.withRegistry( registryUri, registryCredential ) {
-            devImage.push("3.0-${GIT_REVISION,length=7}")
-            deplImage.push("3.0-${GIT_REVISION,length=7}")
+            devImage.push("3.0-${env.GIT_REVISION,length=7}")
+            deplImage.push("3.0-${env.GIT_REVISION,length=7}")
           }
         }
       }
