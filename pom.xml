@@ -221,19 +221,6 @@
                     <systemPropertyVariables>
                         <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
                     </systemPropertyVariables>
-		    <excludes>
-            	    	<exclude>iudx/catalogue/server/apiserver/*</exclude>
-                        <exclude>iudx/catalogue/server/apiserver/util/*</exclude>
-                        <exclude>iudx/catalogue/server/**/*EBProxy.*</exclude>
-                        <exclude>iudx/catalogue/server/**/*ProxyHandler.*</exclude>
-                        <exclude>iudx/catalogue/server/**/reactivex/*</exclude>
-                        <exclude>iudx/catalogue/server/**/*Verticle.*</exclude>
-                        <exclude>iudx/catalogue/server/**/Constants.class</exclude>
-                        <exclude>iudx/catalogue/server/deploy/*</exclude>
-                        <exclude>iudx/catalogue/server/mockauthenticator/*</exclude>
-                        <exclude>iudx/catalogue/server/authenticator/model/*</exclude>
-                        <exclude>iudx/catalogue/server/**/*Service.class</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
 
