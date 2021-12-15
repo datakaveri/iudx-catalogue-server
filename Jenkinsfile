@@ -1,8 +1,8 @@
 properties([pipelineTriggers([githubPush()])])
 pipeline {
   environment {
-    devRegistry = 'ghcr.io/karun-singh/iudx-catalogue-server:dev'
-    deplRegistry = 'ghcr.io/karun-singh/iudx-catalogue-server:prod'
+    devRegistry = 'ghcr.io/karun-singh/cat-dev'
+    deplRegistry = 'ghcr.io/karun-singh/cat-prod'
     testRegistry = 'ghcr.io/karun-singh/iudx-catalogue-server:test'
     registryUri = 'https://ghcr.io'
     registryCredential = 'karun-ghcr'
@@ -69,7 +69,6 @@ pipeline {
         node('master') {      
           script{
             sh 'rm -rf /var/lib/jenkins/iudx/cat/Jmeter/Report ; mkdir -p /var/lib/jenkins/iudx/cat/Jmeter/Report ; /var/lib/jenkins/apache-jmeter-5.4.1/bin/jmeter.sh -n -t /var/lib/jenkins/iudx/cat/Jmeter/CatalogueServer.jmx -l /var/lib/jenkins/iudx/cat/Jmeter/Report/JmeterTest.jtl -e -o /var/lib/jenkins/iudx/cat/Jmeter/Report'
-            // sh 'docker-compose down --remove-orphans'
           }
         }
       }
@@ -78,7 +77,8 @@ pipeline {
     stage('Capture Jmeter report'){
       steps{
         node('master') {
-          perfReport filterRegex: '', sourceDataFiles: '/var/lib/jenkins/iudx/cat/Jmeter/Report/*.jtl'
+          perfReport errorFailedThreshold: 0, errorUnstableThreshold: 0, filterRegex: '', showTrendGraphs: true, sourceDataFiles: '/var/lib/jenkins/iudx/cat/Jmeter/Report/*.jtl'
+          // perfReport filterRegex: '', sourceDataFiles: '/var/lib/jenkins/iudx/cat/Jmeter/Report/*.jtl'
           //perfReport constraints: [absolute(escalationLevel: 'ERROR', meteredValue: 'AVERAGE', operator: 'NOT_GREATER', relatedPerfReport: 'JmeterTest.jtl', success: false, testCaseBlock: testCase('GeoTextAttribute&Filter Search'), value: 800)], filterRegex: '', modeEvaluation: true, modePerformancePerTestCase: true, sourceDataFiles: 'Jmeter/*.jtl'      
         }
       }
@@ -123,8 +123,8 @@ pipeline {
       steps{
         script {
           docker.withRegistry( registryUri, registryCredential ) {
-            devImage.push()
-            deplImage.push()
+            devImage.push("3.0-${GIT_REVISION,length=7}")
+            deplImage.push("3.0-${GIT_REVISION,length=7}")
           }
         }
       }
