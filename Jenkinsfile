@@ -6,6 +6,7 @@ pipeline {
     testRegistry = 'ghcr.io/karun-singh/iudx-catalogue-server:test'
     registryUri = 'https://ghcr.io'
     registryCredential = 'karun-ghcr'
+    GIT_HASH = GIT_COMMIT.take(7)
   }
   agent { 
     node {
@@ -18,8 +19,6 @@ pipeline {
       steps{
         script {
           echo 'Pulled - ' + env.GIT_BRANCH
-          echo 'revision - ' + ${GIT_REVISION,length=7}
-          echo 'commit - ' + env.GIT_COMMIT
           devImage = docker.build( devRegistry, "-f ./docker/dev.dockerfile .")
           deplImage = docker.build( deplRegistry, "-f ./docker/prod.dockerfile .")
           testImage = docker.build( testRegistry, "-f ./docker/test.dockerfile .")
@@ -125,8 +124,8 @@ pipeline {
       steps{
         script {
           docker.withRegistry( registryUri, registryCredential ) {
-            devImage.push("3.0-${env.GIT_REVISION}")
-            deplImage.push("3.0-${env.GIT_REVISION}")
+            devImage.push("3.0-${env.GIT_HASH}")
+            deplImage.push("3.0-${env.GIT_HASH}")
           }
         }
       }
