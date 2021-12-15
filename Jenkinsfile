@@ -18,7 +18,7 @@ pipeline {
       steps{
         script {
           echo 'Pulled - ' + env.GIT_BRANCH
-          echo 'revision - ' + env.GIT_REVISION
+          echo 'revision - ' + ${GIT_REVISION,length=7}
           echo 'commit - ' + env.GIT_COMMIT
           devImage = docker.build( devRegistry, "-f ./docker/dev.dockerfile .")
           deplImage = docker.build( deplRegistry, "-f ./docker/prod.dockerfile .")
