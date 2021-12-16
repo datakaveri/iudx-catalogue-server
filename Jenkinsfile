@@ -1,11 +1,11 @@
 properties([pipelineTriggers([githubPush()])])
 pipeline {
   environment {
-    devRegistry = 'ghcr.io/karun-singh/cat-dev'
-    deplRegistry = 'ghcr.io/karun-singh/cat-prod'
+    devRegistry = 'ghcr.io/datakaveri/cat-dev'
+    deplRegistry = 'ghcr.io/datakaveri/cat-prod'
     testRegistry = 'ghcr.io/datakaveri/cat-test:latest'
     registryUri = 'https://ghcr.io'
-    registryCredential = 'karun-ghcr'
+    registryCredential = 'datakaveri-ghcr'
     GIT_HASH = GIT_COMMIT.take(7)
   }
   agent { 
@@ -127,8 +127,7 @@ pipeline {
       steps{
         script {
           docker.withRegistry( registryUri, registryCredential ) {
-            devImage.tag(["3.0-${env.GIT_HASH}","latest"])
-            devImage.push()
+            devImage.push("3.0-${env.GIT_HASH}")
             deplImage.push("3.0-${env.GIT_HASH}")
           }
         }
