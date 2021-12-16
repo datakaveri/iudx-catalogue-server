@@ -127,8 +127,9 @@ pipeline {
       steps{
         script {
           docker.withRegistry( registryUri, registryCredential ) {
-            devImage.push(["3.0-${env.GIT_HASH}","latest"])
-            deplImage.push(["3.0-${env.GIT_HASH}","latest"])
+            devImage.tag(["3.0-${env.GIT_HASH}","latest"])
+            devImage.push()
+            deplImage.push("3.0-${env.GIT_HASH}")
           }
         }
       }
