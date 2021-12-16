@@ -3,7 +3,7 @@ pipeline {
   environment {
     devRegistry = 'ghcr.io/karun-singh/cat-dev'
     deplRegistry = 'ghcr.io/karun-singh/cat-prod'
-    testRegistry = 'ghcr.io/karun-singh/iudx-catalogue-server:test'
+    testRegistry = 'ghcr.io/datakaveri/cat-test:latest'
     registryUri = 'https://ghcr.io'
     registryCredential = 'karun-ghcr'
     GIT_HASH = GIT_COMMIT.take(7)
@@ -79,8 +79,11 @@ pipeline {
       steps{
         node('master') {
           perfReport errorFailedThreshold: 0, errorUnstableThreshold: 0, filterRegex: '', showTrendGraphs: true, sourceDataFiles: '/var/lib/jenkins/iudx/cat/Jmeter/Report/*.jtl'
-          // perfReport filterRegex: '', sourceDataFiles: '/var/lib/jenkins/iudx/cat/Jmeter/Report/*.jtl'
-          //perfReport constraints: [absolute(escalationLevel: 'ERROR', meteredValue: 'AVERAGE', operator: 'NOT_GREATER', relatedPerfReport: 'JmeterTest.jtl', success: false, testCaseBlock: testCase('GeoTextAttribute&Filter Search'), value: 800)], filterRegex: '', modeEvaluation: true, modePerformancePerTestCase: true, sourceDataFiles: 'Jmeter/*.jtl'      
+        }
+      }
+      post{
+        failure{
+          error "Test failure. Stopping pipeline execution!"
         }
       }
     }
@@ -124,8 +127,8 @@ pipeline {
       steps{
         script {
           docker.withRegistry( registryUri, registryCredential ) {
-            devImage.push("3.0-${env.GIT_HASH}")
-            deplImage.push("3.0-${env.GIT_HASH}")
+            devImage.push(["3.0-${env.GIT_HASH}","latest"])
+            deplImage.push(["3.0-${env.GIT_HASH}","latest"])
           }
         }
       }
