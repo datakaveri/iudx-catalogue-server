@@ -7,7 +7,7 @@ networks:
 services:
 
   cat:
-    image: iudx/cat-prod:latest
+    image: ghcr.io/datakaveri/cat-prod:latest
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - LOG_LEVEL=INFO
@@ -31,7 +31,7 @@ services:
     command: bash -c "exec java $$CAT_JAVA_OPTS  -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -jar ./fatjar.jar  --host $$(hostname) -c configs/config.json"
 
   dev:
-    image: iudx/cat-dev:latest
+    image: ghcr.io/datakaveri/cat-dev:latest
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - LOG_LEVEL=DEBUG
@@ -52,19 +52,21 @@ services:
              max-size: "100m"
     command:  bash -c "exec java $$CAT_JAVA_OPTS  -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -jar ./fatjar.jar  --host $$(hostname) -c configs/config.json"
 
+# Jenkins CI pipeline Unit test and Jacoco service
   test:
-    image: iudx/cat-test:latest
+    image: ghcr.io/datakaveri/cat-test:latest
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
-      - LOG_LEVEL=INFO
+      - WORKSPACE
+      - LOG_LEVEL=DEBUG
     volumes:
+      - /home/ubuntu/configs/cat-config-test.json:/usr/share/app/configs/config-test.json
       - ./src/:/usr/share/app/src
-      - ./configs/config-test.json:/usr/share/app/configs/config-test.json
-      - /tmp/test:/tmp/test
-      
-    command: bash -c "mvn clean test -Dtest=IntegrationTest && cp -r target /tmp/test"
-
-
+      - /home/ubuntu/configs/keystore.jks:/usr/share/app/configs/keystore.jks
+      - /home/ubuntu/configs/authkeystore.ks:/usr/share/app/configs/authkeystore.ks
+      - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
+      - ${WORKSPACE}:/tmp/test
+    command: bash -c "docker/runTests.sh && cp -r target /tmp/test"
     networks: 
       - cat-net
     logging:
@@ -72,7 +74,30 @@ services:
          options:
              max-file: "5"
              max-size: "100m"
-
+        
+# Jenkins CI pipeline performance test service
+  perfTest:
+    image: ghcr.io/datakaveri/cat-test:latest
+    environment:
+      - CAT_URL=https://catalogue.iudx.org.in
+      - WORKSPACE
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - /home/ubuntu/configs/cat-config-test.json:/usr/share/app/configs/config-test.json
+      - ./src/:/usr/share/app/src
+      - /home/ubuntu/configs/authkeystore.ks:/usr/share/app/configs/authkeystore.ks
+      - /home/ubuntu/configs/keystore.jks:/usr/share/app/configs/keystore.jks
+      - ${WORKSPACE}:/tmp/test
+    ports:
+      - "8080:8080"
+    command: bash -c "mvn clean compile exec:java@catalogue-server"
+    networks: 
+      - cat-net
+    logging:
+         driver: "json-file"
+         options:
+             max-file: "5"
+             max-size: "100m"
 
 
   zookeeper:
