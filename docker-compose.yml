@@ -1,37 +1,34 @@
 version: '3.7'
 
 networks:
-  cat-net:
-    driver: bridge
+  overlay-net:
+          external: true
+          driver: overlay
 
 services:
 
-  prod:
+  cat:
     image: iudx/cat-prod:latest
     environment:
-      - HOSTNAME=server
-      - ZOOKEEPER=zookeeper
-      - CAT_URL=https://catalogue.iudx.org.in
+      - CAT_URL=https://api.catalogue.iudx.io
       - LOG_LEVEL=INFO
     volumes:
       - ./configs/config-depl.json:/usr/share/app/configs/config.json
       - ./docs/:/usr/share/app/docs
       - ./configs/keystore.jks:/usr/share/app/configs/keystore.jks
       - ./ui/dist/:/usr/share/app/ui/dist
-    depends_on:
-      - "zookeeper"
     ports:
-      - "8443:8443"
+      - "8080:8080"
       - "9000:9000"
     restart: on-failure
     networks: 
-      - cat-net
+      - overlay-net
     logging:
          driver: "json-file"
          options:
              max-file: "5"
              max-size: "100m"
-    command: "java -jar ./fatjar.jar -c configs/config.json"
+    command: bash -c "exec java $$RS_JAVA_OPTS  -jar  -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory ./fatjar.jar -c configs/config.json"
 
   dev:
     image: iudx/cat-dev:latest
@@ -47,7 +44,7 @@ services:
       - "9000:9000"
     restart: on-failure
     networks: 
-      - cat-net
+      - overlay-net
     logging:
          driver: "json-file"
          options:
@@ -70,7 +67,7 @@ services:
 
 
     networks: 
-      - cat-net
+      - overlay-net
     logging:
          driver: "json-file"
          options:
@@ -84,4 +81,4 @@ services:
     expose: 
       - "2181"
     networks:
-      - cat-net
+      - overlay-net
