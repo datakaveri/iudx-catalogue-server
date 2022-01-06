@@ -25,6 +25,7 @@ import static iudx.catalogue.server.auditing.util.Constants.USER_ID;
 import static iudx.catalogue.server.auditing.util.Constants.IID;
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.util.Constants.ID;
+import static iudx.catalogue.server.util.Constants.DETAIL_INVALID_TOKEN;
 
 /**
  * The JWT Authentication Service Implementation.
@@ -179,9 +180,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       if(completeHandler.succeeded()) {
         handler.handle(Future.succeededFuture(completeHandler.result()));
       } else {
-        LOGGER.error("error: " + completeHandler.cause().getMessage());
-        handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
-        // handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
+         handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
       }
     });
     return this;

@@ -319,7 +319,7 @@ public final class CrudApis {
               .end( new RespBuilder()
                           .withType(TYPE_TOKEN_INVALID)
                           .withTitle(TITLE_TOKEN_INVALID)
-                          .withDetail(authHandler.result().getString(MESSAGE))
+                          .withDetail(authHandler.cause().getMessage())
                           .getResponse());
         } else {
           LOGGER.debug("Success: JWT Auth successful");

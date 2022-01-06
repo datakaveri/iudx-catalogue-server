@@ -107,16 +107,20 @@ public class AuthenticationVerticle extends AbstractVerticle {
   static Future<String> getJwtPublicKey(Vertx vertx, JsonObject config) {
     Promise<String> promise = Promise.promise();
     webClient = createWebClient(vertx, config);
-    webClient.get(443, config.getString("authServerHost"), "/auth/v1/cert")
-            .send(handler -> {
-              if (handler.succeeded()) {
-                JsonObject json = handler.result().bodyAsJsonObject();
-                LOGGER.info(json);
-                promise.complete(json.getString("cert"));
-              } else {
-                promise.fail("fail to get JWT public key");
-              }
-            });
+    if (config.containsKey(PUBLIC_KEY)) {
+      promise.complete(config.getString(PUBLIC_KEY));
+    } else {
+      webClient.get(443, config.getString("authServerHost"), "/auth/v1/cert")
+              .send(handler -> {
+                if (handler.succeeded()) {
+                  JsonObject json = handler.result().bodyAsJsonObject();
+                  LOGGER.info(json);
+                  promise.complete(json.getString("cert"));
+                } else {
+                  promise.fail("fail to get JWT public key");
+                }
+              });
+    }
     return promise.future();
   }
 }

@@ -22,7 +22,8 @@
             "host": "catalogue.iudx.io",
             "verticleInstances": 2,
             "authServerHost": "auth.iudx.org.in",
-	          "jwtIgnoreExpiry": true
+            "jwtIgnoreExpiry": true,
+            "publicKey": "<public key of auth server>"
         },
         {
             "id": "iudx.catalogue.server.validator.ValidatorVerticle",
