@@ -144,7 +144,7 @@ public class Constants {
   public static final int SERVICE_TIMEOUT = 3000;
 
 
-  public static final String SUCCESS = "success";
+  public static final String SUCCESS = "Success";
 
   /* URN Codes */
   public static final String TYPE_WRONG_PROVIDER = "urn:dx:cat:WrongProvider";

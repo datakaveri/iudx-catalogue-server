@@ -70,11 +70,11 @@ public class ValidatorServiceTest {
         .put("type", new JsonArray().add("iudx:Resource"))
         .put(
             "id",
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_1")
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/aqm_test_1")
         .put(
             "resourceGroup",
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo")
-        .put("provider", "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc");
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo")
+        .put("provider", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86");
     validator.validateItem(
         request,
         testContext.succeeding(
@@ -93,12 +93,12 @@ public class ValidatorServiceTest {
     request
         .put("type", new JsonArray().add("iudx:ResourceGroup"))
         .put("id",
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo")
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo")
         .put(
             "provider",
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc")
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86")
         .put(
-            "resourceServer", "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io");
+            "resourceServer", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io");
     validator.validateItem(
         request,
         testContext.succeeding(
@@ -122,7 +122,7 @@ public class ValidatorServiceTest {
         .put(
             "resourceGroup",
             "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors123")
-        .put("provider", "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc");
+        .put("provider", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86");
     validator.validateItem(
         request,
         testContext.failing(

@@ -216,7 +216,7 @@ public class ConstraintsValidationTest {
         .put(PROPERTY, new JsonArray().add(ID))
         .put(VALUE,
             new JsonArray().add(
-                new JsonArray().add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
+                new JsonArray().add("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs."
                     + "iudx.io/aqm-bosch-climo/Ambedkarsocietycircle_29")))
         .put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE);
 
@@ -237,7 +237,7 @@ public class ConstraintsValidationTest {
             new JsonArray().add(ID).add("tags").add(LOCATION).add("deviceId").add("name"))
         .put(VALUE,
             new JsonArray().add(
-                new JsonArray().add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
+                new JsonArray().add("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs."
                     + "iudx.io/aqm-bosch-climo/Ambedkar society circle_29").add("aqm").add("pune")
                     .add("1234").add("sensor1")))
         .put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE);
@@ -259,7 +259,7 @@ public class ConstraintsValidationTest {
             new JsonArray().add(ID).add("tags").add(LOCATION).add("deviceId"))
         .put(VALUE,
             new JsonArray().add(new JsonArray()
-                .add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
+                .add("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs."
                     + "iudx.io/aqm-bosch-climo/Ambedkar society circle_29")
                 .add("aqm").add("pune").add("1234").add("sensor1")))
         .put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE);

@@ -3,8 +3,8 @@ package iudx.catalogue.server.auditing.util;
 public class Constants {
   public static final String ID = "id";
   /* Errors */
-  public static final String SUCCESS = "Success";
-  public static final String FAILED = "Failed";
+  public static final String SUCCESS = "success";
+  public static final String FAILED = "failed";
   public static final String DETAIL = "detail";
   public static final String ERROR_TYPE = "type";
   public static final String TITLE = "title";

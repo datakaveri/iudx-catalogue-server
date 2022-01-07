@@ -6,7 +6,7 @@
         ],
         "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io",
         "provider": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86",
-        "name": "iudxResourceServer",
+        "name": "rs.iudx.io",
         "description": "Generic IUDX resource server",
         "tags": [
             "IUDX, Resource, Server, Platform"

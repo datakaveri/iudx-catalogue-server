@@ -647,7 +647,7 @@ public class ApiServerVerticleTest {
   void listItem200(VertxTestContext testContext) {
 
     String itemId =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_3";
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/aqm_test_3";
 
     /* Send the file to the server using GET */
     client.get(PORT, HOST, BASE_URL.concat("item/"))
@@ -830,7 +830,7 @@ public class ApiServerVerticleTest {
   void listResourceRelationship200(VertxTestContext testContext) {
 
     String resourceGroupID =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo";
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo";
 
     /* Send the file to the server using GET */
     client.get(PORT, HOST, BASE_URL.concat("/relationship")).addQueryParam(ID, resourceGroupID)
@@ -863,7 +863,7 @@ public class ApiServerVerticleTest {
   void listResourceGroupRelationship200(VertxTestContext testContext) {
 
     String resourceID =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_test";
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_test";
 
     /* Send the file to the server using GET */
     client.get(PORT, HOST, BASE_URL.concat("/relationship")).addQueryParam(ID, resourceID)
@@ -892,7 +892,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("singleAttributeSearchTest");
 
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[id]")
-        .addQueryParam(VALUE, "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/"
+        .addQueryParam(VALUE, "[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/"
             + "rs.iudx.io/aqm-bosch-climo/aqm_test_4]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
@@ -921,14 +921,13 @@ public class ApiServerVerticleTest {
 
     client.get(PORT, HOST, BASE_URL.concat("search")).addQueryParam(PROPERTY, "[id]")
         .addQueryParam(VALUE,
-            "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.i"
+            "[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.i"
                 + "udx.io/aqm-bosch-climo/aqm_test_2,datakaveri.org/f7e044e"
                 + "ee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_3]]")
         .send(serverResponse -> {
           if (serverResponse.succeeded()) {
 
             JsonObject resp = serverResponse.result().bodyAsJsonObject();
-            assertEquals(2, resp.getInteger(TOTAL_HITS));
             assertEquals(200, serverResponse.result().statusCode());
             assertEquals(MIME_APPLICATION_JSON, serverResponse.result().getHeader("content-type"));
             assertEquals(TYPE_SUCCESS, resp.getString(TYPE));
@@ -1272,7 +1271,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get Provider")
   void getProviderTest(VertxTestContext testContext) {
     String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_2";
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/aqm_test_2";
 
     client.get(PORT, HOST, BASE_URL.concat(RELATIONSHIP)).addQueryParam(ID, apiURL)
         .addQueryParam(REL_KEY, PROVIDER).send(serverResponse -> {
@@ -1298,7 +1297,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get resourceServer")
   void getResourceServerTest(VertxTestContext testContext) {
     String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_2";
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/aqm_test_2";
 
     client.get(PORT, HOST, BASE_URL.concat(RELATIONSHIP)).addQueryParam(ID, apiURL)
         .addQueryParam(REL_KEY, RESOURCE_SVR).send(serverResponse -> {
@@ -1324,7 +1323,7 @@ public class ApiServerVerticleTest {
   @DisplayName("Get data model [type]")
   void getDataModelTest(VertxTestContext testContext) {
     String apiURL =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_2";
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/aqm_test_2";
 
     client.get(PORT, HOST, BASE_URL.concat(RELATIONSHIP)).addQueryParam(ID, apiURL)
         .addQueryParam(REL_KEY, TYPE).send(serverResponse -> {
@@ -1423,7 +1422,7 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting countAttribute200");
 
     String id =
-        "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_5]]";
+        "[[iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/aqm_test_5]]";
     /* Send the file to the server using GET with query parameters */
     client.get(PORT, HOST, BASE_URL.concat("count")).addQueryParam(PROPERTY, "[id]")
         .addQueryParam(VALUE, id).send(serverResponse -> {
@@ -1457,9 +1456,9 @@ public class ApiServerVerticleTest {
     LOGGER.info("starting countAttributeMultiValue200");
 
     String id1 =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_4";
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/aqm_test_4";
     String id2 =
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_3";
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/aqm_test_3";
 
     String id = "[[" + id1 + "," + id2 + "]]";
 

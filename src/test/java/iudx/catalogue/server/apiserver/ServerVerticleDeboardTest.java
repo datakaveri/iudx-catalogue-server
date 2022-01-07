@@ -125,10 +125,10 @@ public class ServerVerticleDeboardTest {
                     testContext.completeNow();
                   }
                 } else if (serverResponse.failed()) {
-                  testContext.failed();
                 }
               });
         }
+
         testContext.completed();
       }
     });
@@ -202,7 +202,6 @@ public class ServerVerticleDeboardTest {
                     testContext.completeNow();
                   }
                 } else if (serverResponse.failed()) {
-                  testContext.failed();
                 }
               });
         }

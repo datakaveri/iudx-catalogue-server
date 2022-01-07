@@ -327,12 +327,13 @@ public final class CrudApis {
           dbService.deleteItem(requestBody, dbHandler -> {
             if (dbHandler.succeeded()) {
               LOGGER.info("Success: Item deleted;");
-              if (dbHandler.result().getString(STATUS).equals(SUCCESS)) {
+              LOGGER.debug(dbHandler.result().toString());
+              if (dbHandler.result().getString(STATUS).equals(TITLE_SUCCESS)) {
                 response.setStatusCode(200).end(dbHandler.result().toString());
                 if(hasAuditService) {
                   updateAuditTable(authHandler.result(), new String[]{itemId, ITEM_ENDPOINT, REQUEST_DELETE});
                 }
-              } else if (dbHandler.result().getString(STATUS).equals(ERROR)) {
+              } else {
                 response.setStatusCode(404)
                         .end(dbHandler.result().toString());
               }

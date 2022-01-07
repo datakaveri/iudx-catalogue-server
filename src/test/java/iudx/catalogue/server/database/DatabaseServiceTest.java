@@ -137,7 +137,7 @@ public class DatabaseServiceTest {
   void deleteNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, RESOURCE).put(ID,
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_3512345");
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_3512345");
     dbService.deleteItem(request, testContext.succeeding(response -> testContext.verify(() -> {
       String status = response.getString(TYPE);
       assertEquals(TYPE_ITEM_NOT_FOUND, status);
@@ -152,7 +152,7 @@ public class DatabaseServiceTest {
   void updateNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, RESOURCE).put(ID,
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_354567")
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_354567")
         .put("test", "test");
     dbService.updateItem(request, testContext.failing(response -> testContext.verify(() -> {
       String status = new JsonObject(response.getMessage()).getString(TYPE);
@@ -168,7 +168,7 @@ public class DatabaseServiceTest {
   void createExistingItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, RESOURCE).put(ID,
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/aqm_test_3");
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/aqm_test_3");
     dbService.createItem(request, testContext.failing(response -> testContext.verify(() -> {
       String status = new JsonObject(response.getMessage()).getString(TYPE);
       assertEquals(TYPE_ALREADY_EXISTS, status);
@@ -480,7 +480,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
         .put(PROPERTY, new JsonArray().add(ID)).put(VALUE,
             new JsonArray().add(
-                new JsonArray().add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
+                new JsonArray().add("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs."
                     + "iudx.io/aqm-bosch-climo/aqm_test_4")));
 
     /* requesting db service */
@@ -508,9 +508,9 @@ public class DatabaseServiceTest {
         .put(PROPERTY, new JsonArray().add(ID)).put(VALUE,
             new JsonArray().add(new JsonArray()
                 .add(
-                    "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bos"
+                    "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bos"
                         + "ch-climo/aqm_test_4")
-                .add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io"
+                .add("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io"
                     + "/aqm-bosch-climo/aqm_test_5")));
 
     /* requesting db service */
@@ -912,7 +912,7 @@ public class DatabaseServiceTest {
 
     /* Constructing request Json Body */
     JsonObject request = new JsonObject().put(ID,
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo")
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo")
         .put(RELATIONSHIP, RESOURCE);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
@@ -934,7 +934,7 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
         .put(ID,
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
                 + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, RESOURCE_GRP);
 
@@ -942,7 +942,7 @@ public class DatabaseServiceTest {
 
       testContext.verify(() -> {
         assertEquals(
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo",
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo",
             response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
         testContext.completeNow();
       });
@@ -956,14 +956,14 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
         .put(ID,
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
                 + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, PROVIDER);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+        assertEquals("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86",
             response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
         testContext.completeNow();
       });
@@ -978,14 +978,14 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
         .put(ID,
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
                 + "/rs.iudx.io/aqm-bosch-climo")
         .put(RELATIONSHIP, PROVIDER);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+        assertEquals("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86",
             response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
         testContext.completeNow();
       });
@@ -1000,14 +1000,14 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
         .put(ID,
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
                 + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, RESOURCE_SVR);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io",
+        assertEquals("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io",
             response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
         testContext.completeNow();
       });
@@ -1021,13 +1021,13 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
         .put(ID,
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo")
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo")
         .put(RELATIONSHIP, RESOURCE_SVR);
 
     dbService.listRelationship(request, testContext.succeeding(response -> {
 
       testContext.verify(() -> {
-        assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io",
+        assertEquals("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io",
             response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
         testContext.completeNow();
       });
@@ -1041,7 +1041,7 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
         .put(ID,
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
                 + "/rs.iudx.io/aqm-bosch-climo/aqm_test_2")
         .put(RELATIONSHIP, TYPE);
 
@@ -1062,7 +1062,7 @@ public class DatabaseServiceTest {
     /* Constructing request Json Body */
     JsonObject request = new JsonObject()
         .put(ID,
-            "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc"
+            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
                 + "/rs.iudx.io/aqm-bosch-climo")
         .put(RELATIONSHIP, TYPE);
 
@@ -1108,7 +1108,7 @@ public class DatabaseServiceTest {
       testContext.verify(() -> {
         for (int i=0; i<response.getJsonArray(RESULT).size(); i++) {
           if (response.getJsonArray(RESULT).getJsonObject(i).containsKey("resourceGroup")) {
-            assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo",
+            assertEquals("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo",
                 response.getJsonArray(RESULT).getJsonObject(i).getString("resourceGroup"));
           }
           testContext.completeNow();

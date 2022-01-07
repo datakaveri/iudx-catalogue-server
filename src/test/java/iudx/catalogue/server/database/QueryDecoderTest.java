@@ -188,7 +188,7 @@ public class QueryDecoderTest {
         .put(PROPERTY, new JsonArray().add(ID))
         .put(VALUE,
             new JsonArray().add(
-                new JsonArray().add("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
+                new JsonArray().add("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs."
                     + "iudx.io/aqm-bosch-climo/Ambedkar society circle_29")))
         .put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
         .put(SEARCH, true);
@@ -196,7 +196,7 @@ public class QueryDecoderTest {
     JsonObject json = queryDecoder.searchQuery(requests);
 
     assertEquals(
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs."
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs."
             + "iudx.io/aqm-bosch-climo/Ambedkar society circle_29",
         json.getJsonObject(QUERY_KEY).getJsonObject("bool").getJsonArray("must").getJsonObject(0)
             .getJsonObject("bool").getJsonArray("should").getJsonObject(0).getJsonObject(MATCH_KEY)
@@ -229,7 +229,7 @@ public class QueryDecoderTest {
   public void searchRelationshipTest(VertxTestContext testContext) {
 
     JsonObject requests = new JsonObject().put(ID,
-        "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io"
+        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io"
             + "/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, RESOURCE_GRP);
 
@@ -248,7 +248,7 @@ public class QueryDecoderTest {
   public void searchRelationshipTest2(VertxTestContext testContext) {
 
     JsonObject requests = new JsonObject()
-        .put(ID, "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io"
+        .put(ID, "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io"
             + "/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
         .put(RELATIONSHIP, RESOURCE_SVR);
 
