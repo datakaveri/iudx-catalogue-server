@@ -34,7 +34,7 @@ services:
     image: ghcr.io/datakaveri/cat-dev:latest
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
-      - LOG_LEVEL=DEBUG
+      - LOG_LEVEL=INFO
       - CAT_JAVA_OPTS=-Xmx1024m
     volumes:
       - ./configs/config-dev.json:/usr/share/app/configs/config.json
@@ -58,7 +58,7 @@ services:
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - WORKSPACE
-      - LOG_LEVEL=DEBUG
+      - LOG_LEVEL=INFO
     volumes:
       - /home/ubuntu/configs/cat-config-test.json:/usr/share/app/configs/config-test.json
       - ./src/:/usr/share/app/src
@@ -81,7 +81,7 @@ services:
     environment:
       - CAT_URL=https://catalogue.iudx.org.in
       - WORKSPACE
-      - LOG_LEVEL=DEBUG
+      - LOG_LEVEL=INFO
     volumes:
       - /home/ubuntu/configs/cat-config-test.json:/usr/share/app/configs/config-test.json
       - ./src/:/usr/share/app/src

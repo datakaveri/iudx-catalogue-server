@@ -178,7 +178,7 @@ public class ValidatorServiceTest {
     JsonObject resourceGrp =
         fileSystem.readFileBlocking("./src/test/resources/resourceGroup.json").toJsonArray().getJsonObject(0);
 
-    System.out.println(resourceGrp.toString());
+    LOGGER.debug(resourceGrp.toString());
 
     validator.validateSchema(resourceGrp,
         testContext.succeeding(response -> testContext.verify(() -> {
@@ -194,7 +194,7 @@ public class ValidatorServiceTest {
       JsonObject request =
           new JsonObject(
               "{\"id\":\"rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors\",\"description\": \"Description of this resource group\",\"name\": \"sensors\",\"tags\": \"sensor, sensing, resource, battery operated\",\"itemStatus\": \"ACTIVE\",\"provider\": \"rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531\",\"resourceServer\": \"rbccps.org/00D75505FD5256B142AFD9C0E32790FA7180D500/rs.iudx.org.in\",\"resourceAuthControlLevel\": \"INDIVIDUAL\",\"resourceType\": \"messageStream\",\"authServerInfo\": {\"type\": [\"AuthServerInfoValue\"],\"authServerURL\": \"https://auth.iudx.org.in\",\"authType\": \"iudx-auth\"},\"accessObjectInfo\":{\"type\": [\"AccessObjectInfoValue\"],\"accessObject\": \"https://example.com/sensorsApis.json\",\"additionalInfoURL\": \"https://example.com/sensorsApis\",\"accessObjectType\": \"openAPI\"},\"iudxResourceAPIs\": [\"attribute\", \"temporal\"],\"itemCreatedAt\": \"2019-02-20T10:30:06.093121\",\"location\": {\"type\": \"Place\",\"address\": \"Bangalore\"}}");
-      System.out.println(request.toString());
+      LOGGER.debug(request.toString());
       validator.validateSchema(
           request,
           testContext.failing(

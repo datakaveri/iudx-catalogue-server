@@ -930,7 +930,7 @@ public class ApiServerVerticleTest {
 
             testContext.completeNow();
           } else if (serverResponse.failed()) {
-            LOGGER.error("Cause;"+serverResponse.cause())));
+            LOGGER.error("Cause;"+serverResponse.cause());
             testContext.failed();
           }
         });
