@@ -22,7 +22,7 @@ public class SummarizerTest {
   @Test
   @DisplayName("Summarize test")
   void summarize(VertxTestContext testContext) {
-    LOGGER.info(Summarizer.summarize(doc));
+    LOGGER.debug(Summarizer.summarize(doc));
     testContext.completeNow();
   }
 }

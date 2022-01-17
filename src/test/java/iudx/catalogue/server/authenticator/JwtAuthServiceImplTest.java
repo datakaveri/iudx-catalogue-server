@@ -67,7 +67,7 @@ public class JwtAuthServiceImplTest {
               {
                 testContext.completeNow();
               } else {
-                LOGGER.info(handler.cause().getMessage());
+            LOGGER.error(handler.cause().getMessage());
                 testContext.failNow(handler.cause());
               }
             });
