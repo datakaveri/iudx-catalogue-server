@@ -59,11 +59,7 @@ public class AuditingServiceImpl implements AuditingService {
     this.poolOptions = new PoolOptions().setMaxSize(databasePoolSize);
     this.pool = PgPool.pool(vertxInstance, connectOptions, poolOptions);
 
-    LOGGER.info("IP: " + databaseIP);
-    LOGGER.info("Port: " + databasePort);
-    LOGGER.info("database: " + databaseName);
-    LOGGER.info("user: " + databaseUserName);
-    LOGGER.info("pass: " + databasePassword);
+  
   }
 
   @Override
