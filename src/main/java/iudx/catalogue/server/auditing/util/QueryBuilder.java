@@ -33,7 +33,7 @@ public class QueryBuilder {
     String method = request.getString(METHOD);
     String iudxID = request.getString(IUDX_ID);
     ZonedDateTime zst = ZonedDateTime.now();
-    LOGGER.info("TIME ZST: " + zst);
+    LOGGER.debug("TIME ZST: " + zst);
     long time = getEpochTime(zst);
 
     StringBuilder query =
@@ -48,7 +48,7 @@ public class QueryBuilder {
                             .replace("$7", Long.toString(time))
                             .replace("$8", iudxID));
 
-    LOGGER.info("Info: Query " + query);
+    LOGGER.debug("Query " + query);
     return new JsonObject().put(QUERY_KEY, query);
   }
 
@@ -104,19 +104,19 @@ public class QueryBuilder {
     }
 
     StringBuilder userIdQuery = new StringBuilder(READ_QUERY.replace("$1", userId));
-    LOGGER.info("Info: QUERY " + userIdQuery);
+    LOGGER.debug("QUERY " + userIdQuery);
 
     if (request.containsKey(START_TIME) && request.containsKey(END_TIME)) {
       userIdQuery.append(START_TIME_QUERY.replace("$2", Long.toString(fromTime)));
       userIdQuery.append(END_TIME_QUERY.replace("$3", Long.toString(toTime)));
-      LOGGER.info("Info: QUERY with start and end time" + userIdQuery);
+      LOGGER.debug("QUERY with start and end time" + userIdQuery);
     }
     if (request.containsKey(METHOD) && request.containsKey(ENDPOINT)) {
       method = request.getString(METHOD);
       api = request.getString(API);
       userIdQuery.append(API_QUERY.replace("$4", api));
       userIdQuery.append(METHOD_QUERY.replace("$5", method));
-      LOGGER.info("Info: QUERY with method and endpoint " + userIdQuery);
+      LOGGER.debug("QUERY with method and endpoint " + userIdQuery);
       return new JsonObject().put(QUERY_KEY, userIdQuery);
     }
     return new JsonObject().put(QUERY_KEY, userIdQuery);

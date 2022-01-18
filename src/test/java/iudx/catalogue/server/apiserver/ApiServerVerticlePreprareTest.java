@@ -97,7 +97,7 @@ public class ApiServerVerticlePreprareTest {
 
         JsonArray resources = fileRes.result().toJsonArray();
         int numItems = resources.size();
-        LOGGER.info("Total items = " + String.valueOf(resources.size()));
+        LOGGER.debug("Total items = " + String.valueOf(resources.size()));
         Iterator<Object> objectIterator = resources.iterator();
 
 
@@ -147,7 +147,7 @@ public class ApiServerVerticlePreprareTest {
 
         JsonArray resources = fileRes.result().toJsonArray();
         int numItems = resources.size();
-        LOGGER.info("Total items = " + String.valueOf(resources.size()));
+        LOGGER.debug("Total items = " + String.valueOf(resources.size()));
         Iterator<Object> objectIterator = resources.iterator();
 
 

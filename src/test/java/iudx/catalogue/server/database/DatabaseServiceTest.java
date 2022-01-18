@@ -340,7 +340,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER);
 
     dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      System.out.println(response);
+      LOGGER.debug(response);
       JsonObject res = new JsonObject(response.getMessage());
       assertEquals(TYPE_BAD_FILTER, res.getString(TYPE));
       testContext.completeNow();

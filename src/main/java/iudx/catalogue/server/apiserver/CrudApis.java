@@ -150,7 +150,6 @@ public final class CrudApis {
           jwtAuthenticationInfo.put(ID, requestBody.getString(PROVIDER));
         }
 
-        LOGGER.debug("Info: JWT Authentication Info: " + jwtAuthenticationInfo);
 
         /* JWT implementation of tokenInterospect */
         authService.tokenInterospect(new JsonObject(),

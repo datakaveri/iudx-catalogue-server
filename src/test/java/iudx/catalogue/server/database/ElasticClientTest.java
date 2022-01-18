@@ -46,8 +46,6 @@ public class ElasticClientTest {
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
     LOGGER.info("Read config file");
-    LOGGER.info("IP is " + databaseIP);
-
     testContext.completeNow();
   }
 
@@ -60,12 +58,11 @@ public class ElasticClientTest {
     client.searchAsync(query.toString(), res -> {
       if (res.succeeded()) {
         LOGGER.info("Succeeded");
-        LOGGER.info(res.result());
-        LOGGER.info("Computed size = " + res.result().getJsonArray("results").size());
+        LOGGER.debug(res.result());
+        LOGGER.debug("Computed size = " + res.result().getJsonArray("results").size());
         testContext.completeNow();
       } else {
-        LOGGER.info("Failed");
-        LOGGER.info(res.cause());
+        LOGGER.error("Failed, cause:" + res.cause());
         testContext.failed();
       }
     });
@@ -79,16 +76,15 @@ public class ElasticClientTest {
     LOGGER.info("Reached get aggregations");
 
     String req = "{\"query\":{\"bool\":{\"filter\":[{\"match\":{\"type\":\"iudx:ResourceGroup\"}}]}},\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\",\"size\":10000}}}}";
-    LOGGER.info("Aggregation query is " + req);
+    LOGGER.debug("Aggregation query is " + req);
     client.listAggregationAsync(req, res -> {
       if (res.succeeded()) {
         LOGGER.info("Succeeded");
-        LOGGER.info(res.result());
-        LOGGER.info("Computed size = " + res.result().getJsonArray("results").size());
+        LOGGER.debug(res.result());
+        LOGGER.debug("Computed size = " + res.result().getJsonArray("results").size());
         testContext.completeNow();
       } else {
-        LOGGER.info("Failed");
-        LOGGER.info(res.cause());
+        LOGGER.error("Failed, cause:" + res.cause());
         testContext.failed();
       }
     });

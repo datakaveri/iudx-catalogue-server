@@ -55,7 +55,7 @@ public class NLPSearchServiceTest {
     void nlpSearchTest(VertxTestContext testContext) {
       String query = "Flood levels";  
       nlpService.search(query, ar-> {
-        LOGGER.info("Result: " + ar.result().toString());
+        LOGGER.debug("Result: " + ar.result().toString());
         testContext.completeNow();
       });
     }
