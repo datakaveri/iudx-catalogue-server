@@ -43,8 +43,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=[tags]&value=[[abc, abc123]]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=[tags]&value=[[abc, abc123]]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -98,8 +98,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=[abc]&value=[[abc123]]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=[abc]&value=[[abc123]]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -153,8 +153,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=[abc]&value=[[abc, abc123]]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=[abc]&value=[[abc, abc123]]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -203,8 +203,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]&limit=100&offset=0",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]&limit=100&offset=0",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -265,8 +265,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId]&limit=1000000&offset=0",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId]&limit=1000000&offset=0",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -327,8 +327,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId]&limit=100&offset=1000000",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId]&limit=100&offset=1000000",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -394,8 +394,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[tags,id,location.geometry.coordinates]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -456,8 +456,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -522,8 +522,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?q=\"Golibar Square\"&geoproperty=location&georel=within&geometry=Point&coordinates=[73.878603,18.502865]&maxDistance=500",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?q=\"Golibar Square\"&geoproperty=location&georel=within&geometry=Point&coordinates=[73.878603,18.502865]&maxDistance=500",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -588,8 +588,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[tags,id,location.geometry.coordinates]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -658,8 +658,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?q=\"Golibar Square\"&geoproperty=location&georel=within&geometry=Point&coordinates=[73.878603,18.502865]&maxDistance=500&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?q=\"Golibar Square\"&geoproperty=location&georel=within&geometry=Point&coordinates=[73.878603,18.502865]&maxDistance=500&filter=[tags,id,location.geometry.coordinates]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -729,8 +729,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&filter=[tags,id,location.geometry.coordinates]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -783,8 +783,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?q=\"Golibar Square\"&property=\"[tags, deviceId.keyword]\"&value=\"[[aqm],[2353b250-df9a-4108-8e2c-240955969d7e]]\"",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?q=\"Golibar Square\"&property=\"[tags, deviceId.keyword]\"&value=\"[[aqm],[2353b250-df9a-4108-8e2c-240955969d7e]]\"",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -815,8 +815,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?q=\"Golibar Square\"&property=\"[tags, deviceId.keyword]\"&value=\"[[aqm],[2353b250-df9a-4108-8e2c-240955969d7e]]\"&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?q=\"Golibar Square\"&property=\"[tags, deviceId.keyword]\"&value=\"[[aqm],[2353b250-df9a-4108-8e2c-240955969d7e]]\"&filter=[tags,id,location.geometry.coordinates]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -873,8 +873,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[aqm]]\"&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[aqm]]\"&filter=[tags,id,location.geometry.coordinates]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -927,8 +927,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?q=\"Golibar Square\"&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?q=\"Golibar Square\"&filter=[tags,id,location.geometry.coordinates]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -977,8 +977,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&q=\"Chandani Square\"",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&q=\"Chandani Square\"",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -1047,8 +1047,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&q=\"Chandani Square\"&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&q=\"Chandani Square\"&filter=[tags,id,location.geometry.coordinates]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -1121,8 +1121,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -1183,8 +1183,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name]&limit=10001",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name]&limit=10001",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -1249,8 +1249,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name]&limit=1001&offset=1010101",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name]&limit=1001&offset=1010101",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
