@@ -2,11 +2,11 @@
 
 nohup mvn clean compile exec:java@catalogue-server & 
 sleep 20
-mvn test-compile surefire:test surefire-report:report -Dtest=ServerVerticleDeboardTest
-mvn test-compile surefire:test surefire-report:report -Dtest=ApiServerVerticlePreprareTest
-mvn test-compile surefire:test surefire-report:report -Dtest=ApiServerVerticleTest
-mvn test-compile surefire:test surefire-report:report -Dtest=ServerVerticleDeboardTest
-mvn test-compile surefire:test surefire-report:report -Dtest=DatabaseServiceTest
+mvn clean test -Dtest=ServerVerticleDeboardTest
+mvn test -Dtest=ApiServerVerticlePreprareTest
+mvn test -Dtest=ApiServerVerticleTest
+mvn test -Dtest=ServerVerticleDeboardTest
+mvn test -Dtest=DatabaseServiceTest
 mv target/jacoco.exec target/DatabaseServiceTest.exec
-mvn test-compile surefire:test surefire-report:report -Dtest=ConstraintsValidationTest,AuthenticationServiceTest,ElasticClientTest,QueryDecoderTest,SummarizerTest,ValidatorServiceTest
+mvn test -Dtest=ConstraintsValidationTest,AuthenticationServiceTest,ElasticClientTest,QueryDecoderTest,SummarizerTest,ValidatorServiceTest
 mv target/jacoco.exec target/jacoco2.exec

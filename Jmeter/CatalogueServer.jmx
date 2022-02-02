@@ -74,7 +74,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/count?geoproperty=location&amp;georel=within&amp;geometry=bbox&amp;coordinates=[[73.8420,18.5305],[73.8665,18.5126]]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -101,7 +101,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/count?geoproperty=location&amp;georel=within&amp;maxDistance=5000&amp;geometry=Point&amp;coordinates=[73.927285,18.502712]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -128,7 +128,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/count?geoproperty=location&amp;georel=intersects&amp;geometry=LineString&amp;coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -155,7 +155,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/count?geoproperty=location&amp;georel=within&amp;geometry=Polygon&amp;coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -182,7 +182,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/count?q=%22Bosch%20Climo%22</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -209,7 +209,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/count?property=%22[location.address]%22&amp;value=%22[[pune,delhi]]%22&amp;geoproperty=location&amp;georel=within&amp;geometry=Polygon&amp;coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -236,7 +236,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?property=%22[location.address]%22&amp;value=%22[[pune,delhi]]%22&amp;geoproperty=location&amp;georel=within&amp;geometry=Polygon&amp;coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&amp;filter=[id]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -263,7 +263,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/list/instance</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -290,7 +290,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/list/provider</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -317,7 +317,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/list/resourceGroup</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -344,7 +344,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/list/resourceServer</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -371,7 +371,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/list/tags</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -398,7 +398,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?property=[tags]&amp;value=[[pollution,%20flood]]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -425,7 +425,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/count?property=[tags]&amp;value=[[pollution,%20flood]]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -452,7 +452,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?property=[tags]&amp;value=[[pollution,%20flood]]&amp;filter=[id,tags]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -479,7 +479,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?geoproperty=location&amp;georel=within&amp;geometry=bbox&amp;coordinates=[[73.8420,18.5305],[73.8665,18.5126]]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -506,7 +506,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?geoproperty=location&amp;georel=within&amp;maxDistance=5000&amp;geometry=Point&amp;coordinates=[73.927285,18.502712]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -533,7 +533,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?geoproperty=location&amp;georel=intersects&amp;geometry=LineString&amp;coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -560,7 +560,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?geoproperty=location&amp;georel=within&amp;geometry=Polygon&amp;coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -587,7 +587,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/count?property=%22[tags]%22&amp;value=%22[[pollution]]%22</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -614,7 +614,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?property=%22[tags]%22&amp;value=%22[[pollution]]%22</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -641,7 +641,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?property=%22[tags]%22&amp;value=%22[[pollution]]%22&amp;filter=[id,tags]</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -668,7 +668,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/count?q=%22Bosch*%22</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -695,7 +695,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?q=%22Bosch%20Climo%22</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
@@ -722,7 +722,7 @@
           </elementProp>
           <stringProp name="HTTPSampler.domain">jenkins-slave1</stringProp>
           <stringProp name="HTTPSampler.port">8080</stringProp>
-          <stringProp name="HTTPSampler.protocol">http</stringProp>
+          <stringProp name="HTTPSampler.protocol">https</stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
           <stringProp name="HTTPSampler.path">/iudx/cat/v1/search?q=%22Bosch*%22</stringProp>
           <stringProp name="HTTPSampler.method">GET</stringProp>
