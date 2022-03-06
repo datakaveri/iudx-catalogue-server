@@ -1,19 +1,10 @@
 ARG VERSION="0.0.1-SNAPSHOT"
 
-FROM maven:3-openjdk-11-slim as dependencies
-
-RUN useradd -r -u 1001 -g root cat-user
-USER cat-user
-
+FROM maven:3-openjdk-11-slim as builder
 
 WORKDIR /usr/share/app
 COPY pom.xml .
 RUN mvn clean package
-
-FROM dependencies as builder
-
-WORKDIR /usr/share/app
-COPY pom.xml .
 COPY src src
 RUN mvn clean package -Dmaven.test.skip=true
 
@@ -26,3 +17,5 @@ ENV JAR="iudx.catalogue.server-cluster-${VERSION}-fat.jar"
 WORKDIR /usr/share/app
 COPY docs docs
 COPY --from=builder /usr/share/app/target/${JAR} ./fatjar.jar
+RUN groupadd -r myuser && useradd -r -g myuser myuser
+USER myuser
