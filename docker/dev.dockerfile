@@ -12,10 +12,10 @@ RUN mvn clean package -Dmaven.test.skip=true
 FROM openjdk:11-jre-slim-buster
 
 ARG VERSION
-ENV JAR="iudx.catalogue.server-cluster-${VERSION}-fat.jar"
+ENV JAR="iudx.catalogue.server-dev-${VERSION}-fat.jar"
 
 WORKDIR /usr/share/app
 COPY docs docs
 COPY --from=builder /usr/share/app/target/${JAR} ./fatjar.jar
-RUN groupadd -r myuser && useradd -r -g myuser myuser
-USER myuser
+RUN useradd -r -u 1001 -g root catuser
+USER catuser
