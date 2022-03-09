@@ -17,5 +17,11 @@ ENV JAR="iudx.catalogue.server-cluster-${VERSION}-fat.jar"
 WORKDIR /usr/share/app
 COPY docs docs
 COPY --from=builder /usr/share/app/target/${JAR} ./fatjar.jar
+# HTTP cat server port
+EXPOSE 8080
+# HTTPS cat server port
+EXPOSE 8443
+# Metrics http server port
+EXPOSE 9000 
 RUN useradd -r -u 1001 -g root catuser
 USER catuser
