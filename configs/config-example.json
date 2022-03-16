@@ -38,7 +38,9 @@
             "id": "iudx.catalogue.server.apiserver.ApiServerVerticle",
             "host": "catalogue.iudx.io",
             "ssl": false,
-            "port": 8080,
+            "httpPort": 8080,
+	    "keystore": "configs/keystore.jks",
+	    "keystorePassword": "password",
             "ip": "127.0.0.1",
             "catAdmin": "datakaveri.org/h7e844e2e832398d238928abcd64f3266afa41dc",
             "verticleInstances": 2
@@ -55,6 +57,17 @@
             "nlpServiceUrl": "es-vectorised-search_web_1",
             "nlpServicePort": 5000,
             "verticleInstances":2
-        }
+        },
+	    {
+            "id": "iudx.catalogue.server.auditing.AuditingVerticle",
+            "verticleInstances": 1,
+            "auditingDatabaseIP": "",
+            "auditingDatabasePort": 5432,
+            "auditingDatabaseName": "defaultdb",
+            "auditingDatabaseUserName": "immudb",
+            "auditingDatabasePassword": "password",
+            "auditingPoolSize": 25
+            }
+
     ]
 }

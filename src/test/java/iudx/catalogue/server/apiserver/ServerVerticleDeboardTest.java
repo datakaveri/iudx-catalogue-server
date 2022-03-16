@@ -70,7 +70,7 @@ public class ServerVerticleDeboardTest {
     JsonObject apiVerticleConfig = Configuration.getConfiguration("./configs/config-test.json", 3);
 
     HOST = apiVerticleConfig.getString("ip");
-    PORT = apiVerticleConfig.getInteger("port");
+    PORT = apiVerticleConfig.getInteger("httpPort");
     TOKEN = apiVerticleConfig.getString(HEADER_TOKEN);
     ADMIN_TOKEN = apiVerticleConfig.getString("admin_token");
 

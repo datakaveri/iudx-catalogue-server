@@ -48,6 +48,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   private HttpServer server;
   private CrudApis crudApis;
   private SearchApis searchApis;
+  private String keystore;
+  private String keystorePassword;
   private ListApis listApis;
   private RelationshipApis relApis;
   private GeocodingApis geoApis;
@@ -56,7 +58,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private Router router;
 
   private String catAdmin;
-  private boolean isSsl;
+  private boolean isSSL;
   private int port;
 
 
@@ -74,23 +76,43 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Configure */
     catAdmin = config().getString(CAT_ADMIN);
-    isSsl = config().getBoolean(IS_SSL);
-    port = config().getInteger(PORT);
+    isSSL = config().getBoolean(IS_SSL);
 
 
     HttpServerOptions serverOptions = new HttpServerOptions();
 
-    /*
-    if (isSsl) {
+
+    if (isSSL) {
+      LOGGER.debug("Info: Starting HTTPs server");
+
+      /* Read the configuration and set the HTTPs server properties. */
+
+      keystore = config().getString("keystore");
+      keystorePassword = config().getString("keystorePassword");
+      
+      /*
+       * Default port when ssl is enabled is 8443. If set through config, then that value is taken
+       */
+      port = config().getInteger(PORT) == null ? 8443
+          : config().getInteger(PORT);
+
+      /* Setup the HTTPs server properties, APIs and port. */
+
       serverOptions.setSsl(true)
-                    .setKeyStoreOptions(new JksOptions()
-                                          .setPath(keystore)
-                                          .setPassword(keystorePassword));
+          .setKeyStoreOptions(new JksOptions().setPath(keystore).setPassword(keystorePassword));
+
     } else {
+      LOGGER.debug("Info: Starting HTTP server");
+
+      /* Setup the HTTP server properties, APIs and port. */
+
       serverOptions.setSsl(false);
+      /*
+       * Default port when ssl is disabled is 8080. If set through config, then that value is taken
+       */
+      port = config().getInteger(PORT) == null ? 8080
+          : config().getInteger(PORT);
     }
-    */
-    serverOptions.setSsl(false);
     serverOptions.setCompressionSupported(true).setCompressionLevel(5);
     /** Instantiate this server */
     server = vertx.createHttpServer(serverOptions);
