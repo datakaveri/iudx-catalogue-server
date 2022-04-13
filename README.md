@@ -3,7 +3,7 @@
 [![Unit Tests](https://img.shields.io/jenkins/tests?jobUrl=https%3A%2F%2Fjenkins.iudx.io%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F&label=unit%20tests)](https://jenkins.iudx.io/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/testReport/)
 [![Performance Tests](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.iudx.io%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F&label=performance%20tests)](https://jenkins.iudx.io/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/performance/)
 [![Security Tests](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.iudx.io%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F&label=security%20tests)](https://jenkins.iudx.io/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/zap/)
-[![Integration Tests](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.iudx.io%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F&label=integration%20tests)](https://jenkins.iudx.io/job/iudx%20catalogue%20(master)%20pipeline/HTML_20Report/)
+[![Integration Tests](https://img.shields.io/jenkins/build?jobUrl=https%3A%2F%2Fjenkins.iudx.io%2Fjob%2Fiudx%2520catalogue%2520%28master%29%2520pipeline%2F&label=integration%20tests)](https://jenkins.iudx.io/job/iudx%20catalogue%20(master)%20pipeline/lastBuild/Integration_20Test_20Report/)
 
 ![IUDX](./docs/iudx.png)
 # iudx-catalogue-server
