@@ -1,7 +1,7 @@
 #!/bin/bash
 
 nohup mvn clean compile exec:java@catalogue-server & 
-sleep 20
+sleep 40
 mvn clean test -Dtest=ServerVerticleDeboardTest
 mvn test -Dtest=ApiServerVerticlePreprareTest
 mvn test -Dtest=ApiServerVerticleTest
