@@ -30,7 +30,7 @@ import static iudx.catalogue.server.util.Constants.*;
 
 public final class ElasticClient {
   private final RestClient client;
-  private final String index;
+  private String index;
 
   /**
    * ElasticClient - Wrapper around ElasticSearch low level client
@@ -47,6 +47,11 @@ public final class ElasticClient {
     client = RestClient.builder(new HttpHost(databaseIP, databasePort)).setHttpClientConfigCallback(
         httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentials)).build();
     this.index = index;
+  }
+
+  public ElasticClient searchAsync(String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return searchAsync(query,resultHandler);
   }
 
   /**
@@ -95,6 +100,12 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient searchGetId(String query, String index,
+     Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return searchGetId(query, resultHandler);
+  }
+
   /**
    * searchGetIdAsync - Get document IDs matching a query
    * 
@@ -112,10 +123,15 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient listAggregationAsync(String query, String index,
+      Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return listAggregationAsync(query, resultHandler);
+  }
+
   /**
    * aggregationsAsync - Wrapper around elasticsearch async search requests
    * 
-   * @param index Index to search on
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
@@ -150,6 +166,12 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient docPostAsync(String doc, String index,
+        Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return docPostAsync(doc,resultHandler);
+  }
+
   /**
    * docPostAsync - Wrapper around elasticsearch async doc post request
    * 
@@ -168,6 +190,12 @@ public final class ElasticClient {
     Future<JsonObject> future = docAsync(REQUEST_POST, docRequest);
     future.onComplete(resultHandler);
     return this;
+  }
+
+  public ElasticClient docPutAsync(String docId, String doc, String index,
+       Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return docPutAsync(docId, doc, resultHandler);
   }
 
   /**
@@ -189,6 +217,12 @@ public final class ElasticClient {
     Future<JsonObject> future = docAsync(REQUEST_PUT, docRequest);
     future.onComplete(resultHandler);
     return this;
+  }
+
+  public ElasticClient docDelAsync(String docId, String index,
+       Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return docDelAsync(docId, resultHandler);
   }
 
   /**

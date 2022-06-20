@@ -6,6 +6,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import net.sf.saxon.trans.SymbolicName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.util.Timer;
@@ -38,13 +39,26 @@ public class DatabaseServiceImpl implements DatabaseService {
   private boolean nlpPluggedIn;
   private boolean geoPluggedIn;
 
+  private String ratingIndex;
 
   private static String INTERNAL_ERROR_RESP = new RespBuilder()
                                           .withType(TYPE_INTERNAL_SERVER_ERROR)
                                           .withTitle(TITLE_INTERNAL_SERVER_ERROR)
                                           .getResponse();
 
+  public DatabaseServiceImpl(ElasticClient client, String ratingIndex) {
+    this(client);
+    this.ratingIndex = ratingIndex;
+  }
 
+  public DatabaseServiceImpl(
+      ElasticClient client,
+      String ratingIndex,
+      NLPSearchService nlpService,
+      GeocodingService geoService) {
+    this(client, nlpService, geoService);
+    this.ratingIndex = ratingIndex;
+  }
 
   public DatabaseServiceImpl(ElasticClient client) {
     this.client = client;
@@ -588,6 +602,182 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
+  /** {@inheritDoc} */
+  @Override
+  public DatabaseService createRating(
+      JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    String ratingId = ratingDoc.getString("id");
+
+    String checkForExistingRecord = GET_DOC_QUERY.replace("$1", ratingId).replace("$2", "");
+
+    client.searchAsync(
+        checkForExistingRecord,
+        ratingIndex,
+        checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error("Fail: Insertion of rating failed: " + checkRes.cause());
+            handler.handle(
+                Future.failedFuture(
+                    respBuilder
+                        .withType(FAILED)
+                        .withResult(ratingId, INSERT, FAILED)
+                        .getResponse()));
+          } else {
+            if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
+              handler.handle(
+                  Future.failedFuture(
+                      respBuilder
+                          .withType(TYPE_ALREADY_EXISTS)
+                          .withTitle(TITLE_ALREADY_EXISTS)
+                          .withResult(ratingId, INSERT, FAILED, " Fail: Doc Already Exists")
+                          .getResponse()));
+              return;
+            }
+
+            // TODO: not sure if this is needed here
+            ratingDoc.put(SUMMARY_KEY, Summarizer.summarize(ratingDoc));
+
+            client.docPostAsync(
+                ratingDoc.toString(),
+                ratingIndex,
+                postRes -> {
+                  if (postRes.succeeded()) {
+                    handler.handle(
+                        Future.succeededFuture(
+                            respBuilder
+                                .withType(TYPE_SUCCESS)
+                                .withTitle(TITLE_SUCCESS)
+                                .withResult(ratingId, INSERT, TYPE_SUCCESS)
+                                .getJsonResponse()));
+                  } else {
+                    handler.handle(
+                        Future.failedFuture(
+                            respBuilder
+                                .withType(TYPE_FAIL)
+                                .withResult(ratingId, INSERT, FAILED)
+                                .getResponse()));
+                    LOGGER.error("Fail: Insertion failed" + postRes.cause());
+                  }
+                });
+          }
+        });
+    return this;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public DatabaseService updateRating(
+      JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    String ratingId = ratingDoc.getString("id");
+
+    String checkForExistingRecord = GET_DOC_QUERY.replace("$1", ratingId).replace("$2", "");
+
+    client.searchGetId(
+        checkForExistingRecord,
+        ratingIndex,
+        checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          } else {
+            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+              LOGGER.error("Fail: Doc doesn't exist, can't update");
+              handler.handle(
+                  Future.failedFuture(
+                      respBuilder
+                          .withType(TYPE_ITEM_NOT_FOUND)
+                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                          .withResult(
+                              ratingId, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
+                          .getResponse()));
+              return;
+            }
+
+            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+
+            client.docPutAsync(
+                docId,
+                ratingIndex,
+                ratingDoc.toString(),
+                putRes -> {
+                  if (putRes.succeeded()) {
+                    handler.handle(
+                        Future.succeededFuture(
+                            respBuilder
+                                .withType(TYPE_SUCCESS)
+                                .withTitle(TITLE_SUCCESS)
+                                .withResult(ratingId, UPDATE, TYPE_SUCCESS)
+                                .getJsonResponse()));
+                  } else {
+                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    LOGGER.error("Fail: Updation failed;" + putRes.cause());
+                  }
+                });
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public DatabaseService deleteRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    String ratingId = request.getString("id");
+
+    String checkForExistingRecord = GET_DOC_QUERY.replace("$1", ratingId).replace("$2", "");
+
+    client.searchGetId(
+        checkForExistingRecord,
+        ratingIndex,
+        checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          } else {
+            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+              LOGGER.error("Fail: Doc doesn't exist, can't delete");
+              handler.handle(
+                  Future.failedFuture(
+                      respBuilder
+                          .withType(TYPE_ITEM_NOT_FOUND)
+                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                          .withResult(
+                                  ratingId, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
+                          .getResponse()));
+              return;
+            }
+
+            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+
+            client.docDelAsync(
+                docId,
+                ratingIndex,
+                putRes -> {
+                  if (putRes.succeeded()) {
+                    handler.handle(
+                        Future.succeededFuture(
+                            respBuilder
+                                .withType(TYPE_SUCCESS)
+                                .withTitle(TITLE_SUCCESS)
+                                .withResult(ratingId, DELETE, TYPE_SUCCESS)
+                                .getJsonResponse()));
+                  } else {
+                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    LOGGER.error("Fail: Deletion failed;" + putRes.cause());
+                  }
+                });
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public DatabaseService getRatings(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+
+    return this;
+  }
 
   /* Verify the existance of an instance */
   Future<Boolean> verifyInstance(String instanceId) {

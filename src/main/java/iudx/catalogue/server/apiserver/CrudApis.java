@@ -26,7 +26,6 @@ import java.util.HashSet;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.auditing.util.Constants.IUDX_ID;
 import static iudx.catalogue.server.auditing.util.Constants.API;
-//import static iudx.catalogue.server.auditing.util.Constants.METHOD;
 import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
 import static iudx.catalogue.server.authenticator.Constants.ITEM_ENDPOINT;
 import static iudx.catalogue.server.authenticator.Constants.INSTANCE_ENDPOINT;

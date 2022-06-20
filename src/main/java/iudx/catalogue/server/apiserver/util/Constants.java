@@ -53,6 +53,8 @@ public class Constants {
   public static final String ROUTE_NLP_SEARCH = basePath + "/nlpsearch";
   public static final String ROUTE_LIST_ITEMS = basePath + "/list/:itemType";
 
+  public static final String ROUTE_RATING = "/consumer/ratings";
+
   public static final String RESOURCE_ITEM = "resItem";
   public static final String RESOURCE_GRP_ITEM = "resGrpItem";
   public static final String RESOURCE_SVR_ITEM = "resSvrItem";
