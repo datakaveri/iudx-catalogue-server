@@ -6,7 +6,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.JsonArray;
 import io.vertx.pgclient.PgPool;
 import iudx.catalogue.server.database.DatabaseService;
 import org.apache.logging.log4j.LogManager;
@@ -31,16 +30,15 @@ public class RatingServiceImpl implements RatingService {
   public RatingService createRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String sub = request.getString(USER_ID);
     String resourceID = request.getString(RESOURCE_ID);
-    LOGGER.debug(sub+"\n"+resourceID);
     StringBuilder query =
         new StringBuilder(AUDIT_INFO_QUERY.replace("$1", sub).replace("$2", resourceID));
     Future<JsonObject> getRSAuditingInfo = getAuditingInfo(query);
-    getRSAuditingInfo
-        .onSuccess(
-            successHandler -> {
-              int countResourceAccess = successHandler.getInteger("totalHits");
-              if (countResourceAccess > 0) {
-
+//    getRSAuditingInfo
+//        .onSuccess(
+//            successHandler -> {
+//              int countResourceAccess = successHandler.getInteger("totalHits");
+//              if (countResourceAccess > 0) {
+//
                 String ratingID =
                     Hashing.sha256()
                         .hashString(sub + resourceID, StandardCharsets.UTF_8)
@@ -59,14 +57,14 @@ public class RatingServiceImpl implements RatingService {
                         handler.handle(Future.failedFuture(createItemHandler.cause()));
                       }
                     });
-              }
-            })
-        .onFailure(
-            failureHandler -> {
-              LOGGER.error(
-                  "User has not accessed resource before and hence is not authorised to give rating");
-              handler.handle(Future.failedFuture(failureHandler.getCause().getMessage()));
-            });
+//              }
+//            })
+//        .onFailure(
+//            failureHandler -> {
+//              LOGGER.error(
+//                  "User has not accessed resource before and hence is not authorised to give rating");
+//              handler.handle(Future.failedFuture(failureHandler.getCause().getMessage()));
+//            });
 
     return this;
   }
@@ -113,14 +111,14 @@ public class RatingServiceImpl implements RatingService {
 
     request.put(ID, ratingID);
 
-    databaseService.updateRating(
+    databaseService.deleteRating(
         request,
         updateItemHandler -> {
           if (updateItemHandler.succeeded()) {
-            LOGGER.info("Success: Rating Recorded");
+            LOGGER.info("Success: Rating deleted");
             handler.handle(Future.succeededFuture(updateItemHandler.result()));
           } else {
-            LOGGER.error("Fail: Rating updation failed");
+            LOGGER.error("Fail: Rating deletion failed");
             handler.handle(Future.failedFuture(updateItemHandler.cause()));
           }
         });

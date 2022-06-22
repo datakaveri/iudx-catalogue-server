@@ -117,7 +117,7 @@ public class RatingApis {
                     if (hasAuditService) {
                       updateAuditTable(
                           authHandler.result(),
-                          new String[] {resourceID, ROUTE_RATING, REQUEST_PUT});
+                          new String[] {resourceID, ROUTE_RATING, REQUEST_POST});
                     }
                   } else {
                     if (handler.cause().getLocalizedMessage().contains("Doc Already Exists")) {

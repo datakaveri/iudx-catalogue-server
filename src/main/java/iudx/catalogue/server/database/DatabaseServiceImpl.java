@@ -635,9 +635,6 @@ public class DatabaseServiceImpl implements DatabaseService {
               return;
             }
 
-            // TODO: not sure if this is needed here
-            ratingDoc.put(SUMMARY_KEY, Summarizer.summarize(ratingDoc));
-
             client.docPostAsync(
                 ratingDoc.toString(),
                 ratingIndex,
@@ -699,8 +696,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             client.docPutAsync(
                 docId,
-                ratingIndex,
                 ratingDoc.toString(),
+                ratingIndex,
                 putRes -> {
                   if (putRes.succeeded()) {
                     handler.handle(

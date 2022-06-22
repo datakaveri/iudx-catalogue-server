@@ -29,6 +29,8 @@ import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
 public final class ElasticClient {
+
+  private static final Logger LOGGER = LogManager.getLogger(ElasticClient.class);
   private final RestClient client;
   private String index;
 
@@ -194,7 +196,9 @@ public final class ElasticClient {
 
   public ElasticClient docPutAsync(String docId, String doc, String index,
        Handler<AsyncResult<JsonObject>> resultHandler) {
+
     this.index = index;
+    LOGGER.debug(index);
     return docPutAsync(docId, doc, resultHandler);
   }
 
@@ -213,7 +217,6 @@ public final class ElasticClient {
     /** TODO: Validation */
     Request docRequest = new Request(REQUEST_PUT, index + "/_doc/" + docId);
     docRequest.setJsonEntity(doc.toString());
-
     Future<JsonObject> future = docAsync(REQUEST_PUT, docRequest);
     future.onComplete(resultHandler);
     return this;
