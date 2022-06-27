@@ -8,10 +8,12 @@ import io.vertx.pgclient.PgPool;
 import io.vertx.serviceproxy.ServiceBinder;
 import io.vertx.sqlclient.PoolOptions;
 import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static iudx.catalogue.server.util.Constants.DATABASE_SERVICE_ADDRESS;
+import static iudx.catalogue.server.util.Constants.BROKER_SERVICE_ADDRESS;
 
 /**
  *
@@ -33,11 +35,13 @@ public class RatingVerticle extends AbstractVerticle {
   PoolOptions poolOptions;
   PgPool pool;
   DatabaseService databaseService;
+  DataBrokerService dataBrokerService;
   private String databaseIP;
   private int databasePort;
   private String databaseName;
   private String databaseUserName;
   private String databasePassword;
+  private String ratingExchangeName;
   private int poolSize;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
@@ -59,6 +63,7 @@ public class RatingVerticle extends AbstractVerticle {
     databaseUserName = config().getString("ratingDatabaseUserName");
     databasePassword = config().getString("ratingDatabasePassword");
     poolSize = config().getInteger("ratingPoolSize");
+    ratingExchangeName = config().getString("ratingExchangeName");
 
     connectOptions =
         new PgConnectOptions()
@@ -73,9 +78,10 @@ public class RatingVerticle extends AbstractVerticle {
     poolOptions = new PoolOptions().setMaxSize(poolSize);
     pool = PgPool.pool(vertx, connectOptions, poolOptions);
     databaseService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
+    dataBrokerService = DataBrokerService.createProxy(vertx, BROKER_SERVICE_ADDRESS);
 
     binder = new ServiceBinder(vertx);
-    rating = new RatingServiceImpl(pool, databaseService, vertx);
+    rating = new RatingServiceImpl(ratingExchangeName, pool, databaseService, dataBrokerService);
     consumer = binder.setAddress(RATING_SERVICE_ADDRESS).register(RatingService.class, rating);
     LOGGER.info("Rating Service Started");
   }

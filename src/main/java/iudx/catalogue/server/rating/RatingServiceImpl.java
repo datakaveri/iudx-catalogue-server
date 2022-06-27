@@ -1,13 +1,13 @@
 package iudx.catalogue.server.rating;
 
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Vertx;
 import io.vertx.core.Handler;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgPool;
 import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.google.common.hash.Hashing;
@@ -20,58 +20,64 @@ public class RatingServiceImpl implements RatingService {
   private static final Logger LOGGER = LogManager.getLogger(RatingServiceImpl.class);
   PgPool pool;
   DatabaseService databaseService;
+  DataBrokerService dataBrokerService;
+  private String ratingExchangeName;
 
-  public RatingServiceImpl(PgPool pool, DatabaseService databaseService, Vertx vertx) {
+  public RatingServiceImpl(
+      String exchangeName,
+      PgPool pool,
+      DatabaseService databaseService,
+      DataBrokerService dataBrokerService) {
+    this.ratingExchangeName = exchangeName;
     this.pool = pool;
     this.databaseService = databaseService;
+    this.dataBrokerService = dataBrokerService;
   }
 
   @Override
   public RatingService createRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String sub = request.getString(USER_ID);
-    String resourceID = request.getString(RESOURCE_ID);
-    StringBuilder query =
-        new StringBuilder(AUDIT_INFO_QUERY.replace("$1", sub).replace("$2", resourceID));
+    String id = request.getString(ID);
+    StringBuilder query = new StringBuilder(AUDIT_INFO_QUERY.replace("$1", sub).replace("$2", id));
     Future<JsonObject> getRSAuditingInfo = getAuditingInfo(query);
-//    getRSAuditingInfo
-//        .onSuccess(
-//            successHandler -> {
-//              int countResourceAccess = successHandler.getInteger("totalHits");
-//              if (countResourceAccess > 0) {
-//
-                String ratingID =
-                    Hashing.sha256()
-                        .hashString(sub + resourceID, StandardCharsets.UTF_8)
-                        .toString();
+    //    getRSAuditingInfo
+    //        .onSuccess(
+    //            successHandler -> {
+    //              int countResourceAccess = successHandler.getInteger("totalHits");
+    //              if (countResourceAccess > 0) {
 
-                request.put(ID, ratingID);
+    String ratingID = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
-                databaseService.createRating(
-                    request,
-                    createItemHandler -> {
-                      if (createItemHandler.succeeded()) {
-                        LOGGER.info("Success: Rating Recorded");
-                        handler.handle(Future.succeededFuture(createItemHandler.result()));
-                      } else {
-                        LOGGER.error("Fail: Rating creation failed");
-                        handler.handle(Future.failedFuture(createItemHandler.cause()));
-                      }
-                    });
-//              }
-//            })
-//        .onFailure(
-//            failureHandler -> {
-//              LOGGER.error(
-//                  "User has not accessed resource before and hence is not authorised to give rating");
-//              handler.handle(Future.failedFuture(failureHandler.getCause().getMessage()));
-//            });
+    request.put(RATING_ID, ratingID);
+
+    databaseService.createRating(
+        request,
+        createItemHandler -> {
+          if (createItemHandler.succeeded()) {
+            LOGGER.info("Success: Rating Recorded");
+            Future.future(fu -> publishMessage(request));
+            handler.handle(Future.succeededFuture(createItemHandler.result()));
+          } else {
+            LOGGER.error("Fail: Rating creation failed");
+            handler.handle(Future.failedFuture(createItemHandler.cause()));
+          }
+        });
+    //              }
+    //            })
+    //        .onFailure(
+    //            failureHandler -> {
+    //              LOGGER.error(
+    //                  "User has not accessed resource before and hence is not authorised to give
+    // rating");
+    //              handler.handle(Future.failedFuture(failureHandler.getCause().getMessage()));
+    //            });
 
     return this;
   }
 
   @Override
   public RatingService getRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    String resourceID = request.getString(RESOURCE_ID);
+    String resourceID = request.getString(ID);
 
     return this;
   }
@@ -79,18 +85,18 @@ public class RatingServiceImpl implements RatingService {
   @Override
   public RatingService updateRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String sub = request.getString(USER_ID);
-    String resourceID = request.getString(RESOURCE_ID);
+    String id = request.getString(ID);
 
-    String ratingID =
-        Hashing.sha256().hashString(sub + resourceID, StandardCharsets.UTF_8).toString();
+    String ratingID = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
-    request.put(ID, ratingID);
+    request.put(RATING_ID, ratingID);
 
     databaseService.updateRating(
         request,
         updateItemHandler -> {
           if (updateItemHandler.succeeded()) {
             LOGGER.info("Success: Rating Recorded");
+            Future.future(fu -> publishMessage(request));
             handler.handle(Future.succeededFuture(updateItemHandler.result()));
           } else {
             LOGGER.error("Fail: Rating updation failed");
@@ -104,12 +110,11 @@ public class RatingServiceImpl implements RatingService {
   @Override
   public RatingService deleteRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String sub = request.getString(USER_ID);
-    String resourceID = request.getString(RESOURCE_ID);
+    String id = request.getString(ID);
 
-    String ratingID =
-        Hashing.sha256().hashString(sub + resourceID, StandardCharsets.UTF_8).toString();
+    String ratingID = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
-    request.put(ID, ratingID);
+    request.put(RATING_ID, ratingID);
 
     databaseService.deleteRating(
         request,
@@ -144,5 +149,20 @@ public class RatingServiceImpl implements RatingService {
             });
 
     return promise.future();
+  }
+
+  private void publishMessage(JsonObject request) {
+    LOGGER.debug("here :(((");
+    dataBrokerService.publishMessage(
+        request,
+        ratingExchangeName,
+        request.getString(ID),
+        handler -> {
+          if (handler.succeeded()) {
+            LOGGER.info("Rating info publish to RabbitMQ");
+          } else {
+            LOGGER.error("Failed to publish Rating info");
+          }
+        });
   }
 }

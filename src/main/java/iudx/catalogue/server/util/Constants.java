@@ -18,6 +18,7 @@ public class Constants {
   public static final String NLP_SERVICE_ADDRESS = "iudx.catalogue.nlpsearch.service";
   public static final String AUDITING_SERVICE_ADDRESS = "iudx.catalogue.auditing.service";
   public static final String RATING_SERVICE_ADDRESS = "iudx.catalogue.rating.service";
+  public static final String BROKER_SERVICE_ADDRESS = "iudx.catalogue.databroker.service";
 
   /** General */
 

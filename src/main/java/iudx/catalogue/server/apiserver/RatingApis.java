@@ -1,13 +1,12 @@
 package iudx.catalogue.server.apiserver;
 
-import com.google.common.hash.Hashing;
 import iudx.catalogue.server.auditing.AuditingService;
+import iudx.catalogue.server.rating.util.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
@@ -29,16 +28,13 @@ import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.rating.RatingService;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class RatingApis {
+  private static final Logger LOGGER = LogManager.getLogger(RatingApis.class);
   private AuthenticationService authService;
   private ValidatorService validatorService;
   private AuditingService auditingService;
   private RatingService ratingService;
 
-  private static final Logger LOGGER = LogManager.getLogger(CrudApis.class);
   private boolean hasAuditService = false;
 
   private String host;
@@ -77,7 +73,7 @@ public class RatingApis {
     HttpServerResponse response = routingContext.response();
     JsonObject jwtAuthenticationInfo = new JsonObject();
 
-    String resourceID = request.getParam(ID);
+    String id = request.getParam(ID);
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
@@ -103,7 +99,7 @@ public class RatingApis {
             LOGGER.debug("Success: JWT Auth successful");
 
             requestBody
-                .put(RESOURCE_ID, resourceID)
+                .put(ID, id)
                 .put(USER_ID, authHandler.result().getString(USER_ID))
                 .put("status", PENDING);
 
@@ -116,8 +112,7 @@ public class RatingApis {
                     response.setStatusCode(201).end(handler.result().toString());
                     if (hasAuditService) {
                       updateAuditTable(
-                          authHandler.result(),
-                          new String[] {resourceID, ROUTE_RATING, REQUEST_POST});
+                          authHandler.result(), new String[] {id, ROUTE_RATING, REQUEST_POST});
                     }
                   } else {
                     if (handler.cause().getLocalizedMessage().contains("Doc Already Exists")) {
@@ -152,7 +147,7 @@ public class RatingApis {
     HttpServerResponse response = routingContext.response();
     JsonObject jwtAuthenticationInfo = new JsonObject();
 
-    String resourceID = request.getParam(ID);
+    String id = request.getParam(ID);
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
@@ -178,7 +173,7 @@ public class RatingApis {
             LOGGER.debug("Success: JWT Auth successful");
 
             requestBody
-                .put(RESOURCE_ID, resourceID)
+                .put(Constants.ID, id)
                 .put(USER_ID, authHandler.result().getString(USER_ID))
                 .put("status", PENDING);
 
@@ -189,8 +184,7 @@ public class RatingApis {
                     response.setStatusCode(200).end(handler.result().toString());
                     if (hasAuditService) {
                       updateAuditTable(
-                          authHandler.result(),
-                          new String[] {resourceID, ROUTE_RATING, REQUEST_PUT});
+                          authHandler.result(), new String[] {id, ROUTE_RATING, REQUEST_PUT});
                     }
                   } else {
                     if (handler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
@@ -240,12 +234,10 @@ public class RatingApis {
           } else {
             LOGGER.debug("Success: JWT Auth successful");
 
-            String resourceID = request.getParam(ID);
+            String id = request.getParam(ID);
 
             JsonObject requestBody =
-                new JsonObject()
-                    .put(USER_ID, authHandler.result().getString(USER_ID))
-                    .put(RESOURCE_ID, resourceID);
+                new JsonObject().put(USER_ID, authHandler.result().getString(USER_ID)).put(ID, id);
 
             ratingService.deleteRating(
                 requestBody,
@@ -257,8 +249,7 @@ public class RatingApis {
                       response.setStatusCode(200).end(dbHandler.result().toString());
                       if (hasAuditService) {
                         updateAuditTable(
-                            authHandler.result(),
-                            new String[] {resourceID, ROUTE_RATING, REQUEST_DELETE});
+                            authHandler.result(), new String[] {id, ROUTE_RATING, REQUEST_DELETE});
                       }
                     } else {
                       response.setStatusCode(404).end(dbHandler.result().toString());
