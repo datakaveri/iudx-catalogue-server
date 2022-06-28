@@ -49,17 +49,18 @@ public class RatingServiceImpl implements RatingService {
     String ratingID = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
     request.put(RATING_ID, ratingID);
+    LOGGER.debug(ratingID);
 
     databaseService.createRating(
         request,
-        createItemHandler -> {
-          if (createItemHandler.succeeded()) {
+        createRatingHandler -> {
+          if (createRatingHandler.succeeded()) {
             LOGGER.info("Success: Rating Recorded");
             Future.future(fu -> publishMessage(request));
-            handler.handle(Future.succeededFuture(createItemHandler.result()));
+            handler.handle(Future.succeededFuture(createRatingHandler.result()));
           } else {
             LOGGER.error("Fail: Rating creation failed");
-            handler.handle(Future.failedFuture(createItemHandler.cause()));
+            handler.handle(Future.failedFuture(createRatingHandler.cause()));
           }
         });
     //              }
@@ -77,7 +78,24 @@ public class RatingServiceImpl implements RatingService {
 
   @Override
   public RatingService getRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    String resourceID = request.getString(ID);
+    String id = request.getString(ID);
+
+    if (request.containsKey(USER_ID)) {
+      String sub = request.getString(USER_ID);
+      String ratingID = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
+
+      request.put(RATING_ID, ratingID);
+    }
+
+    databaseService.getRatings(
+        request,
+        getRatingHandler -> {
+          if (getRatingHandler.succeeded()) {
+            handler.handle(Future.succeededFuture(getRatingHandler.result()));
+          } else {
+            handler.handle(Future.failedFuture(getRatingHandler.cause()));
+          }
+        });
 
     return this;
   }
@@ -93,14 +111,14 @@ public class RatingServiceImpl implements RatingService {
 
     databaseService.updateRating(
         request,
-        updateItemHandler -> {
-          if (updateItemHandler.succeeded()) {
+        updateRatingHandler -> {
+          if (updateRatingHandler.succeeded()) {
             LOGGER.info("Success: Rating Recorded");
             Future.future(fu -> publishMessage(request));
-            handler.handle(Future.succeededFuture(updateItemHandler.result()));
+            handler.handle(Future.succeededFuture(updateRatingHandler.result()));
           } else {
             LOGGER.error("Fail: Rating updation failed");
-            handler.handle(Future.failedFuture(updateItemHandler.cause()));
+            handler.handle(Future.failedFuture(updateRatingHandler.cause()));
           }
         });
 
@@ -118,13 +136,13 @@ public class RatingServiceImpl implements RatingService {
 
     databaseService.deleteRating(
         request,
-        updateItemHandler -> {
-          if (updateItemHandler.succeeded()) {
+        deleteRatingHandler -> {
+          if (deleteRatingHandler.succeeded()) {
             LOGGER.info("Success: Rating deleted");
-            handler.handle(Future.succeededFuture(updateItemHandler.result()));
+            handler.handle(Future.succeededFuture(deleteRatingHandler.result()));
           } else {
             LOGGER.error("Fail: Rating deletion failed");
-            handler.handle(Future.failedFuture(updateItemHandler.cause()));
+            handler.handle(Future.failedFuture(deleteRatingHandler.cause()));
           }
         });
 

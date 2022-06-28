@@ -66,9 +66,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     geoPluggedIn = false;
   }
 
-  public DatabaseServiceImpl(ElasticClient client,
-                              NLPSearchService nlpService,
-                              GeocodingService geoService) {
+  public DatabaseServiceImpl(
+      ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
     this.client = client;
     this.nlpService = nlpService;
     this.geoService = geoService;
@@ -609,7 +608,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     RespBuilder respBuilder = new RespBuilder();
     String ratingId = ratingDoc.getString("id");
 
-    String checkForExistingRecord = GET_DOC_QUERY.replace("$1", ratingId).replace("$2", "");
+    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
 
     client.searchAsync(
         checkForExistingRecord,
@@ -669,7 +668,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     RespBuilder respBuilder = new RespBuilder();
     String ratingId = ratingDoc.getString("id");
 
-    String checkForExistingRecord = GET_DOC_QUERY.replace("$1", ratingId).replace("$2", "");
+    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
 
     client.searchGetId(
         checkForExistingRecord,
@@ -718,11 +717,12 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService deleteRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService deleteRating(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String ratingId = request.getString("id");
 
-    String checkForExistingRecord = GET_DOC_QUERY.replace("$1", ratingId).replace("$2", "");
+    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
 
     client.searchGetId(
         checkForExistingRecord,
@@ -740,7 +740,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ITEM_NOT_FOUND)
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withResult(
-                                  ratingId, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
+                              ratingId, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
                           .getResponse()));
               return;
             }
@@ -772,7 +772,28 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService getRatings(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
+    String query;
+    if (request.containsKey("ratingID")) {
+      String ratingID = request.getString("ratingID");
+      query = GET_RATING_DOCS.replace("$1", "ratingID").replace("$2", ratingID);
+    } else {
+      String id = request.getString(ID);
+      query = GET_RATING_DOCS.replace("$1", "id").replace("$2", id);
+    }
 
+    client.searchAsync(
+        query,
+        ratingIndex,
+        getRes -> {
+          if (getRes.succeeded()) {
+            LOGGER.debug("Success: Successful DB request");
+            JsonObject result = getRes.result();
+            handler.handle(Future.succeededFuture(result));
+          } else {
+            LOGGER.error("Fail: failed getting rating: " + getRes.cause());
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
     return this;
   }
 
@@ -803,5 +824,4 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     return promise.future();
   }
-
 }

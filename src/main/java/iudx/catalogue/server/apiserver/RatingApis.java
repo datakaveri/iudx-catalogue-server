@@ -132,7 +132,81 @@ public class RatingApis {
    *
    * @param routingContext {@link RoutingContext}
    */
-  public void getRatingHandler(RoutingContext routingContext) {}
+  public void getRatingHandler(RoutingContext routingContext) {
+    LOGGER.debug("Info: fetching ratings");
+
+    HttpServerRequest request = routingContext.request();
+    HttpServerResponse response = routingContext.response();
+    String id = request.getParam(ID);
+
+    JsonObject requestBody = new JsonObject().put(ID, id);
+
+    if (request.getHeader(TOKEN) != null) {
+      JsonObject authenticationInfo =
+          new JsonObject()
+              .put(TOKEN, request.getHeader(TOKEN))
+              .put(METHOD, REQUEST_GET)
+              .put(API_ENDPOINT, RATINGS_ENDPOINT)
+              .put(ID, host);
+
+      authService.tokenInterospect(
+          new JsonObject(),
+          authenticationInfo,
+          authHandler -> {
+            if (authHandler.failed()) {
+              LOGGER.error("Error: " + authHandler.cause().getMessage());
+              response
+                  .setStatusCode(401)
+                  .end(
+                      new RespBuilder()
+                          .withType(TYPE_TOKEN_INVALID)
+                          .withTitle(TITLE_TOKEN_INVALID)
+                          .withDetail(authHandler.cause().getMessage())
+                          .getResponse());
+            } else {
+              LOGGER.debug("Success: JWT Auth Successful");
+
+              requestBody.put(USER_ID, authHandler.result().getString(USER_ID));
+
+              ratingService.getRating(
+                  requestBody,
+                  handler -> {
+                    if (handler.succeeded()) {
+                      response.setStatusCode(200).end(handler.result().toString());
+                      if (hasAuditService) {
+                        updateAuditTable(
+                            authHandler.result(), new String[] {id, ROUTE_RATING, REQUEST_GET});
+                      }
+                    } else {
+                      if (handler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
+                        response.setStatusCode(404);
+                      } else {
+                        response.setStatusCode(400);
+                      }
+                      response.end(handler.cause().getMessage());
+                    }
+                  });
+            }
+          });
+    } else {
+      LOGGER.debug("No identity token provided, getting all ratings for :" + id);
+
+      ratingService.getRating(
+          requestBody,
+          handler -> {
+            if (handler.succeeded()) {
+              response.setStatusCode(200).end(handler.result().toString());
+            } else {
+              if (handler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
+                response.setStatusCode(404);
+              } else {
+                response.setStatusCode(400);
+              }
+              response.end(handler.cause().getMessage());
+            }
+          });
+    }
+  }
 
   /**
    * Update Rating handler
@@ -173,7 +247,7 @@ public class RatingApis {
             LOGGER.debug("Success: JWT Auth successful");
 
             requestBody
-                .put(Constants.ID, id)
+                .put(ID, id)
                 .put(USER_ID, authHandler.result().getString(USER_ID))
                 .put("status", PENDING);
 

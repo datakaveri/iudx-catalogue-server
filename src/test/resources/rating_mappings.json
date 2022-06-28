@@ -20,7 +20,7 @@
           }
         }
       },
-      "resourceID": {
+      "ratingID": {
         "type": "text",
         "fields": {
           "keyword": {
