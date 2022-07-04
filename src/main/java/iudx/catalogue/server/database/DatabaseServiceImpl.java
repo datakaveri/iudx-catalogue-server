@@ -606,7 +606,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService createRating(
       JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
-    String ratingId = ratingDoc.getString("id");
+    String ratingId = ratingDoc.getString("ratingID");
 
     String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
 
@@ -666,10 +666,10 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService updateRating(
       JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
-    String ratingId = ratingDoc.getString("id");
+    String ratingId = ratingDoc.getString("ratingID");
 
     String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
-
+    LOGGER.debug(checkForExistingRecord);
     client.searchGetId(
         checkForExistingRecord,
         ratingIndex,
@@ -720,10 +720,10 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService deleteRating(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
-    String ratingId = request.getString("id");
+    String ratingId = request.getString("ratingID");
 
     String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
-
+    LOGGER.debug(checkForExistingRecord);
     client.searchGetId(
         checkForExistingRecord,
         ratingIndex,

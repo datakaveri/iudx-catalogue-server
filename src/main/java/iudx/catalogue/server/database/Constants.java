@@ -130,7 +130,7 @@ public class Constants {
 
   public static final String GET_RATING_DOCS =
           "{\"query\": {\"bool\": {\"must\": [ { \"match\": {\"$1\":\"$2\" } }, "
-      + "{ \"match\": { \"status\": \"pending\" } } ] } } , " +
+      + "{ \"match\": { \"status\": \"approved\" } } ] } } , " +
               "\"_source\": [\"rating\",\"comment\",\"id\"] }";
 
   public static final String QUERY_RESOURCE_GRP =

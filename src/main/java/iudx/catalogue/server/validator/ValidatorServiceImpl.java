@@ -42,6 +42,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator resourceGroupValidator;
   private Validator providerValidator;
   private Validator resourceServerValidator;
+  private Validator ratingValidator;
 
   /** ES client */
   private final ElasticClient client;
@@ -55,6 +56,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       resourceGroupValidator = new Validator("/resourceGroupItemSchema.json");
       resourceServerValidator = new Validator("/resourceServerItemSchema.json");
       providerValidator = new Validator("/providerItemSchema.json");
+      ratingValidator = new Validator("/ratingSchema.json");
     } catch (IOException | ProcessingException e) {
       e.printStackTrace();
     }
@@ -227,6 +229,21 @@ public class ValidatorServiceImpl implements ValidatorService {
   public ValidatorService validateProvider(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
     return null;
+  }
+
+  @Override
+  public ValidatorService validateRating(JsonObject request,
+       Handler<AsyncResult<JsonObject>> handler) {
+
+    isValidSchema = ratingValidator.validate(request.toString());
+
+    if(isValidSchema) {
+      handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
+    } else {
+      LOGGER.error("Fail: Invalid Schema");
+      handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
+    }
+    return this;
   }
 
   /** Generates timestamp with timezone +05:30. */

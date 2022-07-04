@@ -55,8 +55,6 @@ public class DataBrokerServiceImpl implements DataBrokerService {
 
     if (!client.isConnected()) client.start();
 
-    LOGGER.debug(body.encodePrettily());
-
     client.basicPublish(
         toExchange,
         routingKey,

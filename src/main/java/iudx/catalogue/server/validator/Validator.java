@@ -5,10 +5,14 @@ import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 
 public final class Validator {
 
+  public static final Logger LOGGER = LogManager.getLogger(Validator.class);
   private static final String PKGBASE;
   private final JsonSchema schema;
 

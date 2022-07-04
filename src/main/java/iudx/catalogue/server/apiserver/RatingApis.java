@@ -103,24 +103,40 @@ public class RatingApis {
                 .put(USER_ID, authHandler.result().getString(USER_ID))
                 .put("status", PENDING);
 
-            LOGGER.debug(requestBody.encodePrettily());
-
-            ratingService.createRating(
+            validatorService.validateRating(
                 requestBody,
-                handler -> {
-                  if (handler.succeeded()) {
-                    response.setStatusCode(201).end(handler.result().toString());
-                    if (hasAuditService) {
-                      updateAuditTable(
-                          authHandler.result(), new String[] {id, ROUTE_RATING, REQUEST_POST});
-                    }
+                validationHandler -> {
+                  if (validationHandler.failed()) {
+                    response
+                        .setStatusCode(400)
+                        .end(
+                            new RespBuilder()
+                                .withType(TYPE_INVALID_SCHEMA)
+                                .withTitle(TITLE_INVALID_SCHEMA)
+                                .getResponse());
                   } else {
-                    if (handler.cause().getLocalizedMessage().contains("Doc Already Exists")) {
-                      response.setStatusCode(400);
-                    } else {
-                      response.setStatusCode(500);
-                    }
-                    response.end(handler.cause().getMessage());
+                    ratingService.createRating(
+                        requestBody,
+                        handler -> {
+                          if (handler.succeeded()) {
+                            response.setStatusCode(201).end(handler.result().toString());
+                            if (hasAuditService) {
+                              updateAuditTable(
+                                  authHandler.result(),
+                                  new String[] {id, ROUTE_RATING, REQUEST_POST});
+                            }
+                          } else {
+                            if (handler
+                                .cause()
+                                .getLocalizedMessage()
+                                .contains("Doc Already Exists")) {
+                              response.setStatusCode(400);
+                            } else {
+                              response.setStatusCode(500);
+                            }
+                            response.end(handler.cause().getMessage());
+                          }
+                        });
                   }
                 });
           }
@@ -251,22 +267,40 @@ public class RatingApis {
                 .put(USER_ID, authHandler.result().getString(USER_ID))
                 .put("status", PENDING);
 
-            ratingService.updateRating(
+            validatorService.validateRating(
                 requestBody,
-                handler -> {
-                  if (handler.succeeded()) {
-                    response.setStatusCode(200).end(handler.result().toString());
-                    if (hasAuditService) {
-                      updateAuditTable(
-                          authHandler.result(), new String[] {id, ROUTE_RATING, REQUEST_PUT});
-                    }
+                validationHandler -> {
+                  if (validationHandler.failed()) {
+                    response
+                        .setStatusCode(400)
+                        .end(
+                            new RespBuilder()
+                                .withType(TYPE_INVALID_SCHEMA)
+                                .withTitle(TITLE_INVALID_SCHEMA)
+                                .getResponse());
                   } else {
-                    if (handler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
-                      response.setStatusCode(404);
-                    } else {
-                      response.setStatusCode(400);
-                    }
-                    response.end(handler.cause().getMessage());
+                    ratingService.updateRating(
+                        requestBody,
+                        handler -> {
+                          if (handler.succeeded()) {
+                            response.setStatusCode(200).end(handler.result().toString());
+                            if (hasAuditService) {
+                              updateAuditTable(
+                                  authHandler.result(),
+                                  new String[] {id, ROUTE_RATING, REQUEST_PUT});
+                            }
+                          } else {
+                            if (handler
+                                .cause()
+                                .getLocalizedMessage()
+                                .contains("Doc doesn't exist")) {
+                              response.setStatusCode(404);
+                            } else {
+                              response.setStatusCode(400);
+                            }
+                            response.end(handler.cause().getMessage());
+                          }
+                        });
                   }
                 });
           }

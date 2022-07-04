@@ -388,14 +388,16 @@ public class ApiServerVerticle extends AbstractVerticle {
      */
     /* Create Rating */
     router.post(ROUTE_RATING)
-            .handler(routingContext -> {
-              if(routingContext.request().headers().contains(HEADER_TOKEN)) {
-                ratingApis.createRatingHandler(routingContext);
-              } else {
-                LOGGER.error("Unauthorized Operation");
-                routingContext.response().setStatusCode(401).end();
-              }
-            });
+        .consumes(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(routingContext -> {
+          if(routingContext.request().headers().contains(HEADER_TOKEN)) {
+            ratingApis.createRatingHandler(routingContext);
+          } else {
+            LOGGER.error("Unauthorized Operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
 
     /* Get Ratings */
     router.get(ROUTE_RATING)
