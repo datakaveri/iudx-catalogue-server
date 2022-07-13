@@ -669,7 +669,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     String ratingId = ratingDoc.getString("ratingID");
 
     String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
-    LOGGER.debug(checkForExistingRecord);
+
     client.searchGetId(
         checkForExistingRecord,
         ratingIndex,
@@ -723,7 +723,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     String ratingId = request.getString("ratingID");
 
     String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
-    LOGGER.debug(checkForExistingRecord);
+
     client.searchGetId(
         checkForExistingRecord,
         ratingIndex,

@@ -1,7 +1,6 @@
 package iudx.catalogue.server.apiserver;
 
 import iudx.catalogue.server.auditing.AuditingService;
-import iudx.catalogue.server.rating.util.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

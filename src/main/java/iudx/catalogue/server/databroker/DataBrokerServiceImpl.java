@@ -7,7 +7,6 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rabbitmq.RabbitMQClient;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
-import iudx.catalogue.server.database.DatabaseServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -61,11 +60,9 @@ public class DataBrokerServiceImpl implements DataBrokerService {
         buffer,
         publishHandler -> {
           if (publishHandler.succeeded()) {
-            LOGGER.debug(publishHandler.result());
             JsonObject result = new JsonObject().put("type", TYPE_SUCCESS);
             handler.handle(Future.succeededFuture(result));
           } else {
-            LOGGER.debug("here :(");
             RespBuilder respBuilder =
                 new RespBuilder()
                     .withType(TYPE_INTERNAL_SERVER_ERROR)

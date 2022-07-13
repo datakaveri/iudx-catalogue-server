@@ -205,6 +205,18 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-rabbitmq-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-inline</artifactId>
+            <version>3.11.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>3.11.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -243,6 +255,21 @@
                     <systemPropertyVariables>
                         <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
                     </systemPropertyVariables>
+                    <excludes>
+                        <exclude>**/*VertxEBProxy.class</exclude>
+                        <exclude>**/Constants.class</exclude>
+                        <exclude>**/*VertxProxyHandler.class</exclude>
+                        <exclude>**/*Verticle.class</exclude>
+
+                        <!-- service proxy interfaces -->
+                        <exclude>**/*Service.class</exclude>
+
+                        <!-- apiserver classes tested in postman -->
+                        <exclude>**/*Apis.class</exclude>
+
+                        <!-- deployment helper classes -->
+                        <exclude>iudx/catalogue/server/deploy/*.class</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 

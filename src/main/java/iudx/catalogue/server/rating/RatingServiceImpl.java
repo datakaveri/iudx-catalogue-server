@@ -40,38 +40,38 @@ public class RatingServiceImpl implements RatingService {
     String id = request.getString(ID);
     StringBuilder query = new StringBuilder(AUDIT_INFO_QUERY.replace("$1", sub).replace("$2", id));
     Future<JsonObject> getRSAuditingInfo = getAuditingInfo(query);
-    //    getRSAuditingInfo
-    //        .onSuccess(
-    //            successHandler -> {
-    //              int countResourceAccess = successHandler.getInteger("totalHits");
-    //              if (countResourceAccess > 0) {
 
-    String ratingID = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
+    getRSAuditingInfo
+        .onSuccess(
+            successHandler -> {
+              int countResourceAccess = successHandler.getInteger("totalHits");
+              if (countResourceAccess > 0) {
 
-    request.put(RATING_ID, ratingID);
-    LOGGER.debug(ratingID);
+                String ratingID =
+                    Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
-    databaseService.createRating(
-        request,
-        createRatingHandler -> {
-          if (createRatingHandler.succeeded()) {
-            LOGGER.info("Success: Rating Recorded");
-            Future.future(fu -> publishMessage(request));
-            handler.handle(Future.succeededFuture(createRatingHandler.result()));
-          } else {
-            LOGGER.error("Fail: Rating creation failed");
-            handler.handle(Future.failedFuture(createRatingHandler.cause()));
-          }
-        });
-    //              }
-    //            })
-    //        .onFailure(
-    //            failureHandler -> {
-    //              LOGGER.error(
-    //                  "User has not accessed resource before and hence is not authorised to give
-    // rating");
-    //              handler.handle(Future.failedFuture(failureHandler.getCause().getMessage()));
-    //            });
+                request.put(RATING_ID, ratingID);
+
+                databaseService.createRating(
+                    request,
+                    createRatingHandler -> {
+                      if (createRatingHandler.succeeded()) {
+                        LOGGER.info("Success: Rating Recorded");
+                        Future.future(fu -> publishMessage(request));
+                        handler.handle(Future.succeededFuture(createRatingHandler.result()));
+                      } else {
+                        LOGGER.error("Fail: Rating creation failed");
+                        handler.handle(Future.failedFuture(createRatingHandler.cause()));
+                      }
+                    });
+              }
+            })
+        .onFailure(
+            failureHandler -> {
+              LOGGER.error(
+                  "User has not accessed resource before and hence is not authorised to give rating");
+              handler.handle(Future.failedFuture(failureHandler.getCause().getMessage()));
+            });
 
     return this;
   }
@@ -149,7 +149,7 @@ public class RatingServiceImpl implements RatingService {
     return this;
   }
 
-  private Future<JsonObject> getAuditingInfo(StringBuilder query) {
+  Future<JsonObject> getAuditingInfo(StringBuilder query) {
     Promise<JsonObject> promise = Promise.promise();
     pool.withConnection(
             connection ->
@@ -169,8 +169,7 @@ public class RatingServiceImpl implements RatingService {
     return promise.future();
   }
 
-  private void publishMessage(JsonObject request) {
-    LOGGER.debug("here :(((");
+  void publishMessage(JsonObject request) {
     dataBrokerService.publishMessage(
         request,
         ratingExchangeName,

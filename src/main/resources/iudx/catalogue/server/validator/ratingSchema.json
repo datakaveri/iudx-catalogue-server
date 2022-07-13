@@ -16,7 +16,6 @@
   ],
   "required": [
     "rating",
-    "comment",
     "id",
     "userID",
     "status"
@@ -72,5 +71,6 @@
       "default": "pending",
       "maxLength": 512
     }
-  }
+  },
+  "additionalProperties": true
 }

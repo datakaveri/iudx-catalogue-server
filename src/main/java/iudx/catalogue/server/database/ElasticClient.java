@@ -198,7 +198,6 @@ public final class ElasticClient {
        Handler<AsyncResult<JsonObject>> resultHandler) {
 
     this.index = index;
-    LOGGER.debug(index);
     return docPutAsync(docId, doc, resultHandler);
   }
 
