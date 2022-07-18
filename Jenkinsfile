@@ -108,7 +108,7 @@ pipeline {
       }
     }
 
-stage('Continuous Deployment') {
+    stage('Continuous Deployment') {
       when {
         allOf {
           anyOf {
@@ -140,10 +140,10 @@ stage('Continuous Deployment') {
               sh "ssh azureuser@docker-swarm 'docker service update cat_cat --image ghcr.io/datakaveri/cat-prod:4.0-alpha-${env.GIT_HASH}'"
               sh 'sleep 10'
             }
-            post{
-              failure{
-                error "Failed to deploy image in Docker Swarm"
-              }
+          }
+          post{
+            failure{
+              error "Failed to deploy image in Docker Swarm"
             }
           }
         }
