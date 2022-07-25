@@ -125,10 +125,15 @@ public final class ElasticClient {
     return this;
   }
 
-  public ElasticClient listAggregationAsync(String query, String index,
+  public ElasticClient ratingAggregationAsync(String query, String index,
       Handler<AsyncResult<JsonObject>> resultHandler) {
-    this.index = index;
-    return listAggregationAsync(query, resultHandler);
+    Request queryRequest = new Request(REQUEST_GET, index
+        + "/_search"
+        + FILTER_PATH_AGGREGATION);
+    queryRequest.setJsonEntity(query);
+    Future<JsonObject> future = searchAsync(queryRequest, RATING_AGGREGATION_ONLY);
+    future.onComplete(resultHandler);
+    return this;
   }
 
   /**
@@ -320,10 +325,10 @@ public final class ElasticClient {
 
             if ((options == SOURCE_ONLY) || (options == DOC_IDS_ONLY)) {
               if(responseJson.getJsonObject(HITS).containsKey(HITS)) {
-                results = responseJson.getJsonObject(HITS).getJsonArray(HITS); 
+                results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
               }
             }
-            if (options == AGGREGATION_ONLY) {
+            if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY) {
               results = responseJson.getJsonObject(AGGREGATIONS)
                                   .getJsonObject(RESULTS)
                                   .getJsonArray(BUCKETS);
@@ -342,6 +347,11 @@ public final class ElasticClient {
               }
               if (options == AGGREGATION_ONLY) {
                 responseMsg.addResult(results.getJsonObject(i).getString(KEY));
+              }
+              if (options == RATING_AGGREGATION_ONLY) {
+                responseMsg.addResult(results.getJsonObject(i).getString(KEY));
+                JsonObject result = new JsonObject().put(AVERAGE_RATING, results.getJsonObject(i).getJsonObject(AVERAGE_RATING).getDouble(VALUE));
+                responseMsg.addResult(result);
               }
             }
           }

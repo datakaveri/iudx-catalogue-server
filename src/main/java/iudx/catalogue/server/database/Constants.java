@@ -18,6 +18,7 @@ public class Constants {
   
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
   static final String FILTER_PATH_AGGREGATION = "?filter_path=hits.total.value,aggregations.results.buckets";
+  static final String FILTER_RATING_AGGREGATION = "?filter_path=hits.total.value,aggregations";
   static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
   
   static final String TYPE_KEY = "type";
@@ -75,6 +76,7 @@ public class Constants {
   public static final String FORWARD_SLASH = "/";
   public static final String WILDCARD_KEY = "wildcard";
   public static final String AGGREGATION_ONLY = "AGGREGATION";
+  public static final String RATING_AGGREGATION_ONLY = "R_AGGREGATION";
   public static final String TYPE_KEYWORD = "type.keyword";
   public static final String WORD_VECTOR_KEY = "_word_vector";
 
@@ -132,6 +134,12 @@ public class Constants {
           "{\"query\": {\"bool\": {\"must\": [ { \"match\": {\"$1\":\"$2\" } }, "
       + "{ \"match\": { \"status\": \"approved\" } } ] } } , " +
               "\"_source\": [\"rating\",\"comment\",\"id\"] }";
+
+  public static final String GET_AVG_RATING =
+      "{ \"aggs\": {\"results\": {\"terms\" : {\"field\": \"id.keyword\", \"size\": 1 }, " +
+          "\"aggs\": {\"average_rating\": {\"avg\": {\"field\": \"rating\"} } } } } ," +
+          "\"query\": {\"bool\": {\"must\": [ { \"match\": {\"id\":\"$1\" } }," +
+          "{ \"match\": { \"status\": \"approved\" } } ] } } }";
 
   public static final String QUERY_RESOURCE_GRP =
       "{ \"query\": { \"bool\": { \"should\": [ { \"term\": { \"id.keyword\": \"$1\" } }, "

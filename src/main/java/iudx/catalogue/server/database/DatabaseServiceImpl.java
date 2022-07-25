@@ -6,7 +6,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import net.sf.saxon.trans.SymbolicName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.util.Timer;
@@ -778,7 +777,24 @@ public class DatabaseServiceImpl implements DatabaseService {
       query = GET_RATING_DOCS.replace("$1", "ratingID").replace("$2", ratingID);
     } else {
       String id = request.getString(ID);
-      query = GET_RATING_DOCS.replace("$1", "id").replace("$2", id);
+      if(request.containsKey(TYPE)) {
+        query = GET_AVG_RATING.replace("$1", id);
+        LOGGER.debug(query);
+        client.ratingAggregationAsync(query, ratingIndex, getRes -> {
+          if(getRes.succeeded()) {
+            LOGGER.debug("Success: Successful DB request");
+            JsonObject result = getRes.result();
+            handler.handle(Future.succeededFuture(result));
+          } else {
+            LOGGER.error("Fail: failed getting average rating: " + getRes.cause());
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
+
+        return this;
+      } else {
+        query = GET_RATING_DOCS.replace("$1", "id").replace("$2", id);
+      }
     }
 
     client.searchAsync(

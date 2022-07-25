@@ -206,6 +206,22 @@ public class RatingApis {
     } else {
       LOGGER.debug("No identity token provided, getting all ratings for :" + id);
 
+      if (request.params().contains("type")) {
+        String requestType = request.getParam("type");
+        if (requestType.equalsIgnoreCase("average")) {
+          requestBody.put("type", requestType);
+        } else {
+          response
+              .setStatusCode(400)
+              .end(
+                  new RespBuilder()
+                      .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
+                      .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+                      .withDetail("Query parameter type cannot have value : " + requestType)
+                      .getResponse());
+        }
+      }
+
       ratingService.getRating(
           requestBody,
           handler -> {

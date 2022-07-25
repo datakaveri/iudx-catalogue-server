@@ -173,7 +173,7 @@ public class RatingServiceImpl implements RatingService {
     dataBrokerService.publishMessage(
         request,
         ratingExchangeName,
-        request.getString(ID),
+        "#",
         handler -> {
           if (handler.succeeded()) {
             LOGGER.info("Rating info publish to RabbitMQ");

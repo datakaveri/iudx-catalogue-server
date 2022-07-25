@@ -116,6 +116,7 @@ public class Constants {
   public static final String NAME = "name";
   public static final String FILTER = "filter";
   public static final String TAGS = "tags";
+  public static final String AVERAGE_RATING = "average_rating";
 
   /** HTTP Methods */
   public static final String REQUEST_GET = "GET";
@@ -205,7 +206,8 @@ public class Constants {
   public static final String TYPE_INVALID_PROPERTY_VALUE = "urn:dx:cat:InvalidPropertyValue";
   public static final String TITLE_INVALID_PROPERTY_VALUE = "Invalid Property Values";
 
-
+  public static final String TYPE_INVALID_QUERY_PARAM_VALUE = "urn:dx:cat:InvalidParamValue";
+  public static final String TITLE_INVALID_QUERY_PARAM_VALUE = "Invalid value for a query param";
   public static final String TYPE_BAD_TEXT_QUERY = "urn:dx:cat:BadTextQuery";
   public static final String TITLE_BAD_TEXT_QUERY = "Bad text query values";
 

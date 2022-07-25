@@ -7,6 +7,7 @@ public class Constants {
   public static final String PENDING = "pending";
   public static final String APPROVED = "approved";
   public static final String RATING_ID = "ratingID";
+  public static final String TYPE = "type";
   public static final String AUDIT_INFO_QUERY =
       "SELECT count() from rsauditingtable where userId='$1' and resourceid='$2'";
 }
