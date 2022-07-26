@@ -14,6 +14,7 @@ notes2.md
 notes*.md
 todos.md
 docker-run.sh
+src/main/profanity-check-sdk/config.json
 temp/
 
 ### STS ###
