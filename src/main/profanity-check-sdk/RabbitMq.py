@@ -17,7 +17,7 @@ class RabbitMq:
     def callback(self,ch, method, properties, body):
         payload = json.loads(body)
         Comment = payload.get('comment')
-        Id = payload.get('id')
+        Id = payload.get('ratingID')
         print(Id)
         print(Comment)
         pc = ProfanityCheck(self.config,Id,Comment)

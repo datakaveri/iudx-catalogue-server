@@ -30,8 +30,7 @@ class UpdateDatabase:
                 }
             }
             client.update(index=index_name,id=hit.meta.id, body=doc)
-            client.indices.refresh(index=index_name)
-            update_doc = client.get(index=index_name, id=doc_id)
+            update_doc = client.get(index=index_name, id=hit.meta.id)
             print(update_doc['_source'])
         print("Database Updated")
         

@@ -9,5 +9,5 @@ public class Constants {
   public static final String RATING_ID = "ratingID";
   public static final String TYPE = "type";
   public static final String AUDIT_INFO_QUERY =
-      "SELECT count() from rsauditingtable where userId='$1' and resourceid='$2'";
+      "SELECT count(*) from $1 where userId='$2' and resourceid='$3'";
 }

@@ -22,13 +22,17 @@ public class RatingServiceImpl implements RatingService {
   DatabaseService databaseService;
   DataBrokerService dataBrokerService;
   private String ratingExchangeName;
+  private final String rsauditingtable;
+  private final int minReadNumber;
 
   public RatingServiceImpl(
-      String exchangeName,
+      String exchangeName, String rsauditingtable, int minReadNumber,
       PgPool pool,
       DatabaseService databaseService,
       DataBrokerService dataBrokerService) {
     this.ratingExchangeName = exchangeName;
+    this.rsauditingtable = rsauditingtable;
+    this.minReadNumber = minReadNumber;
     this.pool = pool;
     this.databaseService = databaseService;
     this.dataBrokerService = dataBrokerService;
@@ -38,14 +42,14 @@ public class RatingServiceImpl implements RatingService {
   public RatingService createRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String sub = request.getString(USER_ID);
     String id = request.getString(ID);
-    StringBuilder query = new StringBuilder(AUDIT_INFO_QUERY.replace("$1", sub).replace("$2", id));
+    StringBuilder query = new StringBuilder(AUDIT_INFO_QUERY.replace("$1", rsauditingtable).replace("$2", sub).replace("$3", id));
     Future<JsonObject> getRSAuditingInfo = getAuditingInfo(query);
 
     getRSAuditingInfo
         .onSuccess(
             successHandler -> {
               int countResourceAccess = successHandler.getInteger("totalHits");
-              if (countResourceAccess > 0) {
+              if (countResourceAccess > minReadNumber) {
 
                 String ratingID =
                     Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();

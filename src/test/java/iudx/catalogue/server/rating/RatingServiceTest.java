@@ -32,6 +32,8 @@ public class RatingServiceTest {
   private static Logger LOGGER = LogManager.getLogger(RatingServiceTest.class);
   private static JsonObject config;
   private static String exchangeName;
+  private static String rsauditingtable;
+  private static int minReadNumber;
   private static RatingServiceImpl ratingService, ratingServiceSpy;
   private static PgPool pgPool;
   private static AsyncResult<JsonObject> asyncResult;
@@ -43,11 +45,13 @@ public class RatingServiceTest {
   public static void init(Vertx vertx, VertxTestContext testContext) {
     config = Configuration.getConfiguration("./configs/config-test.json", 5);
     exchangeName = config.getString("exchangeName");
+    rsauditingtable = config.getString("rsAuditingTableName");
+    minReadNumber = config.getInteger("minReadNumber");
     pgPool = mock(PgPool.class);
     databaseService = mock(DatabaseService.class);
     dataBrokerService = mock(DataBrokerService.class);
     asyncResult = mock(AsyncResult.class);
-    ratingService = new RatingServiceImpl(exchangeName, pgPool, databaseService, dataBrokerService);
+    ratingService = new RatingServiceImpl(exchangeName, rsauditingtable, minReadNumber, pgPool, databaseService, dataBrokerService);
     ratingServiceSpy = spy(ratingService);
     testContext.completeNow();
   }

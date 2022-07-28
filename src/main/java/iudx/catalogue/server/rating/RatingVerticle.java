@@ -42,6 +42,8 @@ public class RatingVerticle extends AbstractVerticle {
   private String databaseUserName;
   private String databasePassword;
   private String ratingExchangeName;
+  private String rsauditingtable;
+  private int minReadNumber;
   private int poolSize;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
@@ -64,6 +66,8 @@ public class RatingVerticle extends AbstractVerticle {
     databasePassword = config().getString("ratingDatabasePassword");
     poolSize = config().getInteger("ratingPoolSize");
     ratingExchangeName = config().getString("ratingExchangeName");
+    rsauditingtable = config().getString("rsAuditingTableName");
+    minReadNumber = config().getInteger("minReadNumber");
 
     connectOptions =
         new PgConnectOptions()
@@ -81,7 +85,7 @@ public class RatingVerticle extends AbstractVerticle {
     dataBrokerService = DataBrokerService.createProxy(vertx, BROKER_SERVICE_ADDRESS);
 
     binder = new ServiceBinder(vertx);
-    rating = new RatingServiceImpl(ratingExchangeName, pool, databaseService, dataBrokerService);
+    rating = new RatingServiceImpl(ratingExchangeName, rsauditingtable, minReadNumber, pool, databaseService, dataBrokerService);
     consumer = binder.setAddress(RATING_SERVICE_ADDRESS).register(RatingService.class, rating);
     LOGGER.info("Rating Service Started");
   }
