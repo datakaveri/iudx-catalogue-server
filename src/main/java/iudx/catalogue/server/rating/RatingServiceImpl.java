@@ -6,6 +6,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgPool;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +16,8 @@ import com.google.common.hash.Hashing;
 import java.nio.charset.StandardCharsets;
 
 import static iudx.catalogue.server.rating.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.TITLE_OPERATION_NOT_ALLOWED;
+import static iudx.catalogue.server.util.Constants.TYPE_FAIL;
 
 public class RatingServiceImpl implements RatingService {
   private static final Logger LOGGER = LogManager.getLogger(RatingServiceImpl.class);
@@ -68,6 +71,14 @@ public class RatingServiceImpl implements RatingService {
                         handler.handle(Future.failedFuture(createRatingHandler.cause()));
                       }
                     });
+              } else {
+                LOGGER.error("Fail: Rating creation failed");
+                handler.handle(Future.failedFuture(
+                    new RespBuilder()
+                        .withType(TYPE_FAIL)
+                        .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                        .withDetail("User has to access resource at least " + minReadNumber + " times to give rating")
+                        .getResponse()));
               }
             })
         .onFailure(
