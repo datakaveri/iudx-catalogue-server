@@ -95,7 +95,7 @@ public class RatingServiceImpl implements RatingService {
   public RatingService getRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String id = request.getString(ID);
 
-    if (request.containsKey(USER_ID)) {
+    if (!request.containsKey(TYPE)) {
       String sub = request.getString(USER_ID);
       String ratingID = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 

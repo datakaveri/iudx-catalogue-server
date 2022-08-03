@@ -11,9 +11,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 
-import static iudx.catalogue.server.apiserver.util.Constants.HEADER_TOKEN;
-
-import static iudx.catalogue.server.apiserver.util.Constants.ROUTE_RATING;
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.apiserver.util.Constants.MIME_APPLICATION_JSON;
 import static iudx.catalogue.server.auditing.util.Constants.API;
 import static iudx.catalogue.server.auditing.util.Constants.IUDX_ID;
 import static iudx.catalogue.server.authenticator.Constants.TOKEN;
@@ -72,6 +71,9 @@ public class RatingApis {
     JsonObject requestBody = routingContext.getBodyAsJson();
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
+
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
     JsonObject jwtAuthenticationInfo = new JsonObject();
 
     String id = request.getParam(ID);
@@ -139,67 +141,50 @@ public class RatingApis {
 
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
+
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
     String id = request.getParam(ID);
 
     JsonObject requestBody = new JsonObject().put(ID, id);
 
-    if (request.getHeader(TOKEN) != null) {
-      JsonObject authenticationInfo =
-          new JsonObject()
-              .put(TOKEN, request.getHeader(TOKEN))
-              .put(METHOD, REQUEST_GET)
-              .put(API_ENDPOINT, RATINGS_ENDPOINT)
-              .put(ID, host);
-
-      Future<JsonObject> authenticationFuture = inspectToken(authenticationInfo);
-
-      authenticationFuture.onSuccess(successHandler -> {
-        requestBody.put(USER_ID, successHandler.getString(USER_ID));
-
-        ratingService.getRating(
-            requestBody,
-            handler -> {
-              if (handler.succeeded()) {
-                response.setStatusCode(200).end(handler.result().toString());
-                if (hasAuditService) {
-                  updateAuditTable(
-                      successHandler, new String[]{id, ROUTE_RATING, REQUEST_GET});
-                }
-              } else {
-                if (handler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
-                  response.setStatusCode(404);
-                } else {
-                  response.setStatusCode(400);
-                }
-                response.end(handler.cause().getMessage());
-              }
-            });
-      }).onFailure(failureHandler -> {
-        response.setStatusCode(401).end(failureHandler.getMessage());
-      });
-    } else {
-      LOGGER.debug("No identity token provided, getting all ratings for :" + id);
-
-      if (request.params().contains("type")) {
-        String requestType = request.getParam("type");
-        if (requestType.equalsIgnoreCase("average")) {
-          requestBody.put("type", requestType);
-        } else {
-          response
-              .setStatusCode(400)
-              .end(
-                  new RespBuilder()
-                      .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
-                      .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
-                      .withDetail("Query parameter type cannot have value : " + requestType)
-                      .getResponse());
-        }
+    if (request.params().contains("type")) {
+      String requestType = request.getParam("type");
+      if (requestType.equalsIgnoreCase("average") || requestType.equalsIgnoreCase("group")) {
+        requestBody.put("type", requestType);
+      } else {
+        response
+            .setStatusCode(400)
+            .end(
+                new RespBuilder()
+                    .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
+                    .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+                    .withDetail("Query parameter type cannot have value : " + requestType)
+                    .getResponse());
       }
+    }
+
+    JsonObject authenticationInfo =
+        new JsonObject()
+            .put(TOKEN, request.getHeader(TOKEN))
+            .put(METHOD, REQUEST_GET)
+            .put(API_ENDPOINT, RATINGS_ENDPOINT)
+            .put(ID, host);
+
+    Future<JsonObject> authenticationFuture = inspectToken(authenticationInfo);
+
+    authenticationFuture.onSuccess(successHandler -> {
+      requestBody.put(USER_ID, successHandler.getString(USER_ID));
+
       ratingService.getRating(
           requestBody,
           handler -> {
             if (handler.succeeded()) {
               response.setStatusCode(200).end(handler.result().toString());
+              if (hasAuditService) {
+                updateAuditTable(
+                    successHandler, new String[]{id, ROUTE_RATING, REQUEST_GET});
+              }
             } else {
               if (handler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
                 response.setStatusCode(404);
@@ -209,7 +194,9 @@ public class RatingApis {
               response.end(handler.cause().getMessage());
             }
           });
-    }
+    }).onFailure(failureHandler -> {
+      response.setStatusCode(401).end(failureHandler.getMessage());
+    });
   }
 
   /**
@@ -223,6 +210,9 @@ public class RatingApis {
     JsonObject requestBody = routingContext.getBodyAsJson();
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
+
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
     JsonObject jwtAuthenticationInfo = new JsonObject();
 
     String id = request.getParam(ID);
@@ -291,6 +281,9 @@ public class RatingApis {
 
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
+
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
     JsonObject jwtAuthenticationInfo = new JsonObject();
 
     jwtAuthenticationInfo
@@ -362,7 +355,6 @@ public class RatingApis {
     LOGGER.info("Updating audit table on successful transaction");
     JsonObject auditInfo = jwtDecodedInfo;
     auditInfo.put(IUDX_ID, otherInfo[0]).put(API, otherInfo[1]).put("httpMethod", otherInfo[2]);
-    LOGGER.debug("audit data: " + auditInfo.encodePrettily());
     auditingService.executeWriteQuery(
         auditInfo,
         auditHandler -> {

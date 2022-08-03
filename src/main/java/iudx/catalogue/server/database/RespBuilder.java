@@ -41,6 +41,12 @@ public class RespBuilder {
     return this;
   }
 
+  public RespBuilder withResult(String id) {
+    JsonObject resultAttrs = new JsonObject().put(ID, id);
+    response.put(RESULTS, new JsonArray().add(resultAttrs));
+    return this;
+  }
+
   public RespBuilder withResult() {
     response.put(RESULTS, new JsonArray());
     return this;

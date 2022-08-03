@@ -119,7 +119,8 @@ public class Constants {
       "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
 
   public static final String GET_RDOC_QUERY =
-      "{\"_source\":[$2],\"query\":{\"term\":{\"ratingID.keyword\":\"$1\"}}}";
+      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ratingID.keyword\":\"$1\"} } ]," +
+          "\"must_not\": [ { \"match\": {\"status\": \"denied\"} } ] } } }";
 
 
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";

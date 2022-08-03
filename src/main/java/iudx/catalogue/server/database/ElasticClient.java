@@ -68,6 +68,7 @@ public final class ElasticClient {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
     queryRequest.setJsonEntity(query);
+    LOGGER.debug(queryRequest);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
     future.onComplete(resultHandler);
     return this;
@@ -259,7 +260,6 @@ public final class ElasticClient {
     private JsonArray results = new JsonArray();
 
     DBRespMsgBuilder() {
-      response.put(RESULTS, results);
     }
 
     DBRespMsgBuilder statusSuccess() {
@@ -275,13 +275,18 @@ public final class ElasticClient {
 
     /** Overloaded for source only request */
     DBRespMsgBuilder addResult(JsonObject obj) {
-      response.getJsonArray(RESULTS).add(obj);
+      response.put(RESULTS, results.add(obj));
       return this;
     }
 
     /** Overloaded for doc-ids request */
     DBRespMsgBuilder addResult(String value) {
-      response.getJsonArray(RESULTS).add(value);
+      response.put(RESULTS, results.add(value));
+      return this;
+    }
+
+    DBRespMsgBuilder addResult() {
+      response.put(RESULTS, results);
       return this;
     }
 
@@ -354,6 +359,8 @@ public final class ElasticClient {
                 responseMsg.addResult(result);
               }
             }
+          } else {
+            responseMsg.addResult();
           }
           promise.complete(responseMsg.getResponse());
 

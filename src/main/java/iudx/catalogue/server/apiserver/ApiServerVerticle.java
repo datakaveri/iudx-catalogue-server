@@ -389,9 +389,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* Create Rating */
     router.post(ROUTE_RATING)
         .consumes(MIME_APPLICATION_JSON)
+        .produces(MIME_APPLICATION_JSON)
         .failureHandler(exceptionhandler)
         .handler(routingContext -> {
-          if(routingContext.request().headers().contains(HEADER_TOKEN)) {
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
             ratingApis.createRatingHandler(routingContext);
           } else {
             LOGGER.error("Unauthorized Operation");
@@ -401,32 +402,43 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Get Ratings */
     router.get(ROUTE_RATING)
-            .produces(MIME_APPLICATION_JSON)
-            .handler(routingContext -> {
-              ratingApis.getRatingHandler(routingContext);
-            });
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(routingContext -> {
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            ratingApis.getRatingHandler(routingContext);
+          } else {
+            LOGGER.error("Unauthorized Operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
 
     /* Update Rating */
     router.put(ROUTE_RATING)
-            .handler(routingContext -> {
-              if(routingContext.request().headers().contains(HEADER_TOKEN)) {
-                ratingApis.updateRatingHandler(routingContext);
-              } else {
-                LOGGER.error("Unauthorized Operation");
-                routingContext.response().setStatusCode(401).end();
-              }
-            });
+        .consumes(MIME_APPLICATION_JSON)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(routingContext -> {
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            ratingApis.updateRatingHandler(routingContext);
+          } else {
+            LOGGER.error("Unauthorized Operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
 
     /* Delete Rating */
     router.delete(ROUTE_RATING)
-            .handler(routingContext -> {
-              if(routingContext.request().headers().contains(HEADER_TOKEN)) {
-                ratingApis.deleteRatingHandler(routingContext);
-              } else {
-                LOGGER.error("Unauthorized Operation");
-                routingContext.response().setStatusCode(401).end();
-              }
-            });
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(routingContext -> {
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            ratingApis.deleteRatingHandler(routingContext);
+          } else {
+            LOGGER.error("Unauthorized Operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
 
     /**
      * Start server
