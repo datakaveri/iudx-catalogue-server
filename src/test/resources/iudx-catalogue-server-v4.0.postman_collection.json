@@ -10315,8 +10315,7 @@
 									{
 										"key": "token",
 										"value": "{{openToken}}",
-										"type": "text",
-										"disabled": true
+										"type": "text"
 									}
 								],
 								"body": {
@@ -10329,7 +10328,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
+									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood&type=group",
 									"protocol": "http",
 									"host": [
 										"{{host}}consumer"
@@ -10341,6 +10340,10 @@
 										{
 											"key": "id",
 											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
+										},
+										{
+											"key": "type",
+											"value": "group"
 										}
 									]
 								}
@@ -10377,8 +10380,7 @@
 									{
 										"key": "token",
 										"value": "{{openToken}}",
-										"type": "text",
-										"disabled": true
+										"type": "text"
 									}
 								],
 								"body": {
