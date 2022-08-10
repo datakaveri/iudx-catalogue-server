@@ -24,4 +24,5 @@ public class Constants {
     public static final String METHOD = "method";
     public static final String ITEM_ENDPOINT = "/iudx/cat/v1/item";
     public static final String INSTANCE_ENDPOINT = "/iudx/cat/v1/instance";
+    public static final String RATINGS_ENDPOINT = "/consumer/ratings";
 }

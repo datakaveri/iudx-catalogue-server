@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static iudx.catalogue.server.util.Constants.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -219,6 +221,37 @@ public class ValidatorServiceTest {
         "2AgEk25l7odg91lTOolXHouSDUjbB_JbNvqYrhQUjfIfAbkv03tBqBW_EQK7f733MdtfNcqti7K1xt4o3rLEFVQqVrQZHTm4vf8fAGs8KsqVjDFPGcJM/UgDxrcF7YMnbTdePN7pRr8/9T1o_2bUkH3DoktbOTk3FkD8IsdHm_OdKIuGEvjeMis0oqQiEEXqPNqdUpPA5lqjV1c76ihPoOmO/1XzJkWRcgc_MXSWy8Q2u/2FAPTmOKGSW5LE6wHXIDt/0hPlwCByXNazmQxcO/GRdAznMJKo_Xj7BtJHsx3m/oYus9cJYj1KDTJt2qL98mQ1Z0Al_PsknycOspHWplfesuVSsebZ92Xe5wbpy/4OFSHxUjxevkCSUm38Q/XkUTa1zfByV6P2VOSz3Fc_VN0kRHZyNx32NwcG76CV3QDoUoDDyHNvsK8vgdR3Z/AVSP4P/h/IoX3s6o/rcLLYWD7ioOMHDPYqMLcarkSDMKOG_PvLVCGdJbh44n583VbY");
 
     validator.validateSchema(resource, testContext.failing(response -> testContext.verify(() -> {
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @DisplayName("Valid Rating schema")
+  void validRatingSchemaTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject()
+        .put("rating",4.5)
+        .put("comment","some-comment")
+        .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+        .put("userID", "some-user")
+        .put("status", "pending");
+
+    validator.validateRating(request, testContext.succeeding(response -> testContext.verify(() -> {
+      String status = response.getString(TITLE);
+      assertEquals(SUCCESS, status);
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @DisplayName("Invalid Rating schema")
+  void invalidRatingSchemaTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject()
+        .put("rating",4.5)
+        .put("comment","some-comment")
+        .put("userID", "some-user")
+        .put("status", "pending");
+
+    validator.validateRating(request, testContext.failing(response -> testContext.verify(() -> {
       testContext.completeNow();
     })));
   }

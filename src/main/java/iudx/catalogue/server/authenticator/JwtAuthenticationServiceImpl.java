@@ -107,8 +107,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   Future<Boolean> isValidEndpoint(String endPoint) {
     Promise<Boolean> promise = Promise.promise();
 
-    LOGGER.debug("Endpoint in JWt is :" + endPoint);
-    if(endPoint.equals(ITEM_ENDPOINT) || endPoint.equals(INSTANCE_ENDPOINT)) {
+    LOGGER.debug("Endpoint in JWt is : " + endPoint);
+    if(endPoint.equals(ITEM_ENDPOINT) || endPoint.equals(INSTANCE_ENDPOINT) || endPoint.equals(RATINGS_ENDPOINT)) {
       promise.complete(true);
     } else {
       LOGGER.error("Incorrect endpoint in jwt");
@@ -173,8 +173,10 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     }).compose(audienceHandler -> {
       return isValidId(result.jwtData, id);
     }).compose(validIdHandler -> {
+      LOGGER.debug(isValidEndpoint(endPoint).succeeded());
       return isValidEndpoint(endPoint);
     }).compose(validEndpointHandler -> {
+      LOGGER.debug(validateAccess(result.jwtData,authenticationInfo).succeeded());
       return validateAccess(result.jwtData, authenticationInfo);
     }).onComplete(completeHandler -> {
       if(completeHandler.succeeded()) {

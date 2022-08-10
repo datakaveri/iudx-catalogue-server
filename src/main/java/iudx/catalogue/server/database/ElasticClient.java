@@ -29,8 +29,10 @@ import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
 public final class ElasticClient {
+
+  private static final Logger LOGGER = LogManager.getLogger(ElasticClient.class);
   private final RestClient client;
-  private final String index;
+  private String index;
 
   /**
    * ElasticClient - Wrapper around ElasticSearch low level client
@@ -49,6 +51,11 @@ public final class ElasticClient {
     this.index = index;
   }
 
+  public ElasticClient searchAsync(String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return searchAsync(query,resultHandler);
+  }
+
   /**
    * searchAsync - Wrapper around elasticsearch async search requests
    * 
@@ -61,6 +68,7 @@ public final class ElasticClient {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
     queryRequest.setJsonEntity(query);
+    LOGGER.debug(queryRequest);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
     future.onComplete(resultHandler);
     return this;
@@ -95,6 +103,12 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient searchGetId(String query, String index,
+     Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return searchGetId(query, resultHandler);
+  }
+
   /**
    * searchGetIdAsync - Get document IDs matching a query
    * 
@@ -112,10 +126,20 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient ratingAggregationAsync(String query, String index,
+      Handler<AsyncResult<JsonObject>> resultHandler) {
+    Request queryRequest = new Request(REQUEST_GET, index
+        + "/_search"
+        + FILTER_PATH_AGGREGATION);
+    queryRequest.setJsonEntity(query);
+    Future<JsonObject> future = searchAsync(queryRequest, RATING_AGGREGATION_ONLY);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
   /**
    * aggregationsAsync - Wrapper around elasticsearch async search requests
    * 
-   * @param index Index to search on
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
@@ -150,6 +174,12 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient docPostAsync(String doc, String index,
+        Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return docPostAsync(doc,resultHandler);
+  }
+
   /**
    * docPostAsync - Wrapper around elasticsearch async doc post request
    * 
@@ -170,6 +200,13 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient docPutAsync(String docId, String doc, String index,
+       Handler<AsyncResult<JsonObject>> resultHandler) {
+
+    this.index = index;
+    return docPutAsync(docId, doc, resultHandler);
+  }
+
   /**
    * docPutAsync - Wrapper around elasticsearch async doc put request
    * 
@@ -185,10 +222,15 @@ public final class ElasticClient {
     /** TODO: Validation */
     Request docRequest = new Request(REQUEST_PUT, index + "/_doc/" + docId);
     docRequest.setJsonEntity(doc.toString());
-
     Future<JsonObject> future = docAsync(REQUEST_PUT, docRequest);
     future.onComplete(resultHandler);
     return this;
+  }
+
+  public ElasticClient docDelAsync(String docId, String index,
+       Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return docDelAsync(docId, resultHandler);
   }
 
   /**
@@ -218,7 +260,6 @@ public final class ElasticClient {
     private JsonArray results = new JsonArray();
 
     DBRespMsgBuilder() {
-      response.put(RESULTS, results);
     }
 
     DBRespMsgBuilder statusSuccess() {
@@ -234,13 +275,18 @@ public final class ElasticClient {
 
     /** Overloaded for source only request */
     DBRespMsgBuilder addResult(JsonObject obj) {
-      response.getJsonArray(RESULTS).add(obj);
+      response.put(RESULTS, results.add(obj));
       return this;
     }
 
     /** Overloaded for doc-ids request */
     DBRespMsgBuilder addResult(String value) {
-      response.getJsonArray(RESULTS).add(value);
+      response.put(RESULTS, results.add(value));
+      return this;
+    }
+
+    DBRespMsgBuilder addResult() {
+      response.put(RESULTS, results);
       return this;
     }
 
@@ -284,10 +330,10 @@ public final class ElasticClient {
 
             if ((options == SOURCE_ONLY) || (options == DOC_IDS_ONLY)) {
               if(responseJson.getJsonObject(HITS).containsKey(HITS)) {
-                results = responseJson.getJsonObject(HITS).getJsonArray(HITS); 
+                results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
               }
             }
-            if (options == AGGREGATION_ONLY) {
+            if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY) {
               results = responseJson.getJsonObject(AGGREGATIONS)
                                   .getJsonObject(RESULTS)
                                   .getJsonArray(BUCKETS);
@@ -307,7 +353,14 @@ public final class ElasticClient {
               if (options == AGGREGATION_ONLY) {
                 responseMsg.addResult(results.getJsonObject(i).getString(KEY));
               }
+              if (options == RATING_AGGREGATION_ONLY) {
+                responseMsg.addResult(results.getJsonObject(i).getString(KEY));
+                JsonObject result = new JsonObject().put(AVERAGE_RATING, results.getJsonObject(i).getJsonObject(AVERAGE_RATING).getDouble(VALUE));
+                responseMsg.addResult(result);
+              }
             }
+          } else {
+            responseMsg.addResult();
           }
           promise.complete(responseMsg.getResponse());
 
