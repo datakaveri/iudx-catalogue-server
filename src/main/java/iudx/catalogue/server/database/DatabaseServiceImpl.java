@@ -8,10 +8,13 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.util.Timer;
 import java.util.TimerTask;
+
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.database.Constants.*;
+
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 
@@ -38,13 +41,26 @@ public class DatabaseServiceImpl implements DatabaseService {
   private boolean nlpPluggedIn;
   private boolean geoPluggedIn;
 
+  private String ratingIndex;
 
   private static String INTERNAL_ERROR_RESP = new RespBuilder()
-                                          .withType(TYPE_INTERNAL_SERVER_ERROR)
-                                          .withTitle(TITLE_INTERNAL_SERVER_ERROR)
-                                          .getResponse();
+      .withType(TYPE_INTERNAL_SERVER_ERROR)
+      .withTitle(TITLE_INTERNAL_SERVER_ERROR)
+      .getResponse();
 
+  public DatabaseServiceImpl(ElasticClient client, String ratingIndex) {
+    this(client);
+    this.ratingIndex = ratingIndex;
+  }
 
+  public DatabaseServiceImpl(
+      ElasticClient client,
+      String ratingIndex,
+      NLPSearchService nlpService,
+      GeocodingService geoService) {
+    this(client, nlpService, geoService);
+    this.ratingIndex = ratingIndex;
+  }
 
   public DatabaseServiceImpl(ElasticClient client) {
     this.client = client;
@@ -52,9 +68,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     geoPluggedIn = false;
   }
 
-  public DatabaseServiceImpl(ElasticClient client,
-                              NLPSearchService nlpService,
-                              GeocodingService geoService) {
+  public DatabaseServiceImpl(
+      ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
     this.client = client;
     this.nlpService = nlpService;
     this.geoService = geoService;
@@ -73,10 +88,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     /* Validate the Request */
     if (!request.containsKey(SEARCH_TYPE)) {
       handler.handle(Future.failedFuture(
-            respBuilder.withType(TYPE_INVALID_SYNTAX)
-                        .withTitle(TITLE_INVALID_SYNTAX)
-                        .withDetail(NO_SEARCH_TYPE_FOUND)
-                        .getResponse()));
+          respBuilder.withType(TYPE_INVALID_SYNTAX)
+              .withTitle(TITLE_INVALID_SYNTAX)
+              .withDetail(NO_SEARCH_TYPE_FOUND)
+              .getResponse()));
       return null;
     }
 
@@ -106,7 +121,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService nlpSearchQuery(JsonArray request, Handler<AsyncResult<JsonObject>> handler) {
     JsonArray embeddings = request.getJsonArray(0);
     client.scriptSearch(embeddings, searchRes -> {
-      if(searchRes.succeeded()) {
+      if (searchRes.succeeded()) {
         LOGGER.debug("Success:Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
@@ -122,15 +137,15 @@ public class DatabaseServiceImpl implements DatabaseService {
                                                 Handler<AsyncResult<JsonObject>> handler) {
     JsonArray embeddings = request.getJsonArray(0);
     client
-    .scriptLocationSearch(embeddings, location, searchRes -> {
-      if(searchRes.succeeded()) {
-        LOGGER.debug("Success:Successful DB request");
-        handler.handle(Future.succeededFuture(searchRes.result()));
-      } else {
-        LOGGER.error("Fail: DB request;" + searchRes.cause().getMessage());
-        handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-      }
-    });
+        .scriptLocationSearch(embeddings, location, searchRes -> {
+          if (searchRes.succeeded()) {
+            LOGGER.debug("Success:Successful DB request");
+            handler.handle(Future.succeededFuture(searchRes.result()));
+          } else {
+            LOGGER.error("Fail: DB request;" + searchRes.cause().getMessage());
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
 
     return this;
   }
@@ -197,9 +212,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
               handler.handle(Future.failedFuture(
                   respBuilder.withType(TYPE_ALREADY_EXISTS)
-                             .withTitle(TITLE_ALREADY_EXISTS)
-                             .withResult(id, INSERT, FAILED, "Fail: Doc Exists")
-                             .getResponse()));
+                      .withTitle(TITLE_ALREADY_EXISTS)
+                      .withResult(id, INSERT, FAILED, "Fail: Doc Exists")
+                      .getResponse()));
               return;
             }
 
@@ -210,18 +225,18 @@ public class DatabaseServiceImpl implements DatabaseService {
               geoService.geoSummarize(doc, geoHandler -> {
                 /* Not going to check if success or fail */
                 doc.put(GEOSUMMARY_KEY, geoHandler.result());
-                nlpService.getEmbedding(doc, ar-> {
-                  if(ar.succeeded()) {
+                nlpService.getEmbedding(doc, ar -> {
+                  if (ar.succeeded()) {
                     LOGGER.debug("Info: Document embeddings created");
                     doc.put(WORD_VECTOR_KEY, ar.result().getJsonArray("result"));
                     /* Insert document */
                     client.docPostAsync(doc.toString(), postRes -> {
                       if (postRes.succeeded()) {
                         handler.handle(Future.succeededFuture(
-                              respBuilder.withType(TYPE_SUCCESS)
-                              .withTitle(TITLE_SUCCESS)
-                              .withResult(id, INSERT, TYPE_SUCCESS)
-                              .getJsonResponse()));
+                            respBuilder.withType(TYPE_SUCCESS)
+                                .withTitle(TITLE_SUCCESS)
+                                .withResult(id, INSERT, TYPE_SUCCESS)
+                                .getJsonResponse()));
                       } else {
                         handler.handle(Future.failedFuture(errorJson));
                         LOGGER.error("Fail: Insertion failed" + postRes.cause());
@@ -240,8 +255,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                     if (postRes.succeeded()) {
                       handler.handle(Future.succeededFuture(
                           respBuilder.withType(TYPE_SUCCESS)
-                                     .withResult(id, INSERT, TYPE_SUCCESS)
-                                     .getJsonResponse()));
+                              .withResult(id, INSERT, TYPE_SUCCESS)
+                              .getJsonResponse()));
                     } else {
                       handler.handle(Future.failedFuture(errorJson));
                       LOGGER.error("Fail: Insertion failed" + postRes.cause());
@@ -255,9 +270,9 @@ public class DatabaseServiceImpl implements DatabaseService {
       } else if (instanceHandler.failed()) {
         handler.handle(Future.failedFuture(
             respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
-                        .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-                       .withResult(id, INSERT, FAILED, instanceHandler.cause().getLocalizedMessage())
-                       .getResponse()));
+                .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                .withResult(id, INSERT, FAILED, instanceHandler.cause().getLocalizedMessage())
+                .getResponse()));
       }
     });
     return this;
@@ -286,19 +301,19 @@ public class DatabaseServiceImpl implements DatabaseService {
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Doc doesn't exist, can't update");
               handler.handle(Future.failedFuture(
-                    respBuilder.withType(TYPE_ITEM_NOT_FOUND)
-                                .withTitle(TITLE_ITEM_NOT_FOUND)
-                                .withResult(id, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
-                  .getResponse()));
+                  respBuilder.withType(TYPE_ITEM_NOT_FOUND)
+                      .withTitle(TITLE_ITEM_NOT_FOUND)
+                      .withResult(id, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
+                      .getResponse()));
               return;
             }
             String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
             client.docPutAsync(docId, doc.toString(), putRes -> {
               if (putRes.succeeded()) {
                 handler.handle(Future.succeededFuture(
-                      respBuilder.withType(TYPE_SUCCESS)
-                                  .withTitle(TYPE_SUCCESS)
-                    .withResult(id, UPDATE, TYPE_SUCCESS).getJsonResponse()));
+                    respBuilder.withType(TYPE_SUCCESS)
+                        .withTitle(TYPE_SUCCESS)
+                        .withResult(id, UPDATE, TYPE_SUCCESS).getJsonResponse()));
               } else {
                 handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
                 LOGGER.error("Fail: Updation failed;" + putRes.cause());
@@ -348,19 +363,19 @@ public class DatabaseServiceImpl implements DatabaseService {
               LOGGER.error("Fail: Can't delete, parent doc has associated item;");
               handler
                   .handle(Future.failedFuture(
-                    respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
-                                .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-                                .withResult(id, DELETE, FAILED,
-                          "Fail: Can't delete, resourceGroup has associated item")
-                      .getResponse()));
+                      respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
+                          .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                          .withResult(id, DELETE, FAILED,
+                              "Fail: Can't delete, resourceGroup has associated item")
+                          .getResponse()));
               return;
             } else if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Doc doesn't exist, can't delete;");
               handler.handle(Future.failedFuture(
-                    respBuilder.withType(TYPE_ITEM_NOT_FOUND)
-                                .withTitle(TITLE_ITEM_NOT_FOUND)
-                                .withResult(id, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
-                  .getResponse()));
+                  respBuilder.withType(TYPE_ITEM_NOT_FOUND)
+                      .withTitle(TITLE_ITEM_NOT_FOUND)
+                      .withResult(id, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
+                      .getResponse()));
               return;
             }
           }
@@ -369,9 +384,9 @@ public class DatabaseServiceImpl implements DatabaseService {
           client.docDelAsync(docId, delRes -> {
             if (delRes.succeeded()) {
               handler.handle(Future.succeededFuture(
-                    respBuilder.withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                  .withResult(id, DELETE, TYPE_SUCCESS).getJsonResponse()));
+                  respBuilder.withType(TYPE_SUCCESS)
+                      .withTitle(TITLE_SUCCESS)
+                      .withResult(id, DELETE, TYPE_SUCCESS).getJsonResponse()));
             } else {
               handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
               LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
@@ -405,8 +420,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         /* Handle request error */
         handler.handle(
             Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
-                                            .withTitle(TITLE_INTERNAL_SERVER_ERROR)
-                                            .getResponse()));
+                .withTitle(TITLE_INTERNAL_SERVER_ERROR)
+                .getResponse()));
       }
     });
     return this;
@@ -433,8 +448,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         /* Handle request error */
         handler.handle(
             Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
-                                            .withTitle(TITLE_INTERNAL_SERVER_ERROR)
-                                            .getResponse()));
+                .withTitle(TITLE_INTERNAL_SERVER_ERROR)
+                .getResponse()));
       }
     });
     return this;
@@ -445,7 +460,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService listRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler) {
+                                          Handler<AsyncResult<JsonObject>> handler) {
 
     RespBuilder respBuilder = new RespBuilder();
     String elasticQuery = queryDecoder.listRelationshipQuery(request);
@@ -461,8 +476,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         /* Handle request error */
         handler.handle(
             Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
-                                            .withDetail(TITLE_INTERNAL_SERVER_ERROR)
-                                            .getResponse()));
+                .withDetail(TITLE_INTERNAL_SERVER_ERROR)
+                .getResponse()));
       }
     });
     return this;
@@ -477,8 +492,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     RespBuilder respBuilder = new RespBuilder();
     String subQuery = "";
     String errorJson = respBuilder.withType(FAILED)
-                                  .withDetail(ERROR_INVALID_PARAMETER)
-                                  .getResponse();
+        .withDetail(ERROR_INVALID_PARAMETER)
+        .getResponse();
 
     /* Validating the request */
     if (request.containsKey(RELATIONSHIP) && request.containsKey(VALUE)) {
@@ -494,7 +509,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         String[] relReqs = relReq.split("\\.", 2);
         String relReqsKey = relReqs[1];
         String relReqsValue = request.getJsonArray(VALUE)
-                                      .getJsonArray(0).getString(0);
+            .getJsonArray(0).getString(0);
 
         if (relReqs[0].equalsIgnoreCase(PROVIDER)) {
           typeValue = ITEM_TYPE_PROVIDER;
@@ -515,10 +530,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         subQuery = TERM_QUERY.replace("$1", TYPE_KEYWORD)
-                             .replace("$2", typeValue)
-                             + "," + 
-                   MATCH_QUERY.replace("$1", relReqsKey)
-                              .replace("$2", relReqsValue);
+            .replace("$2", typeValue)
+            + "," +
+            MATCH_QUERY.replace("$1", relReqsKey)
+                .replace("$2", relReqsValue);
       } else {
         LOGGER.error("Fail: Incorrect/missing query parameters");
         handler.handle(Future.failedFuture(errorJson));
@@ -543,8 +558,8 @@ public class DatabaseServiceImpl implements DatabaseService {
               JsonObject id = (JsonObject) idIndex;
               if (!id.isEmpty()) {
                 idCollection.add(new JsonObject().put(WILDCARD_KEY,
-                                    new JsonObject().put(ID_KEYWORD,
-                                                          id.getString(ID) + "*")));
+                    new JsonObject().put(ID_KEYWORD,
+                        id.getString(ID) + "*")));
               }
             }
           } else {
@@ -588,6 +603,228 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService createRating(
+      JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    String ratingId = ratingDoc.getString("ratingID");
+
+    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
+
+    client.searchAsync(
+        checkForExistingRecord,
+        ratingIndex,
+        checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error("Fail: Insertion of rating failed: " + checkRes.cause());
+            handler.handle(
+                Future.failedFuture(
+                    respBuilder
+                        .withType(FAILED)
+                        .withResult(ratingId)
+                        .getResponse()));
+          } else {
+            if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
+              handler.handle(
+                  Future.failedFuture(
+                      respBuilder
+                          .withType(TYPE_ALREADY_EXISTS)
+                          .withTitle(TITLE_ALREADY_EXISTS)
+                          .withResult(ratingId, INSERT, FAILED, " Fail: Doc Already Exists")
+                          .getResponse()));
+              return;
+            }
+
+            client.docPostAsync(
+                ratingDoc.toString(),
+                ratingIndex,
+                postRes -> {
+                  if (postRes.succeeded()) {
+                    handler.handle(
+                        Future.succeededFuture(
+                            respBuilder
+                                .withType(TYPE_SUCCESS)
+                                .withTitle(TITLE_SUCCESS)
+                                .withResult(ratingId, INSERT, TYPE_SUCCESS)
+                                .getJsonResponse()));
+                  } else {
+                    handler.handle(
+                        Future.failedFuture(
+                            respBuilder
+                                .withType(TYPE_FAIL)
+                                .withResult(ratingId, INSERT, FAILED)
+                                .getResponse()));
+                    LOGGER.error("Fail: Insertion failed" + postRes.cause());
+                  }
+                });
+          }
+        });
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DatabaseService updateRating(
+      JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    String ratingId = ratingDoc.getString("ratingID");
+
+    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
+
+    client.searchGetId(
+        checkForExistingRecord,
+        ratingIndex,
+        checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          } else {
+            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+              LOGGER.error("Fail: Doc doesn't exist, can't update");
+              handler.handle(
+                  Future.failedFuture(
+                      respBuilder
+                          .withType(TYPE_ITEM_NOT_FOUND)
+                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                          .withResult(
+                              ratingId, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
+                          .getResponse()));
+              return;
+            }
+
+            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+
+            client.docPutAsync(
+                docId,
+                ratingDoc.toString(),
+                ratingIndex,
+                putRes -> {
+                  if (putRes.succeeded()) {
+                    handler.handle(
+                        Future.succeededFuture(
+                            respBuilder
+                                .withType(TYPE_SUCCESS)
+                                .withTitle(TITLE_SUCCESS)
+                                .withResult(ratingId)
+                                .getJsonResponse()));
+                  } else {
+                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    LOGGER.error("Fail: Updation failed;" + putRes.cause());
+                  }
+                });
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public DatabaseService deleteRating(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    String ratingId = request.getString("ratingID");
+
+    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
+
+    client.searchGetId(
+        checkForExistingRecord,
+        ratingIndex,
+        checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          } else {
+            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+              LOGGER.error("Fail: Doc doesn't exist, can't delete");
+              handler.handle(
+                  Future.failedFuture(
+                      respBuilder
+                          .withType(TYPE_ITEM_NOT_FOUND)
+                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                          .withResult(
+                              ratingId, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
+                          .getResponse()));
+              return;
+            }
+
+            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+
+            client.docDelAsync(
+                docId,
+                ratingIndex,
+                putRes -> {
+                  if (putRes.succeeded()) {
+                    handler.handle(
+                        Future.succeededFuture(
+                            respBuilder
+                                .withType(TYPE_SUCCESS)
+                                .withTitle(TITLE_SUCCESS)
+                                .withResult(ratingId)
+                                .getJsonResponse()));
+                  } else {
+                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    LOGGER.error("Fail: Deletion failed;" + putRes.cause());
+                  }
+                });
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public DatabaseService getRatings(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    String query;
+    if (request.containsKey("ratingID")) {
+      String ratingID = request.getString("ratingID");
+      query = GET_RATING_DOCS.replace("$1", "ratingID").replace("$2", ratingID);
+    } else {
+      String id = request.getString(ID);
+      if (request.containsKey(TYPE) && request.getString(TYPE).equalsIgnoreCase("average")) {
+        query = GET_AVG_RATING.replace("$1", id);
+        LOGGER.debug(query);
+        client.ratingAggregationAsync(query, ratingIndex, getRes -> {
+          if (getRes.succeeded()) {
+            LOGGER.debug("Success: Successful DB request");
+            JsonObject result = getRes.result();
+            result.remove(TOTAL_HITS);
+            handler.handle(Future.succeededFuture(result));
+          } else {
+            LOGGER.error("Fail: failed getting average rating: " + getRes.cause());
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
+
+        return this;
+      } else {
+        query = GET_RATING_DOCS.replace("$1", "id").replace("$2", id);
+      }
+    }
+
+    LOGGER.debug(query);
+
+    client.searchAsync(
+        query,
+        ratingIndex,
+        getRes -> {
+          if (getRes.succeeded()) {
+            LOGGER.debug("Success: Successful DB request");
+            JsonObject result = getRes.result();
+            if (request.containsKey("ratingID")) {
+              result.remove(TOTAL_HITS);
+            }
+            handler.handle(Future.succeededFuture(result));
+          } else {
+            LOGGER.error("Fail: failed getting rating: " + getRes.cause());
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
+    return this;
+  }
 
   /* Verify the existance of an instance */
   Future<Boolean> verifyInstance(String instanceId) {
@@ -616,5 +853,4 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     return promise.future();
   }
-
 }

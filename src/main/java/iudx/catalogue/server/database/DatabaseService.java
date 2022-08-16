@@ -141,6 +141,42 @@ public interface DatabaseService {
   @Fluent
   DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
+  /**
+   * The createRating implements the rating creation operation with the database.
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService createRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The updateRating implements the rating updation operation with the database.
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService updateRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The deleteRating implements the rating deletion operation with the database.
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService deleteRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The getRatings implements fetching ratings from the database
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService getRatings(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
   /* create db service with nlp and geocoding */
   @GenIgnore
   static DatabaseService create(ElasticClient client,

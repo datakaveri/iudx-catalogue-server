@@ -1,0 +1,17 @@
+{
+      "dataBrokerIP": "",
+      "dataBrokerPort": 1234,
+      "dataBrokerVhost": "",
+      "dataBrokerUserName": "",
+      "dataBrokerPassword": "",
+      "requestedHeartBeat": 60,
+      "queue-name" : "",
+      "index-name": "",
+      "databaseIP": "",
+      "index_name": "",
+      "databaseUser": "",
+      "databasePassword": "",
+      "databasePort": 1234,
+      "schedule_time": 5
+}
+

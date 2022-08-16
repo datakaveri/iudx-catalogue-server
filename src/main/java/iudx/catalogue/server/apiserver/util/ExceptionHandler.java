@@ -61,6 +61,19 @@ public class ExceptionHandler implements Handler<RoutingContext> {
       response = new JsonObject().put(STATUS, FAILED)
                                  .put(DESC, "Invalid Json Format")
                                  .encode();
+    } else if(routingContext.request().uri().startsWith(ROUTE_RATING)) {
+      response = new RespBuilder()
+          .withType(TYPE_INVALID_SCHEMA)
+          .withTitle(TITLE_INVALID_SCHEMA)
+          .withDetail("Invalid Json payload")
+          .getResponse();
+
+      routingContext.response()
+          .setStatusCode(400)
+          .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+          .end(response);
+
+      routingContext.next();
     } else {
       response = new RespBuilder()
                             .withType(TYPE_INVALID_SYNTAX)

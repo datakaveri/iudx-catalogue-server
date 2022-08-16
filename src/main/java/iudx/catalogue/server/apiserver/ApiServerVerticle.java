@@ -10,6 +10,7 @@ import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
+import iudx.catalogue.server.rating.RatingService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import iudx.catalogue.server.apiserver.util.ExceptionHandler;
@@ -53,6 +54,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private ListApis listApis;
   private RelationshipApis relApis;
   private GeocodingApis geoApis;
+  private RatingApis ratingApis;
 
   @SuppressWarnings("unused")
   private Router router;
@@ -89,7 +91,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
       keystore = config().getString("keystore");
       keystorePassword = config().getString("keystorePassword");
-      
+
       /*
        * Default port when ssl is enabled is 8443. If set through config, then that value is taken
        */
@@ -124,6 +126,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     listApis = new ListApis();
     relApis = new RelationshipApis();
     geoApis = new GeocodingApis();
+    ratingApis = new RatingApis();
     /**
      *
      * Get proxies and handlers
@@ -134,27 +137,35 @@ public class ApiServerVerticle extends AbstractVerticle {
     /** Todo
      *    - Set service proxies based on availability?
      **/
-    DatabaseService dbService 
+    DatabaseService dbService
       = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
+
+    RatingService ratingService
+      = RatingService.createProxy(vertx, RATING_SERVICE_ADDRESS);
 
     crudApis.setDbService(dbService);
     listApis.setDbService(dbService);
     relApis.setDbService(dbService);
+    // TODO : set db service for Rating APIs
     crudApis.setHost(config().getString(HOST));
+    ratingApis.setRatingService(ratingService);
+    ratingApis.setHost(config().getString(HOST));
 
     AuthenticationService authService =
         AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
     crudApis.setAuthService(authService);
+    ratingApis.setAuthService(authService);
 
     ValidatorService validationService =
         ValidatorService.createProxy(vertx, VALIDATION_SERVICE_ADDRESS);
     crudApis.setValidatorService(validationService);
-    
-    GeocodingService geoService 
+    ratingApis.setValidatorService(validationService);
+
+    GeocodingService geoService
       = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
     geoApis.setGeoService(geoService);
 
-    NLPSearchService nlpsearchService 
+    NLPSearchService nlpsearchService
       = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
 
     searchApis.setService(dbService, geoService, nlpsearchService);
@@ -162,6 +173,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     AuditingService auditingService
       = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
     crudApis.setAuditingService(auditingService);
+    ratingApis.setAuditingService(auditingService);
 
     ExceptionHandler exceptionhandler = new ExceptionHandler();
 
@@ -171,7 +183,7 @@ public class ApiServerVerticle extends AbstractVerticle {
      *
      */
 
-    /** 
+    /**
      * Routes - Defines the routes and callbacks
      */
     Router router = Router.router(vertx);
@@ -180,7 +192,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         CorsHandler.create("*")
                    .allowedHeaders(ALLOWED_HEADERS)
                    .allowedMethods(ALLOWED_METHODS));
-    
+
     router.route().handler(routingContext -> {
       routingContext.response()
                     .putHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate")
@@ -340,7 +352,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* list the item from database using itemId */
     router.get(ROUTE_LIST_ITEMS)
       .produces(MIME_APPLICATION_JSON)
-      .handler(routingContext -> { 
+      .handler(routingContext -> {
         listApis.listItemsHandler(routingContext);
       });
 
@@ -357,7 +369,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     router.get(ROUTE_RELATIONSHIP).handler(routingContext -> {
       relApis.listRelationshipHandler(routingContext);
     });
-    
+
     /**
      * Routes for Geocoding
      */
@@ -365,14 +377,71 @@ public class ApiServerVerticle extends AbstractVerticle {
       .handler(routingContext -> {
         geoApis.getCoordinates(routingContext);
       });
-    
+
     router.get(ROUTE_GEO_REVERSE)
       .handler(routingContext -> {
         geoApis.getLocation(routingContext);
       });
 
     /**
-     * Start server 
+     * Routes for Rating APIs
+     */
+    /* Create Rating */
+    router.post(ROUTE_RATING)
+        .consumes(MIME_APPLICATION_JSON)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(routingContext -> {
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            ratingApis.createRatingHandler(routingContext);
+          } else {
+            LOGGER.error("Unauthorized Operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
+
+    /* Get Ratings */
+    router.get(ROUTE_RATING)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(routingContext -> {
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            ratingApis.getRatingHandler(routingContext);
+          } else {
+            LOGGER.error("Unauthorized Operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
+
+    /* Update Rating */
+    router.put(ROUTE_RATING)
+        .consumes(MIME_APPLICATION_JSON)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(routingContext -> {
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            ratingApis.updateRatingHandler(routingContext);
+          } else {
+            LOGGER.error("Unauthorized Operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
+
+    /* Delete Rating */
+    router.delete(ROUTE_RATING)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(routingContext -> {
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            ratingApis.deleteRatingHandler(routingContext);
+          } else {
+            LOGGER.error("Unauthorized Operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
+
+    /**
+     * Start server
      */
     server.requestHandler(router).listen(port);
 

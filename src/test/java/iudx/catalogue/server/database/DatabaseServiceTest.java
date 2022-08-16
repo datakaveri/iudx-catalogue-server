@@ -39,10 +39,12 @@ public class DatabaseServiceTest {
   private static Vertx vertxObj;
   private static ElasticClient client;
   private static String docIndex;
+  private static String ratingIndex;
   private static String databaseIP;
   private static int databasePort;
   private static String databaseUser;
   private static String databasePassword;
+  private String ratingID;
   private static Configuration config;
   private static WebClient webClient;
   private static NLPSearchService nlpService;
@@ -63,6 +65,7 @@ public class DatabaseServiceTest {
     databaseUser = dbConfig.getString(DATABASE_UNAME);
     databasePassword = dbConfig.getString(DATABASE_PASSWD);
     docIndex = dbConfig.getString(DOC_INDEX);
+    ratingIndex = dbConfig.getString(RATING_INDEX);
     optionalModules = dbConfig.getJsonArray(OPTIONAL_MODULES);
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
@@ -71,9 +74,9 @@ public class DatabaseServiceTest {
         && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
-      dbService = new DatabaseServiceImpl(client, nlpService, geoService);
+      dbService = new DatabaseServiceImpl(client, ratingIndex,nlpService, geoService);
     } else {
-      dbService = new DatabaseServiceImpl(client);
+      dbService = new DatabaseServiceImpl(client, ratingIndex);
     }
 
     testContext.completeNow();
@@ -177,6 +180,145 @@ public class DatabaseServiceTest {
     })));
   }
 
+  @Test
+  @Order(7)
+  @DisplayName("Create Rating Test")
+  void createRatingTest(VertxTestContext testContext) {
+
+    JsonObject request = new JsonObject()
+        .put("rating",4.5)
+        .put("comment","some comment")
+        .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+        .put("userID", "some-user")
+        .put("status", "approved")
+        .put("ratingID", "rating-id");
+
+    LOGGER.debug(this.ratingID);
+    dbService.createRating(request, testContext.succeeding(response -> testContext.verify(() -> {
+      String status = response.getString(TYPE);
+      assertEquals(TYPE_SUCCESS, status);
+      TimeUnit.SECONDS.sleep(5);
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @Order(8)
+  @DisplayName("Create existing rating")
+  void createExistingRatingTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject()
+        .put("rating", 4.8)
+        .put("comment","v.good resource")
+        .put("id","iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+        .put("userID", "15c7506f-c800-48d6-adeb-0542b03947c6")
+        .put("status","pending")
+        .put("ratingID","18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c1c");
+
+    dbService.createRating(request, testContext.failing(response -> testContext.verify(() -> {
+      String status = new JsonObject(response.getMessage()).getString(TYPE);
+      assertEquals(TYPE_ALREADY_EXISTS, status);
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @Order(9)
+  @DisplayName("Update rating test")
+  void updateRatingTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject()
+        .put("rating", 4.5)
+        .put("comment","v.good resource")
+        .put("id","iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+        .put("userID", "15c7506f-c800-48d6-adeb-0542b03947c6")
+        .put("status","approved")
+        .put("ratingID","18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c1c");
+
+    dbService.updateRating(request, testContext.succeeding(response -> testContext.verify(() -> {
+      String status = response.getString(TYPE);
+      assertEquals(TYPE_SUCCESS, status);
+      TimeUnit.SECONDS.sleep(5);
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @Order(10)
+  @DisplayName("Update non-existing rating test")
+  void updateNonExistingRatingTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject()
+        .put("rating", 4.5)
+        .put("comment","v.good resource")
+        .put("id","iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+        .put("userID", "15c7506f-c800-48d6-adeb-0542b03947c6")
+        .put("status","pending")
+        .put("ratingID","18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c2b");
+
+    dbService.updateRating(request, testContext.failing(response -> testContext.verify(() -> {
+      String status = new JsonObject(response.getMessage()).getString(TYPE);
+      assertEquals(TYPE_ITEM_NOT_FOUND, status);
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @Order(11)
+  @DisplayName("Delete Rating test")
+  void deleteRatingTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject().put("ratingID", "rating-id");
+
+    dbService.deleteRating(request, testContext.succeeding(response -> testContext.verify(() -> {
+      String status = response.getString(TYPE);
+      assertEquals(TYPE_SUCCESS, status);
+      TimeUnit.SECONDS.sleep(5);
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @Order(12)
+  @DisplayName("Delete non-existing rating test")
+  void deleteNonExistingRatingTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject().put("ratingID", "18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c2b");
+
+    dbService.deleteRating(request, testContext.failing(response -> testContext.verify(() -> {
+      String status = new JsonObject(response.getMessage()).getString(TYPE);
+      assertEquals(TYPE_ITEM_NOT_FOUND, status);
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @DisplayName("Get rating of a resource for a user")
+  void getRatingForUserTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject().put("ratingID", "18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c1c");
+
+    dbService.getRatings(request, testContext.succeeding(response -> testContext.verify(() -> {
+      assertEquals(4.5,response.getJsonArray(RESULT).getJsonObject(0).getDouble("rating"));
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @DisplayName("Get all ratings of a resource")
+  void getAllRatingsofResourceTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject().put("id","iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood");
+
+    dbService.getRatings(request, testContext.succeeding(response -> testContext.verify(() -> {
+      assertTrue(response.getInteger("totalHits") >= 1);
+      testContext.completeNow();
+    })));
+  }
+
+  @Test
+  @DisplayName("Fail: Get rating for non-existing rating id")
+  void failureGetRatingForNonExistingIDTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject().put("ratingID","18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c2b");
+
+    dbService.getRatings(request, testContext.succeeding(response -> testContext.verify(() -> {
+      assertEquals(0,response.getInteger("totalHits"));
+      testContext.completeNow();
+    })));
+  }
   @Test
   @DisplayName("Testing Geo-circle query")
   void searchGeoCircle(VertxTestContext testContext) {
