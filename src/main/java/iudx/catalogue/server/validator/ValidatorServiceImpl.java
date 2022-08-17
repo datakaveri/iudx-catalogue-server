@@ -45,7 +45,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator ratingValidator;
 
   /** ES client */
-  private final ElasticClient client;
+  static ElasticClient client;
 
   public ValidatorServiceImpl(ElasticClient client) {
 
