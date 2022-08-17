@@ -31,7 +31,7 @@ import static iudx.catalogue.server.util.Constants.*;
 public class NLPSearchServiceImpl implements NLPSearchService {
 
   private static final Logger LOGGER = LogManager.getLogger(NLPSearchServiceImpl.class);
-  private final WebClient webClient;
+  static WebClient webClient;
   private final String nlpServiceUrl;
   private final int nlpServicePort;
 
