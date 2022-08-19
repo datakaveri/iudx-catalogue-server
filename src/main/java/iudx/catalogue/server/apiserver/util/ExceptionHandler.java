@@ -47,7 +47,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
    * 
    * @param routingContext
    */
-  private void handleDecodeException(RoutingContext routingContext) {
+  public void handleDecodeException(RoutingContext routingContext) {
 
     LOGGER.error("Error: Invalid Json payload; " + routingContext.failure().getLocalizedMessage());
     String response = "";
@@ -100,7 +100,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
    * 
    * @param routingContext
    */
-  private void handleClassCastException(RoutingContext routingContext) {
+  public void handleClassCastException(RoutingContext routingContext) {
 
     LOGGER.error("Error: Invalid request payload; " + 
         routingContext.failure().getLocalizedMessage());
