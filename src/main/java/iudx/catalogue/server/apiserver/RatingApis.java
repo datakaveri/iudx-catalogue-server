@@ -68,7 +68,7 @@ public class RatingApis {
   public void createRatingHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: Creating Rating");
 
-    JsonObject requestBody = routingContext.getBodyAsJson();
+    JsonObject requestBody = routingContext.body().asJsonObject();
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
 
@@ -207,7 +207,7 @@ public class RatingApis {
   public void updateRatingHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: Updating Rating");
 
-    JsonObject requestBody = routingContext.getBodyAsJson();
+    JsonObject requestBody = routingContext.body().asJsonObject();
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
 
