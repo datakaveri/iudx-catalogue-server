@@ -1,12 +1,39 @@
 package iudx.catalogue.server.auditing;
 
+import static iudx.catalogue.server.auditing.util.Constants.API;
+import static iudx.catalogue.server.auditing.util.Constants.DATABASE_TABLE_NAME;
+import static iudx.catalogue.server.auditing.util.Constants.EMPTY_RESPONSE;
+import static iudx.catalogue.server.auditing.util.Constants.ERROR;
+import static iudx.catalogue.server.auditing.util.Constants.FAILED;
+import static iudx.catalogue.server.auditing.util.Constants.IID;
+import static iudx.catalogue.server.auditing.util.Constants.IUDX_ID;
+import static iudx.catalogue.server.auditing.util.Constants.MESSAGE;
+import static iudx.catalogue.server.auditing.util.Constants.METHOD;
+import static iudx.catalogue.server.auditing.util.Constants.QUERY_KEY;
+import static iudx.catalogue.server.auditing.util.Constants.RESULTS;
+import static iudx.catalogue.server.auditing.util.Constants.SUCCESS;
+import static iudx.catalogue.server.auditing.util.Constants.TIME;
+import static iudx.catalogue.server.auditing.util.Constants.TITLE;
+import static iudx.catalogue.server.auditing.util.Constants.USERID_NOT_FOUND;
+import static iudx.catalogue.server.auditing.util.Constants.USER_ID;
+import static iudx.catalogue.server.auditing.util.Constants.USER_ROLE;
+import static iudx.catalogue.server.auditing.util.Constants._API_COLUMN_NAME;
+import static iudx.catalogue.server.auditing.util.Constants._BODY_COLUMN_NAME;
+import static iudx.catalogue.server.auditing.util.Constants._ENDPOINT_COLUMN_NAME;
+import static iudx.catalogue.server.auditing.util.Constants._IID_COLUMN_NAME;
+import static iudx.catalogue.server.auditing.util.Constants._IUDX_COLUMN_NAME;
+import static iudx.catalogue.server.auditing.util.Constants._METHOD_COLUMN_NAME;
+import static iudx.catalogue.server.auditing.util.Constants._TIME_COLUMN_NAME;
+import static iudx.catalogue.server.auditing.util.Constants._USERID_COLUMN_NAME;
+import static iudx.catalogue.server.auditing.util.Constants._USERROLE_COLUMN_NAME;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
@@ -14,19 +41,25 @@ import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import iudx.catalogue.server.auditing.util.QueryBuilder;
 import iudx.catalogue.server.auditing.util.ResponseBuilder;
-import java.sql.Timestamp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import static iudx.catalogue.server.auditing.util.Constants.*;
 
 public class AuditingServiceImpl implements AuditingService {
 
   private static final Logger LOGGER = LogManager.getLogger(AuditingServiceImpl.class);
+  private final String METHOD_COLUMN_NAME;
+  private final String TIME_COLUMN_NAME;
+  private final String USERID_COLUMN_NAME;
+  private final String BODY_COLUMN_NAME;
+  private final String ENDPOINT_COLUMN_NAME;
+  private final String API_COLUMN_NAME;
+  private final String IID_COLUMN_NAME;
+  private final String IUDX_COLUMN_NAME;
+  private final String USERROLE_COLUMN_NAME;
   PgConnectOptions connectOptions;
   PoolOptions poolOptions;
   PgPool pool;
-  private QueryBuilder queryBuilder = new QueryBuilder();
+  private final QueryBuilder queryBuilder = new QueryBuilder();
   private JsonObject query = new JsonObject();
   private String databaseIP;
   private int databasePort;
@@ -34,6 +67,7 @@ public class AuditingServiceImpl implements AuditingService {
   private String databaseUserName;
   private String databasePassword;
   private int databasePoolSize;
+  private String databaseTableName;
   private ResponseBuilder responseBuilder;
 
   public AuditingServiceImpl(JsonObject propObj, Vertx vertxInstance) {
@@ -43,6 +77,7 @@ public class AuditingServiceImpl implements AuditingService {
       databaseName = propObj.getString("auditingDatabaseName");
       databaseUserName = propObj.getString("auditingDatabaseUserName");
       databasePassword = propObj.getString("auditingDatabasePassword");
+      databaseTableName = propObj.getString("auditingDatabaseTableName");
       databasePoolSize = propObj.getInteger("auditingPoolSize");
     }
 
@@ -59,12 +94,37 @@ public class AuditingServiceImpl implements AuditingService {
     this.poolOptions = new PoolOptions().setMaxSize(databasePoolSize);
     this.pool = PgPool.pool(vertxInstance, connectOptions, poolOptions);
 
-  
+    METHOD_COLUMN_NAME =
+        _METHOD_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".")
+            .toString();
+    TIME_COLUMN_NAME =
+        _TIME_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".").toString();
+    USERID_COLUMN_NAME =
+        _USERID_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".")
+            .toString();
+    BODY_COLUMN_NAME =
+        _BODY_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".").toString();
+
+    ENDPOINT_COLUMN_NAME =
+        _ENDPOINT_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".")
+            .toString();
+
+    API_COLUMN_NAME = _API_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".")
+        .toString();
+    IID_COLUMN_NAME = _IID_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".")
+        .toString();
+    IUDX_COLUMN_NAME =
+        _IUDX_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".")
+            .toString();
+    USERROLE_COLUMN_NAME =
+        _USERROLE_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".")
+            .toString();
   }
 
   @Override
   public AuditingService executeWriteQuery(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    request.put(DATABASE_TABLE_NAME, databaseTableName);
     query = queryBuilder.buildWriteQuery(request);
 
     if (query.containsKey(ERROR)) {
@@ -101,6 +161,7 @@ public class AuditingServiceImpl implements AuditingService {
       return null;
     }
 
+    request.put(DATABASE_TABLE_NAME, databaseTableName);
     query = queryBuilder.buildReadQuery(request);
     if (query.containsKey(ERROR)) {
       LOGGER.error("Fail: Query returned with an error: " + query.getString(ERROR));
