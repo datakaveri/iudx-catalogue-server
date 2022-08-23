@@ -4,6 +4,9 @@ public class AuthorizationContextFactory {
 
   public static AuthorizationStratergy create(String role) {
     switch (role) {
+      case "consumer": {
+        return new ConsumerAuthStrategy();
+      }
       case "provider": {
         return new ProviderAuthStrategy();
       }

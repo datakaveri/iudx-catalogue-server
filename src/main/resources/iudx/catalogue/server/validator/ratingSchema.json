@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "rating" : 4.4,
+      "comment" : "xyz comment",
+      "id" : "someID",
+      "userID" : "someID",
+      "status" : "pending/approved/denied"
+    }
+  ],
+  "required": [
+    "rating",
+    "id",
+    "userID",
+    "status"
+  ],
+  "properties": {
+    "rating": {
+      "$id": "#/properties/rating",
+      "type": "number",
+      "title": "Rating number schema",
+      "description": "A number between 0 and 5 indicating rating for an item",
+      "default": 0,
+      "minimum": 0.0,
+      "maximum": 5.0,
+      "examples": [
+        0, 1.3, 4.5
+      ]
+    },
+    "comment": {
+      "$id": "#/properties/comment",
+      "type": "string",
+      "title": "The comment schema",
+      "description": "A comment or review of an item",
+      "default": "",
+      "examples": [
+        "some comment"
+      ]
+    },
+    "id" : {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The id schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "<item-id>"
+      ],
+      "maxLength": 512
+    },
+    "userID" : {
+      "$id": "#/properties/userID",
+      "type": "string",
+      "title": "The userID schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "<user-id>"
+      ],
+      "maxLength": 512
+    },
+    "status": {
+      "$id": "#/properties/status",
+      "type": "string",
+      "title": "The status schema",
+      "description": "A status of comment can be either pending, approved or denied",
+      "default": "pending",
+      "maxLength": 512
+    }
+  },
+  "additionalProperties": true
+}

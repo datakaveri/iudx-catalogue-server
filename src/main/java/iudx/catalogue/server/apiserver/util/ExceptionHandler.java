@@ -47,7 +47,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
    * 
    * @param routingContext
    */
-  private void handleDecodeException(RoutingContext routingContext) {
+  public void handleDecodeException(RoutingContext routingContext) {
 
     LOGGER.error("Error: Invalid Json payload; " + routingContext.failure().getLocalizedMessage());
     String response = "";
@@ -61,6 +61,19 @@ public class ExceptionHandler implements Handler<RoutingContext> {
       response = new JsonObject().put(STATUS, FAILED)
                                  .put(DESC, "Invalid Json Format")
                                  .encode();
+    } else if(routingContext.request().uri().startsWith(ROUTE_RATING)) {
+      response = new RespBuilder()
+          .withType(TYPE_INVALID_SCHEMA)
+          .withTitle(TITLE_INVALID_SCHEMA)
+          .withDetail("Invalid Json payload")
+          .getResponse();
+
+      routingContext.response()
+          .setStatusCode(400)
+          .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+          .end(response);
+
+      routingContext.next();
     } else {
       response = new RespBuilder()
                             .withType(TYPE_INVALID_SYNTAX)
@@ -87,7 +100,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
    * 
    * @param routingContext
    */
-  private void handleClassCastException(RoutingContext routingContext) {
+  public void handleClassCastException(RoutingContext routingContext) {
 
     LOGGER.error("Error: Invalid request payload; " + 
         routingContext.failure().getLocalizedMessage());
