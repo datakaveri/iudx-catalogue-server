@@ -43,7 +43,7 @@ public class RatingServiceTest {
   @BeforeAll
   @DisplayName("Initialize vertx and deploy verticle")
   public static void init(Vertx vertx, VertxTestContext testContext) {
-    config = Configuration.getConfiguration("./configs/config-test.json", 5);
+    config = Configuration.getConfiguration("./configs/config-test.json", 7);
     exchangeName = config.getString("exchangeName");
     rsauditingtable = config.getString("rsAuditingTableName");
     minReadNumber = config.getInteger("minReadNumber");
@@ -76,7 +76,7 @@ public class RatingServiceTest {
   @DisplayName("Success: test create rating")
   void successfulRatingCreationTest(VertxTestContext testContext) {
     JsonObject request = requestJson();
-    JsonObject auditInfo = new JsonObject().put("totalHits", 1);
+    JsonObject auditInfo = new JsonObject().put("totalHits", minReadNumber + 1);
 
     doAnswer(Answer -> Future.succeededFuture(auditInfo))
         .when(ratingServiceSpy)
@@ -104,7 +104,7 @@ public class RatingServiceTest {
         handler -> {
           if (handler.succeeded()) {
             verify(ratingServiceSpy, times(2)).getAuditingInfo(any());
-            verify(databaseService, times(2)).createRating(any(), any());
+            verify(databaseService, times(1)).createRating(any(), any());
             testContext.completeNow();
           } else {
             LOGGER.debug("Fail");
