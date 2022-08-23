@@ -76,7 +76,6 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-jdbc-client</artifactId>
-            <version>4.1.1</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -89,7 +88,6 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-web-client</artifactId>
-            <version>4.0.3</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -194,12 +192,10 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-auth-jwt</artifactId>
-            <version>4.0.3</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-pg-client</artifactId>
-            <version>4.0.3</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
