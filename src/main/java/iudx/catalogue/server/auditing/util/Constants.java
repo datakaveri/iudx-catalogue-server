@@ -26,13 +26,15 @@ public class Constants {
   public static final String MISSING_START_TIME = "Start-Time not found.";
   public static final String MISSING_END_TIME = "End-Time not found.";
   public static final String INVALID_TIME = "End-Time cannot be before Start-Time.";
-  public static final String METHOD_COLUMN_NAME = "(defaultdb.auditingtable1.method)";
-  public static final String TIME_COLUMN_NAME = "(defaultdb.auditingtable1.time)";
-  public static final String USERID_COLUMN_NAME = "(defaultdb.auditingtable1.userid)";
-  public static final String API_COLUMN_NAME = "(defaultdb.auditingtable1.api)";
-  public static final String IID_COLUMN_NAME = "(defaultdb.auditingtable1.iid)";
-  public static final String IUDX_COLUMN_NAME = "(defaultdb.auditingtable1.iudxid)";
-  public static final String USERROLE_COLUMN_NAME = "(defaultdb.auditingtable1.userrole)";
+  public static final StringBuilder _METHOD_COLUMN_NAME = new StringBuilder("method)");
+  public static final StringBuilder _TIME_COLUMN_NAME = new StringBuilder("time)");
+  public static final StringBuilder _USERID_COLUMN_NAME = new StringBuilder("userid)");
+  public static final StringBuilder _BODY_COLUMN_NAME = new StringBuilder("body)");
+  public static final StringBuilder _ENDPOINT_COLUMN_NAME = new StringBuilder("endpoint)");
+  public static final StringBuilder _API_COLUMN_NAME = new StringBuilder("api)");
+  public static final StringBuilder _IID_COLUMN_NAME = new StringBuilder("iid)");
+  public static final StringBuilder _IUDX_COLUMN_NAME = new StringBuilder("iudxid)");
+  public static final StringBuilder _USERROLE_COLUMN_NAME = new StringBuilder("userrole)");
 
   /* Auditing Service Constants*/
   public static final String USER_ROLE = "userRole";
@@ -41,10 +43,11 @@ public class Constants {
   public static final String API = "api";
   public static final String METHOD = "httpMethod";
   public static final String IUDX_ID = "iudxID";
+  public static final String DATABASE_TABLE_NAME= "databaseTableName";
   public static final String WRITE_QUERY =
-          "INSERT INTO auditingtable1 (id, userRole, userId, iid, api, method, time, iudxID) VALUES ('$1','$2','$3','$4','$5','$6',$7,'$8')";
+          "INSERT INTO $0 (id, userRole, userId, iid, api, method, time, iudxID) VALUES ('$1','$2','$3','$4','$5','$6',$7,'$8')";
   public static final String READ_QUERY =
-          "SELECT userRole, userId, iid, api, method, time, iudxID from auditingtable1 where userId='$1'";
+          "SELECT userRole, userId, iid, api, method, time, iudxID from $0 where userId='$1'";
   public static final String START_TIME_QUERY = " and time>=$2";
   public static final String END_TIME_QUERY = " and time<=$3";
   public static final String API_QUERY = " and api='$4'";
