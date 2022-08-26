@@ -34,7 +34,7 @@ import iudx.catalogue.server.geocoding.GeocodingService;
 public class DatabaseServiceImpl implements DatabaseService {
 
   private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceImpl.class);
-  private ElasticClient client;
+  private final ElasticClient client;
   private final QueryDecoder queryDecoder = new QueryDecoder();
   private NLPSearchService nlpService;
   private GeocodingService geoService;
@@ -172,7 +172,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     LOGGER.debug("Info: Query constructed;" + query.toString());
-
     client.countAsync(query.toString(), searchRes -> {
       if (searchRes.succeeded()) {
         LOGGER.debug("Success: Successful DB request");
@@ -472,6 +471,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
+
         LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
         /* Handle request error */
         handler.handle(
@@ -498,9 +498,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     /* Validating the request */
     if (request.containsKey(RELATIONSHIP) && request.containsKey(VALUE)) {
 
-      /* parsing data parameters from the request */
-      String relReq = request.getJsonArray(RELATIONSHIP).getString(0);
 
+      /* parsing data parameters from the request */
+    String relReq = request.getJsonArray(RELATIONSHIP).getString(0);
       if (relReq.contains(".")) {
 
         LOGGER.debug("Info: Reached relationship search dbServiceImpl");
@@ -510,7 +510,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         String relReqsKey = relReqs[1];
         String relReqsValue = request.getJsonArray(VALUE)
             .getJsonArray(0).getString(0);
-
         if (relReqs[0].equalsIgnoreCase(PROVIDER)) {
           typeValue = ITEM_TYPE_PROVIDER;
 
@@ -651,6 +650,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                 .withResult(ratingId, INSERT, TYPE_SUCCESS)
                                 .getJsonResponse()));
                   } else {
+
                     handler.handle(
                         Future.failedFuture(
                             respBuilder
