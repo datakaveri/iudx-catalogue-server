@@ -21,28 +21,7 @@ import static iudx.catalogue.server.util.Constants.SERVICE_TIMEOUT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.client.HttpRequest;
-import io.vertx.ext.web.client.HttpResponse;
-import io.vertx.ext.web.client.WebClient;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import jdk.jfr.Description;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
-
-import static iudx.catalogue.server.util.Constants.SERVICE_TIMEOUT;
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)

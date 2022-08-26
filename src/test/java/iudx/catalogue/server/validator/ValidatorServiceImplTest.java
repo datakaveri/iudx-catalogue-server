@@ -124,17 +124,17 @@ public class ValidatorServiceImplTest {
     @Test
     @Description("testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE_GROUP and hits is 1")
     public void testValidateItemRESOURCE_GROUP(VertxTestContext vertxTestContext) {
-        validatorService = new ValidatorServiceImpl(client);
-        JsonObject request = new JsonObject();
-        JsonArray jsonArray = new JsonArray();
-        JsonObject json = new JsonObject();
-        json.put(TOTAL_HITS, 1);
+        validatorService=new ValidatorServiceImpl(client);
+        JsonObject request=new JsonObject();
+        JsonArray jsonArray=new JsonArray();
+        JsonObject json=new JsonObject();
+        json.put(TOTAL_HITS,1);
         jsonArray.add(ITEM_TYPE_RESOURCE_GROUP);
-        request.put(TYPE, jsonArray);
-        request.put(RESOURCE_SVR, "abcd/abcd/abcd");
-        request.put(PROVIDER, "dummy");
-        request.put(NAME, "dummy");
-        ValidatorServiceImpl.client = mock(ElasticClient.class);
+        request.put(TYPE,jsonArray);
+        request.put(RESOURCE_SVR,"abcd/abcd/abcd");
+        request.put(PROVIDER,"dummy");
+        request.put(NAME,"dummy");
+        ValidatorServiceImpl.client=mock(ElasticClient.class);
         when(asyncResult.result()).thenReturn(json);
 
         doAnswer(new Answer<AsyncResult<JsonObject>>() {
@@ -152,17 +152,17 @@ public class ValidatorServiceImplTest {
     @Test
     @Description("testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE_GROUP and hits is not 1")
     public void testValidateItemRESOURCE_GROUP2(VertxTestContext vertxTestContext) {
-        validatorService = new ValidatorServiceImpl(client);
-        JsonObject request = new JsonObject();
-        JsonArray jsonArray = new JsonArray();
-        JsonObject json = new JsonObject();
-        json.put(TOTAL_HITS, 0);
+        validatorService=new ValidatorServiceImpl(client);
+        JsonObject request=new JsonObject();
+        JsonArray jsonArray=new JsonArray();
+        JsonObject json=new JsonObject();
+        json.put(TOTAL_HITS,0);
         jsonArray.add(ITEM_TYPE_RESOURCE_GROUP);
-        request.put(TYPE, jsonArray);
-        request.put(RESOURCE_SVR, "abcd/abcd/abcd");
-        request.put(PROVIDER, "dummy");
-        request.put(NAME, "dummy");
-        ValidatorServiceImpl.client = mock(ElasticClient.class);
+        request.put(TYPE,jsonArray);
+        request.put(RESOURCE_SVR,"abcd/abcd/abcd");
+        request.put(PROVIDER,"dummy");
+        request.put(NAME,"dummy");
+        ValidatorServiceImpl.client=mock(ElasticClient.class);
         when(asyncResult.result()).thenReturn(json);
 
         doAnswer(new Answer<AsyncResult<JsonObject>>() {
@@ -181,18 +181,18 @@ public class ValidatorServiceImplTest {
     @Test
     @Description("testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE and hits=1 ")
     public void testValidateItem(VertxTestContext vertxTestContext) {
-        validatorService = new ValidatorServiceImpl(client);
-        JsonObject request = new JsonObject();
-        JsonArray jsonArray = new JsonArray();
-        JsonObject json = new JsonObject();
-        json.put(TOTAL_HITS, 1);
+        validatorService=new ValidatorServiceImpl(client);
+        JsonObject request=new JsonObject();
+        JsonArray jsonArray=new JsonArray();
+        JsonObject json=new JsonObject();
+        json.put(TOTAL_HITS,1);
         jsonArray.add(ITEM_TYPE_RESOURCE);
-        request.put(TYPE, jsonArray);
-        request.put(NAME, "name");
-        request.put(RESOURCE_GRP, "abcd/abcd/abcd");
-        request.put(PROVIDER, "abcd/abcd");
-        request.put(NAME, "dummy");
-        ValidatorServiceImpl.client = mock(ElasticClient.class);
+        request.put(TYPE,jsonArray);
+        request.put(NAME,"name");
+        request.put(RESOURCE_GRP,"abcd/abcd/abcd");
+        request.put(PROVIDER,"abcd/abcd");
+        request.put(NAME,"dummy");
+        ValidatorServiceImpl.client=mock(ElasticClient.class);
         when(asyncResult.result()).thenReturn(json);
 
         doAnswer(new Answer<AsyncResult<JsonObject>>() {
