@@ -21,6 +21,29 @@ import static iudx.catalogue.server.util.Constants.SERVICE_TIMEOUT;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.HttpRequest;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import jdk.jfr.Description;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
+
+import static iudx.catalogue.server.util.Constants.SERVICE_TIMEOUT;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
 public class NLPSearchServiceImplTest {
@@ -62,7 +85,11 @@ public class NLPSearchServiceImplTest {
             }
         }).when(httpRequest).sendJsonObject(any(),any());
         nlpSearchService=new NLPSearchServiceImpl(webClient,nlpServiceUrl,nlpServicePort);
-        nlpSearchService.getEmbedding(doc,handler);
+        assertNotNull("",nlpSearchService.getEmbedding(doc,handler));
+
+        verify(httpRequest,times(1)).sendJsonObject(any(),any());
+        verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
+        verify(NLPSearchServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
         vertxTestContext.completeNow();
     }
     @Test
@@ -86,7 +113,12 @@ public class NLPSearchServiceImplTest {
             }
         }).when(httpRequest).sendJsonObject(any(),any());
         nlpSearchService=new NLPSearchServiceImpl(webClient,nlpServiceUrl,nlpServicePort);
-        nlpSearchService.getEmbedding(doc,handler);
+        assertNotNull(nlpSearchService.getEmbedding(doc,handler));
+
+        verify(httpRequest,times(1)).sendJsonObject(any(),any());
+        verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
+        verify(NLPSearchServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
+
         vertxTestContext.completeNow();
     }
     @Test
@@ -114,7 +146,14 @@ public class NLPSearchServiceImplTest {
             }
         }).when(httpRequest).send(any());
         nlpSearchService=new NLPSearchServiceImpl(webClient,nlpServiceUrl,nlpServicePort);
-        nlpSearchService.search(query,handler);
+        assertNotNull(nlpSearchService.search(query,handler));
+
+        verify(httpRequest,times(1)).send(any());
+        verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
+        verify(httpRequest,times(1)).addQueryParam(anyString(),anyString());
+        verify(httpRequest,times(1)).putHeader("Accept","application/json");
+        verify(NLPSearchServiceImpl.webClient,times(1)).get(anyInt(),anyString(),anyString());
+
         vertxTestContext.completeNow();
     }
     @Test
@@ -139,7 +178,14 @@ public class NLPSearchServiceImplTest {
             }
         }).when(httpRequest).send(any());
         nlpSearchService=new NLPSearchServiceImpl(webClient,nlpServiceUrl,nlpServicePort);
-        nlpSearchService.search(query,handler);
+        assertNotNull(nlpSearchService.search(query,handler));
+
+        verify(httpRequest,times(1)).send(any());
+        verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
+        verify(httpRequest,times(1)).addQueryParam(anyString(),anyString());
+        verify(httpRequest,times(1)).putHeader("Accept","application/json");
+        verify(NLPSearchServiceImpl.webClient,times(1)).get(anyInt(),anyString(),anyString());
+
         vertxTestContext.completeNow();
     }
 }

@@ -22,6 +22,7 @@ import org.mockito.stubbing.Answer;
 import static iudx.catalogue.server.auditing.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.util.Constants.PROVIDER;
+import static junit.framework.Assert.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -71,7 +72,12 @@ public class AuthenticationServiceImplTest {
         }).when(httpRequest).sendJsonObject(any(),any());
 
         authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        authenticationService.tokenInterospect(request,authenticationInfo,handler);
+        assertNull(authenticationService.tokenInterospect(request,authenticationInfo,handler));
+
+        verify(httpRequest,times(1)).sendJsonObject(any(),any());
+        verify(httpRequest,times(1)).expect(any());
+        verify(AuthenticationServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
+
         vertxTestContext.completeNow();
 
     }
@@ -81,8 +87,6 @@ public class AuthenticationServiceImplTest {
         String authHost="dummy";
         authenticationInfo=new JsonObject();
         request=new JsonObject();
-        //  httpResponse=httpResponseAsyncResult.result();
-
         json=new JsonObject();
         JsonArray jsonArray=new JsonArray();
         json.put(ERROR,"error");
@@ -113,6 +117,12 @@ public class AuthenticationServiceImplTest {
 
         authenticationService=new AuthenticationServiceImpl(webClient,authHost);
         authenticationService.tokenInterospect(request,authenticationInfo,handler);
+
+        verify(httpRequest,times(1)).sendJsonObject(any(),any());
+        verify(httpRequest,times(1)).expect(any());
+        verify(AuthenticationServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
+
+        assertNull(authenticationService.tokenInterospect(request,authenticationInfo,handler));
         vertxTestContext.completeNow();
 
     }
@@ -125,7 +135,7 @@ public class AuthenticationServiceImplTest {
         JsonArray methods=new JsonArray();
         methods.add("*");
         String operation="dummy";
-        authenticationService.isPermittedMethod(methods,operation);
+        assertTrue(authenticationService.isPermittedMethod(methods,operation));
         vertxTestContext.completeNow();
     }
     @Test
@@ -137,7 +147,7 @@ public class AuthenticationServiceImplTest {
         JsonArray methods=new JsonArray();
         methods.add("dummyy");
         String operation="dummy";
-        authenticationService.isPermittedMethod(methods,operation);
+        assertFalse(authenticationService.isPermittedMethod(methods,operation));
         vertxTestContext.completeNow();
     }
     @Test
@@ -151,7 +161,7 @@ public class AuthenticationServiceImplTest {
         request.put(PROVIDER,"dummy");
         AuthenticationServiceImpl.webClient=mock(WebClient.class);
         authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        authenticationService.tokenInterospect(request,authenticationInfo,handler);
+        assertNotNull(authenticationService.tokenInterospect(request,authenticationInfo,handler));
         vertxTestContext.completeNow();
 
     }
@@ -166,7 +176,7 @@ public class AuthenticationServiceImplTest {
         request.put(PROVIDER,"dummy");
         AuthenticationServiceImpl.webClient=mock(WebClient.class);
         authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        authenticationService.tokenInterospect(request,authenticationInfo,handler);
+        assertNotNull(authenticationService.tokenInterospect(request,authenticationInfo,handler));
         vertxTestContext.completeNow();
 
     }
