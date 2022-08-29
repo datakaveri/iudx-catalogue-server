@@ -34,7 +34,7 @@ import static iudx.catalogue.server.util.Constants.*;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private static final Logger LOGGER = LogManager.getLogger(AuthenticationServiceImpl.class);
-    private final WebClient webClient;
+    static WebClient webClient;
     private String authHost;
 
     public AuthenticationServiceImpl(WebClient client, String authHost) {
@@ -133,7 +133,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return providerID.equals(tipProvider);
     }
 
-    private boolean isPermittedMethod(JsonArray methods, String operation) {
+    public boolean isPermittedMethod(JsonArray methods, String operation) {
         for (Object o : methods) {
             String method = (String) o;
             if (method.equals("*") || method.equals(operation)) return true;

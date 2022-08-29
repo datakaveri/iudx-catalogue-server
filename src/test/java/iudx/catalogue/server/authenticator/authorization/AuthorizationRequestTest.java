@@ -8,8 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
 
@@ -26,6 +25,7 @@ public class AuthorizationRequestTest {
     {
         authorizationRequest=new AuthorizationRequest(method,api);
         String actual= String.valueOf(authorizationRequest.getMethod());
+        assertNotNull(actual);
         vertxTestContext.completeNow();
     }
     @Test
@@ -33,7 +33,7 @@ public class AuthorizationRequestTest {
     public void testGetApi(VertxTestContext vertxTestContext)
     {
         authorizationRequest=new AuthorizationRequest(method,api);
-        authorizationRequest.getApi();
+        assertNotNull(authorizationRequest.getApi());
         vertxTestContext.completeNow();
     }
     @Test
