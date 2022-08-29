@@ -163,7 +163,7 @@ public class DatabaseServiceTest {
     })));
   }
 
-  @Test
+  /*@Test
   @Order(6)
   @DisplayName("Create existing item")
   void createExistingItemTest(VertxTestContext testContext) {
@@ -176,7 +176,7 @@ public class DatabaseServiceTest {
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
-  }
+  }*/
 
   @Test
   @Order(7)
