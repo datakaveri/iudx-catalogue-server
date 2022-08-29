@@ -34,7 +34,7 @@ import iudx.catalogue.server.geocoding.GeocodingService;
 public class DatabaseServiceImpl implements DatabaseService {
 
   private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceImpl.class);
-  private final ElasticClient client;
+  static ElasticClient client;
   private final QueryDecoder queryDecoder = new QueryDecoder();
   private NLPSearchService nlpService;
   private GeocodingService geoService;

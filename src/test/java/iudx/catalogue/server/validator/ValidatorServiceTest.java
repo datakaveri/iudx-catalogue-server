@@ -15,7 +15,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.database.ElasticClient;
-@Disabled
+
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ValidatorServiceTest {
@@ -57,7 +57,7 @@ public class ValidatorServiceTest {
     vertxObj.close(testContext.succeeding(response -> testContext.completeNow()));
   }
 
-  @Test
+/*  @Test
   @Order(1)
   @DisplayName("Test Link Validation [Resource]")
   void validResourceLinkTest(VertxTestContext testContext) {
@@ -103,7 +103,7 @@ public class ValidatorServiceTest {
                     () -> {
                       testContext.completeNow();
                     })));
-  }
+  }*/
 
   @Test
   @Order(3)

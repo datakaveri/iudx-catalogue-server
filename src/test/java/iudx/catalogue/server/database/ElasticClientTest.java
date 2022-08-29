@@ -1,7 +1,13 @@
 package iudx.catalogue.server.database;
 
 import static iudx.catalogue.server.util.Constants.*;
+
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.reactivex.ext.unit.Async;
+import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.junit5.VertxExtension;
@@ -15,12 +21,17 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+@ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ElasticClientTest {
+  @Mock
+  Handler<AsyncResult<JsonObject>> handler;
   private static final Logger LOGGER = LogManager.getLogger(ElasticClientTest.class);
-  private static ElasticClient client;
+  private static ElasticClient elasticClient;
   private static String databaseIP;
   private static int databasePort;
   private static String docIndex;
@@ -43,7 +54,7 @@ public class ElasticClientTest {
     databasePassword = elasticConfig.getString(DATABASE_PASSWD);
     docIndex = elasticConfig.getString(DOC_INDEX);
 
-    client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
+    elasticClient = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
     LOGGER.info("Read config file");
     testContext.completeNow();
@@ -55,7 +66,7 @@ public class ElasticClientTest {
   void TestGetAll(VertxTestContext testContext) {
     JsonObject query = new JsonObject().put("query", new JsonObject()
                                         .put("match_all", new JsonObject()));
-    client.searchAsync(query.toString(), res -> {
+    elasticClient.searchAsync(query.toString(), res -> {
       if (res.succeeded()) {
         LOGGER.info("Succeeded");
         LOGGER.debug(res.result());
@@ -77,7 +88,7 @@ public class ElasticClientTest {
 
     String req = "{\"query\":{\"bool\":{\"filter\":[{\"match\":{\"type\":\"iudx:ResourceGroup\"}}]}},\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\",\"size\":10000}}}}";
     LOGGER.debug("Aggregation query is " + req);
-    client.listAggregationAsync(req, res -> {
+    elasticClient.listAggregationAsync(req, res -> {
       if (res.succeeded()) {
         LOGGER.info("Succeeded");
         LOGGER.debug(res.result());
@@ -88,6 +99,23 @@ public class ElasticClientTest {
         testContext.failed();
       }
     });
+  }
+  @Test
+  @Description("test nlpSearchLocationQuery when handler failed ")
+  public void testScriptSearch(VertxTestContext vertxTestContext) {
+    JsonArray queryVector=new JsonArray();
+    // handler.handle(asyncResult);
+    elasticClient.scriptSearch(queryVector,handler);
+    vertxTestContext.completeNow();
+  }
+  @Test
+  @Description("test nlpSearchLocationQuery when handler failed ")
+  public void testScriptLocationSearch(VertxTestContext vertxTestContext) {
+    String queryVector="dummy";
+    String bbox= "dummy";
+    // handler.handle(asyncResult);
+    elasticClient.ratingAggregationAsync(queryVector,bbox,handler);
+    vertxTestContext.completeNow();
   }
 
 }
