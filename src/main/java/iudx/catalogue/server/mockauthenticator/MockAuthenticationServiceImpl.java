@@ -51,12 +51,12 @@ public class MockAuthenticationServiceImpl implements AuthenticationService {
       return this;
     }
 
-    private boolean isPermittedProviderID(String requestID, String providerID) {
+    public boolean isPermittedProviderID(String requestID, String providerID) {
         String tipProvider = String.join("/", Arrays.asList(requestID.split("/", 3)).subList(0, 2));
         return providerID.equals(tipProvider);
     }
 
-    private boolean isPermittedMethod(JsonArray methods, String operation) {
+    public boolean isPermittedMethod(JsonArray methods, String operation) {
         return false;
     }
 

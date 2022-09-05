@@ -1,6 +1,8 @@
 package iudx.catalogue.server.database;
 
 import static iudx.catalogue.server.util.Constants.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -101,21 +103,25 @@ public class ElasticClientTest {
     });
   }
   @Test
-  @Description("test nlpSearchLocationQuery when handler failed ")
+  @Description("test script search method ")
   public void testScriptSearch(VertxTestContext vertxTestContext) {
     JsonArray queryVector=new JsonArray();
-    // handler.handle(asyncResult);
-    elasticClient.scriptSearch(queryVector,handler);
+    assertNotNull(elasticClient.scriptSearch(queryVector,handler));
     vertxTestContext.completeNow();
   }
   @Test
-  @Description("test nlpSearchLocationQuery when handler failed ")
-  public void testScriptLocationSearch(VertxTestContext vertxTestContext) {
+  @Description("testing ratingAggreagationAsync method")
+  public void testRatingAggreagate(VertxTestContext vertxTestContext) {
     String queryVector="dummy";
     String bbox= "dummy";
-    // handler.handle(asyncResult);
-    elasticClient.ratingAggregationAsync(queryVector,bbox,handler);
+    assertNotNull(elasticClient.ratingAggregationAsync(queryVector,bbox,handler));
     vertxTestContext.completeNow();
   }
-
+  @Test
+  @Description("test countAsync method")
+  public void testCountAsync(VertxTestContext vertxTestContext) {
+    String query="dummy";
+    assertNotNull(elasticClient.countAsync(query,handler));
+    vertxTestContext.completeNow();
+  }
 }

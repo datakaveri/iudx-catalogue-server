@@ -22,9 +22,11 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static iudx.catalogue.server.util.Constants.*;
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -45,6 +47,8 @@ public class ValidatorServiceImplTest {
     Handler<AsyncResult<JsonObject>> handler;
     @Mock
     AsyncResult<JsonObject> asyncResult;
+    @Mock
+    Throwable throwable;
     @Mock
     AsyncResult<JsonObject> asyncResultServerRes;
 
@@ -237,4 +241,51 @@ public class ValidatorServiceImplTest {
         verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
         vertxTestContext.completeNow();
     }
+    @Test
+    @Description("testing the method validateItem when item type mismatch")
+    public void testValidateItemCatch(VertxTestContext vertxTestContext) {
+        validatorService = new ValidatorServiceImpl(client);
+        JsonObject request=new JsonObject();
+        assertNotNull(validatorService.validateItem(request, handler));
+        vertxTestContext.completeNow();
+    }
+    @Test
+    @Description("testing the method validateProvider ")
+    public void testValidateProvider(VertxTestContext vertxTestContext) {
+        validatorService = new ValidatorServiceImpl(client);
+        JsonObject request=new JsonObject();
+        assertNull(validatorService.validateProvider(request, handler));
+        vertxTestContext.completeNow();
+    }
+    @Test
+    @Description("testing the method validateItem when handler failed")
+    public void testValidateItemFailure(VertxTestContext vertxTestContext) {
+        validatorService = new ValidatorServiceImpl(client);
+        JsonObject request = new JsonObject();
+        JsonArray jsonArray = new JsonArray();
+        JsonObject json = new JsonObject();
+        json.put(TOTAL_HITS, 0);
+        jsonArray.add(ITEM_TYPE_RESOURCE);
+        request.put(TYPE, jsonArray);
+        request.put(NAME, "name");
+        request.put(RESOURCE_GRP, "abcd/abcd/abcd");
+        request.put(PROVIDER, "abcd/abcd");
+        request.put(NAME, "dummy");
+        ValidatorServiceImpl.client = mock(ElasticClient.class);
+        when(asyncResult.failed()).thenReturn(true);
+        when(asyncResult.cause()).thenReturn(throwable);
+        when(throwable.getMessage()).thenReturn("dummy");
+        doAnswer(new Answer<AsyncResult<JsonObject>>() {
+            @Override
+            public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+            }
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
+        assertNotNull(validatorService.validateItem(request, handler));
+
+        verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
+        vertxTestContext.completeNow();
+    }
+
 }
