@@ -13,6 +13,7 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.geocoding.GeocodingService;
+import iudx.catalogue.server.geocoding.GeocodingServiceImpl;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.validator.ValidatorServiceImpl;
 import jdk.jfr.Description;
@@ -46,8 +47,7 @@ public class DatabaseServiceImplTest {
     private static DatabaseService dbService;
     private static Vertx vertxObj;
     private static ElasticClient client;
-    private static NLPSearchService nlpService;
-    private static GeocodingService geoService;
+
     private static String docIndex;
     private static String ratingIndex;
     private static String databaseIP;
@@ -66,7 +66,11 @@ public class DatabaseServiceImplTest {
     @Mock
     AsyncResult<JsonObject> asyncResult;
     @Mock
-    AsyncResult<JsonObject> asyncResult2;
+    NLPSearchService nlpService;
+    @Mock
+    GeocodingService geoService;
+    @Mock
+    AsyncResult<String> asyncResultString;
     @Mock
     Future<Boolean> jsonObjectFuture;
     @Mock
@@ -996,5 +1000,130 @@ public class DatabaseServiceImplTest {
             }
         });
 
+    }
+    @Test
+    @Description("test createItem method when handler checkres failed")
+    public void testCreateItemFailed(VertxTestContext vertxTestContext) {
+        databaseService = new DatabaseServiceImpl(client, nlpService, geoService);
+        JsonObject json = new JsonObject();
+        json.put("id", "dummy id");
+        json.put(TYPE, "average");
+        String instanceId="dummy";
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        when(asyncResult.failed()).thenReturn(true);
+        when(asyncResult.cause()).thenReturn(throwable);
+        when(throwable.getMessage()).thenReturn("dummy");
+
+        doAnswer(new Answer<AsyncResult<JsonObject>>() {
+            @Override
+            public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+            }
+        }).when(DatabaseServiceImpl.client).searchAsync(any(),any());
+        databaseService.createItem(json,handler);
+        databaseService.verifyInstance(instanceId).onComplete(handler->
+        {
+            if(handler.failed())
+            {
+                verify(DatabaseServiceImpl.client,times(2)).searchAsync(any(),any());
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.completeNow();
+            }
+        });
+    }
+    @Test
+    @Description("test createItem method when checkRes handler succeeded")
+    public void testCreateItemSucceeded(VertxTestContext vertxTestContext) {
+        databaseService = new DatabaseServiceImpl(client, nlpService, geoService);
+        JsonObject json = new JsonObject();
+        json.put("id", "dummy id");
+        json.put(TYPE, "average")
+                .put(TOTAL_HITS,1);
+        String instanceId="dummy";
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        when(asyncResult.succeeded()).thenReturn(true);
+        when(asyncResult.result()).thenReturn(json);
+        doAnswer(new Answer<AsyncResult<JsonObject>>() {
+            @Override
+            public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+            }
+        }).when(DatabaseServiceImpl.client).searchAsync(any(),any());
+        databaseService.createItem(json,handler);
+        databaseService.verifyInstance(instanceId).onComplete(handler->
+        {
+            if(handler.succeeded())
+            {
+                verify(DatabaseServiceImpl.client,times(2)).searchAsync(any(),any());
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.completeNow();
+            }
+        });
+    }
+    @Test
+    @Description("test createItem method when handler succeeded and total_hits equals 0")
+    public void testCreateItemHits0(VertxTestContext vertxTestContext) {
+        databaseService = new DatabaseServiceImpl(client, nlpService, geoService);
+        JsonObject json = new JsonObject();
+        json.put("id", "dummy id");
+        json.put(TYPE, "average")
+                .put(TOTAL_HITS,0);
+        String instanceId="dummy";
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        when(asyncResult.succeeded()).thenReturn(true);
+        when(asyncResult.result()).thenReturn(json);
+        when(asyncResultString.result()).thenReturn("dummy");
+        doAnswer(new Answer<AsyncResult<String>>() {
+            @Override
+            public AsyncResult<String> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<String>>) arg0.getArgument(1)).handle(asyncResultString);
+                return null;
+            }
+        }).when(geoService).geoSummarize(any(),any());
+        doAnswer(new Answer<AsyncResult<JsonObject>>() {
+            @Override
+            public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+            }
+        }).when(nlpService).getEmbedding(any(),any());
+        doAnswer(new Answer<AsyncResult<JsonObject>>() {
+            @Override
+            public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+            }
+        }).when(DatabaseServiceImpl.client).searchAsync(any(),any());
+        doAnswer(new Answer<AsyncResult<JsonObject>>() {
+            @Override
+            public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+            }
+        }).when(DatabaseServiceImpl.client).docPostAsync(any(),any());
+
+        databaseService.createItem(json,handler);
+        databaseService.verifyInstance(instanceId).onComplete(handler->
+        {
+            if(handler.succeeded())
+            {
+                verify(DatabaseServiceImpl.client,times(2)).searchAsync(any(),any());
+                verify(nlpService,times(1)).getEmbedding(any(),any());
+                verify(geoService,times(1)).geoSummarize(any(),any());
+                verify(DatabaseServiceImpl.client,times(1)).docPostAsync(any(),any());
+
+
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.completeNow();
+            }
+        });
     }
 }
