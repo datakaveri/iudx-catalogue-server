@@ -13,8 +13,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.apiserver.util.Constants.MIME_APPLICATION_JSON;
+import static junit.framework.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
@@ -34,13 +37,11 @@ public class ExceptionHandlerTest {
     @DisplayName("Test handle method with RuntimeException")
     public void testHandle(VertxTestContext vertxTestContext) {
         when(routingContext.failure()).thenReturn(failure);
-
         when(routingContext.response()).thenReturn(httpServerResponse);
         when(httpServerResponse.setStatusCode(400)).thenReturn(httpServerResponse);
         when(httpServerResponse.putHeader(anyString(), anyString())).thenReturn(httpServerResponse);
         ExceptionHandler exceptionHandler = new ExceptionHandler();
         exceptionHandler.handle(routingContext);
-
         vertxTestContext.completeNow();
     }
     @Test
@@ -52,10 +53,11 @@ public class ExceptionHandlerTest {
         when(routingContext.request()).thenReturn(httpServerRequest);
         when(httpServerRequest.uri()).thenReturn(ROUTE_ITEM);
         when(routingContext.response()).thenReturn(httpServerResponse);
-        when(httpServerResponse.setStatusCode(500)).thenReturn(httpServerResponse);
+        when(httpServerResponse.setStatusCode(anyInt())).thenReturn(httpServerResponse);
         when(httpServerResponse.putHeader(anyString(),anyString())).thenReturn(httpServerResponse);
         when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
         ExceptionHandler exceptionHandler=new ExceptionHandler();
+        assertEquals(ROUTE_ITEM,routingContext.request().uri());
         exceptionHandler.handleDecodeException(routingContext);
         vertxTestContext.completeNow();
     }
@@ -73,6 +75,7 @@ public class ExceptionHandlerTest {
         when(httpServerResponse.putHeader(anyString(),anyString())).thenReturn(httpServerResponse);
         when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
         ExceptionHandler exceptionHandler=new ExceptionHandler();
+        assertEquals(ROUTE_SEARCH,routingContext.request().uri());
         exceptionHandler.handleDecodeException(routingContext);
         vertxTestContext.completeNow();
     }
@@ -90,6 +93,7 @@ public class ExceptionHandlerTest {
         when(httpServerResponse.putHeader(anyString(),anyString())).thenReturn(httpServerResponse);
         when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
         ExceptionHandler exceptionHandler=new ExceptionHandler();
+        assertEquals("random",routingContext.request().uri());
         exceptionHandler.handleDecodeException(routingContext);
         vertxTestContext.completeNow();
     }
@@ -103,8 +107,27 @@ public class ExceptionHandlerTest {
         when(httpServerResponse.setStatusCode(400)).thenReturn(httpServerResponse);
         when(httpServerResponse.putHeader(anyString(),anyString())).thenReturn(httpServerResponse);
         when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
+        assertEquals("dummy msg",routingContext.failure().getLocalizedMessage());
         ExceptionHandler exceptionHandler=new ExceptionHandler();
         exceptionHandler.handleClassCastException(routingContext);
         vertxTestContext.completeNow();
     }
+    @Test
+    @DisplayName("Test handleClassCastException method")
+    public void testHandleClassCastException2(VertxTestContext vertxTestContext) {
+        when(routingContext.failure()).thenReturn(failure);
+        when(failure.getLocalizedMessage()).thenReturn("dummy msg");
+        when(routingContext.request()).thenReturn(httpServerRequest);
+        when(httpServerRequest.uri()).thenReturn(ROUTE_RATING);
+        when(routingContext.response()).thenReturn(httpServerResponse);
+        when(httpServerResponse.setStatusCode(400)).thenReturn(httpServerResponse);
+        when(httpServerResponse.setStatusCode(500)).thenReturn(httpServerResponse);
+        when(httpServerResponse.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)).thenReturn(httpServerResponse);
+        when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
+        ExceptionHandler exceptionHandler=new ExceptionHandler();
+        assertEquals(ROUTE_RATING,routingContext.request().uri());
+        exceptionHandler.handleDecodeException(routingContext);
+        vertxTestContext.completeNow();
+    }
 }
+

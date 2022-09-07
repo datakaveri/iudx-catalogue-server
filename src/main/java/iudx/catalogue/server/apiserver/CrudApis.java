@@ -93,7 +93,7 @@ public final class CrudApis {
     LOGGER.debug("Info: Creating/Updating item");
 
     /* Contains the cat-item */
-    JsonObject requestBody = routingContext.getBodyAsJson();
+    JsonObject requestBody = routingContext.body().asJsonObject();
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     JsonObject jwtAuthenticationInfo = new JsonObject();
