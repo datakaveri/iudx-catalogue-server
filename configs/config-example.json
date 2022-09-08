@@ -66,6 +66,7 @@
             "auditingDatabaseName": "defaultdb",
             "auditingDatabaseUserName": "immudb",
             "auditingDatabasePassword": "password",
+            "auditingDatabaseTableName": "tableName",
             "auditingPoolSize": 25
             }
 
