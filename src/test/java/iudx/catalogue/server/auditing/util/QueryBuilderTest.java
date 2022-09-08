@@ -36,6 +36,7 @@ public class QueryBuilderTest {
         request.put(ENDPOINT,"endPoint");
         request.put(USER_ID,"userID");
         request.put(API,"api");
+        request.put(DATABASE_TABLE_NAME,"tableName");
         queryBuilder.buildReadQuery(request);
         vertxTestContext.completeNow();
     }
