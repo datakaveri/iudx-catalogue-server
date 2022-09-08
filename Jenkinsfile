@@ -31,8 +31,8 @@ pipeline {
           sh 'docker-compose up test'
         }
         xunit (
-          thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
-          tools: [ JUnit(pattern: 'target/surefire-reports/TEST-iudx.catalogue.server.apiserver*.xml') ]
+          thresholds: [ skipped(failureThreshold: '5'), failed(failureThreshold: '0') ],
+          tools: [ JUnit(pattern: 'target/surefire-reports/*.xml') ]
         )
         jacoco classPattern: 'target/classes', execPattern: 'target/DatabaseServiceTest.exec,target/jacoco2.exec', sourcePattern: 'src/main/java', exclusionPattern: 'iudx/catalogue/server/apiserver/*,iudx/catalogue/server/deploy/*,iudx/catalogue/server/mockauthenticator/*,iudx/catalogue/server/apiserver/util/*,iudx/catalogue/server/**/*EBProxy.*,iudx/catalogue/server/**/*ProxyHandler.*,iudx/catalogue/server/**/reactivex/*,iudx/catalogue/server/**/reactivex/*'
       }

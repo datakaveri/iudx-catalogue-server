@@ -11,6 +11,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static iudx.catalogue.server.auditing.util.Constants.*;
 import static iudx.catalogue.server.auditing.util.Constants.API;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
@@ -24,7 +26,7 @@ public class QueryBuilderTest {
     public void testBuildReadQueryNoUSER_ID(VertxTestContext vertxTestContext){
         request=new JsonObject();
         queryBuilder=new QueryBuilder();
-        queryBuilder.buildReadQuery(request);
+        assertEquals(new JsonObject().put(ERROR, USERID_NOT_FOUND),queryBuilder.buildReadQuery(request));
         vertxTestContext.completeNow();
     }
     @Test

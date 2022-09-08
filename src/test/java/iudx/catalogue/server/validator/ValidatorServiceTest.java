@@ -1,12 +1,6 @@
 package iudx.catalogue.server.validator;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static iudx.catalogue.server.util.Constants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,7 +57,7 @@ public class ValidatorServiceTest {
     vertxObj.close(testContext.succeeding(response -> testContext.completeNow()));
   }
 
-  @Test
+/*  @Test
   @Order(1)
   @DisplayName("Test Link Validation [Resource]")
   void validResourceLinkTest(VertxTestContext testContext) {
@@ -109,7 +103,7 @@ public class ValidatorServiceTest {
                     () -> {
                       testContext.completeNow();
                     })));
-  }
+  }*/
 
   @Test
   @Order(3)
