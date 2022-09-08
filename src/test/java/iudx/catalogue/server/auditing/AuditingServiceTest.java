@@ -30,6 +30,8 @@ public class AuditingServiceTest {
   private static String databasePassword;
   private static Integer databasePoolSize;
 
+  private static String databaseTableName;
+
   @BeforeAll
   @DisplayName("Deploying Verticle")
   static void startVertex(Vertx vertx, VertxTestContext vertxTestContext) {
@@ -41,6 +43,7 @@ public class AuditingServiceTest {
     databaseUserName = dbConfig.getString("meteringDatabaseUserName");
     databasePassword = dbConfig.getString("meteringDatabasePassword");
     databasePoolSize = dbConfig.getInteger("meteringPoolSize");
+    databaseTableName = dbConfig.getString("meteringDatabaseTableName");
     auditingService = new AuditingServiceImpl(dbConfig, vertxObj);
     vertxTestContext.completeNow();
   }
@@ -187,7 +190,7 @@ public class AuditingServiceTest {
         vertxTestContext.verify(
           () -> {
                   LOGGER.debug("RESPONSE" + response.getString("title"));
-            assertEquals("Success", response.getString("title"));
+            assertEquals("success", response.getString("title"));
             vertxTestContext.completeNow();
           })));
   }
