@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "e9e3c7bc-6d67-41e5-b22a-b02045a91e08",
-		"name": "iudx-catalogue-server",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"_postman_id": "8157c328-4506-4352-8a90-b96e5914608d",
+		"name": "iudx-catalogue-server Copy 2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17194681"
 	},
 	"item": [
 		{
@@ -12,7 +13,7 @@
 					"name": "Create Item",
 					"item": [
 						{
-							"name": "200 (success) - Create an IUDX Entity",
+							"name": "200 (success) - Create an IUDX Resource Group Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -54,7 +55,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"Pune Railway Station_28\"\r\n    }",
+									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\"iudx:ResourceGroup\", \"iudx:PointOfInterest\"],\r\n        \"id\": \"\",\r\n        \"name\": \"pune-point-of-interests\",\r\n        \"label\": \"Point of Interests (POI) in Pune City\",\r\n        \"description\": \"Point of Interests (POI) dataset provides intelligence on real world public places, such as installations of smart elements like public addressing systems, variable message displays and emergency call boxes in Pune city.\",\r\n        \"tags\": [\"ecb\", \"sos\", \"call box\", \"emergency call\", \"emergency\", \"emergency booth\", \"call booth\", \"phone\", \"locality\", \"public addressing\", \"public message\", \"public awareness\", \"emergency message\", \"broadcast\", \"variable message\", \"display\", \"public display\", \"caution\", \"information\", \"digital\", \"message board\"],\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"provider\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f\",\r\n        \"resourceServer\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io\",\r\n        \"accessPolicy\": \"OPEN\",\r\n        \"location\": {\r\n                \"type\": \"Place\",\r\n                \"address\": \"Pune\"\r\n        },\r\n        \"instance\": \"pune\",\r\n        \"itemCreatedAt\": \"2022-07-08T02:49:01+0530\"\r\n}\r\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -76,27 +77,33 @@
 							"response": []
 						},
 						{
-							"name": "401 (invalid credentials) - Create an IUDX Entity",
+							"name": "200 (success) - Create an IUDX Resource Item Entity",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
 										"exec": [
 											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(401);\r",
+											"    pm.response.to.have.status(201);\r",
 											"});\r",
 											"\r",
-											"pm.test(\"Response json body\", function () {\r",
-											"    pm.response.to.be.withBody;\r",
-											"    pm.response.to.be.json;\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
-											"});\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"    const resultsjsonData = body.results[0];\r",
+											"    pm.expect(resultsjsonData).to.have.property(\"id\");\r",
+											"    const ID = resultsjsonData.id;\r",
+											"    pm.globals.set(\"item_id\",ID);\r",
+											"    const Name = ID.substring(ID.lastIndexOf('/')+1);\r",
+											"    const providerID = ID.substring(0, ID.indexOf(\"/\", ID.indexOf(\"/\") + 1));\r",
+											"    pm.globals.set(\"provider_id\", providerID);\r",
+											"    pm.globals.set(\"item_name\", Name);\r",
 											"\r",
-											""
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -107,134 +114,19 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "abc",
-										"type": "text"
+										"type": "text",
+										"value": "{{token}}"
 									},
 									{
-										"key": "Content-Type",
-										"value": "application/json",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": " {\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"Pune Railway Station_28\"\r\n    }",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "https://{{host}}{{base}}/item/",
-									"protocol": "https",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item",
-										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "400 (invalid schema) - Create an IUDX Entity",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "token",
+										"key": "instance",
+										"value": "pune",
 										"type": "text",
-										"value": "{{token}}"
+										"disabled": true
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource\",\r\n  \"tags\": [\r\n    \"environment\",\r\n    \" air quality\",\r\n    \" climate\",\r\n    \" air\",\r\n    \" aqi\",\r\n    \" aqm\",\r\n    \" climo\",\r\n    \" pollution\",\r\n    \" so2\",\r\n    \" co2\",\r\n    \" co\",\r\n    \" no\",\r\n    \" no2\",\r\n    \" pm2.5\",\r\n    \" pm10\",\r\n    \" humidity\",\r\n    \" temperature\",\r\n    \" ozone\",\r\n    \" o3\",\r\n    \" noise\",\r\n    \" light\",\r\n    \" uv\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  },\r\n  \"name\": \"Pune Railway Station_28\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{host}}{{base}}/item/",
-									"protocol": "http",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item",
-										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "400 (invalid links) - Create an IUDX Entity",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "token",
-										"type": "text",
-										"value": "{{token}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource\",\r\n  \"tags\": [\r\n    \"environment\",\r\n    \" air quality\",\r\n    \" climate\",\r\n    \" air\",\r\n    \" aqi\",\r\n    \" aqm\",\r\n    \" climo\",\r\n    \" pollution\",\r\n    \" so2\",\r\n    \" co2\",\r\n    \" co\",\r\n    \" no\",\r\n    \" no2\",\r\n    \" pm2.5\",\r\n    \" pm10\",\r\n    \" humidity\",\r\n    \" temperature\",\r\n    \" ozone\",\r\n    \" o3\",\r\n    \" noise\",\r\n    \" light\",\r\n    \" uv\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo2565\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  },\r\n  \"name\": \"Pune Railway Station_28\"\r\n}",
+									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_1\",\r\n        \"description\": \"Description for pune Point of interest\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"ppoi_1\"\r\n    }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -320,14 +212,14 @@
 							"response": []
 						},
 						{
-							"name": "200 (success) - Create an IUDX Entity (JWT Token)",
+							"name": "400 (invalid links) - Create an IUDX Entity",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
 										"exec": [
 											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(201);\r",
+											"    pm.response.to.have.status(400);\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response header\", function () {\r",
@@ -336,7 +228,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:LinkValidationFailed\");\r",
 											"});\r",
 											"\r",
 											""
@@ -351,18 +243,12 @@
 									{
 										"key": "token",
 										"type": "text",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI4NDRlMjUxYi01NzRiLTQ2ZTYtOTI0Ny1mNzZmMWY3MGE2MzciLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdGFsb2d1ZS5pdWR4LmlvIiwiZXhwIjoxNjMyMjYxMjkxLCJpYXQiOjE2MzIyMTgwOTEsImlpZCI6InJpOmlpc2MuYWMuaW4vODlhMzYyNzNkNzdkYWM0Y2YzODExNGZjYTFiYmU2NDM5MjU0N2Y4Ni9jYXRhbG9ndWUuaXVkeC5pby9jYXRhbG9ndWUvY3J1ZCIsInJvbGUiOiJwcm92aWRlciIsImNvbnMiOnt9fQ.BTNDXRQ90C9wTWGtcYzIgjZgbhoV_ELX6smaJxjbvceKFHbVaHMaxYMMyyTrQUGe3b7BpGgODu4vR6JAycfmRg"
-									},
-									{
-										"key": "instance",
-										"value": "pune",
-										"type": "text",
-										"disabled": true
+										"value": "{{token}}"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"pune-env-flood-abc\",\r\n    \"description\": \"Flood level sensors in Pune city.\",\r\n    \"label\": \"Pune Flood Sensors\",\r\n    \"location\": {\r\n        \"address\": \"Pune, Maharashtra\",\r\n        \"type\": \"Place\"\r\n    },\r\n    \"itemStatus\": \"ACTIVE\",\r\n    \"dataSampleFile\": \"https://file.iudx.org.in/iudx/v1/download?file-id=datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b/rs.iudx.org.in/pune-env-flood/sample.json\",\r\n    \"resourceServer\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io\",\r\n    \"dataDescriptor\": {\r\n        \"dataDescriptorLabel\": \"Data Descriptor for flood-level sensor data in Pune city\",\r\n        \"currentLevel\": {\r\n            \"unitText\": \"meter\",\r\n            \"description\": \"Current flooding level indicated by the sensing station corresponding to this observation, computed using referenceLevel and measuredDistance(currentLevel = referenceLevel - measuredDistance).\",\r\n            \"unitCode\": \"MTR\",\r\n            \"type\": [\r\n                \"ValueDescriptor\"\r\n            ],\r\n            \"dataSchema\": \"iudx:Number\"\r\n        },\r\n        \"description\": \"Data Descriptor for flood sensor data.\",\r\n        \"type\": [\r\n            \"iudx:DataDescriptor\",\r\n            \"iudx:EnvFlood\"\r\n        ],\r\n        \"measuredDistance\": {\r\n            \"unitText\": \"meter\",\r\n            \"description\": \"The distance measured by the sensor, from the sensor tip to the upper surface of water.\",\r\n            \"unitCode\": \"MTR\",\r\n            \"type\": [\r\n                \"ValueDescriptor\"\r\n            ],\r\n            \"dataSchema\": \"iudx:Number\"\r\n        },\r\n        \"observationDateTime\": {\r\n            \"description\": \"Last reported time of observation.\",\r\n            \"type\": [\r\n                \"ValueDescriptor\"\r\n            ],\r\n            \"dataSchema\": \"iudx:DateTime\"\r\n        },\r\n        \"referenceLevel\": {\r\n            \"unitText\": \"meter\",\r\n            \"description\": \"Reference setting used to compute the currentLevel.\",\r\n            \"unitCode\": \"MTR\",\r\n            \"type\": [\r\n                \"ValueDescriptor\"\r\n            ],\r\n            \"dataSchema\": \"iudx:Number\"\r\n        },\r\n        \"@context\": \"https://voc.iudx.org.in/\"\r\n    },\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:EnvFlood\"\r\n    ],\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"dataSample\": {\r\n        \"measuredDistance\": 3.22,\r\n        \"currentLevel\": 0.98,\r\n        \"observationDateTime\": \"2020-09-16T13:30:00+05:30\",\r\n        \"referenceLevel\": 4.2\r\n    },\r\n    \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n    \"accessPolicy\": \"OPEN\",\r\n    \"resourceType\": \"MESSAGESTREAM\",\r\n    \"tags\": [\r\n        \"flooding\",\r\n        \"water flooding\",\r\n        \"flood\",\r\n        \"flood alert\",\r\n        \"flood danger\",\r\n        \"level\",\r\n        \"river\",\r\n        \"river bed\"\r\n    ],\r\n    \"iudxResourceAPIs\": [\r\n        \"ATTR\",\r\n        \"TEMPORAL\"\r\n    ],\r\n    \"instance\": \"pune\",\r\n    \"itemCreatedAt\": \"2021-07-05T12:06:28+0530\"\r\n}",
+									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"PuneRailwayStation_28\"\r\n    }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -370,17 +256,14 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/iudx/cat/v1/item",
+									"raw": "http://{{host}}{{base}}/item/",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{host}}{{base}}"
 									],
-									"port": "8080",
 									"path": [
-										"iudx",
-										"cat",
-										"v1",
-										"item"
+										"item",
+										""
 									]
 								}
 							},
@@ -437,16 +320,12 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/iudx/cat/v1/item",
+									"raw": "http://{{host}}{{base}}/item",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{host}}{{base}}"
 									],
-									"port": "8080",
 									"path": [
-										"iudx",
-										"cat",
-										"v1",
 										"item"
 									]
 								}
@@ -495,66 +374,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 28\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood.test\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{host}}{{base}}/item/",
-									"protocol": "http",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item",
-										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "401 (invalid credentials) - Update an IUDX Entity",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(401);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\"\r",
-											"    );\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "token",
-										"type": "text",
-										"value": "auth.iudx.org.in/md.adil@datakaveri.org/a64be46caee002546332f1f624bf4212"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 2\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
+									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"{{item_id}}\",\r\n  \"name\": \"{{item_name}}\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 28\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood.test\"\r\n  ],\r\n  \"provider\": \"{{provider_id}}\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"{{provider_id}}/rs.iudx.io/pune-point-of-interests\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -672,7 +492,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28\",\r\n  \"name\": \"Pune Railway Station_28\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 2\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood\"\r\n  ],\r\n  \"provider\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo23456\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
+									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"{{item_id}}\",\r\n        \"description\": \"Description for Bosch-Climo AQM resource\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\"\r\n        ],\r\n        \"provider\": \"{{provider_id}}\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"{{provider_id}}/rs.iudx.io/aqm-bosch-climo\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"name\": \"PuneRailwayStation_28\"\r\n    }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -688,73 +508,6 @@
 									"path": [
 										"item",
 										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "200 (success) - Update an IUDX Entity (JWT Token)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(201);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "token",
-										"type": "text",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI4NDRlMjUxYi01NzRiLTQ2ZTYtOTI0Ny1mNzZmMWY3MGE2MzciLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdGFsb2d1ZS5pdWR4LmlvIiwiZXhwIjoxNjMyMjYxMjkxLCJpYXQiOjE2MzIyMTgwOTEsImlpZCI6InJpOmlpc2MuYWMuaW4vODlhMzYyNzNkNzdkYWM0Y2YzODExNGZjYTFiYmU2NDM5MjU0N2Y4Ni9jYXRhbG9ndWUuaXVkeC5pby9jYXRhbG9ndWUvY3J1ZCIsInJvbGUiOiJwcm92aWRlciIsImNvbnMiOnt9fQ.BTNDXRQ90C9wTWGtcYzIgjZgbhoV_ELX6smaJxjbvceKFHbVaHMaxYMMyyTrQUGe3b7BpGgODu4vR6JAycfmRg"
-									},
-									{
-										"key": "instance",
-										"value": "pune",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"name\": \"pune-env-flood-abc\",\r\n    \"description\": \"Flood level sensors in Pune city.\",\r\n    \"label\": \"Pune Flood Sensors\",\r\n    \"location\": {\r\n        \"address\": \"Pune, Maharashtra\",\r\n        \"type\": \"Place\"\r\n    },\r\n    \"itemStatus\": \"ACTIVE\",\r\n    \"dataSampleFile\": \"https://file.iudx.org.in/iudx/v1/download?file-id=datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b/rs.iudx.org.in/pune-env-flood/sample.json\",\r\n    \"resourceServer\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io\",\r\n    \"dataDescriptor\": {\r\n        \"dataDescriptorLabel\": \"Data Descriptor for flood-level sensor data in Pune city\",\r\n        \"currentLevel\": {\r\n            \"unitText\": \"meter\",\r\n            \"description\": \"Current flooding level indicated by the sensing station corresponding to this observation, computed using referenceLevel and measuredDistance(currentLevel = referenceLevel - measuredDistance).\",\r\n            \"unitCode\": \"MTR\",\r\n            \"type\": [\r\n                \"ValueDescriptor\"\r\n            ],\r\n            \"dataSchema\": \"iudx:Number\"\r\n        },\r\n        \"description\": \"Data Descriptor for flood sensor data.\",\r\n        \"type\": [\r\n            \"iudx:DataDescriptor\",\r\n            \"iudx:EnvFlood\"\r\n        ],\r\n        \"measuredDistance\": {\r\n            \"unitText\": \"meter\",\r\n            \"description\": \"The distance measured by the sensor, from the sensor tip to the upper surface of water.\",\r\n            \"unitCode\": \"MTR\",\r\n            \"type\": [\r\n                \"ValueDescriptor\"\r\n            ],\r\n            \"dataSchema\": \"iudx:Number\"\r\n        },\r\n        \"observationDateTime\": {\r\n            \"description\": \"Last reported time of observation.\",\r\n            \"type\": [\r\n                \"ValueDescriptor\"\r\n            ],\r\n            \"dataSchema\": \"iudx:DateTime\"\r\n        },\r\n        \"referenceLevel\": {\r\n            \"unitText\": \"meter\",\r\n            \"description\": \"Reference setting used to compute the currentLevel.\",\r\n            \"unitCode\": \"MTR\",\r\n            \"type\": [\r\n                \"ValueDescriptor\"\r\n            ],\r\n            \"dataSchema\": \"iudx:Number\"\r\n        },\r\n        \"@context\": \"https://voc.iudx.org.in/\"\r\n    },\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:EnvFlood\"\r\n    ],\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"dataSample\": {\r\n        \"measuredDistance\": 4.22,\r\n        \"currentLevel\": 0.98,\r\n        \"observationDateTime\": \"2020-09-16T13:30:00+05:30\",\r\n        \"referenceLevel\": 4.2\r\n    },\r\n    \"provider\": \"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86\",\r\n    \"accessPolicy\": \"OPEN\",\r\n    \"resourceType\": \"MESSAGESTREAM\",\r\n    \"tags\": [\r\n        \"flooding\",\r\n        \"water flooding\",\r\n        \"flood\",\r\n        \"flood alert\",\r\n        \"flood danger\",\r\n        \"level\",\r\n        \"river\",\r\n        \"river bed\"\r\n    ],\r\n    \"iudxResourceAPIs\": [\r\n        \"ATTR\",\r\n        \"TEMPORAL\"\r\n    ],\r\n    \"instance\": \"pune\",\r\n    \"itemCreatedAt\": \"2021-07-05T12:06:28+0530\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://localhost:8080/iudx/cat/v1/item",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8080",
-									"path": [
-										"iudx",
-										"cat",
-										"v1",
-										"item"
 									]
 								}
 							},
@@ -849,7 +602,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");\r",
 											"});\r",
 											"\r",
 											""
@@ -874,7 +627,7 @@
 									}
 								],
 								"url": {
-									"raw": "http://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28",
+									"raw": "http://{{host}}{{base}}/item?id={{item_id}}",
 									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
@@ -885,7 +638,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_28"
+											"value": "{{item_id}}"
 										}
 									]
 								}
@@ -900,7 +653,7 @@
 									"script": {
 										"exec": [
 											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
+											"    pm.response.to.have.status(400);\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response header\", function () {\r",
@@ -909,7 +662,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InvalidSyntax\");\r",
+											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:IdNonExistant\");\r",
 											"});\r",
 											"\r",
 											""
@@ -952,70 +705,6 @@
 							"response": []
 						},
 						{
-							"name": "200 (success) - Delete an IUDX Entity (JWT TOKEN)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "token",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI4NDRlMjUxYi01NzRiLTQ2ZTYtOTI0Ny1mNzZmMWY3MGE2MzciLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdGFsb2d1ZS5pdWR4LmlvIiwiZXhwIjoxNjMyMjYxMjkxLCJpYXQiOjE2MzIyMTgwOTEsImlpZCI6InJpOmlpc2MuYWMuaW4vODlhMzYyNzNkNzdkYWM0Y2YzODExNGZjYTFiYmU2NDM5MjU0N2Y4Ni9jYXRhbG9ndWUuaXVkeC5pby9jYXRhbG9ndWUvY3J1ZCIsInJvbGUiOiJwcm92aWRlciIsImNvbnMiOnt9fQ.BTNDXRQ90C9wTWGtcYzIgjZgbhoV_ELX6smaJxjbvceKFHbVaHMaxYMMyyTrQUGe3b7BpGgODu4vR6JAycfmRg",
-										"type": "text"
-									},
-									{
-										"key": "instance",
-										"value": "pune",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"url": {
-									"raw": "http://localhost:8080/iudx/cat/v1/item?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood-abc",
-									"protocol": "http",
-									"host": [
-										"localhost"
-									],
-									"port": "8080",
-									"path": [
-										"iudx",
-										"cat",
-										"v1",
-										"item"
-									],
-									"query": [
-										{
-											"key": "id",
-											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood-abc"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "401 (invalid jtw credentials) - Delete an IUDX Entity (JWT TOKEN)",
 							"event": [
 								{
@@ -1023,7 +712,7 @@
 									"script": {
 										"exec": [
 											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
+											"    pm.response.to.have.status(401);\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response header\", function () {\r",
@@ -1115,7 +804,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35",
+									"raw": "http://{{host}}{{base}}/item?id={{item_id}}",
 									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
@@ -1126,7 +815,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35"
+											"value": "{{item_id}}"
 										}
 									]
 								}
@@ -1310,6 +999,10 @@
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"    const resultsjsonData = body.results[0];\r",
+									"    pm.expect(resultsjsonData).to.have.property(\"id\");\r",
+									"    const ID = resultsjsonData.id;\r",
+									"    pm.globals.set(\"instance_id\",ID);\r",
 									"});\r",
 									"\r",
 									""
@@ -1323,7 +1016,7 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "{{admin_token}}",
+								"value": "{{adminToken}}",
 								"type": "text"
 							}
 						],
@@ -1337,7 +1030,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/instance?id=pune",
+							"raw": "http://{{host}}{{base}}/instance?id=poone",
 							"protocol": "http",
 							"host": [
 								"{{host}}{{base}}"
@@ -1348,7 +1041,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "pune"
+									"value": "poone"
 								}
 							]
 						}
@@ -1363,7 +1056,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.have.status(400);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Check response header\", function () {\r",
@@ -1371,7 +1064,7 @@
 									"});\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:ItemNotFound\");\r",
 									"});\r",
 									""
 								],
@@ -1384,7 +1077,7 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "{{admin_token}}",
+								"value": "{{adminToken}}",
 								"type": "text"
 							}
 						],
@@ -1398,7 +1091,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/instance?id=pune",
+							"raw": "http://{{host}}{{base}}/instance?id={{instance_id}}",
 							"protocol": "http",
 							"host": [
 								"{{host}}{{base}}"
@@ -1409,7 +1102,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "pune"
+									"value": "{{instance_id}}"
 								}
 							]
 						}
@@ -1508,7 +1201,7 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "{{admin_token}}",
+								"value": "{{token}}",
 								"type": "text"
 							}
 						],
@@ -2141,7 +1834,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
 									"});\r",
 									"\r",
 									""
@@ -6305,10 +5998,13 @@
 											"\r",
 											"pm.test(\"Check response body 1\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSyntax\");\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
 											"});\r",
 											"\r",
-											""
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -6357,7 +6053,7 @@
 											"\r",
 											"pm.test(\"Check response body 1\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:InvalidSyntax\");\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
@@ -6603,7 +6299,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"failed\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -8307,6 +8003,11 @@
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body 2\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"totalHits\",22);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8419,6 +8120,11 @@
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body 2\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"totalHits\", 392);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8628,7 +8334,12 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body 2\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8639,7 +8350,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=[id]&value=[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24,  datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Chandani Square_25]]",
+							"raw": "http://{{host}}{{base}}/count?property=[id]&value=[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24,datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Chandani_Square_25]]",
 							"protocol": "http",
 							"host": [
 								"{{host}}{{base}}"
@@ -8654,7 +8365,7 @@
 								},
 								{
 									"key": "value",
-									"value": "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24,  datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Chandani Square_25]]"
+									"value": "[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24,datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Chandani_Square_25]]"
 								}
 							]
 						}
@@ -8834,7 +8545,12 @@
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
-									"});"
+									"});\r",
+									"\r",
+									"pm.test(\"Check response count\", function() {\r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"totalHits\",82);\r",
+									"})"
 								],
 								"type": "text/javascript"
 							}
@@ -8888,7 +8604,7 @@
 									"\r",
 									"pm.test(\"Check response body 1\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
@@ -8904,7 +8620,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
+							"raw": "https://{{host}}{{base}}/count?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune_Railway_Station_28]]\"",
 							"protocol": "https",
 							"host": [
 								"{{host}}{{base}}"
@@ -8919,7 +8635,7 @@
 								},
 								{
 									"key": "value",
-									"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+									"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune_Railway_Station_28]]\""
 								}
 							]
 						}
@@ -9839,7 +9555,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"invalidSyntax\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSyntax\");\r",
 									"});"
 								],
 								"type": "text/javascript"

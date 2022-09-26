@@ -17,12 +17,7 @@ import io.vertx.ext.web.client.WebClient;
 import iudx.catalogue.server.Configuration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.Iterator;
 
@@ -33,6 +28,7 @@ import java.util.Iterator;
  */
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Disabled
 public class ApiServerVerticlePreprareTest {
 
   /* LOGGER instance */

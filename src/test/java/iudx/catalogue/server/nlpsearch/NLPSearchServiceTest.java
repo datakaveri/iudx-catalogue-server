@@ -2,12 +2,7 @@ package iudx.catalogue.server.nlpsearch;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
@@ -21,7 +16,7 @@ import iudx.catalogue.server.Configuration;
 
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-
+@Disabled
 public class NLPSearchServiceTest {
     private static NLPSearchService nlpService;
     private static JsonObject config;
