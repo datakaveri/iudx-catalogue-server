@@ -1,21 +1,22 @@
 import json
+import os
 import time
 from datetime import datetime
 from RabbitMq import RabbitMq
 
 import schedule
 
-with open("config.json") as file:
+cur_dir = os.path.dirname(os.path.realpath(__file__))
+fileName = cur_dir + "/config.json"
+with open(fileName) as file:
     config = json.load(file)
 
-class Main:
-    
-    def run(self):
-        rmq = RabbitMq(config)
-        rmq.consume_messages()
+def main():
+    rmq = RabbitMq(config)
+    rmq.consume_messages()
 
-#schedule.every(config["schedule_time"]).seconds.do(lambda: Main().run())
-Main().run()
-#while True:
-#    schedule.run_pending()
-#    time.sleep(5)
+if __name__=="__main__":
+    schedule.every(config["schedule_time"]).seconds.do(lambda: main())
+    while True:
+        schedule.run_pending()
+        time.sleep(5)

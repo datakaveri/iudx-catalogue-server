@@ -1,4 +1,3 @@
-from numpy import indices
 import json
 from elasticsearch_dsl import Search, Q, UpdateByQuery
 from elasticsearch import Elasticsearch, RequestsHttpConnection
