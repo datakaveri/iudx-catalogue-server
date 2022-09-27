@@ -28,6 +28,7 @@ public class AuditingServiceTest {
   private static String databaseName;
   private static String databaseUserName;
   private static String databasePassword;
+  private static String databaseTableName;
   private static Integer databasePoolSize;
 
   @BeforeAll
@@ -35,12 +36,13 @@ public class AuditingServiceTest {
   static void startVertex(Vertx vertx, VertxTestContext vertxTestContext) {
     vertxObj = vertx;
     dbConfig = Configuration.getConfiguration("./configs/config-test.json",4);
-    databaseIP = dbConfig.getString("meteringDatabaseIP");
-    databasePort = dbConfig.getInteger("meteringDatabasePort");
-    databaseName = dbConfig.getString("meteringDatabaseName");
-    databaseUserName = dbConfig.getString("meteringDatabaseUserName");
-    databasePassword = dbConfig.getString("meteringDatabasePassword");
-    databasePoolSize = dbConfig.getInteger("meteringPoolSize");
+    databaseIP = dbConfig.getString("auditingDatabaseIP");
+    databasePort = dbConfig.getInteger("auditingDatabasePort");
+    databaseName = dbConfig.getString("auditingDatabaseName");
+    databaseUserName = dbConfig.getString("auditingDatabaseUserName");
+    databasePassword = dbConfig.getString("auditingDatabasePassword");
+    databasePoolSize = dbConfig.getInteger("auditingPoolSize");
+    databaseTableName=dbConfig.getString("auditingDatabaseTableName");
     auditingService = new AuditingServiceImpl(dbConfig, vertxObj);
     vertxTestContext.completeNow();
   }
@@ -187,7 +189,7 @@ public class AuditingServiceTest {
         vertxTestContext.verify(
           () -> {
                   LOGGER.debug("RESPONSE" + response.getString("title"));
-            assertEquals("Success", response.getString("title"));
+            assertEquals("success", response.getString("title"));
             vertxTestContext.completeNow();
           })));
   }

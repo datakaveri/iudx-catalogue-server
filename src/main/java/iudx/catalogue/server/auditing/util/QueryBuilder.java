@@ -32,6 +32,7 @@ public class QueryBuilder {
     String api = request.getString(API);
     String method = request.getString(METHOD);
     String iudxID = request.getString(IUDX_ID);
+    String databaseTableName= request.getString(DATABASE_TABLE_NAME);
     ZonedDateTime zst = ZonedDateTime.now();
     LOGGER.debug("TIME ZST: " + zst);
     long time = getEpochTime(zst);
@@ -39,6 +40,7 @@ public class QueryBuilder {
     StringBuilder query =
             new StringBuilder(
                     WRITE_QUERY
+                            .replace("$0",databaseTableName)
                             .replace("$1", primaryKey)
                             .replace("$2", userRole)
                             .replace("$3", userId)
@@ -102,8 +104,8 @@ public class QueryBuilder {
         return new JsonObject().put(ERROR, MISSING_START_TIME);
       }
     }
-
-    StringBuilder userIdQuery = new StringBuilder(READ_QUERY.replace("$1", userId));
+    String databaseTableName= request.getString(DATABASE_TABLE_NAME);
+    StringBuilder userIdQuery = new StringBuilder(READ_QUERY.replace("$0",databaseTableName).replace("$1", userId));
     LOGGER.debug("QUERY " + userIdQuery);
 
     if (request.containsKey(START_TIME) && request.containsKey(END_TIME)) {
