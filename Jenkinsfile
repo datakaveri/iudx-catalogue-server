@@ -95,8 +95,8 @@ pipeline {
         always{
           node('master') {
             script{
-               archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 1
                publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'report.html', reportName: 'Integration Test Report', reportTitles: ''])
+               archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 2
             }  
           }
         }
