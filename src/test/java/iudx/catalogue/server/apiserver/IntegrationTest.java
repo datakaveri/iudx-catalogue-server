@@ -17,22 +17,14 @@ import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
 import io.vertx.ext.web.client.WebClient;
 import iudx.catalogue.server.Configuration;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.junit.jupiter.api.DynamicContainer.dynamicContainer;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.ArrayList;
-import org.junit.jupiter.api.DynamicNode;
-import org.junit.jupiter.api.DynamicTest;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.TestFactory;
+
 import org.junit.jupiter.api.function.ThrowingConsumer;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -65,6 +57,7 @@ import iudx.catalogue.server.deploy.ReDeployerDev;
  * @see {@link ApiServerVerticle}
  */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Disabled
 public class IntegrationTest {
 
 

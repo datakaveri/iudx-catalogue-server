@@ -4,9 +4,11 @@ package iudx.catalogue.server.apiserver.util;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.DecodeException;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +28,10 @@ public class ExceptionHandlerTest {
     RoutingContext routingContext;
     @Mock
     Throwable failure;
+    @Mock
+    DecodeException decodeException;
+    @Mock
+    ClassCastException classCastException;
     @Mock
     HttpServerResponse httpServerResponse;
     @Mock
@@ -127,6 +133,32 @@ public class ExceptionHandlerTest {
         ExceptionHandler exceptionHandler=new ExceptionHandler();
         assertEquals(ROUTE_RATING,routingContext.request().uri());
         exceptionHandler.handleDecodeException(routingContext);
+        vertxTestContext.completeNow();
+    }
+    @Test
+    @DisplayName("Test handleClassCastException method")
+    public void testHandleDecodeException(VertxTestContext vertxTestContext) {
+        ExceptionHandler exceptionHandler=new ExceptionHandler();
+        when(routingContext.failure()).thenReturn(decodeException);
+        when(routingContext.request()).thenReturn(httpServerRequest);
+        when(httpServerRequest.uri()).thenReturn(ROUTE_ITEMS);
+        when(routingContext.response()).thenReturn(httpServerResponse);
+        when(httpServerResponse.setStatusCode(500)).thenReturn(httpServerResponse);
+        when(httpServerResponse.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)).thenReturn(httpServerResponse);
+        when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
+       exceptionHandler.handle(routingContext);
+        vertxTestContext.completeNow();
+    }
+    @Test
+    @DisplayName("Test handleClassCastException method")
+    public void testClassCastException(VertxTestContext vertxTestContext) {
+        ExceptionHandler exceptionHandler=new ExceptionHandler();
+        when(routingContext.failure()).thenReturn(classCastException);
+        when(routingContext.response()).thenReturn(httpServerResponse);
+        when(httpServerResponse.setStatusCode(400)).thenReturn(httpServerResponse);
+        when(httpServerResponse.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)).thenReturn(httpServerResponse);
+        when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
+        exceptionHandler.handle(routingContext);
         vertxTestContext.completeNow();
     }
 }

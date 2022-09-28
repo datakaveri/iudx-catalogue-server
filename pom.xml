@@ -24,7 +24,7 @@
         <maven-pmd-plugin.version>3.17.0</maven-pmd-plugin.version>
         <maven-checkstyle-plugin-google.version>3.1.2</maven-checkstyle-plugin-google.version>
         <maven-surefire-report-plugin.version>3.0.0-M7</maven-surefire-report-plugin.version>
-        <elastic-search-rest-client>7.7.1</elastic-search-rest-client>
+        <elastic-search-rest-client>8.3.3</elastic-search-rest-client>
         <slf4j.version>1.7.25</slf4j.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <exec.mainClass>iudx.catalogue.server.deploy.Deployer</exec.mainClass>

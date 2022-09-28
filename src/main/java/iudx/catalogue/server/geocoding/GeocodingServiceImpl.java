@@ -32,7 +32,7 @@ import static iudx.catalogue.server.util.Constants.*;
 public class GeocodingServiceImpl implements GeocodingService {
 
   private static final Logger LOGGER = LogManager.getLogger(GeocodingServiceImpl.class);
-  private final WebClient webClient;
+  static WebClient webClient;
   private final String peliasUrl;
   private final int peliasPort;
   StringBuilder sb = new StringBuilder(); 

@@ -14,12 +14,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
 import io.vertx.ext.web.client.WebClient;
 import iudx.catalogue.server.Configuration;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +28,7 @@ import static iudx.catalogue.server.util.Constants.*;
  */
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Disabled
 public class ApiServerVerticleTest {
 
   /* LOGGER instance */
