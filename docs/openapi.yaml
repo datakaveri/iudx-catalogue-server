@@ -544,13 +544,13 @@ paths:
                    - resouceServer
                    - type (1st element in array non-modifiable)
                    - itemStatus
-                   
+                
                 3. iudx:ResourceServer
                    - id
                    - provider
                    - type (1st element in array non-modifiable)
                    - itemStatus
-                   
+                
                 4. iudx:Provider
                    - id
                    - type (1st element in array non-modifiable)
@@ -1045,6 +1045,156 @@ paths:
                     description: Instance doesn't exist
             operationId: deleteInstance
             description: Delete an IUDX instance
+    /consumer/ratings:
+        description: >-
+            A catalogue consumer api to assign rating/review to a resource, which will be reflected on the ui.
+
+        post:
+            tags:
+                - Consumer
+            parameters:
+                -
+                    name: id
+                    description: ID of the IUDX Entity
+                    schema:
+                        maxLength: 512
+                        minLength: 0
+                        type: string
+                    in: query
+                    required: true
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/exampleRating'
+                required: true
+            responses:
+                '201':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseWithObjects'
+                    description: Successfully inserted
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseWithObjects'
+                    description: Invalid document
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseWithObjects'
+                    description: Unauthorized access
+            description: >-
+                Create a rating object.
+                
+                `A consumer can provide a rating for a resource only if they have queried the resource from the IUDX Resource Server a min number of times. For eg: 100 API calls. `
+
+        put:
+            tags:
+                - Consumer
+            parameters:
+                -
+                    name: id
+                    description: ID of the IUDX Entity
+                    schema:
+                        maxLength: 512
+                        minLength: 0
+                        type: string
+                    in: query
+                    required: true
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/exampleRating'
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseWithObjects'
+                    description: Successfully inserted
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseWithObjects'
+                    description: Invalid document
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseWithObjects'
+                    description: Unauthorized access
+            description: Update a rating object
+        get:
+            tags:
+                - Consumer
+            parameters:
+                -
+                    name: id
+                    description: ID of the IUDX Entity
+                    schema:
+                        maxLength: 512
+                        minLength: 0
+                        type: string
+                    in: query
+                    required: true
+                -
+                    name: type
+                    description: Get all ratings or average rating based on type
+                    schema:
+                        enum:
+                            - average
+                            - group
+                        type: string
+                    in: query
+                    required: false
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseWithObjects'
+                    description: Success
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseWithObjects'
+                    description: Unauthorized access
+            description: get a rating, all ratings or average rating for a resource
+        delete:
+            tags:
+                - Consumer
+            parameters:
+                -
+                    name: id
+                    description: ID of the IUDX Entity
+                    schema:
+                        maxLength: 512
+                        minLength: 0
+                        type: string
+                    in: query
+                    required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseWithObjects'
+                    description: Success
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseWithObjects'
+                    description: Unauthorized access
+            description: delete a rating object
 components:
     schemas:
         exampleEntityWoID:
@@ -1159,6 +1309,20 @@ components:
                 type: <error urn>
                 title: <error title
                 detail: <error detail description>
+        exampleRating:
+            title: Root Type for exampleRating
+            description: An example rating object for a resource
+            type: object
+            properties:
+                rating:
+                    type: number
+                comment:
+                    type: string
+            example:
+                rating: 4.3
+                comment: some-comment
+
+
 tags:
     -
         name: Entity
@@ -1191,4 +1355,9 @@ tags:
         description: |
             Catalogue administrator specific apis.
         x-displayName: Administrator
+    -
+        name: Consumer
+        description: |
+            Catalogue consumer specific apis.
+        x-displayName: Consumer
 

@@ -1,4 +1,4 @@
-import pika, sys, os,json
+import pika, sys, json
 from ProfanityCheck import ProfanityCheck
 
 class RabbitMq:

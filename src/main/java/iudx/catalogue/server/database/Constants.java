@@ -86,25 +86,25 @@ public class Constants {
     + "{\"field\":instances.keyword,"
     + "\"size\": 10000}}}}";
 
-  public static final String LIST_INSTANCE_TAGS_QUERY = 
+  public static final String LIST_INSTANCE_TAGS_QUERY =
     "{\"query\": {\"bool\": {\"filter\": {\"term\": {\"instance.keyword\": \"$1\"}}}},"
     + "\"aggs\":"
     + "{\"results\": {\"terms\":"
     + "{\"field\":\"tags.keyword\","
     + "\"size\": $size}}}}";
 
-  public static final String  LIST_TAGS_QUERY = 
+  public static final String  LIST_TAGS_QUERY =
     "{ \"aggs\":"
     + "{\"results\": {\"terms\":"
     + "{\"field\":\"tags.keyword\","
     + "\"size\": $size}}}}";
 
-  public static final String LIST_INSTANCE_TYPES_QUERY = 
+  public static final String LIST_INSTANCE_TYPES_QUERY =
     "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}},"
                           + "{\"term\": {\"instance.keyword\": \"$2\"}}]}},"
     + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": $size}}}}";
 
-  public static final String LIST_TYPES_QUERY = 
+  public static final String LIST_TYPES_QUERY =
     "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}} ]}},"
     + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": $size}}}}";
 
@@ -134,7 +134,9 @@ public class Constants {
   public static final String GET_RATING_DOCS =
           "{\"query\": {\"bool\": {\"must\": [ { \"match\": {\"$1\":\"$2\" } }, "
       + "{ \"match\": { \"status\": \"approved\" } } ] } } , " +
-              "\"_source\": [\"rating\",\"comment\",\"id\"] }";
+                  "\"_source\": [\"rating\",\"id\"] }";
+  /* Replace above source list with commented one to include comment in response for rating API */
+            //    "\"_source\": [\"rating\",\"comment\",\"id\"] }";
 
   public static final String GET_AVG_RATING =
       "{ \"aggs\": {\"results\": {\"terms\" : {\"field\": \"id.keyword\", \"size\": 1 }, " +
@@ -149,7 +151,7 @@ public class Constants {
   public static final String NLP_SEARCH = "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}},\"script\":"
   + "{\"source\": \"cosineSimilarity(params.query_vector, '_word_vector'') + 1.0\",\"lang\":\"painless\",\"params\": "
   +"{\"query_vector\": \"$1\"}}}}}";
-  
+
   public static final String NLP_LOCATION_SEARCH = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\":"
    +"{\"match_all\": {}},\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",\"coordinates\":"
    + "[ [\"$1\" , \"$2\"], [ \"$3\" , \"$4\"]]},\"relation\": \"within\"}}}}},\"script\": {\"source\":"
