@@ -9,4 +9,4 @@ RUN apt-get update \
 
 RUN useradd -r -u 1001 -g root profanity-user
 USER profanity-user
-CMD ["python","main.py"]
+CMD ["python","-W", "ignore", "main.py"]
