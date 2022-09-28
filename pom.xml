@@ -256,6 +256,7 @@
                         <exclude>**/Constants.class</exclude>
                         <exclude>**/*VertxProxyHandler.class</exclude>
                         <exclude>**/*Verticle.class</exclude>
+                        <exclude>**/mockauthenticator/</exclude>
 
                         <!-- service proxy interfaces -->
                         <exclude>**/*Service.class</exclude>
