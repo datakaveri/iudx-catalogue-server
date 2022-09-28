@@ -500,10 +500,10 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:8080/iudx/cat/v1/item",
+									"raw": "http://{{host}}{{base}}/item",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{host}}{{base}}"
 									],
 									"port": "8080",
 									"path": [
@@ -682,10 +682,10 @@
 									}
 								],
 								"url": {
-									"raw": "http://localhost:8080/iudx/cat/v1/item?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood-abc",
+									"raw": "http://{{host}}{{base}}/item?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood-abc",
 									"protocol": "http",
 									"host": [
-										"localhost"
+										"{{host}}{{base}}"
 									],
 									"port": "8080",
 									"path": [
