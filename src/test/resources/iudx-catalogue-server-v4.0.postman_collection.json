@@ -13,70 +13,6 @@
 					"name": "Create Item",
 					"item": [
 						{
-							"name": "200 (success) - Create an IUDX Resource Group Entity",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(201);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "token",
-										"type": "text",
-										"value": "{{token}}"
-									},
-									{
-										"key": "instance",
-										"value": "pune",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\"iudx:ResourceGroup\", \"iudx:PointOfInterest\"],\r\n        \"id\": \"\",\r\n        \"name\": \"pune-point-of-interests\",\r\n        \"label\": \"Point of Interests (POI) in Pune City\",\r\n        \"description\": \"Point of Interests (POI) dataset provides intelligence on real world public places, such as installations of smart elements like public addressing systems, variable message displays and emergency call boxes in Pune city.\",\r\n        \"tags\": [\"ecb\", \"sos\", \"call box\", \"emergency call\", \"emergency\", \"emergency booth\", \"call booth\", \"phone\", \"locality\", \"public addressing\", \"public message\", \"public awareness\", \"emergency message\", \"broadcast\", \"variable message\", \"display\", \"public display\", \"caution\", \"information\", \"digital\", \"message board\"],\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"provider\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f\",\r\n        \"resourceServer\": \"datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io\",\r\n        \"accessPolicy\": \"OPEN\",\r\n        \"location\": {\r\n                \"type\": \"Place\",\r\n                \"address\": \"Pune\"\r\n        },\r\n        \"instance\": \"pune\",\r\n        \"itemCreatedAt\": \"2022-07-08T02:49:01+0530\"\r\n}\r\n",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "http://{{host}}{{base}}/item/",
-									"protocol": "http",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item",
-										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "200 (success) - Create an IUDX Resource Item Entity",
 							"event": [
 								{
@@ -115,7 +51,7 @@
 									{
 										"key": "token",
 										"type": "text",
-										"value": "{{token}}"
+										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzMjRhNjZlMy03ZDE5LTRkYTYtOTMxOC05YmY2YmFjMzI4OGUiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NjM4ODg0MTMsImlhdCI6MTY2Mzg0NTIxMywiaWlkIjoicmk6ZGF0YWthdmVyaS5vcmcvYjhiZDNlM2YzOTYxNWM4ZWM5NjcyMjEzMWFlOTUwNTZiNTkzOGYyZi9jYXQtdGVzdC5pdWR4LmlvL2NhdGFsb2d1ZS9jcnVkIiwicm9sZSI6InByb3ZpZGVyIiwiY29ucyI6e319.kGFHHuyZDnZL2N_SDFETEG-AuCF5ltQ28N-c36VFrob5KvVIMld8x3RgREbB5NmAsPzzmmA169RLOntav2y7bQ"
 									},
 									{
 										"key": "instance",
@@ -472,7 +408,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:LinkValidationFailed\");\r",
 											"});\r",
 											"\r",
 											""
@@ -521,7 +457,7 @@
 									"script": {
 										"exec": [
 											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(201);\r",
+											"    pm.response.to.have.status(401);\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response header\", function () {\r",
@@ -602,7 +538,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
 											"});\r",
 											"\r",
 											""
@@ -662,7 +598,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:IdNonExistant\");\r",
+											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:ItemNotFound\");\r",
 											"});\r",
 											"\r",
 											""
@@ -686,7 +622,7 @@
 									}
 								],
 								"url": {
-									"raw": "http://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Bus Station_123",
+									"raw": "http://{{host}}{{base}}/item?id={{item_id}}",
 									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
@@ -697,7 +633,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Bus Station_123"
+											"value": "{{item_id}}"
 										}
 									]
 								}
@@ -804,7 +740,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/item?id={{item_id}}",
+									"raw": "http://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_2811",
 									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
@@ -815,7 +751,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "{{item_id}}"
+											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_2811"
 										}
 									]
 								}
@@ -1056,7 +992,7 @@
 							"script": {
 								"exec": [
 									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
 									"pm.test(\"Check response header\", function () {\r",
@@ -1064,7 +1000,7 @@
 									"});\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:ItemNotFound\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
 									"});\r",
 									""
 								],
@@ -1847,8 +1783,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resource",
-							"protocol": "https",
+							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resource",
+							"protocol": "http",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -4595,7 +4531,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+													"    pm.expect(body).to.have.property(\"title\", \"failed\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -4613,8 +4549,8 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "https://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=LineString&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
-											"protocol": "https",
+											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=LineString&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
+											"protocol": "http",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -6299,7 +6235,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"title\", \"failed\");\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6310,7 +6246,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
+									"raw": "http://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_2811]]\"",
 									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
@@ -6325,7 +6261,7 @@
 										},
 										{
 											"key": "value",
-											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\""
+											"value": "\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_2811]]\""
 										}
 									]
 								}
@@ -6349,7 +6285,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6609,7 +6545,7 @@
 											"\r",
 											"pm.test(\"Check response body 1\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"status\", \"success\");\r",
+											"    pm.expect(body).to.have.property(\"title\", \"Success\");\r",
 											"});\r",
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
@@ -6625,8 +6561,8 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://{{host}}{{base}}/search?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
-									"protocol": "https",
+									"raw": "http://{{host}}{{base}}/search?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
+									"protocol": "http",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -8007,7 +7943,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\",22);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\",21);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8124,7 +8060,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 392);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\", 391);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8549,7 +8485,7 @@
 									"\r",
 									"pm.test(\"Check response count\", function() {\r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\",82);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\",81);\r",
 									"})"
 								],
 								"type": "text/javascript"
@@ -8620,8 +8556,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune_Railway_Station_28]]\"",
-							"protocol": "https",
+							"raw": "http://{{host}}{{base}}/count?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune_Railway_Station_28]]\"",
+							"protocol": "http",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8932,7 +8868,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"invalidValue\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidGeoValue\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8950,8 +8886,8 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?geoproperty=location&georel=abc&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
-							"protocol": "https",
+							"raw": "http://{{host}}{{base}}/count?geoproperty=location&georel=abc&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
+							"protocol": "http",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9323,7 +9259,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\", \"failed\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InternalError\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9381,7 +9317,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\",\"failed\");\r",
+									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InvalidSyntax\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9497,7 +9433,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"status\",\"failed\");\r",
+									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InternalError\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9566,8 +9502,8 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "https://{{host}}{{base}}/count?geopropertyabc=location&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
-							"protocol": "https",
+							"raw": "http://{{host}}{{base}}/count?geopropertyabc=location&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
+							"protocol": "http",
 							"host": [
 								"{{host}}{{base}}"
 							],
