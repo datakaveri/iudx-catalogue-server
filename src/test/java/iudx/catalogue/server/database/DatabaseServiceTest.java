@@ -205,12 +205,12 @@ public class DatabaseServiceTest {
   @DisplayName("Create existing rating")
   void createExistingRatingTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject()
-            .put("rating", 4.8)
-            .put("comment","v.good resource")
-            .put("id","iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
-            .put("userID", "15c7506f-c800-48d6-adeb-0542b03947c6")
-            .put("status","pending")
-            .put("ratingID","18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c1c");
+            .put("rating",4.5)
+            .put("comment","some comment")
+            .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+            .put("userID", "some-user")
+            .put("status", "approved")
+            .put("ratingID", "rating-id");
 
     dbService.createRating(request, testContext.failing(response -> testContext.verify(() -> {
       String status = new JsonObject(response.getMessage()).getString(TYPE);
@@ -224,12 +224,12 @@ public class DatabaseServiceTest {
   @DisplayName("Update rating test")
   void updateRatingTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject()
-            .put("rating", 4.5)
-            .put("comment","v.good resource")
-            .put("id","iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
-            .put("userID", "15c7506f-c800-48d6-adeb-0542b03947c6")
-            .put("status","approved")
-            .put("ratingID","18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c1c");
+            .put("rating",4.5)
+            .put("comment","some comment")
+            .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+            .put("userID", "some-user")
+            .put("status", "approved")
+            .put("ratingID", "rating-id");
 
     dbService.updateRating(request, testContext.succeeding(response -> testContext.verify(() -> {
       String status = response.getString(TYPE);
@@ -244,12 +244,12 @@ public class DatabaseServiceTest {
   @DisplayName("Update non-existing rating test")
   void updateNonExistingRatingTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject()
-            .put("rating", 4.5)
-            .put("comment","v.good resource")
-            .put("id","iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
-            .put("userID", "15c7506f-c800-48d6-adeb-0542b03947c6")
-            .put("status","pending")
-            .put("ratingID","18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c2b");
+            .put("rating",4.5)
+            .put("comment","some comment")
+            .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+            .put("userID", "some-user")
+            .put("status", "approved")
+            .put("ratingID", "rating-id-abc");
 
     dbService.updateRating(request, testContext.failing(response -> testContext.verify(() -> {
       String status = new JsonObject(response.getMessage()).getString(TYPE);
@@ -276,7 +276,7 @@ public class DatabaseServiceTest {
   @Order(12)
   @DisplayName("Delete non-existing rating test")
   void deleteNonExistingRatingTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject().put("ratingID", "18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c2b");
+    JsonObject request = new JsonObject().put("ratingID", "rating-id-abc");
 
     dbService.deleteRating(request, testContext.failing(response -> testContext.verify(() -> {
       String status = new JsonObject(response.getMessage()).getString(TYPE);
