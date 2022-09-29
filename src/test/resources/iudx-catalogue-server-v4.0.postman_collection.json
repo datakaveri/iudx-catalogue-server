@@ -51,7 +51,7 @@
 									{
 										"key": "token",
 										"type": "text",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIzMjRhNjZlMy03ZDE5LTRkYTYtOTMxOC05YmY2YmFjMzI4OGUiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NjM4ODg0MTMsImlhdCI6MTY2Mzg0NTIxMywiaWlkIjoicmk6ZGF0YWthdmVyaS5vcmcvYjhiZDNlM2YzOTYxNWM4ZWM5NjcyMjEzMWFlOTUwNTZiNTkzOGYyZi9jYXQtdGVzdC5pdWR4LmlvL2NhdGFsb2d1ZS9jcnVkIiwicm9sZSI6InByb3ZpZGVyIiwiY29ucyI6e319.kGFHHuyZDnZL2N_SDFETEG-AuCF5ltQ28N-c36VFrob5KvVIMld8x3RgREbB5NmAsPzzmmA169RLOntav2y7bQ"
+										"value": "{{token}}"
 									},
 									{
 										"key": "instance",
@@ -62,7 +62,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_1\",\r\n        \"description\": \"Description for pune Point of interest\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"ppoi_1\"\r\n    }",
+									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:EnvAQM\"\r\n        ],\r\n        \"id\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_2\",\r\n        \"description\": \"Description for pune Point of interest\",\r\n        \"tags\": [\r\n            \"environment\",\r\n            \" air quality\",\r\n            \" climate\",\r\n            \" air\",\r\n            \" aqi\",\r\n            \" aqm\",\r\n            \" climo\",\r\n            \" pollution\",\r\n            \" so2\",\r\n            \" co2\",\r\n            \" co\",\r\n            \" no\",\r\n            \" no2\",\r\n            \" pm2.5\",\r\n            \" pm10\",\r\n            \" humidity\",\r\n            \" temperature\",\r\n            \" ozone\",\r\n            \" o3\",\r\n            \" noise\",\r\n            \" light\",\r\n            \" uv\"\r\n        ],\r\n        \"provider\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f\",\r\n        \"itemStatus\": \"ACTIVE\",\r\n        \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n        \"resourceGroup\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"ABD area, Pune\",\r\n            \"geometry\": {\r\n                \"coordinates\": [\r\n                    73.874537,\r\n                    18.528311\r\n                ],\r\n                \"type\": \"Point\"\r\n            }\r\n        },\r\n        \"deviceModel\": {\r\n            \"brandName\": \"Climo\",\r\n            \"modelName\": \"Bosch-Climo\",\r\n            \"modelURL\": \"http://boschclimo.com\"\r\n        },\r\n        \"name\": \"ppoi_2\"\r\n    }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1079,7 +1079,7 @@
 						"header": [
 							{
 								"key": "token",
-								"value": "{{admin_token}}",
+								"value": "{{token}}",
 								"type": "text"
 							}
 						],
@@ -9625,7 +9625,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+										"value": "abc",
 										"type": "text"
 									}
 								],
@@ -9806,7 +9806,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+										"value": "abc",
 										"type": "text"
 									}
 								],
@@ -10123,7 +10123,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+										"value": "abc",
 										"type": "text"
 									}
 								],
@@ -10245,7 +10245,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+										"value": "abc",
 										"type": "text"
 									}
 								],
