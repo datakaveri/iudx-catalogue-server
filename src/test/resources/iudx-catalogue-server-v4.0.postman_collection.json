@@ -1,11 +1,205 @@
 {
 	"info": {
-		"_postman_id": "8157c328-4506-4352-8a90-b96e5914608d",
-		"name": "iudx-catalogue-server Copy 2",
+		"_postman_id": "a2b8ec70-ed2e-4a9d-9316-47abc77398b9",
+		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17194681"
+		"_exporter_id": "18885476"
 	},
 	"item": [
+		{
+			"name": "Get Token",
+			"item": [
+				{
+					"name": "Get CONSUMER token for accessing an Open Resource Copy 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"openToken\", jsonData.results.accessToken);",
+									"postman.setEnvironmentVariable(\"openToken\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{clientID}}",
+								"type": "text"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{clientSecret}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"itemId\": \"cat-test.iudx.io\",\n  \"itemType\": \"resource_server\",\n  \"role\": \"consumer\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{auth-url}}/auth/v1/token",
+							"protocol": "https",
+							"host": [
+								"{{auth-url}}"
+							],
+							"path": [
+								"auth",
+								"v1",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get DELEGATE token for uploading a Resource Copy 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"token\", jsonData.results.accessToken);",
+									"postman.setEnvironmentVariable(\"token\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{providerClientID}}",
+								"type": "text"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{providerClientSecret}}",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"itemId\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/cat-test.iudx.io/catalogue/crud\", \n  \"itemType\": \"resource\",\n  \"role\": \"provider\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{auth-url}}/auth/v1/token",
+							"protocol": "https",
+							"host": [
+								"{{auth-url}}"
+							],
+							"path": [
+								"auth",
+								"v1",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get ADMIN token for uploading a Resource/Resource Group Copy 2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"adminToken\", jsonData.results.accessToken);",
+									"postman.setEnvironmentVariable(\"adminToken\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "clientId",
+								"value": "{{clientID}}",
+								"type": "text"
+							},
+							{
+								"key": "clientSecret",
+								"value": "{{clientSecret}}",
+								"type": "text"
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"itemId\": \"cat-test.iudx.io\", \n  \"itemType\": \"resource_server\",\n  \"role\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{auth-url}}/auth/v1/token",
+							"protocol": "https",
+							"host": [
+								"{{auth-url}}"
+							],
+							"path": [
+								"auth",
+								"v1",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "CRUD APIs",
 			"item": [
@@ -505,11 +699,7 @@
 									"host": [
 										"{{host}}{{base}}"
 									],
-									"port": "8080",
 									"path": [
-										"iudx",
-										"cat",
-										"v1",
 										"item"
 									]
 								}
@@ -687,11 +877,7 @@
 									"host": [
 										"{{host}}{{base}}"
 									],
-									"port": "8080",
 									"path": [
-										"iudx",
-										"cat",
-										"v1",
 										"item"
 									],
 									"query": [
