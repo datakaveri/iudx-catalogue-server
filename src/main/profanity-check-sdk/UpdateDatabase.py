@@ -19,10 +19,12 @@ class UpdateDatabase:
         index_name = config["index_name"]
         search = Search(index=index_name).using(client)
         query = Q('bool',must=[Q('match', ratingID=self.id), Q('match', status='pending')])
+        print(query)
         search = search.query(query)
         response = search.execute()
         for hit in response:
             doc_ = client.get(index=index_name, id=hit.meta.id)
+            print(doc_['_source'])
             doc={
                 "doc":{
                     "status":self.status
