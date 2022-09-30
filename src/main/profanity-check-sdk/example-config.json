@@ -1,0 +1,16 @@
+{
+      "dataBrokerIP": "<RMQ-IP>",
+      "dataBrokerPort": 5672,
+      "dataBrokerVhost": "<RMQ-VHOST>",
+      "dataBrokerUserName": "<RMQ-USERNAME>",
+      "dataBrokerPassword": "<RMQ-PASSWD>",
+      "requestedHeartBeat": 60,
+      "queue-name" : "catalogue-rating",
+      "databaseIP": "<ELASTICSEARCH-IP>",
+      "index_name": "cat-rating",
+      "databaseUser": "<ELASTICSEARCH-USERNAME>",
+      "databasePassword": "<ELASTICSEARCH-PASSWORD>",
+      "databasePort": 9200,
+      "schedule_time": 5
+}
+
