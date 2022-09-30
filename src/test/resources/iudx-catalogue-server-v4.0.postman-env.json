@@ -1,0 +1,67 @@
+{
+	"id": "ea13b880-4d23-48d7-b5d0-1b197f9a35ad",
+	"name": "CAT",
+	"values": [
+		{
+			"key": "host",
+			"value": "<cat-server>:<port>/",
+			"enabled": true
+		},
+		{
+			"key": "base",
+			"value": "iudx/cat/v1",
+			"enabled": true
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "openToken",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "clientID",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "clientSecret",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "auth-url",
+			"value": "authvertx.iudx.io",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "providerClientID",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "providerClientSecret",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2022-09-29T10:19:56.814Z",
+	"_postman_exported_using": "Postman/9.31.5"
+}

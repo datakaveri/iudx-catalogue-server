@@ -66,7 +66,6 @@ public class AuthenticationVerticle extends AbstractVerticle {
   public void start() throws Exception {
     getJwtPublicKey(vertx, config()).onSuccess(handler -> {
       String cert = handler;
-      LOGGER.info("cert : " + cert);
       binder = new ServiceBinder(vertx);
 
       JWTAuthOptions jwtAuthOptions = new JWTAuthOptions();
@@ -114,7 +113,6 @@ public class AuthenticationVerticle extends AbstractVerticle {
               .send(handler -> {
                 if (handler.succeeded()) {
                   JsonObject json = handler.result().bodyAsJsonObject();
-                  LOGGER.info(json);
                   promise.complete(json.getString("cert"));
                 } else {
                   promise.fail("fail to get JWT public key");

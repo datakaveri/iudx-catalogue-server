@@ -44,6 +44,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
   final JWTAuth jwtAuth;
   final String audience;
+  private String endPoint;
 
   JwtAuthenticationServiceImpl(Vertx vertx, final JWTAuth jwtAuth, final JsonObject config) {
     this.jwtAuth = jwtAuth;
@@ -165,26 +166,41 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     Future<JwtData> jwtDecodeFuture = decodeJwt(token);
 
     ResultContainer result = new ResultContainer();
+    boolean skipResourceIdCheck =
+            endPoint.equalsIgnoreCase(RATINGS_ENDPOINT);
 
-
-    jwtDecodeFuture.compose(decodeHandler -> {
-      result.jwtData =  decodeHandler;
-      return isValidAudienceValue(result.jwtData);
-    }).compose(audienceHandler -> {
-      return isValidId(result.jwtData, id);
-    }).compose(validIdHandler -> {
-      LOGGER.debug(isValidEndpoint(endPoint).succeeded());
-      return isValidEndpoint(endPoint);
-    }).compose(validEndpointHandler -> {
-      LOGGER.debug(validateAccess(result.jwtData,authenticationInfo).succeeded());
-      return validateAccess(result.jwtData, authenticationInfo);
-    }).onComplete(completeHandler -> {
-      if(completeHandler.succeeded()) {
-        handler.handle(Future.succeededFuture(completeHandler.result()));
-      } else {
-         handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
-      }
-    });
+    jwtDecodeFuture
+        .compose(
+            decodeHandler -> {
+              result.jwtData = decodeHandler;
+              return isValidAudienceValue(result.jwtData);
+            })
+        .compose(
+            audienceHandler -> {
+              if (skipResourceIdCheck) {
+                return Future.succeededFuture(true);
+              } else {
+                return isValidId(result.jwtData, id);
+              }
+            })
+        .compose(
+            validIdHandler -> {
+              LOGGER.debug(isValidEndpoint(endPoint).succeeded());
+              return isValidEndpoint(endPoint);
+            })
+        .compose(
+            validEndpointHandler -> {
+              LOGGER.debug(validateAccess(result.jwtData, authenticationInfo).succeeded());
+              return validateAccess(result.jwtData, authenticationInfo);
+            })
+        .onComplete(
+            completeHandler -> {
+              if (completeHandler.succeeded()) {
+                handler.handle(Future.succeededFuture(completeHandler.result()));
+              } else {
+                handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
+              }
+            });
     return this;
   }
 }
