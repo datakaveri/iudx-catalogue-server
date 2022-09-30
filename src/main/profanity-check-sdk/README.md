@@ -19,6 +19,8 @@ $ set PYTHONPATH=%PYTHONPATH%;C:\path\to\your\project\
 $ PYTHONPATH="/path/to/your/project/:$PYTHONPATH"
 $ export PYTHONPATH
 ```
+* Define the appropriate config options in file named ``config.json``. Please see the 
+  [example file](example-config.json) to get idea.
 * Now the project is ready to run, it can be done by running the following command in the command prompt :
 
 ### Running Project
