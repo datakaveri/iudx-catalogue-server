@@ -1,7 +1,7 @@
 from cuss_inspect import predict, predict_prob
 from UpdateDatabase import UpdateDatabase
 
-import json
+import json, time
 
 class ProfanityCheck:
 
@@ -21,4 +21,5 @@ class ProfanityCheck:
             status = 'Approved'
         print("verification result:",status)
         es = UpdateDatabase(self.config,self.id,status)
+        time.sleep(5)
         es.update()

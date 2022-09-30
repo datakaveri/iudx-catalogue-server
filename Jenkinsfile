@@ -31,10 +31,10 @@ pipeline {
           sh 'docker-compose up test'
         }
         xunit (
-          thresholds: [ skipped(failureThreshold: '5'), failed(failureThreshold: '0') ],
+          thresholds: [ skipped(failureThreshold: '6'), failed(failureThreshold: '0') ],
           tools: [ JUnit(pattern: 'target/surefire-reports/*.xml') ]
         )
-        jacoco classPattern: 'target/classes', execPattern: 'target/DatabaseServiceTest.exec,target/jacoco2.exec', sourcePattern: 'src/main/java', exclusionPattern: 'iudx/catalogue/server/apiserver/*,iudx/catalogue/server/deploy/*,iudx/catalogue/server/mockauthenticator/*,iudx/catalogue/server/apiserver/util/*,iudx/catalogue/server/**/*EBProxy.*,iudx/catalogue/server/**/*ProxyHandler.*,iudx/catalogue/server/**/reactivex/*,iudx/catalogue/server/**/reactivex/*'
+        jacoco classPattern: 'target/classes', execPattern: 'target/*.exec', sourcePattern: 'src/main/java', exclusionPattern: 'iudx/catalogue/server/apiserver/*,iudx/catalogue/server/deploy/*,iudx/catalogue/server/mockauthenticator/*,iudx/catalogue/server/**/*EBProxy.*,iudx/catalogue/server/**/*ProxyHandler.*,iudx/catalogue/server/**/reactivex/*,**/constants.class,**/*Verticle.class'
       }
       post{
         failure{
@@ -55,7 +55,7 @@ pipeline {
       steps{
         script{
             sh 'scp Jmeter/CatalogueServer.jmx jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Jmeter/'
-            sh 'scp src/test/resources/iudx-catalogue-server-v3.5.postman_collection_test.json jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Newman/'
+            sh 'scp src/test/resources/iudx-catalogue-server-v4.0.postman_collection.json jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Newman/'
             sh 'docker-compose up -d perfTest'
             sh 'sleep 45'
         }
@@ -86,7 +86,7 @@ pipeline {
         node('master') {
           script{
             startZap ([host: 'localhost', port: 8090, zapHome: '/var/lib/jenkins/tools/com.cloudbees.jenkins.plugins.customtools.CustomTool/OWASP_ZAP/ZAP_2.11.0'])
-            sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server-v3.5.postman_collection_test.json -e /home/ubuntu/configs/cat-postman-env.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/report.html --reporter-htmlextra-skipSensitiveData'
+            sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server-v4.0.postman_collection.json -e /home/ubuntu/configs/cat-postman-env.json --delay-request 1000 --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/report.html --reporter-htmlextra-skipSensitiveData'
             runZapAttack()
           }
         }
@@ -95,8 +95,8 @@ pipeline {
         always{
           node('master') {
             script{
-               archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 1
                publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'report.html', reportName: 'Integration Test Report', reportTitles: ''])
+               archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 5
             }  
           }
         }

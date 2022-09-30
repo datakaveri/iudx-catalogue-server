@@ -1,6 +1,6 @@
 {
       "dataBrokerIP": "",
-      "dataBrokerPort": 1234,
+      "dataBrokerPort": 24568,
       "dataBrokerVhost": "",
       "dataBrokerUserName": "",
       "dataBrokerPassword": "",
@@ -11,7 +11,7 @@
       "index_name": "",
       "databaseUser": "",
       "databasePassword": "",
-      "databasePort": 1234,
+      "databasePort": 24034,
       "schedule_time": 5
 }
 

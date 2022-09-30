@@ -211,7 +211,7 @@ public class QueryMapper {
     /* Validating AttributeSearch limits */
     if (searchType.contains(SEARCH_TYPE_ATTRIBUTE)) {
       
-      Pattern valuePattern = Pattern.compile("^[a-zA-Z0-9]([\\w-._:\\/]*[a-zA-Z0-9])?$");
+      Pattern valuePattern = Pattern.compile("^[a-zA-Z0-9]([\\w-._:\\/() ]*[a-zA-Z0-9])?$");
 
       /* Checking the number of property and value within the request */
       if (requestBody.getJsonArray(PROPERTY).size() <= PROPERTY_SIZE) {
@@ -222,6 +222,8 @@ public class QueryMapper {
 
             JsonArray nestedValue = (JsonArray) value;
             for (Object entry : nestedValue) {
+              LOGGER.debug(entry);
+              LOGGER.debug(valuePattern.matcher((String) entry).matches());
               if (!valuePattern.matcher((String) entry).matches()) {
                 return errResponse.put(DESC, "Invalid 'value' format");
               }
