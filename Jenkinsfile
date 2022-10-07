@@ -17,6 +17,7 @@ pipeline {
     stage('Building images') {
       steps{
         script {
+          sh "curl --connect-timeout 5 --retry 5 --retry-connrefused -w '\n%{http_code}\n' -XGET https://api-docker.catalogue.iudx.io/api"
           echo 'Pulled - ' + env.GIT_BRANCH
           devImage = docker.build( devRegistry, "-f ./docker/dev.dockerfile .")
           deplImage = docker.build( deplRegistry, "-f ./docker/prod.dockerfile .")
@@ -139,7 +140,7 @@ pipeline {
             script {
               sh "ssh azureuser@docker-swarm 'docker service update cat_cat --image ghcr.io/datakaveri/cat-prod:4.5.0-alpha-${env.GIT_HASH}'"
               sh 'sleep 15'
-              sh "curl --connect-timeout 5 --retry 5 --retry-connrefused -w '\n%{http_code}\n' -XGET https://api-docker.catalogue.iudx.io/api"
+              sh "curl --connect-timeout 5 --retry 5 --retry-connrefused -w '\n%{http_code}\n' -XGET https://api-docker.catalogue.iudx.io/apis"
             }
           }
           post{
