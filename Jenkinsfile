@@ -140,7 +140,7 @@ pipeline {
               sh "ssh azureuser@docker-swarm 'docker service update cat_cat --image ghcr.io/datakaveri/cat-prod:4.5.0-alpha-${env.GIT_HASH}'"
               sh 'sleep 15'
               sh '''#!/bin/bash 
-              response_code=$(curl -s -o /dev/null -w \'%{http_code}\\n\' --connect-timeout 5 --retry 5 --retry-connrefused -XGET https://api-docker.catalogue.iudx.io/apis)
+              response_code=$(curl -s -o /dev/null -w \'%{http_code}\\n\' --connect-timeout 5 --retry 5 --retry-connrefused -XGET https://api.cat-test.iudx.io/apis)
 
               if [[ "$response_code" -ne "200" ]]
               then
