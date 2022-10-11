@@ -141,7 +141,7 @@ public class Constants {
   public static final String GET_AVG_RATING =
       "{ \"aggs\": {\"results\": {\"terms\" : {\"field\": \"id.keyword\", \"size\": 1 }, " +
           "\"aggs\": {\"average_rating\": {\"avg\": {\"field\": \"rating\"} } } } } ," +
-          "\"query\": {\"bool\": {\"must\": [ { \"match\": {\"id\":\"$1\" } }," +
+          "\"query\": {\"bool\": {\"must\": [ { \"match\": {\"id.keyword\":\"$1\" } }," +
           "{ \"match\": { \"status\": \"approved\" } } ] } } }";
 
   public static final String QUERY_RESOURCE_GRP =

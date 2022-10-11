@@ -801,7 +801,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         return this;
       } else {
-        query = GET_RATING_DOCS.replace("$1", "id").replace("$2", id);
+        query = GET_RATING_DOCS.replace("$1", "id.keyword").replace("$2", id);
       }
     }
 
