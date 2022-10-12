@@ -68,7 +68,7 @@ public class ElasticClientTest {
   void TestGetAll(VertxTestContext testContext) {
     JsonObject query = new JsonObject().put("query", new JsonObject()
                                         .put("match_all", new JsonObject()));
-    elasticClient.searchAsync(query.toString(), res -> {
+    elasticClient.searchAsync(query.toString(), docIndex, res -> {
       if (res.succeeded()) {
         LOGGER.info("Succeeded");
         LOGGER.debug(res.result());
@@ -121,7 +121,7 @@ public class ElasticClientTest {
   @Description("test countAsync method")
   public void testCountAsync(VertxTestContext vertxTestContext) {
     String query="dummy";
-    assertNotNull(elasticClient.countAsync(query,handler));
+    assertNotNull(elasticClient.countAsync(query,docIndex, handler));
     vertxTestContext.completeNow();
   }
 }

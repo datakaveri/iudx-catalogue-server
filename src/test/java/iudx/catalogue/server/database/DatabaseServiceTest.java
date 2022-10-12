@@ -72,9 +72,9 @@ public class DatabaseServiceTest {
             && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
-      dbService = new DatabaseServiceImpl(client, ratingIndex,nlpService, geoService);
+      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex,nlpService, geoService);
     } else {
-      dbService = new DatabaseServiceImpl(client, ratingIndex);
+      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
     }
 
     testContext.completeNow();
