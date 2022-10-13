@@ -56,7 +56,7 @@ public class ConstraintsValidationTest {
 
     fileSystem = vertx.fileSystem();
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
-    validator = new ValidatorServiceImpl(client);
+    validator = new ValidatorServiceImpl(client,docIndex);
 
     testContext.completed();
   }
