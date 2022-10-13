@@ -10192,7 +10192,6 @@
 										"{{host}}consumer"
 									],
 									"path": [
-										"consumer",
 										"ratings"
 									],
 									"query": [
