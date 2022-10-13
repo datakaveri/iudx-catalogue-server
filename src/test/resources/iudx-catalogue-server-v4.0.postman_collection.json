@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "6a5c6d2f-4723-4d76-a93a-1ff734947c41",
-		"name": "iudx-catalogue-server Copy 3",
+		"_postman_id": "a2b8ec70-ed2e-4a9d-9316-47abc77398b9",
+		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17194681"
+		"_exporter_id": "18885476"
 	},
 	"item": [
 		{
@@ -9758,7 +9758,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"rating\": 4.8,\n    \"comment\": \"good resource\"\n}",
+									"raw": "{\n    \"rating\": 4.8,\n    \"comment\": \"v.good resource\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -9876,7 +9876,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"ratingzzz\": 4.8\n    \n}",
+									"raw": "{\n    \"ratingzzz\": 4.8,\n    \"comment\": \"v.good resource\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10175,7 +10175,13 @@
 							},
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "token",
+										"value": "{{openToken}}",
+										"type": "text"
+									}
+								],
 								"body": {
 									"mode": "raw",
 									"raw": "",
@@ -10186,7 +10192,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta&type=group",
+									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood&type=group",
 									"protocol": "http",
 									"host": [
 										"{{host}}consumer"
@@ -10197,7 +10203,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
 										},
 										{
 											"key": "type",
@@ -10234,7 +10240,13 @@
 							},
 							"request": {
 								"method": "GET",
-								"header": [],
+								"header": [
+									{
+										"key": "token",
+										"value": "{{openToken}}",
+										"type": "text"
+									}
+								],
 								"body": {
 									"mode": "raw",
 									"raw": "",
@@ -10245,7 +10257,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta&type=average",
+									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood&type=average",
 									"protocol": "http",
 									"host": [
 										"{{host}}consumer"
@@ -10256,7 +10268,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
 										},
 										{
 											"key": "type",

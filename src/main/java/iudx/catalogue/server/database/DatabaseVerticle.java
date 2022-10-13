@@ -64,9 +64,9 @@ public class DatabaseVerticle extends AbstractVerticle {
         && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
-      database = new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
+      database = new DatabaseServiceImpl(client, ratingIndex, nlpService, geoService);
     } else {
-      database = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+      database = new DatabaseServiceImpl(client, ratingIndex);
     }
 
     consumer =

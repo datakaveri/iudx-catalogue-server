@@ -51,6 +51,10 @@ public final class ElasticClient {
     this.index = index;
   }
 
+  public ElasticClient searchAsync(String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return searchAsync(query,resultHandler);
+  }
 
   /**
    * searchAsync - Wrapper around elasticsearch async search requests
@@ -59,7 +63,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
    */
-  public ElasticClient searchAsync(String query, String index,
+  public ElasticClient searchAsync(String query,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
@@ -99,6 +103,11 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient searchGetId(String query, String index,
+     Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return searchGetId(query, resultHandler);
+  }
 
   /**
    * searchGetIdAsync - Get document IDs matching a query
@@ -107,7 +116,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
    */
-  public ElasticClient searchGetId(String query, String index,
+  public ElasticClient searchGetId(String query,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_ID_ONLY_PATH);
@@ -155,7 +164,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
    */
-  public ElasticClient countAsync(String query, String index,
+  public ElasticClient countAsync(String query,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_count");
@@ -163,6 +172,12 @@ public final class ElasticClient {
     Future<JsonObject> future = countAsync(queryRequest);
     future.onComplete(resultHandler);
     return this;
+  }
+
+  public ElasticClient docPostAsync(String doc, String index,
+        Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return docPostAsync(doc,resultHandler);
   }
 
   /**
@@ -173,7 +188,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject
    * @TODO XPack Security
    */
-  public ElasticClient docPostAsync(String index, String doc,
+  public ElasticClient docPostAsync(String doc,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     /** TODO: Validation */
@@ -185,6 +200,12 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient docPutAsync(String docId, String doc, String index,
+       Handler<AsyncResult<JsonObject>> resultHandler) {
+
+    this.index = index;
+    return docPutAsync(docId, doc, resultHandler);
+  }
 
   /**
    * docPutAsync - Wrapper around elasticsearch async doc put request
@@ -195,7 +216,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject
    * @TODO XPack Security
    */
-  public ElasticClient docPutAsync(String docId, String index, String doc,
+  public ElasticClient docPutAsync(String docId, String doc,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     /** TODO: Validation */
@@ -206,6 +227,12 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient docDelAsync(String docId, String index,
+       Handler<AsyncResult<JsonObject>> resultHandler) {
+    this.index = index;
+    return docDelAsync(docId, resultHandler);
+  }
+
   /**
    * docDelAsync - Wrapper around elasticsearch async doc delete request
    * 
@@ -214,7 +241,7 @@ public final class ElasticClient {
    * @param resultHandler JsonObject
    * @TODO XPack Security
    */
-  public ElasticClient docDelAsync(String docId, String index,
+  public ElasticClient docDelAsync(String docId, 
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     /** TODO: Validation */

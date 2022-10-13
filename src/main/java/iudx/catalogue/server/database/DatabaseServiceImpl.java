@@ -41,7 +41,6 @@ public class DatabaseServiceImpl implements DatabaseService {
   private boolean nlpPluggedIn;
   private boolean geoPluggedIn;
 
-  private String docIndex;
   private String ratingIndex;
 
   private static String INTERNAL_ERROR_RESP = new RespBuilder()
@@ -49,19 +48,17 @@ public class DatabaseServiceImpl implements DatabaseService {
       .withTitle(TITLE_INTERNAL_SERVER_ERROR)
       .getResponse();
 
-  public DatabaseServiceImpl(ElasticClient client, String docIndex, String ratingIndex) {
+  public DatabaseServiceImpl(ElasticClient client, String ratingIndex) {
     this(client);
-    this.docIndex = docIndex;
     this.ratingIndex = ratingIndex;
   }
 
   public DatabaseServiceImpl(
-      ElasticClient client, String docIndex,
+      ElasticClient client,
       String ratingIndex,
       NLPSearchService nlpService,
       GeocodingService geoService) {
     this(client, nlpService, geoService);
-    this.docIndex = docIndex;
     this.ratingIndex = ratingIndex;
   }
 
@@ -109,7 +106,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     LOGGER.debug("Info: Query constructed;" + query.toString());
 
-    client.searchAsync(query.toString(), docIndex, searchRes -> {
+    client.searchAsync(query.toString(), searchRes -> {
       if (searchRes.succeeded()) {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
@@ -175,7 +172,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     LOGGER.debug("Info: Query constructed;" + query.toString());
-    client.countAsync(query.toString(), docIndex, searchRes -> {
+    client.countAsync(query.toString(), searchRes -> {
       if (searchRes.succeeded()) {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
@@ -205,7 +202,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       if (instanceHandler.succeeded()) {
         LOGGER.debug("Info: Instance info;" + instanceHandler.result());
 
-        client.searchAsync(checkItem.toString(), docIndex, checkRes -> {
+        client.searchAsync(checkItem.toString(), checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Isertion failed;" + checkRes.cause());
             handler.handle(Future.failedFuture(errorJson));
@@ -232,7 +229,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                     LOGGER.debug("Info: Document embeddings created");
                     doc.put(WORD_VECTOR_KEY, ar.result().getJsonArray("result"));
                     /* Insert document */
-                    client.docPostAsync(docIndex, doc.toString(), postRes -> {
+                    client.docPostAsync(doc.toString(), postRes -> {
                       if (postRes.succeeded()) {
                         handler.handle(Future.succeededFuture(
                             respBuilder.withType(TYPE_SUCCESS)
@@ -253,7 +250,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               /* Insert document */
               new Timer().schedule(new TimerTask() {
                 public void run() {
-                  client.docPostAsync(docIndex, doc.toString(), postRes -> {
+                  client.docPostAsync(doc.toString(), postRes -> {
                     if (postRes.succeeded()) {
                       handler.handle(Future.succeededFuture(
                           respBuilder.withType(TYPE_SUCCESS)
@@ -293,7 +290,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     new Timer().schedule(new TimerTask() {
       public void run() {
-        client.searchGetId(checkQuery, docIndex, checkRes -> {
+        client.searchGetId(checkQuery, checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
             handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
@@ -310,7 +307,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               return;
             }
             String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-            client.docPutAsync(docId, docIndex, doc.toString(), putRes -> {
+            client.docPutAsync(docId, doc.toString(), putRes -> {
               if (putRes.succeeded()) {
                 handler.handle(Future.succeededFuture(
                     respBuilder.withType(TYPE_SUCCESS)
@@ -353,7 +350,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           checkQuery = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
         }
 
-        client.searchGetId(checkQuery, docIndex, checkRes -> {
+        client.searchGetId(checkQuery, checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause().getMessage());
             handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
@@ -383,7 +380,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           }
 
           String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-          client.docDelAsync(docId, docIndex, delRes -> {
+          client.docDelAsync(docId, delRes -> {
             if (delRes.succeeded()) {
               handler.handle(Future.succeededFuture(
                   respBuilder.withType(TYPE_SUCCESS)
@@ -412,7 +409,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     String itemId = request.getString(ID);
     String getQuery = GET_DOC_QUERY.replace("$1", itemId).replace("$2", "");
 
-    client.searchAsync(getQuery, docIndex, clientHandler -> {
+    client.searchAsync(getQuery, clientHandler -> {
       if (clientHandler.succeeded()) {
         LOGGER.debug("Success: Successful DB request");
         JsonObject responseJson = clientHandler.result();
@@ -469,7 +466,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     LOGGER.debug("Info: Query constructed;" + elasticQuery);
 
-    client.searchAsync(elasticQuery, docIndex, searchRes -> {
+    client.searchAsync(elasticQuery, searchRes -> {
       if (searchRes.succeeded()) {
         LOGGER.debug("Success: Successful DB request");
         handler.handle(Future.succeededFuture(searchRes.result()));
@@ -546,7 +543,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           new JsonObject(BOOL_MUST_QUERY.replace("$1", subQuery)).put(SOURCE, ID);
 
       /* Initial db query to filter matching attributes */
-      client.searchAsync(elasticQuery.toString(), docIndex, searchRes -> {
+      client.searchAsync(elasticQuery.toString(), searchRes -> {
         if (searchRes.succeeded()) {
 
           JsonArray resultValues = searchRes.result().getJsonArray(RESULTS);
@@ -586,7 +583,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           LOGGER.debug("INFO: Query constructed;" + elasticQuery.toString());
 
           /* db query to find the relationship to the initial query */
-          client.searchAsync(elasticQuery.toString(), docIndex, relSearchRes -> {
+          client.searchAsync(elasticQuery.toString(), relSearchRes -> {
             if (relSearchRes.succeeded()) {
 
               LOGGER.debug("Success: Successful DB request");
@@ -641,8 +638,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
 
             client.docPostAsync(
-                ratingIndex,
                 ratingDoc.toString(),
+                ratingIndex,
                 postRes -> {
                   if (postRes.succeeded()) {
                     handler.handle(
@@ -704,8 +701,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             client.docPutAsync(
                 docId,
-                ratingIndex,
                 ratingDoc.toString(),
+                ratingIndex,
                 putRes -> {
                   if (putRes.succeeded()) {
                     handler.handle(
@@ -804,7 +801,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         return this;
       } else {
-        query = GET_RATING_DOCS.replace("$1", "id.keyword").replace("$2", id);
+        query = GET_RATING_DOCS.replace("$1", "id").replace("$2", id);
       }
     }
 
@@ -841,7 +838,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     String checkInstance = GET_DOC_QUERY.replace("$1", instanceId).replace("$2", "");
-    client.searchAsync(checkInstance, docIndex, checkRes -> {
+    client.searchAsync(checkInstance, checkRes -> {
       if (checkRes.failed()) {
         LOGGER.error(ERROR_DB_REQUEST + checkRes.cause().getMessage());
         promise.fail(TYPE_INTERNAL_SERVER_ERROR);

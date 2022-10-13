@@ -55,7 +55,7 @@ public class ValidatorVerticle extends AbstractVerticle {
 
     /* Publish the Validator service with the Event Bus against an address. */
 
-    validator = new ValidatorServiceImpl(client,docIndex);
+    validator = new ValidatorServiceImpl(client);
     consumer =
         binder.setAddress(VALIDATION_SERVICE_ADDRESS)
       .register(ValidatorService.class, validator);

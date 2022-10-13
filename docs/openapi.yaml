@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
     title: IUDX Catalogue Server APIs
-    version: 4.0.0
+    version: 3.5.0
     description: >
         The Catalogue is IUDX's dataset discovery portal and metadata store. 
 
@@ -1090,13 +1090,7 @@ paths:
             description: >-
                 Create a rating object.
                 
-                ` A consumer can provide a rating for a resource only if they have queried the resource from the IUDX Resource Server a min number of times. For eg: 100 API calls. `
-            x-codeSamples:
-                -
-                    lang: create rating
-                    source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
-              
+                `A consumer can provide a rating for a resource only if they have queried the resource from the IUDX Resource Server a min number of times. For eg: 100 API calls. `
 
         put:
             tags:
@@ -1137,11 +1131,6 @@ paths:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Unauthorized access
             description: Update a rating object
-            x-codeSamples:
-                -
-                    lang: update rating
-                    source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
         get:
             tags:
                 - Consumer
@@ -1179,19 +1168,6 @@ paths:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Unauthorized access
             description: get a rating, all ratings or average rating for a resource
-            x-codeSamples:
-                -
-                    lang: get rating by user
-                    source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
-                -
-                    lang: get all rating of resource
-                    source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>&type=group
-                -
-                    lang: get average rating of resource
-                    source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>&type=average
         delete:
             tags:
                 - Consumer
@@ -1219,11 +1195,6 @@ paths:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Unauthorized access
             description: delete a rating object
-            x-codeSamples:
-                -
-                    lang: delete rating
-                    source: | 
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
 components:
     schemas:
         exampleEntityWoID:
@@ -1389,5 +1360,4 @@ tags:
         description: |
             Catalogue consumer specific apis.
         x-displayName: Consumer
-
 

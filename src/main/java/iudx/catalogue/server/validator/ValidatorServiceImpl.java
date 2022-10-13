@@ -47,11 +47,10 @@ public class ValidatorServiceImpl implements ValidatorService {
   /** ES client */
   static ElasticClient client;
 
-  private String docIndex;
-  public ValidatorServiceImpl(ElasticClient client, String docIndex) {
+  public ValidatorServiceImpl(ElasticClient client) {
 
     this.client = client;
-    this.docIndex = docIndex;
+
     try {
       resourceValidator = new Validator("/resourceItemSchema.json");
       resourceGroupValidator = new Validator("/resourceGroupItemSchema.json");
@@ -151,7 +150,7 @@ public class ValidatorServiceImpl implements ValidatorService {
           .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
       LOGGER.debug("Info: Verifying resourceGroup " + resourceGroup);
-      client.searchGetId(checkQuery.replace("$1", resourceGroup), docIndex, checkRes -> {
+      client.searchGetId(checkQuery.replace("$1", resourceGroup), checkRes -> {
         if (checkRes.failed()) {
           LOGGER.error("Fail: DB request has failed;" + checkRes.cause().getMessage());
           handler.handle(Future.failedFuture(TYPE_INTERNAL_SERVER_ERROR));
@@ -195,7 +194,7 @@ public class ValidatorServiceImpl implements ValidatorService {
           .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
       client.searchGetId(
-          checkQuery.replace("$1", provider), docIndex, providerRes -> {
+          checkQuery.replace("$1", provider), providerRes -> {
         if (providerRes.failed()) {
           LOGGER.debug("Fail: DB Error");
           handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
@@ -203,7 +202,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         }
         if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
           client.searchGetId(
-              checkQuery.replace("$1", resourceServer), docIndex, serverRes -> {
+              checkQuery.replace("$1", resourceServer), serverRes -> {
               if (serverRes.failed()) {
                 LOGGER.debug("Fail: DB error");
                 handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));

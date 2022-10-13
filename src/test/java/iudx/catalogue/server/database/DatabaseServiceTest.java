@@ -72,9 +72,9 @@ public class DatabaseServiceTest {
             && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
-      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex,nlpService, geoService);
+      dbService = new DatabaseServiceImpl(client, ratingIndex,nlpService, geoService);
     } else {
-      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+      dbService = new DatabaseServiceImpl(client, ratingIndex);
     }
 
     testContext.completeNow();
@@ -1253,7 +1253,7 @@ void listRelSearchProviderTest(VertxTestContext testContext) {
         LOGGER.debug(response);
         for (int i=0; i<response.getJsonArray(RESULT).size(); i++) {
           if (response.getJsonArray(RESULT).getJsonObject(i).containsKey("resourceGroup")) {
-            assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo",
+            assertEquals("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo",
                     response.getJsonArray(RESULT).getJsonObject(i).getString("resourceGroup"));
           }
           testContext.completeNow();
