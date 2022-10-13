@@ -10,7 +10,7 @@ class RabbitMq:
         self.connection = pika.BlockingConnection(pika.ConnectionParameters(host=config["dataBrokerIP"],port=config["dataBrokerPort"],virtual_host=config["dataBrokerVhost"],credentials=credentials,heartbeat=config["requestedHeartBeat"]))
         self.channel = self.connection.channel()
         self.queue_name = config["queue-name"]
-        self.index_name = config["index-name"]
+        self.index_name = config["index_name"]
         self.config = config
         print('connection established to rmq')
 
