@@ -794,7 +794,6 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (getRes.succeeded()) {
             LOGGER.debug("Success: Successful DB request");
             JsonObject result = getRes.result();
-            result.remove(TOTAL_HITS);
             handler.handle(Future.succeededFuture(result));
           } else {
             LOGGER.error("Fail: failed getting average rating: " + getRes.cause());

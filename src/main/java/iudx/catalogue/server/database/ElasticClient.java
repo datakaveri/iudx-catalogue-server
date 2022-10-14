@@ -327,8 +327,9 @@ public final class ElasticClient {
                 responseMsg.addResult(results.getJsonObject(i).getString(KEY));
               }
               if (options == RATING_AGGREGATION_ONLY) {
-                responseMsg.addResult(results.getJsonObject(i).getString(KEY));
-                JsonObject result = new JsonObject().put(AVERAGE_RATING, results.getJsonObject(i).getJsonObject(AVERAGE_RATING).getDouble(VALUE));
+                JsonObject result = new JsonObject()
+                    .put(ID, results.getJsonObject(i).getString(KEY))
+                    .put(AVERAGE_RATING, results.getJsonObject(i).getJsonObject(AVERAGE_RATING).getDouble(VALUE));
                 responseMsg.addResult(result);
               }
             }
