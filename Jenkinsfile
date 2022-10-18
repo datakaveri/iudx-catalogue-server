@@ -96,7 +96,7 @@ pipeline {
           node('built-in') {
             script{
                publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'report.html', reportName: 'Integration Test Report', reportTitles: ''])
-               archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 5
+               archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 8
             }  
           }
         }
