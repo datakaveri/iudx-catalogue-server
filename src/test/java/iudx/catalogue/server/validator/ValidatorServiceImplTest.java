@@ -148,9 +148,16 @@ public class ValidatorServiceImplTest {
                 return null;
             }
         }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
-        assertNotNull(validatorService.validateItem(request, handler));
-        verify(ValidatorServiceImpl.client,times(2)).searchGetId(anyString(),any());
-        vertxTestContext.completeNow();
+        validatorService.validateItem(request, handler->{
+            if(handler.succeeded()){
+                verify(ValidatorServiceImpl.client,times(2)).searchGetId(anyString(),any());
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.failNow("Fail");
+            }
+        });
+
     }
 
     @Test
@@ -176,10 +183,17 @@ public class ValidatorServiceImplTest {
                 return null;
             }
         }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
-        assertNotNull(validatorService.validateItem(request, handler));
+        validatorService.validateItem(request, handler->{
+            if(handler.failed()){
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
+                vertxTestContext.completeNow();
+            }
+            else {
+                vertxTestContext.failNow("Fail");
+            }
+        });
 
-        verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
-        vertxTestContext.completeNow();
+
     }
 
     @Test
@@ -206,10 +220,18 @@ public class ValidatorServiceImplTest {
                 return null;
             }
         }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
-        assertNotNull(validatorService.validateItem(request, handler));
+        validatorService.validateItem(request, handler->{
+            if(handler.succeeded())
+            {
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.failNow("Fail");
+            }
+        });
 
-        verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
-        vertxTestContext.completeNow();
+
     }
 
     @Test
@@ -236,10 +258,17 @@ public class ValidatorServiceImplTest {
                 return null;
             }
         }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
-        assertNotNull(validatorService.validateItem(request, handler));
+        validatorService.validateItem(request, handler->{
+            if(handler.failed()){
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.failNow("Fail");
+            }
+        });
 
-        verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
-        vertxTestContext.completeNow();
+
     }
     @Test
     @Description("testing the method validateItem when item type mismatch")
@@ -282,10 +311,17 @@ public class ValidatorServiceImplTest {
                 return null;
             }
         }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
-        assertNotNull(validatorService.validateItem(request, handler));
+        validatorService.validateItem(request, handler->{
+            if(handler.failed()){
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.failNow("Fail");
+            }
+        });
 
-        verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
-        vertxTestContext.completeNow();
+
     }
 
 }

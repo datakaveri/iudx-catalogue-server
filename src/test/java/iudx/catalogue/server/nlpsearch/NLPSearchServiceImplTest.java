@@ -64,12 +64,19 @@ public class NLPSearchServiceImplTest {
             }
         }).when(httpRequest).sendJsonObject(any(),any());
         nlpSearchService=new NLPSearchServiceImpl(webClient,nlpServiceUrl,nlpServicePort);
-        assertNotNull("",nlpSearchService.getEmbedding(doc,handler));
+        nlpSearchService.getEmbedding(doc,handler->{
+            if(handler.succeeded()){
+                verify(httpRequest,times(1)).sendJsonObject(any(),any());
+                verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
+                verify(NLPSearchServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.failNow("Fail");
+            }
+        });
 
-        verify(httpRequest,times(1)).sendJsonObject(any(),any());
-        verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
-        verify(NLPSearchServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
-        vertxTestContext.completeNow();
+
     }
     @Test
     @Description("testing the method getEmbedding when handler failed")
@@ -92,13 +99,18 @@ public class NLPSearchServiceImplTest {
             }
         }).when(httpRequest).sendJsonObject(any(),any());
         nlpSearchService=new NLPSearchServiceImpl(webClient,nlpServiceUrl,nlpServicePort);
-        assertNotNull(nlpSearchService.getEmbedding(doc,handler));
+        nlpSearchService.getEmbedding(doc,handler->{
+            if(handler.failed()){
+                verify(httpRequest,times(1)).sendJsonObject(any(),any());
+                verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
+                verify(NLPSearchServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
 
-        verify(httpRequest,times(1)).sendJsonObject(any(),any());
-        verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
-        verify(NLPSearchServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
-
-        vertxTestContext.completeNow();
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.failNow("Fail");
+            }
+        });
     }
     @Test
     @Description("testing the method search when handler succeeded")
@@ -125,15 +137,21 @@ public class NLPSearchServiceImplTest {
             }
         }).when(httpRequest).send(any());
         nlpSearchService=new NLPSearchServiceImpl(webClient,nlpServiceUrl,nlpServicePort);
-        assertNotNull(nlpSearchService.search(query,handler));
+        nlpSearchService.search(query,handler->{
+            if(handler.succeeded()){
+                verify(httpRequest,times(1)).send(any());
+                verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
+                verify(httpRequest,times(1)).addQueryParam(anyString(),anyString());
+                verify(httpRequest,times(1)).putHeader("Accept","application/json");
+                verify(NLPSearchServiceImpl.webClient,times(1)).get(anyInt(),anyString(),anyString());
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.failNow("Fail");
+            }
+        });
 
-        verify(httpRequest,times(1)).send(any());
-        verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
-        verify(httpRequest,times(1)).addQueryParam(anyString(),anyString());
-        verify(httpRequest,times(1)).putHeader("Accept","application/json");
-        verify(NLPSearchServiceImpl.webClient,times(1)).get(anyInt(),anyString(),anyString());
 
-        vertxTestContext.completeNow();
     }
     @Test
     @Description("testing the method search when handler failed")
@@ -157,14 +175,20 @@ public class NLPSearchServiceImplTest {
             }
         }).when(httpRequest).send(any());
         nlpSearchService=new NLPSearchServiceImpl(webClient,nlpServiceUrl,nlpServicePort);
-        assertNotNull(nlpSearchService.search(query,handler));
+        nlpSearchService.search(query,handler->{
+            if(handler.failed()){
+                verify(httpRequest,times(1)).send(any());
+                verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
+                verify(httpRequest,times(1)).addQueryParam(anyString(),anyString());
+                verify(httpRequest,times(1)).putHeader("Accept","application/json");
+                verify(NLPSearchServiceImpl.webClient,times(1)).get(anyInt(),anyString(),anyString());
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.failNow("Fail");
+            }
+        });
 
-        verify(httpRequest,times(1)).send(any());
-        verify(httpRequest,times(1)).timeout(SERVICE_TIMEOUT);
-        verify(httpRequest,times(1)).addQueryParam(anyString(),anyString());
-        verify(httpRequest,times(1)).putHeader("Accept","application/json");
-        verify(NLPSearchServiceImpl.webClient,times(1)).get(anyInt(),anyString(),anyString());
 
-        vertxTestContext.completeNow();
     }
 }

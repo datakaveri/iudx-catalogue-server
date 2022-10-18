@@ -72,13 +72,20 @@ public class AuthenticationServiceImplTest {
         }).when(httpRequest).sendJsonObject(any(),any());
 
         authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        assertNull(authenticationService.tokenInterospect(request,authenticationInfo,handler));
+        authenticationService.tokenInterospect(request,authenticationInfo,handler->{
+            if(handler.succeeded()){
+                verify(httpRequest,times(1)).sendJsonObject(any(),any());
+                verify(httpRequest,times(1)).expect(any());
+                verify(AuthenticationServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
 
-        verify(httpRequest,times(1)).sendJsonObject(any(),any());
-        verify(httpRequest,times(1)).expect(any());
-        verify(AuthenticationServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
+                vertxTestContext.completeNow();
+            }
+            else{
+                vertxTestContext.failNow(handler.cause());
+            }
+        });
 
-        vertxTestContext.completeNow();
+
 
     }
     @Test
@@ -116,14 +123,18 @@ public class AuthenticationServiceImplTest {
         }).when(httpRequest).sendJsonObject(any(),any());
 
         authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        authenticationService.tokenInterospect(request,authenticationInfo,handler);
-
-        verify(httpRequest,times(1)).sendJsonObject(any(),any());
-        verify(httpRequest,times(1)).expect(any());
-        verify(AuthenticationServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
-
-        assertNull(authenticationService.tokenInterospect(request,authenticationInfo,handler));
-        vertxTestContext.completeNow();
+        authenticationService.tokenInterospect(request,authenticationInfo,handler->{
+            if(handler.succeeded())
+            {
+                verify(httpRequest,times(1)).sendJsonObject(any(),any());
+                verify(httpRequest,times(1)).expect(any());
+                verify(AuthenticationServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
+                vertxTestContext.completeNow();
+            }
+            else {
+                vertxTestContext.failNow(handler.cause());
+            }
+        });
 
     }
     @Test
