@@ -138,24 +138,33 @@ pipeline {
           steps {
             script {
               sh "ssh azureuser@docker-swarm 'docker service update cat_cat --image ghcr.io/datakaveri/cat-prod:4.5.0-alpha-${env.GIT_HASH}'"
-              sh 'sleep 15'
-              sh '''#!/bin/bash 
-              response_code=$(curl -s -o /dev/null -w \'%{http_code}\\n\' --connect-timeout 5 --retry 5 --retry-connrefused -XGET https://api.cat-test.iudx.io/apis)
-
-              if [[ "$response_code" -ne "200" ]]
-              then
-                echo "Health check failed"
-                exit 1
-              else
-                echo "Health check complete; Server is up."
-                exit 0
-              fi
-              '''             
+              sh 'sleep 10'
             }
           }
           post{
             failure{
               error "Failed to deploy image in Docker Swarm"
+            }
+          }
+        }
+        stage('Integration test on swarm deployment') {
+          steps {
+            node('built-in') {
+              script{
+                sh 'newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server-v4.0.postman_collection.json -e /home/ubuntu/configs/cd/cat-postman-env.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/cd-report.html --reporter-htmlextra-skipSensitiveData'
+              }
+            }
+          }
+          post{
+            always{
+              node('built-in') {
+                script{
+                  publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'cd-report.html', reportTitles: '', reportName: 'Docker-Swarm Integration Test Report'])
+                }
+              }
+            }
+            failure{
+              error "Test failure. Stopping pipeline execution!"
             }
           }
         }

@@ -162,29 +162,12 @@ public class RatingApis {
                     .withDetail("Query parameter type cannot have value : " + requestType)
                     .getResponse());
       }
-    }
-
-    JsonObject authenticationInfo =
-        new JsonObject()
-            .put(TOKEN, request.getHeader(TOKEN))
-            .put(METHOD, REQUEST_GET)
-            .put(API_ENDPOINT, RATINGS_ENDPOINT)
-            .put(ID, host);
-
-    Future<JsonObject> authenticationFuture = inspectToken(authenticationInfo);
-
-    authenticationFuture.onSuccess(successHandler -> {
-      requestBody.put(USER_ID, successHandler.getString(USER_ID));
 
       ratingService.getRating(
           requestBody,
           handler -> {
             if (handler.succeeded()) {
               response.setStatusCode(200).end(handler.result().toString());
-              if (hasAuditService) {
-                updateAuditTable(
-                    successHandler, new String[]{id, ROUTE_RATING, REQUEST_GET});
-              }
             } else {
               if (handler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
                 response.setStatusCode(404);
@@ -194,9 +177,46 @@ public class RatingApis {
               response.end(handler.cause().getMessage());
             }
           });
-    }).onFailure(failureHandler -> {
-      response.setStatusCode(401).end(failureHandler.getMessage());
-    });
+    } else {
+      JsonObject authenticationInfo =
+          new JsonObject()
+              .put(TOKEN, request.getHeader(TOKEN))
+              .put(METHOD, REQUEST_GET)
+              .put(API_ENDPOINT, RATINGS_ENDPOINT)
+              .put(ID, host);
+
+      Future<JsonObject> authenticationFuture = inspectToken(authenticationInfo);
+
+      authenticationFuture
+          .onSuccess(
+              successHandler -> {
+                LOGGER.debug(successHandler.getString(USER_ID));
+                requestBody.put(USER_ID, successHandler.getString(USER_ID));
+
+                ratingService.getRating(
+                    requestBody,
+                    handler -> {
+                      if (handler.succeeded()) {
+                        response.setStatusCode(200).end(handler.result().toString());
+                        if (hasAuditService) {
+                          updateAuditTable(
+                              successHandler, new String[] {id, ROUTE_RATING, REQUEST_GET});
+                        }
+                      } else {
+                        if (handler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
+                          response.setStatusCode(404);
+                        } else {
+                          response.setStatusCode(400);
+                        }
+                        response.end(handler.cause().getMessage());
+                      }
+                    });
+              })
+          .onFailure(
+              failureHandler -> {
+                response.setStatusCode(401).end(failureHandler.getMessage());
+              });
+    }
   }
 
   /**
@@ -332,6 +352,7 @@ public class RatingApis {
         jwtAuthenticationInfo, authHandler -> {
           if (authHandler.succeeded()) {
             LOGGER.debug("JWT Auth Successful");
+            LOGGER.debug(authHandler.result());
             promise.complete(authHandler.result());
           } else {
             LOGGER.error(authHandler.cause().getMessage());
@@ -349,7 +370,7 @@ public class RatingApis {
    * function to handle call to audit service
    *
    * @param jwtDecodedInfo contains the user-role, user-id, iid
-   * @param otherInfo      contains item-id, api-endpoint and the HTTP method.
+   * @param otherInfo contains item-id, api-endpoint and the HTTP method.
    */
   private void updateAuditTable(JsonObject jwtDecodedInfo, String[] otherInfo) {
     LOGGER.info("Updating audit table on successful transaction");

@@ -401,17 +401,23 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
 
     /* Get Ratings */
-    router.get(ROUTE_RATING)
+    router
+        .get(ROUTE_RATING)
         .produces(MIME_APPLICATION_JSON)
         .failureHandler(exceptionhandler)
-        .handler(routingContext -> {
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            ratingApis.getRatingHandler(routingContext);
-          } else {
-            LOGGER.error("Unauthorized Operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
+        .handler(
+            routingContext -> {
+              if (routingContext.request().params().contains("type")) {
+                ratingApis.getRatingHandler(routingContext);
+              } else {
+                if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                  ratingApis.getRatingHandler(routingContext);
+                } else {
+                  LOGGER.error("Unauthorized Operation");
+                  routingContext.response().setStatusCode(401).end();
+                }
+              }
+            });
 
     /* Update Rating */
     router.put(ROUTE_RATING)
