@@ -127,7 +127,7 @@ public class GeocodingServiceTest {
                 testContext.completeNow();
             }
             else {
-                testContext.completeNow();
+                testContext.failNow("Fail");
             }
         });
     }
@@ -159,7 +159,7 @@ public class GeocodingServiceTest {
                 testContext.completeNow();
             }
             else {
-                testContext.completeNow();
+                testContext.failNow("Fail");
             }
         });
     }
@@ -196,7 +196,7 @@ public class GeocodingServiceTest {
                 testContext.completeNow();
             }
             else {
-                testContext.completeNow();
+                testContext.failNow("Fail");
             }
         });
     }
@@ -229,7 +229,7 @@ public class GeocodingServiceTest {
                 testContext.completeNow();
             }
             else {
-                testContext.completeNow();
+                testContext.failNow("Fail");
             }
         });
     }
@@ -270,7 +270,7 @@ public class GeocodingServiceTest {
                 testContext.completeNow();
             }
             else {
-                testContext.completeNow();
+                testContext.failNow("Fail");
             }
         });
 
@@ -335,7 +335,7 @@ public class GeocodingServiceTest {
                 testContext.completeNow();
             }
             else{
-                testContext.completeNow();
+                testContext.failNow("Fail");
             }
         });
     }
