@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "6a5c6d2f-4723-4d76-a93a-1ff734947c41",
+		"_postman_id": "65196a8e-7d85-4ec4-82a2-73cf7321f8e4",
 		"name": "iudx-catalogue-server Copy 3",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17194681"
+		"_exporter_id": "18885476"
 	},
 	"item": [
 		{
@@ -264,8 +264,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}{{base}}/item/",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item/",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -328,8 +327,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}{{base}}/item/",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item/",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -386,8 +384,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}{{base}}/item/",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item/",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -450,8 +447,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}{{base}}/item",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -512,8 +508,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}{{base}}/item/",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item/",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -571,8 +566,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}{{base}}/item/",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item/",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -630,8 +624,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}{{base}}/item/",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item/",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -694,8 +687,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}{{base}}/item",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -753,8 +745,7 @@
 									}
 								],
 								"url": {
-									"raw": "http://{{host}}{{base}}/item?id={{item_id}}",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item?id={{item_id}}",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -812,8 +803,7 @@
 									}
 								],
 								"url": {
-									"raw": "http://{{host}}{{base}}/item?id={{item_id}}",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item?id={{item_id}}",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -872,8 +862,7 @@
 									}
 								],
 								"url": {
-									"raw": "http://{{host}}{{base}}/item?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood-abc",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood-abc",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -926,8 +915,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_2811",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_2811",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -976,8 +964,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Hadapsar_Gadital_03",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Hadapsar_Gadital_03",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -1024,8 +1011,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35&rel=type",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_35&rel=type",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -1074,8 +1060,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=type",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=type",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -1152,8 +1137,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/instance?id=poone",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/instance?id=poone",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1213,8 +1197,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/instance?id={{instance_id}}",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/instance?id={{instance_id}}",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1279,8 +1262,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/instance",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/instance",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1337,8 +1319,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/instance?id=pune",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/instance?id=pune",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1390,8 +1371,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/tags",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/tags",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1433,8 +1413,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/instance",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/instance",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1476,8 +1455,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/resourceGroup",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/resourceGroup",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1519,8 +1497,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/resourceServer",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/resourceServer",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1562,8 +1539,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/provider",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/provider",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1605,8 +1581,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/tag",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/tag",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1648,8 +1623,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/instanc",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/instanc",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1691,8 +1665,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/resourceGrp",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/resourceGrp",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1734,8 +1707,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/resourceSvr",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/resourceSvr",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1777,8 +1749,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/rprovider",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/rprovider",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1820,8 +1791,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/resource",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/resource",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1863,8 +1833,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/list/tags?limit=13323232320",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/list/tags?limit=13323232320",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1917,8 +1886,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -1969,8 +1937,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resource",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resource",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2021,8 +1988,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=provider",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=provider",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2073,8 +2039,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo&rel=provider",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo&rel=provider",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2123,8 +2088,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceServer",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceServer",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2173,8 +2137,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resourceServer",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resourceServer",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2223,8 +2186,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datwakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resourceServer",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datwakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resourceServer",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2275,8 +2237,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dwce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=provider",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dwce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=provider",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2327,8 +2288,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGrp",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGrp",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2379,8 +2339,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resrce",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&rel=resrce",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2431,8 +2390,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&re1l=resource",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo&re1l=resource",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2483,8 +2441,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?i1d=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceServer",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?i1d=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceServer",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2535,8 +2492,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2591,8 +2547,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup&limit=1000001",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24&rel=resourceGroup&limit=1000001",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2655,8 +2610,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/relsearch?relationship=\"[provider.name]\"&value=\"[[IUDXAdmin]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/relsearch?relationship=\"[provider.name]\"&value=\"[[IUDXAdmin]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -2708,8 +2662,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/relsearch?value=\"[[openAPI]]\"&relationship=\"[resourceGroup.accessObjectInfo.accessObjectType]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/relsearch?value=\"[[openAPI]]\"&relationship=\"[resourceGroup.accessObjectInfo.accessObjectType]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -2783,8 +2736,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -2852,8 +2804,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=abc&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=abc&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -2921,8 +2872,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=intersects&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712ab]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=intersects&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712ab]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -2990,8 +2940,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=abc&georel=intersects&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=abc&georel=intersects&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3059,8 +3008,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?abcgeoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?abcgeoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3128,8 +3076,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&abgeorel=intersects&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&abgeorel=intersects&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3197,8 +3144,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=intersects&maxDistance=5000&geometryabc=Point&coordinates=[73.927285,18.502712]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=intersects&maxDistance=5000&geometryabc=Point&coordinates=[73.927285,18.502712]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3266,8 +3212,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=1000&geometry=Point&coordinates=[73.9272851,18.5027121]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=1000&geometry=Point&coordinates=[73.9272851,18.5027121]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3335,8 +3280,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=100&geometry=Point&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=100&geometry=Point&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3404,8 +3348,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=50000&geometry=Point&coordinates=[73.927285,18.502712]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=50000&geometry=Point&coordinates=[73.927285,18.502712]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3473,8 +3416,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=-5000&geometry=Point&coordinates=[73.927285,18.502712]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=-5000&geometry=Point&coordinates=[73.927285,18.502712]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3542,8 +3484,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.502712]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.502712]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3616,8 +3557,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3681,8 +3621,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=abclocation&georel=within&geometry=Polygon&coordinates=[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=abclocation&georel=within&geometry=Polygon&coordinates=[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3746,8 +3685,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=1within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=1within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3811,8 +3749,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[abc73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[abc73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3876,8 +3813,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?abcgeoproperty=location&georel=within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?abcgeoproperty=location&georel=within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -3941,8 +3877,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&abcgeorel=within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&abcgeorel=within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4006,8 +3941,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&abccoordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&abccoordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4071,8 +4005,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9324532,14.5],[72,13],[73,20],[75.9,14.5]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9324532,14.5],[72,13],[73,20],[75.9,14.5]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4136,8 +4069,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4201,8 +4133,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,14.5],[72,13],[73,20],[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,14.5]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,14.5],[72,13],[73,20],[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,14.5]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4264,8 +4195,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4322,8 +4252,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=abclocation&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=abclocation&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4380,8 +4309,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=abcintersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=abcintersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4438,8 +4366,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[abc73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[abc73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4496,8 +4423,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?abcgeoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?abcgeoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4554,8 +4480,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&abcgeorel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&abcgeorel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4612,8 +4537,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&abccoordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&abccoordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4670,8 +4594,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.8745374,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.8745374,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4735,8 +4658,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=LineString&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=LineString&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4793,8 +4715,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4856,8 +4777,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.8420,18.5305],[73.8665,18.5126]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.8420,18.5305],[73.8665,18.5126]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4914,8 +4834,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location1&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location1&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -4972,8 +4891,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=withinab&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=withinab&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -5030,8 +4948,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[sb73.874537,18.528311],[73.874537,18.528311]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[sb73.874537,18.528311],[73.874537,18.528311]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -5088,8 +5005,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geopropertyabc=location&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geopropertyabc=location&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -5146,8 +5062,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georelan=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georelan=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -5204,8 +5119,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinatesan=[[73.874537,18.528311],[73.874537,18.528311]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinatesan=[[73.874537,18.528311],[73.874537,18.528311]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -5262,8 +5176,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.84231220,18.5305],[73.8665,18.5126]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.84231220,18.5305],[73.8665,18.5126]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -5327,8 +5240,7 @@
 											"raw": ""
 										},
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[[75.9,14.5],[72,13],[73,20],[76.9,14.5],[76.9,14.5],[72,13],[73,20],[71.9,14.5],[79.9,14.5],[72,13],[73,20],[76.9,14.5],[71.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -5385,8 +5297,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.5305],[73.8665,18.5126]]",
-											"protocol": "http",
+											"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123732321414141312354253636345241312373232141414131235425363634524131237323214141413123542536363452413123.927285,18.5305],[73.8665,18.5126]]",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -5450,8 +5361,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Bosch Climo\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Bosch Climo\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -5496,8 +5406,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Bosch*\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Bosch*\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -5542,8 +5451,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=.\"dss$%fdd&\"=&limit=50&offset=100",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=.\"dss$%fdd&\"=&limit=50&offset=100",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -5600,8 +5508,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?abc123=\"text to search\"&limit=50&offset=100",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?abc123=\"text to search\"&limit=50&offset=100",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -5654,8 +5561,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Goliber Square Sivaji chowk Maharashtra near Railway station aqm pollution sensor iudx iudxadmin resource\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Goliber Square Sivaji chowk Maharashtra near Railway station aqm pollution sensor iudx iudxadmin resource\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -5700,8 +5606,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Bosch Climo\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Bosch Climo\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -5750,8 +5655,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Bosch Climo\"&limit=1000000",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Bosch Climo\"&limit=1000000",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -5800,8 +5704,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Bosch Climo\"&limit=100&offset=100000",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Bosch Climo\"&limit=100&offset=100000",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -5859,8 +5762,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,tags]&limit=100&offset=0",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,tags]&limit=100&offset=0",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -5921,8 +5823,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=[tags]&value=[[pollution, flood]]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=[tags]&value=[[pollution, flood]]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -5971,8 +5872,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6026,8 +5926,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[abc123]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[abc123]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6081,8 +5980,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=[tags]&value=[[abc, abc123]]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=[tags]&value=[[abc, abc123]]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6136,8 +6034,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=[abc]&value=[[abc123]]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=[abc]&value=[[abc123]]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6191,8 +6088,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=[abc]&value=[[abc, abc123]]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=[abc]&value=[[abc, abc123]]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6241,8 +6137,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]&limit=100&offset=0",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]&limit=100&offset=0",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6303,8 +6198,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId]&limit=1000000&offset=0",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId]&limit=1000000&offset=0",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6365,8 +6259,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId]&limit=100&offset=1000000",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"&filter=[id,name,tags,deviceId]&limit=100&offset=1000000",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6432,8 +6325,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_2811]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_2811]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6482,8 +6374,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Blue Diamond Square (Hotel Taj)_10]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Blue Diamond Square (Hotel Taj)_10]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6532,8 +6423,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[tags,deviceId]\"&value=\"[[aqm],[8cff12b2-b8be-1230-c5f6-ca96b4e4e441,climo]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[tags,deviceId]\"&value=\"[[aqm],[8cff12b2-b8be-1230-c5f6-ca96b4e4e441,climo]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6582,8 +6472,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[tags,location.address]\"&value=\"[[aqm, flood], [pune,delhi]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[tags,location.address]\"&value=\"[[aqm, flood], [pune,delhi]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6642,8 +6531,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[non-existing-id]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[id]\"&value=\"[[non-existing-id]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6692,8 +6580,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6747,8 +6634,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6802,8 +6688,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=[abc]&value=[[abc, abc123]]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=[abc]&value=[[abc, abc123]]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6852,8 +6737,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id,name,tags,location,deviceId]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[id,name,tags,location,deviceId]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6902,8 +6786,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id,name,tags,location]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[id,name,tags,location]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1],[aqm],[pune],[1234]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -6952,8 +6835,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id,name,tags,location]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1,sensor2,sensor3,sensor4,sensor5],[aqm],[pune]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[id,name,tags,location]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28],[sensor1,sensor2,sensor3,sensor4,sensor5],[aqm],[pune]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7002,8 +6884,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7056,8 +6937,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags]&limit=10000000",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags]&limit=10000000",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7114,8 +6994,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags]&limit=10&offset=1001001",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune Railway Station_28]]\"&filter=[id,name,tags]&limit=10&offset=1001001",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7181,8 +7060,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[tags,id,location.geometry.coordinates]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7243,8 +7121,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7309,8 +7186,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Golibar Square\"&geoproperty=location&georel=within&geometry=Point&coordinates=[73.878603,18.502865]&maxDistance=500",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Golibar Square\"&geoproperty=location&georel=within&geometry=Point&coordinates=[73.878603,18.502865]&maxDistance=500",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7375,8 +7251,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[tags,id,location.geometry.coordinates]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7445,8 +7320,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Golibar Square\"&geoproperty=location&georel=within&geometry=Point&coordinates=[73.878603,18.502865]&maxDistance=500&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Golibar Square\"&geoproperty=location&georel=within&geometry=Point&coordinates=[73.878603,18.502865]&maxDistance=500&filter=[tags,id,location.geometry.coordinates]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7516,8 +7390,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&filter=[tags,id,location.geometry.coordinates]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7570,8 +7443,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Golibar Square\"&property=\"[tags, deviceId.keyword]\"&value=\"[[aqm],[2353b250-df9a-4108-8e2c-240955969d7e]]\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Golibar Square\"&property=\"[tags, deviceId.keyword]\"&value=\"[[aqm],[2353b250-df9a-4108-8e2c-240955969d7e]]\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7624,8 +7496,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Golibar Square\"&property=\"[tags, deviceId.keyword]\"&value=\"[[aqm],[2353b250-df9a-4108-8e2c-240955969d7e]]\"&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Golibar Square\"&property=\"[tags, deviceId.keyword]\"&value=\"[[aqm],[2353b250-df9a-4108-8e2c-240955969d7e]]\"&filter=[tags,id,location.geometry.coordinates]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7682,8 +7553,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[aqm]]\"&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[aqm]]\"&filter=[tags,id,location.geometry.coordinates]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7736,8 +7606,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?q=\"Golibar Square\"&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?q=\"Golibar Square\"&filter=[tags,id,location.geometry.coordinates]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7786,8 +7655,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&q=\"Chandani Square\"",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&q=\"Chandani Square\"",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7856,8 +7724,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&q=\"Chandani Square\"&filter=[tags,id,location.geometry.coordinates]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?property=\"[location.address]\"&value=\"[[pune,delhi]]\"&geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&q=\"Chandani Square\"&filter=[tags,id,location.geometry.coordinates]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7930,8 +7797,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name,tags,deviceId,resourceServer,provider,location,address,type,itemStatus,authServerInfo]",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -7992,8 +7858,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name]&limit=10001",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name]&limit=10001",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -8058,8 +7923,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name]&limit=1001&offset=1010101",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[id,name]&limit=1001&offset=1010101",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -8147,8 +8011,7 @@
 							"raw": "{\r\n    \"itemDescription\": \"Live location of solid waste managemet vehicles operating in varanasi\",\r\n    \"@context\": [\r\n        \"https://raw.githubusercontent.com/iudx/iudx-ld/master/data_models/civic/swm/swm_context.json\"\r\n    ],\r\n    \"onboardedBy\": \"Technical consultant at rbccps.org\",\r\n    \"providerId\": \"urn:iudx-catalogue-varanasi:vscl\",\r\n    \"refBaseSchema\": {\r\n        \"type\": \"Relationship\",\r\n        \"value\": \"https://raw.githubusercontent.com/iudx/iudx-ld/master/base_schemas/v0.0.0/resourceItem_schema.json\"\r\n    },\r\n    \"resourceServerGroup\": {\r\n        \"type\": \"Relationship\",\r\n        \"value\": \"urn:iudx-catalogue-varanasi:rs.varanasi.iudx.org.in/varanasi-swm-vehicles\"\r\n    },\r\n    \"createdAt\": {\r\n        \"type\": \"TimeProperty\",\r\n        \"value\": \"Fri Feb 28 07:30:40 UTC 2020\"\r\n    },\r\n    \"refDataModel\": {\r\n        \"value\": \"https://raw.githubusercontent.com/iudx/iudx-ld/master/data_models/civic/swm/civic_swm_vehicle_0.json\",\r\n        \"type\": \"Relationship\"\r\n    },\r\n    \"itemStatus\": {\r\n        \"type\": \"Property\",\r\n        \"value\": \"active\"\r\n    },\r\n    \"resourceServer\": {\r\n        \"type\": \"Relationship\",\r\n        \"value\": \"urn:iudx-catalogue-varanasi:rs.varanasi.iudx.org.in\"\r\n    },\r\n    \"coverageRegion\": {\r\n        \"type\": \"GeoProperty\",\r\n        \"value\": {\r\n            \"address\": \"Varanasi, Uttar Pradesh, India\",\r\n            \"geometry\": {\r\n                \"type\": \"Polygon\",\r\n                \"coordinates\": [\r\n                    [\r\n                        [\r\n                            83.023681640625,\r\n                            25.254322111163436\r\n                        ],\r\n                        [\r\n                            83.00497055053711,\r\n                            25.289559766014474\r\n                        ],\r\n                        [\r\n                            83.00857543945312,\r\n                            25.309269760067775\r\n                        ],\r\n                        [\r\n                            83.04410934448242,\r\n                            25.329752340442084\r\n                        ],\r\n                        [\r\n                            83.05732727050781,\r\n                            25.334251837065878\r\n                        ],\r\n                        [\r\n                            83.05887222290039,\r\n                            25.34635310133767\r\n                        ],\r\n                        [\r\n                            83.01218032836914,\r\n                            25.371327523300355\r\n                        ],\r\n                        [\r\n                            82.94471740722656,\r\n                            25.366674295455695\r\n                        ],\r\n                        [\r\n                            82.93373107910155,\r\n                            25.316408022244975\r\n                        ],\r\n                        [\r\n                            82.94986724853516,\r\n                            25.263016051488446\r\n                        ],\r\n                        [\r\n                            82.96394348144531,\r\n                            25.22668366866147\r\n                        ],\r\n                        [\r\n                            82.97733306884766,\r\n                            25.213017398428725\r\n                        ],\r\n                        [\r\n                            83.01544189453125,\r\n                            25.219850725454755\r\n                        ],\r\n                        [\r\n                            83.023681640625,\r\n                            25.254322111163436\r\n                        ]\r\n                    ]\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"authorizationServerInfo\": {\r\n        \"type\": \"Property\",\r\n        \"value\": {\r\n            \"authType\": \"iudx-auth\",\r\n            \"authServer\": \"http://auth.iudx.org.in\"\r\n        }\r\n    },\r\n    \"tags\": {\r\n        \"type\": \"Property\",\r\n        \"value\": [\r\n            \"solid\",\r\n            \"garbage\",\r\n            \"waste\",\r\n            \"management\",\r\n            \"collection\",\r\n            \"vehicle\",\r\n            \"truck\"\r\n        ]\r\n    },\r\n    \"itemType\": \"Resource\",\r\n    \"provider\": {\r\n        \"value\": \"urn:iudx-catalogue-varanasi:vscl\",\r\n        \"type\": \"Relationship\"\r\n    },\r\n    \"dataAttributeList\": {\r\n        \"secure\": [],\r\n        \"open\": [\r\n            \"vehicleNo\",\r\n            \"wardNo\",\r\n            \"dateTime\",\r\n            \"latitude\",\r\n            \"longitude\",\r\n            \"location\"\r\n        ]\r\n    },\r\n    \"resourceId\": {\r\n        \"type\": \"Property\",\r\n        \"value\": \"varanasi-swm-vehicles-live\"\r\n    },\r\n    \"updatedAt\": {\r\n        \"type\": \"TimeProperty\",\r\n        \"value\": \"Fri Feb 28 07:30:40 UTC 2020\"\r\n    }\r\n}"
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?value=[[pollution]]&property=[tags]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?value=[[pollution]]&property=[tags]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8202,8 +8065,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=\"[tags]\"&value=\"[[abc123]]\"",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=\"[tags]\"&value=\"[[abc123]]\"",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8257,8 +8119,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=[tags]&value=[[pollution, flood]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=[tags]&value=[[pollution, flood]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8312,8 +8173,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=[tags]&value=[[abc, abc123]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=[tags]&value=[[abc, abc123]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8367,8 +8227,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=[abc]&value=[[abc123]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=[abc]&value=[[abc123]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8417,8 +8276,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=[id]&value=[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=[id]&value=[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8472,8 +8330,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=[id]&value=[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24,datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Chandani_Square_25]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=[id]&value=[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Sadhu_Wasvani_Square_24,datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Chandani_Square_25]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8527,8 +8384,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=[id]&value=[[non-existing-id]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=[id]&value=[[non-existing-id]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8577,8 +8433,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\"",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=\"[id]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/BopadiSquare_65,non-existing-id]]\"",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8627,8 +8482,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=\"[tags,deviceId.keyword]\"&value=\"[[aqm],[8cff12b2-b8be-1230-c5f6-ca96b4e4e441,climo]]\"",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=\"[tags,deviceId.keyword]\"&value=\"[[aqm],[8cff12b2-b8be-1230-c5f6-ca96b4e4e441,climo]]\"",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8682,8 +8536,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=\"[tags,location.address]\"&value=\"[[aqm, flood], [pune,delhi]]\"",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=\"[tags,location.address]\"&value=\"[[aqm, flood], [pune,delhi]]\"",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8742,8 +8595,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune_Railway_Station_28]]\"",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?property=\"[non-existing property]\"&value=\"[[datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Pune_Railway_Station_28]]\"",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8792,8 +8644,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?q=\"Bosch Climo\"",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?q=\"Bosch Climo\"",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8838,8 +8689,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?q=\"Bosch*\"",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?q=\"Bosch*\"",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8884,8 +8734,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?q=.\"dss$%fdd&\"=&limit=50&offset=100",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?q=.\"dss$%fdd&\"=&limit=50&offset=100",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -8942,8 +8791,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?abc123=\"text to search\"&limit=50&offset=100",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?abc123=\"text to search\"&limit=50&offset=100",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9003,8 +8851,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.9,18.6]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.9,18.6]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9072,8 +8919,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?geoproperty=location&georel=abc&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?geoproperty=location&georel=abc&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9141,8 +8987,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?abcgeoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?abcgeoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9210,8 +9055,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9275,8 +9119,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?geoproperty=abclocation&georel=within&geometry=Polygon&coordinates=[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?geoproperty=abclocation&georel=within&geometry=Polygon&coordinates=[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9340,8 +9183,7 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?abcgeoproperty=location&georel=within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?abcgeoproperty=location&georel=within&geometry=Polygon&coordinates=[[[73.69697570800781,18.592236436157137],[73.6907958984375,18.391017613499066],[73.96133422851562,18.364300951402384],[74.0924835205078,18.526491895773912],[73.89472961425781,18.689830007518434],[73.69697570800781,18.592236436157137]]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9398,8 +9240,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9456,8 +9297,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?geoproperty=abclocation&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?geoproperty=abclocation&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9514,8 +9354,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?abcgeoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?abcgeoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9572,8 +9411,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73,20],[75,18]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73,20],[75,18]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9630,8 +9468,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?geoproperty=location1&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?geoproperty=location1&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9688,8 +9525,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://{{host}}{{base}}/count?geopropertyabc=location&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
-							"protocol": "http",
+							"raw": "{{host}}{{base}}/count?geopropertyabc=location&georel=within&geometry=bbox&coordinates=[[73.874537,18.528311],[73.874537,18.528311]]",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -9766,8 +9602,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -9825,8 +9660,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -9884,8 +9718,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -9947,8 +9780,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10006,8 +9838,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10065,8 +9896,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10131,8 +9961,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10186,8 +10015,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta&type=group",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta&type=group",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10245,8 +10073,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta&type=average",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta&type=average",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10311,8 +10138,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10374,8 +10200,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10433,8 +10258,7 @@
 									}
 								},
 								"url": {
-									"raw": "http://{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
 									"host": [
 										"{{host}}consumer"
 									],
