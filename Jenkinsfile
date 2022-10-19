@@ -151,7 +151,7 @@ pipeline {
           steps {
             node('built-in') {
               script{
-                sh 'newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server-v4.0.postman_collection.json -e /home/ubuntu/configs/cd/cat-postman-env.json --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/cd-report.html --reporter-htmlextra-skipSensitiveData'
+                sh 'newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server-v4.0.postman_collection.json -e /home/ubuntu/configs/cd/cat-postman-env.json --delay-request 1000 --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/cd-report.html --reporter-htmlextra-skipSensitiveData'
               }
             }
           }
