@@ -147,10 +147,10 @@ public class ValidatorServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any(),any());
         validatorService.validateItem(request, handler->{
             if(handler.succeeded()){
-                verify(ValidatorServiceImpl.client,times(2)).searchGetId(anyString(),any());
+                verify(ValidatorServiceImpl.client,times(2)).searchGetId(anyString(),any(),any());
                 vertxTestContext.completeNow();
             }
             else{
@@ -182,10 +182,10 @@ public class ValidatorServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any(),any());
         validatorService.validateItem(request, handler->{
             if(handler.failed()){
-                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any(),any());
                 vertxTestContext.completeNow();
             }
             else {
@@ -219,11 +219,11 @@ public class ValidatorServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any(),any());
         validatorService.validateItem(request, handler->{
             if(handler.succeeded())
             {
-                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any(),any());
                 vertxTestContext.completeNow();
             }
             else{
@@ -257,10 +257,10 @@ public class ValidatorServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any(),any());
         validatorService.validateItem(request, handler->{
             if(handler.failed()){
-                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any(),any());
                 vertxTestContext.completeNow();
             }
             else{
@@ -310,10 +310,10 @@ public class ValidatorServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any(),any());
         validatorService.validateItem(request, handler->{
             if(handler.failed()){
-                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any(),any());
                 vertxTestContext.completeNow();
             }
             else{
