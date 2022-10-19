@@ -147,21 +147,22 @@ public class ValidatorServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(ValidatorServiceImpl.client).searchGetId(any(), any(), any());
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
         validatorService.validateItem(request, handler->{
             if(handler.succeeded()){
-                verify(ValidatorServiceImpl.client,times(2)).searchGetId(anyString(),any(),any());
+                verify(ValidatorServiceImpl.client,times(2)).searchGetId(anyString(),any());
                 vertxTestContext.completeNow();
             }
             else{
                 vertxTestContext.failNow("Fail");
             }
         });
-    }
+
+ }
 
     @Test
     @Description("testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE_GROUP and hits is not 1")
-    public void testValidateItemRESOURCE_GROUPHits(VertxTestContext vertxTestContext) {
+    public void testValidateItemRESOURCE_GROUP2(VertxTestContext vertxTestContext) {
         validatorService=new ValidatorServiceImpl(client, docIndex);
         JsonObject request=new JsonObject();
         JsonArray jsonArray=new JsonArray();
@@ -181,16 +182,18 @@ public class ValidatorServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(ValidatorServiceImpl.client).searchGetId(any(), any(), any());
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
         validatorService.validateItem(request, handler->{
             if(handler.failed()){
-                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any(),any());
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
                 vertxTestContext.completeNow();
             }
             else {
                 vertxTestContext.failNow("Fail");
             }
         });
+
+
     }
 
     @Test
@@ -216,18 +219,20 @@ public class ValidatorServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(ValidatorServiceImpl.client).searchGetId(any(), any(), any());
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
         validatorService.validateItem(request, handler->{
             if(handler.succeeded())
             {
-                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any(),any());
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
                 vertxTestContext.completeNow();
             }
             else{
                 vertxTestContext.failNow("Fail");
             }
         });
-    }
+
+
+  }
 
     @Test
     @Description("testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE and hits !=1 ")
@@ -252,17 +257,19 @@ public class ValidatorServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(ValidatorServiceImpl.client).searchGetId(any(), any(), any());
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
         validatorService.validateItem(request, handler->{
             if(handler.failed()){
-                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any(),any());
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
                 vertxTestContext.completeNow();
             }
             else{
                 vertxTestContext.failNow("Fail");
             }
         });
-    }
+
+
+   }
     @Test
     @Description("testing the method validateItem when item type mismatch")
     public void testValidateItemCatch(VertxTestContext vertxTestContext) {
@@ -303,16 +310,18 @@ public class ValidatorServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(ValidatorServiceImpl.client).searchGetId(any(), any(),any());
+        }).when(ValidatorServiceImpl.client).searchGetId(any(), any());
         validatorService.validateItem(request, handler->{
             if(handler.failed()){
-                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any(),any());
+                verify(ValidatorServiceImpl.client,times(1)).searchGetId(anyString(),any());
                 vertxTestContext.completeNow();
             }
             else{
                 vertxTestContext.failNow("Fail");
             }
         });
-    }
+
+
+ }
 
 }

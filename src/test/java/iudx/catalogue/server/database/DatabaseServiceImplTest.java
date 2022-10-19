@@ -183,7 +183,7 @@ public class DatabaseServiceImplTest {
         }).when(DatabaseServiceImpl.client).scriptLocationSearch(any(), any(), any());
         databaseService.nlpSearchLocationQuery(request, location, handler -> {
             if (handler.succeeded()) {
-                verify(DatabaseServiceImpl.client,times(1)).scriptLocationSearch(any(), any(), any());
+                verify(DatabaseServiceImpl.client).scriptLocationSearch(any(), any(), any());
                 vertxTestContext.completeNow();
             } else {
                 vertxTestContext.failNow("Fail");
@@ -264,7 +264,7 @@ public class DatabaseServiceImplTest {
         }).when(DatabaseServiceImpl.client).searchAsync(any(), any(),any());
         databaseService.getItem(request, handler -> {
             if (handler.succeeded()) {
-                verify(DatabaseServiceImpl.client,times(1)).searchAsync(anyString(), any(),any());
+                verify(DatabaseServiceImpl.client).searchAsync(anyString(), any(),any());
                 vertxTestContext.completeNow();
             }
             else {
@@ -315,7 +315,7 @@ public class DatabaseServiceImplTest {
         }).when(DatabaseServiceImpl.client).listAggregationAsync(any(), any());
         databaseService.listItems(request, handler -> {
             if (handler.failed()) {
-                verify(DatabaseServiceImpl.client,times(1)).listAggregationAsync(anyString(), any());
+                verify(DatabaseServiceImpl.client).listAggregationAsync(anyString(), any());
                 vertxTestContext.completeNow();
             } else {
                 vertxTestContext.failNow("Fail");
@@ -324,7 +324,7 @@ public class DatabaseServiceImplTest {
     }
 
     @Test
-    @Description("test countQuery when method returns Null")
+    @Description("test countQuery when handler succeeded")
     public void testCountQueryHandler(VertxTestContext vertxTestContext) {
         databaseService = new DatabaseServiceImpl(client,docIndex,ratingIndex);
         JsonObject request = new JsonObject();
@@ -352,10 +352,10 @@ public class DatabaseServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(DatabaseServiceImpl.client).countAsync(any(),any(), any());
+        }).when(DatabaseServiceImpl.client).countAsync(any(), any());
         databaseService.countQuery(request, handler -> {
             if (handler.succeeded()) {
-                verify(DatabaseServiceImpl.client,times(1)).countAsync(anyString(),any(), any());
+                verify(DatabaseServiceImpl.client).countAsync(anyString(),any(), any());
                 vertxTestContext.completeNow();
             } else {
                 vertxTestContext.failNow("Fail");
@@ -382,14 +382,14 @@ public class DatabaseServiceImplTest {
         databaseService.verifyInstance(instanceId).onComplete(handler -> {
             if (handler.failed()) {
                 databaseService.verifyInstance(instanceId);
-                verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(),any());
+                verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any());
                 assertEquals(TYPE_INTERNAL_SERVER_ERROR, handler.cause().getMessage());
                 vertxTestContext.completeNow();
             } else {
                 vertxTestContext.failNow("Fail");
             }
         });
-    }
+ }
 
     @Test
     @Description("test verifyInstance when Total hits is 0")
@@ -407,17 +407,20 @@ public class DatabaseServiceImplTest {
                 return null;
             }
         }).when(DatabaseServiceImpl.client).searchAsync(any(),any(), any());
-       databaseService.verifyInstance(instanceId).onComplete(boolHandler->{
+
+      databaseService.verifyInstance(instanceId).onComplete(boolHandler->{
           if(boolHandler.failed()){
               assertEquals(json, asyncResult.result());
-              verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(),any());
+              verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any());
               vertxTestContext.completeNow();
           }
           else{
               vertxTestContext.failNow("Fail");
           }
       });
-    }
+
+
+  }
 
     @Test
     @Description("test verifyInstance when Total hits is 0")
@@ -434,18 +437,19 @@ public class DatabaseServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(DatabaseServiceImpl.client).searchAsync(any(),any(), any());
+        }).when(DatabaseServiceImpl.client).searchAsync(any(), any());
         databaseService.verifyInstance(instanceId).onComplete(boolHandler->{
             if(boolHandler.succeeded()){
                 assertEquals(json, asyncResult.result());
-                verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(),any());
+                verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any());
                 vertxTestContext.completeNow();
             }
             else{
                 vertxTestContext.failNow("Fail");
             }
         });
-    }
+
+}
 
     @Test
     @Description("test updateItem method")
@@ -460,17 +464,17 @@ public class DatabaseServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(DatabaseServiceImpl.client).searchAsync(any(),any(), any());
+        }).when(DatabaseServiceImpl.client).searchAsync(any(), any());
         databaseService.listRelationship(json, handler->{
             if(handler.failed()){
-                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(),any());
+                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any());
                 vertxTestContext.completeNow();
             }
             else{
                 vertxTestContext.failNow("Fail");
             }
         });
-    }
+ }
 
     @Test
     @Description("test updateItem method")
@@ -543,8 +547,8 @@ public class DatabaseServiceImplTest {
 
         databaseService.createRating(json,handler->{
             if(handler.failed()){
-                verify(DatabaseServiceImpl.client,times(1)).searchAsync(any(),any(),any());
                 verify(DatabaseServiceImpl.client,times(1)).docPostAsync(any(),any(),any());
+                verify(DatabaseServiceImpl.client,times(1)).searchAsync(any(),any(),any());
                 vertxTestContext.completeNow();
             }
             else{
@@ -818,9 +822,8 @@ public class DatabaseServiceImplTest {
     }
     @Test
     @Description("test deleteRating method with handler failure ")
-
     public void testDeleteRatingFailure(VertxTestContext vertxTestContext) {
-        databaseService=new DatabaseServiceImpl(client,docIndex,ratingIndex);
+        databaseService=new DatabaseServiceImpl(client);
         JsonObject json=new JsonObject();
         json.put("ratingID","dummy");
         JsonArray jsonArray=new JsonArray();
@@ -852,9 +855,8 @@ public class DatabaseServiceImplTest {
 
         databaseService.updateRating(json,handler->{
             if(handler.failed()){
-                verify(DatabaseServiceImpl.client,times(1)).searchGetId(any(),any(),any());
-                verify(DatabaseServiceImpl.client,times(1)).docPutAsync(any(),any(),any(),any());
 
+                verify(DatabaseServiceImpl.client,times(1)).docPutAsync(any(),any(),any(),any());
                 vertxTestContext.completeNow();
             }
             else{
@@ -973,10 +975,10 @@ public class DatabaseServiceImplTest {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
             }
-        }).when(DatabaseServiceImpl.client).searchAsync(any(),any(),any());
+        }).when(DatabaseServiceImpl.client).searchAsync(any(),any());
         databaseService.listRelationship(json,handler->{
             if(handler.succeeded()){
-                verify(DatabaseServiceImpl.client,times(1)).searchAsync(any(),any(),any());
+                verify(DatabaseServiceImpl.client,times(1)).searchAsync(any(),any());
                 vertxTestContext.completeNow();
 
             }
@@ -984,7 +986,8 @@ public class DatabaseServiceImplTest {
                 vertxTestContext.failNow("Fail");
             }
         });
-    }
+
+ }
     @Test
     @Description("test listRelationship method when handler succeeded")
     public void testGetRatingsFailed(VertxTestContext vertxTestContext) {
