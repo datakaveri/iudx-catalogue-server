@@ -16,8 +16,8 @@ import com.google.common.hash.Hashing;
 import java.nio.charset.StandardCharsets;
 
 import static iudx.catalogue.server.rating.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.TITLE_OPERATION_NOT_ALLOWED;
-import static iudx.catalogue.server.util.Constants.TYPE_FAIL;
+import static iudx.catalogue.server.util.Constants.TITLE_REQUIREMENTS_NOT_MET;
+import static iudx.catalogue.server.util.Constants.TYPE_ACCESS_DENIED;
 
 public class RatingServiceImpl implements RatingService {
   private static final Logger LOGGER = LogManager.getLogger(RatingServiceImpl.class);
@@ -75,8 +75,8 @@ public class RatingServiceImpl implements RatingService {
                 LOGGER.error("Fail: Rating creation failed");
                 handler.handle(Future.failedFuture(
                     new RespBuilder()
-                        .withType(TYPE_FAIL)
-                        .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                        .withType(TYPE_ACCESS_DENIED)
+                        .withTitle(TITLE_REQUIREMENTS_NOT_MET)
                         .withDetail("User has to access resource at least " + minReadNumber + " times to give rating")
                         .getResponse()));
               }

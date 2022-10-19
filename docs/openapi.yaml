@@ -1047,7 +1047,7 @@ paths:
             description: Delete an IUDX instance
     /consumer/ratings:
         description: >-
-            A catalogue consumer api to assign rating/review to a resource, which will be reflected on the ui.
+            A catalogue consumer api to assign rating/review to a resource item, which will be reflected on the ui.
 
         post:
             tags:
@@ -1088,15 +1088,15 @@ paths:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Unauthorized access
             description: >-
-                Create a rating object.
+                Create a rating object for a resource item.
                 
-                ` A consumer can provide a rating for a resource only if they have queried the resource from the IUDX Resource Server a min number of times. For eg: 100 API calls. `
+                  ` A consumer can provide a rating for a resource item only if they have queried the resource from the IUDX Resource Server a min number of times. For eg: 100 API calls. `
             x-codeSamples:
                 -
                     lang: create rating
                     source: |
                         https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
-              
+        
 
         put:
             tags:
@@ -1136,7 +1136,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Unauthorized access
-            description: Update a rating object
+            description: Update a rating object of a resource item
             x-codeSamples:
                 -
                     lang: update rating
@@ -1178,7 +1178,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Unauthorized access
-            description: get a rating, all ratings or average rating for a resource
+            description: >-
+                Get a rating, all ratings or average rating for a resource or for a resource group
             x-codeSamples:
                 -
                     lang: get rating by user
@@ -1218,11 +1219,11 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Unauthorized access
-            description: delete a rating object
+            description: delete a rating object for a resource item
             x-codeSamples:
                 -
                     lang: delete rating
-                    source: | 
+                    source: |
                         https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
 components:
     schemas:

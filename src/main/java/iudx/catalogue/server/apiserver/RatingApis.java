@@ -115,12 +115,7 @@ public class RatingApis {
                             new String[]{id, ROUTE_RATING, REQUEST_POST});
                       }
                     } else {
-                      if (handler.cause().getLocalizedMessage().contains("Doc Already Exists")) {
-                        response.setStatusCode(400);
-                      } else {
-                        response.setStatusCode(500);
-                      }
-                      response.end(handler.cause().getMessage());
+                      response.setStatusCode(400).end(handler.cause().getMessage());
                     }
                   });
             }
