@@ -329,6 +329,7 @@ public final class ElasticClient {
               if (options == RATING_AGGREGATION_ONLY) {
                 JsonObject result = new JsonObject()
                     .put(ID, results.getJsonObject(i).getString(KEY))
+                    .put(TOTAL_RATINGS, results.getJsonObject(i).getString(DOC_COUNT))
                     .put(AVERAGE_RATING, results.getJsonObject(i).getJsonObject(AVERAGE_RATING).getDouble(VALUE));
                 responseMsg.addResult(result);
               }

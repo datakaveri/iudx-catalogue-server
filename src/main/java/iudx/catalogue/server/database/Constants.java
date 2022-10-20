@@ -24,6 +24,7 @@ public class Constants {
   static final String TYPE_KEY = "type";
   static final String ID_KEYWORD = "id.keyword";
   static final String DOC_ID = "_id";
+  static final String DOC_COUNT = "doc_count";
   static final String KEY = "key";
   static final String SUMMARY_KEY = "_summary";
   static final String GEOSUMMARY_KEY = "_geosummary";
@@ -139,9 +140,9 @@ public class Constants {
             //    "\"_source\": [\"rating\",\"comment\",\"id\"] }";
 
   public static final String GET_AVG_RATING =
-      "{ \"aggs\": {\"results\": {\"terms\" : {\"field\": \"id.keyword\", \"size\": 1 }, " +
+      "{ \"aggs\": {\"results\": {\"terms\" : {\"field\": \"id.keyword\"}, " +
           "\"aggs\": {\"average_rating\": {\"avg\": {\"field\": \"rating\"} } } } } ," +
-          "\"query\": {\"bool\": {\"must\": [ { \"match\": {\"id.keyword\":\"$1\" } }," +
+          "\"query\": {\"bool\": {\"must\": [ { \"regexp\": {\"id.keyword\":\"$1/.*\" } }," +
           "{ \"match\": { \"status\": \"approved\" } } ] } } }";
 
   public static final String QUERY_RESOURCE_GRP =

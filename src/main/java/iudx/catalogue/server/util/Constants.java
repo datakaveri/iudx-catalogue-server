@@ -117,6 +117,7 @@ public class Constants {
   public static final String FILTER = "filter";
   public static final String TAGS = "tags";
   public static final String AVERAGE_RATING = "average_rating";
+  public static final String TOTAL_RATINGS = "totalRatings";
 
   /** HTTP Methods */
   public static final String REQUEST_GET = "GET";
@@ -159,6 +160,7 @@ public class Constants {
   public static final String TYPE_ALREADY_EXISTS = "urn:dx:cat:AlreadyExists";
   public static final String TYPE_SUCCESS = "urn:dx:cat:Success";
   public static final String TYPE_FAIL = "urn:dx:cat:Fail";
+  public static final String TYPE_ACCESS_DENIED= "urn:dx:cat:AccessDenied";
   public static final String TYPE_TOKEN_INVALID = "urn:dx:cat:InvalidAuthorizationToken";
   public static final String TYPE_MISSING_TOKEN = "urn:dx:cat:MissingAuthorizationToken";
   public static final String TYPE_ITEM_NOT_FOUND = "urn:dx:cat:ItemNotFound";
@@ -181,6 +183,7 @@ public class Constants {
   public static final String TITLE_INTERNAL_SERVER_ERROR = "Internal error";
   public static final String TITLE_OPERATION_NOT_ALLOWED = "Operation not allowed";
   public static final String TITLE_LINK_VALIDATION_FAILED = "Link Validation Failed";
+  public static final String TITLE_REQUIREMENTS_NOT_MET = "Resource usage requirements not satisfied";
 
 
   public static final String DETAIL_INTERNAL_SERVER_ERROR = "Internal error";
