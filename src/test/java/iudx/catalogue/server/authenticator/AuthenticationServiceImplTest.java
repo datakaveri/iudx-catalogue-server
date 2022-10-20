@@ -29,156 +29,172 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
 public class AuthenticationServiceImplTest {
-    AuthenticationServiceImpl authenticationService;
-    @Mock
-    WebClient webClient;
-    @Mock
-    JsonObject request;
-    @Mock
-    JsonObject authenticationInfo;
-    @Mock
-    AsyncResult<JsonObject> asyncResult;
-    @Mock
-    Handler<AsyncResult<JsonObject>> handler;
-    @Mock
-    HttpRequest<Buffer> httpRequest;
-    @Mock
-    HttpResponse<Buffer> httpResponse;
-    @Mock
-    JsonObject json;
-    @Mock
-    AsyncResult<HttpResponse<Buffer>> httpResponseAsyncResult;
-    @Test
-    @Description("testing the method validateAuthInfo")
-    public void testValidateAuthInfo(VertxTestContext vertxTestContext){
-        String authHost="dummy";
-        authenticationInfo=new JsonObject();
-        request=new JsonObject();
-        authenticationInfo.put(TOKEN,"dummy");
-        authenticationInfo.put(OPERATION,"dummy");
-        request.put(PROVIDER,"dummy");
-        AuthenticationServiceImpl.webClient=mock(WebClient.class);
-        when(webClient.post(anyInt(),anyString(),anyString())).thenReturn(httpRequest);
-        when(httpRequest.expect(any())).thenReturn(httpRequest);
-        when(httpResponseAsyncResult.failed()).thenReturn(true);
+  AuthenticationServiceImpl authenticationService;
+  @Mock WebClient webClient;
+  @Mock JsonObject request;
+  @Mock JsonObject authenticationInfo;
+  @Mock AsyncResult<JsonObject> asyncResult;
+  @Mock Handler<AsyncResult<JsonObject>> handler;
+  @Mock HttpRequest<Buffer> httpRequest;
+  @Mock HttpResponse<Buffer> httpResponse;
+  @Mock JsonObject json;
+  @Mock AsyncResult<HttpResponse<Buffer>> httpResponseAsyncResult;
 
-        doAnswer(new Answer<AsyncResult<HttpResponse<Buffer>>>() {
-            @Override
-            public AsyncResult<HttpResponse<Buffer>> answer(InvocationOnMock arg0) throws Throwable {
+  @Test
+  @Description("testing the method validateAuthInfo")
+  public void testValidateAuthInfo(VertxTestContext vertxTestContext) {
+    String authHost = "dummy";
+    authenticationInfo = new JsonObject();
+    request = new JsonObject();
+    authenticationInfo.put(TOKEN, "dummy");
+    authenticationInfo.put(OPERATION, "dummy");
+    request.put(PROVIDER, "dummy");
+    AuthenticationServiceImpl.webClient = mock(WebClient.class);
+    when(webClient.post(anyInt(), anyString(), anyString())).thenReturn(httpRequest);
+    when(httpRequest.expect(any())).thenReturn(httpRequest);
+    when(httpResponseAsyncResult.failed()).thenReturn(true);
 
-                ((Handler<AsyncResult<HttpResponse<Buffer>>>)arg0.getArgument(1)).handle(httpResponseAsyncResult);
+    doAnswer(
+            new Answer<AsyncResult<HttpResponse<Buffer>>>() {
+              @Override
+              public AsyncResult<HttpResponse<Buffer>> answer(InvocationOnMock arg0)
+                  throws Throwable {
+
+                ((Handler<AsyncResult<HttpResponse<Buffer>>>) arg0.getArgument(1))
+                    .handle(httpResponseAsyncResult);
                 return null;
-            }
-        }).when(httpRequest).sendJsonObject(any(),any());
+              }
+            })
+        .when(httpRequest)
+        .sendJsonObject(any(), any());
 
-        authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        assertNull(authenticationService.tokenInterospect(request,authenticationInfo,handler));
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    authenticationService.tokenInterospect(
+        request,
+        authenticationInfo,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(httpRequest, times(1)).sendJsonObject(any(), any());
+            verify(httpRequest, times(1)).expect(any());
+            verify(AuthenticationServiceImpl.webClient, times(1))
+                .post(anyInt(), anyString(), anyString());
 
-        verify(httpRequest,times(1)).sendJsonObject(any(),any());
-        verify(httpRequest,times(1)).expect(any());
-        verify(AuthenticationServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow(handler.cause());
+          }
+        });
+  }
 
-        vertxTestContext.completeNow();
+  @Test
+  @Description("testing the method validateAuthInfo")
+  public void testIsPermittedProviderID(VertxTestContext vertxTestContext) {
+    String authHost = "dummy";
+    authenticationInfo = new JsonObject();
+    request = new JsonObject();
+    json = new JsonObject();
+    JsonArray jsonArray = new JsonArray();
+    json.put(ERROR, "error");
+    json.put(MESSAGE, "dummy msg");
+    json.put(REQUEST, jsonArray);
+    jsonArray.add(json);
+    json.put(ID, "abcd/abcd/abcd/abcd");
+    json.put(PROVIDER, "dummy");
+    JsonArray responseRequests = new JsonArray();
+    authenticationInfo.put(TOKEN, "dummy");
+    authenticationInfo.put(OPERATION, "dummy");
+    request.put(PROVIDER, "dummy");
+    AuthenticationServiceImpl.webClient = mock(WebClient.class);
+    when(webClient.post(anyInt(), anyString(), anyString())).thenReturn(httpRequest);
+    when(httpRequest.expect(any())).thenReturn(httpRequest);
+    when(httpResponseAsyncResult.result()).thenReturn(httpResponse);
 
-    }
-    @Test
-    @Description("testing the method validateAuthInfo")
-    public void testIsPermittedProviderID(VertxTestContext vertxTestContext){
-        String authHost="dummy";
-        authenticationInfo=new JsonObject();
-        request=new JsonObject();
-        json=new JsonObject();
-        JsonArray jsonArray=new JsonArray();
-        json.put(ERROR,"error");
-        json.put(MESSAGE,"dummy msg");
-        json.put(REQUEST,jsonArray);
-        jsonArray.add(json);
-        json.put(ID,"abcd/abcd/abcd/abcd");
-        json.put(PROVIDER,"dummy");
-        JsonArray responseRequests=new JsonArray();
-        authenticationInfo.put(TOKEN,"dummy");
-        authenticationInfo.put(OPERATION,"dummy");
-        request.put(PROVIDER,"dummy");
-        AuthenticationServiceImpl.webClient=mock(WebClient.class);
-        when(webClient.post(anyInt(),anyString(),anyString())).thenReturn(httpRequest);
-        when(httpRequest.expect(any())).thenReturn(httpRequest);
-        when(httpResponseAsyncResult.result()).thenReturn(httpResponse);
+    when(httpResponse.statusCode()).thenReturn(200);
+    when(httpResponse.bodyAsJsonObject()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<HttpResponse<Buffer>>>() {
+              @Override
+              public AsyncResult<HttpResponse<Buffer>> answer(InvocationOnMock arg0)
+                  throws Throwable {
 
-        when(httpResponse.statusCode()).thenReturn(200);
-        when(httpResponse.bodyAsJsonObject()).thenReturn(json);
-        doAnswer(new Answer<AsyncResult<HttpResponse<Buffer>>>() {
-            @Override
-            public AsyncResult<HttpResponse<Buffer>> answer(InvocationOnMock arg0) throws Throwable {
-
-                ((Handler<AsyncResult<HttpResponse<Buffer>>>)arg0.getArgument(1)).handle(httpResponseAsyncResult);
+                ((Handler<AsyncResult<HttpResponse<Buffer>>>) arg0.getArgument(1))
+                    .handle(httpResponseAsyncResult);
                 return null;
-            }
-        }).when(httpRequest).sendJsonObject(any(),any());
+              }
+            })
+        .when(httpRequest)
+        .sendJsonObject(any(), any());
 
-        authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        authenticationService.tokenInterospect(request,authenticationInfo,handler);
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    authenticationService.tokenInterospect(
+        request,
+        authenticationInfo,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(httpRequest, times(1)).sendJsonObject(any(), any());
+            verify(httpRequest, times(1)).expect(any());
+            verify(AuthenticationServiceImpl.webClient, times(1))
+                .post(anyInt(), anyString(), anyString());
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow(handler.cause());
+          }
+        });
+  }
 
-        verify(httpRequest,times(1)).sendJsonObject(any(),any());
-        verify(httpRequest,times(1)).expect(any());
-        verify(AuthenticationServiceImpl.webClient,times(1)).post(anyInt(),anyString(),anyString());
+  @Test
+  @Description("testing the method validateAuthInfo")
+  public void testIsPermittedMethodTrue(VertxTestContext vertxTestContext) {
 
-        assertNull(authenticationService.tokenInterospect(request,authenticationInfo,handler));
-        vertxTestContext.completeNow();
+    String authHost = "dummy";
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    JsonArray methods = new JsonArray();
+    methods.add("*");
+    String operation = "dummy";
+    assertTrue(authenticationService.isPermittedMethod(methods, operation));
+    vertxTestContext.completeNow();
+  }
 
-    }
-    @Test
-    @Description("testing the method validateAuthInfo")
-    public void testIsPermittedMethodTrue(VertxTestContext vertxTestContext) {
+  @Test
+  @Description("testing the method validateAuthInfo")
+  public void testIsPermittedMethodFalse(VertxTestContext vertxTestContext) {
 
-        String authHost="dummy";
-        authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        JsonArray methods=new JsonArray();
-        methods.add("*");
-        String operation="dummy";
-        assertTrue(authenticationService.isPermittedMethod(methods,operation));
-        vertxTestContext.completeNow();
-    }
-    @Test
-    @Description("testing the method validateAuthInfo")
-    public void testIsPermittedMethodFalse(VertxTestContext vertxTestContext) {
+    String authHost = "dummy value";
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    JsonArray methods = new JsonArray();
+    methods.add("dummyy");
+    String operation = "dummy";
+    assertFalse(authenticationService.isPermittedMethod(methods, operation));
+    vertxTestContext.completeNow();
+  }
 
-        String authHost="dummy value";
-        authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        JsonArray methods=new JsonArray();
-        methods.add("dummyy");
-        String operation="dummy";
-        assertFalse(authenticationService.isPermittedMethod(methods,operation));
-        vertxTestContext.completeNow();
-    }
-    @Test
-    @Description("testing the method validateAuthInfo when token and operation is blank")
-    public void testValidateAuthInfoBlank(VertxTestContext vertxTestContext){
-        String authHost="dummy";
-        authenticationInfo=new JsonObject();
-        request=new JsonObject();
-        authenticationInfo.put(TOKEN,"");
-        authenticationInfo.put(OPERATION,"");
-        request.put(PROVIDER,"dummy");
-        AuthenticationServiceImpl.webClient=mock(WebClient.class);
-        authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        assertNotNull(authenticationService.tokenInterospect(request,authenticationInfo,handler));
-        vertxTestContext.completeNow();
+  @Test
+  @Description("testing the method validateAuthInfo when token and operation is blank")
+  public void testValidateAuthInfoBlank(VertxTestContext vertxTestContext) {
+    String authHost = "dummy";
+    authenticationInfo = new JsonObject();
+    request = new JsonObject();
+    authenticationInfo.put(TOKEN, "");
+    authenticationInfo.put(OPERATION, "");
+    request.put(PROVIDER, "dummy");
+    AuthenticationServiceImpl.webClient = mock(WebClient.class);
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    assertNotNull(authenticationService.tokenInterospect(request, authenticationInfo, handler));
+    vertxTestContext.completeNow();
+  }
 
-    }
-    @Test
-    @Description("testing the method validateAuthInfo when token and operation is blank")
-    public void testValidateAuthInfoRegex(VertxTestContext vertxTestContext){
-        String authHost="dummy";
-        authenticationInfo=new JsonObject();
-        request=new JsonObject();
-        authenticationInfo.put(TOKEN,"!!");
-        authenticationInfo.put(OPERATION,"dummy");
-        request.put(PROVIDER,"dummy");
-        AuthenticationServiceImpl.webClient=mock(WebClient.class);
-        authenticationService=new AuthenticationServiceImpl(webClient,authHost);
-        assertNotNull(authenticationService.tokenInterospect(request,authenticationInfo,handler));
-        vertxTestContext.completeNow();
-
-    }
-
+  @Test
+  @Description("testing the method validateAuthInfo when token and operation is blank")
+  public void testValidateAuthInfoRegex(VertxTestContext vertxTestContext) {
+    String authHost = "dummy";
+    authenticationInfo = new JsonObject();
+    request = new JsonObject();
+    authenticationInfo.put(TOKEN, "!!");
+    authenticationInfo.put(OPERATION, "dummy");
+    request.put(PROVIDER, "dummy");
+    AuthenticationServiceImpl.webClient = mock(WebClient.class);
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    assertNotNull(authenticationService.tokenInterospect(request, authenticationInfo, handler));
+    vertxTestContext.completeNow();
+  }
 }
