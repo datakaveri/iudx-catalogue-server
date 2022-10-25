@@ -9602,7 +9602,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -9612,7 +9612,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
 										}
 									]
 								}
@@ -9734,6 +9734,64 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "400 (Invalid Acess Count) - Create Rating",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:AccessDenied\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{openToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"rating\": 4.8,\n    \"comment\": \"good resource\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}consumer/ratings?id=stqc.gov.in/3f1e74d4fe0d1a6970046ecff3d3ae5117d93a3d/rs.iudx.io/Bangalore-Flood-Sensor/Ingrid",
+									"host": [
+										"{{host}}consumer"
+									],
+									"path": [
+										"ratings"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "stqc.gov.in/3f1e74d4fe0d1a6970046ecff3d3ae5117d93a3d/rs.iudx.io/Bangalore-Flood-Sensor/Ingrid"
+										}
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},
@@ -9780,7 +9838,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -9790,7 +9848,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
 										}
 									]
 								}
@@ -9961,7 +10019,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -9971,7 +10029,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
 										}
 									]
 								}
@@ -10073,7 +10131,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta&type=average",
+									"raw": "{{host}}consumer/ratings?id=datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b/rs.iudx.io/pune-env-flood&type=average",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10083,7 +10141,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
+											"value": "datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b/rs.iudx.io/pune-env-flood"
 										},
 										{
 											"key": "type",
@@ -10200,7 +10258,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10210,7 +10268,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
 										}
 									]
 								}
