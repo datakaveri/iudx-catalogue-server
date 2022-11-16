@@ -4,6 +4,7 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
@@ -14,7 +15,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.lang.StringBuilder;
 
-import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.geocoding.util.Constants.*;
+// import static iudx.catalogue.server.util.Constants.*;
 
 /**
  * The Geocoding Service Implementation.
@@ -50,51 +52,43 @@ public class GeocodingServiceImpl implements GeocodingService {
         .putHeader("Accept", "application/json")
         .send(
             ar -> {
-              if (ar.succeeded() && ar.result().body().toJsonObject().containsKey("features")) {
-                JsonArray feature = ar.result().body().toJsonObject().getJsonArray("features");
+              if (ar.succeeded()
+                  && ar.result().body().toJsonObject().containsKey("features")
+                  && !ar.result().body().toJsonObject().getJsonArray("features").isEmpty()) {
+                JsonArray features = ar.result().body().toJsonObject().getJsonArray("features");
                 JsonObject property;
-                JsonObject features;
+                JsonObject element;
                 double confidence = 0;
                 JsonArray jsonArray = new JsonArray();
-                for (int i = 0; i < feature.size(); i++) {
-                  features = feature.getJsonObject(i);
-                  property = features.getJsonObject("properties");
-                  if (confidence < property.getDouble("confidence") && jsonArray.isEmpty()) {
-                    System.out.println("here not");
+                JsonObject obj;
+                for (int i = 0; i < features.size(); i++) {
+                  element = features.getJsonObject(i);
+                  property = element.getJsonObject("properties");
+                  if ((confidence < property.getDouble("confidence") && jsonArray.isEmpty())
+                      || (confidence == property.getDouble("confidence"))) {
                     confidence = property.getDouble("confidence");
-                    JsonObject obj1 = new JsonObject();
-                    obj1.put("name", property.getString("name"));
-                    obj1.put("country", property.getString("country"));
-                    obj1.put("region", property.getString("region"));
-                    obj1.put("county", property.getString("county"));
-                    obj1.put("locality", property.getString("locality"));
-                    obj1.put("borough", property.getString("borough"));
-                    obj1.put("bbox", features.getJsonArray("bbox"));
-                    jsonArray.add(obj1);
+                    obj = new JsonObject();
+                    obj.put(NAME, property.getString("name"))
+                        .put(COUNTRY, property.getString("country"))
+                        .put(REGION, property.getString("region"))
+                        .put(COUNTY, property.getString("county"))
+                        .put(LOCALITY, property.getString("locality"))
+                        .put(BOROUGH, property.getString("borough"))
+                        .put(BBOX, element.getJsonArray("bbox"));
+                    jsonArray.add(obj);
                   } else if (confidence < property.getDouble("confidence")
                       && !jsonArray.isEmpty()) {
                     confidence = property.getDouble("confidence");
                     jsonArray = new JsonArray();
-                    JsonObject obj2 = new JsonObject();
-                    obj2.put("name", property.getString("name"));
-                    obj2.put("country", property.getString("country"));
-                    obj2.put("region", property.getString("region"));
-                    obj2.put("county", property.getString("county"));
-                    obj2.put("locality", property.getString("locality"));
-                    obj2.put("borough", property.getString("borough"));
-                    obj2.put("bbox", features.getJsonArray("bbox"));
-                    jsonArray.add(obj2);
-                  } else if (confidence == property.getDouble("confidence")) {
-                    confidence = property.getDouble("confidence");
-                    JsonObject obj3 = new JsonObject();
-                    obj3.put("name", property.getString("name"));
-                    obj3.put("country", property.getString("country"));
-                    obj3.put("region", property.getString("region"));
-                    obj3.put("county", property.getString("county"));
-                    obj3.put("locality", property.getString("locality"));
-                    obj3.put("borough", property.getString("borough"));
-                    obj3.put("bbox", features.getJsonArray("bbox"));
-                    jsonArray.add(obj3);
+                    obj = new JsonObject();
+                    obj.put(NAME, property.getString("name"))
+                        .put(COUNTRY, property.getString("country"))
+                        .put(REGION, property.getString("region"))
+                        .put(COUNTY, property.getString("county"))
+                        .put(LOCALITY, property.getString("locality"))
+                        .put(BOROUGH, property.getString("borough"))
+                        .put(BBOX, element.getJsonArray("bbox"));
+                    jsonArray.add(obj);
                   }
                 }
                 LOGGER.debug("Request succeeded!");

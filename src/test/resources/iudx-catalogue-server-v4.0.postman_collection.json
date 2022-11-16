@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "65196a8e-7d85-4ec4-82a2-73cf7321f8e4",
+		"_postman_id": "10123529-6217-4f8e-9dfa-2b4f05183020",
 		"name": "iudx-catalogue-server Copy 3",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "18885476"
+		"_exporter_id": "23234057"
 	},
 	"item": [
 		{
@@ -10334,6 +10334,115 @@
 							"response": []
 						}
 					]
+				}
+			]
+		},
+		{
+			"name": "Geocoding APIs",
+			"item": [
+				{
+					"name": "400 (Location not found) - location size 0",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/iudx/cat/v1/geo?q=",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"iudx",
+								"cat",
+								"v1",
+								"geo"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": ""
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400 (Invalid Prameter) - invalid query parameter",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/iudx/cat/v1/geo?p=malleswaram",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"iudx",
+								"cat",
+								"v1",
+								"geo"
+							],
+							"query": [
+								{
+									"key": "p",
+									"value": "malleswaram"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200(Success) - Get all geolocations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/iudx/cat/v1/geo?q=malleswaram",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"iudx",
+								"cat",
+								"v1",
+								"geo"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "malleswaram"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400(Invalid GeoValue) - Gequery value error",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/iudx/cat/v1/geo?q=++",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"iudx",
+								"cat",
+								"v1",
+								"geo"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "++"
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}

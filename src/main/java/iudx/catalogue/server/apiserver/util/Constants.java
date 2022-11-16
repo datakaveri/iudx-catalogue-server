@@ -89,6 +89,7 @@ public class Constants {
   public static final String INVALID_SYNTAX = "invalidSyntax";
   public static final String INVALID_VALUE = "invalidValue";
   public static final String BAD_REQUEST = "Bad Request";
+  public static final String LOCATION_NOT_FOUND="location not found";
 
   /** Query Pattern */
   public static final String PATTERN_TEXT = "^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}";
