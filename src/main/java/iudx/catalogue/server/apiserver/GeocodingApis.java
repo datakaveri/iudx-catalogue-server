@@ -1,8 +1,10 @@
 /**
+ *
+ *
  * <h1>GeocodingApis.java</h1>
+ *
  * Callback handlers for Geocoding APIs
  */
-
 package iudx.catalogue.server.apiserver;
 
 import org.apache.logging.log4j.LogManager;
@@ -16,7 +18,6 @@ import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 
-
 import iudx.catalogue.server.geocoding.GeocodingService;
 
 public final class GeocodingApis {
@@ -24,8 +25,7 @@ public final class GeocodingApis {
   private GeocodingService geoService;
   private static final Logger LOGGER = LogManager.getLogger(GeocodingApis.class);
 
-  public GeocodingApis() {
-  }
+  public GeocodingApis() {}
 
   public void setGeoService(GeocodingService geoService) {
     this.geoService = geoService;
@@ -33,42 +33,77 @@ public final class GeocodingApis {
 
   /**
    * Get bounding box for location
+   *
    * @param routingContext handles web requests in Vert.x Web
    */
   public void getCoordinates(RoutingContext routingContext) {
-    String location = "";
+    String location = null;
     try {
-      if(routingContext.queryParams().contains("q")) {
+      if (routingContext.queryParams().contains("q")) {
         location = routingContext.queryParams().get("q");
       }
-      if(location.length() == 0) {
-        routingContext.response().setStatusCode(400).end();
+      if (location.length() == 0) {
+        LOGGER.error("NO location found");
+        routingContext
+            .response()
+            .putHeader("content-type", "application/json")
+            .setStatusCode(400)
+            .end(
+                new RespBuilder()
+                    .withType(TYPE_ITEM_NOT_FOUND)
+                    .withTitle(LOCATION_NOT_FOUND)
+                    .withDetail(FAILED)
+                    .getResponse());
         return;
       }
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       LOGGER.error("No query parameter");
-      routingContext.response().setStatusCode(400).end();
+      routingContext
+          .response()
+          .putHeader("content-type", "application/json")
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
+                  .withTitle(INVALID_VALUE)
+                  .withDetail(FAILED)
+                  .getResponse());
       return;
     }
-    geoService.geocoder(location, reply -> {
-      if(reply.succeeded()) {
-        routingContext.response().putHeader("content-type", "application/json")
-        .setStatusCode(200)
-        .end(reply.result());
-      }
-      else {
-        LOGGER.error("Failed to find coordinates");
-        routingContext.response()
-        .putHeader("content-type", "application/json")
-        .setStatusCode(400)
-        .end();
-      }
-    });
+    geoService.geocoder(
+        location,
+        reply -> {
+          if (reply.succeeded()) {
+            routingContext
+                .response()
+                .putHeader("content-type", "application/json")
+                .setStatusCode(200)
+                .end(
+                    new RespBuilder()
+                        .withType(TYPE_SUCCESS)
+                        .withTitle(TITLE)
+                        .totalHits(reply.result())
+                        .withResult(reply.result())
+                        .getResponse());
+          } else {
+            LOGGER.error("Failed to find coordinates");
+            routingContext
+                .response()
+                .putHeader("content-type", "application/json")
+                .setStatusCode(400)
+                .end(
+                    new RespBuilder()
+                        .withType(TYPE_INVALID_GEO_VALUE)
+                        .withTitle(TITLE_INVALID_GEO_VALUE)
+                        .withDetail(FAILED)
+                        .getResponse());
+          }
+        });
   }
 
   /**
    * Get location for coordinates
+   *
    * @param routingContext handles web requests in Vert.x Web
    */
   public void getLocation(RoutingContext routingContext) {
@@ -76,21 +111,20 @@ public final class GeocodingApis {
     JsonArray coordinates = new JsonArray();
     String geometry = "Point";
 
-
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
 
-    if (request.getParam(COORDINATES) == null 
-        || request.getParam(GEOMETRY) == null) {
+    if (request.getParam(COORDINATES) == null || request.getParam(GEOMETRY) == null) {
       LOGGER.error("Fail: Invalid Syntax");
-      response.setStatusCode(400)
-        .end(new RespBuilder()
+      response
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
                   .withType(TYPE_INVALID_SYNTAX)
                   .withTitle(TITLE_INVALID_SYNTAX)
                   .getResponse());
       return;
     }
-
 
     try {
       coordinates = new JsonArray(request.getParam(COORDINATES));
@@ -101,25 +135,31 @@ public final class GeocodingApis {
       }
     } catch (Exception e) {
       LOGGER.error("Failed to find location");
-      routingContext.response()
-        .putHeader("content-type", "application/json")
-        .setStatusCode(400)
-        .end();
+      routingContext
+          .response()
+          .putHeader("content-type", "application/json")
+          .setStatusCode(400)
+          .end();
     }
 
-    geoService.reverseGeocoder(coordinates.getString(1), coordinates.getString(0), reply -> {
-      if(reply.succeeded()) {
-        routingContext.response().putHeader("content-type","application/json")
-        .setStatusCode(200)
-        .end(reply.result().encode());
-      }
-      else {
-        LOGGER.error("Failed to find location");
-        routingContext.response()
-        .putHeader("content-type", "application/json")
-        .setStatusCode(400)
-        .end();
-      }
-    });
-    }
+    geoService.reverseGeocoder(
+        coordinates.getString(1),
+        coordinates.getString(0),
+        reply -> {
+          if (reply.succeeded()) {
+            routingContext
+                .response()
+                .putHeader("content-type", "application/json")
+                .setStatusCode(200)
+                .end(reply.result().encode());
+          } else {
+            LOGGER.error("Failed to find location");
+            routingContext
+                .response()
+                .putHeader("content-type", "application/json")
+                .setStatusCode(400)
+                .end();
+          }
+        });
   }
+}

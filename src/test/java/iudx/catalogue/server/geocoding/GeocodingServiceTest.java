@@ -88,15 +88,67 @@ public class GeocodingServiceTest {
   }
 
   @Test
-  @DisplayName("geoCoder test when handler succeeded")
-  void testGeoCoderSucceeded(VertxTestContext testContext) {
+  @DisplayName("geoCoder test when handler succeeded with max confidence")
+  void testGeocoderMaxConfidence(VertxTestContext testContext) {
     String location = "dummy";
     String peliasUrl = "dummy";
     int peliasPort = 200;
     JsonObject json = new JsonObject();
+    JsonObject feature = new JsonObject();
+    JsonObject properties = new JsonObject();
+    properties.put("confidence", 1);
+    feature.put("properties", properties);
     JsonArray jsonArray = new JsonArray();
-    jsonArray.add("dummy");
-    json.put("bbox", jsonArray);
+    jsonArray.add(feature);
+    json.put("features", jsonArray);
+    GeocodingServiceImpl.webClient = mock(WebClient.class);
+    when(webClient.get(anyInt(), anyString(), anyString())).thenReturn(httpRequest);
+    when(httpRequest.timeout(anyLong())).thenReturn(httpRequest);
+    when(httpRequest.addQueryParam(anyString(), anyString())).thenReturn(httpRequest);
+    when(httpRequest.putHeader(anyString(), anyString())).thenReturn(httpRequest);
+    when(ar.succeeded()).thenReturn(true);
+    when(ar.result()).thenReturn(httpResponse);
+    when(httpResponse.body()).thenReturn(buffer);
+    when(buffer.toJsonObject()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<HttpResponse<Buffer>>>() {
+              @Override
+              public AsyncResult<io.vertx.ext.web.client.HttpResponse<io.vertx.core.buffer.Buffer>>
+                  answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<HttpResponse<Buffer>>>) arg0.getArgument(0)).handle(ar);
+                return null;
+              }
+            })
+        .when(httpRequest)
+        .send(any());
+
+    geoService = new GeocodingServiceImpl(webClient, peliasUrl, peliasPort);
+    geoService.geocoder(
+        location,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(httpRequest, times(1)).send(any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("geoCoder test when handler succeeded with confidence equal to previous confidence")
+  void testGeocoderEqualConfidence(VertxTestContext testContext) {
+    String location = "dummy";
+    String peliasUrl = "dummy";
+    int peliasPort = 200;
+    JsonObject json = new JsonObject();
+    JsonObject feature = new JsonObject();
+    JsonObject properties = new JsonObject();
+    properties.put("confidence", 0);
+    feature.put("properties", properties);
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(feature);
+    json.put("features", jsonArray);
     GeocodingServiceImpl.webClient = mock(WebClient.class);
     when(webClient.get(anyInt(), anyString(), anyString())).thenReturn(httpRequest);
     when(httpRequest.timeout(anyLong())).thenReturn(httpRequest);
