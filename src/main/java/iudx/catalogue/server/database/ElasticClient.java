@@ -72,8 +72,11 @@ public final class ElasticClient {
 
   public ElasticClient scriptSearch(JsonArray queryVector, 
                                       Handler<AsyncResult<JsonObject>> resultHandler) {
-   // String query = NLP_SEARCH.replace("$1", queryVector.toString());
-       String query = "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}}, \"script\": {\"source\": \"cosineSimilarity(params.query_vector, '_word_vector') + 1.0\",\"lang\": \"painless\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}},\"_source\": {\"excludes\": [\"_word_vector\"]}}";
+      // String query = NLP_SEARCH.replace("$1", queryVector.toString());
+     String query = "{\"query\": {\"script_score\": {\"query\": {\"match\": {}}," +
+         " \"script\": {\"source\": \"doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0\"," +
+         "\"lang\": \"painless\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}}," +
+         "\"_source\": {\"excludes\": [\"_word_vector\"]}}";
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
@@ -90,7 +93,14 @@ public final class ElasticClient {
     //query.replace("$3", Float.toString(coords.getFloat(2)));
    // query.replace("$4", Float.toString(coords.getFloat(3)));
     //query.replace("$5", query.toString());
-        String query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}},\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",\"coordinates\": [ [" + Float.toString(coords.getFloat(0)) + "," + Float.toString(coords.getFloat(3)) +"], [" + Float.toString(coords.getFloat(2)) + "," + Float.toString(coords.getFloat(1)) + "]]},\"relation\": \"within\"}}}}},\"script\": {\"source\": \"cosineSimilarity(params.query_vector, '_word_vector') + 1.0\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}},\"_source\": {\"excludes\": [\"_word_vector\"]}}";
+    JsonObject obj = coords.getJsonObject(0);
+    String query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}}," +
+        "\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\"," +
+        "\"coordinates\": [ [" + Float.toString(obj.getJsonArray("bbox").getFloat(0)) + "," + Float.toString(obj.getJsonArray("bbox").getFloat(3)) +"]," +
+        " [" + Float.toString(obj.getJsonArray("bbox").getFloat(2)) + "," + Float.toString(obj.getJsonArray("bbox").getFloat(1)) + "]]}," +
+        "\"relation\": \"intersects\"}}}}},\"script\": {\"source\": \"doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0\"," +
+        "\"params\": {\"query_vector\":" + queryVector.toString() + "}}}}," +
+        "\"_source\": {\"excludes\": [\"_word_vector\"]}}";
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
