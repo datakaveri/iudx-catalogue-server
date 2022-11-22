@@ -166,6 +166,7 @@ public class Constants {
   public static final String TYPE_MISSING_TOKEN = "urn:dx:cat:MissingAuthorizationToken";
   public static final String TYPE_ITEM_NOT_FOUND = "urn:dx:cat:ItemNotFound";
   public static final String TYPE_INVALID_SYNTAX = "urn:dx:cat:InvalidSyntax";
+  public static final String TYPE_MISSING_PARAMS = "urn:dx:cat:MissingParams";
   public static final String TYPE_INTERNAL_SERVER_ERROR = "urn:dx:cat:InternalError";
   public static final String TYPE_OPERATION_NOT_ALLOWED = "urn:dx:cat:OperationNotAllowed";
   public static final String TYPE_LINK_VALIDATION_FAILED = "urn:dx:cat:LinkValidationFailed";
@@ -181,6 +182,7 @@ public class Constants {
   public static final String TITLE_MISSING_TOKEN = "Token is missing";
   public static final String TITLE_ITEM_NOT_FOUND = "Item is not found";
   public static final String TITLE_INVALID_SYNTAX = "Invalid Syntax";
+  public static final String TITLE_MISSING_PARAMS = "Missing parameters";
   public static final String TITLE_INTERNAL_SERVER_ERROR = "Internal error";
   public static final String TITLE_OPERATION_NOT_ALLOWED = "Operation not allowed";
   public static final String TITLE_LINK_VALIDATION_FAILED = "Link Validation Failed";
