@@ -31,6 +31,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
+import static iudx.catalogue.server.geocoding.util.Constants.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -367,6 +368,13 @@ public class GeocodingServiceTest {
   void testGeocoderHelper(VertxTestContext testContext) {
     String peliasUrl = "dummy";
     int peliasPort = 200;
+    JsonObject doc = new JsonObject()
+        .put(LOCATION, new JsonObject()
+            .put(GEOMETRY, new JsonObject()
+                .put(TYPE, "point")
+                .put(COORDINATES, new JsonArray()
+                    .add(0, "73.8723841")
+                    .add(1, "18.527615"))));
     JsonObject jsonObject = new JsonObject();
     JsonObject jsonObject2 = new JsonObject();
     JsonObject jsonObject3 = new JsonObject();
@@ -383,7 +391,6 @@ public class GeocodingServiceTest {
     jsonObject3.put("coordinates", jsonArray);
     jsonObject2.put("address", null);
     jsonObject2.put("geometry", jsonObject3);
-    jsonObject.put("location", jsonObject2);
     GeocodingServiceImpl.webClient = mock(WebClient.class);
     when(webClient.get(anyInt(), anyString(), anyString())).thenReturn(httpRequest);
     when(httpRequest.timeout(anyLong())).thenReturn(httpRequest);
@@ -406,7 +413,7 @@ public class GeocodingServiceTest {
         .send(any());
     geoService = new GeocodingServiceImpl(webClient, peliasUrl, peliasPort);
     geoService.geoSummarize(
-        jsonObject,
+        doc,
         handler -> {
           if (handler.succeeded()) {
             verify(httpRequest, times(1)).send(any());
