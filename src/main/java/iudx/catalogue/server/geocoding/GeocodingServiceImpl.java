@@ -181,7 +181,6 @@ public class GeocodingServiceImpl implements GeocodingService {
         JsonObject geometry = location.getJsonObject(GEOMETRY);
         JsonArray pos = geometry.getJsonArray(COORDINATES);
         String lon = pos.getString(0);
-        LOGGER.debug(lon);
         String lat = pos.getString(1);
         p2 = reverseGeocoderHelper(lat, lon);
       } else {
