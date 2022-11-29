@@ -53,46 +53,38 @@ public class GeocodingServiceImpl implements GeocodingService {
         .send(
             ar -> {
               if (ar.succeeded()
-                  && ar.result().body().toJsonObject().containsKey("features")
-                  && !ar.result().body().toJsonObject().getJsonArray("features").isEmpty()) {
-                JsonArray features = ar.result().body().toJsonObject().getJsonArray("features");
-                JsonObject property;
-                JsonObject element;
+                  && ar.result().body().toJsonObject().containsKey(FEATURES)
+                  && !ar.result().body().toJsonObject().getJsonArray(FEATURES).isEmpty()) {
+                JsonArray features = ar.result().body().toJsonObject().getJsonArray(FEATURES);
+                JsonObject property, feature, resultEntry;
                 double confidence = 0;
-                JsonArray jsonArray = new JsonArray();
-                JsonObject obj;
+                JsonArray resultArray = new JsonArray();
                 for (int i = 0; i < features.size(); i++) {
-                  element = features.getJsonObject(i);
-                  property = element.getJsonObject("properties");
-                  if ((confidence < property.getDouble("confidence") && jsonArray.isEmpty())
-                      || (confidence == property.getDouble("confidence"))) {
-                    confidence = property.getDouble("confidence");
-                    obj = new JsonObject();
-                    obj.put(NAME, property.getString("name"))
-                        .put(COUNTRY, property.getString("country"))
-                        .put(REGION, property.getString("region"))
-                        .put(COUNTY, property.getString("county"))
-                        .put(LOCALITY, property.getString("locality"))
-                        .put(BOROUGH, property.getString("borough"))
-                        .put(BBOX, element.getJsonArray("bbox"));
-                    jsonArray.add(obj);
-                  } else if (confidence < property.getDouble("confidence")
-                      && !jsonArray.isEmpty()) {
-                    confidence = property.getDouble("confidence");
-                    jsonArray = new JsonArray();
-                    obj = new JsonObject();
-                    obj.put(NAME, property.getString("name"))
-                        .put(COUNTRY, property.getString("country"))
-                        .put(REGION, property.getString("region"))
-                        .put(COUNTY, property.getString("county"))
-                        .put(LOCALITY, property.getString("locality"))
-                        .put(BOROUGH, property.getString("borough"))
-                        .put(BBOX, element.getJsonArray("bbox"));
-                    jsonArray.add(obj);
+                  feature = features.getJsonObject(i);
+                  property = feature.getJsonObject(PROPERTIES);
+                  resultEntry = new JsonObject();
+                  if ((confidence < property.getDouble(CONFIDENCE) && resultArray.isEmpty())
+                      || (confidence == property.getDouble(CONFIDENCE))) {
+                    confidence = property.getDouble(CONFIDENCE);
+                  } else if (confidence < property.getDouble(CONFIDENCE)
+                      && !resultArray.isEmpty()) {
+                    confidence = property.getDouble(CONFIDENCE);
+                    resultArray = new JsonArray();
+                    resultArray.add(resultEntry);
+                  }
+
+                  resultEntry = generateGeocodingJson(property);
+
+                  if (feature.getJsonArray(BBOX) == null) {
+                    continue;
+                  } else {
+                    resultEntry.put(BBOX, feature.getJsonArray(BBOX));
+                    resultArray.add(resultEntry);
                   }
                 }
                 LOGGER.debug("Request succeeded!");
-                handler.handle(Future.succeededFuture(jsonArray.toString()));
+                JsonObject result = new JsonObject().put(RESULTS, resultArray);
+                handler.handle(Future.succeededFuture(result.toString()));
 
               } else {
                 LOGGER.error("Failed to find coordinates");
@@ -101,16 +93,30 @@ public class GeocodingServiceImpl implements GeocodingService {
             });
   }
 
-  private Promise<String> geocoderHelper(String location) {
-    Promise<String> promise = Promise.promise();
+  private JsonObject generateGeocodingJson(JsonObject property) {
+    JsonObject resultEntry = new JsonObject();
+    if (property.containsKey(NAME)) resultEntry.put(NAME, property.getString(NAME));
+    if (property.containsKey(COUNTRY)) resultEntry.put(COUNTRY, property.getString(COUNTRY));
+    if (property.containsKey(REGION)) resultEntry.put(REGION, property.getString(REGION));
+    if (property.containsKey(COUNTY)) resultEntry.put(COUNTY, property.getString(COUNTY));
+    if (property.containsKey(LOCALITY)) resultEntry.put(LOCALITY, property.getString(LOCALITY));
+    if (property.containsKey(BOROUGH)) resultEntry.put(BOROUGH, property.getString(BOROUGH));
+
+    return resultEntry;
+  }
+
+  private Promise<JsonObject> geocoderHelper(String location) {
+    Promise<JsonObject> promise = Promise.promise();
     geocoder(
         location,
         ar -> {
           if (ar.succeeded()) {
-            promise.complete(ar.result());
+            LOGGER.debug(ar.result());
+            JsonObject arResToJson = new JsonObject(ar.result());
+            promise.complete(arResToJson);
           } else {
             LOGGER.error("Request failed!");
-            promise.complete("");
+            promise.complete(new JsonObject());
           }
         });
     return promise;
@@ -136,23 +142,20 @@ public class GeocodingServiceImpl implements GeocodingService {
             });
   }
 
-  private Promise<String> reverseGeocoderHelper(String lat, String lon) {
-    Promise<String> promise = Promise.promise();
+  private Promise<JsonObject> reverseGeocoderHelper(String lat, String lon) {
+    Promise<JsonObject> promise = Promise.promise();
     reverseGeocoder(
         lat,
         lon,
         ar -> {
           if (ar.succeeded()) {
-            JsonArray res = ar.result().getJsonArray("features");
-            JsonObject properties = res.getJsonObject(0).getJsonObject("properties");
-            JsonObject addr = new JsonObject();
-            addr.put("name", properties.getString("name"));
-            addr.put("borough", properties.getString("borough"));
-            addr.put("locality", properties.getString("locality"));
-            promise.complete(addr.toString());
+            JsonArray res = ar.result().getJsonArray(FEATURES);
+            JsonObject properties = res.getJsonObject(0).getJsonObject(PROPERTIES);
+            JsonObject addr = generateGeocodingJson(properties);
+            promise.complete(addr);
           } else {
             LOGGER.error("Request failed!");
-            promise.complete("{}");
+            promise.complete(new JsonObject());
           }
         });
     return promise;
@@ -160,41 +163,42 @@ public class GeocodingServiceImpl implements GeocodingService {
 
   @Override
   public void geoSummarize(JsonObject doc, Handler<AsyncResult<String>> handler) {
-    Promise<String> p1 = Promise.promise();
-    Promise<String> p2 = Promise.promise();
+    Promise<JsonObject> p1 = Promise.promise();
+    Promise<JsonObject> p2 = Promise.promise();
 
-    if (doc.containsKey("location")) {
+    if (doc.containsKey(LOCATION)) {
 
       /* Geocoding information*/
-      JsonObject location = doc.getJsonObject("location");
-      String address = location.getString("address");
+      JsonObject location = doc.getJsonObject(LOCATION);
+      String address = location.getString(ADDRESS);
       if (address != null) {
         p1 = geocoderHelper(address);
       } else {
-        p1.complete(new String());
+        p1.complete(new JsonObject());
       }
 
       /* Reverse Geocoding information */
-      if (location.containsKey("geometry")) {
-        JsonObject geometry = location.getJsonObject("geometry");
-        JsonArray pos = geometry.getJsonArray("coordinates");
+      if (location.containsKey(GEOMETRY)
+          && location.getJsonObject(GEOMETRY).getString(TYPE).equalsIgnoreCase("Point")) {
+        JsonObject geometry = location.getJsonObject(GEOMETRY);
+        JsonArray pos = geometry.getJsonArray(COORDINATES);
+        LOGGER.debug(geometry);
+        LOGGER.debug(pos);
         String lon = pos.getString(0);
+        LOGGER.debug(lon);
         String lat = pos.getString(1);
         p2 = reverseGeocoderHelper(lat, lon);
       } else {
-        p2.complete(new String());
+        p2.complete(new JsonObject());
       }
     }
     CompositeFuture.all(p1.future(), p2.future())
         .onSuccess(
             successHandler -> {
-              String j1 = successHandler.resultAt(0);
-              String j2 = successHandler.resultAt(1);
-              JsonObject res = new JsonObject();
-              res.put("_geocoded", j1);
-              res.put("_reverseGeocoded", j2);
+              JsonObject j1 = successHandler.resultAt(0);
+              JsonObject j2 = successHandler.resultAt(1);
+              JsonObject res = new JsonObject().put(GEOCODED, j1).put(REVERSE_GEOCODED, j2);
               handler.handle(Future.succeededFuture(res.toString()));
             });
-    return;
   }
 }
