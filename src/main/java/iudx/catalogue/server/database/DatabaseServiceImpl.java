@@ -1,5 +1,6 @@
 package iudx.catalogue.server.database;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -226,7 +227,13 @@ public class DatabaseServiceImpl implements DatabaseService {
             if (geoPluggedIn && nlpPluggedIn) {
               geoService.geoSummarize(doc, geoHandler -> {
                 /* Not going to check if success or fail */
-                doc.put(GEOSUMMARY_KEY, geoHandler.result());
+                JsonObject geoResult = new JsonObject();
+                try {
+                  geoResult = new JsonObject(geoHandler.result());
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+                doc.put(GEOSUMMARY_KEY,geoResult);
                 nlpService.getEmbedding(doc, ar -> {
                   if (ar.succeeded()) {
                     LOGGER.debug("Info: Document embeddings created");
