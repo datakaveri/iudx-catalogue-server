@@ -11,6 +11,7 @@ import iudx.catalogue.server.authenticator.model.JwtData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 
 import io.vertx.ext.web.RoutingContext;
@@ -24,14 +25,18 @@ import java.util.regex.Pattern;
 import java.util.HashSet;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.auditing.util.Constants.IUDX_ID;
-import static iudx.catalogue.server.auditing.util.Constants.API;
+import static iudx.catalogue.server.auditing.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
 import static iudx.catalogue.server.authenticator.Constants.ITEM_ENDPOINT;
 import static iudx.catalogue.server.authenticator.Constants.INSTANCE_ENDPOINT;
 import io.vertx.core.http.HttpMethod;
 import static iudx.catalogue.server.authenticator.Constants.TOKEN;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.ERROR;
+import static iudx.catalogue.server.util.Constants.ID;
+import static iudx.catalogue.server.util.Constants.METHOD;
+import static iudx.catalogue.server.util.Constants.STATUS;
+
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
@@ -482,17 +487,24 @@ public final class CrudApis {
   private void updateAuditTable(JsonObject jwtDecodedInfo, String[] otherInfo) {
     LOGGER.info("Updating audit table on successful transaction");
     JsonObject auditInfo = jwtDecodedInfo;
-    auditInfo
-            .put(IUDX_ID,otherInfo[0])
-            .put(API,otherInfo[1])
-            .put("httpMethod",otherInfo[2]);
-    LOGGER.debug("audit data: "+auditInfo.encodePrettily());
-    auditingService.executeWriteQuery(auditInfo, auditHandler -> {
-      if(auditHandler.succeeded()) {
+    ZonedDateTime zst = ZonedDateTime.now();
+    LOGGER.debug("TIME ZST: " + zst);
+    long epochTime = getEpochTime(zst);
+    auditInfo.put(IUDX_ID, otherInfo[0])
+            .put(API, otherInfo[1])
+            .put(METHOD, otherInfo[2])
+            .put(EPOCH_TIME, epochTime);
+    LOGGER.debug("audit data: " + auditInfo.encodePrettily());
+    auditingService.insertAuditngValuesInRMQ(auditInfo, auditHandler -> {
+      if (auditHandler.succeeded()) {
         LOGGER.info("audit table updated");
       } else {
         LOGGER.error("failed to update audit table");
       }
     });
+  }
+
+  private long getEpochTime(ZonedDateTime zst) {
+    return zst.toInstant().toEpochMilli();
   }
 }

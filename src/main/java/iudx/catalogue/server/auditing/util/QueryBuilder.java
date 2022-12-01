@@ -1,7 +1,5 @@
 package iudx.catalogue.server.auditing.util;
 
-import static iudx.catalogue.server.auditing.util.Constants.*;
-
 import io.vertx.core.json.JsonObject;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
@@ -9,6 +7,9 @@ import java.util.Arrays;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import static iudx.catalogue.server.auditing.util.Constants.*;
+
 
 public class QueryBuilder {
 
@@ -18,40 +19,13 @@ public class QueryBuilder {
     return zst.toInstant().toEpochMilli();
   }
 
-  public JsonObject buildWriteQuery(JsonObject request) {
+  public JsonObject buildMessageForRMQ(JsonObject request) {
+    String primaryKey = UUID.randomUUID().toString().replace("-", "");
+    request.put(PRIMARY_KEY, primaryKey)
+            .put(ORIGIN, ORIGIN_SERVER);
 
-    if(!request.containsKey(API) || !request.containsKey(METHOD) || !request.containsKey(USER_ROLE)
-            || !request.containsKey(USER_ID) || !request.containsKey(IID) || !request.containsKey(IUDX_ID)) {
-      return new JsonObject().put(ERROR,DATA_NOT_FOUND);
-    }
-
-    String primaryKey = UUID.randomUUID().toString().replace("-","");
-    String userRole = request.getString(USER_ROLE);
-    String userId = request.getString(USER_ID);
-    String iid = request.getString(IID);
-    String api = request.getString(API);
-    String method = request.getString(METHOD);
-    String iudxID = request.getString(IUDX_ID);
-    String databaseTableName= request.getString(DATABASE_TABLE_NAME);
-    ZonedDateTime zst = ZonedDateTime.now();
-    LOGGER.debug("TIME ZST: " + zst);
-    long time = getEpochTime(zst);
-
-    StringBuilder query =
-            new StringBuilder(
-                    WRITE_QUERY
-                            .replace("$0", databaseTableName)
-                            .replace("$1", primaryKey)
-                            .replace("$2", userRole)
-                            .replace("$3", userId)
-                            .replace("$4", iid)
-                            .replace("$5", api)
-                            .replace("$6", method)
-                            .replace("$7", Long.toString(time))
-                            .replace("$8", iudxID));
-
-    LOGGER.debug("Query " + query);
-    return new JsonObject().put(QUERY_KEY, query);
+    LOGGER.debug("request " + request);
+    return request;
   }
 
   public JsonObject buildReadQuery(JsonObject request) {
