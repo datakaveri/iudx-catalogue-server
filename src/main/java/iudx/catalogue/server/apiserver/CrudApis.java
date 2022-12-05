@@ -492,7 +492,7 @@ public final class CrudApis {
     long epochTime = getEpochTime(zst);
     auditInfo.put(IUDX_ID, otherInfo[0])
             .put(API, otherInfo[1])
-            .put(METHOD, otherInfo[2])
+            .put(HTTP_METHOD, otherInfo[2])
             .put(EPOCH_TIME, epochTime);
     LOGGER.debug("audit data: " + auditInfo.encodePrettily());
     auditingService.insertAuditngValuesInRMQ(auditInfo, auditHandler -> {
