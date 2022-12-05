@@ -385,9 +385,9 @@ public class RatingApis {
             auditInfo,
             auditHandler -> {
               if (auditHandler.succeeded()) {
-                LOGGER.info("audit table updated");
+                LOGGER.info("message published in RMQ.");
               } else {
-                LOGGER.error("failed to update audit table");
+                LOGGER.error("failed to publish message in RMQ.");
               }
             });
   }
