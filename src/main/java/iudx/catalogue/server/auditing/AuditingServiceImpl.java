@@ -1,32 +1,5 @@
 package iudx.catalogue.server.auditing;
 
-import static iudx.catalogue.server.auditing.util.Constants.API;
-import static iudx.catalogue.server.auditing.util.Constants.DATABASE_TABLE_NAME;
-import static iudx.catalogue.server.auditing.util.Constants.EMPTY_RESPONSE;
-import static iudx.catalogue.server.auditing.util.Constants.ERROR;
-import static iudx.catalogue.server.auditing.util.Constants.FAILED;
-import static iudx.catalogue.server.auditing.util.Constants.IID;
-import static iudx.catalogue.server.auditing.util.Constants.IUDX_ID;
-import static iudx.catalogue.server.auditing.util.Constants.MESSAGE;
-import static iudx.catalogue.server.auditing.util.Constants.METHOD;
-import static iudx.catalogue.server.auditing.util.Constants.QUERY_KEY;
-import static iudx.catalogue.server.auditing.util.Constants.RESULTS;
-import static iudx.catalogue.server.auditing.util.Constants.SUCCESS;
-import static iudx.catalogue.server.auditing.util.Constants.TIME;
-import static iudx.catalogue.server.auditing.util.Constants.TITLE;
-import static iudx.catalogue.server.auditing.util.Constants.USERID_NOT_FOUND;
-import static iudx.catalogue.server.auditing.util.Constants.USER_ID;
-import static iudx.catalogue.server.auditing.util.Constants.USER_ROLE;
-import static iudx.catalogue.server.auditing.util.Constants._API_COLUMN_NAME;
-import static iudx.catalogue.server.auditing.util.Constants._BODY_COLUMN_NAME;
-import static iudx.catalogue.server.auditing.util.Constants._ENDPOINT_COLUMN_NAME;
-import static iudx.catalogue.server.auditing.util.Constants._IID_COLUMN_NAME;
-import static iudx.catalogue.server.auditing.util.Constants._IUDX_COLUMN_NAME;
-import static iudx.catalogue.server.auditing.util.Constants._METHOD_COLUMN_NAME;
-import static iudx.catalogue.server.auditing.util.Constants._TIME_COLUMN_NAME;
-import static iudx.catalogue.server.auditing.util.Constants._USERID_COLUMN_NAME;
-import static iudx.catalogue.server.auditing.util.Constants._USERROLE_COLUMN_NAME;
-
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -41,8 +14,13 @@ import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
 import iudx.catalogue.server.auditing.util.QueryBuilder;
 import iudx.catalogue.server.auditing.util.ResponseBuilder;
+import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import static iudx.catalogue.server.auditing.util.Constants.*;
+import static iudx.catalogue.server.auditing.util.Constants.ROUTING_KEY;
+import static iudx.catalogue.server.util.Constants.BROKER_SERVICE_ADDRESS;
 
 public class AuditingServiceImpl implements AuditingService {
 
@@ -69,6 +47,7 @@ public class AuditingServiceImpl implements AuditingService {
   private int databasePoolSize;
   private String databaseTableName;
   private ResponseBuilder responseBuilder;
+  public static DataBrokerService rmqService;
 
   public AuditingServiceImpl(JsonObject propObj, Vertx vertxInstance) {
     if (propObj != null && !propObj.isEmpty()) {
@@ -93,6 +72,7 @@ public class AuditingServiceImpl implements AuditingService {
 
     this.poolOptions = new PoolOptions().setMaxSize(databasePoolSize);
     this.pool = PgPool.pool(vertxInstance, connectOptions, poolOptions);
+    this.rmqService = DataBrokerService.createProxy(vertxInstance,BROKER_SERVICE_ADDRESS);
 
     METHOD_COLUMN_NAME =
         _METHOD_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".")
@@ -122,29 +102,25 @@ public class AuditingServiceImpl implements AuditingService {
   }
 
   @Override
-  public AuditingService executeWriteQuery(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public AuditingService insertAuditngValuesInRMQ(
+          JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     request.put(DATABASE_TABLE_NAME, databaseTableName);
-    query = queryBuilder.buildWriteQuery(request);
+    JsonObject rmqMessage = new JsonObject();
 
-    if (query.containsKey(ERROR)) {
-      LOGGER.error("Fail: Query returned with an error: " + query.getString(ERROR));
-      responseBuilder =
-          new ResponseBuilder(FAILED).setTypeAndTitle(400).setMessage(query.getString(ERROR));
-      handler.handle(Future.failedFuture(responseBuilder.getResponse().toString()));
-      return null;
-    }
+    rmqMessage = queryBuilder.buildMessageForRMQ(request);
 
-    Future<JsonObject> result = writeInDatabase(query);
-    result.onComplete(
-        resultHandler -> {
-          if (resultHandler.succeeded()) {
-            handler.handle(Future.succeededFuture(resultHandler.result()));
-          } else if (resultHandler.failed()) {
-            LOGGER.error("failed ::" + resultHandler.cause());
-            handler.handle(Future.failedFuture((resultHandler.cause().getMessage())));
-          }
-        });
+    LOGGER.debug("audit rmq Message body: " + rmqMessage);
+    rmqService.publishMessage(rmqMessage, EXCHANGE_NAME, ROUTING_KEY,
+            rmqHandler -> {
+              if (rmqHandler.succeeded()) {
+                handler.handle(Future.succeededFuture());
+                LOGGER.info("inserted into rmq");
+              } else {
+                LOGGER.debug("failed to insert into rmq");
+                LOGGER.error(rmqHandler.cause());
+                handler.handle(Future.failedFuture(rmqHandler.cause().getMessage()));
+              }
+            });
     return this;
   }
 
@@ -240,34 +216,4 @@ public class AuditingServiceImpl implements AuditingService {
 
     return entries;
   }
-
-  private Future<JsonObject> writeInDatabase(JsonObject query) {
-    Promise<JsonObject> promise = Promise.promise();
-    JsonObject response = new JsonObject();
-    pool.withConnection(connection -> connection.query(query.getString(QUERY_KEY)).execute())
-        .onComplete(
-            rows -> {
-              if (rows.succeeded()) {
-                response.put(MESSAGE, "Table Updated Successfully");
-                responseBuilder =
-                    new ResponseBuilder(SUCCESS)
-                        .setTypeAndTitle(200)
-                        .setMessage(response.getString(MESSAGE));
-                LOGGER.debug("Info: " + responseBuilder.getResponse().toString());
-                promise.complete(responseBuilder.getResponse());
-              }
-              if (rows.failed()) {
-                LOGGER.error("Info: failed :" + rows.cause());
-                response.put(MESSAGE, rows.cause().getMessage());
-                responseBuilder =
-                    new ResponseBuilder(FAILED)
-                        .setTypeAndTitle(400)
-                        .setMessage(response.getString(MESSAGE));
-                LOGGER.debug("Info: " + responseBuilder.getResponse().toString());
-                promise.fail(responseBuilder.getResponse().toString());
-              }
-            });
-    return promise.future();
-  }
-
 }

@@ -13,20 +13,23 @@ import io.vertx.core.http.HttpServerResponse;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.apiserver.util.Constants.MIME_APPLICATION_JSON;
-import static iudx.catalogue.server.auditing.util.Constants.API;
-import static iudx.catalogue.server.auditing.util.Constants.IUDX_ID;
+import static iudx.catalogue.server.auditing.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.TOKEN;
 import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
 import static iudx.catalogue.server.authenticator.Constants.RATINGS_ENDPOINT;
 import static iudx.catalogue.server.rating.util.Constants.*;
+import static iudx.catalogue.server.rating.util.Constants.USER_ID;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.ID;
+import static iudx.catalogue.server.util.Constants.METHOD;
 import static iudx.catalogue.server.util.Constants.STATUS;
 
 import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.rating.RatingService;
+
+import java.time.ZonedDateTime;
 
 public class RatingApis {
   private static final Logger LOGGER = LogManager.getLogger(RatingApis.class);
@@ -370,15 +373,26 @@ public class RatingApis {
   private void updateAuditTable(JsonObject jwtDecodedInfo, String[] otherInfo) {
     LOGGER.info("Updating audit table on successful transaction");
     JsonObject auditInfo = jwtDecodedInfo;
-    auditInfo.put(IUDX_ID, otherInfo[0]).put(API, otherInfo[1]).put("httpMethod", otherInfo[2]);
-    auditingService.executeWriteQuery(
-        auditInfo,
-        auditHandler -> {
-          if (auditHandler.succeeded()) {
-            LOGGER.info("audit table updated");
-          } else {
-            LOGGER.error("failed to update audit table");
-          }
-        });
+    ZonedDateTime zst = ZonedDateTime.now();
+    LOGGER.debug("TIME ZST: " + zst);
+    long epochTime = getEpochTime(zst);
+    auditInfo.put(IUDX_ID, otherInfo[0])
+            .put(API, otherInfo[1])
+            .put(HTTP_METHOD, otherInfo[2])
+            .put(EPOCH_TIME, epochTime);
+    LOGGER.debug("audit auditInfo: " + auditInfo);
+    auditingService.insertAuditngValuesInRMQ(
+            auditInfo,
+            auditHandler -> {
+              if (auditHandler.succeeded()) {
+                LOGGER.info("message published in RMQ.");
+              } else {
+                LOGGER.error("failed to publish message in RMQ.");
+              }
+            });
+  }
+
+  private long getEpochTime(ZonedDateTime zst) {
+    return zst.toInstant().toEpochMilli();
   }
 }

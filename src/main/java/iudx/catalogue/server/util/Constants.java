@@ -99,6 +99,7 @@ public class Constants {
   public static final String MESSAGE = "detail";
   public static final String RESULTS = "results";
   public static final String METHOD = "method";
+  public static final String HTTP_METHOD = "httpMethod";
   public static final String STATUS = "title";
   public static final String TITLE = "title";
   public static final String TYPE = "type";

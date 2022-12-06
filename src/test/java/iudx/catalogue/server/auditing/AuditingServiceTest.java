@@ -3,9 +3,13 @@ package iudx.catalogue.server.auditing;
 import static iudx.catalogue.server.auditing.util.Constants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.junit5.VertxExtension;
@@ -15,9 +19,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 @ExtendWith({VertxExtension.class})
 public class AuditingServiceTest {
+
 
   private static final Logger LOGGER = LogManager.getLogger(AuditingServiceTest.class);
   private static AuditingService auditingService;
@@ -71,129 +78,49 @@ public class AuditingServiceTest {
     return jsonObject;
   }
 
-  @Test
-  @DisplayName("Testing write query w/o endpoint")
-  void writeForMissingEndpoint(VertxTestContext vertxTestContext){
-    JsonObject request = writeRequest();
-    request.remove(API);
-    auditingService.executeWriteQuery(
-      request,
-      vertxTestContext.failing(
-        response ->
-          vertxTestContext.verify(
-            () -> {
-                  LOGGER
-                      .debug("RESPONSE" + new JsonObject(response.getMessage()).getString(DETAIL));
-              assertEquals(DATA_NOT_FOUND, new JsonObject(response.getMessage()).getString(DETAIL));
-              vertxTestContext.completeNow();
-            })));
-  }
+    @Test
+    @DisplayName("Testing insertMeteringValuesInRMQ success")
+    void writeDataSuccessful(VertxTestContext vertxTestContext) {
+        JsonObject request = new JsonObject();
 
-  @Test
-  @DisplayName("Testing write query w/o method")
-  void writeForMissingMethod(VertxTestContext vertxTestContext){
-    JsonObject request = writeRequest();
-    request.remove(METHOD);
-    auditingService.executeWriteQuery(
-    request,
-    vertxTestContext.failing(
-      response ->
-        vertxTestContext.verify(
-          () -> {
-                  LOGGER
-                      .debug("RESPONSE" + new JsonObject(response.getMessage()).getString(DETAIL));
-            assertEquals(DATA_NOT_FOUND, new JsonObject(response.getMessage()).getString(DETAIL));
-            vertxTestContext.completeNow();
-          })));
-  }
+        request.put(USER_ROLE, "userRole");
+        request.put(USER_ID, "15c7506f-c800-48d6-adeb-0542b03947c6");
+        request.put(IID, "dummy IID");
+        request.put(IUDX_ID, "dummy IID");
+        request.put(API, "dummy api");
+        request.put(METHOD, "dummy metod");
+        request.put(EPOCH_TIME, 0.00);
+        request.put(PRIMARY_KEY, "dummy primary key");
+        request.put(ORIGIN, ORIGIN_SERVER);
+        AuditingServiceImpl auditingService = new AuditingServiceImpl(dbConfig, vertxObj);
 
-  @Test
-  @DisplayName("Testing write query w/o user role")
-  void writeForMissingUserRole(VertxTestContext vertxTestContext){
-    JsonObject request = writeRequest();
-    request.remove(USER_ROLE);
-    auditingService.executeWriteQuery(
-      request,
-      vertxTestContext.failing(
-        response ->
-          vertxTestContext.verify(
-            () -> {
-                  LOGGER
-                      .debug("RESPONSE" + new JsonObject(response.getMessage()).getString(DETAIL));
-              assertEquals(DATA_NOT_FOUND, new JsonObject(response.getMessage()).getString(DETAIL));
-              vertxTestContext.completeNow();
-            })));
-  }
+        AsyncResult<JsonObject> asyncResult = mock(AsyncResult.class);
+        AuditingServiceImpl.rmqService = mock(DataBrokerService.class);
 
-  @Test
-  @DisplayName("Testing write query w/o user ID")
-  void writeForMissingUserID(VertxTestContext vertxTestContext){
-    JsonObject request = writeRequest();
-    request.remove(USER_ID);
-    auditingService.executeWriteQuery(
-      request,
-      vertxTestContext.failing(
-        response ->
-          vertxTestContext.verify(
-            () -> {
-                  LOGGER
-                      .debug("RESPONSE" + new JsonObject(response.getMessage()).getString(DETAIL));
-              assertEquals(DATA_NOT_FOUND, new JsonObject(response.getMessage()).getString(DETAIL));
-              vertxTestContext.completeNow();
-            })));
-  }
+        when(asyncResult.succeeded()).thenReturn(true);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(auditingService.rmqService)
+                .publishMessage(any(), anyString(), anyString(), any());
 
-  @Test
-  @DisplayName("Testing write query w/o IID")
-  void writeForMissingIID(VertxTestContext vertxTestContext){
-    JsonObject request = writeRequest();
-    request.remove(IID);
-    auditingService.executeWriteQuery(
-      request,
-      vertxTestContext.failing(
-        response ->
-          vertxTestContext.verify(
-            () -> {
-                  LOGGER
-                      .debug("RESPONSE" + new JsonObject(response.getMessage()).getString(DETAIL));
-              assertEquals(DATA_NOT_FOUND, new JsonObject(response.getMessage()).getString(DETAIL));
-              vertxTestContext.completeNow();
-            })));
-  }
-
-  @Test
-  @DisplayName("Testing write query w/o IUDX ID")
-  void writeForMissingIUDXid(VertxTestContext vertxTestContext){
-    JsonObject request = writeRequest();
-    request.remove(IUDX_ID);
-    auditingService.executeWriteQuery(
-      request,
-      vertxTestContext.failing(
-        response ->
-          vertxTestContext.verify(
-          () -> {
-                  LOGGER
-                      .debug("RESPONSE" + new JsonObject(response.getMessage()).getString(DETAIL));
-            assertEquals(DATA_NOT_FOUND, new JsonObject(response.getMessage()).getString(DETAIL));
-            vertxTestContext.completeNow();
-          })));
-  }
-
-  @Test
-  @DisplayName("Testing Write Query")
-  void writeData(VertxTestContext vertxTestContext) {
-    JsonObject request = writeRequest();
-    auditingService.executeWriteQuery(
-    request,
-    vertxTestContext.succeeding(
-      response ->
-        vertxTestContext.verify(
-          () -> {
-                  LOGGER.debug("RESPONSE" + response.getString("title"));
-            assertEquals("success", response.getString("title"));
-            vertxTestContext.completeNow();
-          })));
-  }
+        auditingService.insertAuditngValuesInRMQ(
+                request,
+                handler -> {
+                    if (handler.succeeded()) {
+                        vertxTestContext.completeNow();
+                    } else {
+                        vertxTestContext.failNow("Failed");
+                    }
+                });
+        verify(auditingService.rmqService, times(1))
+                .publishMessage(any(), anyString(), anyString(), any());
+    }
 
   @Test
   @DisplayName("Failure-testing Read query for missing userId")
