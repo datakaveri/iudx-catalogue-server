@@ -238,9 +238,9 @@ public final class SearchApis {
           } else {
             geoService.geocoder(location, ar -> {
             if(ar.succeeded()) {
-              String bbox = ar.result();
-              LOGGER.debug("Info: bbox - " + bbox);
-              dbService.nlpSearchLocationQuery(embeddings, bbox, handler -> {
+              JsonObject results = new JsonObject(ar.result());
+              LOGGER.debug("Info: geocoding result - " + results);
+              dbService.nlpSearchLocationQuery(embeddings, results, handler -> {
                 if(handler.succeeded()) {
                   JsonObject resultJson = handler.result();
                   String status = resultJson.getString(STATUS);

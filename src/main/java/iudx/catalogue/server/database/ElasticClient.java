@@ -26,7 +26,11 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.geocoding.util.Constants.*;
+import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.RESULTS;
+import static iudx.catalogue.server.util.Constants.TYPE;
 
 public final class ElasticClient {
 
@@ -85,28 +89,66 @@ public final class ElasticClient {
     return this;
   }
 
-  public ElasticClient scriptLocationSearch(JsonArray queryVector, String bbox,
-  Handler<AsyncResult<JsonObject>> resultHandler) {
-    JsonArray coords = new JsonArray(bbox);
-    //String query = NLP_LOCATION_SEARCH.replace("$1", Float.toString(coords.getFloat(0)));
-    //query.replace("$2", Float.toString(coords.getFloat(1)));
-    //query.replace("$3", Float.toString(coords.getFloat(2)));
-   // query.replace("$4", Float.toString(coords.getFloat(3)));
-    //query.replace("$5", query.toString());
-    JsonObject obj = coords.getJsonObject(0);
-    String query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}}," +
-        "\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\"," +
-        "\"coordinates\": [ [" + Float.toString(obj.getJsonArray("bbox").getFloat(0)) + "," + Float.toString(obj.getJsonArray("bbox").getFloat(3)) +"]," +
-        " [" + Float.toString(obj.getJsonArray("bbox").getFloat(2)) + "," + Float.toString(obj.getJsonArray("bbox").getFloat(1)) + "]]}," +
-        "\"relation\": \"intersects\"}}}}},\"script\": {\"source\": \"doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0\"," +
-        "\"params\": {\"query_vector\":" + queryVector.toString() + "}}}}," +
-        "\"_source\": {\"excludes\": [\"_word_vector\"]}}";
+  public Future<JsonObject> scriptLocationSearch(JsonArray queryVector, JsonObject queryParams) {
+    Promise<JsonObject> promise = Promise.promise();
+    JsonArray bboxCoords = queryParams.getJsonArray(BBOX);
+//    JsonObject queryJson = new JsonObject()
+//        .put("query", new JsonObject()
+//            .put("script_score", new JsonObject()
+//                .put("query", new JsonObject()
+//                    .put("bool", new JsonObject()
+//                        .put("should", new JsonArray())))));
+    StringBuilder query = new StringBuilder("{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"should\": [");
+    if(queryParams.containsKey(BOROUGH)) {
+      query.append("{\"match\": {\"_geosummary._geocoded.results.borough\": \"").append(queryParams.getString(BOROUGH)).append("\"}},");
+    }
+    if(queryParams.containsKey(LOCALITY)) {
+      query.append("{\"match\": {\"_geosummary._geocoded.results.locality\": \"").append(queryParams.getString(LOCALITY)).append("\"}},");
+    }
+    if(queryParams.containsKey(COUNTY)) {
+      query.append("{\"match\": {\"_geosummary._geocoded.results.county\": \"").append(queryParams.getString(COUNTY)).append("\"}},");
+    }
+    if(queryParams.containsKey(REGION)) {
+      query.append("{\"match\": {\"_geosummary._geocoded.results.region\": \"").append(queryParams.getString(REGION)).append("\"}},");
+    }
+    if(queryParams.containsKey(COUNTRY)) {
+      query.append("{\"match\": {\"_geosummary._geocoded.results.country\": \"").append(queryParams.getString(COUNTRY)).append("\"}}");
+    } else {
+      query.deleteCharAt(query.length() - 1);
+    }
+    query.append("],\"minimum_should_match\": 1, \"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",")
+        .append("\"coordinates\": [ [ ").append(bboxCoords.getFloat(0)).append(",").append(bboxCoords.getFloat(3)).append("],")
+        .append("[").append(bboxCoords.getFloat(2)).append(",").append(bboxCoords.getFloat(1)).append("] ]}, \"relation\": \"intersects\" }}}}},")
+        .append("\"script\": {\"source\": \"doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0\",")
+        .append("\"params\": { \"query_vector\":").append(queryVector.toString()).append("}}}}, \"_source\": {\"excludes\": [\"_word_vector\"]}}");
+//    String bbox = queryParams.getString("","");
+//    JsonArray coords = new JsonArray(bbox);
+//    //String query = NLP_LOCATION_SEARCH.replace("$1", Float.toString(coords.getFloat(0)));
+//    //query.replace("$2", Float.toString(coords.getFloat(1)));
+//    //query.replace("$3", Float.toString(coords.getFloat(2)));
+//   // query.replace("$4", Float.toString(coords.getFloat(3)));
+//    //query.replace("$5", query.toString());
+//    JsonObject obj = coords.getJsonObject(0);
+//    query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}}," +
+//        "\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\"," +
+//        "\"coordinates\": [ [" + Float.toString(obj.getJsonArray("bbox").getFloat(0)) + "," + Float.toString(obj.getJsonArray("bbox").getFloat(3)) +"]," +
+//        " [" + Float.toString(obj.getJsonArray("bbox").getFloat(2)) + "," + Float.toString(obj.getJsonArray("bbox").getFloat(1)) + "]]}," +
+//        "\"relation\": \"intersects\"}}}}},\"script\": {\"source\": \"doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0\"," +
+//        "\"params\": {\"query_vector\":" + queryVector.toString() + "}}}}," +
+//        "\"_source\": {\"excludes\": [\"_word_vector\"]}}";
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
-    queryRequest.setJsonEntity(query);
+    queryRequest.setJsonEntity(query.toString());
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
-    future.onComplete(resultHandler);
-    return this;
+
+    future.onSuccess(h -> {
+        promise.complete(future.result());
+    }).onFailure(h -> {
+        promise.fail(future.cause());
+    });
+    return promise.future();
+//    future.onComplete(resultHandler);
+//    return this;
   }
 
 

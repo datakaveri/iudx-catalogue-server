@@ -153,8 +153,6 @@ public class Constants {
   + "{\"source\": \"cosineSimilarity(params.query_vector, '_word_vector'') + 1.0\",\"lang\":\"painless\",\"params\": "
   +"{\"query_vector\": \"$1\"}}}}}";
 
-  public static final String NLP_LOCATION_SEARCH = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\":"
-   +"{\"match_all\": {}},\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",\"coordinates\":"
-   + "[ [\"$1\" , \"$2\"], [ \"$3\" , \"$4\"]]},\"relation\": \"within\"}}}}},\"script\": {\"source\":"
-   + "\"cosineSimilarity(params.query_vector, '_word_vector'') + 1.0\",\"params\": {\"query_vector\": $5 }}}}}";
+  public static final String NLP_LOCATION_SEARCH = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"should\": [";
+
 }

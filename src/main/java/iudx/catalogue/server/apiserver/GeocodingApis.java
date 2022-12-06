@@ -74,6 +74,7 @@ public final class GeocodingApis {
         location,
         reply -> {
           if (reply.succeeded()) {
+            JsonObject  result = new JsonObject(reply.result());
             routingContext
                 .response()
                 .putHeader("content-type", "application/json")
@@ -81,10 +82,10 @@ public final class GeocodingApis {
                 .end(
                     new RespBuilder()
                         .withType(TYPE_SUCCESS)
-                        .withTitle(TITLE)
-                        .totalHits(reply.result())
-                        .withResult(reply.result())
-                        .getResponse());
+                        .withTitle(TITLE_SUCCESS)
+                        .totalHits(result.getJsonArray(RESULTS))
+                        .withResult(result.getJsonArray(RESULTS))
+                        .getJsonResponse().toString());
           } else {
             LOGGER.error("Failed to find coordinates");
             routingContext
