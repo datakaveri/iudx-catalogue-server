@@ -171,6 +171,7 @@ public class DatabaseServiceImplTest {
     databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
     JsonArray request = new JsonArray();
     JsonArray jsonArray = new JsonArray();
+    JsonObject jo = new JsonObject();
     String location = "dummy location";
     request.add(0, jsonArray);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -184,13 +185,13 @@ public class DatabaseServiceImplTest {
               }
             })
         .when(DatabaseServiceImpl.client)
-        .scriptLocationSearch(any(), any(), any());
+        .scriptLocationSearch(any(), any());
     databaseService.nlpSearchLocationQuery(
         request,
-        location,
+        jo,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).scriptLocationSearch(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).scriptLocationSearch(any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -204,6 +205,7 @@ public class DatabaseServiceImplTest {
     databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
     JsonArray request = new JsonArray();
     JsonArray jsonArray = new JsonArray();
+    JsonObject jo = new JsonObject();
     String location = "dummy location";
     request.add(0, jsonArray);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -219,13 +221,13 @@ public class DatabaseServiceImplTest {
               }
             })
         .when(DatabaseServiceImpl.client)
-        .scriptLocationSearch(any(), any(), any());
+        .scriptLocationSearch(any(), any());
     databaseService.nlpSearchLocationQuery(
         request,
-        location,
+        jo,
         handler -> {
           if (handler.failed()) {
-            verify(DatabaseServiceImpl.client, times(1)).scriptLocationSearch(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).scriptLocationSearch(any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");

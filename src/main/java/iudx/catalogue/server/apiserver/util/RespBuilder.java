@@ -41,8 +41,18 @@ public class RespBuilder {
     return this;
   }
 
+  public RespBuilder withResult(JsonArray resultArray) {
+    response.put(RESULTS, resultArray);
+    return this;
+  }
+
   public RespBuilder withResult(String resultJsonArray) {
     response.put(RESULTS, new JsonArray(resultJsonArray));
+    return this;
+  }
+
+  public RespBuilder totalHits(JsonArray jsonArray) {
+    totalHits(jsonArray.toString());
     return this;
   }
 

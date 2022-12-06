@@ -62,7 +62,7 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService nlpSearchLocationQuery(JsonArray request, String location,
+  DatabaseService nlpSearchLocationQuery(JsonArray request, JsonObject queryParams,
                                           Handler<AsyncResult<JsonObject>> handler);
 
   /**

@@ -1,15 +1,13 @@
 package iudx.catalogue.server.database;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Promise;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -137,17 +135,43 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   public DatabaseService nlpSearchLocationQuery(JsonArray request,
-                                                String location,
+                                                JsonObject queryParams,
                                                 Handler<AsyncResult<JsonObject>> handler) {
     JsonArray embeddings = request.getJsonArray(0);
-    client
-        .scriptLocationSearch(embeddings, location, searchRes -> {
-          if (searchRes.succeeded()) {
-            LOGGER.debug("Success:Successful DB request");
-            handler.handle(Future.succeededFuture(searchRes.result()));
-          } else {
-            LOGGER.error("Fail: DB request;" + searchRes.cause().getMessage());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+    JsonArray params = queryParams.getJsonArray(RESULTS);
+    JsonArray results = new JsonArray();
+
+    // For each geocoding result, make a script search asynchronously
+    List<Future> futures = new ArrayList<>();
+    params.stream().forEach(param -> {
+      futures.add(client.scriptLocationSearch(embeddings, (JsonObject) param));
+    });
+
+    // For each future, add the result to a result object
+    futures.forEach(future -> {
+      future.onSuccess(h -> {
+        JsonArray hr = ((JsonObject) h).getJsonArray(RESULTS);
+        hr.stream().forEach(r -> results.add(r));
+      });
+    });
+
+    // When all futures return, respond back with the result object in the response
+    CompositeFuture.all(futures)
+        .onComplete(ar -> {
+          if(ar.succeeded()) {
+            if(results.isEmpty()) {
+              RespBuilder respBuilder = new RespBuilder()
+                  .withType(TYPE_ITEM_NOT_FOUND)
+                  .withTitle(TITLE_ITEM_NOT_FOUND)
+                  .withDetail("NLP Search Failed");
+              handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+            } else {
+              RespBuilder respBuilder = new RespBuilder()
+                  .withType(TYPE_SUCCESS)
+                  .withTitle(TITLE_SUCCESS)
+                  .withResult(results);
+              handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+            }
           }
         });
 
