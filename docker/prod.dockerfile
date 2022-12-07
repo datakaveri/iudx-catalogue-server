@@ -1,7 +1,8 @@
 ARG VERSION="0.0.1-SNAPSHOT"
 
 # Maven base image for building the java code
-FROM maven:3-openjdk-11-slim as builder
+FROM maven:3-eclipse-temurin-11 as builder
+
 
 WORKDIR /usr/share/app
 COPY pom.xml .
@@ -12,7 +13,8 @@ COPY src src
 RUN mvn clean package -Dmaven.test.skip=true
 
 # Java runtime as final base image
-FROM openjdk:11-jre-slim-buster
+FROM eclipse-temurin:11-jre-focal
+
 
 ARG VERSION
 ENV JAR="iudx.catalogue.server-cluster-${VERSION}-fat.jar"
