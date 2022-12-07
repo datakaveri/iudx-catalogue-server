@@ -61,6 +61,7 @@ public class Constants {
   public static final String PROVIDER_ORG = "prvdrOrg";
   public static final String PROVIDER_ITEM = "pvdrItem";
   public static final String DATA_DES_ITEM = "dataDesItem";
+  public static final String USERID = "userid";
 
   public static final String ROUTE_GET_ITEM = basePath + "/items";
   public static final String ROUTE_COUNT = basePath + "/count";

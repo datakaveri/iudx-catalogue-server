@@ -3,6 +3,7 @@ package iudx.catalogue.server.apiserver;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import iudx.catalogue.server.auditing.AuditingService;
+import iudx.catalogue.server.auditing.util.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -380,7 +381,7 @@ public class RatingApis {
             .put(API, otherInfo[1])
             .put(HTTP_METHOD, otherInfo[2])
             .put(EPOCH_TIME, epochTime)
-            .put("userid",jwtDecodedInfo.getString("userID"));
+            .put(USERID,jwtDecodedInfo.getString(USER_ID));
     LOGGER.debug("audit auditInfo: " + auditInfo);
     auditingService.insertAuditngValuesInRMQ(
             auditInfo,

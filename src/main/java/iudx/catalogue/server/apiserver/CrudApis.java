@@ -495,7 +495,7 @@ public final class CrudApis {
             .put(API, otherInfo[1])
             .put(HTTP_METHOD, otherInfo[2])
             .put(EPOCH_TIME, epochTime)
-            .put("userid",jwtDecodedInfo.getString("userID"));
+            .put(USERID,jwtDecodedInfo.getString(USER_ID));
 
     LOGGER.debug("audit data: " + auditInfo.encodePrettily());
     auditingService.insertAuditngValuesInRMQ(auditInfo, auditHandler -> {
