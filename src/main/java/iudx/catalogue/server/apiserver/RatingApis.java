@@ -379,7 +379,8 @@ public class RatingApis {
     auditInfo.put(IUDX_ID, otherInfo[0])
             .put(API, otherInfo[1])
             .put(HTTP_METHOD, otherInfo[2])
-            .put(EPOCH_TIME, epochTime);
+            .put(EPOCH_TIME, epochTime)
+            .put("userid",jwtDecodedInfo.getString("userID"));
     LOGGER.debug("audit auditInfo: " + auditInfo);
     auditingService.insertAuditngValuesInRMQ(
             auditInfo,

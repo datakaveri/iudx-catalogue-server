@@ -486,6 +486,7 @@ public final class CrudApis {
    */
   private void updateAuditTable(JsonObject jwtDecodedInfo, String[] otherInfo) {
     LOGGER.info("Updating audit table on successful transaction");
+
     JsonObject auditInfo = jwtDecodedInfo;
     ZonedDateTime zst = ZonedDateTime.now();
     LOGGER.debug("TIME ZST: " + zst);
@@ -493,7 +494,9 @@ public final class CrudApis {
     auditInfo.put(IUDX_ID, otherInfo[0])
             .put(API, otherInfo[1])
             .put(HTTP_METHOD, otherInfo[2])
-            .put(EPOCH_TIME, epochTime);
+            .put(EPOCH_TIME, epochTime)
+            .put("userid",jwtDecodedInfo.getString("userID"));
+
     LOGGER.debug("audit data: " + auditInfo.encodePrettily());
     auditingService.insertAuditngValuesInRMQ(auditInfo, auditHandler -> {
       if (auditHandler.succeeded()) {
