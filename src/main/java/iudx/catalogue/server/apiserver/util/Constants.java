@@ -2,6 +2,8 @@ package iudx.catalogue.server.apiserver.util;
 
 import static iudx.catalogue.server.util.Constants.*;
 import io.vertx.core.http.HttpMethod;
+import iudx.catalogue.server.apiserver.ApiServerVerticle;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
@@ -38,7 +40,7 @@ public class Constants {
   /**
    *Routes
    */
-  private static String basePath = "/iudx/cat/v1";
+  private static String basePath = ApiServerVerticle.basePath;
   public static final String ROUTE_STATIC_SPEC = "/apis/spec";
   public static final String ROUTE_DOC = "/apis";
   public static final String ROUTE_ITEMS = basePath + "/item";

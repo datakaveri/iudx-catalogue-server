@@ -62,7 +62,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private String catAdmin;
   private boolean isSSL;
   private int port;
-
+  public static String basePath;
 
   private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
 
@@ -80,6 +80,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     catAdmin = config().getString(CAT_ADMIN);
     isSSL = config().getBoolean(IS_SSL);
 
+    basePath = config().getString("basePath");
 
     HttpServerOptions serverOptions = new HttpServerOptions();
 
