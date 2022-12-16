@@ -1,5 +1,7 @@
 package iudx.catalogue.server.authenticator;
 
+import iudx.catalogue.server.apiserver.ApiServerVerticle;
+
 public class Constants {
 
     public static final String AUTH_SERVER_HOST = "authServerHost";
@@ -22,7 +24,7 @@ public class Constants {
     public static final String JSON_USERID = "userid";
     public static final String API_ENDPOINT = "apiEndpoint";
     public static final String METHOD = "method";
-    public static final String ITEM_ENDPOINT = "/iudx/cat/v1/item";
-    public static final String INSTANCE_ENDPOINT = "/iudx/cat/v1/instance";
+    public static final String ITEM_ENDPOINT = ApiServerVerticle.basePath + "/item";
+    public static final String INSTANCE_ENDPOINT = ApiServerVerticle.basePath + "/instance";
     public static final String RATINGS_ENDPOINT = "/consumer/ratings";
 }
