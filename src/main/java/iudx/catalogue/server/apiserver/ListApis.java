@@ -5,6 +5,7 @@
 
 package iudx.catalogue.server.apiserver;
 
+import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,7 +29,7 @@ public final class ListApis {
   private DatabaseService dbService;
 
   private static final Logger LOGGER = LogManager.getLogger(ListApis.class);
-
+  private Api api;
 
   /**
    * Crud  constructor
@@ -37,7 +38,8 @@ public final class ListApis {
    * @return void
    * @TODO Throw error if load failed
    */
-  public ListApis() {
+  public ListApis(Api api) {
+    this.api = api;
   }
 
   public void setDbService(DatabaseService dbService) {

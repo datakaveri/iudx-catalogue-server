@@ -8,6 +8,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Objects;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
@@ -17,13 +19,12 @@ public class AuthorizationRequestTest {
     IudxRole iudxRole;
     @Mock
     Method method;
-    @Mock
-    Api api;
+
     @Test
     @DisplayName("Test getMethod method")
     public void test_toJson(VertxTestContext vertxTestContext)
     {
-        authorizationRequest=new AuthorizationRequest(method,api);
+        authorizationRequest=new AuthorizationRequest(method,"api");
         String actual= String.valueOf(authorizationRequest.getMethod());
         assertNotNull(actual);
         vertxTestContext.completeNow();
@@ -32,26 +33,22 @@ public class AuthorizationRequestTest {
     @DisplayName("Test getApi method")
     public void testGetApi(VertxTestContext vertxTestContext)
     {
-        authorizationRequest=new AuthorizationRequest(method,api);
+        authorizationRequest=new AuthorizationRequest(method,"api");
         assertNotNull(authorizationRequest.getApi());
         vertxTestContext.completeNow();
     }
     @Test
     @DisplayName("Test hashCode() method")
     public void testHashCode(VertxTestContext vertxTestContext){
-        final int prime=31;
-        int result = 1;
-        result = prime * result + ((api == null) ? 0 : api.hashCode());
-        result = prime * result + ((method == null) ? 0 : method.hashCode());
-
-        authorizationRequest=new AuthorizationRequest(method,api);
+        int result = Objects.hash(method, "api");
+        authorizationRequest=new AuthorizationRequest(method,"api");
         assertEquals(result,authorizationRequest.hashCode());
         vertxTestContext.completeNow();
     }
     @Test
     @DisplayName("Test equals method")
     public void testEquals(VertxTestContext vertxTestContext){
-        authorizationRequest=new AuthorizationRequest(method,api);
+        authorizationRequest=new AuthorizationRequest(method,"api");
         Object obj = new Object();
         authorizationRequest.equals(obj);
         obj=null;

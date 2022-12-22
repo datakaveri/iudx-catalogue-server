@@ -11,6 +11,7 @@ import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
 import iudx.catalogue.server.rating.RatingService;
+import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import iudx.catalogue.server.apiserver.util.ExceptionHandler;
@@ -63,6 +64,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   private boolean isSSL;
   private int port;
 
+  private String dxApiBasePath;
+  private Api api;
 
   private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
 
@@ -75,6 +78,9 @@ public class ApiServerVerticle extends AbstractVerticle {
   public void start() throws Exception {
 
     router = Router.router(vertx);
+
+    dxApiBasePath = config().getString("dxApiBasePath");
+    api = new Api(dxApiBasePath);
 
     /* Configure */
     catAdmin = config().getString(CAT_ADMIN);
@@ -121,12 +127,12 @@ public class ApiServerVerticle extends AbstractVerticle {
 
 
     /** API Callback managers */
-    crudApis = new CrudApis();
-    searchApis = new SearchApis();
-    listApis = new ListApis();
-    relApis = new RelationshipApis();
-    geoApis = new GeocodingApis();
-    ratingApis = new RatingApis();
+    crudApis = new CrudApis(api);
+    searchApis = new SearchApis(api);
+    listApis = new ListApis(api);
+    relApis = new RelationshipApis(api);
+    geoApis = new GeocodingApis(api);
+    ratingApis = new RatingApis(api);
     /**
      *
      * Get proxies and handlers
@@ -242,7 +248,7 @@ public class ApiServerVerticle extends AbstractVerticle {
      * Routes for item CRUD
      */
     /* Create Item - Body contains data */
-    router.post(ROUTE_ITEMS)
+    router.post(api.getRouteItems())
       .consumes(MIME_APPLICATION_JSON)
       .produces(MIME_APPLICATION_JSON)
       .failureHandler(exceptionhandler)
@@ -257,14 +263,14 @@ public class ApiServerVerticle extends AbstractVerticle {
       });
 
     /* Get Item */
-    router.get(ROUTE_ITEMS)
+    router.get(api.getRouteItems())
       .produces(MIME_APPLICATION_JSON)
       .handler( routingContext -> {
         crudApis.getItemHandler(routingContext);
       });
 
     /* Update Item - Body contains data */
-    router.put(ROUTE_UPDATE_ITEMS)
+    router.put(api.getRoutUpdateItems())
       .consumes(MIME_APPLICATION_JSON)
       .produces(MIME_APPLICATION_JSON)
       .handler(routingContext -> {
@@ -279,7 +285,7 @@ public class ApiServerVerticle extends AbstractVerticle {
       });
 
     /* Delete Item - Query param contains id */
-    router.delete(ROUTE_DELETE_ITEMS)
+    router.delete(api.getRouteDeleteItems())
       .produces(MIME_APPLICATION_JSON)
       .handler(routingContext -> {
         /* checking auhthentication info in requests */
@@ -294,7 +300,7 @@ public class ApiServerVerticle extends AbstractVerticle {
       });
 
     /* Create instance - Instance name in query param */
-    router.post(ROUTE_INSTANCE)
+    router.post(api.getRouteInstance())
       .produces(MIME_APPLICATION_JSON)
       .handler(routingContext -> {
         /* checking auhthentication info in requests */
@@ -307,7 +313,7 @@ public class ApiServerVerticle extends AbstractVerticle {
       });
 
     /* Delete instance - Instance name in query param */
-    router.delete(ROUTE_INSTANCE)
+    router.delete(api.getRouteInstance())
       .produces(MIME_APPLICATION_JSON)
       .handler(routingContext -> {
         /* checking auhthentication info in requests */
@@ -324,7 +330,7 @@ public class ApiServerVerticle extends AbstractVerticle {
      * Routes for search and count
      */
     /* Search for an item */
-    router.get(ROUTE_SEARCH)
+    router.get(api.getRouteSearch())
       .produces(MIME_APPLICATION_JSON)
       .failureHandler(exceptionhandler)
       .handler( routingContext -> {
@@ -332,14 +338,14 @@ public class ApiServerVerticle extends AbstractVerticle {
       });
 
     /* NLP Search */
-    router.get(ROUTE_NLP_SEARCH)
+    router.get(api.getRouteNlpSearch())
       .produces(MIME_APPLICATION_JSON)
       .handler(routingContext -> {
         searchApis.nlpSearchHandler(routingContext);
       });
 
     /* Count the Cataloque server items */
-    router.get(ROUTE_COUNT)
+    router.get(api.getRouteCount())
       .produces(MIME_APPLICATION_JSON)
       .handler( routingContext -> {
         searchApis.searchHandler(routingContext);
@@ -350,7 +356,7 @@ public class ApiServerVerticle extends AbstractVerticle {
      * Routes for list
      */
     /* list the item from database using itemId */
-    router.get(ROUTE_LIST_ITEMS)
+    router.get(api.getRouteListItems())
       .produces(MIME_APPLICATION_JSON)
       .handler(routingContext -> {
         listApis.listItemsHandler(routingContext);
@@ -360,25 +366,25 @@ public class ApiServerVerticle extends AbstractVerticle {
      * Routes for relationships
      */
     /* Relationship related search */
-    router.get(ROUTE_REL_SEARCH)
+    router.get(api.getRouteRelSearch())
       .handler( routingContext -> {
         relApis.relSearchHandler(routingContext);
       });
 
     /* Get all resources belonging to a resource group */
-    router.get(ROUTE_RELATIONSHIP).handler(routingContext -> {
+    router.get(api.getRouteRelationship()).handler(routingContext -> {
       relApis.listRelationshipHandler(routingContext);
     });
 
     /**
      * Routes for Geocoding
      */
-    router.get(ROUTE_GEO_COORDINATES)
+    router.get(api.getRouteGeoCoordinates())
       .handler(routingContext -> {
         geoApis.getCoordinates(routingContext);
       });
 
-    router.get(ROUTE_GEO_REVERSE)
+    router.get(api.getRouteGeoReverse())
       .handler(routingContext -> {
         geoApis.getLocation(routingContext);
       });

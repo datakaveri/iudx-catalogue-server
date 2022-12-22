@@ -38,20 +38,21 @@ public class Constants {
   /**
    *Routes
    */
-  private static String basePath = "/iudx/cat/v1";
+  // private static String basePath = "/iudx/cat/v1";
   public static final String ROUTE_STATIC_SPEC = "/apis/spec";
   public static final String ROUTE_DOC = "/apis";
-  public static final String ROUTE_ITEMS = basePath + "/item";
-  public static final String ROUTE_UPDATE_ITEMS = basePath + "/item";
-  public static final String ROUTE_DELETE_ITEMS = basePath + "/item";
-  public static final String ROUTE_INSTANCE = basePath + "/instance";
+  public static final String ROUTE_ITEMS =  "/item";
+  public static final String ROUTE_UPDATE_ITEMS =  "/item";
+  public static final String ROUTE_DELETE_ITEMS = "/item";
+  public static final String ROUTE_INSTANCE = "/instance";
+  ///////////////////////////////////////////////////////////////
   public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
-      basePath + "\\/(?<id>.*)\\/resourceGroup";
-
-  public static final String ROUTE_RELATIONSHIP = basePath + "/relationship";
-  public static final String ROUTE_SEARCH = basePath + "/search";
-  public static final String ROUTE_NLP_SEARCH = basePath + "/nlpsearch";
-  public static final String ROUTE_LIST_ITEMS = basePath + "/list/:itemType";
+       "\\/(?<id>.*)\\/resourceGroup";
+///////////////////////////////////////////////////////////
+  public static final String ROUTE_RELATIONSHIP =  "/relationship";
+  public static final String ROUTE_SEARCH =  "/search";
+  public static final String ROUTE_NLP_SEARCH =  "/nlpsearch";
+  public static final String ROUTE_LIST_ITEMS =  "/list/:itemType";
 
   public static final String ROUTE_RATING = "/consumer/ratings";
 
@@ -63,12 +64,12 @@ public class Constants {
   public static final String DATA_DES_ITEM = "dataDesItem";
   public static final String USERID = "userid";
 
-  public static final String ROUTE_GET_ITEM = basePath + "/items";
-  public static final String ROUTE_COUNT = basePath + "/count";
-  public static final String ROUTE_REL_SEARCH = basePath + "/relsearch";
+  public static final String ROUTE_GET_ITEM =  "/items";
+  public static final String ROUTE_COUNT =  "/count";
+  public static final String ROUTE_REL_SEARCH =  "/relsearch";
 
-  public static final String ROUTE_GEO_COORDINATES = basePath + "/geo";
-  public static final String ROUTE_GEO_REVERSE = basePath + "/reversegeo";
+  public static final String ROUTE_GEO_COORDINATES =  "/geo";
+  public static final String ROUTE_GEO_REVERSE =  "/reversegeo";
 
   public static final String PROVIDER_NAME = "provider.name";
   public static final String PARTIAL_CONTENT = "partial-content";
