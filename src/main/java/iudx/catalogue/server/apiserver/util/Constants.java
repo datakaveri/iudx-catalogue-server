@@ -45,10 +45,9 @@ public class Constants {
   public static final String ROUTE_UPDATE_ITEMS =  "/item";
   public static final String ROUTE_DELETE_ITEMS = "/item";
   public static final String ROUTE_INSTANCE = "/instance";
-  ///////////////////////////////////////////////////////////////
   public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
        "\\/(?<id>.*)\\/resourceGroup";
-///////////////////////////////////////////////////////////
+
   public static final String ROUTE_RELATIONSHIP =  "/relationship";
   public static final String ROUTE_SEARCH =  "/search";
   public static final String ROUTE_NLP_SEARCH =  "/nlpsearch";
