@@ -40,7 +40,7 @@ public final class ElasticClient {
 
   /**
    * ElasticClient - Wrapper around ElasticSearch low level client
-   * 
+   *
    * @param databaseIP IP of the DB
    * @param databasePort Port
    * @TODO XPack Security
@@ -58,7 +58,7 @@ public final class ElasticClient {
 
   /**
    * searchAsync - Wrapper around elasticsearch async search requests
-   * 
+   *
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
@@ -74,7 +74,7 @@ public final class ElasticClient {
     return this;
   }
 
-  public ElasticClient scriptSearch(JsonArray queryVector, 
+  public ElasticClient scriptSearch(JsonArray queryVector,
                                       Handler<AsyncResult<JsonObject>> resultHandler) {
       // String query = NLP_SEARCH.replace("$1", queryVector.toString());
      String query = "{\"query\": {\"script_score\": {\"query\": {\"match\": {}}," +
@@ -92,12 +92,7 @@ public final class ElasticClient {
   public Future<JsonObject> scriptLocationSearch(JsonArray queryVector, JsonObject queryParams) {
     Promise<JsonObject> promise = Promise.promise();
     JsonArray bboxCoords = queryParams.getJsonArray(BBOX);
-//    JsonObject queryJson = new JsonObject()
-//        .put("query", new JsonObject()
-//            .put("script_score", new JsonObject()
-//                .put("query", new JsonObject()
-//                    .put("bool", new JsonObject()
-//                        .put("should", new JsonArray())))));
+
     StringBuilder query = new StringBuilder("{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"should\": [");
     if(queryParams.containsKey(BOROUGH)) {
       query.append("{\"match\": {\"_geosummary._geocoded.results.borough\": \"").append(queryParams.getString(BOROUGH)).append("\"}},");
@@ -121,21 +116,6 @@ public final class ElasticClient {
         .append("[").append(bboxCoords.getFloat(2)).append(",").append(bboxCoords.getFloat(1)).append("] ]}, \"relation\": \"intersects\" }}}}},")
         .append("\"script\": {\"source\": \"doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0\",")
         .append("\"params\": { \"query_vector\":").append(queryVector.toString()).append("}}}}, \"_source\": {\"excludes\": [\"_word_vector\"]}}");
-//    String bbox = queryParams.getString("","");
-//    JsonArray coords = new JsonArray(bbox);
-//    //String query = NLP_LOCATION_SEARCH.replace("$1", Float.toString(coords.getFloat(0)));
-//    //query.replace("$2", Float.toString(coords.getFloat(1)));
-//    //query.replace("$3", Float.toString(coords.getFloat(2)));
-//   // query.replace("$4", Float.toString(coords.getFloat(3)));
-//    //query.replace("$5", query.toString());
-//    JsonObject obj = coords.getJsonObject(0);
-//    query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}}," +
-//        "\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\"," +
-//        "\"coordinates\": [ [" + Float.toString(obj.getJsonArray("bbox").getFloat(0)) + "," + Float.toString(obj.getJsonArray("bbox").getFloat(3)) +"]," +
-//        " [" + Float.toString(obj.getJsonArray("bbox").getFloat(2)) + "," + Float.toString(obj.getJsonArray("bbox").getFloat(1)) + "]]}," +
-//        "\"relation\": \"intersects\"}}}}},\"script\": {\"source\": \"doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0\"," +
-//        "\"params\": {\"query_vector\":" + queryVector.toString() + "}}}}," +
-//        "\"_source\": {\"excludes\": [\"_word_vector\"]}}";
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query.toString());
@@ -147,14 +127,12 @@ public final class ElasticClient {
         promise.fail(future.cause());
     });
     return promise.future();
-//    future.onComplete(resultHandler);
-//    return this;
   }
 
 
   /**
    * searchGetIdAsync - Get document IDs matching a query
-   * 
+   *
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
@@ -182,7 +160,7 @@ public final class ElasticClient {
 
   /**
    * aggregationsAsync - Wrapper around elasticsearch async search requests
-   * 
+   *
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
@@ -190,7 +168,7 @@ public final class ElasticClient {
   public ElasticClient listAggregationAsync(String query,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
-    Request queryRequest = new Request(REQUEST_GET, index 
+    Request queryRequest = new Request(REQUEST_GET, index
                               + "/_search"
                               + FILTER_PATH_AGGREGATION);
     queryRequest.setJsonEntity(query);
@@ -201,7 +179,7 @@ public final class ElasticClient {
 
   /**
    * countAsync - Wrapper around elasticsearch async count requests
-   * 
+   *
    * @param index Index to search on
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
@@ -219,7 +197,7 @@ public final class ElasticClient {
 
   /**
    * docPostAsync - Wrapper around elasticsearch async doc post request
-   * 
+   *
    * @param index Index to search on
    * @param doc Document
    * @param resultHandler JsonObject
@@ -240,7 +218,7 @@ public final class ElasticClient {
 
   /**
    * docPutAsync - Wrapper around elasticsearch async doc put request
-   * 
+   *
    * @param index Index to search on
    * @param docId Document id (elastic id)
    * @param doc Document
@@ -260,7 +238,7 @@ public final class ElasticClient {
 
   /**
    * docDelAsync - Wrapper around elasticsearch async doc delete request
-   * 
+   *
    * @param index Index to search on
    * @param doc Document
    * @param resultHandler JsonObject
@@ -281,7 +259,7 @@ public final class ElasticClient {
    * DBRespMsgBuilder} Message builder for search APIs
    */
   private class DBRespMsgBuilder {
-    private JsonObject response = new JsonObject(); 
+    private JsonObject response = new JsonObject();
     private JsonArray results = new JsonArray();
 
     DBRespMsgBuilder() {
@@ -322,7 +300,7 @@ public final class ElasticClient {
 
   /**
    * searchAsync - private function which perform performRequestAsync for search apis
-   * 
+   *
    * @param request Elastic Request
    * @param options SOURCE - Source only
    *                DOCIDS - DOCIDs only
@@ -406,7 +384,7 @@ public final class ElasticClient {
 
   /**
    * countAsync - private function which perform performRequestAsync for count apis
-   * 
+   *
    * @param request Elastic Request
    * @param options SOURCE - Source only
    *                DOCIDS - DOCIDs only
@@ -450,7 +428,7 @@ public final class ElasticClient {
 
   /**
    * docAsync - private function which perform performRequestAsync for doc apis
-   * 
+   *
    * @param request Elastic Request
    * @param options SOURCE - Source only
    *                DOCIDS - DOCIDs only
