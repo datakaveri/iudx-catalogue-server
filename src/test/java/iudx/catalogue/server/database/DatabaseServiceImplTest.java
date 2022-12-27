@@ -1,9 +1,6 @@
 package iudx.catalogue.server.database;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -170,63 +167,19 @@ public class DatabaseServiceImplTest {
   public void testSearchLocationQuery(VertxTestContext vertxTestContext) {
     databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
     JsonArray request = new JsonArray();
-    JsonArray jsonArray = new JsonArray();
-    JsonObject jo = new JsonObject();
-    String location = "dummy location";
+    JsonArray jsonArray = new JsonArray().add(new JsonObject().put("country","India"));
+    JsonObject jo = new JsonObject().put(RESULTS, jsonArray);
     request.add(0, jsonArray);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
-    when(asyncResult.succeeded()).thenReturn(true);
-    doAnswer(
-            new Answer<AsyncResult<JsonObject>>() {
-              @Override
-              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                return null;
-              }
-            })
+    doAnswer(Answer -> Future.succeededFuture(jo))
         .when(DatabaseServiceImpl.client)
-        .scriptLocationSearch(any(), any());
+            .scriptLocationSearch(any(),any());
+
     databaseService.nlpSearchLocationQuery(
         request,
         jo,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).scriptLocationSearch(any(), any());
-            vertxTestContext.completeNow();
-          } else {
-            vertxTestContext.failNow("Fail");
-          }
-        });
-  }
-
-  @Test
-  @Description("test nlpSearchLocationQuery when handler failed ")
-  public void testSearchLocationQueryFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
-    JsonArray request = new JsonArray();
-    JsonArray jsonArray = new JsonArray();
-    JsonObject jo = new JsonObject();
-    String location = "dummy location";
-    request.add(0, jsonArray);
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
-    when(asyncResult.succeeded()).thenReturn(false);
-    when(asyncResult.cause()).thenReturn(throwable);
-    when(throwable.getMessage()).thenReturn("dummy");
-    doAnswer(
-            new Answer<AsyncResult<JsonObject>>() {
-              @Override
-              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                return null;
-              }
-            })
-        .when(DatabaseServiceImpl.client)
-        .scriptLocationSearch(any(), any());
-    databaseService.nlpSearchLocationQuery(
-        request,
-        jo,
-        handler -> {
-          if (handler.failed()) {
             verify(DatabaseServiceImpl.client, times(1)).scriptLocationSearch(any(), any());
             vertxTestContext.completeNow();
           } else {
