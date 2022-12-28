@@ -56,7 +56,7 @@ public class JwtAuthServiceImplTest {
     jwtAuthOptions.getJWTOptions().setIgnoreExpiration(true);
     JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
     dxApiBasePath = authConfig.getString("dxApiBasePath");
-    api = new Api(dxApiBasePath);
+    api = Api.getInstance(dxApiBasePath);
     jwtAuthenticationService = new JwtAuthenticationServiceImpl(vertx,  jwtAuth, authConfig, api);
 
     LOGGER.info("Auth tests setup complete");

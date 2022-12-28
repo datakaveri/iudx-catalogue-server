@@ -18,12 +18,28 @@ import iudx.catalogue.server.authenticator.model.JwtData;
 public class DelegateAuthStrategy implements AuthorizationStratergy{
   private static final Logger LOGGER = LogManager.getLogger(DelegateAuthStrategy.class);
   private Api api;
+  private static volatile DelegateAuthStrategy instance;
   static List<AuthorizationRequest> accessList = new ArrayList<>();
 
-  public  DelegateAuthStrategy(Api api)
+  private DelegateAuthStrategy(Api api)
   {
     this.api = api;
     buildPermissions(api);
+  }
+
+  public static DelegateAuthStrategy getInstance(Api api)
+  {
+    if (instance == null)
+    {
+      synchronized (DelegateAuthStrategy.class)
+      {
+        if (instance == null)
+        {
+          instance = new DelegateAuthStrategy(api);
+        }
+      }
+    }
+    return instance;
   }
   private void buildPermissions(Api api) {
     // /item access rules

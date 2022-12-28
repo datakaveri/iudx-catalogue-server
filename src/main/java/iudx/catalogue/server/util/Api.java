@@ -29,12 +29,27 @@ public class Api {
     private StringBuilder routeListResourceGroupRel;
 
     private static final Logger LOG = LogManager.getLogger(Api.class);
+    private static volatile Api apiInstance;
 
-    public Api(String dxApiBasePath) {
+    private Api(String dxApiBasePath) {
         this.dxApiBasePath = dxApiBasePath;
         buildEndpoints();
     }
 
+    public static Api getInstance(String dxApiBasePath)
+    {
+        if (apiInstance == null)
+        {
+            synchronized (Api.class)
+            {
+                if (apiInstance == null)
+                {
+                    apiInstance = new Api(dxApiBasePath);
+                }
+            }
+        }
+        return apiInstance;
+    }
 
     public void buildEndpoints() {
         routeItems = new StringBuilder(dxApiBasePath).append(ROUTE_ITEMS);

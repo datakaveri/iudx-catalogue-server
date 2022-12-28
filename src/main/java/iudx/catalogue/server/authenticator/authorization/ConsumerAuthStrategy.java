@@ -15,10 +15,25 @@ public class ConsumerAuthStrategy implements AuthorizationStratergy {
   private static final Logger LOGGER = LogManager.getLogger(ProviderAuthStrategy.class);
 
   static List<AuthorizationRequest> accessList = new ArrayList<>();
+  private static volatile ConsumerAuthStrategy instance;
   private Api api;
-  public ConsumerAuthStrategy(Api api) {
+  private ConsumerAuthStrategy(Api api) {
     this.api = api;
     buildPermissions(api);
+  }
+  public static ConsumerAuthStrategy getInstance(Api api)
+  {
+    if (instance == null)
+    {
+      synchronized (ConsumerAuthStrategy.class)
+      {
+        if (instance == null)
+        {
+          instance = new ConsumerAuthStrategy(api);
+        }
+      }
+    }
+    return instance;
   }
   private void buildPermissions(Api api) {
     accessList.add(new AuthorizationRequest(GET, ROUTE_RATING));

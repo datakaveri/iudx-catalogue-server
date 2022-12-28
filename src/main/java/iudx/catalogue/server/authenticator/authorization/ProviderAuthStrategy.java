@@ -19,10 +19,26 @@ public class ProviderAuthStrategy implements AuthorizationStratergy{
   private static final Logger LOGGER = LogManager.getLogger(ProviderAuthStrategy.class);
   static List<AuthorizationRequest> accessList = new ArrayList<>();
   private Api api;
-  public ProviderAuthStrategy(Api api)
+  private static volatile ProviderAuthStrategy instance;
+  private ProviderAuthStrategy(Api api)
   {
     this.api = api;
     buildPermissions(api);
+  }
+
+  public static ProviderAuthStrategy getInstance(Api api)
+  {
+    if (instance == null)
+    {
+      synchronized (ProviderAuthStrategy.class)
+      {
+        if (instance == null)
+        {
+          instance = new ProviderAuthStrategy(api);
+        }
+      }
+    }
+    return instance;
   }
   private void buildPermissions(Api api) {
     // /item access list

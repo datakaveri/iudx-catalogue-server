@@ -80,7 +80,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     router = Router.router(vertx);
 
     dxApiBasePath = config().getString("dxApiBasePath");
-    api = new Api(dxApiBasePath);
+    api = Api.getInstance(dxApiBasePath);
 
     /* Configure */
     catAdmin = config().getString(CAT_ADMIN);

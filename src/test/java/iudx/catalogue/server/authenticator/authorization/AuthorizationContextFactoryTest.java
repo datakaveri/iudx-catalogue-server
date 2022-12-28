@@ -35,7 +35,7 @@ public class AuthorizationContextFactoryTest {
     public void init(VertxTestContext vertxTestContext)
     {
         dxApiBasePath = "/iudx/cat/v1";
-        api = new Api(dxApiBasePath);
+        api = Api.getInstance(dxApiBasePath);
         vertxTestContext.completeNow();
     }
     @Test
@@ -43,7 +43,7 @@ public class AuthorizationContextFactoryTest {
     public void testCreate(VertxTestContext vertxTestContext) {
         authorizationContextFactory=new AuthorizationContextFactory();
         String role="consumer";
-        consumerAuthStrategy=new ConsumerAuthStrategy(this.api);
+        consumerAuthStrategy= ConsumerAuthStrategy.getInstance(this.api);
         assertFalse(consumerAuthStrategy.isAuthorized(authRequest,jwtData));
         assertNotNull(AuthorizationContextFactory.create(role,this.api));
         vertxTestContext.completeNow();
@@ -53,7 +53,7 @@ public class AuthorizationContextFactoryTest {
     public void testCreateDelegate(VertxTestContext vertxTestContext) {
         authorizationContextFactory=new AuthorizationContextFactory();
         String role="delegate";
-        delegateAuthStrategy=new DelegateAuthStrategy(this.api);
+        delegateAuthStrategy= DelegateAuthStrategy.getInstance(this.api);
         assertFalse(delegateAuthStrategy.isAuthorized(authRequest,jwtData));
         assertNotNull(AuthorizationContextFactory.create(role,this.api));
         vertxTestContext.completeNow();

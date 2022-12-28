@@ -87,7 +87,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
       JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
 
       dxApiBasePath = config().getString("dxApiBasePath");
-      api = new Api(dxApiBasePath);
+      api = Api.getInstance(dxApiBasePath);
       jwtAuthenticationService =
               new JwtAuthenticationServiceImpl(vertx, jwtAuth, config(), api);
 
