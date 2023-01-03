@@ -10338,6 +10338,35 @@
 			]
 		},
 		{
+			"name": "NLP APIs",
+			"item": [
+				{
+					"name": "NLP Search",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{host}}{{base}}/nlpsearch?q=where can I halt near chandigarh",
+							"protocol": "http",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"nlpsearch"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "where can I halt near chandigarh"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Geocoding APIs",
 			"item": [
 				{

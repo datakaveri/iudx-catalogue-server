@@ -62,7 +62,7 @@ public class GeocodingServiceImpl implements GeocodingService {
                 for (int i = 0; i < features.size(); i++) {
                   feature = features.getJsonObject(i);
                   property = feature.getJsonObject(PROPERTIES);
-                  resultEntry = new JsonObject();
+                  resultEntry = generateGeocodingJson(property);
                   if ((confidence < property.getDouble(CONFIDENCE) && resultArray.isEmpty())
                       || (confidence == property.getDouble(CONFIDENCE))) {
                     confidence = property.getDouble(CONFIDENCE);
@@ -72,8 +72,6 @@ public class GeocodingServiceImpl implements GeocodingService {
                     resultArray = new JsonArray();
                     resultArray.add(resultEntry);
                   }
-
-                  resultEntry = generateGeocodingJson(property);
 
                   if (feature.getJsonArray(BBOX) == null) {
                     continue;
