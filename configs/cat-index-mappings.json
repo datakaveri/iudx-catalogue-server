@@ -122,8 +122,7 @@
                         }
                     },
                     "geometry" : {
-                        "type" : "geo_shape",
-                        "strategy" : "recursive"
+                        "type" : "geo_shape"
                     },
                     "type" : {
                         "type" : "text",
