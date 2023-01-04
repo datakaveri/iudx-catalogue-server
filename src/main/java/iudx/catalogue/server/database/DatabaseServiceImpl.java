@@ -221,7 +221,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     RespBuilder respBuilder = new RespBuilder();
     String id = doc.getString("id");
     final String instanceId = doc.getString(INSTANCE);
-    String itemType = doc.getJsonArray(TYPE).getString(0);
 
     String errorJson = respBuilder.withType(FAILED).withResult(id, INSERT, FAILED).getResponse();
 
@@ -249,7 +248,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
 
             /* If geo and nlp services are initialized */
-            if (geoPluggedIn && nlpPluggedIn && !itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
+            if (geoPluggedIn && nlpPluggedIn && !(instanceId == null || instanceId.isBlank() || instanceId.isEmpty())) {
               geoService.geoSummarize(doc, geoHandler -> {
                 /* Not going to check if success or fail */
                 JsonObject geoResult;
