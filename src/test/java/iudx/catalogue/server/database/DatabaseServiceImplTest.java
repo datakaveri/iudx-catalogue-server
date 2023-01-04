@@ -1171,33 +1171,13 @@ public class DatabaseServiceImplTest {
     databaseService =
         new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
-    json.put("id", "dummy id");
+    json.put("id", "dummy id").put(INSTANCE, "pune");
     json.put(TYPE, "average").put(TOTAL_HITS, 0);
-    String instanceId = "dummy";
+    String instanceId = "pune";
     DatabaseServiceImpl.client = mock(ElasticClient.class);
-    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.failed()).thenReturn(false);
     when(asyncResult.result()).thenReturn(json);
-    when(asyncResultString.result()).thenReturn("dummy");
-    doAnswer(
-            new Answer<AsyncResult<String>>() {
-              @Override
-              public AsyncResult<String> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<String>>) arg0.getArgument(1)).handle(asyncResultString);
-                return null;
-              }
-            })
-        .when(geoService)
-        .geoSummarize(any(), any());
-    doAnswer(
-            new Answer<AsyncResult<JsonObject>>() {
-              @Override
-              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
-                return null;
-              }
-            })
-        .when(nlpService)
-        .getEmbedding(any(), any());
+
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @Override
@@ -1208,16 +1188,7 @@ public class DatabaseServiceImplTest {
             })
         .when(DatabaseServiceImpl.client)
         .searchAsync(any(), any(), any());
-    doAnswer(
-            new Answer<AsyncResult<JsonObject>>() {
-              @Override
-              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                return null;
-              }
-            })
-        .when(DatabaseServiceImpl.client)
-        .docPostAsync(any(), any(), any());
+
 
     databaseService.createItem(json, handler);
     databaseService
@@ -1226,9 +1197,9 @@ public class DatabaseServiceImplTest {
             handler -> {
               if (handler.failed()) {
                 verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
-                verify(nlpService, times(1)).getEmbedding(any(), any());
-                verify(geoService, times(1)).geoSummarize(any(), any());
-                verify(DatabaseServiceImpl.client, times(1)).docPostAsync(any(), any(), any());
+                verify(nlpService, times(0)).getEmbedding(any(), any());
+                verify(geoService, times(0)).geoSummarize(any(), any());
+                verify(DatabaseServiceImpl.client, times(0)).docPostAsync(any(), any(), any());
 
                 vertxTestContext.completeNow();
               } else {
