@@ -221,6 +221,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     RespBuilder respBuilder = new RespBuilder();
     String id = doc.getString("id");
     final String instanceId = doc.getString(INSTANCE);
+    String itemType = doc.getJsonArray(TYPE).getString(0);
 
     String errorJson = respBuilder.withType(FAILED).withResult(id, INSERT, FAILED).getResponse();
 
@@ -248,14 +249,15 @@ public class DatabaseServiceImpl implements DatabaseService {
             doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
 
             /* If geo and nlp services are initialized */
-            if (geoPluggedIn && nlpPluggedIn) {
+            if (geoPluggedIn && nlpPluggedIn && !itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
               geoService.geoSummarize(doc, geoHandler -> {
                 /* Not going to check if success or fail */
-                JsonObject geoResult = new JsonObject();
+                JsonObject geoResult;
                 try {
                   geoResult = new JsonObject(geoHandler.result());
                 } catch (Exception e) {
-                  e.printStackTrace();
+                  LOGGER.debug("no geocoding result generated");
+                  geoResult = new JsonObject();
                 }
                 doc.put(GEOSUMMARY_KEY,geoResult);
                 nlpService.getEmbedding(doc, ar -> {
