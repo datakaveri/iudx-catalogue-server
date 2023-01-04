@@ -38,7 +38,6 @@ public class Constants {
   /**
    *Routes
    */
-  // private static String basePath = "/iudx/cat/v1";
   public static final String ROUTE_STATIC_SPEC = "/apis/spec";
   public static final String ROUTE_DOC = "/apis";
   public static final String ROUTE_ITEMS =  "/item";
