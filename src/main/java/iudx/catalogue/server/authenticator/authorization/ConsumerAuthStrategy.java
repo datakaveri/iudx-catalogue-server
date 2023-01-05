@@ -36,6 +36,7 @@ public class ConsumerAuthStrategy implements AuthorizationStratergy {
     return instance;
   }
 
+
   private void buildPermissions(Api api) {
     accessList.add(new AuthorizationRequest(GET, ROUTE_RATING));
     accessList.add(new AuthorizationRequest(POST, ROUTE_RATING));
