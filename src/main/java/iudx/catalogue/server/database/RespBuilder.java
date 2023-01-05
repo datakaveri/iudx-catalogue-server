@@ -52,6 +52,11 @@ public class RespBuilder {
     return this;
   }
 
+  public RespBuilder withResult(JsonArray results) {
+    response.put(RESULTS, results);
+    return this;
+  }
+
   public JsonObject getJsonResponse() {
     return response;
   }

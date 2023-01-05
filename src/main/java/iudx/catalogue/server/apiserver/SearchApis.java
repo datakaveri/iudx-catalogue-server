@@ -199,7 +199,12 @@ public final class SearchApis {
       }
     } catch(Exception e) {
       LOGGER.info("Missing query parameter");
-      routingContext.response().setStatusCode(400).end();
+      RespBuilder respBuilder =
+          new RespBuilder().withType(TYPE_MISSING_PARAMS)
+                  .withTitle(TITLE_MISSING_PARAMS)
+                      .withDetail("Query param q is missing");
+
+      routingContext.response().setStatusCode(400).end(respBuilder.getResponse());
       return;
     }
     
@@ -230,13 +235,12 @@ public final class SearchApis {
                             .end(handler.cause().getMessage());
               }
             });
-          }
-          else {
+          } else {
             geoService.geocoder(location, ar -> {
             if(ar.succeeded()) {
-              String bbox = ar.result();
-              LOGGER.debug("Info: bbox - " + bbox);
-              dbService.nlpSearchLocationQuery(embeddings, bbox, handler -> {
+              JsonObject results = new JsonObject(ar.result());
+              LOGGER.debug("Info: geocoding result - " + results);
+              dbService.nlpSearchLocationQuery(embeddings, results, handler -> {
                 if(handler.succeeded()) {
                   JsonObject resultJson = handler.result();
                   String status = resultJson.getString(STATUS);

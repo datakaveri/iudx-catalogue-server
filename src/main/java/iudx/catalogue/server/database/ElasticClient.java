@@ -26,7 +26,11 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.geocoding.util.Constants.*;
+import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.RESULTS;
+import static iudx.catalogue.server.util.Constants.TYPE;
 
 public final class ElasticClient {
 
@@ -36,7 +40,7 @@ public final class ElasticClient {
 
   /**
    * ElasticClient - Wrapper around ElasticSearch low level client
-   * 
+   *
    * @param databaseIP IP of the DB
    * @param databasePort Port
    * @TODO XPack Security
@@ -54,7 +58,7 @@ public final class ElasticClient {
 
   /**
    * searchAsync - Wrapper around elasticsearch async search requests
-   * 
+   *
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
@@ -70,10 +74,13 @@ public final class ElasticClient {
     return this;
   }
 
-  public ElasticClient scriptSearch(JsonArray queryVector, 
+  public ElasticClient scriptSearch(JsonArray queryVector,
                                       Handler<AsyncResult<JsonObject>> resultHandler) {
-   // String query = NLP_SEARCH.replace("$1", queryVector.toString());
-       String query = "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}}, \"script\": {\"source\": \"cosineSimilarity(params.query_vector, '_word_vector') + 1.0\",\"lang\": \"painless\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}},\"_source\": {\"excludes\": [\"_word_vector\"]}}";
+      // String query = NLP_SEARCH.replace("$1", queryVector.toString());
+     String query = "{\"query\": {\"script_score\": {\"query\": {\"match\": {}}," +
+         " \"script\": {\"source\": \"doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0\"," +
+         "\"lang\": \"painless\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}}," +
+         "\"_source\": {\"excludes\": [\"_word_vector\"]}}";
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
     queryRequest.setJsonEntity(query);
@@ -82,27 +89,50 @@ public final class ElasticClient {
     return this;
   }
 
-  public ElasticClient scriptLocationSearch(JsonArray queryVector, String bbox,
-  Handler<AsyncResult<JsonObject>> resultHandler) {
-    JsonArray coords = new JsonArray(bbox);
-    //String query = NLP_LOCATION_SEARCH.replace("$1", Float.toString(coords.getFloat(0)));
-    //query.replace("$2", Float.toString(coords.getFloat(1)));
-    //query.replace("$3", Float.toString(coords.getFloat(2)));
-   // query.replace("$4", Float.toString(coords.getFloat(3)));
-    //query.replace("$5", query.toString());
-        String query = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"must\": {\"match_all\": {}},\"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",\"coordinates\": [ [" + Float.toString(coords.getFloat(0)) + "," + Float.toString(coords.getFloat(3)) +"], [" + Float.toString(coords.getFloat(2)) + "," + Float.toString(coords.getFloat(1)) + "]]},\"relation\": \"within\"}}}}},\"script\": {\"source\": \"cosineSimilarity(params.query_vector, '_word_vector') + 1.0\",\"params\": {\"query_vector\":" + queryVector.toString() + "}}}},\"_source\": {\"excludes\": [\"_word_vector\"]}}";
+  public Future<JsonObject> scriptLocationSearch(JsonArray queryVector, JsonObject queryParams) {
+    Promise<JsonObject> promise = Promise.promise();
+    JsonArray bboxCoords = queryParams.getJsonArray(BBOX);
+
+    StringBuilder query = new StringBuilder("{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"should\": [");
+    if(queryParams.containsKey(BOROUGH)) {
+      query.append("{\"match\": {\"_geosummary._geocoded.results.borough\": \"").append(queryParams.getString(BOROUGH)).append("\"}},");
+    }
+    if(queryParams.containsKey(LOCALITY)) {
+      query.append("{\"match\": {\"_geosummary._geocoded.results.locality\": \"").append(queryParams.getString(LOCALITY)).append("\"}},");
+    }
+    if(queryParams.containsKey(COUNTY)) {
+      query.append("{\"match\": {\"_geosummary._geocoded.results.county\": \"").append(queryParams.getString(COUNTY)).append("\"}},");
+    }
+    if(queryParams.containsKey(REGION)) {
+      query.append("{\"match\": {\"_geosummary._geocoded.results.region\": \"").append(queryParams.getString(REGION)).append("\"}},");
+    }
+    if(queryParams.containsKey(COUNTRY)) {
+      query.append("{\"match\": {\"_geosummary._geocoded.results.country\": \"").append(queryParams.getString(COUNTRY)).append("\"}}");
+    } else {
+      query.deleteCharAt(query.length() - 1);
+    }
+    query.append("],\"minimum_should_match\": 1, \"filter\": {\"geo_shape\": {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",")
+        .append("\"coordinates\": [ [ ").append(bboxCoords.getFloat(0)).append(",").append(bboxCoords.getFloat(3)).append("],")
+        .append("[").append(bboxCoords.getFloat(2)).append(",").append(bboxCoords.getFloat(1)).append("] ]}, \"relation\": \"intersects\" }}}}},")
+        .append("\"script\": {\"source\": \"doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0\",")
+        .append("\"params\": { \"query_vector\":").append(queryVector.toString()).append("}}}}, \"_source\": {\"excludes\": [\"_word_vector\"]}}");
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search");
-    queryRequest.setJsonEntity(query);
+    queryRequest.setJsonEntity(query.toString());
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
-    future.onComplete(resultHandler);
-    return this;
+
+    future.onSuccess(h -> {
+        promise.complete(future.result());
+    }).onFailure(h -> {
+        promise.fail(future.cause());
+    });
+    return promise.future();
   }
 
 
   /**
    * searchGetIdAsync - Get document IDs matching a query
-   * 
+   *
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
@@ -130,7 +160,7 @@ public final class ElasticClient {
 
   /**
    * aggregationsAsync - Wrapper around elasticsearch async search requests
-   * 
+   *
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
    * @TODO XPack Security
@@ -138,7 +168,7 @@ public final class ElasticClient {
   public ElasticClient listAggregationAsync(String query,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
-    Request queryRequest = new Request(REQUEST_GET, index 
+    Request queryRequest = new Request(REQUEST_GET, index
                               + "/_search"
                               + FILTER_PATH_AGGREGATION);
     queryRequest.setJsonEntity(query);
@@ -149,7 +179,7 @@ public final class ElasticClient {
 
   /**
    * countAsync - Wrapper around elasticsearch async count requests
-   * 
+   *
    * @param index Index to search on
    * @param query Query
    * @param resultHandler JsonObject result {@link AsyncResult}
@@ -167,7 +197,7 @@ public final class ElasticClient {
 
   /**
    * docPostAsync - Wrapper around elasticsearch async doc post request
-   * 
+   *
    * @param index Index to search on
    * @param doc Document
    * @param resultHandler JsonObject
@@ -188,7 +218,7 @@ public final class ElasticClient {
 
   /**
    * docPutAsync - Wrapper around elasticsearch async doc put request
-   * 
+   *
    * @param index Index to search on
    * @param docId Document id (elastic id)
    * @param doc Document
@@ -208,7 +238,7 @@ public final class ElasticClient {
 
   /**
    * docDelAsync - Wrapper around elasticsearch async doc delete request
-   * 
+   *
    * @param index Index to search on
    * @param doc Document
    * @param resultHandler JsonObject
@@ -229,7 +259,7 @@ public final class ElasticClient {
    * DBRespMsgBuilder} Message builder for search APIs
    */
   private class DBRespMsgBuilder {
-    private JsonObject response = new JsonObject(); 
+    private JsonObject response = new JsonObject();
     private JsonArray results = new JsonArray();
 
     DBRespMsgBuilder() {
@@ -270,7 +300,7 @@ public final class ElasticClient {
 
   /**
    * searchAsync - private function which perform performRequestAsync for search apis
-   * 
+   *
    * @param request Elastic Request
    * @param options SOURCE - Source only
    *                DOCIDS - DOCIDs only
@@ -354,7 +384,7 @@ public final class ElasticClient {
 
   /**
    * countAsync - private function which perform performRequestAsync for count apis
-   * 
+   *
    * @param request Elastic Request
    * @param options SOURCE - Source only
    *                DOCIDS - DOCIDs only
@@ -398,7 +428,7 @@ public final class ElasticClient {
 
   /**
    * docAsync - private function which perform performRequestAsync for doc apis
-   * 
+   *
    * @param request Elastic Request
    * @param options SOURCE - Source only
    *                DOCIDS - DOCIDs only
