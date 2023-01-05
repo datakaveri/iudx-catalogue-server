@@ -41,6 +41,7 @@ public class DelegateAuthStrategy implements AuthorizationStratergy{
     }
     return instance;
   }
+
   private void buildPermissions(Api api) {
     // /item access rules
     accessList.add(new AuthorizationRequest(POST, api.getRouteItems()));

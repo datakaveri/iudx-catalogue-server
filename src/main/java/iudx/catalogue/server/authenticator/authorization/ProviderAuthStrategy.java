@@ -40,6 +40,7 @@ public class ProviderAuthStrategy implements AuthorizationStratergy{
     }
     return instance;
   }
+
   private void buildPermissions(Api api) {
     // /item access list
     accessList.add(new AuthorizationRequest(POST, api.getRouteItems()));

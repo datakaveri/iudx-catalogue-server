@@ -38,6 +38,7 @@ public class Constants {
   /**
    *Routes
    */
+
   public static final String ROUTE_STATIC_SPEC = "/apis/spec";
   public static final String ROUTE_DOC = "/apis";
   public static final String ROUTE_ITEMS =  "/item";

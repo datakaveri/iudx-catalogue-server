@@ -51,6 +51,7 @@ public class Api {
         return apiInstance;
     }
 
+
     public void buildEndpoints() {
         routeItems = new StringBuilder(dxApiBasePath).append(ROUTE_ITEMS);
         routUpdateItems = new StringBuilder(dxApiBasePath).append(ROUTE_UPDATE_ITEMS);
@@ -66,6 +67,7 @@ public class Api {
         routeGeoCoordinates = new StringBuilder(dxApiBasePath).append(ROUTE_GEO_COORDINATES);
         routeGeoReverse = new StringBuilder(dxApiBasePath).append(ROUTE_GEO_REVERSE);
         routeListResourceGroupRel = new StringBuilder(dxApiBasePath).append(ROUTE_LIST_RESOURCE_GROUP_REL);
+
 
     }
 
@@ -124,6 +126,7 @@ public class Api {
     public String getRouteListResourceGroupRel(){
         return routeListResourceGroupRel.toString();
     }
+
 
 
 }

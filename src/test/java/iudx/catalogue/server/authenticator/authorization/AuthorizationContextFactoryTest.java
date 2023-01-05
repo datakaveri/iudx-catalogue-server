@@ -36,6 +36,7 @@ public class AuthorizationContextFactoryTest {
     {
         dxApiBasePath = "/iudx/cat/v1";
         api = Api.getInstance(dxApiBasePath);
+
         vertxTestContext.completeNow();
     }
     @Test
