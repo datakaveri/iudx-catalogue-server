@@ -22,7 +22,7 @@ import iudx.catalogue.server.geocoding.GeocodingService;
  * The Database Service in the IUDX Catalogue Server defines the operations to be performed with the
  * IUDX Database server.
  * </p>
- * 
+ *
  * @see io.vertx.codegen.annotations.ProxyGen
  * @see io.vertx.codegen.annotations.VertxGen
  * @version 1.0
@@ -35,7 +35,7 @@ public interface DatabaseService {
 
   /**
    * The searchQuery implements the search operation with the database.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -43,9 +43,9 @@ public interface DatabaseService {
   @Fluent
   DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
-   /**
+  /**
    * The searchQuery implements the nlp search operation with the database.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -55,7 +55,7 @@ public interface DatabaseService {
 
   /**
    * The searchQuery implements the nlp search operation with the database.
-   * 
+   *
    * @param request which is a JsonObject
    * @param location which is a String
    * @param handler which is a Request Handler
@@ -63,11 +63,11 @@ public interface DatabaseService {
    */
   @Fluent
   DatabaseService nlpSearchLocationQuery(JsonArray request, JsonObject queryParams,
-                                          Handler<AsyncResult<JsonObject>> handler);
+                                         Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The countQuery implements the count operation with the database.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -77,7 +77,7 @@ public interface DatabaseService {
 
   /**
    * The createItem implements the create item operation with the database.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -88,7 +88,7 @@ public interface DatabaseService {
 
   /**
    * The updateItem implements the update item operation with the database.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -98,7 +98,7 @@ public interface DatabaseService {
 
   /**
    * The deleteItem implements the delete item operation with the database.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -108,7 +108,7 @@ public interface DatabaseService {
 
   /**
    * The listItems implements the list items operation with the database.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -119,18 +119,18 @@ public interface DatabaseService {
   /**
    * The listRelationship implements the list resource, resourceGroup, provider, resourceServer,
    * type relationships operation with the database.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
   @Fluent
   DatabaseService listRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler);
+                                   Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The relSearch implements the Relationship searches with the database.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -176,6 +176,15 @@ public interface DatabaseService {
    */
   @Fluent
   DatabaseService getRatings(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The createMlayerInstance implements the instance creation operation with the database.
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a Service.
+   */
+  @Fluent
+  DatabaseService createMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /* create db service with nlp and geocoding */
   @GenIgnore

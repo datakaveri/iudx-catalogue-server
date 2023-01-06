@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static iudx.catalogue.server.authenticator.authorization.Api.MLAYER;
 import static iudx.catalogue.server.authenticator.authorization.Api.RATING;
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
 
@@ -20,6 +21,7 @@ public class ConsumerAuthStrategy implements AuthorizationStratergy {
     accessList.add(new AuthorizationRequest(POST, RATING));
     accessList.add(new AuthorizationRequest(PUT, RATING));
     accessList.add(new AuthorizationRequest(DELETE, RATING));
+    accessList.add(new AuthorizationRequest(POST,MLAYER));
   }
 
   @Override

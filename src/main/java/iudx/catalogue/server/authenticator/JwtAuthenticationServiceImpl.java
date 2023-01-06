@@ -109,7 +109,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     Promise<Boolean> promise = Promise.promise();
 
     LOGGER.debug("Endpoint in JWt is : " + endPoint);
-    if(endPoint.equals(ITEM_ENDPOINT) || endPoint.equals(INSTANCE_ENDPOINT) || endPoint.equals(RATINGS_ENDPOINT)) {
+    if(endPoint.equals(ITEM_ENDPOINT) || endPoint.equals(INSTANCE_ENDPOINT) || endPoint.equals(RATINGS_ENDPOINT)|| endPoint.equals(MLAYER_INSTANCE_ENDPOINT)) {
       promise.complete(true);
     } else {
       LOGGER.error("Incorrect endpoint in jwt");
