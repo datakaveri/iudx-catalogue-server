@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "10123529-6217-4f8e-9dfa-2b4f05183020",
-		"name": "iudx-catalogue-server Copy 3",
+		"_postman_id": "e80af5e3-368c-4cfd-86ad-c6ec74acb1e0",
+		"name": "iudx-catalogue-server Copy 4",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "23234057"
+		"_exporter_id": "17194681"
 	},
 	"item": [
 		{
@@ -7993,7 +7993,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\",21);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\",156);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8108,7 +8108,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 391);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\", 684);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8525,7 +8525,7 @@
 									"\r",
 									"pm.test(\"Check response count\", function() {\r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\",81);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\",160);\r",
 									"})"
 								],
 								"type": "text/javascript"
@@ -10338,10 +10338,130 @@
 			]
 		},
 		{
+			"name": "NLP APIs",
+			"item": [
+				{
+					"name": "200 (success) - NLP Search",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{base}}/nlpsearch?q=where can I halt near chandigarh",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"nlpsearch"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "where can I halt near chandigarh"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Geocoding APIs",
 			"item": [
 				{
+					"name": "200(Success) - Get all geolocations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}/iudx/cat/v1/geo?q=malleswaram",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"iudx",
+								"cat",
+								"v1",
+								"geo"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "malleswaram"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "400 (Location not found) - location size 0",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:ItemNotFound\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -10368,6 +10488,28 @@
 				},
 				{
 					"name": "400 (Invalid Prameter) - invalid query parameter",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidParamValue\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -10393,33 +10535,29 @@
 					"response": []
 				},
 				{
-					"name": "200(Success) - Get all geolocations",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}/iudx/cat/v1/geo?q=malleswaram",
-							"host": [
-								"{{host}}"
-							],
-							"path": [
-								"iudx",
-								"cat",
-								"v1",
-								"geo"
-							],
-							"query": [
-								{
-									"key": "q",
-									"value": "malleswaram"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "400(Invalid GeoValue) - Gequery value error",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidGeoValue\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],

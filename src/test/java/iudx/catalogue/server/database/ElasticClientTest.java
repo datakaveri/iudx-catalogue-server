@@ -1,5 +1,6 @@
 package iudx.catalogue.server.database;
 
+import static iudx.catalogue.server.geocoding.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -9,6 +10,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.reactivex.ext.unit.Async;
+import iudx.catalogue.server.util.Constants;
 import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -108,6 +110,37 @@ public class ElasticClientTest {
     JsonArray queryVector=new JsonArray();
     assertNotNull(elasticClient.scriptSearch(queryVector,handler));
     vertxTestContext.completeNow();
+  }
+
+  JsonArray newWordVector() {
+    JsonArray result = new JsonArray();
+    for(int i=0;i<100;i++)
+      result.add(i,Math.random()*5.0);
+    return result;
+  }
+
+
+  @Test
+  @Description("test script location search")
+  public void testScriptLocationSearch(VertxTestContext vertxTestContext) {
+    JsonArray wordVector = newWordVector();
+    JsonObject params = new JsonObject()
+        .put(COUNTRY,"India")
+        .put(REGION,"Karnataka")
+        .put(COUNTY, "Bangalore")
+        .put(LOCALITY, "Bangalore")
+        .put(BOROUGH, "East Bangalore")
+        .put(Constants.BBOX, new JsonArray().add(0, 77.5).add(1,13.0).add(2,77.6).add(3,13.1));
+
+    elasticClient.scriptLocationSearch(wordVector, params).onComplete(handler -> {
+      if(handler.succeeded()) {
+        vertxTestContext.completeNow();
+      } else {
+        vertxTestContext.failNow(handler.cause());
+      }
+    });
+
+
   }
   @Test
   @Description("testing ratingAggreagationAsync method")
