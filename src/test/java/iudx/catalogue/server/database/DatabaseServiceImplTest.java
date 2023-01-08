@@ -83,6 +83,7 @@ public class DatabaseServiceImplTest {
     databasePassword = dbConfig.getString(DATABASE_PASSWD);
     docIndex = dbConfig.getString(DOC_INDEX);
     ratingIndex = dbConfig.getString(RATING_INDEX);
+    mlayerInstanceIndex=dbConfig.getString(MLAYER_INSTANCE_INDEX);
     optionalModules = dbConfig.getJsonArray(OPTIONAL_MODULES);
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
@@ -1208,4 +1209,114 @@ public class DatabaseServiceImplTest {
               }
             });
   }
+    @Test
+    @Description("test createMlayerInstance method when instance is created")
+    public void testCreateInstanceWhenInstanceExists(VertxTestContext testContext){
+      databaseService=
+              new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        JsonObject json = new JsonObject();
+        json.put("mlayerInstanceID","dummy").put(TOTAL_HITS,1);
+        json.put(MLAYER_INSTANCE_INDEX,"dummy");
+        when(asyncResult.result()).thenReturn(json);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(DatabaseServiceImpl.client)
+                .searchAsync(any(), any(), any());
+        databaseService.createMlayerInstance(json,handler->{
+            if(handler.failed())
+            {
+                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+                testContext.completeNow();
+            }
+            else {
+                testContext.failNow("fail");
+            }
+        });
+
+    }
+
+    @Test
+    @Description("test createMlayerInstance method when the instance is already present")
+    public void testCreateMlayerInstance(VertxTestContext testContext){
+      databaseService=
+              new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex, nlpService, geoService);
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        JsonObject json = new JsonObject();
+        json.put("mlayerInstanceID","dummy").put(TOTAL_HITS,0);
+        json.put(MLAYER_INSTANCE_INDEX,"dummy");
+        when(asyncResult.succeeded()).thenReturn(true);
+        when(asyncResult.result()).thenReturn(json);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(DatabaseServiceImpl.client)
+                .searchAsync(any(), any(), any());
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(DatabaseServiceImpl.client)
+                .docPostAsync(any(), any(), any());
+        databaseService.createMlayerInstance(json,handler->{
+            if(handler.succeeded()){
+                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+                verify(DatabaseServiceImpl.client, times(1)).docPostAsync(any(), any(), any());
+                testContext.completeNow();
+            }
+            else {
+                testContext.failNow("Fail");
+            }
+        });
+  }
+    @Test
+    @Description("test createMlayerInstance method when instance creation fails")
+    public void testCreateMlayerInstanceFailure(VertxTestContext testContext){
+        databaseService=new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        JsonObject json = new JsonObject();
+        json.put("mlayerInstanceID","dummy").put(TOTAL_HITS,1);
+        json.put(MLAYER_INSTANCE_INDEX,"dummy");
+        when(asyncResult.failed()).thenReturn(true);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(DatabaseServiceImpl.client)
+                .searchAsync(any(), any(), any());
+        databaseService.createMlayerInstance(json,handler->{
+            if(handler.failed())
+            {
+                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+                testContext.completeNow();
+
+            }
+            else {
+                testContext.failNow("fail");
+            }
+        });
+
+    }
+
+
+
 }

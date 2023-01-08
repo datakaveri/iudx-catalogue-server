@@ -25,7 +25,8 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService createMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    String name = request.getString("name");
+    String nameValue = request.getString("name");
+    String name=nameValue.toLowerCase();
     String mlayerInstanceID = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
     request.put(MLAYER_INSTANCE_ID, mlayerInstanceID);
     databaseService.createMlayerInstance(

@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "e80af5e3-368c-4cfd-86ad-c6ec74acb1e0",
-		"name": "iudx-catalogue-server Copy 4",
+		"_postman_id": "7f668107-7e6f-40d4-87a7-253156be4bf5",
+		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17194681"
+		"_exporter_id": "23234057"
 	},
 	"item": [
 		{
@@ -10384,6 +10384,177 @@
 						}
 					},
 					"response": []
+				}
+			]
+		},
+		{
+			"name": "Mlayer APIs",
+			"item": [
+				{
+					"name": "Create Mlayer Instance",
+					"item": [
+						{
+							"name": "200 (Success) - Create Mlayer Instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{openToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n   \"name\": \"agartala\",\n   \"cover\": \"path_of_cover.jpg\",\n   \"icon\": \"path_of_icon.png\",\n   \"logo\": \"path_of_logo.png\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "401 (Invalid Token) - Create Mlayer Instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});",
+											"",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"value": "abc",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n   \"name\": \"agartala\",\n   \"cover\": \"path_of_cover.jpg\",\n   \"icon\": \"path_of_icon.png\",\n   \"logo\": \"path_of_logo.png\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Schema) - Create Mlayer Instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{openToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n   \"names\": \"agartala\",\n   \"cover\": \"path_of_cover.jpg\",\n   \"iicon\": \"path_of_icon.png\",\n   \"logo\": \"path_of_logo.png\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
