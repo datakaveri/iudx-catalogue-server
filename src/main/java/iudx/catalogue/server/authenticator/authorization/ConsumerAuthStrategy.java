@@ -22,6 +22,7 @@ public class ConsumerAuthStrategy implements AuthorizationStratergy {
     accessList.add(new AuthorizationRequest(PUT, RATING));
     accessList.add(new AuthorizationRequest(DELETE, RATING));
     accessList.add(new AuthorizationRequest(POST,MLAYER));
+    accessList.add(new AuthorizationRequest(GET,MLAYER));
   }
 
   @Override

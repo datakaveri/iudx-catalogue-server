@@ -26,7 +26,7 @@ public class MlayerServiceImpl implements MlayerService {
   public MlayerService createMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String nameValue = request.getString("name");
-    String name=nameValue.toLowerCase();
+    String name = nameValue.toLowerCase();
     String mlayerInstanceID = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
     request.put(MLAYER_INSTANCE_ID, mlayerInstanceID);
     databaseService.createMlayerInstance(
@@ -40,6 +40,20 @@ public class MlayerServiceImpl implements MlayerService {
             handler.handle(Future.failedFuture(createMlayerInstanceHandler.cause()));
           }
         });
+    return this;
+  }
+
+  @Override
+  public MlayerService getMlayerInstance( Handler<AsyncResult<JsonObject>> handler) {
+
+    databaseService.getMlayerInstance(getMlayerInstancehandler->{
+      if(getMlayerInstancehandler.succeeded()){
+        handler.handle(Future.succeededFuture(getMlayerInstancehandler.result()));
+      }
+      else{
+        handler.handle(Future.failedFuture(getMlayerInstancehandler.cause()));
+      }
+    });
     return this;
   }
 }

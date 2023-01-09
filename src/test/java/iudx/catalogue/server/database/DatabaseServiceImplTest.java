@@ -1316,6 +1316,62 @@ public class DatabaseServiceImplTest {
         });
 
     }
+    @Test
+    @Description("test getMlayerInstance method when the DB Request is Successful")
+    public void testGetMlayerInstance(VertxTestContext testContext){
+        databaseService=
+                new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex, nlpService, geoService);
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        when(asyncResult.succeeded()).thenReturn(true);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(DatabaseServiceImpl.client)
+                .searchAsync(any(), any(),any());
+        databaseService.getMlayerInstance(handler->{
+            if(handler.succeeded()){
+                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(),any(), any());
+                testContext.completeNow();
+            }
+            else {
+                testContext.failNow("Fail");
+            }
+        });
+    }
+    @Test
+    @Description("test getMlayerInstance method when get instance DB Request fails")
+    public void testGEtMlayerInstanceFailure(VertxTestContext testContext){
+        databaseService=new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        when(asyncResult.succeeded()).thenReturn(false);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(DatabaseServiceImpl.client)
+                .searchAsync(any(), any(), any());
+        databaseService.getMlayerInstance(handler->{
+            if(handler.failed())
+            {
+                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(),any(), any());
+                testContext.completeNow();
+
+            }
+            else {
+                testContext.failNow("fail");
+            }
+        });
+
+    }
 
 
 
