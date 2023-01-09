@@ -637,6 +637,21 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
+    /* Get All Mlayer Instances*/
+    router
+        .get(ROUTER_MLAYER_INSTANCE)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                mlayerApis.getMlayerInstanceHandler(routingContext);
+              } else {
+                LOGGER.error("Unauthorized Operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
+
     /** Start server */
     server.requestHandler(router).listen(port);
   }

@@ -1014,6 +1014,24 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
+  @Override
+  public DatabaseService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler) {
+    String query="";
+      client.searchAsync(query,
+        mlayerInstanceIndex,
+        resultHandler -> {
+          if (resultHandler.succeeded()) {
+            LOGGER.debug("Success: Successful DB Request");
+            JsonObject result = resultHandler.result();
+            handler.handle(Future.succeededFuture(result));
+          } else {
+            LOGGER.error("Fail: failed DB request");
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
+    return this;
+  }
+
   /* Verify the existance of an instance */
   Future<Boolean> verifyInstance(String instanceId) {
 

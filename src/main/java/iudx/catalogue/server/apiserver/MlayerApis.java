@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.METHOD;
+import static iudx.catalogue.server.rating.util.Constants.USER_ID;
 import static iudx.catalogue.server.util.Constants.*;
 
 public class MlayerApis {
@@ -99,6 +100,42 @@ public class MlayerApis {
               response.setStatusCode(401).end(failureHandler.getMessage());
             });
   }
+
+    /**
+     * Get mlayer instance handler
+     *
+     * @param routingContext {@link RoutingContext}
+     */
+    public void getMlayerInstanceHandler(RoutingContext routingContext){
+        LOGGER.debug("Info : fetching mlayer Instances");
+
+        HttpServerRequest request = routingContext.request();
+        HttpServerResponse response = routingContext.response();
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+        JsonObject authenticationInfo=new JsonObject().put(TOKEN,request.getHeader(TOKEN))
+                .put(METHOD,REQUEST_GET)
+                .put(METHOD,REQUEST_GET)
+                .put(API_ENDPOINT,MLAYER_INSTANCE_ENDPOINT)
+                .put(ID,host);
+        Future<JsonObject> authenticationFuture = inspectToken(authenticationInfo);
+        authenticationFuture.onSuccess(
+                successHandler -> {
+                    LOGGER.debug("authentication successful ");
+                    mlayerService.getMlayerInstance(handler->{
+                        if(handler.succeeded()){
+                            response.setStatusCode(200).end(handler.result().toString());
+                        }
+                        else{
+                            response.setStatusCode(400).end(handler.cause().getMessage());
+                        }
+                    });
+
+                })
+                .onFailure(
+                        failureHandler -> {
+                            response.setStatusCode(401).end(failureHandler.getMessage());
+                        });
+    }
 
   private Future<JsonObject> inspectToken(JsonObject jwtAuthenticationInfo) {
     Promise<JsonObject> promise = Promise.promise();

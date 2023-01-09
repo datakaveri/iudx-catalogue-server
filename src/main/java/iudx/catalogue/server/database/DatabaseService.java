@@ -186,6 +186,14 @@ public interface DatabaseService {
   @Fluent
   DatabaseService createMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
+  /**
+   * The getMlayerInstance implements fetching instance from the database
+   * @param handler which is a request handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler);
+
   /* create db service with nlp and geocoding */
   @GenIgnore
   static DatabaseService create(ElasticClient client,

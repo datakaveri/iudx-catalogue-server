@@ -19,4 +19,7 @@ public interface MlayerService {
 
   @Fluent
   MlayerService createMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  @Fluent
+  MlayerService getMlayerInstance( Handler<AsyncResult<JsonObject>> handler);
 }
