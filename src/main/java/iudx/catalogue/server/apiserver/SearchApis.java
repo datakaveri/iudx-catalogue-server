@@ -5,6 +5,7 @@
 
 package iudx.catalogue.server.apiserver;
 
+import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,10 +33,14 @@ public final class SearchApis {
   private DatabaseService dbService;
   private GeocodingService geoService;
   private NLPSearchService nlpService;
+  private Api api;
 
   private static final Logger LOGGER = LogManager.getLogger(SearchApis.class);
 
-
+  public SearchApis(Api api)
+  {
+    this.api = api;
+  }
   public void setService(DatabaseService dbService, GeocodingService geoService, NLPSearchService nlpService) {
     this.dbService = dbService;
     this.geoService = geoService;
@@ -128,7 +133,7 @@ public final class SearchApis {
       JsonObject resp = QueryMapper.validateQueryParam(requestBody);
       if (resp.getString(STATUS).equals(SUCCESS)) {
 
-        if (path.equals(ROUTE_SEARCH)) {
+        if (path.equals(api.getRouteSearch())) {
           dbService.searchQuery(requestBody, handler -> {
             if (handler.succeeded()) {
               JsonObject resultJson = handler.result();

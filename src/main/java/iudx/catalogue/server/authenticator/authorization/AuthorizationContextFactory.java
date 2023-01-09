@@ -1,20 +1,22 @@
 package iudx.catalogue.server.authenticator.authorization;
 
+import iudx.catalogue.server.util.Api;
+
 public class AuthorizationContextFactory {
 
-  public static AuthorizationStratergy create(String role) {
+  public static AuthorizationStratergy create(String role, Api api) {
     switch (role) {
       case "consumer": {
-        return new ConsumerAuthStrategy();
+        return ConsumerAuthStrategy.getInstance(api);
       }
       case "provider": {
-        return new ProviderAuthStrategy();
+        return ProviderAuthStrategy.getInstance(api);
       }
       case "delegate": {
-        return new DelegateAuthStrategy();
+        return DelegateAuthStrategy.getInstance(api);
       }
       case "admin": {
-        return new AdminAuthStrategy();
+        return AdminAuthStrategy.getInstance(api);
       }
       default:
         throw new IllegalArgumentException(role + "role is not defined in IUDX");

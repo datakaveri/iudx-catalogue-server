@@ -8,6 +8,7 @@ package iudx.catalogue.server.apiserver;
 import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.auditing.AuditingServiceImpl;
 import iudx.catalogue.server.authenticator.model.JwtData;
+import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -53,6 +54,8 @@ public final class CrudApis {
   private static final Logger LOGGER = LogManager.getLogger(CrudApis.class);
   private boolean hasAuditService = false;
   private String host;
+  private Api api;
+
 
 
   /**
@@ -62,7 +65,9 @@ public final class CrudApis {
    * @return void
    * @TODO Throw error if load failed
    */
-  public CrudApis() {
+  public CrudApis(Api api)
+  {
+    this.api = api;
   }
 
   public void setDbService(DatabaseService dbService) {

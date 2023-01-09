@@ -1,6 +1,7 @@
 package iudx.catalogue.server.authenticator;
 
 import iudx.catalogue.server.authenticator.model.JwtData;
+import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,20 +13,17 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.authentication.TokenCredentials;
 import io.vertx.ext.auth.jwt.JWTAuth;
-import iudx.catalogue.server.authenticator.authorization.Api;
 import iudx.catalogue.server.authenticator.authorization.AuthorizationContextFactory;
 import iudx.catalogue.server.authenticator.authorization.AuthorizationRequest;
 import iudx.catalogue.server.authenticator.authorization.AuthorizationStratergy;
 import iudx.catalogue.server.authenticator.authorization.JwtAuthorization;
 import iudx.catalogue.server.authenticator.authorization.Method;
-import iudx.catalogue.server.authenticator.model.JwtData;
 
 import static iudx.catalogue.server.auditing.util.Constants.USER_ROLE;
 import static iudx.catalogue.server.auditing.util.Constants.USER_ID;
 import static iudx.catalogue.server.auditing.util.Constants.IID;
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.util.Constants.ID;
-import static iudx.catalogue.server.util.Constants.DETAIL_INVALID_TOKEN;
 
 /**
  * The JWT Authentication Service Implementation.
@@ -45,10 +43,12 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   final JWTAuth jwtAuth;
   final String audience;
   private String endPoint;
+  private Api api;
 
-  JwtAuthenticationServiceImpl(Vertx vertx, final JWTAuth jwtAuth, final JsonObject config) {
+  JwtAuthenticationServiceImpl(Vertx vertx, final JWTAuth jwtAuth, final JsonObject config, final Api api) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("host");
+    this.api = api;
   }
 
   Future<JwtData> decodeJwt(String jwtToken) {
@@ -109,7 +109,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     Promise<Boolean> promise = Promise.promise();
 
     LOGGER.debug("Endpoint in JWt is : " + endPoint);
-    if(endPoint.equals(ITEM_ENDPOINT) || endPoint.equals(INSTANCE_ENDPOINT) || endPoint.equals(RATINGS_ENDPOINT)) {
+    if(endPoint.equals(api.getRouteItems()) || endPoint.equals(api.getRouteInstance()) || endPoint.equals(RATINGS_ENDPOINT)) {
       promise.complete(true);
     } else {
       LOGGER.error("Incorrect endpoint in jwt");
@@ -123,11 +123,11 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     Promise<JsonObject> promise = Promise.promise();
 
     Method method = Method.valueOf(authenticationInfo.getString(METHOD));
-    Api api = Api.fromEndpoint(authenticationInfo.getString(API_ENDPOINT));
+    String api = authenticationInfo.getString(API_ENDPOINT);
 
     AuthorizationRequest authRequest = new AuthorizationRequest(method,api);
 
-    AuthorizationStratergy authStrategy = AuthorizationContextFactory.create(jwtData.getRole());
+    AuthorizationStratergy authStrategy = AuthorizationContextFactory.create(jwtData.getRole(), this.api);
     LOGGER.debug("strategy: " + authStrategy.getClass().getSimpleName());
 
     JwtAuthorization jwtAuthStrategy = new JwtAuthorization(authStrategy);

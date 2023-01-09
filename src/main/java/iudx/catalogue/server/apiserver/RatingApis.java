@@ -4,6 +4,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.auditing.util.Constants;
+import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,7 +43,12 @@ public class RatingApis {
   private boolean hasAuditService = false;
 
   private String host;
+  private Api api;
 
+  public RatingApis(Api api)
+  {
+    this.api = api;
+  }
   public void setRatingService(RatingService ratingService) {
     this.ratingService = ratingService;
   }

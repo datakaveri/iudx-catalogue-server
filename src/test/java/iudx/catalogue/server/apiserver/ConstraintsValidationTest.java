@@ -42,6 +42,7 @@ public class ConstraintsValidationTest {
   static void startVertx(Vertx vertx, VertxTestContext testContext) {
 
     JsonObject apiconfig = Configuration.getConfiguration("./configs/config-test.json", 3);
+    apiconfig.put("dxApiBasePath","/iudx/cat/v1");
     JsonObject validationconfig = Configuration.getConfiguration("./configs/config-test.json", 2);
 
     vertx.deployVerticle(new ApiServerVerticle(), new DeploymentOptions().setConfig(apiconfig),

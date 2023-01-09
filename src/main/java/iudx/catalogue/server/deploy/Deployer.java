@@ -75,11 +75,13 @@ public class Deployer {
       LOGGER.info("Deployed all");
       return;
     }
-    JsonObject config = configs.getJsonArray("modules").getJsonObject(i);
-    String moduleName = config.getString("id");
-    int numInstances = config.getInteger("verticleInstances");
+    //    JsonObject config = configs.getJsonArray("modules").getJsonObject(i);
+    JsonObject moduleConfigurations = getConfigForModule(i, configs);
+
+    String moduleName = moduleConfigurations.getString("id");
+    int numInstances = moduleConfigurations.getInteger("verticleInstances");
     vertx.deployVerticle(moduleName,
-        new DeploymentOptions().setInstances(numInstances).setConfig(config), ar -> {
+        new DeploymentOptions().setInstances(numInstances).setConfig(moduleConfigurations), ar -> {
           if (ar.succeeded()) {
             LOGGER.info("Deployed " + moduleName);
             recursiveDeploy(vertx, configs, i + 1);
@@ -88,7 +90,11 @@ public class Deployer {
           }
         });
       }
-
+  private static JsonObject getConfigForModule(int moduleIndex,JsonObject configurations) {
+    JsonObject commonConfigs = configurations.getJsonObject("commonConfig");
+    JsonObject config = configurations.getJsonArray("modules").getJsonObject(moduleIndex);
+    return config.mergeIn(commonConfigs, true);
+  }
   /**
    * Recursively deploy modules/verticles (if they exist) present in the `modules` list.
    * 

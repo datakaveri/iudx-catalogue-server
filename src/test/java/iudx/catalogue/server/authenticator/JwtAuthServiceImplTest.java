@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.vertx.ext.web.client.WebClient;
 import iudx.catalogue.server.authenticator.authorization.Method;
+import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
@@ -31,6 +32,8 @@ public class JwtAuthServiceImplTest {
   private static JwtAuthenticationServiceImpl jwtAuthenticationService;
   private static AuthenticationService authenticationService;
   private static Vertx vertxObj;
+  private static String dxApiBasePath;
+  private static Api api;
   /**
    * Initialize and start the auth service for testing.
    *
@@ -42,6 +45,7 @@ public class JwtAuthServiceImplTest {
   static void init(Vertx vertx, VertxTestContext testContext) {
     authConfig = Configuration.getConfiguration("./configs/config-test.json",1);
     String cert = authConfig.getString("cert");
+    authConfig.put("dxApiBasePath", "/iudx/cat/v1");
     JWTAuthOptions jwtAuthOptions = new JWTAuthOptions();
     jwtAuthOptions.addPubSecKey(
             new PubSecKeyOptions()
@@ -51,8 +55,9 @@ public class JwtAuthServiceImplTest {
     // ignore token expiration only for test
     jwtAuthOptions.getJWTOptions().setIgnoreExpiration(true);
     JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
-
-    jwtAuthenticationService = new JwtAuthenticationServiceImpl(vertx,  jwtAuth, authConfig);
+    dxApiBasePath = authConfig.getString("dxApiBasePath");
+    api = Api.getInstance(dxApiBasePath);
+    jwtAuthenticationService = new JwtAuthenticationServiceImpl(vertx,  jwtAuth, authConfig, api);
 
     LOGGER.info("Auth tests setup complete");
     testContext.completeNow();

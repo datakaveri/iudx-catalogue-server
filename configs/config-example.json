@@ -4,6 +4,9 @@
     "zookeeper"
   ],
   "clusterId": "iudx-catalogue-cluster",
+  "commonConfig" :  {
+    "dxApiBasePath" : "/iudx/cat/v1"
+  },
   "modules": [
     {
       "id": "iudx.catalogue.server.database.DatabaseVerticle",

@@ -6,6 +6,7 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.ext.auth.jwt.JWTAuth;
+import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
@@ -41,6 +42,8 @@ public class AuthenticationVerticle extends AbstractVerticle {
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
   private static WebClient webClient;
+  private Api api;
+  private String dxApiBasePath;
 
   static WebClient createWebClient(Vertx vertx, JsonObject config) {
     return createWebClient(vertx, config, false);
@@ -83,8 +86,10 @@ public class AuthenticationVerticle extends AbstractVerticle {
       }
       JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
 
+      dxApiBasePath = config().getString("dxApiBasePath");
+      api = Api.getInstance(dxApiBasePath);
       jwtAuthenticationService =
-              new JwtAuthenticationServiceImpl(vertx, jwtAuth, config());
+              new JwtAuthenticationServiceImpl(vertx, jwtAuth, config(), api);
 
       /* Publish the Authentication service with the Event Bus against an address. */
       consumer =
