@@ -18,6 +18,7 @@ public class Constants {
   public static final String NLP_SERVICE_ADDRESS = "iudx.catalogue.nlpsearch.service";
   public static final String AUDITING_SERVICE_ADDRESS = "iudx.catalogue.auditing.service";
   public static final String RATING_SERVICE_ADDRESS = "iudx.catalogue.rating.service";
+  public static final String MLAYER_SERVICE_ADDRESSS="iudx.catalogue.mlayer.service";
   public static final String BROKER_SERVICE_ADDRESS = "iudx.catalogue.databroker.service";
 
   /** General */
@@ -33,6 +34,7 @@ public class Constants {
   public static final String DATABASE_UNAME = "databaseUser";
   public static final String DOC_INDEX = "docIndex";
   public static final String RATING_INDEX = "ratingIndex";
+  public static final String MLAYER_INSTANCE_INDEX="mlayerInstanceIndex";
   public static final String PUBLIC_KEY = "publicKey";
   public static final String DATABASE_PASSWD = "databasePassword";
   public static final String SOURCE = "_source";
@@ -219,6 +221,7 @@ public class Constants {
 
   public static final String TYPE_BAD_FILTER = "urn:dx:cat:BadFilter";
   public static final String TITLE_BAD_FILTER = "Bad filters applied";
+  public static final String INSTANCE_CREATION_SUCCESS="Instance created successfully.";
 
 }
 

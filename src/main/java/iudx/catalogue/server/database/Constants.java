@@ -15,12 +15,14 @@ public class Constants {
 
   /* Database */
   static final String AGGREGATION_KEY = "aggs";
-  
+
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
-  static final String FILTER_PATH_AGGREGATION = "?filter_path=hits.total.value,aggregations.results.buckets";
+  static final String FILTER_PATH_AGGREGATION =
+      "?filter_path=hits.total.value,aggregations.results.buckets";
   static final String FILTER_RATING_AGGREGATION = "?filter_path=hits.total.value,aggregations";
-  static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
-  
+  static final String FILTER_ID_ONLY_PATH =
+      "?filter_path=hits.total.value,hits.hits._id&size=10000";
+
   static final String TYPE_KEY = "type";
   static final String ID_KEYWORD = "id.keyword";
   static final String DOC_ID = "_id";
@@ -54,6 +56,7 @@ public class Constants {
 
   /** Search type regex */
   public static final String TAGSEARCH_REGEX = "(.*)tagsSearch(.*)";
+
   public static final String TEXTSEARCH_REGEX = "(.*)textSearch(.*)";
   public static final String ATTRIBUTE_SEARCH_REGEX = "(.*)attributeSearch(.*)";
   public static final String GEOSEARCH_REGEX = "(.*)geoSearch(.*)";
@@ -62,6 +65,7 @@ public class Constants {
 
   /** DB Query related */
   public static final String MATCH_KEY = "match";
+
   public static final String TERMS_KEY = "terms";
   public static final String STRING_QUERY_KEY = "query_string";
   public static final String FROM = "from";
@@ -72,6 +76,7 @@ public class Constants {
 
   /** ElasticClient search types */
   public static final String DOC_IDS_ONLY = "DOCIDS";
+
   public static final String SOURCE_ONLY = "SOURCE";
 
   public static final String FORWARD_SLASH = "/";
@@ -82,47 +87,49 @@ public class Constants {
   public static final String WORD_VECTOR_KEY = "_word_vector";
 
   /** Some queries */
-  public static final String LIST_INSTANCES_QUERY = "{\"size\": 0, \"aggs\":"
-    + "{\"results\": {\"terms\":"
-    + "{\"field\":instances.keyword,"
-    + "\"size\": 10000}}}}";
+  public static final String LIST_INSTANCES_QUERY =
+      "{\"size\": 0, \"aggs\":"
+          + "{\"results\": {\"terms\":"
+          + "{\"field\":instances.keyword,"
+          + "\"size\": 10000}}}}";
 
   public static final String LIST_INSTANCE_TAGS_QUERY =
-    "{\"query\": {\"bool\": {\"filter\": {\"term\": {\"instance.keyword\": \"$1\"}}}},"
-    + "\"aggs\":"
-    + "{\"results\": {\"terms\":"
-    + "{\"field\":\"tags.keyword\","
-    + "\"size\": $size}}}}";
+      "{\"query\": {\"bool\": {\"filter\": {\"term\": {\"instance.keyword\": \"$1\"}}}},"
+          + "\"aggs\":"
+          + "{\"results\": {\"terms\":"
+          + "{\"field\":\"tags.keyword\","
+          + "\"size\": $size}}}}";
 
-  public static final String  LIST_TAGS_QUERY =
-    "{ \"aggs\":"
-    + "{\"results\": {\"terms\":"
-    + "{\"field\":\"tags.keyword\","
-    + "\"size\": $size}}}}";
+  public static final String LIST_TAGS_QUERY =
+      "{ \"aggs\":"
+          + "{\"results\": {\"terms\":"
+          + "{\"field\":\"tags.keyword\","
+          + "\"size\": $size}}}}";
 
   public static final String LIST_INSTANCE_TYPES_QUERY =
-    "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}},"
-                          + "{\"term\": {\"instance.keyword\": \"$2\"}}]}},"
-    + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": $size}}}}";
+      "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}},"
+          + "{\"term\": {\"instance.keyword\": \"$2\"}}]}},"
+          + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": $size}}}}";
 
   public static final String LIST_TYPES_QUERY =
-    "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}} ]}},"
-    + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": $size}}}}";
+      "{\"query\": {\"bool\": {\"filter\": [ {\"match\": {\"type\": \"$1\"}} ]}},"
+          + "\"aggs\": {\"results\": {\"terms\": {\"field\": \"id.keyword\", \"size\": $size}}}}";
 
   public static final String GEO_SHAPE_QUERY =
       "{ \"geo_shape\": { \"$4\": { \"shape\": { \"type\": \"$1\", \"coordinates\": $2 },"
           + " \"relation\": \"$3\" } } }";
 
-  public static final String TEXT_QUERY =
-      "{\"query_string\":{\"query\":\"$1\"}}";
+  public static final String TEXT_QUERY = "{\"query_string\":{\"query\":\"$1\"}}";
 
   public static final String GET_DOC_QUERY =
       "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
 
   public static final String GET_RDOC_QUERY =
-      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ratingID.keyword\":\"$1\"} } ]," +
-          "\"must_not\": [ { \"match\": {\"status\": \"denied\"} } ] } } }";
-
+      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ratingID.keyword\":\"$1\"} } ],"
+          + "\"must_not\": [ { \"match\": {\"status\": \"denied\"} } ] } } }";
+  public static final String GET_MDOC_QUERY =
+      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"mlayerInstanceID.keyword\":\"$1\"} } ],"
+          + "\"must_not\": [ { \"match\": {\"status\": \"denied\"} } ] } } }";
 
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
@@ -133,26 +140,27 @@ public class Constants {
   public static final String TERM_QUERY = "{\"term\":{\"$1\":\"$2\"}}";
 
   public static final String GET_RATING_DOCS =
-          "{\"query\": {\"bool\": {\"must\": [ { \"match\": {\"$1\":\"$2\" } }, "
-      + "{ \"match\": { \"status\": \"approved\" } } ] } } , " +
-                  "\"_source\": [\"rating\",\"id\"] }";
+      "{\"query\": {\"bool\": {\"must\": [ { \"match\": {\"$1\":\"$2\" } }, "
+          + "{ \"match\": { \"status\": \"approved\" } } ] } } , "
+          + "\"_source\": [\"rating\",\"id\"] }";
   /* Replace above source list with commented one to include comment in response for rating API */
-            //    "\"_source\": [\"rating\",\"comment\",\"id\"] }";
+  //    "\"_source\": [\"rating\",\"comment\",\"id\"] }";
 
   public static final String GET_AVG_RATING =
-      "{ \"aggs\": {\"results\": {\"terms\" : {\"field\": \"id.keyword\"}, " +
-          "\"aggs\": {\"average_rating\": {\"avg\": {\"field\": \"rating\"} } } } } ," +
-          "\"query\": {\"bool\": {\"must\": [ { \"regexp\": {\"id.keyword\":\"$1|$1/.*\" } }," +
-          "{ \"match\": { \"status\": \"approved\" } } ] } } }";
+      "{ \"aggs\": {\"results\": {\"terms\" : {\"field\": \"id.keyword\"}, "
+          + "\"aggs\": {\"average_rating\": {\"avg\": {\"field\": \"rating\"} } } } } ,"
+          + "\"query\": {\"bool\": {\"must\": [ { \"regexp\": {\"id.keyword\":\"$1|$1/.*\" } },"
+          + "{ \"match\": { \"status\": \"approved\" } } ] } } }";
 
   public static final String QUERY_RESOURCE_GRP =
       "{ \"query\": { \"bool\": { \"should\": [ { \"term\": { \"id.keyword\": \"$1\" } }, "
           + "{ \"term\": { \"resourceGroup.keyword\": \"$2\" } } ] } } }";
 
-  public static final String NLP_SEARCH = "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}},\"script\":"
-  + "{\"source\": \"cosineSimilarity(params.query_vector, '_word_vector'') + 1.0\",\"lang\":\"painless\",\"params\": "
-  +"{\"query_vector\": \"$1\"}}}}}";
+  public static final String NLP_SEARCH =
+      "{\"query\": {\"script_score\": {\"query\": {\"match_all\": {}},\"script\":"
+          + "{\"source\": \"cosineSimilarity(params.query_vector, '_word_vector'') + 1.0\",\"lang\":\"painless\",\"params\": "
+          + "{\"query_vector\": \"$1\"}}}}}";
 
-  public static final String NLP_LOCATION_SEARCH = "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"should\": [";
-
+  public static final String NLP_LOCATION_SEARCH =
+      "{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"should\": [";
 }

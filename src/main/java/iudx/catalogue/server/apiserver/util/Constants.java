@@ -55,6 +55,7 @@ public class Constants {
   public static final String ROUTE_LIST_ITEMS =  "/list/:itemType";
 
   public static final String ROUTE_RATING = "/consumer/ratings";
+  public static final String ROUTER_MLAYER_INSTANCE=basePath+"/internal/ui/instance";
 
   public static final String RESOURCE_ITEM = "resItem";
   public static final String RESOURCE_GRP_ITEM = "resGrpItem";

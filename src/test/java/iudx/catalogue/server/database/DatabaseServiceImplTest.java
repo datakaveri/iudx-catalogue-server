@@ -47,6 +47,7 @@ public class DatabaseServiceImplTest {
 
   private static String docIndex;
   private static String ratingIndex;
+  private static String mlayerInstanceIndex;
   private static String databaseIP;
   private static int databasePort;
   private static String databaseUser;
@@ -90,9 +91,9 @@ public class DatabaseServiceImplTest {
         && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
-      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
+      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
     } else {
-      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     }
 
     testContext.completeNow();
@@ -101,7 +102,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test nlpSearchQuery when handler succeeded ")
   public void testNlpSerchQuery(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonArray request = new JsonArray();
     JsonArray jsonArray = new JsonArray();
     request.add(0, jsonArray);
@@ -132,7 +133,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test nlpSearchQuery when handler failed ")
   public void testNlpSerchQueryFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonArray request = new JsonArray();
     JsonArray jsonArray = new JsonArray();
     request.add(0, jsonArray);
@@ -165,7 +166,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test nlpSearchLocationQuery when handler succeded ")
   public void testSearchLocationQuery(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonArray request = new JsonArray();
     JsonArray jsonArray = new JsonArray().add(new JsonObject().put("country","India"));
     JsonObject jo = new JsonObject().put(RESULTS, jsonArray);
@@ -191,7 +192,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getItem when handler failed ")
   public void testGetItemFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     request.put(ID, "dummyid");
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -221,7 +222,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getItem when handler succeeded ")
   public void testGetItem(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     request.put(ID, "dummyid");
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -251,7 +252,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test listItem when handler succeeded ")
   public void testListItem(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, TAGS);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -281,7 +282,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test listItem method")
   public void testListItemFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, TAGS);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -311,7 +312,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test countQuery when method returns Null")
   public void testCountQueryHandler(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     // request.put(SEARCH_TYPE,GEOSEARCH_REGEX);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -322,7 +323,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test countQuery when handler succeeded")
   public void testCountQuerySuceeded(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     request.put(SEARCH_TYPE, GEOSEARCH_REGEX);
@@ -356,7 +357,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test verifyInstance when handler failed")
   public void testVerifyInstanceFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     String instanceId = "dummy";
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.failed()).thenReturn(true);
@@ -390,7 +391,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test verifyInstance when Total hits is 0")
   public void testVerifyInstance0Hits(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     String instanceId = "dummy";
     JsonObject json = new JsonObject();
     json.put(TOTAL_HITS, 0);
@@ -424,7 +425,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test verifyInstance when Total hits is 0")
   public void testVerifyInstance(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     String instanceId = "dummy";
     JsonObject json = new JsonObject();
     json.put(TOTAL_HITS, 100);
@@ -457,7 +458,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test updateItem method")
   public void testListRelationship(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.succeeded()).thenReturn(false);
@@ -486,7 +487,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test updateItem method")
   public void testRelSearch(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
 
     JsonArray jsonArray = new JsonArray();
@@ -504,7 +505,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test updateItem method when checkRes handler failed")
   public void testCreateRating(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummy");
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -534,7 +535,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test updateItem method when postRes handler failed")
   public void testCreateRatingPostRes(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummy");
     json.put(TOTAL_HITS, 0);
@@ -578,7 +579,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getRatings method when getRes handler succeeded ")
   public void testGetRatings(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put(ID, "dummyId");
     json.put(TYPE, "average");
@@ -612,7 +613,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getRatings method when getRes handler succeeded ")
   public void testUpdateRating(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummyId");
     json.put(TYPE, "average");
@@ -644,7 +645,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test createitem method when handler failed")
   public void testCreateItem(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("id", "dummyId");
     json.put(INSTANCE, "average");
@@ -676,7 +677,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test relSearch method when typeValue equals ITEM_TYPE_RESOURCE")
   public void testRelSearchResource(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put(LIMIT, 100);
     json.put(OFFSET, 100);
@@ -722,7 +723,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test relSearch method when typeValue equals Random")
   public void testRelSearchRandom(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     JsonArray jsonArray2 = new JsonArray();
@@ -739,7 +740,7 @@ public class DatabaseServiceImplTest {
   @Description(
       "test relSearch method when typeValue equals ITEM_TYPE_RESOURCE and searchRes failed")
   public void testRelSearchResourceFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     JsonObject jsonObject = new JsonObject();
     JsonObject jsonObject2 = new JsonObject();
@@ -784,7 +785,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test deleteRating method with handler failure ")
   public void testDeleteRating(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummy");
 
@@ -818,7 +819,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test deleteRating method with handler failure ")
   public void testDeleteRatingfailure(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummy");
     JsonArray jsonArray = new JsonArray();
@@ -920,7 +921,7 @@ public class DatabaseServiceImplTest {
   @Description("test getRatings method when getRes handler failed")
   public void testGetRatingsFailed2(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
+        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummy");
     JsonArray jsonArray = new JsonArray();
@@ -959,7 +960,7 @@ public class DatabaseServiceImplTest {
   @Description("test searchQuery method when handler failed")
   public void testSearchQuery(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
+        new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put(SEARCH, false);
     json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
@@ -994,7 +995,7 @@ public class DatabaseServiceImplTest {
   @Description("test countAsync method when handler failed")
   public void testCountQuery(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
+        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put(SEARCH, false);
     json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
@@ -1029,7 +1030,7 @@ public class DatabaseServiceImplTest {
   @Description("test listRelationship method when handler succeeded")
   public void testListRealtionship(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
+        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put(SEARCH, false);
     json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
@@ -1062,7 +1063,7 @@ public class DatabaseServiceImplTest {
   @Description("test listRelationship method when handler succeeded")
   public void testGetRatingsFailed(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
+        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put(ID, "dummy id");
     json.put(TYPE, "average");
@@ -1095,7 +1096,7 @@ public class DatabaseServiceImplTest {
   @Description("test createItem method when handler checkres failed")
   public void testCreateItemFailed(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
+        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put("id", "dummy id");
     json.put(TYPE, "average");
@@ -1133,7 +1134,7 @@ public class DatabaseServiceImplTest {
   @Description("test createItem method when checkRes handler succeeded")
   public void testCreateItemSucceeded(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
+        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put("id", "dummy id");
     json.put(TYPE, "average").put(TOTAL_HITS, 1);
@@ -1169,7 +1170,7 @@ public class DatabaseServiceImplTest {
   @Description("test createItem method when handler succeeded and total_hits equals 0")
   public void testCreateItemHits0(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, nlpService, geoService);
+        new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put("id", "dummy id").put(INSTANCE, "pune");
     json.put(TYPE, "average").put(TOTAL_HITS, 0);
