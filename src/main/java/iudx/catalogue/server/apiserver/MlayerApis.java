@@ -11,12 +11,14 @@ import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.mlayer.MlayerService;
 import iudx.catalogue.server.util.Api;
 import iudx.catalogue.server.util.Constants;
+
 import iudx.catalogue.server.validator.ValidatorService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.*;
+
 import static iudx.catalogue.server.mlayer.util.Constants.INSTANCE_ID;
 import static iudx.catalogue.server.mlayer.util.Constants.METHOD;
 import static iudx.catalogue.server.util.Constants.*;
@@ -203,30 +205,30 @@ public class MlayerApis {
     String requestBodyName = requestBody.getString(NAME);
     String parameterName = request.getParam(NAME);
 
-    if (parameterName.equals(requestBodyName)) {
-      JsonObject jwtAuthenticationInfo = new JsonObject();
-      jwtAuthenticationInfo
-          .put(TOKEN, request.getHeader(HEADER_TOKEN))
-          .put(METHOD, REQUEST_PUT)
-          .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
-          .put(ID, host);
+    JsonObject jwtAuthenticationInfo = new JsonObject();
+    jwtAuthenticationInfo
+        .put(TOKEN, request.getHeader(HEADER_TOKEN))
+        .put(METHOD, REQUEST_PUT)
+        .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
+        .put(ID, host);
 
-      Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
-      authenticationFuture
-          .onSuccess(
-              successHandler -> {
-                validatorService.validateMlayerInstance(
-                    requestBody,
-                    validationHandler -> {
-                      if (validationHandler.failed()) {
-                        response
-                            .setStatusCode(400)
-                            .end(
-                                new RespBuilder()
-                                    .withType(TYPE_INVALID_SCHEMA)
-                                    .withTitle(TITLE_INVALID_SCHEMA)
-                                    .getResponse());
-                      } else {
+    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
+    authenticationFuture
+        .onSuccess(
+            successHandler -> {
+              validatorService.validateMlayerInstance(
+                  requestBody,
+                  validationHandler -> {
+                    if (validationHandler.failed()) {
+                      response
+                          .setStatusCode(400)
+                          .end(
+                              new RespBuilder()
+                                  .withType(TYPE_INVALID_SCHEMA)
+                                  .withTitle(TITLE_INVALID_SCHEMA)
+                                  .getResponse());
+                    } else {
+                      if (parameterName.equals(requestBodyName)) {
 
                         mlayerService.updateMlayerInstance(
                             requestBody,
@@ -237,22 +239,22 @@ public class MlayerApis {
                                 response.setStatusCode(400).end(handler.cause().getMessage());
                               }
                             });
+                      } else {
+                        response
+                            .setStatusCode(400)
+                            .end(
+                                new RespBuilder()
+                                    .withDetail(
+                                        "Parameter instance name and request body instance name don't match. Name cannot be changed")
+                                    .getResponse());
                       }
-                    });
-              })
-          .onFailure(
-              failureHandler -> {
-                response.setStatusCode(401).end(failureHandler.getMessage());
-              });
-    } else {
-      response
-          .setStatusCode(400)
-          .end(
-              new RespBuilder()
-                  .withDetail(
-                      "Parameter instance name and request body instance name don't match. Name cannot be changed")
-                  .getResponse());
-    }
+                    }
+                  });
+            })
+        .onFailure(
+            failureHandler -> {
+              response.setStatusCode(401).end(failureHandler.getMessage());
+            });
   }
 
   private Future<JsonObject> inspectToken(JsonObject jwtAuthenticationInfo) {

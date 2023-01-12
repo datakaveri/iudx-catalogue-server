@@ -28,4 +28,5 @@ public interface MlayerService {
 
   @Fluent
   MlayerService updateMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
 }

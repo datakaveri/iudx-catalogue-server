@@ -136,13 +136,16 @@ public class ApiServerVerticle extends AbstractVerticle {
     geoApis = new GeocodingApis(api);
     ratingApis = new RatingApis(api);
     mlayerApis = new MlayerApis(api);
-    /** Get proxies and handlers */
+    /**
+     *
+     *
+     * Get proxies and handlers
+     */
 
     /** Todo - Set service proxies based on availability? */
     DatabaseService dbService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
 
     RatingService ratingService = RatingService.createProxy(vertx, RATING_SERVICE_ADDRESS);
-
     MlayerService mlayerService = MlayerService.createProxy(vertx, MLAYER_SERVICE_ADDRESSS);
 
     crudApis.setDbService(dbService);
@@ -452,8 +455,7 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
 
-    /* Routes for Mlayer Instance*/
-
+    /** Routes for Mlayer Instance APIs */
     /* Create Mlayer Instance */
     router
         .post(api.getRouteMlayerInstance())
@@ -516,8 +518,11 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
-    /** Start server */
+    /**
+     * Start server
+     */
     server.requestHandler(router).listen(port);
+
   }
 
   @Override
@@ -525,3 +530,5 @@ public class ApiServerVerticle extends AbstractVerticle {
     LOGGER.info("Stopping the API server");
   }
 }
+
+

@@ -52,8 +52,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       .withTitle(TITLE_INTERNAL_SERVER_ERROR)
       .getResponse();
 
-  public DatabaseServiceImpl(
-      ElasticClient client, String docIndex, String ratingIndex, String mlayerInstanceIndex) {
+  public DatabaseServiceImpl(ElasticClient client, String docIndex, String ratingIndex, String mlayerInstanceIndex) {
     this(client);
     this.docIndex = docIndex;
     this.ratingIndex = ratingIndex;
@@ -320,7 +319,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public DatabaseService updateItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -621,7 +622,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             elasticQuery.put(FROM, offsetFilter);
           }
 
-          LOGGER.debug("INFO: Query constructed;" + elasticQuery.toString());
+              LOGGER.debug("INFO: Query constructed;" + elasticQuery.toString());
 
           /* db query to find the relationship to the initial query */
           client.searchAsync(elasticQuery.toString(), docIndex, relSearchRes -> {
@@ -905,7 +906,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                 .withType(TYPE_SUCCESS)
                                 .withTitle(TITLE_SUCCESS)
                                 .withResult(InstanceID, INSERT, SUCCESS, INSTANCE_CREATION_SUCCESS)
-                                .getJsonResponse()));
+                               .getJsonResponse()));
                   } else {
 
                     handler.handle(
