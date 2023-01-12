@@ -127,9 +127,13 @@ public class Constants {
   public static final String GET_RDOC_QUERY =
       "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ratingID.keyword\":\"$1\"} } ],"
           + "\"must_not\": [ { \"match\": {\"status\": \"denied\"} } ] } } }";
+  public static final String CHECK_MDOC_QUERY =
+      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ID.keyword\":\"$1\"} } ] } } }";
+  public static final String CHECK_MDOC_QUERY_INSTANCE =
+          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"InstanceID.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MDOC_QUERY =
-      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"mlayerInstanceID.keyword\":\"$1\"} } ],"
-          + "\"must_not\": [ { \"match\": {\"status\": \"denied\"} } ] } } }";
+          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": [\"InstanceID\",\"name\",\"cover\",\"icon\",\"logo\"]}}";
+
 
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";

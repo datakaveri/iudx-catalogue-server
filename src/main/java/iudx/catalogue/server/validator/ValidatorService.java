@@ -65,8 +65,7 @@ public interface ValidatorService {
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
-   *
-   * @param vertx   which is the vertx instance
+   * @param vertx which is the vertx instance
    * @param address which is the proxy address
    * @return ValidatorServiceVertxEBProxy which is a service proxy
    */

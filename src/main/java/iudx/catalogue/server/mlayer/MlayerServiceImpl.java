@@ -6,13 +6,13 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.DatabaseService;
-import iudx.catalogue.server.rating.RatingServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
-import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_INSTANCE_ID;
+import static iudx.catalogue.server.mlayer.util.Constants.*;
 
 public class MlayerServiceImpl implements MlayerService {
   private static final Logger LOGGER = LogManager.getLogger(MlayerServiceImpl.class);
@@ -25,10 +25,10 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService createMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    String nameValue = request.getString("name");
-    String name = nameValue.toLowerCase();
-    String mlayerInstanceID = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
-    request.put(MLAYER_INSTANCE_ID, mlayerInstanceID);
+    String name = request.getString(NAME).toLowerCase();
+    String ID = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
+    String InstanceID = UUID.randomUUID().toString().substring(0, 5);
+    request.put(MLAYER_INSTANCE_ID, ID).put(INSTANCE_ID, InstanceID);
     databaseService.createMlayerInstance(
         request,
         createMlayerInstanceHandler -> {
@@ -44,16 +44,57 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerInstance( Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler) {
 
-    databaseService.getMlayerInstance(getMlayerInstancehandler->{
-      if(getMlayerInstancehandler.succeeded()){
-        handler.handle(Future.succeededFuture(getMlayerInstancehandler.result()));
-      }
-      else{
-        handler.handle(Future.failedFuture(getMlayerInstancehandler.cause()));
-      }
-    });
+    databaseService.getMlayerInstance(
+        getMlayerInstancehandler -> {
+          if (getMlayerInstancehandler.succeeded()) {
+            LOGGER.info("Success: Getting all Instance Values");
+            handler.handle(Future.succeededFuture(getMlayerInstancehandler.result()));
+          } else {
+            LOGGER.error("Fail: Getting all instances failed");
+            handler.handle(Future.failedFuture(getMlayerInstancehandler.cause()));
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public MlayerService deleteMlayerInstance(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    databaseService.deleteMlayerInstance(
+        request,
+        deleteMlayerInstanceHandler -> {
+          if (deleteMlayerInstanceHandler.succeeded()) {
+            LOGGER.info("Success: Mlayer Instance Deleted");
+            handler.handle(Future.succeededFuture(deleteMlayerInstanceHandler.result()));
+          } else {
+            LOGGER.error("Fail: Mlayer Instance deletion failed");
+            handler.handle(Future.failedFuture(deleteMlayerInstanceHandler.cause()));
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public MlayerService updateMlayerInstance(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    String name = request.getString(NAME).toLowerCase();
+    String ID = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
+    String InstanceID = UUID.randomUUID().toString().substring(0, 5);
+    request.put(MLAYER_INSTANCE_ID, ID).put(INSTANCE_ID, InstanceID);
+    databaseService.updateMlayerInstance(
+        request,
+        updateMlayerHandler -> {
+          if (updateMlayerHandler.succeeded()) {
+            LOGGER.info("Success: mlayer instance Updated");
+            handler.handle(Future.succeededFuture(updateMlayerHandler.result()));
+          } else {
+            LOGGER.error("Fail: Mlayer Instance updation failed");
+            handler.handle(Future.failedFuture(updateMlayerHandler.cause()));
+          }
+        });
+
     return this;
   }
 }

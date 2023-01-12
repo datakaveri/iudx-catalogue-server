@@ -43,7 +43,7 @@ public interface DatabaseService {
   @Fluent
   DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
-  /**
+   /**
    * The searchQuery implements the nlp search operation with the database.
    *
    * @param request which is a JsonObject
@@ -63,7 +63,7 @@ public interface DatabaseService {
    */
   @Fluent
   DatabaseService nlpSearchLocationQuery(JsonArray request, JsonObject queryParams,
-                                         Handler<AsyncResult<JsonObject>> handler);
+                                          Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The countQuery implements the count operation with the database.
@@ -126,7 +126,7 @@ public interface DatabaseService {
    */
   @Fluent
   DatabaseService listRelationship(JsonObject request,
-                                   Handler<AsyncResult<JsonObject>> handler);
+      Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The relSearch implements the Relationship searches with the database.
@@ -193,6 +193,25 @@ public interface DatabaseService {
    */
   @Fluent
   DatabaseService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The deleteMlayerInstance implements deleting instance from the database
+   * @param request which is JsonObject
+   * @param handler which is a request handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService deleteMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The updateMlayerInstance implements updating instance from the database
+   * @param request which is a jsonobject
+   * @param handler which is a request handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService updateMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
 
   /* create db service with nlp and geocoding */
   @GenIgnore

@@ -9,14 +9,16 @@ import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.mlayer.MlayerService;
+import iudx.catalogue.server.util.Api;
+import iudx.catalogue.server.util.Constants;
 import iudx.catalogue.server.validator.ValidatorService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.*;
+import static iudx.catalogue.server.mlayer.util.Constants.INSTANCE_ID;
 import static iudx.catalogue.server.mlayer.util.Constants.METHOD;
-import static iudx.catalogue.server.rating.util.Constants.USER_ID;
 import static iudx.catalogue.server.util.Constants.*;
 
 public class MlayerApis {
@@ -40,6 +42,12 @@ public class MlayerApis {
 
   public void setHost(String host) {
     this.host = host;
+  }
+
+  private Api api;
+
+  public MlayerApis(Api api) {
+    this.api = api;
   }
 
   /**
@@ -101,41 +109,151 @@ public class MlayerApis {
             });
   }
 
-    /**
-     * Get mlayer instance handler
-     *
-     * @param routingContext {@link RoutingContext}
-     */
-    public void getMlayerInstanceHandler(RoutingContext routingContext){
-        LOGGER.debug("Info : fetching mlayer Instances");
+  /**
+   * Get mlayer instance handler
+   *
+   * @param routingContext {@link RoutingContext}
+   */
+  public void getMlayerInstanceHandler(RoutingContext routingContext) {
+    LOGGER.debug("Info : fetching mlayer Instances");
 
-        HttpServerRequest request = routingContext.request();
-        HttpServerResponse response = routingContext.response();
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-        JsonObject authenticationInfo=new JsonObject().put(TOKEN,request.getHeader(TOKEN))
-                .put(METHOD,REQUEST_GET)
-                .put(METHOD,REQUEST_GET)
-                .put(API_ENDPOINT,MLAYER_INSTANCE_ENDPOINT)
-                .put(ID,host);
-        Future<JsonObject> authenticationFuture = inspectToken(authenticationInfo);
-        authenticationFuture.onSuccess(
-                successHandler -> {
-                    LOGGER.debug("authentication successful ");
-                    mlayerService.getMlayerInstance(handler->{
-                        if(handler.succeeded()){
-                            response.setStatusCode(200).end(handler.result().toString());
-                        }
-                        else{
-                            response.setStatusCode(400).end(handler.cause().getMessage());
-                        }
+    HttpServerRequest request = routingContext.request();
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    JsonObject authenticationInfo =
+        new JsonObject()
+            .put(TOKEN, request.getHeader(TOKEN))
+            .put(METHOD, REQUEST_GET)
+            .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
+            .put(ID, host);
+    Future<JsonObject> authenticationFuture = inspectToken(authenticationInfo);
+    authenticationFuture
+        .onSuccess(
+            successHandler -> {
+              LOGGER.debug("authentication successful ");
+              mlayerService.getMlayerInstance(
+                  handler -> {
+                    if (handler.succeeded()) {
+                      response.setStatusCode(200).end(handler.result().toString());
+                    } else {
+                      response.setStatusCode(400).end(handler.cause().getMessage());
+                    }
+                  });
+            })
+        .onFailure(
+            failureHandler -> {
+              response.setStatusCode(401).end(failureHandler.getMessage());
+            });
+  }
+
+  /**
+   * Delete Mlayer Instance Handler
+   *
+   * @param routingContext {@link RoutingContext}
+   */
+  public void deleteMlayerInstanceHandler(RoutingContext routingContext) {
+    LOGGER.debug("Info : deleting mlayer Instance");
+
+    HttpServerRequest request = routingContext.request();
+    HttpServerResponse response = routingContext.response();
+
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
+    JsonObject jwtAuthenticationInfo = new JsonObject();
+
+    jwtAuthenticationInfo
+        .put(TOKEN, request.getHeader(HEADER_TOKEN))
+        .put(Constants.METHOD, REQUEST_DELETE)
+        .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
+        .put(ID, host);
+
+    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
+    authenticationFuture
+        .onSuccess(
+            successHandler -> {
+              String instanceId = request.getParam(INSTANCE_ID);
+              JsonObject requestBody = new JsonObject().put(INSTANCE_ID, instanceId);
+              mlayerService.deleteMlayerInstance(
+                  requestBody,
+                  dbHandler -> {
+                    if (dbHandler.succeeded()) {
+                      LOGGER.info("Success: Item deleted");
+                      LOGGER.debug(dbHandler.result().toString());
+                      response.setStatusCode(200).end(dbHandler.result().toString());
+                    } else {
+                      response.setStatusCode(400).end(dbHandler.cause().toString());
+                    }
+                  });
+            })
+        .onFailure(
+            failureHandler -> {
+              response.setStatusCode(401).end(failureHandler.getMessage());
+            });
+  }
+
+  public void updateMlayerInstanceHandler(RoutingContext routingContext) {
+    LOGGER.debug("Info: Updating Mlayer Instance");
+
+    JsonObject requestBody = routingContext.body().asJsonObject();
+    HttpServerRequest request = routingContext.request();
+    HttpServerResponse response = routingContext.response();
+
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+
+    String requestBodyName = requestBody.getString(NAME);
+    String parameterName = request.getParam(NAME);
+
+    if (parameterName.equals(requestBodyName)) {
+      JsonObject jwtAuthenticationInfo = new JsonObject();
+      jwtAuthenticationInfo
+          .put(TOKEN, request.getHeader(HEADER_TOKEN))
+          .put(METHOD, REQUEST_PUT)
+          .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
+          .put(ID, host);
+
+      Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
+      authenticationFuture
+          .onSuccess(
+              successHandler -> {
+                validatorService.validateMlayerInstance(
+                    requestBody,
+                    validationHandler -> {
+                      if (validationHandler.failed()) {
+                        response
+                            .setStatusCode(400)
+                            .end(
+                                new RespBuilder()
+                                    .withType(TYPE_INVALID_SCHEMA)
+                                    .withTitle(TITLE_INVALID_SCHEMA)
+                                    .getResponse());
+                      } else {
+
+                        mlayerService.updateMlayerInstance(
+                            requestBody,
+                            handler -> {
+                              if (handler.succeeded()) {
+                                response.setStatusCode(200).end(handler.result().toString());
+                              } else {
+                                response.setStatusCode(400).end(handler.cause().getMessage());
+                              }
+                            });
+                      }
                     });
-
-                })
-                .onFailure(
-                        failureHandler -> {
-                            response.setStatusCode(401).end(failureHandler.getMessage());
-                        });
+              })
+          .onFailure(
+              failureHandler -> {
+                response.setStatusCode(401).end(failureHandler.getMessage());
+              });
+    } else {
+      response
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
+                  .withDetail(
+                      "Parameter instance name and request body instance name don't match. Name cannot be changed")
+                  .getResponse());
     }
+  }
 
   private Future<JsonObject> inspectToken(JsonObject jwtAuthenticationInfo) {
     Promise<JsonObject> promise = Promise.promise();

@@ -55,7 +55,6 @@ public class Constants {
   public static final String ROUTE_LIST_ITEMS =  "/list/:itemType";
 
   public static final String ROUTE_RATING = "/consumer/ratings";
-  public static final String ROUTER_MLAYER_INSTANCE=basePath+"/internal/ui/instance";
 
   public static final String RESOURCE_ITEM = "resItem";
   public static final String RESOURCE_GRP_ITEM = "resGrpItem";
@@ -76,12 +75,13 @@ public class Constants {
   public static final String PARTIAL_CONTENT = "partial-content";
   public static final String TEXT = "text";
 
-  public static final ArrayList<String> GEORELS 
+  public static final ArrayList<String> GEORELS
     = new ArrayList<String>(Arrays.asList(GEOREL_WITHIN, GEOREL_NEAR,
                                           GEOREL_COVERED_BY, GEOREL_INTERSECTS,
                                           GEOREL_EQUALS, GEOREL_DISJOINT));
+  public static final String ROUTE_MLAYER_INSTANCE = "/internal/ui/instance";
   /** Geometries */
-  public static final ArrayList<String> GEOMETRIES 
+  public static final ArrayList<String> GEOMETRIES
     = new ArrayList<String>(Arrays.asList(BBOX, POLYGON,
                                           LINESTRING, POINT));
 
