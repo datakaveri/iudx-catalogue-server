@@ -83,7 +83,7 @@ public class DatabaseServiceImplTest {
     databasePassword = dbConfig.getString(DATABASE_PASSWD);
     docIndex = dbConfig.getString(DOC_INDEX);
     ratingIndex = dbConfig.getString(RATING_INDEX);
-    mlayerInstanceIndex=dbConfig.getString(MLAYER_INSTANCE_INDEX);
+    mlayerInstanceIndex = dbConfig.getString(MLAYER_INSTANCE_INDEX);
     optionalModules = dbConfig.getJsonArray(OPTIONAL_MODULES);
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
@@ -92,9 +92,11 @@ public class DatabaseServiceImplTest {
         && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
-      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
+      dbService =
+          new DatabaseServiceImpl(
+              client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
     } else {
-      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     }
 
     testContext.completeNow();
@@ -103,7 +105,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test nlpSearchQuery when handler succeeded ")
   public void testNlpSerchQuery(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonArray request = new JsonArray();
     JsonArray jsonArray = new JsonArray();
     request.add(0, jsonArray);
@@ -134,7 +136,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test nlpSearchQuery when handler failed ")
   public void testNlpSerchQueryFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonArray request = new JsonArray();
     JsonArray jsonArray = new JsonArray();
     request.add(0, jsonArray);
@@ -169,13 +171,13 @@ public class DatabaseServiceImplTest {
   public void testSearchLocationQuery(VertxTestContext vertxTestContext) {
     databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonArray request = new JsonArray();
-    JsonArray jsonArray = new JsonArray().add(new JsonObject().put("country","India"));
+    JsonArray jsonArray = new JsonArray().add(new JsonObject().put("country", "India"));
     JsonObject jo = new JsonObject().put(RESULTS, jsonArray);
     request.add(0, jsonArray);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     doAnswer(Answer -> Future.succeededFuture(jo))
         .when(DatabaseServiceImpl.client)
-            .scriptLocationSearch(any(),any());
+        .scriptLocationSearch(any(), any());
 
     databaseService.nlpSearchLocationQuery(
         request,
@@ -193,7 +195,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getItem when handler failed ")
   public void testGetItemFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     request.put(ID, "dummyid");
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -223,7 +225,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getItem when handler succeeded ")
   public void testGetItem(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     request.put(ID, "dummyid");
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -253,7 +255,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test listItem when handler succeeded ")
   public void testListItem(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, TAGS);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -283,7 +285,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test listItem method")
   public void testListItemFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     request.put(ITEM_TYPE, TAGS);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -313,7 +315,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test countQuery when method returns Null")
   public void testCountQueryHandler(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     // request.put(SEARCH_TYPE,GEOSEARCH_REGEX);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -324,7 +326,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test countQuery when handler succeeded")
   public void testCountQuerySuceeded(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     request.put(SEARCH_TYPE, GEOSEARCH_REGEX);
@@ -358,7 +360,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test verifyInstance when handler failed")
   public void testVerifyInstanceFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     String instanceId = "dummy";
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.failed()).thenReturn(true);
@@ -392,7 +394,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test verifyInstance when Total hits is 0")
   public void testVerifyInstance0Hits(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     String instanceId = "dummy";
     JsonObject json = new JsonObject();
     json.put(TOTAL_HITS, 0);
@@ -426,7 +428,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test verifyInstance when Total hits is 0")
   public void testVerifyInstance(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     String instanceId = "dummy";
     JsonObject json = new JsonObject();
     json.put(TOTAL_HITS, 100);
@@ -459,7 +461,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test updateItem method")
   public void testListRelationship(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.succeeded()).thenReturn(false);
@@ -488,7 +490,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test updateItem method")
   public void testRelSearch(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
 
     JsonArray jsonArray = new JsonArray();
@@ -506,7 +508,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test updateItem method when checkRes handler failed")
   public void testCreateRating(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummy");
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -536,7 +538,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test updateItem method when postRes handler failed")
   public void testCreateRatingPostRes(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummy");
     json.put(TOTAL_HITS, 0);
@@ -580,7 +582,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getRatings method when getRes handler succeeded ")
   public void testGetRatings(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put(ID, "dummyId");
     json.put(TYPE, "average");
@@ -614,7 +616,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getRatings method when getRes handler succeeded ")
   public void testUpdateRating(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummyId");
     json.put(TYPE, "average");
@@ -646,7 +648,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test createitem method when handler failed")
   public void testCreateItem(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("id", "dummyId");
     json.put(INSTANCE, "average");
@@ -678,7 +680,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test relSearch method when typeValue equals ITEM_TYPE_RESOURCE")
   public void testRelSearchResource(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put(LIMIT, 100);
     json.put(OFFSET, 100);
@@ -724,7 +726,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test relSearch method when typeValue equals Random")
   public void testRelSearchRandom(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     JsonArray jsonArray2 = new JsonArray();
@@ -741,7 +743,7 @@ public class DatabaseServiceImplTest {
   @Description(
       "test relSearch method when typeValue equals ITEM_TYPE_RESOURCE and searchRes failed")
   public void testRelSearchResourceFailed(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     JsonObject jsonObject = new JsonObject();
     JsonObject jsonObject2 = new JsonObject();
@@ -786,7 +788,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test deleteRating method with handler failure ")
   public void testDeleteRating(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummy");
 
@@ -820,7 +822,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test deleteRating method with handler failure ")
   public void testDeleteRatingfailure(VertxTestContext vertxTestContext) {
-    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummy");
     JsonArray jsonArray = new JsonArray();
@@ -922,7 +924,8 @@ public class DatabaseServiceImplTest {
   @Description("test getRatings method when getRes handler failed")
   public void testGetRatingsFailed2(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put("ratingID", "dummy");
     JsonArray jsonArray = new JsonArray();
@@ -961,7 +964,8 @@ public class DatabaseServiceImplTest {
   @Description("test searchQuery method when handler failed")
   public void testSearchQuery(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex, nlpService, geoService);
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put(SEARCH, false);
     json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
@@ -996,7 +1000,8 @@ public class DatabaseServiceImplTest {
   @Description("test countAsync method when handler failed")
   public void testCountQuery(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put(SEARCH, false);
     json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
@@ -1031,7 +1036,8 @@ public class DatabaseServiceImplTest {
   @Description("test listRelationship method when handler succeeded")
   public void testListRealtionship(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put(SEARCH, false);
     json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
@@ -1064,7 +1070,8 @@ public class DatabaseServiceImplTest {
   @Description("test listRelationship method when handler succeeded")
   public void testGetRatingsFailed(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put(ID, "dummy id");
     json.put(TYPE, "average");
@@ -1097,7 +1104,8 @@ public class DatabaseServiceImplTest {
   @Description("test createItem method when handler checkres failed")
   public void testCreateItemFailed(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put("id", "dummy id");
     json.put(TYPE, "average");
@@ -1135,7 +1143,8 @@ public class DatabaseServiceImplTest {
   @Description("test createItem method when checkRes handler succeeded")
   public void testCreateItemSucceeded(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex,nlpService, geoService);
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put("id", "dummy id");
     json.put(TYPE, "average").put(TOTAL_HITS, 1);
@@ -1171,7 +1180,8 @@ public class DatabaseServiceImplTest {
   @Description("test createItem method when handler succeeded and total_hits equals 0")
   public void testCreateItemHits0(VertxTestContext vertxTestContext) {
     databaseService =
-        new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex, nlpService, geoService);
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
     JsonObject json = new JsonObject();
     json.put("id", "dummy id").put(INSTANCE, "pune");
     json.put(TYPE, "average").put(TOTAL_HITS, 0);
@@ -1191,7 +1201,6 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .searchAsync(any(), any(), any());
 
-
     databaseService.createItem(json, handler);
     databaseService
         .verifyInstance(instanceId)
@@ -1209,170 +1218,396 @@ public class DatabaseServiceImplTest {
               }
             });
   }
-    @Test
-    @Description("test createMlayerInstance method when instance is created")
-    public void testCreateInstanceWhenInstanceExists(VertxTestContext testContext){
-      databaseService=
-              new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
-        JsonObject json = new JsonObject();
-        json.put("mlayerInstanceID","dummy").put(TOTAL_HITS,1);
-        json.put(MLAYER_INSTANCE_INDEX,"dummy");
-        when(asyncResult.result()).thenReturn(json);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchAsync(any(), any(), any());
-        databaseService.createMlayerInstance(json,handler->{
-            if(handler.failed())
-            {
-                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
-                testContext.completeNow();
-            }
-            else {
-                testContext.failNow("fail");
-            }
-        });
 
-    }
-
-    @Test
-    @Description("test createMlayerInstance method when the instance is already present")
-    public void testCreateMlayerInstance(VertxTestContext testContext){
-      databaseService=
-              new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex, nlpService, geoService);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
-        JsonObject json = new JsonObject();
-        json.put("mlayerInstanceID","dummy").put(TOTAL_HITS,0);
-        json.put(MLAYER_INSTANCE_INDEX,"dummy");
-        when(asyncResult.succeeded()).thenReturn(true);
-        when(asyncResult.result()).thenReturn(json);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchAsync(any(), any(), any());
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .docPostAsync(any(), any(), any());
-        databaseService.createMlayerInstance(json,handler->{
-            if(handler.succeeded()){
-                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
-                verify(DatabaseServiceImpl.client, times(1)).docPostAsync(any(), any(), any());
-                testContext.completeNow();
-            }
-            else {
-                testContext.failNow("Fail");
-            }
+  @Test
+  @Description("test createMlayerInstance method when instance is created")
+  public void testCreateInstanceWhenInstanceExists(VertxTestContext testContext) {
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject();
+    json.put("InstanceID", "dummy").put(TOTAL_HITS, 1).put("ID", "dummy");
+    json.put(MLAYER_INSTANCE_INDEX, "dummy");
+    when(asyncResult.result()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    databaseService.createMlayerInstance(
+        json,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("fail");
+          }
         });
   }
-    @Test
-    @Description("test createMlayerInstance method when instance creation fails")
-    public void testCreateMlayerInstanceFailure(VertxTestContext testContext){
-        databaseService=new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
-        JsonObject json = new JsonObject();
-        json.put("mlayerInstanceID","dummy").put(TOTAL_HITS,1);
-        json.put(MLAYER_INSTANCE_INDEX,"dummy");
-        when(asyncResult.failed()).thenReturn(true);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchAsync(any(), any(), any());
-        databaseService.createMlayerInstance(json,handler->{
-            if(handler.failed())
-            {
-                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
-                testContext.completeNow();
 
-            }
-            else {
-                testContext.failNow("fail");
-            }
+  @Test
+  @Description("test createMlayerInstance method when the instance is already present")
+  public void testCreateMlayerInstance(VertxTestContext testContext) {
+    databaseService =
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject();
+    json.put("InstanceID", "dummy").put(TOTAL_HITS, 0).put("ID", "dummy");
+    json.put(MLAYER_INSTANCE_INDEX, "dummy");
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .docPostAsync(any(), any(), any());
+    databaseService.createMlayerInstance(
+        json,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).docPostAsync(any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
         });
+  }
 
-    }
-    @Test
-    @Description("test getMlayerInstance method when the DB Request is Successful")
-    public void testGetMlayerInstance(VertxTestContext testContext){
-        databaseService=
-                new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex, nlpService, geoService);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
-        when(asyncResult.succeeded()).thenReturn(true);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchAsync(any(), any(),any());
-        databaseService.getMlayerInstance(handler->{
-            if(handler.succeeded()){
-                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(),any(), any());
-                testContext.completeNow();
-            }
-            else {
-                testContext.failNow("Fail");
-            }
+  @Test
+  @Description("test createMlayerInstance method when instance creation fails")
+  public void testCreateMlayerInstanceFailure(VertxTestContext testContext) {
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject();
+    json.put("InstanceID", "dummy").put(TOTAL_HITS, 0).put("ID", "dummy");
+    json.put(MLAYER_INSTANCE_INDEX, "dummy");
+    when(asyncResult.failed()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    databaseService.createMlayerInstance(
+        json,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+            testContext.completeNow();
+
+          } else {
+            testContext.failNow("fail");
+          }
         });
-    }
-    @Test
-    @Description("test getMlayerInstance method when get instance DB Request fails")
-    public void testGEtMlayerInstanceFailure(VertxTestContext testContext){
-        databaseService=new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
-        when(asyncResult.succeeded()).thenReturn(false);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchAsync(any(), any(), any());
-        databaseService.getMlayerInstance(handler->{
-            if(handler.failed())
-            {
-                verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(),any(), any());
-                testContext.completeNow();
+  }
 
-            }
-            else {
-                testContext.failNow("fail");
-            }
+  @Test
+  @Description("test getMlayerInstance method when the DB Request is Successful")
+  public void testGetMlayerInstance(VertxTestContext testContext) {
+    databaseService =
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    databaseService.getMlayerInstance(
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
         });
+  }
 
-    }
+  @Test
+  @Description("test getMlayerInstance method when get instance DB Request fails")
+  public void testGetMlayerInstanceFailure(VertxTestContext testContext) {
+    databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.succeeded()).thenReturn(false);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    databaseService.getMlayerInstance(
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+            testContext.completeNow();
 
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
 
+  @Test
+  @Description("test deleteMlayerInstance method when handler fails")
+  public void testDeleteMlayerInstancefailure(VertxTestContext testContext) {
+    databaseService =
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject();
+    json.put("InstanceID", "dummy id");
+    when(asyncResult.failed()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    databaseService.deleteMlayerInstance(
+        json,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
 
+  @Test
+  @Description("test deleteMlayerInstance method when instance does not exist")
+  public void testDeleteMlayerNoInstance(VertxTestContext testContext) {
+    databaseService =
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject();
+    json.put("InstanceID", "dummy id").put(TOTAL_HITS, 0);
+    when(asyncResult.failed()).thenReturn(false);
+    when(asyncResult.result()).thenReturn(json);
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    databaseService.deleteMlayerInstance(
+        json,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test deleteMlayerInstance method when instance is deleted")
+  public void testDeleteMlayerInstance(VertxTestContext testContext) {
+    databaseService =
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject();
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(0, "dummy string");
+    json.put("InstanceID", "dummy id").put(TOTAL_HITS, 1).put(RESULTS, jsonArray);
+    when(asyncResult.failed()).thenReturn(false);
+    when(asyncResult.result()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .docDelAsync(any(), any(), any());
+    databaseService.deleteMlayerInstance(
+        json,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).docDelAsync(any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test updateMlayerInstance method when handler fails")
+  public void testUpdateMlayerInstancefailure(VertxTestContext testContext) {
+    databaseService =
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject();
+    json.put("InstanceID", "dummy instance id").put("ID", "dummy id");
+    when(asyncResult.failed()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    databaseService.updateMlayerInstance(
+        json,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test updateMlayerInstance method when instance does not exist")
+  public void testUpdateMlayerNoInstance(VertxTestContext testContext) {
+    databaseService =
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject();
+    json.put("InstanceID", "dummy instance id").put(TOTAL_HITS, 0).put("ID", "dummy id");
+    when(asyncResult.failed()).thenReturn(false);
+    when(asyncResult.result()).thenReturn(json);
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    databaseService.updateMlayerInstance(
+        json,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test updateMlayerInstance method when instance is updated")
+  public void testUpdateMlayerInstance(VertxTestContext testContext) {
+    databaseService =
+        new DatabaseServiceImpl(
+            client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject();
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(0, "dummy string");
+    json.put("InstanceID", "dummy instance id")
+        .put(TOTAL_HITS, 1)
+        .put(RESULTS, jsonArray)
+        .put("ID", "id");
+    when(asyncResult.failed()).thenReturn(false);
+    when(asyncResult.result()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .docPutAsync(any(), any(), any(), any());
+    databaseService.updateMlayerInstance(
+        json,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).docPutAsync(any(), any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
 }

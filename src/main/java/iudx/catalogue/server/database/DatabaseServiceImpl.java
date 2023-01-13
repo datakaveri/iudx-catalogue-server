@@ -891,7 +891,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                       respBuilder
                           .withType(TYPE_ALREADY_EXISTS)
                           .withTitle(TITLE_ALREADY_EXISTS)
-                          .withResult(InstanceID, INSERT, FAILED, " Fail: Doc Already Exists")
+                          .withResult(ID, INSERT, FAILED, " Fail: Doc Already Exists")
                           .getResponse()));
               return;
             }

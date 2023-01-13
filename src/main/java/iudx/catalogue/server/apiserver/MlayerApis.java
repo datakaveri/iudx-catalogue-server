@@ -244,8 +244,9 @@ public class MlayerApis {
                             .setStatusCode(400)
                             .end(
                                 new RespBuilder()
+                                    .withType(INVALID_VALUE)
                                     .withDetail(
-                                        "Parameter instance name and request body instance name don't match. Name cannot be changed")
+                                        "Parameter instance name and request body instance name not same")
                                     .getResponse());
                       }
                     }

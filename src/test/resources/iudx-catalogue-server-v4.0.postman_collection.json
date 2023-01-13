@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7f668107-7e6f-40d4-87a7-253156be4bf5",
+		"_postman_id": "01febd98-4eac-4be1-8983-13dffd196102",
 		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "23234057"
@@ -10662,6 +10662,366 @@
 										"internal",
 										"ui",
 										"instance"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Delete Mlayer instance",
+					"item": [
+						{
+							"name": "200 (Success) - Delete Mlayer Instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{openToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=b71a8",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									],
+									"query": [
+										{
+											"key": "InstanceID",
+											"value": "b71a8"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "401 (Invalid Token) - Delete Mlayer Instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});",
+											"",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "token",
+										"value": "abc",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=c6841",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									],
+									"query": [
+										{
+											"key": "InstanceID",
+											"value": "c6841"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Update Mlayer instance",
+					"item": [
+						{
+							"name": "200 (Success) - Update Mlayer Instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{openToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"name\": \"bengaluru\",\r\n   \"cover\": \"path_of_cover_of_bengaluru.jpg\",\r\n   \"icon\": \"path_of_icon_of_bengaluru.jpg\",\r\n   \"logo\": \"path_of_logo_of_bangaluru.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance?name=bengaluru",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "bengaluru"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "401 (Invalid Token) - Update Mlayer Instances",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "token",
+										"value": "abc",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"name\": \"bengaluru\",\r\n   \"cover\": \"path_of_cover_of_bengaluru.jpg\",\r\n   \"icon\": \"path_of_icon_of_bengaluru.jpg\",\r\n   \"logo\": \"path_of_logo_of_bangaluru.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance?name=bengaluru",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "bengaluru"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Schema) - Update Mlayer Instances",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{openToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"namess\": \"bengaluru\",\r\n   \"cover\": \"path_of_cover_of_bengaluru.jpg\",\r\n   \"icon\": \"path_of_icon_of_bengaluru.jpg\",\r\n   \"logo\": \"path_of_logo_of_bangaluru.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance?name=bengaluru",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "bengaluru"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid value) - Update Mlayer Instances",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{openToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n   \"name\": \"bengaluru\",\r\n   \"cover\": \"path_of_cover_of_bengaluru.jpg\",\r\n   \"icon\": \"path_of_icon_of_bengaluru.jpg\",\r\n   \"logo\": \"path_of_logo_of_bangaluru.png\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance?name=pune",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "pune"
+										}
 									]
 								}
 							},
