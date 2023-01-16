@@ -222,6 +222,10 @@ public class Constants {
   public static final String TYPE_BAD_FILTER = "urn:dx:cat:BadFilter";
   public static final String TITLE_BAD_FILTER = "Bad filters applied";
   public static final String INSTANCE_CREATION_SUCCESS="Instance created successfully.";
+  public static final String WRONG_INSTANCE_NAME = "Requested Body Instance Name wrong";
+  public static final String TITLE_WRONG_INSTANCE_NAME = "Inavlid Requested Body";
+
+
 
 }
 

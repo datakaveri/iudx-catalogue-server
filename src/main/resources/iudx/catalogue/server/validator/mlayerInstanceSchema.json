@@ -28,7 +28,8 @@
       "default": "",
       "examples": [
         "Bangalore"
-      ]
+      ],
+      "pattern": "^[a-zA-Z ]*$"
     },
     "cover": {
       "$id": "#/properties/cover",

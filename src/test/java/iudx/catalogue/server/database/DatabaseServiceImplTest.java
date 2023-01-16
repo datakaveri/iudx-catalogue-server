@@ -29,6 +29,7 @@ import org.mockito.stubbing.Answer;
 import java.util.Timer;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.mlayer.util.Constants.INSTANCE_ID;
 import static iudx.catalogue.server.util.Constants.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -1220,12 +1221,15 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
-  @Description("test createMlayerInstance method when instance is created")
+  @Description("test createMlayerInstance method when instance already exists")
   public void testCreateInstanceWhenInstanceExists(VertxTestContext testContext) {
     databaseService = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerInstanceIndex);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     JsonObject json = new JsonObject();
-    json.put("InstanceID", "dummy").put(TOTAL_HITS, 1).put("ID", "dummy");
+    JsonObject json2 = new JsonObject();
+    json2.put(INSTANCE_ID, "dummy id");
+    JsonArray jsonArray = new JsonArray().add(json2);
+    json.put("InstanceID", "dummy").put(TOTAL_HITS, 1).put("ID", "dummy").put(RESULTS, jsonArray);
     json.put(MLAYER_INSTANCE_INDEX, "dummy");
     when(asyncResult.result()).thenReturn(json);
     doAnswer(
@@ -1251,7 +1255,7 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
-  @Description("test createMlayerInstance method when the instance is already present")
+  @Description("test createMlayerInstance method when the instance is created")
   public void testCreateMlayerInstance(VertxTestContext testContext) {
     databaseService =
         new DatabaseServiceImpl(
@@ -1393,6 +1397,7 @@ public class DatabaseServiceImplTest {
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     JsonObject json = new JsonObject();
     json.put("InstanceID", "dummy id");
+    String request = "dummy";
     when(asyncResult.failed()).thenReturn(true);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -1405,7 +1410,7 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .searchGetId(any(), any(), any());
     databaseService.deleteMlayerInstance(
-        json,
+        request,
         handler -> {
           if (handler.failed()) {
             verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
@@ -1427,6 +1432,7 @@ public class DatabaseServiceImplTest {
     json.put("InstanceID", "dummy id").put(TOTAL_HITS, 0);
     when(asyncResult.failed()).thenReturn(false);
     when(asyncResult.result()).thenReturn(json);
+    String request = "dummy";
 
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -1439,7 +1445,7 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .searchGetId(any(), any(), any());
     databaseService.deleteMlayerInstance(
-        json,
+        request,
         handler -> {
           if (handler.failed()) {
             verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
@@ -1463,6 +1469,7 @@ public class DatabaseServiceImplTest {
     json.put("InstanceID", "dummy id").put(TOTAL_HITS, 1).put(RESULTS, jsonArray);
     when(asyncResult.failed()).thenReturn(false);
     when(asyncResult.result()).thenReturn(json);
+    String request = "dummy";
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @Override
@@ -1484,7 +1491,7 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .docDelAsync(any(), any(), any());
     databaseService.deleteMlayerInstance(
-        json,
+        request,
         handler -> {
           if (handler.failed()) {
             verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
@@ -1570,13 +1577,17 @@ public class DatabaseServiceImplTest {
             client, docIndex, ratingIndex, mlayerInstanceIndex, nlpService, geoService);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     JsonObject json = new JsonObject();
+    JsonObject json2 = new JsonObject();
+    json2.put(NAME, "instance-name");
     JsonArray jsonArray = new JsonArray();
-    jsonArray.add(0, "dummy string");
+    jsonArray.add(0, json2);
     json.put("InstanceID", "dummy instance id")
         .put(TOTAL_HITS, 1)
         .put(RESULTS, jsonArray)
-        .put("ID", "id");
+        .put("ID", "id")
+        .put(NAME, "instance-name");
     when(asyncResult.failed()).thenReturn(false);
+    when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(json);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -1592,6 +1603,16 @@ public class DatabaseServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
                 return null;
               }
@@ -1601,9 +1622,9 @@ public class DatabaseServiceImplTest {
     databaseService.updateMlayerInstance(
         json,
         handler -> {
-          if (handler.failed()) {
+          if (handler.succeeded()) {
             verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
-            verify(DatabaseServiceImpl.client, times(1)).docPutAsync(any(), any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");

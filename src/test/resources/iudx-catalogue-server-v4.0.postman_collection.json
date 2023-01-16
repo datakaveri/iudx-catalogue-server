@@ -10421,7 +10421,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n   \"name\": \"bengaluru\",\n   \"cover\": \"path_of_cover.jpg\",\n   \"icon\": \"path_of_icon.png\",\n   \"logo\": \"path_of_logo.png\"\n}",
+									"raw": "{\n   \"name\": \"bareily\",\n   \"cover\": \"path_of_cover.jpg\",\n   \"icon\": \"path_of_icon.png\",\n   \"logo\": \"path_of_logo.png\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10583,65 +10583,9 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "{{openToken}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "401 (Invalid Token) - Get Mlayer Instance",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(401);",
-											"});",
-											"",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "token",
-										"value": "abc",
-										"type": "text"
+										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM2MjYzODEsImlhdCI6MTY3MzU4MzE4MSwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.LqlvdDshZ_nnVZCO3cRRGsMGXh12NSW8mbnEr0RjO3ylKRVInK1y7dM8BH4c-RExqwuPg7cBpIaCkN89_xa_QA",
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"body": {
@@ -10711,7 +10655,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=b71a8",
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=539e0f30",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -10723,7 +10667,7 @@
 									"query": [
 										{
 											"key": "InstanceID",
-											"value": "b71a8"
+											"value": "539e0f30"
 										}
 									]
 								}
@@ -10826,7 +10770,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n   \"name\": \"bengaluru\",\r\n   \"cover\": \"path_of_cover_of_bengaluru.jpg\",\r\n   \"icon\": \"path_of_icon_of_bengaluru.jpg\",\r\n   \"logo\": \"path_of_logo_of_bangaluru.png\"\r\n}",
+									"raw": "{\r\n   \"name\": \"bengaluru\",\r\n   \"cover\": \"path_of_cover_of_bengaluru0.jpg\",\r\n   \"icon\": \"path_of_icon_of_bengaluru.jpg\",\r\n   \"logo\": \"path_of_logo_of_bengaluru.jpg\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10834,7 +10778,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?name=bengaluru",
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=e08b0da0",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -10845,8 +10789,8 @@
 									],
 									"query": [
 										{
-											"key": "name",
-											"value": "bengaluru"
+											"key": "InstanceID",
+											"value": "e08b0da0"
 										}
 									]
 								}
@@ -10861,13 +10805,15 @@
 									"script": {
 										"exec": [
 											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(200);",
+											"    pm.response.to.have.status(401);",
 											"});",
+											"",
 											"",
 											"pm.test(\"Check response body\", function () {    ",
 											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
-											"});"
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
+											"});",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -10919,13 +10865,15 @@
 									"script": {
 										"exec": [
 											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(200);",
+											"    pm.response.to.have.status(400);",
 											"});",
+											"",
 											"",
 											"pm.test(\"Check response body\", function () {    ",
 											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
-											"});"
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");",
+											"});",
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -10963,64 +10911,6 @@
 										{
 											"key": "name",
 											"value": "bengaluru"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "400 (Invalid value) - Update Mlayer Instances",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "token",
-										"value": "{{openToken}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n   \"name\": \"bengaluru\",\r\n   \"cover\": \"path_of_cover_of_bengaluru.jpg\",\r\n   \"icon\": \"path_of_icon_of_bengaluru.jpg\",\r\n   \"logo\": \"path_of_logo_of_bangaluru.png\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?name=pune",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									],
-									"query": [
-										{
-											"key": "name",
-											"value": "pune"
 										}
 									]
 								}

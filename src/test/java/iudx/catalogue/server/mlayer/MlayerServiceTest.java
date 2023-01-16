@@ -170,7 +170,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: test delete mlayer instance")
   void successfulMlayerInstanceDeleteTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject();
+    String request = "dummy";
     mlayerService = new MlayerServiceImpl(databaseService);
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
@@ -201,7 +201,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Failure: test delete mlayer instance")
   void failureMlayerInstanceDeleteTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject();
+    String request = "dummy";
     mlayerService = new MlayerServiceImpl(databaseService);
     when(asyncResult.succeeded()).thenReturn(false);
     doAnswer(

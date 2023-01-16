@@ -15,7 +15,6 @@ import java.util.UUID;
 
 import static iudx.catalogue.server.mlayer.util.Constants.*;
 
-
 public class MlayerServiceImpl implements MlayerService {
   private static final Logger LOGGER = LogManager.getLogger(MlayerServiceImpl.class);
   DatabaseService databaseService;
@@ -29,7 +28,7 @@ public class MlayerServiceImpl implements MlayerService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String name = request.getString(NAME).toLowerCase();
     String ID = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
-    String InstanceID = UUID.randomUUID().toString().substring(0, 5);
+    String InstanceID = UUID.randomUUID().toString().substring(0, 8);
     request.put(MLAYER_INSTANCE_ID, ID).put(INSTANCE_ID, InstanceID);
 
     databaseService.createMlayerInstance(
@@ -64,7 +63,7 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService deleteMlayerInstance(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+      String request, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.deleteMlayerInstance(
         request,
         deleteMlayerInstanceHandler -> {
@@ -82,10 +81,11 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService updateMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    String name = request.getString(NAME).toLowerCase();
+    String name = request.getString(NAME);
+    LOGGER.debug(name);
     String ID = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
-    String InstanceID = UUID.randomUUID().toString().substring(0, 5);
-    request.put(MLAYER_INSTANCE_ID, ID).put(INSTANCE_ID, InstanceID);
+    LOGGER.debug(ID);
+    request.put("ID", ID);
     databaseService.updateMlayerInstance(
         request,
         updateMlayerHandler -> {
@@ -97,7 +97,6 @@ public class MlayerServiceImpl implements MlayerService {
             handler.handle(Future.failedFuture(updateMlayerHandler.cause()));
           }
         });
-
 
     return this;
   }

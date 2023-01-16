@@ -1,16 +1,12 @@
 package iudx.catalogue.server.database;
 
 import io.vertx.core.*;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import static iudx.catalogue.server.mlayer.util.Constants.INSTANCE_ID;
 import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_INSTANCE_ID;
@@ -622,7 +618,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             elasticQuery.put(FROM, offsetFilter);
           }
 
-              LOGGER.debug("INFO: Query constructed;" + elasticQuery.toString());
+          LOGGER.debug("INFO: Query constructed;" + elasticQuery.toString());
 
           /* db query to find the relationship to the initial query */
           client.searchAsync(elasticQuery.toString(), docIndex, relSearchRes -> {
@@ -872,8 +868,8 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
+    String InstanceID = instanceDoc.getString(INSTANCE_ID);
     String ID = instanceDoc.getString("ID");
-    String InstanceID = instanceDoc.getString("InstanceID");
     String checkForExistingRecord = CHECK_MDOC_QUERY.replace("$1", ID).replace("$2", "");
     client.searchAsync(
         checkForExistingRecord,
@@ -886,12 +882,16 @@ public class DatabaseServiceImpl implements DatabaseService {
 
           } else {
             if (res.result().getInteger(TOTAL_HITS) != 0) {
+              JsonObject json = new JsonObject(res.result().getJsonArray(RESULTS).getString(0));
+              String InstanceIDExists = json.getString(INSTANCE_ID);
+
               handler.handle(
                   Future.failedFuture(
                       respBuilder
                           .withType(TYPE_ALREADY_EXISTS)
                           .withTitle(TITLE_ALREADY_EXISTS)
-                          .withResult(ID, INSERT, FAILED, " Fail: Doc Already Exists")
+                          .withResult(
+                              InstanceIDExists, INSERT, FAILED, " Fail: Instance Already Exists")
                           .getResponse()));
               return;
             }
@@ -903,10 +903,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                     handler.handle(
                         Future.succeededFuture(
                             respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                                .withResult(InstanceID, INSERT, SUCCESS, INSTANCE_CREATION_SUCCESS)
-                               .getJsonResponse()));
+                                    .withType(TYPE_SUCCESS)
+                                    .withTitle(SUCCESS)
+                                    .withResult(InstanceID, INSERT, SUCCESS,"Instance created Sucesssfully")
+                                    .getJsonResponse()));
                   } else {
 
                     handler.handle(
@@ -942,9 +942,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService deleteMlayerInstance(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+      String instanceId, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
-    String instanceId = request.getString("InstanceID");
 
     String checkForExistingRecord =
         CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
@@ -958,14 +957,17 @@ public class DatabaseServiceImpl implements DatabaseService {
             handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
           } else {
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-              LOGGER.error("Fail: Doc doesn't exist, can't delete");
+              LOGGER.error("Fail: Instance doesn't exist, can't delete");
               handler.handle(
                   Future.failedFuture(
                       respBuilder
                           .withType(TYPE_ITEM_NOT_FOUND)
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withResult(
-                              instanceId, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
+                              instanceId,
+                              DELETE,
+                              FAILED,
+                              "Fail: Instance doesn't exist, can't delete")
                           .getResponse()));
               return;
             }
@@ -979,10 +981,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                     handler.handle(
                         Future.succeededFuture(
                             respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                                .withResult(instanceId)
-                                .getJsonResponse()));
+                                    .withType(TYPE_SUCCESS)
+                                    .withTitle(SUCCESS)
+                                    .withResult(instanceId, DELETE,SUCCESS, "Instance deleted Successfully")
+                                    .getJsonResponse()));
                   } else {
                     handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
                     LOGGER.error("Fail: Deletion failed;" + putRes.cause());
@@ -997,9 +999,9 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService updateMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
-    String ID = request.getString(MLAYER_INSTANCE_ID);
-    String InstanceID = request.getString("InstanceID");
-    String checkForExistingRecord = CHECK_MDOC_QUERY.replace("$1", ID).replace("$2", "");
+    String InstanceID = request.getString(INSTANCE_ID);
+    String checkForExistingRecord =
+        CHECK_MDOC_QUERY_INSTANCE.replace("$1", InstanceID).replace("$2", "");
     client.searchGetId(
         checkForExistingRecord,
         mlayerInstanceIndex,
@@ -1009,34 +1011,61 @@ public class DatabaseServiceImpl implements DatabaseService {
             handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
           } else {
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-              LOGGER.error("Fail: Doc doesn't exist, can't update");
+              LOGGER.error("Fail: Instance doesn't exist, can't update");
               handler.handle(
                   Future.failedFuture(
                       respBuilder
                           .withType(TYPE_ITEM_NOT_FOUND)
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withResult(
-                              InstanceID, UPDATE, FAILED, "Fail : Doc doesn't exist, can't update")
+                              InstanceID,
+                              UPDATE,
+                              FAILED,
+                              "Fail : Instance doesn't exist, can't update")
                           .getResponse()));
               return;
             }
-            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-            client.docPutAsync(
-                docId,
+
+            client.searchAsync(
+                checkForExistingRecord,
                 mlayerInstanceIndex,
-                request.toString(),
-                putRes -> {
-                  if (putRes.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                                .withResult(InstanceID)
-                                .getJsonResponse()));
-                  } else {
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                    LOGGER.error("Fail: Updation failed;" + putRes.cause());
+                getNameRes -> {
+                  if (getNameRes.succeeded()) {
+                    JsonObject json =
+                        new JsonObject(getNameRes.result().getJsonArray(RESULTS).getString(0));
+                    String parameterIdName = json.getString(NAME);
+                    String requestBodyName = request.getString(NAME);
+                    if (parameterIdName.equals(requestBodyName)) {
+                      String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+                      client.docPutAsync(
+                          docId,
+                          mlayerInstanceIndex,
+                          request.toString(),
+                          putRes -> {
+                            if (putRes.succeeded()) {
+                              handler.handle(
+                                  Future.succeededFuture(
+                                      respBuilder
+                                              .withType(TYPE_SUCCESS)
+                                              .withTitle(SUCCESS)
+                                              .withResult(
+                                              InstanceID, UPDATE, SUCCESS,"Instance Updated Successfully")
+                                              .getJsonResponse()));
+                            } else {
+                              handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                              LOGGER.error("Fail: Updation failed" + putRes.cause());
+                            }
+                          });
+                    } else {
+                      handler.handle(
+                          Future.failedFuture(
+                              respBuilder
+                                  .withType(TYPE_FAIL)
+                                  .withTitle(TITLE_WRONG_INSTANCE_NAME)
+                                  .withDetail(WRONG_INSTANCE_NAME)
+                                  .getResponse()));
+                      LOGGER.error("Fail: Updation Failed" + getNameRes.cause());
+                    }
                   }
                 });
           }
@@ -1056,18 +1085,21 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     String checkInstance = GET_DOC_QUERY.replace("$1", instanceId).replace("$2", "");
-    client.searchAsync(checkInstance, docIndex, checkRes -> {
-      if (checkRes.failed()) {
-        LOGGER.error(ERROR_DB_REQUEST + checkRes.cause().getMessage());
-        promise.fail(TYPE_INTERNAL_SERVER_ERROR);
-      } else if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
-        LOGGER.debug(INSTANCE_NOT_EXISTS);
-        promise.fail("Fail: Instance doesn't exist/registered");
-      } else {
-        promise.complete(true);
-      }
-      return;
-    });
+    client.searchAsync(
+        checkInstance,
+        docIndex,
+        checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error(ERROR_DB_REQUEST + checkRes.cause().getMessage());
+            promise.fail(TYPE_INTERNAL_SERVER_ERROR);
+          } else if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
+            LOGGER.debug(INSTANCE_NOT_EXISTS);
+            promise.fail("Fail: Instance doesn't exist/registered");
+          } else {
+            promise.complete(true);
+          }
+          return;
+        });
 
     return promise.future();
   }

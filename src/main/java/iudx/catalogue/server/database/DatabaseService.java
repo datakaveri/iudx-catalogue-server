@@ -179,15 +179,18 @@ public interface DatabaseService {
 
   /**
    * The createMlayerInstance implements the instance creation operation with the database.
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service.
    */
   @Fluent
-  DatabaseService createMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService createMlayerInstance(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The getMlayerInstance implements fetching instance from the database
+   *
    * @param handler which is a request handler
    * @return DatabaseService which is a Service
    */
@@ -196,22 +199,24 @@ public interface DatabaseService {
 
   /**
    * The deleteMlayerInstance implements deleting instance from the database
+   *
    * @param request which is JsonObject
    * @param handler which is a request handler
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService deleteMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService deleteMlayerInstance(String request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The updateMlayerInstance implements updating instance from the database
+   *
    * @param request which is a jsonobject
    * @param handler which is a request handler
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService updateMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
+  DatabaseService updateMlayerInstance(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /* create db service with nlp and geocoding */
   @GenIgnore
@@ -230,5 +235,4 @@ public interface DatabaseService {
   static DatabaseService createProxy(Vertx vertx, String address) {
     return new DatabaseServiceVertxEBProxy(vertx, address);
   }
-
 }

@@ -138,8 +138,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     mlayerApis = new MlayerApis(api);
     /**
      *
-     *
      * Get proxies and handlers
+     *
      */
 
     /** Todo - Set service proxies based on availability? */
@@ -479,12 +479,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         .failureHandler(exceptionhandler)
         .handler(
             routingContext -> {
-              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-                mlayerApis.getMlayerInstanceHandler(routingContext);
-              } else {
-                LOGGER.error("Unauthorized Operation");
-                routingContext.response().setStatusCode(401).end();
-              }
+              mlayerApis.getMlayerInstanceHandler(routingContext);
             });
 
     /* Delete Mlayer Instance */
@@ -518,11 +513,8 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
-    /**
-     * Start server
-     */
+    /** Start server */
     server.requestHandler(router).listen(port);
-
   }
 
   @Override
@@ -530,5 +522,3 @@ public class ApiServerVerticle extends AbstractVerticle {
     LOGGER.info("Stopping the API server");
   }
 }
-
-
