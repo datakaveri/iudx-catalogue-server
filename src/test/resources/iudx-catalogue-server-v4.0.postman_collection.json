@@ -10421,7 +10421,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n   \"name\": \"pune\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/pune.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/pune.jpg\"\n}",
+									"raw": "{\n   \"name\": \"lucknow\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpg\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10655,7 +10655,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=b00b7832-7604-422a-8366-8721abfaaea0",
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=f3c54d0e-9f22-4301-8dde-375551d7373c",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -10667,7 +10667,7 @@
 									"query": [
 										{
 											"key": "InstanceID",
-											"value": "b00b7832-7604-422a-8366-8721abfaaea0"
+											"value": "f3c54d0e-9f22-4301-8dde-375551d7373c"
 										}
 									]
 								}
