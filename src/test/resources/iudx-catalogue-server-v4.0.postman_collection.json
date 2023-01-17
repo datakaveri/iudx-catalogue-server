@@ -10421,7 +10421,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n   \"name\": \"bengaluru\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/bengaluru.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/bengaluru.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bengaluru.jpg\"\n}",
+									"raw": "{\n   \"name\": \"pune\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/pune.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/pune.jpg\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10655,7 +10655,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=9a4a8308",
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=b00b7832-7604-422a-8366-8721abfaaea0",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -10667,7 +10667,7 @@
 									"query": [
 										{
 											"key": "InstanceID",
-											"value": "9a4a8308"
+											"value": "b00b7832-7604-422a-8366-8721abfaaea0"
 										}
 									]
 								}
@@ -10770,7 +10770,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/bhopal.jpg\",\r\n    \"name\": \"bhopal\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/bhopal.jpg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bhopal.jpg\"\r\n}",
+									"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/bengaluru.JPEG\",\r\n    \"name\": \"bengaluru\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/bengaluru.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bengaluru.jpeg\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10778,7 +10778,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=f1798455-c140-49b1-9ecc-42a499d6f215",
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=4631ec97-79f1-4c0b-be42-81684c321de8",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -10790,7 +10790,7 @@
 									"query": [
 										{
 											"key": "InstanceID",
-											"value": "f1798455-c140-49b1-9ecc-42a499d6f215"
+											"value": "4631ec97-79f1-4c0b-be42-81684c321de8"
 										}
 									]
 								}
