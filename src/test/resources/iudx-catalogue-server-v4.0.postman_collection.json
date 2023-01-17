@@ -10396,6 +10396,8 @@
 									"listen": "test",
 									"script": {
 										"exec": [
+											"var data = JSON.parse(responseBody);",
+											"pm.environment.set(\"InstanceID\",data.results[0].id);",
 											"pm.test(\"Response status\", function () {",
 											"    pm.response.to.have.status(201);",
 											"});",
@@ -10415,7 +10417,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM5Nzc1MTAsImlhdCI6MTY3MzkzNDMxMCwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.BjtPyOfpboyUCLzox7Rhd8IivBq5h_Tl5BAnC_s3B_OT7axcBVx62QcgOcu5xy1FsYGHLk7-oobV2EMGvPsFCw",
+										"value": "{{adminToken}}",
 										"type": "text"
 									}
 								],
@@ -10523,7 +10525,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM5Nzc1MTAsImlhdCI6MTY3MzkzNDMxMCwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.BjtPyOfpboyUCLzox7Rhd8IivBq5h_Tl5BAnC_s3B_OT7axcBVx62QcgOcu5xy1FsYGHLk7-oobV2EMGvPsFCw",
+										"value": "{{adminToken}}",
 										"type": "text"
 									}
 								],
@@ -10545,190 +10547,6 @@
 										"internal",
 										"ui",
 										"instance"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Get Mlayer instance",
-					"item": [
-						{
-							"name": "200 (Success) - Get All Mlayer Instances",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "token",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM2MjYzODEsImlhdCI6MTY3MzU4MzE4MSwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.LqlvdDshZ_nnVZCO3cRRGsMGXh12NSW8mbnEr0RjO3ylKRVInK1y7dM8BH4c-RExqwuPg7cBpIaCkN89_xa_QA",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Delete Mlayer instance",
-					"item": [
-						{
-							"name": "200 (Success) - Delete Mlayer Instance",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "token",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM5Nzc1MTAsImlhdCI6MTY3MzkzNDMxMCwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.BjtPyOfpboyUCLzox7Rhd8IivBq5h_Tl5BAnC_s3B_OT7axcBVx62QcgOcu5xy1FsYGHLk7-oobV2EMGvPsFCw",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=f3c54d0e-9f22-4301-8dde-375551d7373c",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									],
-									"query": [
-										{
-											"key": "InstanceID",
-											"value": "f3c54d0e-9f22-4301-8dde-375551d7373c"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "401 (Invalid Token) - Delete Mlayer Instance",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(401);",
-											"});",
-											"",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "token",
-										"value": "abc",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=c6841",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									],
-									"query": [
-										{
-											"key": "InstanceID",
-											"value": "c6841"
-										}
 									]
 								}
 							},
@@ -10764,13 +10582,13 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM5Nzc1MTAsImlhdCI6MTY3MzkzNDMxMCwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.BjtPyOfpboyUCLzox7Rhd8IivBq5h_Tl5BAnC_s3B_OT7axcBVx62QcgOcu5xy1FsYGHLk7-oobV2EMGvPsFCw",
+										"value": "{{adminToken}}",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/bengaluru.JPEG\",\r\n    \"name\": \"bengaluru\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/bengaluru.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bengaluru.jpeg\"\r\n}",
+									"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.JPEG\",\r\n    \"name\": \"lucknow\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10778,7 +10596,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=4631ec97-79f1-4c0b-be42-81684c321de8",
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID={{InstanceID}}",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -10790,7 +10608,7 @@
 									"query": [
 										{
 											"key": "InstanceID",
-											"value": "4631ec97-79f1-4c0b-be42-81684c321de8"
+											"value": "{{InstanceID}}"
 										}
 									]
 								}
@@ -10884,7 +10702,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM5Nzc1MTAsImlhdCI6MTY3MzkzNDMxMCwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.BjtPyOfpboyUCLzox7Rhd8IivBq5h_Tl5BAnC_s3B_OT7axcBVx62QcgOcu5xy1FsYGHLk7-oobV2EMGvPsFCw",
+										"value": "{{adminToken}}",
 										"type": "text"
 									}
 								],
@@ -10911,6 +10729,191 @@
 										{
 											"key": "name",
 											"value": "bengaluru"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get Mlayer instance",
+					"item": [
+						{
+							"name": "200 (Success) - Get All Mlayer Instances",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "token",
+										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM2MjYzODEsImlhdCI6MTY3MzU4MzE4MSwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.LqlvdDshZ_nnVZCO3cRRGsMGXh12NSW8mbnEr0RjO3ylKRVInK1y7dM8BH4c-RExqwuPg7cBpIaCkN89_xa_QA",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Delete Mlayer instance",
+					"item": [
+						{
+							"name": "200 (Success) - Delete Mlayer Instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{adminToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID={{InstanceID}}",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									],
+									"query": [
+										{
+											"key": "InstanceID",
+											"value": "{{InstanceID}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "401 (Invalid Token) - Delete Mlayer Instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(401);",
+											"});",
+											"",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "token",
+										"value": "abc",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=c6841",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"instance"
+									],
+									"query": [
+										{
+											"key": "InstanceID",
+											"value": "c6841"
 										}
 									]
 								}
