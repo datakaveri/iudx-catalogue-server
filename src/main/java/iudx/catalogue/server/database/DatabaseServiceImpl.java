@@ -1010,6 +1010,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
             handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
           } else {
+            LOGGER.debug(checkRes.result());
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Instance doesn't exist, can't update");
               handler.handle(
@@ -1031,6 +1032,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 mlayerInstanceIndex,
                 getNameRes -> {
                   if (getNameRes.succeeded()) {
+                    LOGGER.debug(getNameRes.result());
                     JsonObject json =
                         new JsonObject(getNameRes.result().getJsonArray(RESULTS).getString(0));
                     String parameterIdName = json.getString(NAME);

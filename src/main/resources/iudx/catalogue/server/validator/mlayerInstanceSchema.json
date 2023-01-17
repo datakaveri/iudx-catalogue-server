@@ -39,7 +39,8 @@
       "default": "",
       "examples": [
         "path_of_cover.jpg"
-  ]
+  ],
+      "pattern": "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg|JPG|GIF|PNG|JPEG)"
     },
     "icon": {
       "$id": "#/properties/icon",
@@ -49,7 +50,8 @@
       "default": "",
       "examples": [
         "path_of_icon.jpg"
-      ]
+      ],
+      "pattern": "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg|JPG|GIF|PNG|JPEG)"
     },
     "logo": {
       "$id": "#/properties/logo",
@@ -59,7 +61,8 @@
       "default": "",
       "examples": [
         "path_of_logo.jpg"
-      ]
+      ],
+      "pattern": "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg|JPG|GIF|PNG|JPEG)"
     }
 
   }

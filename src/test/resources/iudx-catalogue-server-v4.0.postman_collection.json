@@ -10415,13 +10415,13 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "{{openToken}}",
+										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM5Nzc1MTAsImlhdCI6MTY3MzkzNDMxMCwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.BjtPyOfpboyUCLzox7Rhd8IivBq5h_Tl5BAnC_s3B_OT7axcBVx62QcgOcu5xy1FsYGHLk7-oobV2EMGvPsFCw",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n   \"name\": \"bareily\",\n   \"cover\": \"path_of_cover.jpg\",\n   \"icon\": \"path_of_icon.png\",\n   \"logo\": \"path_of_logo.png\"\n}",
+									"raw": "{\n   \"name\": \"bengaluru\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/bengaluru.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/bengaluru.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bengaluru.jpg\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10523,7 +10523,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "{{openToken}}",
+										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM5Nzc1MTAsImlhdCI6MTY3MzkzNDMxMCwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.BjtPyOfpboyUCLzox7Rhd8IivBq5h_Tl5BAnC_s3B_OT7axcBVx62QcgOcu5xy1FsYGHLk7-oobV2EMGvPsFCw",
 										"type": "text"
 									}
 								],
@@ -10641,7 +10641,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "{{openToken}}",
+										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM5Nzc1MTAsImlhdCI6MTY3MzkzNDMxMCwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.BjtPyOfpboyUCLzox7Rhd8IivBq5h_Tl5BAnC_s3B_OT7axcBVx62QcgOcu5xy1FsYGHLk7-oobV2EMGvPsFCw",
 										"type": "text"
 									}
 								],
@@ -10655,7 +10655,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=539e0f30",
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=9a4a8308",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -10667,7 +10667,7 @@
 									"query": [
 										{
 											"key": "InstanceID",
-											"value": "539e0f30"
+											"value": "9a4a8308"
 										}
 									]
 								}
@@ -10764,13 +10764,13 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "{{openToken}}",
+										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM5Nzc1MTAsImlhdCI6MTY3MzkzNDMxMCwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.BjtPyOfpboyUCLzox7Rhd8IivBq5h_Tl5BAnC_s3B_OT7axcBVx62QcgOcu5xy1FsYGHLk7-oobV2EMGvPsFCw",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n   \"name\": \"bengaluru\",\r\n   \"cover\": \"path_of_cover_of_bengaluru0.jpg\",\r\n   \"icon\": \"path_of_icon_of_bengaluru.jpg\",\r\n   \"logo\": \"path_of_logo_of_bengaluru.jpg\"\r\n}",
+									"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/bhopal.jpg\",\r\n    \"name\": \"bhopal\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/bhopal.jpg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bhopal.jpg\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -10778,7 +10778,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=e08b0da0",
+									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=f1798455-c140-49b1-9ecc-42a499d6f215",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -10790,7 +10790,7 @@
 									"query": [
 										{
 											"key": "InstanceID",
-											"value": "e08b0da0"
+											"value": "f1798455-c140-49b1-9ecc-42a499d6f215"
 										}
 									]
 								}
@@ -10884,7 +10884,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "{{openToken}}",
+										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM5Nzc1MTAsImlhdCI6MTY3MzkzNDMxMCwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.BjtPyOfpboyUCLzox7Rhd8IivBq5h_Tl5BAnC_s3B_OT7axcBVx62QcgOcu5xy1FsYGHLk7-oobV2EMGvPsFCw",
 										"type": "text"
 									}
 								],

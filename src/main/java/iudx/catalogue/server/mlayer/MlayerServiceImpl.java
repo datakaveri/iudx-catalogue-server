@@ -28,7 +28,7 @@ public class MlayerServiceImpl implements MlayerService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String name = request.getString(NAME).toLowerCase();
     String ID = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
-    String InstanceID = UUID.randomUUID().toString().substring(0, 8);
+    String InstanceID = UUID.randomUUID().toString();
     request.put(MLAYER_INSTANCE_ID, ID).put(INSTANCE_ID, InstanceID);
 
     databaseService.createMlayerInstance(
