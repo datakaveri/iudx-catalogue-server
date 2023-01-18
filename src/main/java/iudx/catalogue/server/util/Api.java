@@ -27,6 +27,7 @@ public class Api {
     private StringBuilder routeGeoCoordinates;
     private StringBuilder routeGeoReverse;
     private StringBuilder routeListResourceGroupRel;
+    private StringBuilder routeMlayerInstance;
 
 
     private static final Logger LOG = LogManager.getLogger(Api.class);
@@ -69,6 +70,7 @@ public class Api {
         routeGeoCoordinates = new StringBuilder(dxApiBasePath).append(ROUTE_GEO_COORDINATES);
         routeGeoReverse = new StringBuilder(dxApiBasePath).append(ROUTE_GEO_REVERSE);
         routeListResourceGroupRel = new StringBuilder(dxApiBasePath).append(ROUTE_LIST_RESOURCE_GROUP_REL);
+        routeMlayerInstance = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_INSTANCE);
 
 
 
@@ -129,6 +131,7 @@ public class Api {
     public String getRouteListResourceGroupRel(){
         return routeListResourceGroupRel.toString();
     }
+    public String getRouteMlayerInstance() { return routeMlayerInstance.toString(); }
 
 
 

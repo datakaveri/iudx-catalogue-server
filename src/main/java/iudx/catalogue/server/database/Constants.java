@@ -15,12 +15,12 @@ public class Constants {
 
   /* Database */
   static final String AGGREGATION_KEY = "aggs";
-  
+
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
   static final String FILTER_PATH_AGGREGATION = "?filter_path=hits.total.value,aggregations.results.buckets";
   static final String FILTER_RATING_AGGREGATION = "?filter_path=hits.total.value,aggregations";
   static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
-  
+
   static final String TYPE_KEY = "type";
   static final String ID_KEYWORD = "id.keyword";
   static final String DOC_ID = "_id";
@@ -120,8 +120,15 @@ public class Constants {
       "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
 
   public static final String GET_RDOC_QUERY =
-      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ratingID.keyword\":\"$1\"} } ]," +
-          "\"must_not\": [ { \"match\": {\"status\": \"denied\"} } ] } } }";
+      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ratingID.keyword\":\"$1\"} } ],"
+          + "\"must_not\": [ { \"match\": {\"status\": \"denied\"} } ] } } }";
+  public static final String CHECK_MDOC_QUERY =
+      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ID.keyword\":\"$1\"} } ] } } }";
+  public static final String CHECK_MDOC_QUERY_INSTANCE =
+          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"InstanceID.keyword\":\"$1\"} } ] } } }";
+  public static final String GET_MDOC_QUERY =
+          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": [\"InstanceID\",\"name\",\"cover\",\"icon\",\"logo\"]}}";
+
 
 
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";

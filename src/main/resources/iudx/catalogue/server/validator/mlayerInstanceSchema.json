@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "name":"Bangalore",
+      "cover":"path_of_cover.jpg",
+      "icon":"path_of_icon.png",
+      "logo":"path_of_logo.png"
+    }
+  ],
+  "required": [
+    "name",
+    "cover",
+    "icon",
+    "logo"
+  ],
+  "properties": {
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string",
+      "title": "Mlayer Instance Name Schema",
+      "description": "name of the Instance",
+      "default": "",
+      "examples": [
+        "Bangalore"
+      ],
+      "pattern": "^[a-zA-Z ]*$"
+    },
+    "cover": {
+      "$id": "#/properties/cover",
+      "type": "string",
+      "title": "Mlayer Instance Cover Schema",
+      "description": "jpg image of cover of the Instance",
+      "default": "",
+      "examples": [
+        "path_of_cover.jpg"
+  ],
+      "pattern": "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg|JPG|GIF|PNG|JPEG)"
+    },
+    "icon": {
+      "$id": "#/properties/icon",
+      "type": "string",
+      "title": "Mlayer Instance Icon Schema",
+      "description": "jpg image of icon of the Instance",
+      "default": "",
+      "examples": [
+        "path_of_icon.jpg"
+      ],
+      "pattern": "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg|JPG|GIF|PNG|JPEG)"
+    },
+    "logo": {
+      "$id": "#/properties/logo",
+      "type": "string",
+      "title": "Mlayer Instance LOgo Schema",
+      "description": "jpg image of logo of the Instance",
+      "default": "",
+      "examples": [
+        "path_of_logo.jpg"
+      ],
+      "pattern": "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg|JPG|GIF|PNG|JPEG)"
+    }
+
+  }
+}

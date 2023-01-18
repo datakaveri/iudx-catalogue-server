@@ -28,8 +28,8 @@ import io.vertx.core.json.JsonObject;
 public interface ValidatorService {
 
   /**
-   * The validateSchema method implements the item schema validation 
-   * 
+   * The validateSchema method implements the item schema validation
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return ValidatorService which is a Service
@@ -39,7 +39,7 @@ public interface ValidatorService {
 
   /**
    * The validateItem method implements the item validation flow based on the schema of the item.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return ValidatorService which is a Service
@@ -49,7 +49,7 @@ public interface ValidatorService {
 
   /**
    * The validateProvider method implements the owner (or) provider validation flow of the item.
-   * 
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return ValidatorService which is a Service
@@ -60,11 +60,14 @@ public interface ValidatorService {
   @Fluent
   ValidatorService validateRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
+  @Fluent
+  ValidatorService validateMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
    * @param vertx which is the vertx instance
    * @param address which is the proxy address
-   * @return ValidatorServiceVertxEBProxy which is a service proxy 
+   * @return ValidatorServiceVertxEBProxy which is a service proxy
    */
 
   @GenIgnore

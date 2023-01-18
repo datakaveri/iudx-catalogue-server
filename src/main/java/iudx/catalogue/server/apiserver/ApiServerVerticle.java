@@ -10,6 +10,7 @@ import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
+import iudx.catalogue.server.mlayer.MlayerService;
 import iudx.catalogue.server.rating.RatingService;
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
@@ -56,6 +57,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private RelationshipApis relApis;
   private GeocodingApis geoApis;
   private RatingApis ratingApis;
+  private MlayerApis mlayerApis;
 
   @SuppressWarnings("unused")
   private Router router;
@@ -133,21 +135,18 @@ public class ApiServerVerticle extends AbstractVerticle {
     relApis = new RelationshipApis(api);
     geoApis = new GeocodingApis(api);
     ratingApis = new RatingApis(api);
+    mlayerApis = new MlayerApis(api);
     /**
      *
      * Get proxies and handlers
      *
      */
 
+    /** Todo - Set service proxies based on availability? */
+    DatabaseService dbService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
 
-    /** Todo
-     *    - Set service proxies based on availability?
-     **/
-    DatabaseService dbService
-      = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
-
-    RatingService ratingService
-      = RatingService.createProxy(vertx, RATING_SERVICE_ADDRESS);
+    RatingService ratingService = RatingService.createProxy(vertx, RATING_SERVICE_ADDRESS);
+    MlayerService mlayerService = MlayerService.createProxy(vertx, MLAYER_SERVICE_ADDRESSS);
 
     crudApis.setDbService(dbService);
     listApis.setDbService(dbService);
@@ -156,16 +155,20 @@ public class ApiServerVerticle extends AbstractVerticle {
     crudApis.setHost(config().getString(HOST));
     ratingApis.setRatingService(ratingService);
     ratingApis.setHost(config().getString(HOST));
+    mlayerApis.setMlayerService(mlayerService);
+    mlayerApis.setHost(config().getString(HOST));
 
     AuthenticationService authService =
         AuthenticationService.createProxy(vertx, AUTH_SERVICE_ADDRESS);
     crudApis.setAuthService(authService);
     ratingApis.setAuthService(authService);
+    mlayerApis.setAuthService(authService);
 
     ValidatorService validationService =
         ValidatorService.createProxy(vertx, VALIDATION_SERVICE_ADDRESS);
     crudApis.setValidatorService(validationService);
     ratingApis.setValidatorService(validationService);
+    mlayerApis.setValidatorService(validationService);
 
     GeocodingService geoService
       = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
@@ -452,11 +455,66 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
 
-    /**
-     * Start server
-     */
-    server.requestHandler(router).listen(port);
+    /** Routes for Mlayer Instance APIs */
+    /* Create Mlayer Instance */
+    router
+        .post(api.getRouteMlayerInstance())
+        .consumes(MIME_APPLICATION_JSON)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                mlayerApis.createMlayerInstanceHandler(routingContext);
+              } else {
+                LOGGER.error("Unauthorized Operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
 
+    /* Get Mlayer Instance */
+    router
+        .get(api.getRouteMlayerInstance())
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              mlayerApis.getMlayerInstanceHandler(routingContext);
+            });
+
+    /* Delete Mlayer Instance */
+    router
+        .delete(api.getRouteMlayerInstance())
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                mlayerApis.deleteMlayerInstanceHandler(routingContext);
+              } else {
+                LOGGER.error("Unauthorized Operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
+
+    /* Update Mlayer Instance */
+    router
+        .put(api.getRouteMlayerInstance())
+        .consumes(MIME_APPLICATION_JSON)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                mlayerApis.updateMlayerInstanceHandler(routingContext);
+              } else {
+                LOGGER.error("Unauthorized Operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
+
+    /** Start server */
+    server.requestHandler(router).listen(port);
   }
 
   @Override
@@ -464,5 +522,3 @@ public class ApiServerVerticle extends AbstractVerticle {
     LOGGER.info("Stopping the API server");
   }
 }
-
-
