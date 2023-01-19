@@ -26,15 +26,15 @@ public class ReDeployerDev extends AbstractVerticle {
   @Override
   public void start(Promise<Void> promise) throws Exception {
 
-
+    JsonObject commonConfigs = config().getJsonObject("commonConfig");
     /* Deploy the Database Service Verticle. */
     /* Get configs. Note the order matters. Don't change it */
-    JsonObject dbConfig = config().getJsonArray("modules").getJsonObject(0);
-    JsonObject authConfig = config().getJsonArray("modules").getJsonObject(1);
-    JsonObject valConfig = config().getJsonArray("modules").getJsonObject(2);
-    JsonObject apiConfig = config().getJsonArray("modules").getJsonObject(3);
-    JsonObject geoConfig = config().getJsonArray("modules").getJsonObject(4);
-    JsonObject nlpConfig = config().getJsonArray("modules").getJsonObject(5);
+    JsonObject dbConfig = config().getJsonArray("modules").getJsonObject(0).mergeIn(commonConfigs,true);
+    JsonObject authConfig = config().getJsonArray("modules").getJsonObject(1).mergeIn(commonConfigs,true);
+    JsonObject valConfig = config().getJsonArray("modules").getJsonObject(2).mergeIn(commonConfigs,true);
+    JsonObject apiConfig = config().getJsonArray("modules").getJsonObject(3).mergeIn(commonConfigs,true);
+    JsonObject geoConfig = config().getJsonArray("modules").getJsonObject(4).mergeIn(commonConfigs,true);
+    JsonObject nlpConfig = config().getJsonArray("modules").getJsonObject(5).mergeIn(commonConfigs,true);
     vertx.deployVerticle(new DatabaseVerticle(), new DeploymentOptions().setConfig(dbConfig),
         databaseVerticle -> {
       if (databaseVerticle.succeeded()) {
