@@ -41,6 +41,7 @@ public class DatabaseServiceTest {
   private static String docIndex;
   private static String ratingIndex;
   private static String mlayerInstanceIndex;
+  private static String mlayerDomainIndex;
   private static String databaseIP;
   private static int databasePort;
   private static String databaseUser;
@@ -73,9 +74,9 @@ public class DatabaseServiceTest {
             && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
-      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex,nlpService, geoService);
+      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex,mlayerDomainIndex,nlpService, geoService);
     } else {
-      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex);
+      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex,mlayerDomainIndex);
     }
 
     testContext.completeNow();

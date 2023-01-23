@@ -44,6 +44,8 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator resourceServerValidator;
   private Validator ratingValidator;
   private Validator mlayerInstanceValidator;
+  private Validator mlayerDomainValidator;
+
 
   /** ES client */
   static ElasticClient client;
@@ -60,6 +62,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       providerValidator = new Validator("/providerItemSchema.json");
       ratingValidator = new Validator("/ratingSchema.json");
       mlayerInstanceValidator=new Validator("/mlayerInstanceSchema.json");
+      mlayerDomainValidator = new Validator("/mlayerDomainSchema.json");
     } catch (IOException | ProcessingException e) {
       e.printStackTrace();
     }
@@ -260,6 +263,19 @@ public class ValidatorServiceImpl implements ValidatorService {
       handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
     }
     return null;
+  }
+
+  @Override
+  public ValidatorService validateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    isValidSchema = mlayerDomainValidator.validate(request.toString());
+
+    if(isValidSchema) {
+      handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
+    } else {
+      LOGGER.error("Fail: Invalid Schema");
+      handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
+    }
+    return this;
   }
 
   /** Generates timestamp with timezone +05:30. */

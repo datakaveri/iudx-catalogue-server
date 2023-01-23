@@ -218,11 +218,58 @@ public interface DatabaseService {
   DatabaseService updateMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
+  /**
+   * The createMlayerDomain implemenets creation of a domain from the database
+   *
+   * @param request is a jsonObject
+   * @param handler which is a request handler
+   * @return DatabaseService which is Service
+   */
+  @Fluent
+  DatabaseService createMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The getMlayerDomain implements getting all domain from database
+   *
+   * @param handler which is a request handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The updateMlayerDomain implements updating all domain from database
+   *
+   * @param request is a JsonObject
+   * @param handler which is a request handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService updateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The deleteMlayerDomain deletes a domain from the darabase
+   *
+   * @param request is a JsonObject
+   * @param handler which is a request handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService deleteMlayerDomain(String request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The get Mlayer Providers get all the provider's description
+   *
+   * @param handler which is a request handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler);
+
   /* create db service with nlp and geocoding */
   @GenIgnore
-  static DatabaseService create(ElasticClient client,
-                                NLPSearchService nlpService,
-                                GeocodingService geoService) {
+  static DatabaseService create(
+      ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
     return new DatabaseServiceImpl(client, nlpService, geoService);
   }
   /* create db service vanilla */

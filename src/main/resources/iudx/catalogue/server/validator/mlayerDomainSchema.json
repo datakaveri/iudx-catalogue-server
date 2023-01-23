@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "description":"Data Models that pertain to environment domain",
+      "icon":"path_of_cover.jpg",
+      "label":"Environment",
+      "name":"Environment"
+    }
+  ],
+  "required": [
+    "description",
+    "icon",
+    "label",
+    "name"
+  ],
+  "properties": {
+    "description": {
+      "$id": "#/properties/description",
+      "type": "string",
+      "title": "Mlayer Domain Description Schema",
+      "description": "description of domain",
+      "default": "",
+      "examples": [
+        "Data Models that pertain to environment domain"
+      ],
+      "pattern": "^[a-zA-Z ]*$"
+    },
+    "icon": {
+      "$id": "#/properties/icon",
+      "type": "string",
+      "title": "Mlayer Domain Icon Schema",
+      "description": "Image of icon of the domain",
+      "default": "",
+      "examples": [
+        "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/chennai.png"      ],
+      "pattern": "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg|JPG|GIF|PNG|JPEG)"
+    },
+    "label": {
+      "$id": "#/properties/label",
+      "type": "string",
+      "title": "Mlayer Domain Label Schema",
+      "description": "label name of the domain",
+      "default": "",
+      "examples": [
+        "Environment"
+      ]
+    },
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string",
+      "title": "Mlayer Domain Name Schema",
+      "description": "name of the domain",
+      "default": "",
+      "examples": [
+        "Environment"
+      ]
+    }
+
+  }
+}

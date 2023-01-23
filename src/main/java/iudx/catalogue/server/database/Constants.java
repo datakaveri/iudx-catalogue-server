@@ -126,11 +126,14 @@ public class Constants {
       "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ID.keyword\":\"$1\"} } ] } } }";
   public static final String CHECK_MDOC_QUERY_INSTANCE =
           "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"InstanceID.keyword\":\"$1\"} } ] } } }";
-  public static final String GET_MDOC_QUERY =
+  public static final String GET_MLAYER_INSTANCE_QUERY =
           "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": [\"InstanceID\",\"name\",\"cover\",\"icon\",\"logo\"]}}";
-
-
-
+  public static final String GET_MLAYER_DOMAIN_QUERY =
+          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": [\"DomainID\",\"description\",\"icon\",\"label\",\"name\"]}}";
+  public static final String CHECK_MDOC_QUERY_DOMAIN =
+          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"DomainID.keyword\":\"$1\"} } ] } } }";
+  public static final String GET_MLAYER_PROVIDERS_QUERY =
+          "{\"query\": {\"match\": {\"type.keyword\": \"iudx:Provider\"}},\"_source\": {\"includes\": [\"id\",\"description\"]}}";
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
   public static final String SHOULD_QUERY = "{\"bool\":{\"should\":$1}}";
