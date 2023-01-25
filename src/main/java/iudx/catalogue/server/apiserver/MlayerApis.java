@@ -91,7 +91,7 @@ public class MlayerApis {
                               new RespBuilder()
                                   .withType(TYPE_INVALID_SCHEMA)
                                   .withTitle(TITLE_INVALID_SCHEMA)
-                                  .withDetail("The Schema of requested body is inavlid.")
+                                  .withDetail("The Schema of requested body is invalid.")
                                   .getResponse());
                     } else {
                       LOGGER.debug("Validation Successful");
@@ -207,7 +207,7 @@ public class MlayerApis {
                               new RespBuilder()
                                   .withType(TYPE_INVALID_SCHEMA)
                                   .withTitle(TITLE_INVALID_SCHEMA)
-                                  .withDetail("The Schema of requested body is inavlid.")
+                                  .withDetail("The Schema of requested body is invalid.")
                                   .getResponse());
                     } else {
 
@@ -285,7 +285,7 @@ public class MlayerApis {
                               new RespBuilder()
                                   .withType(TYPE_INVALID_SCHEMA)
                                   .withTitle(TITLE_INVALID_SCHEMA)
-                                  .withDetail("The Schema of requested body is inavlid.")
+                                  .withDetail("The Schema of requested body is invalid.")
                                   .getResponse());
                     } else {
                       LOGGER.debug("Validation Successful");
@@ -351,7 +351,7 @@ public class MlayerApis {
                               new RespBuilder()
                                   .withType(TYPE_INVALID_SCHEMA)
                                   .withTitle(TITLE_INVALID_SCHEMA)
-                                  .withDetail("The Schema of requested body is inavlid.")
+                                  .withDetail("The Schema of requested body is invalid.")
                                   .getResponse());
                     } else {
 
