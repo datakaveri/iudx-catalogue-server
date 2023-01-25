@@ -20,6 +20,7 @@ public class Constants {
   static final String FILTER_PATH_AGGREGATION = "?filter_path=hits.total.value,aggregations.results.buckets";
   static final String FILTER_RATING_AGGREGATION = "?filter_path=hits.total.value,aggregations";
   static final String FILTER_ID_ONLY_PATH = "?filter_path=hits.total.value,hits.hits._id&size=10000";
+  static final String FILTER_PATH_ID_AND_SOURCE = "?filter_path=took,hits.total.value,hits.hits._source,hits.hits._id";
 
   static final String TYPE_KEY = "type";
   static final String ID_KEYWORD = "id.keyword";
@@ -80,6 +81,7 @@ public class Constants {
   public static final String RATING_AGGREGATION_ONLY = "R_AGGREGATION";
   public static final String TYPE_KEYWORD = "type.keyword";
   public static final String WORD_VECTOR_KEY = "_word_vector";
+  public static final String SOURCE_AND_ID = "SOURCE_ID";
 
   /** Some queries */
   public static final String LIST_INSTANCES_QUERY = "{\"size\": 0, \"aggs\":"
@@ -123,15 +125,15 @@ public class Constants {
       "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ratingID.keyword\":\"$1\"} } ],"
           + "\"must_not\": [ { \"match\": {\"status\": \"denied\"} } ] } } }";
   public static final String CHECK_MDOC_QUERY =
-      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"ID.keyword\":\"$1\"} } ] } } }";
+      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"id.keyword\":\"$1\"} } ] } } }";
   public static final String CHECK_MDOC_QUERY_INSTANCE =
-          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"InstanceID.keyword\":\"$1\"} } ] } } }";
+          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"instanceId.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MLAYER_INSTANCE_QUERY =
-          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": [\"InstanceID\",\"name\",\"cover\",\"icon\",\"logo\"]}}";
+          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": [\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\"]}}";
   public static final String GET_MLAYER_DOMAIN_QUERY =
-          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": [\"DomainID\",\"description\",\"icon\",\"label\",\"name\"]}}";
+          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": [\"domainId\",\"description\",\"icon\",\"label\",\"name\"]}}";
   public static final String CHECK_MDOC_QUERY_DOMAIN =
-          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"DomainID.keyword\":\"$1\"} } ] } } }";
+          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"domainId.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MLAYER_PROVIDERS_QUERY =
           "{\"query\": {\"match\": {\"type.keyword\": \"iudx:Provider\"}},\"_source\": {\"includes\": [\"id\",\"description\"]}}";
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";

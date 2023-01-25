@@ -556,7 +556,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
-    /* Delete Mlayer Instance */
+    /* Delete Mlayer Domain */
     router
         .delete(api.getRouteMlayerDomains())
         .produces(MIME_APPLICATION_JSON)
@@ -578,12 +578,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         .failureHandler(exceptionhandler)
         .handler(
             routingContext -> {
-              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
                 mlayerApis.getMlayerProvidersHandler(routingContext);
-              } else {
-                LOGGER.error("Unauthorized Operation");
-                routingContext.response().setStatusCode(401).end();
-              }
             });
 
     /** Start server */

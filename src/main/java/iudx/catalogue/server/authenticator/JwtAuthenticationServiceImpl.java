@@ -113,8 +113,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         || endPoint.equals(api.getRouteInstance())
         || endPoint.equals(RATINGS_ENDPOINT)
         || endPoint.equals(MLAYER_INSTANCE_ENDPOINT)
-        || endPoint.equals(MLAYER_DOMAIN_ENDPOINT)
-        || endPoint.equals(MLAYER_PROVIDERS_ENDPOINT)) {
+        || endPoint.equals(MLAYER_DOMAIN_ENDPOINT)) {
       promise.complete(true);
     } else {
       LOGGER.error("Incorrect endpoint in jwt");

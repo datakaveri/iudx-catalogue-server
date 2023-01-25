@@ -10400,7 +10400,7 @@
 											"script": {
 												"exec": [
 													"var data = JSON.parse(responseBody);",
-													"pm.environment.set(\"InstanceID\",data.results[0].id);",
+													"pm.environment.set(\"instanceId\",data.results[0].id);",
 													"pm.test(\"Response status\", function () {",
 													"    pm.response.to.have.status(201);",
 													"});",
@@ -10426,7 +10426,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"name\": \"lucknow\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/bareily.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/bareily.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bareily.jpg\"\n}",
+											"raw": "{\n   \"name\": \"lucknow\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpg\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -10480,7 +10480,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"name\": \"lucknow\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/bareily.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/bareily.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bareily.jpg\"\n}",
+											"raw": "{\n   \"name\": \"lucknow\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknoe.jpg\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -10534,7 +10534,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"name\": \"lucknow\",\n   \"cooover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/bareily.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/bareily.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bareily.jpg\"\n}",
+											"raw": "{\n   \"name\": \"lucknow\",\n   \"cooover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpg\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -10591,7 +10591,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.JPEG\",\r\n    \"name\": \"lucknow\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg\"\r\n}",
+											"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpeg\",\r\n    \"name\": \"lucknow\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -10599,7 +10599,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID={{InstanceID}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -10610,8 +10610,8 @@
 											],
 											"query": [
 												{
-													"key": "InstanceID",
-													"value": "{{InstanceID}}"
+													"key": "instanceId",
+													"value": "{{instanceId}}"
 												}
 											]
 										}
@@ -10659,7 +10659,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?name={{InstanceID}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -10670,8 +10670,8 @@
 											],
 											"query": [
 												{
-													"key": "name",
-													"value": "{{InstanceID}}"
+													"key": "instanceId",
+													"value": "{{instanceId}}"
 												}
 											]
 										}
@@ -10719,7 +10719,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?name={{InstanceID}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{InstanceID}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -10730,7 +10730,7 @@
 											],
 											"query": [
 												{
-													"key": "name",
+													"key": "instanceId",
 													"value": "{{InstanceID}}"
 												}
 											]
@@ -10844,7 +10844,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID={{InstanceID}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -10855,8 +10855,8 @@
 											],
 											"query": [
 												{
-													"key": "InstanceID",
-													"value": "{{InstanceID}}"
+													"key": "instanceId",
+													"value": "{{instanceId}}"
 												}
 											]
 										}
@@ -10904,7 +10904,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID={{InstanceID}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -10915,8 +10915,8 @@
 											],
 											"query": [
 												{
-													"key": "InstanceID",
-													"value": "{{InstanceID}}"
+													"key": "instanceId",
+													"value": "{{instanceId}}"
 												}
 											]
 										}
@@ -10941,7 +10941,7 @@
 											"script": {
 												"exec": [
 													"var data = JSON.parse(responseBody);",
-													"pm.environment.set(\"DomainID\",data.results[0].id);",
+													"pm.environment.set(\"domainId\",data.results[0].id);",
 													"pm.test(\"Response status\", function () {",
 													"    pm.response.to.have.status(201);",
 													"});",
@@ -11139,7 +11139,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/domain?DomainID={{DomainID}}",
+											"raw": "{{host}}{{base}}/internal/ui/domain?domainId={{domainId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -11150,8 +11150,8 @@
 											],
 											"query": [
 												{
-													"key": "DomainID",
-													"value": "{{DomainID}}"
+													"key": "domainId",
+													"value": "{{domainId}}"
 												}
 											]
 										}
@@ -11199,7 +11199,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID={{InstanceID}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?domainId={{domainId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -11210,8 +11210,8 @@
 											],
 											"query": [
 												{
-													"key": "InstanceID",
-													"value": "{{InstanceID}}"
+													"key": "domainId",
+													"value": "{{domainId}}"
 												}
 											]
 										}
@@ -11258,7 +11258,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID={{InstanceID}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?domainId={{domainId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -11269,8 +11269,8 @@
 											],
 											"query": [
 												{
-													"key": "InstanceID",
-													"value": "{{InstanceID}}"
+													"key": "domainId",
+													"value": "{{domainId}}"
 												}
 											]
 										}
@@ -11383,7 +11383,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/domain?DomainID={{DomainID}}",
+											"raw": "{{host}}{{base}}/internal/ui/domain?domainId={{domainId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -11394,8 +11394,8 @@
 											],
 											"query": [
 												{
-													"key": "DomainID",
-													"value": "{{DomainID}}"
+													"key": "domainId",
+													"value": "{{domainId}}"
 												}
 											]
 										}
@@ -11443,7 +11443,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?DomainID={{DomainID}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?domainId={{domainId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -11454,8 +11454,8 @@
 											],
 											"query": [
 												{
-													"key": "DomainID",
-													"value": "{{DomainID}}"
+													"key": "domainId",
+													"value": "{{domainId}}"
 												}
 											]
 										}
@@ -11471,13 +11471,32 @@
 					"item": [
 						{
 							"name": "200 (Success) - Get Providers",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "GET",
 								"header": [
 									{
-										"key": "token",
-										"value": "{{adminToken}}",
-										"type": "text"
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"url": {

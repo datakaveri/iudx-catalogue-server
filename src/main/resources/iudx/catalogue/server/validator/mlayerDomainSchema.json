@@ -28,8 +28,7 @@
       "default": "",
       "examples": [
         "Data Models that pertain to environment domain"
-      ],
-      "pattern": "^[a-zA-Z ]*$"
+      ]
     },
     "icon": {
       "$id": "#/properties/icon",
@@ -38,8 +37,7 @@
       "description": "Image of icon of the domain",
       "default": "",
       "examples": [
-        "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/chennai.png"      ],
-      "pattern": "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg|JPG|GIF|PNG|JPEG)"
+        "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/domains/icons/chennai.png"      ]
     },
     "label": {
       "$id": "#/properties/label",
@@ -59,7 +57,8 @@
       "default": "",
       "examples": [
         "Environment"
-      ]
+      ],
+      "pattern": "^[a-zA-Z ]*$"
     }
 
   }

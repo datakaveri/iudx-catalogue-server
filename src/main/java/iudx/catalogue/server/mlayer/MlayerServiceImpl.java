@@ -27,9 +27,9 @@ public class MlayerServiceImpl implements MlayerService {
   public MlayerService createMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String name = request.getString(NAME).toLowerCase();
-    String ID = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
-    String InstanceID = UUID.randomUUID().toString();
-    request.put(MLAYER_INSTANCE_ID, ID).put(INSTANCE_ID, InstanceID);
+    String id = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
+    String instanceId = UUID.randomUUID().toString();
+    request.put(MLAYER_ID, id).put(INSTANCE_ID, instanceId);
 
     databaseService.createMlayerInstance(
         request,
@@ -82,9 +82,9 @@ public class MlayerServiceImpl implements MlayerService {
   public MlayerService updateMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String name = request.getString(NAME).toLowerCase();
-    String ID = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
-    LOGGER.debug(ID);
-    request.put("ID", ID);
+    String id = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
+    LOGGER.debug(id);
+    request.put("id", id);
     databaseService.updateMlayerInstance(
         request,
         updateMlayerHandler -> {
@@ -106,7 +106,7 @@ public class MlayerServiceImpl implements MlayerService {
     String name = request.getString(NAME).toLowerCase();
     String id = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
     String domainId = UUID.randomUUID().toString();
-    request.put(MLAYER_DOMAIN_ID, id).put(DOMAIN_ID, domainId);
+    request.put(MLAYER_ID, id).put(DOMAIN_ID, domainId);
 
     databaseService.createMlayerDomain(
         request,
@@ -161,7 +161,7 @@ public class MlayerServiceImpl implements MlayerService {
     LOGGER.debug(name);
     String id = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
     LOGGER.debug(id);
-    request.put("ID", id);
+    request.put(MLAYER_ID, id);
     databaseService.updateMlayerDomain(
         request,
         updateMlayerHandler -> {

@@ -91,6 +91,7 @@ public class MlayerApis {
                               new RespBuilder()
                                   .withType(TYPE_INVALID_SCHEMA)
                                   .withTitle(TITLE_INVALID_SCHEMA)
+                                  .withDetail("The Schema of requested body is inavlid.")
                                   .getResponse());
                     } else {
                       LOGGER.debug("Validation Successful");
@@ -206,6 +207,7 @@ public class MlayerApis {
                               new RespBuilder()
                                   .withType(TYPE_INVALID_SCHEMA)
                                   .withTitle(TITLE_INVALID_SCHEMA)
+                                  .withDetail("The Schema of requested body is inavlid.")
                                   .getResponse());
                     } else {
 
@@ -246,7 +248,7 @@ public class MlayerApis {
                 new RespBuilder()
                     .withType(TYPE_TOKEN_INVALID)
                     .withTitle(TITLE_TOKEN_INVALID)
-                    .withDetail(authHandler.cause().getMessage())
+                    .withDetail("Authorization failed, Invalid token.")
                     .getResponse());
           }
         });
@@ -283,6 +285,7 @@ public class MlayerApis {
                               new RespBuilder()
                                   .withType(TYPE_INVALID_SCHEMA)
                                   .withTitle(TITLE_INVALID_SCHEMA)
+                                  .withDetail("The Schema of requested body is inavlid.")
                                   .getResponse());
                     } else {
                       LOGGER.debug("Validation Successful");
@@ -348,6 +351,7 @@ public class MlayerApis {
                               new RespBuilder()
                                   .withType(TYPE_INVALID_SCHEMA)
                                   .withTitle(TITLE_INVALID_SCHEMA)
+                                  .withDetail("The Schema of requested body is inavlid.")
                                   .getResponse());
                     } else {
 
@@ -417,34 +421,16 @@ public class MlayerApis {
    */
   public void getMlayerProvidersHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching mlayer Providers");
-    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    JsonObject jwtAuthenticationInfo = new JsonObject();
-
-    jwtAuthenticationInfo
-        .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(METHOD, REQUEST_POST)
-        .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
-        .put(ID, host);
-
-    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
-    authenticationFuture
-        .onSuccess(
-            successHandler -> {
-              mlayerService.getMlayerProviders(
-                  handler -> {
-                    if (handler.succeeded()) {
-                      response.setStatusCode(200).end(handler.result().toString());
-                    } else {
-                      response.setStatusCode(400).end(handler.cause().getMessage());
-                    }
-                  });
-            })
-        .onFailure(
-            failureHandler -> {
-              response.setStatusCode(401).end(failureHandler.getMessage());
+    mlayerService.getMlayerProviders(
+            handler -> {
+                if (handler.succeeded()) {
+                    response.setStatusCode(200).end(handler.result().toString());
+                } else {
+                    response.setStatusCode(400).end(handler.cause().getMessage());
+                }
             });
-  }
 
+  }
 }
