@@ -25,7 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import static iudx.catalogue.server.mlayer.util.Constants.INSTANCE_ID;
-import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_INSTANCE_ID;
+import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -289,6 +289,314 @@ public class MlayerServiceTest {
             testContext.failNow(handler.cause());
           } else {
             LOGGER.debug("Fail");
+            testContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Success: test create mlayer domain")
+  void successMlayerDomainCreateTest(VertxTestContext testContext) {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.put("name", "dummy");
+    when(asyncResult.succeeded()).thenReturn(true);
+    mlayerService = new MlayerServiceImpl(databaseService);
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .createMlayerDomain(any(), any());
+    mlayerService.createMlayerDomain(
+        jsonObject,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).createMlayerDomain(any(), any());
+            testContext.completeNow();
+
+          } else {
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Failure: test create mlayer domain")
+  void failureMlayerDomainCreateTest(VertxTestContext testContext) {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.put("name", "dummy");
+    when(asyncResult.succeeded()).thenReturn(false);
+    mlayerService = new MlayerServiceImpl(databaseService);
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .createMlayerDomain(any(), any());
+    mlayerService.createMlayerDomain(
+        jsonObject,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).createMlayerDomain(any(), any());
+            testContext.failNow(handler.cause());
+
+          } else {
+            LOGGER.debug("Fail");
+            testContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Success: test update mlayer domain")
+  void successMlayerDomainUpdateTest(VertxTestContext testContext) {
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.put("name", "dummy");
+    when(asyncResult.succeeded()).thenReturn(true);
+    mlayerService = new MlayerServiceImpl(databaseService);
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .updateMlayerDomain(any(), any());
+    mlayerService.updateMlayerDomain(
+        jsonObject,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).updateMlayerDomain(any(), any());
+            testContext.completeNow();
+
+          } else {
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Failure: test update mlayer domain")
+  void failureMlayerDomainUpdateTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject();
+    request.put("name", "instance name");
+    mlayerService = new MlayerServiceImpl(databaseService);
+    when(asyncResult.succeeded()).thenReturn(false);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .updateMlayerDomain(any(), any());
+
+    mlayerService.updateMlayerDomain(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).updateMlayerDomain(any(), any());
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          } else {
+            LOGGER.debug("Fail");
+            testContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Success: test delete mlayer domain")
+  void successfulMlayerDomainDeleteTest(VertxTestContext testContext) {
+    String request = "dummy";
+    mlayerService = new MlayerServiceImpl(databaseService);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .deleteMlayerDomain(any(), any());
+
+    mlayerService.deleteMlayerDomain(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).deleteMlayerDomain(any(), any());
+            testContext.completeNow();
+          } else {
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Failure: test delete mlayer domain")
+  void failureMlayerDomainDeleteTest(VertxTestContext testContext) {
+    String request = "dummy";
+    mlayerService = new MlayerServiceImpl(databaseService);
+    when(asyncResult.succeeded()).thenReturn(false);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .deleteMlayerDomain(any(), any());
+
+    mlayerService.deleteMlayerDomain(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).deleteMlayerDomain(any(), any());
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Success: test get all mlayer domain")
+  void successfulMlayerDomainGetTest(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerDomain(any());
+    mlayerService.getMlayerDomain(
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerDomain(any());
+            testContext.completeNow();
+          } else {
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Failure: test get all mlayer domain")
+  void failureMlayerDomainGetTest(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService);
+    when(asyncResult.succeeded()).thenReturn(false);
+    Mockito.doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerDomain(any());
+
+    mlayerService.getMlayerDomain(
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerDomain(any());
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Success: test get all mlayer providers")
+  void successfulMlayerProvidersGetTest(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerProviders(any());
+    mlayerService.getMlayerProviders(
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerProviders(any());
+            testContext.completeNow();
+          } else {
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Failure: test get all mlayer providers")
+  void failureMlayerProvidersGetTest(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService);
+    when(asyncResult.succeeded()).thenReturn(false);
+    Mockito.doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerProviders(any());
+
+    mlayerService.getMlayerProviders(
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerProviders(any());
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          } else {
             testContext.completeNow();
           }
         });

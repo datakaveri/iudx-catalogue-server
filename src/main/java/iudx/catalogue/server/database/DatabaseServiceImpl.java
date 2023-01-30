@@ -8,8 +8,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
-import static iudx.catalogue.server.mlayer.util.Constants.INSTANCE_ID;
-import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_INSTANCE_ID;
+import static iudx.catalogue.server.mlayer.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.database.Constants.*;
 
@@ -42,29 +41,38 @@ public class DatabaseServiceImpl implements DatabaseService {
   private String docIndex;
   private String ratingIndex;
   private String mlayerInstanceIndex;
+  private String mlayerDomainIndex;
 
   private static String INTERNAL_ERROR_RESP = new RespBuilder()
       .withType(TYPE_INTERNAL_SERVER_ERROR)
       .withTitle(TITLE_INTERNAL_SERVER_ERROR)
       .getResponse();
 
-  public DatabaseServiceImpl(ElasticClient client, String docIndex, String ratingIndex, String mlayerInstanceIndex) {
+  public DatabaseServiceImpl(
+      ElasticClient client,
+      String docIndex,
+      String ratingIndex,
+      String mlayerInstanceIndex,
+      String mlayerDomainIndex) {
     this(client);
     this.docIndex = docIndex;
     this.ratingIndex = ratingIndex;
     this.mlayerInstanceIndex = mlayerInstanceIndex;
+    this.mlayerDomainIndex = mlayerDomainIndex;
   }
 
   public DatabaseServiceImpl(
       ElasticClient client, String docIndex,
       String ratingIndex,
       String mlayerInstanceIndex,
+      String mlayerDomainIndex,
       NLPSearchService nlpService,
       GeocodingService geoService) {
     this(client, nlpService, geoService);
     this.docIndex = docIndex;
     this.ratingIndex = ratingIndex;
     this.mlayerInstanceIndex = mlayerInstanceIndex;
+    this.mlayerDomainIndex = mlayerDomainIndex;
   }
 
   public DatabaseServiceImpl(ElasticClient client) {
@@ -868,9 +876,9 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
-    String InstanceID = instanceDoc.getString(INSTANCE_ID);
-    String ID = instanceDoc.getString("ID");
-    String checkForExistingRecord = CHECK_MDOC_QUERY.replace("$1", ID).replace("$2", "");
+    String instanceId = instanceDoc.getString(INSTANCE_ID);
+    String id = instanceDoc.getString(MLAYER_ID);
+    String checkForExistingRecord = CHECK_MDOC_QUERY.replace("$1", id).replace("$2", "");
     client.searchAsync(
         checkForExistingRecord,
         mlayerInstanceIndex,
@@ -878,7 +886,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (res.failed()) {
             LOGGER.error("Fail: Insertion of mlayer Instance failed: " + res.cause());
             handler.handle(
-                Future.failedFuture(respBuilder.withType(FAILED).withResult(ID).getResponse()));
+                Future.failedFuture(respBuilder.withType(FAILED).withResult(MLAYER_ID).getResponse()));
 
           } else {
             if (res.result().getInteger(TOTAL_HITS) != 0) {
@@ -891,7 +899,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ALREADY_EXISTS)
                           .withTitle(TITLE_ALREADY_EXISTS)
                           .withResult(
-                              InstanceIDExists, INSERT, FAILED, " Fail: Instance Already Exists")
+                              InstanceIDExists,  " Fail: Instance Already Exists")
                           .getResponse()));
               return;
             }
@@ -905,7 +913,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                             respBuilder
                                     .withType(TYPE_SUCCESS)
                                     .withTitle(SUCCESS)
-                                    .withResult(InstanceID, INSERT, SUCCESS,"Instance created Sucesssfully")
+                                    .withResult(instanceId, "Instance created Sucesssfully")
                                     .getJsonResponse()));
                   } else {
 
@@ -923,7 +931,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler) {
-    String query = GET_MDOC_QUERY;
+    String query = GET_MLAYER_INSTANCE_QUERY;
     client.searchAsync(
         query,
         mlayerInstanceIndex,
@@ -965,8 +973,6 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withResult(
                               instanceId,
-                              DELETE,
-                              FAILED,
                               "Fail: Instance doesn't exist, can't delete")
                           .getResponse()));
               return;
@@ -976,18 +982,18 @@ public class DatabaseServiceImpl implements DatabaseService {
             client.docDelAsync(
                 docId,
                 mlayerInstanceIndex,
-                putRes -> {
-                  if (putRes.succeeded()) {
+                delRes -> {
+                  if (delRes.succeeded()) {
                     handler.handle(
                         Future.succeededFuture(
                             respBuilder
                                     .withType(TYPE_SUCCESS)
                                     .withTitle(SUCCESS)
-                                    .withResult(instanceId, DELETE,SUCCESS, "Instance deleted Successfully")
+                                    .withResult(instanceId,"Instance deleted Successfully")
                                     .getJsonResponse()));
                   } else {
                     handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                    LOGGER.error("Fail: Deletion failed;" + putRes.cause());
+                    LOGGER.error("Fail: Deletion failed;" + delRes.cause());
                   }
                 });
           }
@@ -999,10 +1005,10 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService updateMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
-    String InstanceID = request.getString(INSTANCE_ID);
+    String instanceId = request.getString(INSTANCE_ID);
     String checkForExistingRecord =
-        CHECK_MDOC_QUERY_INSTANCE.replace("$1", InstanceID).replace("$2", "");
-    client.searchGetId(
+        CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
+    client.searchAsyncGetId(
         checkForExistingRecord,
         mlayerInstanceIndex,
         checkRes -> {
@@ -1019,57 +1025,262 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ITEM_NOT_FOUND)
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withResult(
-                              InstanceID,
-                              UPDATE,
-                              FAILED,
+                              instanceId,
                               "Fail : Instance doesn't exist, can't update")
                           .getResponse()));
               return;
             }
+            JsonObject result =
+                    new JsonObject(checkRes.result().getJsonArray(RESULTS).getString(0));
 
-            client.searchAsync(
-                checkForExistingRecord,
-                mlayerInstanceIndex,
-                getNameRes -> {
-                  if (getNameRes.succeeded()) {
-                    LOGGER.debug(getNameRes.result());
-                    JsonObject json =
-                        new JsonObject(getNameRes.result().getJsonArray(RESULTS).getString(0));
-                    String parameterIdName = json.getString(NAME);
-                    String requestBodyName = request.getString(NAME);
-                    if (parameterIdName.equals(requestBodyName)) {
-                      String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-                      client.docPutAsync(
-                          docId,
-                          mlayerInstanceIndex,
-                          request.toString(),
-                          putRes -> {
-                            if (putRes.succeeded()) {
-                              handler.handle(
+            String parameterIdName = result.getJsonObject(SOURCE).getString("name").toLowerCase();
+            String requestBodyName = request.getString("name").toLowerCase();
+            if (parameterIdName.equals(requestBodyName)) {
+              String docId = result.getString(DOC_ID);
+              client.docPutAsync(
+                      docId,
+                      mlayerInstanceIndex,
+                      request.toString(),
+                      putRes -> {
+                        if (putRes.succeeded()) {
+                          handler.handle(
                                   Future.succeededFuture(
-                                      respBuilder
-                                              .withType(TYPE_SUCCESS)
-                                              .withTitle(SUCCESS)
-                                              .withResult(
-                                              InstanceID, UPDATE, SUCCESS,"Instance Updated Successfully")
-                                              .getJsonResponse()));
-                            } else {
-                              handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                              LOGGER.error("Fail: Updation failed" + putRes.cause());
-                            }
-                          });
-                    } else {
-                      handler.handle(
-                          Future.failedFuture(
+                                          respBuilder
+                                                  .withType(TYPE_SUCCESS)
+                                                  .withTitle(SUCCESS)
+                                                  .withResult(
+                                                          instanceId,"Instance Updated Successfully")
+                                                  .getJsonResponse()));
+                        } else {
+                          handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                          LOGGER.error("Fail: Updation failed" + putRes.cause());
+                        }
+                      });
+            } else {
+              handler.handle(
+                      Future.failedFuture(
                               respBuilder
-                                  .withType(TYPE_FAIL)
-                                  .withTitle(TITLE_WRONG_INSTANCE_NAME)
-                                  .withDetail(WRONG_INSTANCE_NAME)
-                                  .getResponse()));
-                      LOGGER.error("Fail: Updation Failed" + getNameRes.cause());
-                    }
+                                      .withType(TYPE_FAIL)
+                                      .withTitle(TITLE_WRONG_INSTANCE_NAME)
+                                      .withDetail(WRONG_INSTANCE_NAME)
+                                      .getResponse()));
+              LOGGER.error("Fail: Updation Failed" + checkRes.cause());
+            }
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public DatabaseService createMlayerDomain(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    String domainId = request.getString(DOMAIN_ID);
+    String id = request.getString(MLAYER_ID);
+    String checkForExistingDomain = CHECK_MDOC_QUERY.replace("$1", id).replace("$2", "");
+    client.searchAsync(
+        checkForExistingDomain,
+        mlayerDomainIndex,
+        res -> {
+          if (res.failed()) {
+            LOGGER.error("Fail: Insertion of mLayer domain failed: " + res.cause());
+            handler.handle(
+                Future.failedFuture(respBuilder.withType(FAILED).withResult(id).getResponse()));
+          } else {
+            if (res.result().getInteger(TOTAL_HITS) != 0) {
+              JsonObject json = new JsonObject(res.result().getJsonArray(RESULTS).getString(0));
+              String domainIdExists = json.getString(DOMAIN_ID);
+              handler.handle(
+                  Future.failedFuture(
+                      respBuilder
+                          .withType(TYPE_ALREADY_EXISTS)
+                          .withTitle(TITLE_ALREADY_EXISTS)
+                          .withResult(domainIdExists,  "Fail: Domain Already Exists")
+                          .getResponse()));
+              return;
+            }
+            client.docPostAsync(
+                mlayerDomainIndex,
+                request.toString(),
+                result -> {
+                  if (result.succeeded()) {
+                    handler.handle(
+                        Future.succeededFuture(
+                            respBuilder
+                                .withType(TYPE_SUCCESS)
+                                .withTitle(SUCCESS)
+                                .withResult(
+                                    domainId,  "domain Created Successfully")
+                                .getJsonResponse()));
+                  } else {
+                    handler.handle(
+                        Future.failedFuture(
+                            respBuilder.withType(TYPE_FAIL).withResult(FAILED).getResponse()));
+                    LOGGER.error("Fail: Insertion failed" + result.cause());
                   }
                 });
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public DatabaseService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler) {
+    String query = GET_MLAYER_DOMAIN_QUERY;
+    client.searchAsync(
+        query,
+        mlayerDomainIndex,
+        resultHandler -> {
+          if (resultHandler.succeeded()) {
+            LOGGER.debug("Success: Successful DB Request");
+            JsonObject result = resultHandler.result();
+            handler.handle(Future.succeededFuture(result));
+          } else {
+            LOGGER.error("Fail: failed DB request");
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public DatabaseService updateMlayerDomain(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    String domainId = request.getString(DOMAIN_ID);
+    String checkForExistingRecord =
+        CHECK_MDOC_QUERY_DOMAIN.replace("$1", domainId).replace("$2", "");
+    client.searchAsyncGetId(
+        checkForExistingRecord,
+        mlayerDomainIndex,
+        checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error("Fail: Check Query Fail");
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          } else {
+            LOGGER.debug(checkRes.result());
+            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+              LOGGER.error("Fail: Domain does not exist, can't update");
+              handler.handle(
+                  Future.failedFuture(
+                      respBuilder
+                          .withType(TYPE_ITEM_NOT_FOUND)
+                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                          .withResult(
+                              domainId, "Fail: Domain doesn't exist, can't update")
+                          .getResponse()));
+              return;
+            }
+
+            JsonObject result =
+                    new JsonObject(checkRes.result().getJsonArray(RESULTS).getString(0));
+
+            String parameterIdName = result.getJsonObject(SOURCE).getString("name").toLowerCase();
+            String requestBodyName = request.getString("name").toLowerCase();
+            if (parameterIdName.equals(requestBodyName)) {
+              String docId = result.getString(DOC_ID);
+              client.docPutAsync(
+                      docId,
+                      mlayerDomainIndex,
+                      request.toString(),
+                      putRes -> {
+                        if (putRes.succeeded()) {
+                          handler.handle(
+                                  Future.succeededFuture(
+                                          respBuilder
+                                                  .withType(TYPE_SUCCESS)
+                                                  .withTitle(SUCCESS)
+                                                  .withResult(
+                                                          domainId,"Domain Updated Successfully")
+                                                  .getJsonResponse()));
+                        } else {
+                          handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                          LOGGER.error("Fail: Updation failed" + putRes.cause());
+                        }
+                      });
+            } else {
+              handler.handle(
+                      Future.failedFuture(
+                              respBuilder
+                                      .withType(TYPE_FAIL)
+                                      .withTitle(TITLE_WRONG_INSTANCE_NAME)
+                                      .withDetail(WRONG_INSTANCE_NAME)
+                                      .getResponse()));
+              LOGGER.error("Fail: Updation Failed" + checkRes.cause());
+            }
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public DatabaseService deleteMlayerDomain(
+      String domainId, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    LOGGER.debug(domainId);
+
+    String checkForExistingRecord =
+        CHECK_MDOC_QUERY_DOMAIN.replace("$1", domainId).replace("$2", "");
+
+    client.searchGetId(
+        checkForExistingRecord,
+        mlayerDomainIndex,
+        checkRes -> {
+          if (checkRes.failed()) {
+            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          } else {
+            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+              LOGGER.error("Fail: Domain doesn't exist, can't delete");
+              handler.handle(
+                  Future.failedFuture(
+                      respBuilder
+                          .withType(TYPE_ITEM_NOT_FOUND)
+                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                          .withResult(
+                              domainId,  "Fail: Domain doesn't exist, can't delete")
+                          .getResponse()));
+              return;
+            }
+            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+
+            client.docDelAsync(
+                docId,
+                mlayerDomainIndex,
+                putRes -> {
+                  if (putRes.succeeded()) {
+                    handler.handle(
+                        Future.succeededFuture(
+                            respBuilder
+                                .withType(TYPE_SUCCESS)
+                                .withTitle(SUCCESS)
+                                .withResult(
+                                    domainId, "Domain deleted Successfully")
+                                .getJsonResponse()));
+                  } else {
+                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    LOGGER.error("Fail: Deletion failed;" + putRes.cause());
+                  }
+                });
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public DatabaseService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler) {
+    String query = GET_MLAYER_PROVIDERS_QUERY;
+    client.searchAsync(
+        query,
+        docIndex,
+        resultHandler -> {
+          if (resultHandler.succeeded()) {
+            LOGGER.debug("Success: Successful DB Request");
+            JsonObject result = resultHandler.result();
+            handler.handle(Future.succeededFuture(result));
+          } else {
+            LOGGER.error("Fail: failed DB request");
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
           }
         });
     return this;

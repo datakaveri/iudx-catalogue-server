@@ -1,6 +1,6 @@
 package iudx.catalogue.server.authenticator.authorization;
 
-import static iudx.catalogue.server.apiserver.util.Constants.ROUTE_MLAYER_INSTANCE;
+import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
 
 import java.util.ArrayList;
@@ -46,9 +46,14 @@ public class AdminAuthStrategy implements AuthorizationStratergy{
     accessList.add(new AuthorizationRequest(POST, api.getRouteInstance()));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteInstance()));
     accessList.add(new AuthorizationRequest(POST,ROUTE_MLAYER_INSTANCE));
-    accessList.add(new AuthorizationRequest(GET,ROUTE_MLAYER_INSTANCE));
     accessList.add(new AuthorizationRequest(DELETE,ROUTE_MLAYER_INSTANCE));
     accessList.add(new AuthorizationRequest(PUT,ROUTE_MLAYER_INSTANCE));
+    accessList.add(new AuthorizationRequest(POST,ROUTE_MLAYER_DOMAIN));
+    accessList.add(new AuthorizationRequest(PUT,ROUTE_MLAYER_DOMAIN));
+    accessList.add(new AuthorizationRequest(DELETE,ROUTE_MLAYER_DOMAIN));
+
+
+
   }
 
   @Override

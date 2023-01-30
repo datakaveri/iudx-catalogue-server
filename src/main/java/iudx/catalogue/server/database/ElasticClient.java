@@ -74,6 +74,16 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient searchAsyncGetId(
+      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
+    Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH_ID_AND_SOURCE);
+    queryRequest.setJsonEntity(query);
+    LOGGER.debug(queryRequest);
+    Future<JsonObject> future = searchAsync(queryRequest, SOURCE_AND_ID);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
   public ElasticClient scriptSearch(JsonArray queryVector,
                                       Handler<AsyncResult<JsonObject>> resultHandler) {
       // String query = NLP_SEARCH.replace("$1", queryVector.toString());
@@ -331,7 +341,7 @@ public final class ElasticClient {
           if (totalHits > 0 ) {
             JsonArray results = new JsonArray();
 
-            if ((options == SOURCE_ONLY) || (options == DOC_IDS_ONLY)) {
+            if ((options == SOURCE_ONLY) || (options == DOC_IDS_ONLY) || (options == SOURCE_AND_ID)) {
               if(responseJson.getJsonObject(HITS).containsKey(HITS)) {
                 results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
               }
@@ -363,6 +373,13 @@ public final class ElasticClient {
                     .put(AVERAGE_RATING, results.getJsonObject(i).getJsonObject(AVERAGE_RATING).getDouble(VALUE));
                 responseMsg.addResult(result);
               }
+                  if (options == SOURCE_AND_ID) {
+
+                    JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
+                    String docId = results.getJsonObject(i).getString(DOC_ID);
+                    JsonObject result = new JsonObject().put(SOURCE, source).put(DOC_ID, docId);
+                    responseMsg.addResult(result);
+                  }
             }
           } else {
             responseMsg.addResult();
@@ -370,7 +387,7 @@ public final class ElasticClient {
           promise.complete(responseMsg.getResponse());
 
         } catch (IOException e) {
-            promise.fail(e);
+          promise.fail(e);
         } finally {
         }
       }

@@ -40,6 +40,12 @@ public class RespBuilder {
     response.put(RESULTS, new JsonArray().add(resultAttrs));
     return this;
   }
+  public RespBuilder withResult(String id, String detail) {
+    JsonObject resultAttrs = new JsonObject().put(ID,id)
+            .put(DETAIL, detail);
+    response.put(RESULTS,new JsonArray().add(resultAttrs));
+    return this;
+  }
 
   public RespBuilder withResult(String id) {
     JsonObject resultAttrs = new JsonObject().put(ID, id);

@@ -31,6 +31,7 @@ public class DatabaseVerticle extends AbstractVerticle {
   private String docIndex;
   private String ratingIndex;
   private String mlayerIndex;
+  private String mlayerDomainIndex;
   private String databaseUser;
   private String databasePassword;
   private int databasePort;
@@ -56,6 +57,7 @@ public class DatabaseVerticle extends AbstractVerticle {
     docIndex = config().getString(DOC_INDEX);
     ratingIndex = config().getString(RATING_INDEX);
     mlayerIndex = config().getString(MLAYER_INSTANCE_INDEX);
+    mlayerDomainIndex = config().getString(MLAYER_DOMAIN_INDEX);
     optionalModules = config().getJsonArray(OPTIONAL_MODULES);
 
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
@@ -66,9 +68,9 @@ public class DatabaseVerticle extends AbstractVerticle {
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
       database =
           new DatabaseServiceImpl(
-              client, docIndex, ratingIndex, mlayerIndex, nlpService, geoService);
+              client, docIndex, ratingIndex, mlayerIndex,mlayerDomainIndex, nlpService, geoService);
     } else {
-      database = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerIndex);
+      database = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerIndex,mlayerDomainIndex);
     }
 
     consumer =

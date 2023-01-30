@@ -10387,534 +10387,1127 @@
 			"name": "Mlayer APIs",
 			"item": [
 				{
-					"name": "Create Mlayer Instance",
+					"name": "Mlayer Instance",
 					"item": [
 						{
-							"name": "200 (Success) - Create Mlayer Instance",
-							"event": [
+							"name": "Create Instance",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"var data = JSON.parse(responseBody);",
-											"pm.environment.set(\"InstanceID\",data.results[0].id);",
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(201);",
-											"});",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "token",
-										"value": "{{adminToken}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n   \"name\": \"lucknow\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpg\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
+									"name": "200 (Success) - Create Instance",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"pm.environment.set(\"instanceId\",data.results[0].id);",
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
 										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance",
-									"host": [
-										"{{host}}{{base}}"
 									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									]
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "token",
+												"value": "{{adminToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"name\": \"lucknow\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpg\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "401 (Invalid Token) - Create Instance",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(401);",
+													"});",
+													"",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "token",
+												"value": "abc",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"name\": \"lucknow\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknoe.jpg\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid Schema) - Create Instance",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "token",
+												"value": "{{adminToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n   \"name\": \"lucknow\",\n   \"cooover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpg\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
 						},
 						{
-							"name": "401 (Invalid Token) - Create Mlayer Instance",
-							"event": [
+							"name": "Update Instance",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(401);",
-											"});",
-											"",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "token",
-										"value": "abc",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n   \"name\": \"agartala\",\n   \"cover\": \"path_of_cover.jpg\",\n   \"icon\": \"path_of_icon.png\",\n   \"logo\": \"path_of_logo.png\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
+									"name": "200 (Success) - Update Instance",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
 										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance",
-									"host": [
-										"{{host}}{{base}}"
 									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									]
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "token",
+												"value": "{{adminToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpeg\",\r\n    \"name\": \"lucknow\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "instanceId",
+													"value": "{{instanceId}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "401 (Invalid Token) - Update Instances",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(401);",
+													"});",
+													"",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "token",
+												"value": "abc",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.JPEG\",\r\n    \"name\": \"lucknow\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "instanceId",
+													"value": "{{instanceId}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid Schema) - Update Instances",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "token",
+												"value": "{{adminToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.JPEG\",\r\n    \"nameee\": \"lucknow\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{InstanceID}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "instanceId",
+													"value": "{{InstanceID}}"
+												}
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
 						},
 						{
-							"name": "400 (Invalid Schema) - Create Mlayer Instance",
-							"event": [
+							"name": "Get Instance",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(400);",
-											"});",
-											"",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "token",
-										"value": "{{adminToken}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n   \"names\": \"agartala\",\n   \"cover\": \"path_of_cover.jpg\",\n   \"iicon\": \"path_of_icon.png\",\n   \"logo\": \"path_of_logo.png\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
+									"name": "200 (Success) - Get All Instances",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
 										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance",
-									"host": [
-										"{{host}}{{base}}"
 									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									]
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "",
+												"value": "",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
+						},
+						{
+							"name": "Delete Instance",
+							"item": [
+								{
+									"name": "200 (Success) - Delete Instance",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"",
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "token",
+												"value": "{{adminToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "instanceId",
+													"value": "{{instanceId}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "401 (Invalid Token) - Delete Instance",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(401);",
+													"});",
+													"",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "token",
+												"value": "abc",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "instanceId",
+													"value": "{{instanceId}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
 					]
 				},
 				{
-					"name": "Update Mlayer instance",
+					"name": "Mlayer Domain",
 					"item": [
 						{
-							"name": "200 (Success) - Update Mlayer Instance",
+							"name": "Create Domain",
+							"item": [
+								{
+									"name": "200 (Success) - Create Domains",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var data = JSON.parse(responseBody);",
+													"pm.environment.set(\"domainId\",data.results[0].id);",
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "token",
+												"value": "{{adminToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"description\":\"Data Models that pertain to civic domain\",\n    \"icon\":\"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png\",\n    \"label\":\"Civic\",\n    \"name\":\"civic\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid Schema) - Create Domain",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "token",
+												"value": "{{adminToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"descriiiption\":\"Data Models that pertain to civic domain\",\n    \"icon\":\"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png\",\n    \"label\":\"Civic\",\n    \"name\":\"civic\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "401 (Invalid Token) - Create Domain",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(401);",
+													"});",
+													"",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "token",
+												"value": "abc",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"descriiiption\":\"Data Models that pertain to civic domain\",\n    \"icon\":\"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png\",\n    \"label\":\"Civic\",\n    \"name\":\"civic\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Update Mlayer Domain",
+							"item": [
+								{
+									"name": "200 (Success) - Update Domain",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "token",
+												"value": "{{adminToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.jpeg\",\r\n    \"name\": \"civic\",\r\n    \"description\": \"Data Models that pertain to civic domain\",\r\n    \"label\": \"Civic\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain?domainId={{domainId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											],
+											"query": [
+												{
+													"key": "domainId",
+													"value": "{{domainId}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "401 (Invalid Token) - Update Domain",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(401);",
+													"});",
+													"",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "token",
+												"value": "abc",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.jpeg\",\r\n    \"name\": \"civic\",\r\n    \"description\": \"Data Models that pertain to civic domain\",\r\n    \"label\": \"Civic\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?domainId={{domainId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "domainId",
+													"value": "{{domainId}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid Schema) - Update Domain",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(400);",
+													"});",
+													"",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "PUT",
+										"header": [
+											{
+												"key": "token",
+												"value": "{{adminToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"iconnnn\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.jpeg\",\r\n    \"name\": \"civic\",\r\n    \"description\": \"Data Models that pertain to civic domain\",\r\n    \"label\": \"Civic\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?domainId={{domainId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "domainId",
+													"value": "{{domainId}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Get Domain",
+							"item": [
+								{
+									"name": "200 (Success) - Get All Domains",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "",
+												"value": "",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Delete Domain",
+							"item": [
+								{
+									"name": "200 (Success) - Delete Domain",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"",
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "token",
+												"value": "{{adminToken}}",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain?domainId={{domainId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											],
+											"query": [
+												{
+													"key": "domainId",
+													"value": "{{domainId}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "401 (Invalid Token) - Delete Domain",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(401);",
+													"});",
+													"",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "DELETE",
+										"header": [
+											{
+												"key": "token",
+												"value": "abc",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?domainId={{domainId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "domainId",
+													"value": "{{domainId}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Mlayer Providers",
+					"item": [
+						{
+							"name": "200 (Success) - Get Providers",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
 											"});"
 										],
 										"type": "text/javascript"
 									}
 								}
 							],
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "token",
-										"value": "{{adminToken}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.JPEG\",\r\n    \"name\": \"lucknow\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID={{InstanceID}}",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									],
-									"query": [
-										{
-											"key": "InstanceID",
-											"value": "{{InstanceID}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "401 (Invalid Token) - Update Mlayer Instances",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(401);",
-											"});",
-											"",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "token",
-										"value": "abc",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n   \"name\": \"bengaluru\",\r\n   \"cover\": \"path_of_cover_of_bengaluru.jpg\",\r\n   \"icon\": \"path_of_icon_of_bengaluru.jpg\",\r\n   \"logo\": \"path_of_logo_of_bangaluru.png\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?name=bengaluru",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									],
-									"query": [
-										{
-											"key": "name",
-											"value": "bengaluru"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "400 (Invalid Schema) - Update Mlayer Instances",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(400);",
-											"});",
-											"",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "token",
-										"value": "{{adminToken}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n   \"namess\": \"bengaluru\",\r\n   \"cover\": \"path_of_cover_of_bengaluru.jpg\",\r\n   \"icon\": \"path_of_icon_of_bengaluru.jpg\",\r\n   \"logo\": \"path_of_logo_of_bangaluru.png\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?name=bengaluru",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									],
-									"query": [
-										{
-											"key": "name",
-											"value": "bengaluru"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Get Mlayer instance",
-					"item": [
-						{
-							"name": "200 (Success) - Get All Mlayer Instances",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
 							"request": {
 								"method": "GET",
 								"header": [
 									{
-										"key": "token",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiIxNWM3NTA2Zi1jODAwLTQ4ZDYtYWRlYi0wNTQyYjAzOTQ3YzYiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdC10ZXN0Lml1ZHguaW8iLCJleHAiOjE2NzM2MjYzODEsImlhdCI6MTY3MzU4MzE4MSwiaWlkIjoicnM6Y2F0LXRlc3QuaXVkeC5pbyIsInJvbGUiOiJhZG1pbiIsImNvbnMiOnt9fQ.LqlvdDshZ_nnVZCO3cRRGsMGXh12NSW8mbnEr0RjO3ylKRVInK1y7dM8BH4c-RExqwuPg7cBpIaCkN89_xa_QA",
+										"key": "",
+										"value": "",
 										"type": "text",
 										"disabled": true
 									}
 								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance",
+									"raw": "{{host}}{{base}}/internal/ui/providers",
 									"host": [
 										"{{host}}{{base}}"
 									],
 									"path": [
 										"internal",
 										"ui",
-										"instance"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Delete Mlayer instance",
-					"item": [
-						{
-							"name": "200 (Success) - Delete Mlayer Instance",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"",
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "token",
-										"value": "{{adminToken}}",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID={{InstanceID}}",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									],
-									"query": [
-										{
-											"key": "InstanceID",
-											"value": "{{InstanceID}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "401 (Invalid Token) - Delete Mlayer Instance",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {",
-											"    pm.response.to.have.status(401);",
-											"});",
-											"",
-											"",
-											"pm.test(\"Check response body\", function () {    ",
-											"    const body = pm.response.json();",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidAuthorizationToken\");",
-											"});",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "token",
-										"value": "abc",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance?InstanceID=c6841",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"instance"
-									],
-									"query": [
-										{
-											"key": "InstanceID",
-											"value": "c6841"
-										}
+										"providers"
 									]
 								}
 							},

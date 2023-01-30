@@ -28,4 +28,19 @@ public interface MlayerService {
 
   @Fluent
   MlayerService updateMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  @Fluent
+  MlayerService createMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  @Fluent
+  MlayerService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler);
+
+  @Fluent
+  MlayerService deleteMlayerDomain(String request, Handler<AsyncResult<JsonObject>> handler);
+
+  @Fluent
+  MlayerService updateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  @Fluent
+  MlayerService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler);
 }

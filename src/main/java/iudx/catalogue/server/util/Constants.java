@@ -35,6 +35,8 @@ public class Constants {
   public static final String DOC_INDEX = "docIndex";
   public static final String RATING_INDEX = "ratingIndex";
   public static final String MLAYER_INSTANCE_INDEX="mlayerInstanceIndex";
+  public static final String MLAYER_DOMAIN_INDEX="mlayerDomainIndex";
+
   public static final String PUBLIC_KEY = "publicKey";
   public static final String DATABASE_PASSWD = "databasePassword";
   public static final String SOURCE = "_source";

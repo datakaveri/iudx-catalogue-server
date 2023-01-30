@@ -513,6 +513,74 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
+    /** Routes for Mlayer Domain APIs */
+    /* Create Mlayer Domain */
+    router
+        .post(api.getRouteMlayerDomains())
+        .consumes(MIME_APPLICATION_JSON)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                mlayerApis.createMlayerDomainHandler(routingContext);
+              } else {
+                LOGGER.error("Unauthorized Operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
+
+    /* Get Mlayer Domain */
+    router
+        .get(api.getRouteMlayerDomains())
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              mlayerApis.getMlayerDomainHandler(routingContext);
+            });
+
+    /* Update Mlayer Domain */
+    router
+        .put(api.getRouteMlayerDomains())
+        .consumes(MIME_APPLICATION_JSON)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                mlayerApis.updateMlayerDomainHandler(routingContext);
+              } else {
+                LOGGER.error("Unauthorized Operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
+
+    /* Delete Mlayer Domain */
+    router
+        .delete(api.getRouteMlayerDomains())
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                mlayerApis.deleteMlayerDomainHandler(routingContext);
+              } else {
+                LOGGER.error("Unauthorized Operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
+
+    /** Routes for Mlayer Provider API */
+    router
+        .get(api.getRouteMlayerProviders())
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+                mlayerApis.getMlayerProvidersHandler(routingContext);
+            });
+
     /** Start server */
     server.requestHandler(router).listen(port);
   }

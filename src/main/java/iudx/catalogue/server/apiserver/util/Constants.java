@@ -80,6 +80,9 @@ public class Constants {
                                           GEOREL_COVERED_BY, GEOREL_INTERSECTS,
                                           GEOREL_EQUALS, GEOREL_DISJOINT));
   public static final String ROUTE_MLAYER_INSTANCE = "/internal/ui/instance";
+  public static final String ROUTE_MLAYER_DOMAIN = "/internal/ui/domain";
+  public static final String ROUTE_MLAYER_PROVIDER = "/internal/ui/providers";
+
   /** Geometries */
   public static final ArrayList<String> GEOMETRIES
     = new ArrayList<String>(Arrays.asList(BBOX, POLYGON,

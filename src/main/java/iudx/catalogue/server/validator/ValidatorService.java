@@ -63,6 +63,8 @@ public interface ValidatorService {
   @Fluent
   ValidatorService validateMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
+  @Fluent
+  ValidatorService validateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
    * @param vertx which is the vertx instance
