@@ -1,11 +1,13 @@
 openapi: 3.0.2
 info:
-    title: IUDX Catalogue Server APIs
+    title: Data Exchange Catalogue Server APIs
     version: 4.0.0
     description: >
-        The Catalogue is IUDX's dataset discovery portal and metadata store. 
+        # Introduction
+        
+        The Catalogue is DXs' (Data Exchange) dataset discovery portal and metadata store. 
 
-        It enables *Providers* of datasources to describe them with IUDX based annotations
+        It enables *Providers* of datasources to describe them with DX based annotations
 
         to make discovery and consumption of data both automatable and semantically describable. 
 
@@ -13,7 +15,23 @@ info:
 
         The catalogue is a [JSON-LD](https://json-ld.org/) document stored and based on the
         [RDF](https://www.w3.org/RDF/) information exchange model. 
-
+        
+        
+        # Configurations
+        
+        - **Server**: 
+          - In the doc, we display the server url to be https://example-cat.com with the hostname as example-cat.com
+          - This could be configured according to the deployment
+        - **Base path**:
+          - Base path is the path on which API is served, relative to the host
+          - It is the initial part of the API
+          - Currently, `/iudx/cat/v1` is being used as base path
+          - This value could be configured according to the deployment
+        - **Request Samples**:
+          - The `<tokeValue>` in the header of request sample could be replaced with respective token value that could be obtained from DX Auth Server
+          - The `<payload>` in the request sample could be replaced with the payload given adjacent to the request sample
+          - The payload contains `<some_item_id>`, `<provider_id>`, `<some_item_name>` for which the appropriate values could be added 
+        
          # API HTTP Responses
         Apart from the response codes specified in each API,
 
@@ -25,14 +43,11 @@ info:
         name: For support contact IUDX Team at
         email: support@iudx.org.in
 servers:
-    -
-        url: 'https://api.catalogue.iudx.org.in'
+     -  url: 'https://example-cat.com/iudx/cat/v1'
         description: Production Instance
-    -
-        url: 'https://api.catalogue.iudx.io'
-        description: Development Instance
+
 paths:
-    /iudx/cat/v1/search:
+    /search:
         get:
             tags:
                 - Discovery
@@ -162,7 +177,7 @@ paths:
                 -
                     name: instance
                     description: >-
-                        IUDX instance on which this query is to be made. Don't mention this if search on
+                        DX instance on which this query is to be made. Don't mention this if search on
                         entire catalogue is to be made. Else mentioning a specific instance name here
                         restricts search only to that instance.
                     schema:
@@ -183,32 +198,28 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                             examples:
+                                Invalid Query Param:
+                                    value:
+                                        type: 'urn:dx:cat:InvalidQueryParam'
+                                        title: Generic invalid query param error
                                 Invalid Geo Param:
                                     value:
-                                        totalHits: 0
-                                        results:
-                                            - {}
                                         type: 'urn:dx:cat:InvalidGeoParam'
                                         title: Geoquery parameter error
                                 Invalid Geo Value:
                                     value:
-                                        totalHits: 0
-                                        results:
-                                            - {}
                                         type: 'urn:dx:cat:InvalidGeoValue'
                                         title: Geoquery value error
                                 Invalid Syntax:
                                     value:
-                                        totalHits: 0
-                                        results:
-                                            - {}
                                         type: 'urn:dx:cat:InvalidSyntax'
                                         title: Invalid Syntax
+                                Internal Error:
+                                    value:
+                                        type: 'urn:dx:cat:InternalError'
+                                        title: Internal error
                                 Operation not allowed:
                                     value:
-                                        totalHits: 0
-                                        results:
-                                            - {}
                                         type: 'urn:dx:cat:OperationNotAllowed'
                                         title: Operation not allowed
                     description: Bad query.
@@ -231,7 +242,7 @@ paths:
                 `property=[<prop-1>,<prop-2>]&value=[[<prop-1-val-1>,<prop-1-val-2>],[<prop-2-val-1>]]`
 
                 Property search can be applied to only certain properties. These properties defined in the
-                IUDX Schema Vocalbulary for all subClasses of [IUDXEntity](https://voc.iudx.org.in/IUDXEntity)
+                DX Schema Vocalbulary for all subClasses of [IUDXEntity](https://voc.iudx.org.in/IUDXEntity)
 
                 These perform exact matches in the case of keywords such as
 
@@ -281,22 +292,189 @@ paths:
                   - The sum of `offset` and `limit` should `<= 10000`, i.e. if the `offset=100`, then max `limit` should be `9900` and so on.
             x-codeSamples:
                 -
-                    lang: by type
-                    source: >
-                        https://api.catalogue.iudx.org.in/iudx/cat/v1/search?property=[type]&value=[[iudx:ResourceGroup]]
-                -
-                    lang: by circle
-                    source: >
-                        https://api.catalogue.iudx.org.in/iudx/cat/v1/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
-                -
-                    lang: by text
+                    lang: cURL
+                    label: 'tag search'
                     source: |
-                        https://api.catalogue.iudx.org.in/iudx/cat/v1/search?q=aqm
+                        curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/search?property="[tags]"&value="[[pollution]]"&filter=[id,tags]&limit=100&offset=0'
                 -
-                    lang: complex
-                    source: >
-                        https://api.catalogue.iudx.org.in/iudx/cat/v1/search?property=[type]&value=[[iudx:Resource]]&geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]
-    '/iudx/cat/v1/list/{type}':
+                    lang: cURL
+                    label: 'search by circle'
+                    source: |
+                        curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/search?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.927285,18.502712]'
+                - lang: cURL
+                  label: 'search by polygon'
+                  source: |
+                      curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]'
+                - lang: cURL
+                  label: 'search by linestring'
+                  source: |
+                      curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/search?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]'
+                - lang: cURL
+                  label: 'search by bbox'
+                  source: |
+                      curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/search?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73.8420,18.5305],[73.8665,18.5126]]'
+                -
+                    lang: cURL
+                    label: 'search by text'
+                    source: |
+                        curl --location --request GET 'https://example-cat.com/iudx/cat/v1/search?q="Bosch Climo"'
+                -
+                    lang: cURL
+                    label: 'complex search'
+                    source: |
+                        curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/search?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[75.9,14.5],[72,13],[73,20],[75.9,14.5]]]&filter=[tags,id,location.geometry.coordinates]'
+    /count:
+        get:
+            tags:
+                - Discovery
+            parameters:
+                - name: property
+                  description: |
+                      Array of properties (strings) on which query is to be made. A logical "and" is
+                      performed between the properties. Only a maximum of 4 properties are allowed to be
+                      queried at once. The mapping between a property and a value is one-to-one. The only
+                      allowed properties to be queried are per the vocabulary schema mentioned in each
+                      sub-Class of [IUDXEntity](https://voc.iudx.org.in/IUDXEntity).
+                  schema:
+                      maxItems: 4
+                      minItems: 1
+                      uniqueItems: true
+                      type: array
+                      items:
+                          type: string
+                  in: query
+                - name: value
+                  description: |
+                      Values of the one-to-one mapped strings in property. A logical "or" is performed for
+                      each value which is mapped to a property. For each property, only a maximum of 4
+                      values are allowed. For e.g for property=[id,type] then value=[[<some-id>],
+                      [<some-type>]].
+                  schema:
+                      maxItems: 4
+                      minItems: 1
+                      uniqueItems: true
+                      type: array
+                      items:
+                          type: string
+                  in: query
+                  required: false
+                - name: geoproperty
+                  description: Name of the property if the query is on a geospatial property.
+                  schema:
+                      enum:
+                          - location
+                          - geocovers
+                      type: string
+                  in: query
+                - name: georel
+                  description: Type of geoquery
+                  schema:
+                      enum:
+                          - within
+                          - intersects
+                      type: string
+                  in: query
+                  required: false
+                - name: geometry
+                  description: Geometry of the geo-query
+                  schema:
+                      enum:
+                          - Point
+                          - Polygon
+                          - LineString
+                          - bbox
+                      type: string
+                  in: query
+                - name: coordinates
+                  description: |
+                      Coordinates for the specific query type. For e.g, [[1,2], [3,4]]. Note: The data-type
+                      of this field is a string, therefore the coordinates are a string encoded
+                      multidimensional array.Precision supported is 6 decimal places.
+                  schema:
+                      format: double
+                      maxItems: 10
+                      minItems: 1
+                      type: array
+                      items:
+                          type: number
+                  in: query
+                  required: false
+                - name: maxDistance
+                  description: Maximum distance from center point in meters
+                  schema:
+                      maximum: 10000
+                      minimum: 0
+                      type: number
+                  in: query
+                  required: false
+                - name: q
+                  description: query for text/fuzzy search.
+                  schema:
+                      maxLength: 100
+                      minLength: 1
+                      type: string
+                  in: query
+                  required: false
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseWithObjects'
+                    description: All the query parameters yielded results.
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseWithObjects'
+                            examples:
+                                Invalid Query Param:
+                                    value:
+                                        type: 'urn:dx:cat:InvalidQueryParam'
+                                        title: Generic invalid query param error
+                                Invalid Geo Value:
+                                    value:
+                                        type: 'urn:dx:cat:InvalidGeoValue'
+                                        title: Geoquery value error
+                                Invalid Syntax:
+                                    value:
+                                        type: 'urn:dx:cat:InvalidSyntax'
+                                        title: Invalid Syntax
+                                Internal Error:
+                                    value:
+                                        type: 'urn:dx:cat:InternalError'
+                                        title: Internal error
+                    description: Bad query.
+            operationId: count
+            description: >
+                Count APIs get the total number of hits for the given API request containing the provided query parameters.
+            x-codeSamples:
+                - lang: cURL
+                  label: 'count tags'
+                  source: |
+                      curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/count?value=[[pollution]]&property=[tags]'
+                - lang: cURL
+                  label: 'count by circle'
+                  source: |
+                      curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/count?geoproperty=location&georel=within&maxDistance=5000&geometry=Point&coordinates=[73.9,18.6]'
+                - lang: cURL
+                  label: 'count by polygon'
+                  source: |
+                      curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/count?geoproperty=location&georel=within&geometry=Polygon&coordinates=[[[73.696,18.592],[73.69079,18.391],[73.96,18.3643],[74.09,18.526],[73.8947,18.689830],[73.696,18.592]]]'
+                - lang: cURL
+                  label: 'count by linestring'
+                  source: |
+                      curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/count?geoproperty=location&georel=intersects&geometry=LineString&coordinates=[[73.874537,18.528311],[73.836808,18.572797],[73.876484,18.525007]]'
+                - lang: cURL
+                  label: 'count by bbox'
+                  source: |
+                      curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/count?geoproperty=location&georel=within&geometry=bbox&coordinates=[[73,20],[75,18]]'
+                - lang: cURL
+                  label: 'count by text'
+                  source: |
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/count?q="Bosch Climo"'
+
+    /list/{type}:
         description: >
             List entities of a certain type or list all possible values of a property(tags only). 
 
@@ -321,8 +499,8 @@ paths:
             parameters:
                 -
                     name: instance
-                    description: >-
-                        IUDX instance on which this query is to be made. Don't mention this is list on entire
+                    description: >
+                        DX instance on which this query is to be made. Don't mention this is list on entire
                         catalogue is to be made. Else mentioning a specific instance name here restricts
                         search only to that instance.
                     schema:
@@ -350,19 +528,22 @@ paths:
                                         type: 'urn:dx:cat:InvalidSyntax'
                                         title: Invalid Syntax
                     description: Fail
-            operationId: listTypes
+            operationId: list-types
             description: List a particular type
             x-codeSamples:
                 -
-                    lang: by tags
+                    lang: cURL
+                    label: 'by tags'
                     source: |
                         https://api.catalogue.iudx.org.in/iudx/cat/v1/list/tags
                 -
-                    lang: by resourceGroup
+                    lang: cURL
+                    label: 'by resourceGroup'
                     source: |
                         https://api.catalogue.iudx.org.in/iudx/cat/v1/list/resourceGroup
                 -
-                    lang: by provider
+                    lang: cURL
+                    label: 'by provider'
                     source: |
                         https://api.catalogue.iudx.org.in/iudx/cat/v1/list/provider
         parameters:
@@ -387,14 +568,14 @@ paths:
             -
                 name: instance
                 description: >-
-                    IUDX instance on which this query is to be made. Don't mention this if list on entire
+                    DX instance on which this query is to be made. Don't mention this if list on entire
                     catalogue is to be made. Else mentioning a specific instance name here restricts search
                     only to that instance.
                 schema:
                     type: string
                 in: header
                 required: false
-    /iudx/cat/v1/item:
+    /item:
         description: >
             Operations on a specific catalogue entity. This endpoint is used to create/update/read/delete a
             catalogue DX Entity.
@@ -404,7 +585,7 @@ paths:
             parameters:
                 -
                     name: id
-                    description: ID of the IUDX Entity
+                    description: ID of the DX Entity
                     schema:
                         maxLength: 512
                         minLength: 0
@@ -422,15 +603,16 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/errorResponseForGetEntity'
                     description: Didn't find the item.
-            operationId: getItem
+            operationId: get-item
             description: Get an item given the id
             x-codeSamples:
                 -
-                    lang: item by id
+                    lang: cURL
+                    label: 'item by id'
                     source: |
-                        https://api.catalogue.iudx.org.in/iudx/cat/v1/item?id=<some-id>
+                        curl --location --request GET 'https://example-cat.com/iudx/cat/v1/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo/Pune Railway Station_2811'
         put:
             requestBody:
                 content:
@@ -443,7 +625,7 @@ paths:
             parameters:
                 -
                     name: token
-                    description: IUDX Auth token to process the request
+                    description: DX Auth token to process the request
                     schema:
                         maxLength: 512
                         minLength: 0
@@ -456,36 +638,14 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/successResponseWithObjects'
-                            examples:
-                                Update item success:
-                                    value:
-                                        type: 'urn:dx:cat:Success'
-                                        results:
-                                            -
-                                                id: >-
-                                                    datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io
-                                                method: update
-                                                title: 'urn:dx:cat:Success'
+                                $ref: '#/components/schemas/updateItemResponse'
                     description: Success
                 '400':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
-                            examples:
-                                Already Exists:
-                                    value:
-                                        type: 'urn:dx:cat:AlreadyExists'
-                                        results:
-                                            -
-                                                id: >-
-                                                    datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io
-                                                method: insert
-                                                title: failed
-                                                detail: 'Fail: Doc Exists'
-                                        title: Item already exists
-                    description: Invalid document
+                                $ref: '#/components/schemas/updateItemBadRequest'
+                    description: Bad Request
                 '401':
                     content:
                         application/json:
@@ -502,15 +662,10 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
-                            examples:
-                                Id non existant:
-                                    value:
-                                        type: 'urn:dx:cat:IdNonExistant'
-                                        title: ID doesn't exist
-                    description: Document doesn't exist
-            operationId: updateItem
-            description: >-
+                                $ref: '#/components/schemas/updateItemNotFound'
+                    description: Document doesn't exist to update it
+            operationId: update-item
+            description: >
                 Update an item where the body contains a fully valid item with id. Relationship links like
 
                 provider, resourceGroup, resourceServer and "name" are not allowed to be updated. itemStatus
@@ -557,18 +712,13 @@ paths:
                    - itemStatus
             x-codeSamples:
                 -
-                    lang: update item
+                    lang: cURL
+                    label: 'update item'
                     source: |
-                        PUT /item HTTP/1.1
-                        Host: api.catalogue.iudx.org.in
-                        Content-Type: application/json
-                        token: <iudx-token>
-                        {
-                          "id": "<id-of-the-onboarded-item>",
-                          "oldParamA": "oldParamAValue",
-                          "newParam": "newParamValue",
-                          "oldParamB": "oldParamBNewValue"
-                        }
+                        curl --location --request PUT 'https://example-cat.com/iudx/cat/v1/item/' \
+                        --header 'token: <tokenValue>' \
+                        --header 'Content-Type: application/json' \
+                        --data-raw '<payload>'
         post:
             requestBody:
                 content:
@@ -581,7 +731,7 @@ paths:
             parameters:
                 -
                     name: token
-                    description: IUDX Auth token to process the request
+                    description: DX Auth token to process the request
                     schema:
                         maxLength: 512
                         minLength: 0
@@ -613,7 +763,7 @@ paths:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                             examples:
                                 Schema Validation Failure:
-                                    value: |-
+                                    value:
                                         {
                                             "type": "urn:dx:cat:InvalidSchema",
                                             "title": "Invalid Schema",
@@ -635,8 +785,8 @@ paths:
                                         title: Token is invalid
                                         detail: failed
                     description: Unauthorized access
-            operationId: createItem
-            description: >-
+            operationId: create-item
+            description: >
                 Insert an item into the catalogue where the item's body specifies the type of item and
                 instance name. id and itemStatus are added by server. Items maybe subClasses of type
                 [IUDXEntity](https://voc.iudx.org.in/IUDXEntity). Depedning on this, some properties maybe
@@ -645,26 +795,20 @@ paths:
                 In the future, we will serve schemas from our own servers.
             x-codeSamples:
                 -
-                    lang: create item
+                    lang: cURL
+                    label: 'create item'
                     source: |
-                        POST /item HTTP/1.1
-                        Host: api.catalogue.iudx.org.in
-                        Content-Type: application/json
-                        token: <iudx-token>
-                        {
-                          "instance": "<instance to which this item must belong",
-                          "name": "<name of the item (this will be used to generate id>",
-                          "resourceGroup": "<id of group if this is a resource>",
-                          "provider": "<id of the provider>",
-                          "resourceServer": "<id of the resourceServer>"
-                        }
+                        curl --location --request POST 'https://example-cat.com/iudx/cat/v1/item/' \
+                        --header 'token: <tokenValue>' \
+                        --header 'Content-Type: application/json' \
+                        --data-raw '<payload>'
         delete:
             tags:
                 - Entity
             parameters:
                 -
                     name: id
-                    description: ID of the IUDX Entity
+                    description: ID of the DX Entity
                     schema:
                         maxLength: 512
                         minLength: 0
@@ -673,7 +817,7 @@ paths:
                     required: true
                 -
                     name: token
-                    description: IUDX Auth token to process the request
+                    description: DX Auth token to process the request
                     schema:
                         maxLength: 512
                         minLength: 0
@@ -690,20 +834,23 @@ paths:
                             examples:
                                 Delete Success:
                                     value:
-                                        type: 'urn:dx:cat:Success'
-                                        title: Success
-                                        results:
-                                            -
-                                                id: >-
-                                                    datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io
-                                                method: delete
-                                                title: 'urn:dx:cat:Success'
+                                      {
+                                          "type": "urn:dx:cat:Success",
+                                          "title": "Success",
+                                          "results": [
+                                              {
+                                                  "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_2",
+                                                  "method": "delete",
+                                                  "title": "urn:dx:cat:Success"
+                                              }
+                                          ]
+                                      }
                     description: Successfully deleted
                 '401':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/unAuthorizedAccess'
                     description: Unauthorized access
                 '404':
                     content:
@@ -711,17 +858,17 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Didn't find the item
-            operationId: deleteItem
+            operationId: delete-item
             description: Delete an item
             x-codeSamples:
                 -
-                    lang: delete item
+                    lang: cURL
+                    label: 'delete item'
                     source: |
-                        DELETE /item?id=<some-id> HTTP/1.1
-                        Host: api.catalogue.iudx.org.in
-                        Content-Type: application/json
-                        token: <iudx-token>
-    /iudx/cat/v1/relsearch:
+                        curl --location --request DELETE 'https://example-cat.com/iudx/cat/v1/item?id=datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_2' \
+                        --header 'token: <tokenValue>'
+
+    /relsearch:
         description: >-
             Catalogue relationship search. This is much like normal search except the query explores
             properties that resides inside a related entity.
@@ -765,7 +912,7 @@ paths:
                 -
                     name: instance
                     description: >-
-                        IUDX instance on which this query is to be made. Don't mention this if relsearch on
+                        DX instance on which this query is to be made. Don't mention this if relsearch on
                         entire catalogue is to be made. Else mentioning a specific instance name here
                         restricts search only to that instance.
                     schema:
@@ -796,97 +943,98 @@ paths:
                                         type: 'urn:dx:cat:InvalidSyntax'
                                         title: Invalid Syntax
                     description: Bad query.
-            operationId: relationshipSearch
+            operationId: relationship-search
             description: 'Search related items in the catalogue '
             x-codeSamples:
                 -
-                    lang: search inside relationship
+                    lang: cURL
+                    label: 'search inside relationship'
                     source: >
                         https://api.catalogue.iudx.org.in/relsearch?relationship="[provider.name]"&value="[[IUDXAdmin]]"
-    /iudx/cat/v1/relationship:
-        description: >-
-            This API allows one to retrieve documents which are connected by certain relationship attribute in
-            an entity. It allows one to fetch an entity/entities that are immediate neighbor(s) of the input
-            entity.
-
-            To explain this API better we provide an illustrative catalogue graph connecting different
-            catalogue entities below: 
-
-            ```
-                                      forward relationship
-                                   ───────────────────►
-
-                                                                     ┌─────────────────┐
-            ┌───────────────┐                              provider  │                 │
-
-            │               │ resourceGroup                    ┌─────►Provider PA      │
-
-            │ Resource A    ├─────┐                            │     │                 │
-
-            │               │     │    ┌─────────────────┐     │     └─────────────────┘
-
-            └───────────────┘     │    │ ResourceGroup   ├─────┘
-                                  └────► RG1             │
-            ┌───────────────┐          │                 │
-
-            │               │      ┌───►                 ├─────┐    ┌─────────────────┐
-
-            │ Resource B    │      │   └─────────────────┘     │    │                 │
-
-            │               ├──────┘                           │    │ResourceServer RS│
-
-            └───────────────┘  resourceGroup                   └────►                 │
-                                                                    └─────────────────┘
-                                                       resourceServer
-
-
-
-                                   ◄────────────────────
-                                       inverse relationship
-            ```   
-
-            Given a resource item, say Resource A, one may want to retrieve the resource group item associated
-            with it. Similarly, given a resource group item, say RG1, one may want to retrieve all resource
-            entities that belong to this resource group. In the above example, the API should return resource
-            entities A and B.
-
-            The following table shows applicable queries for different entities.
-
-            ``` 
-
-            | Type of the entity (id) | Supported relationships for "rel"       |
-            Description                                             |
-
-            |-------------------------|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
-
-            | Resource                | resourceGroup,resourceServer,  provider | Return the associated
-            resourceGroup (or resourceServer or provider) entity. Only single entity is returned.             
-            |
-
-            | ResourceGroup           | resource                                | Return all resource items
-            associated with the input resource group. Multiple entities may be returned.                      
-            |
-
-            | ResourceGroup           | resourceServer, provider                | Return the associated
-            resourceServer (or provider) entity. Only single entity is returned.                              
-            |
-
-            | Provider                | resource, resourceGroup                 | Return all resource or
-            resource group items associated with the input provider. Multiple entities maybe
-            returned.                  |
-
-            | ResourceServer          | resource, resourceGroup                 | Return all resource or
-            resource group items associated with the input resource server. Multiple entities maybe
-            returned.           |
-
-            ```
+    /relationship:
         get:
+            description: >-
+                This API allows one to retrieve documents which are connected by certain relationship attribute in
+                an entity. It allows one to fetch an entity/entities that are immediate neighbor(s) of the input
+                entity.
+                
+                To explain this API better we provide an illustrative catalogue graph connecting different
+                catalogue entities below: 
+                
+                ```
+                                          forward relationship
+                                       ───────────────────►
+                
+                                                                         ┌─────────────────┐
+                ┌───────────────┐                              provider  │                 │
+                
+                │               │ resourceGroup                    ┌─────►Provider PA      │
+                
+                │ Resource A    ├─────┐                            │     │                 │
+                
+                │               │     │    ┌─────────────────┐     │     └─────────────────┘
+                
+                └───────────────┘     │    │ ResourceGroup   ├─────┘
+                                      └────► RG1             │
+                ┌───────────────┐          │                 │
+                
+                │               │      ┌───►                 ├─────┐    ┌─────────────────┐
+                
+                │ Resource B    │      │   └─────────────────┘     │    │                 │
+                
+                │               ├──────┘                           │    │ResourceServer RS│
+                
+                └───────────────┘  resourceGroup                   └────►                 │
+                                                                        └─────────────────┘
+                                                           resourceServer
+                
+                
+                
+                                       ◄────────────────────
+                                           inverse relationship
+                ```   
+                
+                Given a resource item, say Resource A, one may want to retrieve the resource group item associated
+                with it. Similarly, given a resource group item, say RG1, one may want to retrieve all resource
+                entities that belong to this resource group. In the above example, the API should return resource
+                entities A and B.
+                
+                The following table shows applicable queries for different entities.
+                
+                
+                
+                | Type of the entity (id) | Supported relationships for "rel"       |
+                Description                                             |
+                
+                |-------------------------|-----------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|
+                
+                | Resource                | resourceGroup,resourceServer,  provider | Return the associated
+                resourceGroup (or resourceServer or provider) entity. Only single entity is returned.             
+                
+                | ResourceGroup           | resource                                | Return all resource items
+                associated with the input resource group. Multiple entities may be returned.                      
+                |
+                
+                | ResourceGroup           | resourceServer, provider                | Return the associated
+                resourceServer (or provider) entity. Only single entity is returned.                              
+                |
+                
+                | Provider                | resource, resourceGroup                 | Return all resource or
+                resource group items associated with the input provider. Multiple entities maybe
+                returned.                  |
+                
+                | ResourceServer          | resource, resourceGroup                 | Return all resource or
+                resource group items associated with the input resource server. Multiple entities maybe
+                returned.           |
+                
+                
+
             tags:
                 - Relationship
             parameters:
                 -
                     name: rel
-                    description: Relationship attribute of the entity whose id is provided
+                    summary: Relationship attribute of the entity whose id is provided
                     schema:
                         enum:
                             - provider
@@ -926,11 +1074,11 @@ paths:
                                         type: 'urn:dx:cat:InvalidSyntax'
                                         title: Invalid Syntax
                     description: Item oor relationship doesn't exist
-            operationId: getRelatedEntity
-            description: Get the related entity
+            operationId: get-related-entity
             x-codeSamples:
                 -
-                    lang: search by relationship
+                    lang: cURL
+                    label: 'search by relationship'
                     source: |
                         https://api.catalogue.iudx.org.in/relationship?id=<some-entity-id>&rel=resourceGroup
         parameters:
@@ -951,14 +1099,14 @@ paths:
             -
                 name: instance
                 description: >-
-                    IUDX instance on which this query is to be made. Don't mention this if relationship search
+                    DX instance on which this query is to be made. Don't mention this if relationship search
                     on entire catalogue is to be made. Else mentioning a specific instance name here restricts
                     search only to that instance.
                 schema:
                     type: string
                 in: header
                 required: false
-    /iudx/cat/v1/instance:
+    /instance:
         description: >-
             A catalogue administrator api to set an instance (grouping) which will be reflected on the
             catalogue ui.
@@ -976,7 +1124,7 @@ paths:
                     required: true
                 -
                     name: token
-                    description: IUDX Auth token to process the request
+                    description: DX Auth token to process the request
                     schema:
                         maxLength: 512
                         minLength: 0
@@ -1003,8 +1151,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Unauthorized access
-            operationId: createInstance
-            description: Create an IUDX instance
+            operationId: create-instance
+            description: Create an DX instance
         delete:
             tags:
                 - Administrator
@@ -1019,7 +1167,7 @@ paths:
                     required: true
                 -
                     name: token
-                    description: IUDX Auth token to process the request
+                    description: DX Auth token to process the request
                     schema:
                         type: string
                     in: header
@@ -1043,8 +1191,8 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Instance doesn't exist
-            operationId: deleteInstance
-            description: Delete an IUDX instance
+            operationId: delete-instance
+            description: Delete an DX instance
     /consumer/ratings:
         description: >-
             A catalogue consumer api to assign rating/review to a resource item, which will be reflected on the ui.
@@ -1052,10 +1200,11 @@ paths:
         post:
             tags:
                 - Consumer
+            operationId: create-rating-object
             parameters:
                 -
                     name: id
-                    description: ID of the IUDX Entity
+                    description: ID of the DX Entity
                     schema:
                         maxLength: 512
                         minLength: 0
@@ -1090,10 +1239,11 @@ paths:
             description: >-
                 Create a rating object for a resource item.
                 
-                  ` A consumer can provide a rating for a resource item only if they have queried the resource from the IUDX Resource Server a min number of times. For eg: 100 API calls. `
+                  ` A consumer can provide a rating for a resource item only if they have queried the resource from the DX Resource Server a min number of times. For eg: 100 API calls. `
             x-codeSamples:
                 -
-                    lang: create rating
+                    lang: cURL
+                    label: 'create rating'
                     source: |
                         https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
         
@@ -1101,10 +1251,11 @@ paths:
         put:
             tags:
                 - Consumer
+            operationId: update-rating-object
             parameters:
                 -
                     name: id
-                    description: ID of the IUDX Entity
+                    description: ID of the DX Entity
                     schema:
                         maxLength: 512
                         minLength: 0
@@ -1139,16 +1290,18 @@ paths:
             description: Update a rating object of a resource item
             x-codeSamples:
                 -
-                    lang: update rating
+                    lang: cURL
+                    label: 'update rating'
                     source: |
                         https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
         get:
             tags:
                 - Consumer
+            operationId: get-ratings
             parameters:
                 -
                     name: id
-                    description: ID of the IUDX Entity
+                    description: ID of the DX Entity
                     schema:
                         maxLength: 512
                         minLength: 0
@@ -1182,24 +1335,28 @@ paths:
                 Get a rating, all ratings or average rating for a resource or for a resource group
             x-codeSamples:
                 -
-                    lang: get rating by user
+                    lang: cURL
+                    label: 'get rating by user'
                     source: |
                         https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
                 -
-                    lang: get all rating of resource
+                    lang: cURL
+                    label: 'get all rating of resource'
                     source: |
                         https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>&type=group
                 -
-                    lang: get average rating of resource
+                    lang: cURL
+                    label: 'get average rating of resource'
                     source: |
                         https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>&type=average
         delete:
             tags:
                 - Consumer
+            operationId: delete-rating-object
             parameters:
                 -
                     name: id
-                    description: ID of the IUDX Entity
+                    description: ID of the DX Entity
                     schema:
                         maxLength: 512
                         minLength: 0
@@ -1222,7 +1379,8 @@ paths:
             description: delete a rating object for a resource item
             x-codeSamples:
                 -
-                    lang: delete rating
+                    lang: cURL
+                    label: 'delete rating'
                     source: |
                         https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
 components:
@@ -1238,7 +1396,7 @@ components:
                 name:
                     type: string
                 type:
-                    description: >-
+                    description: >
                         JSON-LD type. Must contain the uri of one of the
                         [IUDXEntity](https://voc.iudx.org.in/IUDXEntity) subclasses. May additionally contain
                         a data model uri which can be found [here](https://voc.iudx.org.in/) in the
@@ -1247,33 +1405,123 @@ components:
                     items:
                         type: string
             example:
-                '@context': context-url
-                name: some-name
-                type:
-                    - 'iudx:Resource'
-                instance: name of the instance to which this item belongs
+              {
+                  "@context": "https://voc.iudx.org.in/",
+                  "type": [
+                      "iudx:Resource",
+                      "iudx:EnvAQM"
+                  ],
+                  "id": "<some_item_id>",
+                  "description": "Description for pune Point of interest",
+                  "tags": [
+                      "environment",
+                      " air quality",
+                      " climate",
+                      " noise",
+                      " light",
+                      " uv"
+                  ],
+                  "provider": "<some_provider_id>",
+                  "itemStatus": "ACTIVE",
+                  "deviceId": "b3ec32ff-fa7d-64fa-c0af-272e25d314e9",
+                  "resourceGroup": "<some_provider_id>/rs.iudx.io/pune-point-of-interests",
+                  "location": {
+                      "type": "Place",
+                      "address": "ABD area, Pune",
+                      "geometry": {
+                          "coordinates": [
+                              73.874537,
+                              18.528311
+                          ],
+                          "type": "Point"
+                      }
+                  },
+                  "deviceModel": {
+                      "brandName": "Climo",
+                      "modelName": "Bosch-Climo",
+                      "modelURL": "http://boschclimo.com"
+                  },
+                  "name": "<some_item_name>"
+              }
+
         exapmleEntityWId:
-            title: Root Type for exapmleEntityWId
-            description: And example entity with id for updates
+            title: payload for update item with ID
+            description: payload for update item with ID
+            required:
+                - type
+                - name
+                - id
+                - tags
+                - provider
+                - resourceGroup
             type: object
             properties:
                 '@context':
-                    type: string
-                id:
-                    type: string
-                name:
                     type: string
                 type:
                     type: array
                     items:
                         type: string
+                id:
+                    type: string
+                name:
+                    type: string
+                description:
+                    type: string
+                tags:
+                    type: array
+                    items:
+                        type: string
+                provider:
+                    type: string
+                itemStatus:
+                    type: string
+                deviceId:
+                    type: string
+                resourceGroup:
+                    type: string
+                location:
+                    type: array
+                    items:
+                        type: string
+                deviceModel:
+                    type: array
+                    items:
+                        type: string
             example:
-                '@context': context-url
-                id: some-id
-                name: some-name
-                type:
-                    - 'iudx:Resource'
-                instance: name of the instance to which this item belongs
+              {
+                  "@context": "https://voc.iudx.org.in/",
+                  "type": [
+                      "iudx:Resource",
+                      "iudx:EnvAQM"
+                  ],
+                  "id": "<some_item_id>",
+                  "name": "<some_item_name>",
+                  "description": "Description for Bosch-Climo AQM resource 28",
+                  "tags": [
+                      "New Tag, aqm,flood.test"
+                  ],
+                  "provider": "<some_provider_id>",
+                  "itemStatus": "ACTIVE",
+                  "deviceId": "b3ec32ff-fa7d-64fa-c0af-272e25d314e9",
+                  "resourceGroup": "<some_provider_id>/rs.iudx.io/pune-point-of-interests",
+                  "location": {
+                      "type": "Place",
+                      "address": "ABD area, Pune",
+                      "geometry": {
+                          "coordinates": [
+                              73.874537,
+                              18.528311
+                          ],
+                          "type": "Point"
+                      }
+                  },
+                  "deviceModel": {
+                      "brandName": "Climo",
+                      "modelName": "Bosch-Climo",
+                      "modelURL": "http://boschclimo.com"
+                  }
+              }
         successResponseWithObjects:
             title: Root Type for standardResponse
             description: Standard Response for all requests
@@ -1306,6 +1554,41 @@ components:
                     - {}
                 type: 'urn:dx:cat:Success'
                 title: Success
+
+        updateItemResponse:
+            title: Response for update Item
+            description: Success response for update Item with ID
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: >
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "urn:dx:cat:Success",
+                  "results": [
+                      {
+                          "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_2",
+                          "method": "update",
+                          "title": "urn:dx:cat:Success"
+                      }
+                  ]
+              }
+
+
+
         errorResponseWithObjects:
             title: Root Type for standardResponse
             description: Standard Response for all requests
@@ -1339,6 +1622,125 @@ components:
                 type: <error urn>
                 title: <error title
                 detail: <error detail description>
+
+        unAuthorizedAccess:
+            title: Common to unauthorized access response
+            description: Response for 401 invalid token
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: >
+                        Indicates that the token sent in request header is invalid
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                detail:
+                    description: Detailed description of the type or response
+                    type: string
+            example:
+              {
+                  "type": "urn:dx:cat:InvalidAuthorizationToken",
+                  "title": "Token is invalid",
+                  "detail": "failed"
+              }
+
+        updateItemBadRequest:
+            title: 400 Bad Request
+            description: Update Item Bad Request
+            required:
+                - type
+            type: string
+            properties:
+                type:
+                    description: >
+                        Type of the response indicating if the query was successful or if any errors have been
+                        triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                detail:
+                    description: Detailed description of the type or response
+                    type: string
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:InvalidSchema",
+                  "title": "Invalid Schema",
+                  "detail": "Invalid Schema",
+                  "results": [ ]
+              }
+
+        updateItemNotFound:
+            title: 404 Not Found
+            description: Update Item Not Found
+            required:
+                - type
+            type: string
+            properties:
+                type:
+                    description: >
+                        Type of the response indicating if the query was successful or if any errors have been
+                        triggered
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:ItemNotFound",
+                  "title": "Item is not found",
+                  "results": [
+                      {
+                          "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_2abcdefg",
+                          "method": "update",
+                          "title": "failed",
+                          "detail": "Fail: Doc doesn't exist, can't update"
+                      }
+                  ]
+              }
+
+
+        errorResponseForGetEntity:
+            title: Root Type for standardResponse
+            description: Standard Response for all requests
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: >-
+                        Type of the response indicating if the query was successful or if any errors have been
+                        triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query.
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:ItemNotFound",
+                  "title": "error",
+                  "totalHits": 0,
+                  "results": [ ]
+              }
+
         exampleRating:
             title: Root Type for exampleRating
             description: An example rating object for a resource
@@ -1358,27 +1760,27 @@ tags:
         name: Entity
         description: |
             Manage catalogue entities and perform Create/Update/Read/Delete operations on them.
-            These apis are intended to be used by IUDX Data *Providers*.
+            These apis are intended to be used by DX(Data Exchange) Data *Providers*.
         x-displayName: Entity
     -
         name: Discovery
         description: >
-            Discovery IUDX Entities using a rich discovery api supporting property, text and geo-based
+            Discovery DX Entities using a rich discovery api supporting property, text and geo-based
             queries.
 
-            These apis are intended to be used by IUDX Data *Consumers*.
+            These apis are intended to be used by DX(Data Exchange) Data *Consumers*.
         x-displayName: Discovery
     -
         name: List
         description: |
-            List IUDX Entities of a certain type.
+            List DX Entities of a certain type.
             These apis are intended to be used by User Interfaces.
         x-displayName: List
     -
         name: Relationship
         description: |
             Discovery of entities through their relationships.
-            These apis are intended to be used by IUDX Data *Consumers*.
+            These apis are intended to be used by DX(Data Exchange) Data *Consumers*.
         x-displayName: Relationship
     -
         name: Administrator

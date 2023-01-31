@@ -260,6 +260,7 @@ public final class CrudApis {
             LOGGER.error("Fail: Item not found");
             JsonObject result = dbhandler.result();
             result.put(STATUS, ERROR);
+            result.put(TYPE,TYPE_ITEM_NOT_FOUND);
             response.setStatusCode(404)
                     .end(dbhandler.result().toString());
           } else {
