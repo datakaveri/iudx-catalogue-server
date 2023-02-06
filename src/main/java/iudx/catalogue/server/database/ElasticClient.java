@@ -26,6 +26,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.database.Constants.SOURCE_AND_ID_GEOQUERY;
 import static iudx.catalogue.server.geocoding.util.Constants.*;
 import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
 import static iudx.catalogue.server.util.Constants.*;
@@ -70,6 +71,17 @@ public final class ElasticClient {
     queryRequest.setJsonEntity(query);
     LOGGER.debug(queryRequest);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
+  public ElasticClient searchAsyncGeoQuery(
+      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
+    Request queryRequest =
+        new Request(REQUEST_POST, index + "/_search" + FILTER_PATH_ID_AND_SOURCE);
+    queryRequest.setJsonEntity(query);
+    LOGGER.debug(queryRequest);
+    Future<JsonObject> future = searchAsync(queryRequest, SOURCE_AND_ID_GEOQUERY);
     future.onComplete(resultHandler);
     return this;
   }
@@ -213,8 +225,8 @@ public final class ElasticClient {
    * @param resultHandler JsonObject
    * @TODO XPack Security
    */
-  public ElasticClient docPostAsync(String index, String doc,
-      Handler<AsyncResult<JsonObject>> resultHandler) {
+  public ElasticClient docPostAsync(
+      String index, String doc, Handler<AsyncResult<JsonObject>> resultHandler) {
 
     /** TODO: Validation */
     Request docRequest = new Request(REQUEST_POST, index + "/_doc");
@@ -224,7 +236,6 @@ public final class ElasticClient {
     future.onComplete(resultHandler);
     return this;
   }
-
 
   /**
    * docPutAsync - Wrapper around elasticsearch async doc put request
@@ -341,13 +352,16 @@ public final class ElasticClient {
           if (totalHits > 0 ) {
             JsonArray results = new JsonArray();
 
-            if ((options == SOURCE_ONLY) || (options == DOC_IDS_ONLY) || (options == SOURCE_AND_ID)) {
-              if(responseJson.getJsonObject(HITS).containsKey(HITS)) {
-                results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
-              }
-            }
-            if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY) {
-              results = responseJson.getJsonObject(AGGREGATIONS)
+                if ((options == SOURCE_ONLY)
+                    || (options == DOC_IDS_ONLY)
+                    || (options == SOURCE_AND_ID)
+                    || (options == SOURCE_AND_ID_GEOQUERY)) {
+                  if(responseJson.getJsonObject(HITS).containsKey(HITS)) {
+                    results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
+                  }
+                }
+                if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY) {
+                  results = responseJson.getJsonObject(AGGREGATIONS)
                                   .getJsonObject(RESULTS)
                                   .getJsonArray(BUCKETS);
             }
@@ -380,11 +394,27 @@ public final class ElasticClient {
                     JsonObject result = new JsonObject().put(SOURCE, source).put(DOC_ID, docId);
                     responseMsg.addResult(result);
                   }
-            }
-          } else {
-            responseMsg.addResult();
-          }
-          promise.complete(responseMsg.getResponse());
+                  if (options == SOURCE_AND_ID_GEOQUERY) {
+                    JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
+                    String instance = source.getString(INSTANCE);
+                    JsonObject location = source.getJsonObject("location");
+                    String label = source.getString("label");
+                    String dataset_id = source.getString("id");
+                    String doc_id = results.getJsonObject(i).getString(DOC_ID);
+                    JsonObject result =
+                        new JsonObject()
+                            .put(INSTANCE, instance)
+                            .put("dataset_id", dataset_id)
+                            .put("location", location)
+                            .put("label", label)
+                            .put("doc_id", doc_id);
+                    responseMsg.addResult(result);
+                  }
+                }
+              } else {
+                responseMsg.addResult();
+              }
+              promise.complete(responseMsg.getResponse());
 
         } catch (IOException e) {
           promise.fail(e);

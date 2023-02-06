@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "01febd98-4eac-4be1-8983-13dffd196102",
+		"_postman_id": "649ef54b-a617-4e10-a05b-7ecce7cd10a0",
 		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "23234057"
@@ -10019,14 +10019,18 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/instance",
+									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta",
 									"host": [
-										"{{host}}{{base}}"
+										"{{host}}consumer"
 									],
 									"path": [
-										"internal",
-										"ui",
-										"instance"
+										"ratings"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
+										}
 									]
 								}
 							},
@@ -10599,7 +10603,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?id={{instanceId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -10610,7 +10614,7 @@
 											],
 											"query": [
 												{
-													"key": "instanceId",
+													"key": "id",
 													"value": "{{instanceId}}"
 												}
 											]
@@ -10659,7 +10663,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?id={{instanceId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -10670,7 +10674,7 @@
 											],
 											"query": [
 												{
-													"key": "instanceId",
+													"key": "id",
 													"value": "{{instanceId}}"
 												}
 											]
@@ -10719,7 +10723,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{InstanceID}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?id={{instanceId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -10730,8 +10734,8 @@
 											],
 											"query": [
 												{
-													"key": "instanceId",
-													"value": "{{InstanceID}}"
+													"key": "id",
+													"value": "{{instanceId}}"
 												}
 											]
 										}
@@ -10844,7 +10848,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?id={{instanceId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -10855,7 +10859,7 @@
 											],
 											"query": [
 												{
-													"key": "instanceId",
+													"key": "id",
 													"value": "{{instanceId}}"
 												}
 											]
@@ -10904,7 +10908,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?instanceId={{instanceId}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?id={{instanceId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -10915,7 +10919,7 @@
 											],
 											"query": [
 												{
-													"key": "instanceId",
+													"key": "id",
 													"value": "{{instanceId}}"
 												}
 											]
@@ -11139,7 +11143,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/domain?domainId={{domainId}}",
+											"raw": "{{host}}{{base}}/internal/ui/domain?id={{domainId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -11150,7 +11154,7 @@
 											],
 											"query": [
 												{
-													"key": "domainId",
+													"key": "id",
 													"value": "{{domainId}}"
 												}
 											]
@@ -11199,7 +11203,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?domainId={{domainId}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?id={{domainId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -11210,7 +11214,7 @@
 											],
 											"query": [
 												{
-													"key": "domainId",
+													"key": "id",
 													"value": "{{domainId}}"
 												}
 											]
@@ -11258,7 +11262,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?domainId={{domainId}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?id={{domainId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -11269,7 +11273,7 @@
 											],
 											"query": [
 												{
-													"key": "domainId",
+													"key": "id",
 													"value": "{{domainId}}"
 												}
 											]
@@ -11383,7 +11387,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/domain?domainId={{domainId}}",
+											"raw": "{{host}}{{base}}/internal/ui/domain?id={{domainId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -11394,7 +11398,7 @@
 											],
 											"query": [
 												{
-													"key": "domainId",
+													"key": "id",
 													"value": "{{domainId}}"
 												}
 											]
@@ -11443,7 +11447,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?domainId={{domainId}}",
+											"raw": "{{host}}{{base}}/internal/ui/instance?id={{domainId}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -11454,7 +11458,7 @@
 											],
 											"query": [
 												{
-													"key": "domainId",
+													"key": "id",
 													"value": "{{domainId}}"
 												}
 											]
@@ -11508,6 +11512,119 @@
 										"internal",
 										"ui",
 										"providers"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Mlayer GeoQuery",
+					"item": [
+						{
+							"name": "200 (Success) - Post GeoQuery",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":[\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/faridabad-camera-feeds\",\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app\",\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/chennai-bike-docking-locations\"],\r\n    \"instance\":\"pune\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/geoquery",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"geoquery"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Schema) - Post GeoQuery",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"iddd\":[\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/faridabad-camera-feeds\",\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app\"],\r\n    \"instance\":\"pune\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/geoquery",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"geoquery"
 									]
 								}
 							},

@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.apiserver.util.Constants.ROUTE_MLAYER_DOMAIN;
 
 
 /**
@@ -31,6 +30,8 @@ public class Api {
     private StringBuilder routeMlayerInstance;
     private StringBuilder routeMlayerDoamin;
     private StringBuilder routeMlayerProvider;
+    private StringBuilder routeMlayerGeoquery;
+
 
 
     private static final Logger LOG = LogManager.getLogger(Api.class);
@@ -76,6 +77,8 @@ public class Api {
         routeMlayerInstance = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_INSTANCE);
         routeMlayerDoamin = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_DOMAIN);
         routeMlayerProvider = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_PROVIDER);
+        routeMlayerGeoquery = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_GEOQUERY);
+
 
 
 
@@ -139,6 +142,8 @@ public class Api {
     public String getRouteMlayerInstance() { return routeMlayerInstance.toString(); }
     public String getRouteMlayerDomains() { return  routeMlayerDoamin.toString(); }
     public String getRouteMlayerProviders() { return  routeMlayerProvider.toString(); }
+    public String getRouteMlayerGeoQuery() { return routeMlayerGeoquery.toString(); }
+
 
 
 

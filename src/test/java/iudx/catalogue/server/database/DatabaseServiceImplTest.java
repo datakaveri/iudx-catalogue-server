@@ -2394,4 +2394,68 @@ public class DatabaseServiceImplTest {
           }
         });
   }
+
+  @Test
+  @Description("test postMlayerGeoQuery method when the DB Request is Successful")
+  public void testpostMlayerGeoQuery(VertxTestContext testContext) {
+
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject request = new JsonObject();
+    JsonArray id = new JsonArray();
+    id.add(0, "dummy id");
+    request.put(INSTANCE, "instance").put(MLAYER_ID, id);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsyncGeoQuery(any(), any(), any());
+    dbService.postMlayerGeoQuery(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsyncGeoQuery(any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test postMlayerGeoQuery method when DB Request fails")
+  public void testPostMlayerGeoQueryFailure(VertxTestContext testContext) {
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject request = new JsonObject();
+    JsonArray id = new JsonArray();
+    id.add(0, "dummy id");
+    request.put(INSTANCE, "instance").put(MLAYER_ID, id);
+    when(asyncResult.succeeded()).thenReturn(false);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsyncGeoQuery(any(), any(), any());
+    dbService.postMlayerGeoQuery(
+        request,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsyncGeoQuery(any(), any(), any());
+            testContext.completeNow();
+
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
 }

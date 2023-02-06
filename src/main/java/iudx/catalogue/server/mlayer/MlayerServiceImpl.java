@@ -191,4 +191,21 @@ public class MlayerServiceImpl implements MlayerService {
         });
     return this;
   }
+
+  @Override
+  public MlayerService postMlayerGeoQuery(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    databaseService.postMlayerGeoQuery(
+        request,
+        postMlayerGeoQueryHandler -> {
+          if (postMlayerGeoQueryHandler.succeeded()) {
+            LOGGER.info("Success: Getting locations of datasets");
+            handler.handle(Future.succeededFuture(postMlayerGeoQueryHandler.result()));
+          } else {
+            LOGGER.error("Fail: Getting locations of datasets failed");
+            handler.handle(Future.failedFuture(postMlayerGeoQueryHandler.cause()));
+          }
+        });
+    return this;
+  }
 }

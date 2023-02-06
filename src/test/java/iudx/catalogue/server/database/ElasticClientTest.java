@@ -151,6 +151,22 @@ public class ElasticClientTest {
     vertxTestContext.completeNow();
   }
   @Test
+  @Description("testing searchAsyncGeoQuery method")
+  public void testSearchAsyncGeoQuery(VertxTestContext vertxTestContext) {
+    String query = "dummy query";
+    String index = "dummy index";
+    assertNotNull(elasticClient.searchAsyncGeoQuery(query,index,handler));
+    vertxTestContext.completeNow();
+  }
+  @Test
+  @Description("testing searchAsyncGetId method")
+  public void testSearchAsyncGetId(VertxTestContext vertxTestContext) {
+    String query = "dummy query";
+    String index = "dummy index";
+    assertNotNull(elasticClient.searchAsyncGetId(query,index,handler));
+    vertxTestContext.completeNow();
+  }
+  @Test
   @Description("test countAsync method")
   public void testCountAsync(VertxTestContext vertxTestContext) {
     String query="dummy";
