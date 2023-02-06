@@ -30,7 +30,7 @@ info:
         - **Request Samples**:
           - The `<tokeValue>` in the header of request sample could be replaced with respective token value that could be obtained from DX Auth Server
           - The `<payload>` in the request sample could be replaced with the payload given adjacent to the request sample
-          - The payload contains `<some_item_id>`, `<provider_id>`, `<some_item_name>` for which the appropriate values could be added 
+          - The payload contains `<some_item_id>`, `<provider_id>`, `<some_item_name>`, for which the appropriate values could be added 
         
          # API HTTP Responses
         Apart from the response codes specified in each API,
@@ -54,7 +54,7 @@ paths:
             parameters:
                 -
                     name: property
-                    description: >-
+                    description: >
                         Array of properties (strings) on which query is to be made. A logical "and" is
                         performed between the properties. Only a maximum of 4 properties are allowed to be
                         queried at once. The mapping between a property and a value is one-to-one. The only
@@ -70,7 +70,7 @@ paths:
                     in: query
                 -
                     name: value
-                    description: >-
+                    description: >
                         Values of the one-to-one mapped strings in property. A logical "or" is performed for
                         each value which is mapped to a property. For each property, only a maximum of 4
                         values are allowed. For e.g for property=[id,type] then value=[[<some-id>],
@@ -116,7 +116,7 @@ paths:
                     in: query
                 -
                     name: coordinates
-                    description: >-
+                    description: >
                         Coordinates for the specific query type. For e.g, [[1,2], [3,4]]. Note: The data-type
                         of this field is a string, therefore the coordinates are a string encoded
                         multidimensional array.Precision supported is 6 decimal places.
@@ -176,7 +176,7 @@ paths:
                     in: query
                 -
                     name: instance
-                    description: >-
+                    description: >
                         DX instance on which this query is to be made. Don't mention this if search on
                         entire catalogue is to be made. Else mentioning a specific instance name here
                         restricts search only to that instance.
@@ -196,7 +196,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/errorResponseForDiscovery'
                             examples:
                                 Invalid Query Param:
                                     value:
@@ -214,15 +214,11 @@ paths:
                                     value:
                                         type: 'urn:dx:cat:InvalidSyntax'
                                         title: Invalid Syntax
-                                Internal Error:
-                                    value:
-                                        type: 'urn:dx:cat:InternalError'
-                                        title: Internal error
                                 Operation not allowed:
                                     value:
                                         type: 'urn:dx:cat:OperationNotAllowed'
                                         title: Operation not allowed
-                    description: Bad query.
+                    description: Bad Request
             operationId: search
             description: >
                 Generic catalogue search query. Searches for entites that meet the
@@ -426,7 +422,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/errorResponseForDiscovery'
                             examples:
                                 Invalid Query Param:
                                     value:
@@ -440,11 +436,7 @@ paths:
                                     value:
                                         type: 'urn:dx:cat:InvalidSyntax'
                                         title: Invalid Syntax
-                                Internal Error:
-                                    value:
-                                        type: 'urn:dx:cat:InternalError'
-                                        title: Internal error
-                    description: Bad query.
+                    description: Bad query
             operationId: count
             description: >
                 Count APIs get the total number of hits for the given API request containing the provided query parameters.
@@ -473,6 +465,54 @@ paths:
                   label: 'count by text'
                   source: |
                       curl --location --request GET 'https://example-cat.com/iudx/cat/v1/count?q="Bosch Climo"'
+
+    /geo:
+        description: >
+            It gets the country, region, county,locality, borough and coordinates of the places that match with the parameter value and have the confidence of 1.
+        get:
+            tags:
+                - Discovery
+            parameters:
+                - name: q
+                  description: location for which information is needed.
+                  schema:
+                      type: string
+                  in: query
+                  required: true
+            operationId: get-geolocations
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForGeoLocations'
+                    description: Success
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseForDiscovery'
+                            examples:
+                                Invalid Query Param:
+                                    value:
+                                        type: 'urn:dx:cat:InvalidParamValue'
+                                        title: Generic invalid query param error
+                                        detail: failed
+                                Invalid Geo Value:
+                                    value:
+                                        type: 'urn:dx:cat:InvalidGeoValue'
+                                        title: Geoquery value error
+                                        detail: failed
+                    description: Bad request
+
+            description: >
+                List of all geolocations that match with value in parameter having maximum confidence
+            x-codeSamples:
+                - lang: cURL
+                  source: |
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/geo?q=malleswaram'
+    
+    
 
     /list/{type}:
         description: >
@@ -512,44 +552,47 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/successResponseWithObjects'
+                                $ref: '#/components/schemas/listTypesSuccessResponse'
                     description: Success
                 '400':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
-                            examples:
-                                Syntax Error:
-                                    value:
-                                        totalHits: 0
-                                        results:
-                                            - {}
-                                        type: 'urn:dx:cat:InvalidSyntax'
-                                        title: Invalid Syntax
-                    description: Fail
+                                $ref: '#/components/schemas/listTypesErrorResponse'
+                    description: Bad Request
             operationId: list-types
             description: List a particular type
             x-codeSamples:
                 -
                     lang: cURL
-                    label: 'by tags'
+                    label: 'list by tags'
                     source: |
-                        https://api.catalogue.iudx.org.in/iudx/cat/v1/list/tags
+                        curl --location --request GET 'https://example-cat.com/iudx/cat/v1/list/tags'
+
+                - lang: cURL
+                  label: 'list by instance'
+                  source: |
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/list/instance'
+
                 -
                     lang: cURL
-                    label: 'by resourceGroup'
+                    label: 'list by resourceGroup'
                     source: |
-                        https://api.catalogue.iudx.org.in/iudx/cat/v1/list/resourceGroup
+                        curl --location --request GET 'https://example-cat.com/iudx/cat/v1/list/resourceGroup'
+
+                - lang: cURL
+                  label: 'list by resourceServer'
+                  source: |
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/list/resourceServer'
                 -
                     lang: cURL
                     label: 'by provider'
                     source: |
-                        https://api.catalogue.iudx.org.in/iudx/cat/v1/list/provider
+                        curl --location --request GET 'https://example-cat.com/iudx/cat/v1/list/provider'
         parameters:
             -
                 name: type
-                description: >-
+                description: |
                     If entites, then type must be resource, resourceGroup, resourceServer, provider. If
                     properties then only tags is supported. Additionally all instances can also be mentioned
                     as `instance`.
@@ -567,7 +610,7 @@ paths:
                 required: true
             -
                 name: instance
-                description: >-
+                description: |
                     DX instance on which this query is to be made. Don't mention this if list on entire
                     catalogue is to be made. Else mentioning a specific instance name here restricts search
                     only to that instance.
@@ -751,7 +794,7 @@ paths:
                                         type: 'urn:dx:cat:Success'
                                         results:
                                             -
-                                                id: >-
+                                                id: >
                                                     datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io
                                                 method: update
                                                 title: 'urn:dx:cat:Success'
@@ -869,7 +912,7 @@ paths:
                         --header 'token: <tokenValue>'
 
     /relsearch:
-        description: >-
+        description: |
             Catalogue relationship search. This is much like normal search except the query explores
             properties that resides inside a related entity.
 
@@ -897,7 +940,7 @@ paths:
                     required: false
                 -
                     name: value
-                    description: >-
+                    description: |
                         Value of the relationhsip. Multiple values for a single relationship are supported,
                         for e.g, [[val1, val2]].
 
@@ -911,7 +954,7 @@ paths:
                     required: false
                 -
                     name: instance
-                    description: >-
+                    description: |
                         DX instance on which this query is to be made. Don't mention this if relsearch on
                         entire catalogue is to be made. Else mentioning a specific instance name here
                         restricts search only to that instance.
@@ -928,32 +971,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/successResponseWithObjects'
-                    description: All the query parameters yielded results.
+                    description: Success Response
                 '400':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
-                            examples:
-                                Invalid Syntax:
-                                    value:
-                                        totalHits: 0
-                                        results:
-                                            - {}
-                                        type: 'urn:dx:cat:InvalidSyntax'
-                                        title: Invalid Syntax
-                    description: Bad query.
+                                $ref: '#/components/schemas/relSearchErrorResponse'
+                    description: Bad request
             operationId: relationship-search
             description: 'Search related items in the catalogue '
             x-codeSamples:
                 -
                     lang: cURL
                     label: 'search inside relationship'
-                    source: >
-                        https://api.catalogue.iudx.org.in/relsearch?relationship="[provider.name]"&value="[[IUDXAdmin]]"
+                    source: |
+                        curl --location -g --request GET 'https://example-cat.com/iudx/cat/v1/relsearch?relationship="[provider.name]"&value="[[IUDXAdmin]]"'
     /relationship:
         get:
-            description: >-
+            description: >
                 This API allows one to retrieve documents which are connected by certain relationship attribute in
                 an entity. It allows one to fetch an entity/entities that are immediate neighbor(s) of the input
                 entity.
@@ -1058,29 +1093,38 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/successResponseWithObjects'
+                                $ref: '#/components/schemas/successResponseForRelationship'
                     description: Success
                 '400':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/errorResponseForRelationship'
                             examples:
+                                Invalid Query Param:
+                                    value:
+                                        type: 'urn:dx:cat:InvalidQueryParam'
+                                        title: Generic invalid query param error
                                 Invalid Syntax:
                                     value:
-                                        totalHits: 0
-                                        results:
-                                            - {}
                                         type: 'urn:dx:cat:InvalidSyntax'
                                         title: Invalid Syntax
-                    description: Item oor relationship doesn't exist
+                                Invalid Filter error:
+                                    value:
+                                        type: 'failed'
+                                        title: The max number of filter should be 10
+                                Invalid limit and offset:
+                                    value:
+                                        type: 'failed'
+                                        title: The limit + offset should be between 1 to 10000
+                    description: Bad Request
             operationId: get-related-entity
             x-codeSamples:
                 -
                     lang: cURL
-                    label: 'search by relationship'
+                    label: 'search by provider relationship'
                     source: |
-                        https://api.catalogue.iudx.org.in/relationship?id=<some-entity-id>&rel=resourceGroup
+                        curl --location --request GET 'https://example-cat.com/iudx/cat/v1/relationship?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo&rel=provider'
         parameters:
             -
                 name: id
@@ -1098,7 +1142,7 @@ paths:
                 required: true
             -
                 name: instance
-                description: >-
+                description: |
                     DX instance on which this query is to be made. Don't mention this if relationship search
                     on entire catalogue is to be made. Else mentioning a specific instance name here restricts
                     search only to that instance.
@@ -1107,7 +1151,7 @@ paths:
                 in: header
                 required: false
     /instance:
-        description: >-
+        description: >
             A catalogue administrator api to set an instance (grouping) which will be reflected on the
             catalogue ui.
         post:
@@ -1132,24 +1176,33 @@ paths:
                         type: string
                     in: header
                     required: true
+
+            x-codeSamples:
+                - lang: 'cURL'
+                  label: 'create instance'
+                  source: |
+                      curl --location --request POST 'https://example-cat.com/iudx/cat/v1/instance?id=Bengaluru' \
+                      --header 'token: <tokenValue>' \
+                      --data-raw ''
+
             responses:
                 '201':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/successResponseWithObjects'
+                                $ref: '#/components/schemas/successResponseCreateInstance'
                     description: Successfully inserted
                 '400':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
-                    description: Invalid document
+                                $ref: '#/components/schemas/errorResponseForCreateInstance'
+                    description: Bad Request
                 '401':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/unAuthorizedAccess'
                     description: Unauthorized access
             operationId: create-instance
             description: Create an DX instance
@@ -1172,29 +1225,37 @@ paths:
                         type: string
                     in: header
                     required: true
+
+            x-codeSamples:
+                - lang: 'cURL'
+                  label: 'delete instance'
+                  source: |
+                      curl --location --request DELETE 'https://example-cat.com/iudx/cat/v1/instance?id=Bengaluru' \
+                      --header 'token: <tokenValue>'
+
             responses:
                 '200':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/successResponseWithObjects'
+                                $ref: '#/components/schemas/successResponseForDeleteInstance'
                     description: Successfully deleted
                 '401':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/unAuthorizedAccess'
                     description: Unauthorized access
                 '404':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/errorResponseForDeleteInstance'
                     description: Instance doesn't exist
             operationId: delete-instance
             description: Delete an DX instance
     /consumer/ratings:
-        description: >-
+        description: >
             A catalogue consumer api to assign rating/review to a resource item, which will be reflected on the ui.
 
         post:
@@ -1211,6 +1272,17 @@ paths:
                         type: string
                     in: query
                     required: true
+                -
+                    name: token
+                    description: DX Auth token to process the request
+                    schema:
+                        maxLength: 512
+                        minLength: 0
+                        pattern: '^[a-zA-Z0-9\/\@\.]*$'
+                        type: string
+                    in: header
+                    required: true
+
             requestBody:
                 content:
                     application/json:
@@ -1222,21 +1294,31 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/successResponseWithObjects'
+                                $ref: '#/components/schemas/successResponseForConsumerRating'
                     description: Successfully inserted
                 '400':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
-                    description: Invalid document
+                                $ref: '#/components/schemas/errorResponseForConsumerRating'
+                            examples:
+                                Invalid Schema:
+                                    value:
+                                        type: 'urn:dx:cat:InvalidSchema'
+                                        title: Invalid Schema
+                                Invalid Access Count:
+                                    value:
+                                        type: 'urn:dx:cat:AccessDenied'
+                                        title: Resource usage requirements not satisfied
+                                        detail: User has to access resource at least 2 times to give rating
+                    description: Bad Request
                 '401':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/unAuthorizedAccess'
                     description: Unauthorized access
-            description: >-
+            description: >
                 Create a rating object for a resource item.
                 
                   ` A consumer can provide a rating for a resource item only if they have queried the resource from the DX Resource Server a min number of times. For eg: 100 API calls. `
@@ -1245,7 +1327,10 @@ paths:
                     lang: cURL
                     label: 'create rating'
                     source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
+                        curl --location --request POST 'https://example-cat.com/consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta' \
+                        --header 'token: <tokenValue>' \
+                        --header 'Content-Type: application/json' \
+                        --data-raw '<payload>'
         
 
         put:
@@ -1262,6 +1347,17 @@ paths:
                         type: string
                     in: query
                     required: true
+                -
+                    name: token
+                    description: DX Auth token to process the request
+                    schema:
+                        maxLength: 512
+                        minLength: 0
+                        pattern: '^[a-zA-Z0-9\/\@\.]*$'
+                        type: string
+                    in: header
+                    required: true
+
             requestBody:
                 content:
                     application/json:
@@ -1273,19 +1369,19 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/successResponseWithObjects'
-                    description: Successfully inserted
+                                $ref: '#/components/schemas/successResponseForUpdateRating'
+                    description: Successfully updated
                 '400':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/errorResponseForUpdateRating'
                     description: Invalid document
                 '401':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/unAuthorizedAccess'
                     description: Unauthorized access
             description: Update a rating object of a resource item
             x-codeSamples:
@@ -1293,7 +1389,10 @@ paths:
                     lang: cURL
                     label: 'update rating'
                     source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
+                        curl --location --request PUT 'https://example-cat.com/consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta' \
+                        --header 'token: <tokenValue>' \
+                        --header 'Content-Type: application/json' \
+                        --data-raw '<payload>'
         get:
             tags:
                 - Consumer
@@ -1318,37 +1417,49 @@ paths:
                         type: string
                     in: query
                     required: false
+                -
+                    name: token
+                    description: DX Auth token to process the request
+                    schema:
+                        maxLength: 512
+                        minLength: 0
+                        pattern: '^[a-zA-Z0-9\/\@\.]*$'
+                        type: string
+                    in: header
+                    required: false
+
             responses:
                 '200':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/successResponseWithObjects'
+                                $ref: '#/components/schemas/successResponseGetRating'
                     description: Success
                 '401':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/unAuthorizedAccess'
                     description: Unauthorized access
-            description: >-
+            description: >
                 Get a rating, all ratings or average rating for a resource or for a resource group
             x-codeSamples:
                 -
                     lang: cURL
                     label: 'get rating by user'
                     source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
+                        curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/instance' \
+                        --header 'token: <tokenValue>'
                 -
                     lang: cURL
                     label: 'get all rating of resource'
                     source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>&type=group
+                        curl --location --request GET 'https://example-cat.com/consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta&type=group'
                 -
                     lang: cURL
                     label: 'get average rating of resource'
                     source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>&type=average
+                        curl --location --request GET 'https://example-cat.com/consumer/ratings?id=datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b/rs.iudx.io/pune-env-flood&type=average'
         delete:
             tags:
                 - Consumer
@@ -1363,18 +1474,31 @@ paths:
                         type: string
                     in: query
                     required: true
+
+                -
+                    name: token
+                    description: DX Auth token to process the request
+                    schema:
+                        maxLength: 512
+                        minLength: 0
+                        pattern: '^[a-zA-Z0-9\/\@\.]*$'
+                        type: string
+                    in: header
+                    required: true
+
+
             responses:
                 '200':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/successResponseWithObjects'
+                                $ref: '#/components/schemas/successResponseForDeleteRatingObject'
                     description: Success
                 '401':
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/errorResponseWithObjects'
+                                $ref: '#/components/schemas/unAuthorizedAccess'
                     description: Unauthorized access
             description: delete a rating object for a resource item
             x-codeSamples:
@@ -1382,7 +1506,419 @@ paths:
                     lang: cURL
                     label: 'delete rating'
                     source: |
-                        https://api.catalogue.iudx.org.in/consumer/ratings?id=<some-entity-id>
+                        curl --location --request DELETE 'https://example-cat.com/consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta' \
+                        --header 'token: <tokenValue>'
+
+    /internal/ui/instance:
+        description: >
+            A catalogue administrator API to set a middle layer instance, which will be reflected on the catalogue UI.
+        post:
+            tags:
+                - MLayer
+            parameters:
+                -
+                    name: token
+                    description: A valid DX Authorization token
+                    schema:
+                        maxLength: 512
+                        minLength: 0
+                        pattern: '^[a-zA-Z0-9\/\@\.]*$'
+                        type: string
+                    in: header
+                    required: true
+            requestBody:
+                description: Create a new Instance using name, cover, icon, logo.
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/exampleInstance'
+                required: true
+            operationId: create-instance
+            responses:
+                '201':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForCreatingInstance'
+                    description: Success
+                '400':
+
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseForCreatingInstance'
+                    description: Bad Request
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/unAuthorizedAccess'
+                    description: Unauthorized access
+
+            x-codeSamples:
+                -
+                    lang: cURL
+                    label: 'create instance'
+                    source: |
+                        curl --location --request POST 'https://example-cat.com/iudx/cat/v1/internal/ui/instance' \
+                        --header 'token: <tokenValue>' \
+                        --header 'Content-Type: application/json' \
+                        --data-raw '<payload>'
+
+        put:
+            tags:
+                - MLayer
+            parameters:
+                - name: id
+                  description: |
+                      `id` of the instance to be updated
+                  schema:
+                      type: string
+                  in: query
+                  required: true
+
+                - name: token
+                  description: Authorization token
+                  schema:
+                      maxLength: 512
+                      minLength: 0
+                      pattern: '^[a-zA-Z0-9\/\@\.]*$'
+                      type: string
+                  in: header
+                  required: true
+
+
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/exampleInstance'
+                required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForUpdatingInstance'
+                    description: Success
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseForCreatingInstance'
+                    description: Bad Request
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/unAuthorizedAccess'
+                    description: Unauthorized access
+            operationId: update-instance
+            description: Update the instance of the middle layer
+            x-codeSamples:
+                - lang: cURL
+                  label: 'update instance'
+                  source: |
+                      curl --location --request PUT 'https://example-cat.com/iudx/cat/v1/internal/ui/instance?instanceId=191e35e3-99c2-43a5-ba8d-811a756b08de' \
+                      --header 'token: <tokenValue>' \
+                      --header 'Content-Type: application/json' \
+                      --data-raw '<payload>'
+
+        get:
+            tags:
+                - MLayer
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForGettingInstance'
+                    description: Success
+            operationId: get-instance
+            description: >
+                Get list of all Instances
+            x-codeSamples:
+                - lang: cURL
+                  label: 'get instance'
+                  source: |
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/instance'
+
+        delete:
+            tags:
+                - MLayer
+            parameters:
+                - name: id
+                  description: |
+                      `id` of the Instance to be deleted.
+                  schema:
+                      type: string
+                  in: query
+                  required: true
+                - name: token
+                  description: Authorization token
+                  schema:
+                      maxLength: 512
+                      minLength: 0
+                      pattern: '^[a-zA-Z0-9\/\@\.]*$'
+                      type: string
+                  in: header
+                  required: true
+            operationId: delete-instance
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForDeletingInstance'
+                    description: Success
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/unAuthorizedAccess'
+                    description: Unauthorized access
+            description: delete an instance using id parameter
+            x-codeSamples:
+                - lang: cURL
+                  label: 'delete instance'
+                  source: |
+                      curl --location --request DELETE 'https://example-cat.com/iudx/cat/v1/internal/ui/instance?instanceId=191e35e3-99c2-43a5-ba8d-811a756b08de' \
+                      --header 'token: <tokenValue>'
+
+
+    /internal/ui/domain:
+        description: >
+            A catalogue administrator API to set a middle layer domain, which will be reflected on the catalogue UI.
+        post:
+            tags:
+                - MLayer
+            parameters:
+                - name: token
+                  description: A valid DX Authorization token
+                  schema:
+                      maxLength: 512
+                      minLength: 0
+                      pattern: '^[a-zA-Z0-9\/\@\.]*$'
+                      type: string
+                  in: header
+                  required: true
+            requestBody:
+                description: Create a new domain using name, label, icon, description.
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/exampleDomain'
+                required: true
+            operationId: create-domain
+            responses:
+                '201':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForCreatingDomain'
+                    description: Successfully inserted
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseForCreatingInstance'
+                    description: Invalid document
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/unAuthorizedAccess'
+                    description: Unauthorized access
+            description: >
+                Create a new Data model Domain
+            x-codeSamples:
+                - lang: cURL
+                  label: 'create domain'
+                  source: |
+                      curl --location --request POST 'https://example-cat.com/iudx/cat/v1/internal/ui/domain' \
+                      --header 'token: <tokenValue>' \
+                      --header 'Content-Type: application/json' \
+                      --data-raw '<payload>'
+
+        put:
+            tags:
+                - MLayer
+            parameters:
+                - name: id
+                  description: |
+                      `id` of the data model domain, to be updated
+                  schema:
+                      type: string
+                  in: query
+                  required: true
+
+                - name: token
+                  description: Authorization token
+                  schema:
+                      maxLength: 512
+                      minLength: 0
+                      pattern: '^[a-zA-Z0-9\/\@\.]*$'
+                      type: string
+                  in: header
+                  required: true
+            operationId: update-domain
+
+
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/exampleDomain'
+                required: true
+                description: name, label, icon and description can be updated.
+
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForUpdatingDomain'
+                    description: Successfully inserted
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseForCreatingInstance'
+                    description: Invalid document
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/unAuthorizedAccess'
+                    description: Unauthorized access
+            description: Update the data model domain of the middle layer
+            x-codeSamples:
+                - lang: cURL
+                  label: 'update domain'
+                  source: |
+                      curl --location --request PUT 'https://example-cat.com/iudx/cat/v1/internal/ui/domain?domainId=3d73067f-2855-4155-b918-14d621b7a576' \
+                      --header 'token: <tokenValue>' \
+                      --header 'Content-Type: application/json' \
+                      --data-raw '<payload>'
+
+        get:
+            tags:
+                - MLayer
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForGettingDomain'
+                    description: Success
+            operationId: get-domain
+            description: >
+                Get list of all Data-model Domains.
+            x-codeSamples:
+                - lang: cURL
+                  label: 'get domain'
+                  source: |
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/domain'
+
+        delete:
+            tags:
+                - MLayer
+            parameters:
+                - name: id
+                  description: | 
+                    `id` of the Domain to be deleted.
+                  schema:
+                      type: string
+                  in: query
+                  required: true
+                - name: token
+                  description: Authorization token
+                  schema:
+                      maxLength: 512
+                      minLength: 0
+                      pattern: '^[a-zA-Z0-9\/\@\.]*$'
+                      type: string
+                  in: header
+                  required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForDeletingDomain'
+                    description: Success
+                '401':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/unAuthorizedAccess'
+                    description: Unauthorized access
+            description: delete a data model domain
+            operationId: delete-domain
+            x-codeSamples:
+                - lang: cURL
+                  label: 'delete domain'
+                  source: |
+                      curl --location --request DELETE 'https://example-cat.com/iudx/cat/v1/internal/ui/domain?domainId=3d73067f-2855-4155-b918-14d621b7a576' \
+                      --header 'token: <tokenValue>'                 
+
+    /internal/ui/providers:
+        description: >
+            A catalogue API to list all providers, which will be reflected on the catalogue UI.
+        get:
+            tags:
+                - MLayer
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForUIProvider'
+                    description: Success
+            operationId: UI-providers
+            description: >
+                List of Providers with the description
+            x-codeSamples:
+                - lang: cURL
+                  label: 'get providers'
+                  source: |
+                    curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/providers'
+
+
+    /nlpsearch:
+        description: >
+           NLP Search is used a for a text based search to discover resources and resource groups on Data Exchange Catalogue Server.
+        get:
+            tags:
+                - NLP
+            parameters:
+                - name: q
+                  description: An English sentence
+                  schema:
+                      type: string
+                  in: query
+                  required: true
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseWithObjects'
+                    description: Success
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseForNlpSearch'
+                    description: Bad Request
+            operationId: NLP-search
+            x-codeSamples:
+                - lang: cURL
+                  label: 'search'
+                  source: |
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/nlpsearch?q=where can I halt near chandigarh'
+    
+
 components:
     schemas:
         exampleEntityWoID:
@@ -1542,7 +2078,7 @@ components:
                     description: Detailed description of the type or response
                     type: string
                 type:
-                    description: >-
+                    description: >
                         URN type of the response indicating if the query was successful or if any errors have
                         been triggered.
                     type: string
@@ -1554,6 +2090,643 @@ components:
                     - {}
                 type: 'urn:dx:cat:Success'
                 title: Success
+
+        successResponseForDeleteRatingObject:
+            title: Success response for delete rating object
+            description: Example response for delete rating object
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "id": "b8e43a3895373412725cd557730bcf8c6c60019b8092761a66248a927784cfbe"
+                      }
+                  ]
+              }
+
+        successResponseForUIProvider:
+            title: Response for list of providers
+            description: Example success response for the User Interface Provider with ID
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query.
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "totalHits": 10,
+                  "results": [
+                      {
+                          "description": "UI Test Provider-other",
+                          "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f"
+                      }
+                  ]
+              }
+
+        listTypesSuccessResponse:
+            title: Response for list with instance type
+            description: Example response for list types
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query.
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "totalHits": 5,
+                  "results": [
+                      "10",
+                      "pune",
+                      "stqc",
+                      "surat"
+                  ]
+              }
+
+        successResponseForGeoLocations:
+            title: Response for get geolocations
+            description: Example response for a geocoding API
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query.
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "totalHits": 3,
+                  "results": [
+                      {
+                          "name": "Mallesvaram",
+                          "country": "India",
+                          "region": "Karnataka",
+                          "county": "Bangalore",
+                          "locality": "Bangalore",
+                          "borough": "West Bangalore",
+                          "bbox": [
+                              77.563072,
+                              12.968362,
+                              77.573072,
+                              12.978362
+                          ]
+                      }
+                  ]
+              }
+        successResponseForCreatingInstance:
+            title: Response for creating an instance
+            description: Example success response for creating the given instance
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "id": "191e35e3-99c2-43a5-ba8d-811a756b08de",
+                          "detail": "Instance created Sucesssfully"
+                      }
+                  ]
+              }
+
+        successResponseForUpdatingInstance:
+            title: Response for updating an instance
+            description: Example success response for updating the given instance
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "id": "191e35e3-99c2-43a5-ba8d-811a756b08de",
+                          "detail": "Instance Updated Successfully"
+                      }
+                  ]
+              }
+
+        successResponseForGettingInstance:
+            title: Response for getting an instance
+            description: Example success response for getting instance
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query.
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "totalHits": 1,
+                  "results": [
+                      {
+                          "cover": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpeg",
+                          "instanceId": "191e35e3-99c2-43a5-ba8d-811a756b08de",
+                          "name": "lucknow",
+                          "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg",
+                          "logo": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg"
+                      }
+                  ]
+              }
+
+        successResponseForDeletingInstance:
+            title: Response for deleting an instance
+            description: Example success response for deleting instance
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "id": "191e35e3-99c2-43a5-ba8d-811a756b08de",
+                          "detail": "Instance deleted Successfully"
+                      }
+                  ]
+              }
+
+        successResponseForCreatingDomain:
+            title: Response for creating a domain
+            description: Example success response for creating a domain
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "id": "3d73067f-2855-4155-b918-14d621b7a576",
+                          "detail": "domain Created Successfully"
+                      }
+                  ]
+              }
+
+        successResponseForUpdatingDomain:
+            title: Response for updating a domain
+            description: Example success response for updating a domain
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "id": "3d73067f-2855-4155-b918-14d621b7a576",
+                          "detail": "Domain Updated Successfully"
+                      }
+                  ]
+              }
+
+        successResponseForGettingDomain:
+            title: Response for getting a domain
+            description: Example success response for getting a domain
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query.
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "totalHits": 2,
+                  "results": [
+                      {
+                          "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/environment.png",
+                          "name": "environment",
+                          "description": "Data Models that pertain to environment domain",
+                          "label": "Environment",
+                          "domainId": "143db678-0816-4bb5-999d-b62ac0ca1b4b"
+                      },
+                      {
+                          "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.jpeg",
+                          "name": "civic",
+                          "description": "Data Models that pertain to civic domain",
+                          "label": "Civic",
+                          "domainId": "3d73067f-2855-4155-b918-14d621b7a576"
+                      }
+                  ]
+              }
+
+        successResponseForDeletingDomain:
+            title: Response for deleting a domain
+            description: Example success response for deleting a domain
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "id": "3d73067f-2855-4155-b918-14d621b7a576",
+                          "detail": "Domain deleted Successfully"
+                      }
+                  ]
+              }
+
+
+
+        successResponseGetRating:
+            title: Success response for get rating
+            description: Example response for get ratings
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "totalHits": 1,
+                  "results": [
+                      {
+                          "rating": 4.8,
+                          "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
+                      }
+                  ]
+              }
+
+        successResponseCreateInstance:
+            title: Response for list with instance type
+            description: Example response for list types
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered
+                    type: string
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "results": [
+                      {
+                          "id": "Bengaluru",
+                          "method": "insert",
+                          "title": "urn:dx:cat:Success"
+                      }
+                  ]
+              }
+
+        successResponseForDeleteInstance:
+            title: Response for list with instance type
+            description: Example response for list types
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                    type: string
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "id": "Bengaluru",
+                          "method": "delete",
+                          "title": "urn:dx:cat:Success"
+                      }
+                  ]
+              }
+
+        successResponseForUpdateRating:
+            title: Response for update rating
+            description: Example response for consumer update rating
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                    type: string
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "id": "b8e43a3895373412725cd557730bcf8c6c60019b8092761a66248a927784cfbe"
+                      }
+                  ]
+              }
+
+        successResponseForConsumerRating:
+            title: Response for list with instance type
+            description: Example response for list types
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                    type: string
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "id": "b8e43a3895373412725cd557730bcf8c6c60019b8092761a66248a927784cfbe",
+                          "method": "insert",
+                          "title": "urn:dx:cat:Success"
+                      }
+                  ]
+              }
+        successResponseForRelationship:
+            title: Response for relationship search
+            description: Given the type of relationship is Provider mentioned in query param
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query.
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "totalHits": 1,
+                  "results": [
+                      {
+                          "@context": "https://voc.iudx.org.in/",
+                          "type": [
+                              "iudx:Provider"
+                          ],
+                          "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
+                          "name": "testProvider",
+                          "description": "Test Provider",
+                          "providerOrg": {
+                              "name": "testorg",
+                              "additionalInfoURL": "https://test.in",
+                              "location": {
+                                  "type": "Place",
+                                  "address": "bangalore",
+                                  "geometry": {
+                                      "type": "Point",
+                                      "coordinates": [
+                                          75.92,
+                                          14.5
+                                      ]
+                                  }
+                              }
+                          }
+                      }
+                  ]
+              }
 
         updateItemResponse:
             title: Response for update Item
@@ -1587,6 +2760,28 @@ components:
                   ]
               }
 
+        errorResponseForDiscovery:
+            title: Root Type for Discovery APIs
+            description: Standard Error Response for the search, count and geo queries
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: >
+                        Type of the response indicating if the query was successful or if any errors have been
+                        triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                detail:
+                    description: Detailed description of the type or response
+                    type: string
+            example:
+                type: <error urn>
+                title: <error title
+                detail: <error detail description>
+
 
 
         errorResponseWithObjects:
@@ -1609,7 +2804,7 @@ components:
                     description: Detailed description of the type or response
                     type: string
                 type:
-                    description: >-
+                    description: >
                         Type of the response indicating if the query was successful or if any errors have been
                         triggered.
                     type: string
@@ -1644,6 +2839,201 @@ components:
                   "type": "urn:dx:cat:InvalidAuthorizationToken",
                   "title": "Token is invalid",
                   "detail": "failed"
+              }
+
+        errorResponseForCreateInstance:
+            title: Response for bad request
+            description: Invalid id in query param
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        Indicates that the id sent in request is invalid
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                detail:
+                    description: Detailed description of the type or response
+                    type: string
+            example:
+              {
+                  "type": "urn:dx:cat:InvalidSyntax",
+                  "title": "Invalid Syntax",
+                  "detail": "id not present in the request"
+              }
+
+        errorResponseForDeleteInstance:
+            title: Response for bad request
+            description: Invalid item type in the given request
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        Indicates that the item type sent in request path param is invalid
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:ItemNotFound",
+                  "title": "Item is not found",
+                  "results": [
+                      {
+                          "id": "Abcd",
+                          "method": "delete",
+                          "title": "failed",
+                          "detail": "Fail: Doc doesn't exist, can't delete"
+                      }
+                  ]
+              }
+
+        errorResponseForRelationship:
+            title: Indicates bad request
+            description: Error response due to invalid query param
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: >
+                        Error response due to invalid query param in the request
+                    type: string
+                title:
+                    description: A human readable title to the message response
+
+        errorResponseForConsumerRating:
+            title: Response for bad request
+            description: Invalid item type in the given request
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        Indicates that the item type sent in request path param is invalid
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                detail:
+                    description: Detailed description of the type or response
+                    type: string
+
+        errorResponseForUpdateRating:
+            title: Response for bad request
+            description: Invalid item type in the given request
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        Indicates that the item type sent in request path param is invalid
+                    type: string
+                title:
+                    description: A human readable title to the message response
+            example:
+              {
+                  "type": "urn:dx:cat:InvalidSchema",
+                  "title": "Invalid Schema"
+              }
+
+        errorResponseForCreatingInstance:
+            title: Example Response for creating or updating an instance or a domain
+            description: Invalid or missing payload field in the given request
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        Indicates Invalid or missing payload field in the given request
+                    type: string
+                title:
+                    description: A human readable title to the message response
+            example:
+              {
+                  "type": "urn:dx:cat:InvalidSchema",
+                  "title": "Invalid Schema",
+                  "detail": "The Schema of requested body is invalid."
+              }
+
+
+
+
+        listTypesErrorResponse:
+            title: Response for bad request
+            description: Invalid item type in the given request
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        Indicates that the item type sent in request path param is invalid
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                detail:
+                    description: Detailed description of the type or response
+                    type: string
+            example:
+              {
+                  "type": "urn:dx:cat:InvalidSyntax",
+                  "title": "Invalid Syntax",
+                  "detail": "Wrong Item Type"
+              }
+
+
+        relSearchErrorResponse:
+            title: Response for bad request
+            description: Invalid value in the query param
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        Indicates that the syntax in request query param is invalid
+                    type: string
+                title:
+                    description: A human readable title to the message response
+            example:
+              {
+                  "type": "urn:dx:cat:InvalidSyntax",
+                  "title": "Invalid Syntax"
+              }
+
+        errorResponseForNlpSearch:
+            title: Root Type for standardResponse
+            description: Standard Response for all requests
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: >
+                        Type of the response indicating if the query was successful or if any errors have been
+                        triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                detail:
+                    description: Detailed description of the type or response
+                    type: string
+            example:
+              {
+                  "type": "urn:dx:cat:InvalidSyntax",
+                  "title": "Invalid Syntax",
+                  "detail": "Failed to find coordinates"
               }
 
         updateItemBadRequest:
@@ -1718,7 +3108,7 @@ components:
             type: object
             properties:
                 type:
-                    description: >-
+                    description: >
                         Type of the response indicating if the query was successful or if any errors have been
                         triggered.
                     type: string
@@ -1754,6 +3144,55 @@ components:
                 rating: 4.3
                 comment: some-comment
 
+        exampleInstance:
+            title: Root Type for exampleInstance
+            description: An example instance object of middle layer.
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: URL of the image
+                cover:
+                    type: string
+                    description: URL of the image
+                icon:
+                    type: string
+                    description: URL of the image
+                logo:
+                    type: string
+                    description: URL of the image
+            example:
+                name: lucknow
+                cover: 'https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg'
+                icon: 'https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg'
+                logo: 'https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpg'
+
+
+
+
+        exampleDomain:
+            title: Root Type for exampleInstance
+            description: An example domain object of middle layer.
+            type: object
+            properties:
+                description:
+                    type: string
+                    description: Description about the domain
+                cover:
+                    type: string
+                    description: URL of the image
+                icon:
+                    type: string
+                    description: type or tag of the domain
+                logo:
+                    type: string
+                    description: Domain name
+            example:
+                      description: Data Models that pertain to civic domain
+                      icon: 'https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png'
+                      label: Civic
+                      name: civic
+
 
 tags:
     -
@@ -1767,8 +3206,11 @@ tags:
         description: >
             Discovery DX Entities using a rich discovery api supporting property, text and geo-based
             queries.
-
+            
             These apis are intended to be used by DX(Data Exchange) Data *Consumers*.
+            
+            <br>
+            Geo-Query APIs list the location of the dataset ids' given in the request body of a particular instance
         x-displayName: Discovery
     -
         name: List
@@ -1793,4 +3235,28 @@ tags:
             Catalogue consumer specific apis.
         x-displayName: Consumer
 
+    -
+        name: MLayer
+        description: >
+            Catalogue middle layer specific APIs. 
+            These apis consist of instance, domain, providers, geo-query, dataset and overview APIs.
+            <br>
+            **Instance APIs** : Instance refers to the name of the city/location. 
+                            Instance API creates, updates, deletes and lists the name, icon, cover and logo of each instance.
+            <br>
+            **Domain APIs** : Catalogue has data-domain models that describes each of the domains.
+                          Domain API creates, updates, deletes and lists the name, description, label and icon of each domain.
+            <br>
+            **Provider APIs** : This lists the name of each of the provider along with the description and id.
+            <br>
+            **Dataset APIs** : It fetches all the datasets that belong to Data Exchange.
+            <br>
+            **Overview APIs** : It has the data for the landing page. Alphabetically first four instances, based on views top six datasets and top six latest datasets are shown.
+        x-displayName: MLayer
+
+    -
+        name: NLP
+        description: |
+            Natural Language Processing API is used a for a text based search to discover resources and resource groups on the catalogue server
+        x-displayName: NLP API
 

@@ -268,7 +268,8 @@ public final class SearchApis {
               });
             } else {
               LOGGER.info("Failed to get bounding box");
-              routingContext.response().setStatusCode(400).end();
+              routingContext.response().setStatusCode(400)
+                      .end(ar.cause().getMessage());
             }
           });
         }

@@ -16,6 +16,8 @@ import org.apache.logging.log4j.Logger;
 import java.lang.StringBuilder;
 
 import static iudx.catalogue.server.geocoding.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.TITLE_INVALID_SYNTAX;
+import static iudx.catalogue.server.util.Constants.TYPE_INVALID_SYNTAX;
 // import static iudx.catalogue.server.util.Constants.*;
 
 /**
@@ -86,7 +88,12 @@ public class GeocodingServiceImpl implements GeocodingService {
 
               } else {
                 LOGGER.error("Failed to find coordinates");
-                handler.handle(Future.failedFuture(ar.cause()));
+                handler.handle(Future.failedFuture(
+                    new JsonObject()
+                    .put("type",TYPE_INVALID_SYNTAX)
+                    .put("title",TITLE_INVALID_SYNTAX)
+                    .put("detail","Failed to find coordinates").toString()
+                ));
               }
             });
   }
