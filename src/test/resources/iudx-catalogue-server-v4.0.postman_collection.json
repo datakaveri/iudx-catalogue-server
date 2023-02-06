@@ -11778,14 +11778,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/iudx/cat/v1/geo?q=malleswaram",
+							"raw": "{{host}}{{base}}/geo?q=malleswaram",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
-								"iudx",
-								"cat",
-								"v1",
+								"{{base}}",
 								"geo"
 							],
 							"query": [
@@ -11826,14 +11824,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/iudx/cat/v1/geo?q=",
+							"raw": "{{host}}{{base}}/geo?q=",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
-								"iudx",
-								"cat",
-								"v1",
+								"{{base}}",
 								"geo"
 							],
 							"query": [
@@ -11874,14 +11870,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/iudx/cat/v1/geo?p=malleswaram",
+							"raw": "{{host}}{{base}}/geo?p=malleswaram",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
-								"iudx",
-								"cat",
-								"v1",
+								"{{base}}",
 								"geo"
 							],
 							"query": [
@@ -11922,14 +11916,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/iudx/cat/v1/geo?q=++",
+							"raw": "{{host}}{{base}}/geo?q=++",
 							"host": [
 								"{{host}}"
 							],
 							"path": [
-								"iudx",
-								"cat",
-								"v1",
+								"{{base}}",
 								"geo"
 							],
 							"query": [
