@@ -207,7 +207,7 @@
 					"name": "Create Item",
 					"item": [
 						{
-							"name": "200 (success) - Create an IUDX Resource Item Entity",
+							"name": "200 (success) - Create an DX Resource Item Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -277,7 +277,7 @@
 							"response": []
 						},
 						{
-							"name": "400 (Invalid schema)- Create IUDX Entity",
+							"name": "400 (Invalid schema)- Create DX Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -340,7 +340,7 @@
 							"response": []
 						},
 						{
-							"name": "400 (invalid links) - Create an IUDX Entity",
+							"name": "400 (invalid links) - Create an DX Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -397,7 +397,7 @@
 							"response": []
 						},
 						{
-							"name": "401 (invalid jwt credentials) - Create an IUDX Entity (JWT Token)",
+							"name": "401 (invalid jwt credentials) - Create an DX Entity (JWT Token)",
 							"event": [
 								{
 									"listen": "test",
@@ -464,7 +464,7 @@
 					"name": "Update Item",
 					"item": [
 						{
-							"name": "200 (success) - Update an IUDX Entity",
+							"name": "200 (success) - Update an DX Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -521,7 +521,7 @@
 							"response": []
 						},
 						{
-							"name": "400 (invalid schema) - Update an IUDX Entity",
+							"name": "400 (invalid schema) - Update an DX Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -579,7 +579,7 @@
 							"response": []
 						},
 						{
-							"name": "400 (invalid links) - Update an IUDX Entity",
+							"name": "400 (invalid links) - Update an DX Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -637,7 +637,7 @@
 							"response": []
 						},
 						{
-							"name": "401 (invalid jwt credentials) - Update an IUDX Entity (JWT Token)",
+							"name": "401 (invalid jwt credentials) - Update an DX Entity (JWT Token)",
 							"event": [
 								{
 									"listen": "test",
@@ -704,7 +704,7 @@
 					"name": "Delete Item",
 					"item": [
 						{
-							"name": "200 (success) - Delete an IUDX Entity",
+							"name": "200 (success) - Delete an DX Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -763,7 +763,7 @@
 							"response": []
 						},
 						{
-							"name": "400 (invalid syntax) - Delete an IUDX Entity",
+							"name": "400 (invalid syntax) - Delete an DX Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -821,7 +821,7 @@
 							"response": []
 						},
 						{
-							"name": "401 (invalid jtw credentials) - Delete an IUDX Entity (JWT TOKEN)",
+							"name": "401 (invalid jtw credentials) - Delete an DX Entity (JWT TOKEN)",
 							"event": [
 								{
 									"listen": "test",
@@ -885,7 +885,7 @@
 					"name": "Get/List Item",
 					"item": [
 						{
-							"name": "200 (success) - Get IUDX Entity by ID",
+							"name": "200 (success) - Get DX Entity by ID",
 							"event": [
 								{
 									"listen": "test",
@@ -933,7 +933,7 @@
 							"response": []
 						},
 						{
-							"name": "200 (invalid id) - Get IUDX Entity by ID",
+							"name": "200 (invalid id) - Get DX Entity by ID",
 							"event": [
 								{
 									"listen": "test",
@@ -1089,7 +1089,7 @@
 			"name": "Instance APIs",
 			"item": [
 				{
-					"name": "200 (success) - Create Instance",
+					"name": "201 (success) - Create Instance",
 					"event": [
 						{
 							"listen": "test",
@@ -1155,7 +1155,189 @@
 					"response": []
 				},
 				{
-					"name": "201 (success) - Delete Instance",
+					"name": "400 (bad request) - Create Instance with invalid query param",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.be.badRequest;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSyntax\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}{{base}}/instance?ide=poone",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"instance"
+							],
+							"query": [
+								{
+									"key": "ide",
+									"value": "poone"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 (success) - Delete Instance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{adminToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}{{base}}/instance?id={{instance_id}}",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"instance"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{instance_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "401 (unauthorized access) - Delete Instance",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "token",
+								"value": "tokenAbcd",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{host}}{{base}}/instance?id={{instance_id}}",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"instance"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "{{instance_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "404 (not found) - Delete Instance",
 					"event": [
 						{
 							"listen": "test",
@@ -10375,6 +10557,54 @@
 								{
 									"key": "q",
 									"value": "where can I halt near chandigarh"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "404 (not found) - NLP Search",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test the response code",
+									"pm.test(\"response is 404 (Not Found)\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"// Test the response header",
+									"pm.test(\"Check response header\", function () {",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+									"});",
+									"",
+									"// Test the response",
+									"pm.test(\"Check response body\", function () {    ",
+									"    const body = pm.response.json();",
+									"    pm.expect(body).to.have.property(\"title\", \"Invalid Syntax\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{base}}/nlpsearch?q=where can I halt near chandiga",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"nlpsearch"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "where can I halt near chandiga"
 								}
 							]
 						}
