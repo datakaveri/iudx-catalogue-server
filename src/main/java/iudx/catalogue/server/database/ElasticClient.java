@@ -78,7 +78,7 @@ public final class ElasticClient {
   public ElasticClient searchAsyncGeoQuery(
       String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
     Request queryRequest =
-        new Request(REQUEST_POST, index + "/_search" + FILTER_PATH_ID_AND_SOURCE);
+        new Request(REQUEST_GET, index + "/_search" + FILTER_PATH_ID_AND_SOURCE);
     queryRequest.setJsonEntity(query);
     LOGGER.debug(queryRequest);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_AND_ID_GEOQUERY);
@@ -395,19 +395,11 @@ public final class ElasticClient {
                     responseMsg.addResult(result);
                   }
                   if (options == SOURCE_AND_ID_GEOQUERY) {
-                    JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
-                    String instance = source.getString(INSTANCE);
-                    JsonObject location = source.getJsonObject("location");
-                    String label = source.getString("label");
-                    String dataset_id = source.getString("id");
                     String doc_id = results.getJsonObject(i).getString(DOC_ID);
-                    JsonObject result =
-                        new JsonObject()
-                            .put(INSTANCE, instance)
-                            .put("dataset_id", dataset_id)
-                            .put("location", location)
-                            .put("label", label)
-                            .put("doc_id", doc_id);
+                    JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
+                    source.put("doc_id",doc_id);
+                    JsonObject result = new JsonObject();
+                    result.mergeIn(source);
                     responseMsg.addResult(result);
                   }
                 }

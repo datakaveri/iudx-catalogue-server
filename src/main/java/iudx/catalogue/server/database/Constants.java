@@ -137,9 +137,9 @@ public class Constants {
           "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": {\"domainId.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MLAYER_PROVIDERS_QUERY =
           "{\"query\": {\"match\": {\"type.keyword\": \"iudx:Provider\"}},\"_source\": {\"includes\": [\"id\",\"description\"]}}";
-  public static final String POST_MLAYER_GEOQUERY =
+  public static final String GET_MLAYER_GEOQUERY =
       "{ \"query\": { \"bool\": { \"minimum_should_match\": 1, \"should\": [$1]}},\"_source\": {\"includes\": [\"id\",\"location\",\"instance\",\"label\"] }}";
-  public static final String POST_MLAYER_BOOL_GEOQUERY =
+  public static final String GET_MLAYER_BOOL_GEOQUERY =
       "{\"bool\": {\"should\": [{ \"match\": { \"type.keyword\": \"iudx:Resource\" } },{ \"match\": { \"type.keyword\": \"iudx:ResourceGroup\" } }],\"must\": [{\"match\": {\"instance.keyword\": \"$2\"}},{\"match\": {\"id.keyword\": \"$3\"}}]}}";
 
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";

@@ -45,5 +45,5 @@ public interface MlayerService {
   MlayerService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService postMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) ;
+  MlayerService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) ;
 }

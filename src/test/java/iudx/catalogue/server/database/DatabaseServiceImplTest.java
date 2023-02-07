@@ -2396,8 +2396,8 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
-  @Description("test postMlayerGeoQuery method when the DB Request is Successful")
-  public void testpostMlayerGeoQuery(VertxTestContext testContext) {
+  @Description("test getMlayerGeoQuery method when the DB Request is Successful")
+  public void testgetMlayerGeoQuery(VertxTestContext testContext) {
 
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     JsonObject request = new JsonObject();
@@ -2415,7 +2415,7 @@ public class DatabaseServiceImplTest {
             })
         .when(DatabaseServiceImpl.client)
         .searchAsyncGeoQuery(any(), any(), any());
-    dbService.postMlayerGeoQuery(
+    dbService.getMlayerGeoQuery(
         request,
         handler -> {
           if (handler.succeeded()) {
@@ -2428,8 +2428,8 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
-  @Description("test postMlayerGeoQuery method when DB Request fails")
-  public void testPostMlayerGeoQueryFailure(VertxTestContext testContext) {
+  @Description("test getMlayerGeoQuery method when DB Request fails")
+  public void testGetMlayerGeoQueryFailure(VertxTestContext testContext) {
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     JsonObject request = new JsonObject();
     JsonArray id = new JsonArray();
@@ -2446,7 +2446,7 @@ public class DatabaseServiceImplTest {
             })
         .when(DatabaseServiceImpl.client)
         .searchAsyncGeoQuery(any(), any(), any());
-    dbService.postMlayerGeoQuery(
+    dbService.getMlayerGeoQuery(
         request,
         handler -> {
           if (handler.failed()) {

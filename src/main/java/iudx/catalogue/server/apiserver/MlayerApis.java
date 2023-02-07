@@ -433,7 +433,7 @@ public class MlayerApis {
             });
   }
 
-  public void postMlayerGeoQueryHandler(RoutingContext routingContext) {
+  public void getMlayerGeoQueryHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching location and label of datasets");
     JsonObject requestBody = routingContext.body().asJsonObject();
     HttpServerResponse response = routingContext.response();
@@ -451,7 +451,7 @@ public class MlayerApis {
                         .withDetail("The Schema of requested body is invalid.")
                         .getResponse());
           } else {
-            mlayerService.postMlayerGeoQuery(
+            mlayerService.getMlayerGeoQuery(
                 requestBody,
                 handler -> {
                   if (handler.succeeded()) {

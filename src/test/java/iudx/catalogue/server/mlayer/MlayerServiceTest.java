@@ -603,8 +603,8 @@ public class MlayerServiceTest {
   }
 
   @Test
-  @DisplayName("Success: test post dataset location and label")
-  void successfulMlayerGeoQueryPostTest(VertxTestContext testContext) {
+  @DisplayName("Success: test get dataset location and label")
+  void successfulMlayerGeoQueryGetTest(VertxTestContext testContext) {
     mlayerService = new MlayerServiceImpl(databaseService);
     JsonObject request = new JsonObject();
     when(asyncResult.succeeded()).thenReturn(true);
@@ -618,12 +618,12 @@ public class MlayerServiceTest {
               }
             })
         .when(databaseService)
-        .postMlayerGeoQuery(any(), any());
-    mlayerService.postMlayerGeoQuery(
+        .getMlayerGeoQuery(any(), any());
+    mlayerService.getMlayerGeoQuery(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).postMlayerGeoQuery(any(), any());
+            verify(databaseService, times(1)).getMlayerGeoQuery(any(), any());
             testContext.completeNow();
           } else {
             LOGGER.debug("Fail");
@@ -633,8 +633,8 @@ public class MlayerServiceTest {
   }
 
   @Test
-  @DisplayName("Failure: test post dataset location and label")
-  void failureMlayerGeoQueryPostTest(VertxTestContext testContext) {
+  @DisplayName("Failure: test get dataset location and label")
+  void failureMlayerGeoQueryGetTest(VertxTestContext testContext) {
     mlayerService = new MlayerServiceImpl(databaseService);
     JsonObject request = new JsonObject();
     when(asyncResult.succeeded()).thenReturn(false);
@@ -648,13 +648,13 @@ public class MlayerServiceTest {
               }
             })
         .when(databaseService)
-        .postMlayerGeoQuery(any(), any());
+        .getMlayerGeoQuery(any(), any());
 
-    mlayerService.postMlayerGeoQuery(
+    mlayerService.getMlayerGeoQuery(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).postMlayerGeoQuery(any(), any());
+            verify(databaseService, times(1)).getMlayerGeoQuery(any(), any());
             LOGGER.debug("Fail");
             testContext.failNow(handler.cause());
           } else {

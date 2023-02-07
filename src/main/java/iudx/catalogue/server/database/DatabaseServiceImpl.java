@@ -1287,7 +1287,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService postMlayerGeoQuery(
+  public DatabaseService getMlayerGeoQuery(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.debug("request body" + request);
 
@@ -1297,11 +1297,11 @@ public class DatabaseServiceImpl implements DatabaseService {
     for (int i = 0; i < id.size(); i++) {
       String dataset_id = id.getString(i);
       String combinedQuery =
-          POST_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", dataset_id);
+          GET_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", dataset_id);
       sb.append(combinedQuery).append(",");
     }
     sb.deleteCharAt(sb.length() - 1);
-    String query = POST_MLAYER_GEOQUERY.replace("$1", sb);
+    String query = GET_MLAYER_GEOQUERY.replace("$1", sb);
     client.searchAsyncGeoQuery(
         query,
         docIndex,

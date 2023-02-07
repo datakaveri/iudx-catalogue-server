@@ -588,7 +588,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         .failureHandler(exceptionhandler)
         .handler(
             routingContext -> {
-              mlayerApis.postMlayerGeoQueryHandler(routingContext);
+              mlayerApis.getMlayerGeoQueryHandler(routingContext);
             });
 
     /** Start server */

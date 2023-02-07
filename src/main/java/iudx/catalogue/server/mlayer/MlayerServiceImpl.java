@@ -193,9 +193,9 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService postMlayerGeoQuery(
+  public MlayerService getMlayerGeoQuery(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    databaseService.postMlayerGeoQuery(
+    databaseService.getMlayerGeoQuery(
         request,
         postMlayerGeoQueryHandler -> {
           if (postMlayerGeoQueryHandler.succeeded()) {
