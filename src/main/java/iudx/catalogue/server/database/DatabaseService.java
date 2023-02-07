@@ -266,6 +266,16 @@ public interface DatabaseService {
   @Fluent
   DatabaseService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler);
 
+  /**
+   * The post Mlayer GeoQuery posts all the dataset_id's location and label
+   *
+   * @param request which is a JsonObject
+   * @param handler which is a request handler
+   * @return DatabaseService which is a Service
+   */
+  @Fluent
+  DatabaseService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
   /* create db service with nlp and geocoding */
   @GenIgnore
   static DatabaseService create(

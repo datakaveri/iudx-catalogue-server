@@ -601,4 +601,65 @@ public class MlayerServiceTest {
           }
         });
   }
+
+  @Test
+  @DisplayName("Success: test get dataset location and label")
+  void successfulMlayerGeoQueryGetTest(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService);
+    JsonObject request = new JsonObject();
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerGeoQuery(any(), any());
+    mlayerService.getMlayerGeoQuery(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerGeoQuery(any(), any());
+            testContext.completeNow();
+          } else {
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Failure: test get dataset location and label")
+  void failureMlayerGeoQueryGetTest(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService);
+    JsonObject request = new JsonObject();
+    when(asyncResult.succeeded()).thenReturn(false);
+    Mockito.doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerGeoQuery(any(), any());
+
+    mlayerService.getMlayerGeoQuery(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerGeoQuery(any(), any());
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
 }

@@ -158,7 +158,7 @@ public class MlayerApis {
     authenticationFuture
         .onSuccess(
             successHandler -> {
-              String instanceId = request.getParam(INSTANCE_ID);
+              String instanceId = request.getParam(MLAYER_ID);
               mlayerService.deleteMlayerInstance(
                   instanceId,
                   dbHandler -> {
@@ -211,7 +211,7 @@ public class MlayerApis {
                                   .getResponse());
                     } else {
 
-                      String instanceId = request.getParam(INSTANCE_ID);
+                      String instanceId = request.getParam(MLAYER_ID);
                       requestBody.put(INSTANCE_ID, instanceId);
                       mlayerService.updateMlayerInstance(
                           requestBody,
@@ -355,7 +355,7 @@ public class MlayerApis {
                                   .getResponse());
                     } else {
 
-                      String domainId = request.getParam(DOMAIN_ID);
+                      String domainId = request.getParam(MLAYER_ID);
                       requestBody.put(DOMAIN_ID, domainId);
                       mlayerService.updateMlayerDomain(
                           requestBody,
@@ -395,7 +395,7 @@ public class MlayerApis {
     authenticationFuture
         .onSuccess(
             successHandler -> {
-              String domainId = request.getParam(DOMAIN_ID);
+              String domainId = request.getParam(MLAYER_ID);
               mlayerService.deleteMlayerDomain(
                   domainId,
                   dbHandler -> {
@@ -431,6 +431,36 @@ public class MlayerApis {
                     response.setStatusCode(400).end(handler.cause().getMessage());
                 }
             });
+  }
 
+  public void getMlayerGeoQueryHandler(RoutingContext routingContext) {
+    LOGGER.debug("Info : fetching location and label of datasets");
+    JsonObject requestBody = routingContext.body().asJsonObject();
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    validatorService.validateMlayerGeoQuery(
+        requestBody,
+        validationHandler -> {
+          if (validationHandler.failed()) {
+            response
+                .setStatusCode(400)
+                .end(
+                    new RespBuilder()
+                        .withType(TYPE_INVALID_SCHEMA)
+                        .withTitle(TITLE_INVALID_SCHEMA)
+                        .withDetail("The Schema of requested body is invalid.")
+                        .getResponse());
+          } else {
+            mlayerService.getMlayerGeoQuery(
+                requestBody,
+                handler -> {
+                  if (handler.succeeded()) {
+                    response.setStatusCode(200).end(handler.result().toString());
+                  } else {
+                    response.setStatusCode(400).end(handler.cause().getMessage());
+                  }
+                });
+          }
+        });
   }
 }

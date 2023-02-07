@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "id":["datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app"],
+      "instance":"pune"
+    }
+  ],
+  "required": [
+    "id",
+    "instance"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "array",
+      "title": "Mlayer GeoQuery Id Schema",
+      "description": "Id of the datasets in the instance",
+      "default": "",
+      "examples": [
+        ["datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app"]
+      ]
+    },
+    "instance": {
+      "$id": "#/properties/instance",
+      "type": "string",
+      "title": "Mlayer GeoQuery Instance Schema",
+      "description": "Instance name in geo-query where the datasets belong to",
+      "default": "",
+      "examples": [
+        "pune"
+      ],
+      "pattern": "^[a-zA-Z ]*$"
+    }
+  }
+}

@@ -1286,6 +1286,39 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
+  @Override
+  public DatabaseService getMlayerGeoQuery(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.debug("request body" + request);
+
+    String instance = request.getString(INSTANCE);
+    JsonArray id = request.getJsonArray("id");
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < id.size(); i++) {
+      String dataset_id = id.getString(i);
+      String combinedQuery =
+          GET_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", dataset_id);
+      sb.append(combinedQuery).append(",");
+    }
+    sb.deleteCharAt(sb.length() - 1);
+    String query = GET_MLAYER_GEOQUERY.replace("$1", sb);
+    client.searchAsyncGeoQuery(
+        query,
+        docIndex,
+        resultHandler -> {
+          if (resultHandler.succeeded()) {
+            LOGGER.debug("Success: Successful DB Request");
+            handler.handle(Future.succeededFuture(resultHandler.result()));
+
+          } else {
+            LOGGER.error("Fail: failed DB request");
+            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
+
+    return this;
+  }
+
   /* Verify the existance of an instance */
   Future<Boolean> verifyInstance(String instanceId) {
 
