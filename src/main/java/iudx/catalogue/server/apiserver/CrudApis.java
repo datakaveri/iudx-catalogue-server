@@ -28,8 +28,6 @@ import java.util.HashSet;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.auditing.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
-import static iudx.catalogue.server.authenticator.Constants.ITEM_ENDPOINT;
-import static iudx.catalogue.server.authenticator.Constants.INSTANCE_ENDPOINT;
 import io.vertx.core.http.HttpMethod;
 import static iudx.catalogue.server.authenticator.Constants.TOKEN;
 import static iudx.catalogue.server.util.Constants.*;
@@ -151,7 +149,7 @@ public final class CrudApis {
         jwtAuthenticationInfo
                 .put(TOKEN, request.getHeader(HEADER_TOKEN))
                 .put(METHOD, REQUEST_POST)
-                .put(API_ENDPOINT, ITEM_ENDPOINT);
+                .put(API_ENDPOINT, api.getRouteItems());
 
         if (itemType.equals(ITEM_TYPE_PROVIDER)) {
           jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
@@ -200,7 +198,7 @@ public final class CrudApis {
                       response.setStatusCode(201)
                               .end(dbhandler.result().toString());
                       if(hasAuditService) {
-                        updateAuditTable(authHandler.result(), new String[]{valhandler.result().getString(ID), ITEM_ENDPOINT, REQUEST_POST});
+                        updateAuditTable(authHandler.result(), new String[]{valhandler.result().getString(ID), api.getRouteItems(), REQUEST_POST});
                       }
                     }
                   });
@@ -213,7 +211,7 @@ public final class CrudApis {
                       response.setStatusCode(200)
                               .end(dbhandler.result().toString());
                       if(hasAuditService) {
-                        updateAuditTable(authHandler.result(), new String[]{valhandler.result().getString(ID), ITEM_ENDPOINT, REQUEST_PUT});
+                        updateAuditTable(authHandler.result(), new String[]{valhandler.result().getString(ID), api.getRouteItems(), REQUEST_PUT});
                       }
                     } else if (dbhandler.failed()) {
                       LOGGER.error("Fail: Item update;" + dbhandler.cause().getMessage());
@@ -316,7 +314,7 @@ public final class CrudApis {
       jwtAuthenticationInfo
               .put(TOKEN,request.getHeader(HEADER_TOKEN))
               .put(METHOD, REQUEST_POST)
-              .put(API_ENDPOINT, ITEM_ENDPOINT)
+              .put(API_ENDPOINT, api.getRouteItems())
               .put(ID,providerId);
 
       /* JWT implementation of tokenInterospect */
@@ -340,7 +338,7 @@ public final class CrudApis {
               if (dbHandler.result().getString(STATUS).equals(TITLE_SUCCESS)) {
                 response.setStatusCode(200).end(dbHandler.result().toString());
                 if(hasAuditService) {
-                  updateAuditTable(authHandler.result(), new String[]{itemId, ITEM_ENDPOINT, REQUEST_DELETE});
+                  updateAuditTable(authHandler.result(), new String[]{itemId, api.getRouteItems(), REQUEST_DELETE});
                 }
               } else {
                 response.setStatusCode(404)
@@ -386,7 +384,7 @@ public final class CrudApis {
     authenticationInfo.put(TOKEN,
                             request.getHeader(HEADER_TOKEN))
                             .put(METHOD, REQUEST_POST)
-                            .put(API_ENDPOINT, INSTANCE_ENDPOINT)
+                            .put(API_ENDPOINT, api.getRouteInstance())
                             .put(ID, host);
     /** Introspect token and authorize operation */
     authService.tokenInterospect(new JsonObject(), authenticationInfo, authhandler -> {
@@ -439,7 +437,7 @@ public final class CrudApis {
     /** Json schema validate item */
     authenticationInfo.put(TOKEN, request.getHeader(HEADER_TOKEN))
                       .put(METHOD, REQUEST_DELETE)
-                      .put(API_ENDPOINT, INSTANCE_ENDPOINT)
+                      .put(API_ENDPOINT, api.getRouteInstance())
                       .put(ID, host);
     /** Introspect token and authorize operation */
     authService.tokenInterospect(new JsonObject(), authenticationInfo, authhandler -> {
@@ -463,7 +461,7 @@ public final class CrudApis {
             // TODO: call auditing service here
           } else {
             LOGGER.error("Fail: Deleting instance");
-            response.setStatusCode(400).end(res.cause().getMessage());
+            response.setStatusCode(404).end(res.cause().getMessage());
           }
         });
         LOGGER.debug("Success: Authenticated instance creation request");

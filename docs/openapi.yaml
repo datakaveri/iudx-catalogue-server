@@ -1255,6 +1255,10 @@ paths:
             operationId: delete-instance
             description: Delete an DX instance
     /consumer/ratings:
+        servers:
+            - url: 'https://example-cat.com/'
+              description: Production Instance
+
         description: >
             A catalogue consumer api to assign rating/review to a resource item, which will be reflected on the ui.
 

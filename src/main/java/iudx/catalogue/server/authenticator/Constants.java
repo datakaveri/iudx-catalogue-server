@@ -22,8 +22,8 @@ public class Constants {
     public static final String JSON_USERID = "userid";
     public static final String API_ENDPOINT = "apiEndpoint";
     public static final String METHOD = "method";
-    public static final String ITEM_ENDPOINT = "/iudx/cat/v1/item";
-    public static final String INSTANCE_ENDPOINT = "/iudx/cat/v1/instance";
+//    public static final String ITEM_ENDPOINT = "/iudx/cat/v1/item";
+//    public static final String INSTANCE_ENDPOINT = "/iudx/cat/v1/instance";
     public static final String RATINGS_ENDPOINT = "/consumer/ratings";
     public static final String MLAYER_INSTANCE_ENDPOINT = "/internal/ui/instance";
     public static final String MLAYER_DOMAIN_ENDPOINT = "/internal/ui/domain";
