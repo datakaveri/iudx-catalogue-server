@@ -1137,7 +1137,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}{{base}}/instance?id=poone",
+							"raw": "{{host}}{{base}}/instance?id=mumbai",
 							"host": [
 								"{{host}}{{base}}"
 							],
