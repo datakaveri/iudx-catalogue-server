@@ -1448,12 +1448,7 @@ paths:
             description: >
                 Get a rating, all ratings or average rating for a resource or for a resource group
             x-codeSamples:
-                -
-                    lang: cURL
-                    label: 'get rating by user'
-                    source: |
-                        curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/instance' \
-                        --header 'token: <tokenValue>'
+
                 -
                     lang: cURL
                     label: 'get all rating of resource'
