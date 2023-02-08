@@ -32,6 +32,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import static iudx.catalogue.server.geocoding.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.TITLE_INVALID_SYNTAX;
+import static iudx.catalogue.server.util.Constants.TYPE_INVALID_SYNTAX;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -196,7 +199,7 @@ public class GeocodingServiceTest {
     when(httpRequest.addQueryParam(anyString(), anyString())).thenReturn(httpRequest);
     when(httpRequest.putHeader(anyString(), anyString())).thenReturn(httpRequest);
     when(ar.succeeded()).thenReturn(false);
-    when(ar.cause()).thenReturn(throwable);
+//    when(ar.cause()).thenReturn(throwable);
     doAnswer(
             new Answer<AsyncResult<HttpResponse<Buffer>>>() {
               @Override
@@ -209,11 +212,16 @@ public class GeocodingServiceTest {
         .when(httpRequest)
         .send(any());
     geoService = new GeocodingServiceImpl(webClient, peliasUrl, peliasPort);
+    JsonObject expected = new JsonObject();
+    expected.put("type",TYPE_INVALID_SYNTAX);
+    expected.put("title",TITLE_INVALID_SYNTAX);
+    expected.put("detail","Failed to find coordinates");
     geoService.geocoder(
         location,
         handler -> {
           if (handler.failed()) {
             verify(httpRequest, times(1)).send(any());
+            assertEquals(expected.encode(),handler.cause().getMessage());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");

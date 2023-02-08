@@ -231,97 +231,112 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     RespBuilder respBuilder = new RespBuilder();
     String id = doc.getString("id");
-    final String instanceId = doc.getString(INSTANCE);
+    /* check if the id is present */
+    if(id != null)
+    {
+      final String instanceId = doc.getString(INSTANCE);
 
-    String errorJson = respBuilder.withType(FAILED).withResult(id, INSERT, FAILED).getResponse();
+      String errorJson = respBuilder.withType(FAILED).withResult(id, INSERT, FAILED).getResponse();
 
-    String checkItem = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
+      String checkItem = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
 
-    verifyInstance(instanceId).onComplete(instanceHandler -> {
-      if (instanceHandler.succeeded()) {
-        LOGGER.debug("Info: Instance info;" + instanceHandler.result());
+      verifyInstance(instanceId).onComplete(instanceHandler -> {
+        if (instanceHandler.succeeded()) {
+          LOGGER.debug("Info: Instance info;" + instanceHandler.result());
 
-        client.searchAsync(checkItem.toString(), docIndex, checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Isertion failed;" + checkRes.cause());
-            handler.handle(Future.failedFuture(errorJson));
-          }
-          if (checkRes.succeeded()) {
-            if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
-              handler.handle(Future.failedFuture(
-                  respBuilder.withType(TYPE_ALREADY_EXISTS)
-                      .withTitle(TITLE_ALREADY_EXISTS)
-                      .withResult(id, INSERT, FAILED, "Fail: Doc Exists")
-                      .getResponse()));
-              return;
+          client.searchAsync(checkItem.toString(), docIndex, checkRes -> {
+            if (checkRes.failed()) {
+              LOGGER.error("Fail: Isertion failed;" + checkRes.cause());
+              handler.handle(Future.failedFuture(errorJson));
             }
+            if (checkRes.succeeded()) {
+              if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
+                handler.handle(Future.failedFuture(
+                        respBuilder.withType(TYPE_ALREADY_EXISTS)
+                                .withTitle(TITLE_ALREADY_EXISTS)
+                                .withResult(id, INSERT, FAILED, "Fail: Doc Exists")
+                                .getResponse()));
+                return;
+              }
 
-            doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
+              doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
 
-            /* If geo and nlp services are initialized */
-            if (geoPluggedIn && nlpPluggedIn && !(instanceId == null || instanceId.isBlank() || instanceId.isEmpty())) {
-              geoService.geoSummarize(doc, geoHandler -> {
-                /* Not going to check if success or fail */
-                JsonObject geoResult;
-                try {
-                  geoResult = new JsonObject(geoHandler.result());
-                } catch (Exception e) {
-                  LOGGER.debug("no geocoding result generated");
-                  geoResult = new JsonObject();
-                }
-                doc.put(GEOSUMMARY_KEY,geoResult);
-                nlpService.getEmbedding(doc, ar -> {
-                  if (ar.succeeded()) {
-                    LOGGER.debug("Info: Document embeddings created");
-                    doc.put(WORD_VECTOR_KEY, ar.result().getJsonArray("result"));
-                    /* Insert document */
+              /* If geo and nlp services are initialized */
+              if (geoPluggedIn && nlpPluggedIn && !(instanceId == null || instanceId.isBlank() || instanceId.isEmpty())) {
+                geoService.geoSummarize(doc, geoHandler -> {
+                  /* Not going to check if success or fail */
+                  JsonObject geoResult;
+                  try {
+                    geoResult = new JsonObject(geoHandler.result());
+                  } catch (Exception e) {
+                    LOGGER.debug("no geocoding result generated");
+                    geoResult = new JsonObject();
+                  }
+                  doc.put(GEOSUMMARY_KEY,geoResult);
+                  nlpService.getEmbedding(doc, ar -> {
+                    if (ar.succeeded()) {
+                      LOGGER.debug("Info: Document embeddings created");
+                      doc.put(WORD_VECTOR_KEY, ar.result().getJsonArray("result"));
+                      /* Insert document */
+                      client.docPostAsync(docIndex, doc.toString(), postRes -> {
+                        if (postRes.succeeded()) {
+                          handler.handle(Future.succeededFuture(
+                                  respBuilder.withType(TYPE_SUCCESS)
+                                          .withTitle(TITLE_SUCCESS)
+                                          .withResult(id, INSERT, TYPE_SUCCESS)
+                                          .getJsonResponse()));
+                        } else {
+                          handler.handle(Future.failedFuture(errorJson));
+                          LOGGER.error("Fail: Insertion failed" + postRes.cause());
+                        }
+                      });
+                    } else {
+                      LOGGER.error("Error: Document embeddings not created");
+                    }
+                  });
+                });
+              } else {
+                /* Insert document */
+                new Timer().schedule(new TimerTask() {
+                  public void run() {
                     client.docPostAsync(docIndex, doc.toString(), postRes -> {
                       if (postRes.succeeded()) {
                         handler.handle(Future.succeededFuture(
-                            respBuilder.withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                                .withResult(id, INSERT, TYPE_SUCCESS)
-                                .getJsonResponse()));
+                                respBuilder.withType(TYPE_SUCCESS)
+                                        .withResult(id, INSERT, TYPE_SUCCESS)
+                                        .getJsonResponse()));
                       } else {
                         handler.handle(Future.failedFuture(errorJson));
                         LOGGER.error("Fail: Insertion failed" + postRes.cause());
                       }
                     });
-                  } else {
-                    LOGGER.error("Error: Document embeddings not created");
                   }
-                });
-              });
-            } else {
-              /* Insert document */
-              new Timer().schedule(new TimerTask() {
-                public void run() {
-                  client.docPostAsync(docIndex, doc.toString(), postRes -> {
-                    if (postRes.succeeded()) {
-                      handler.handle(Future.succeededFuture(
-                          respBuilder.withType(TYPE_SUCCESS)
-                              .withResult(id, INSERT, TYPE_SUCCESS)
-                              .getJsonResponse()));
-                    } else {
-                      handler.handle(Future.failedFuture(errorJson));
-                      LOGGER.error("Fail: Insertion failed" + postRes.cause());
-                    }
-                  });
-                }
-              }, STATIC_DELAY_TIME);
+                }, STATIC_DELAY_TIME);
+              }
             }
-          }
-        });
-      } else if (instanceHandler.failed()) {
-        handler.handle(Future.failedFuture(
-            respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
-                .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-                .withResult(id, INSERT, FAILED, instanceHandler.cause().getLocalizedMessage())
-                .getResponse()));
-      }
-    });
-    return this;
+          });
+        } else if (instanceHandler.failed()) {
+          handler.handle(Future.failedFuture(
+                  respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
+                          .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                          .withResult(id, INSERT, FAILED, instanceHandler.cause().getLocalizedMessage())
+                          .getResponse()));
+        }
+      });
+      return this;
+    }else
+    {
+      LOGGER.error("Fail : id not present in the request");
+      handler.handle(Future.failedFuture(
+              respBuilder.withType(TYPE_INVALID_SYNTAX)
+                      .withTitle(TITLE_INVALID_SYNTAX)
+                      .withDetail(DETAIL_ID_NOT_FOUND)
+                      .getResponse()));
+      return null;
+    }
+
   }
+
 
   /**
    * {@inheritDoc}

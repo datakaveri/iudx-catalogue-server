@@ -187,6 +187,7 @@ public class Constants {
   public static final String TITLE_ITEM_NOT_FOUND = "Item is not found";
   public static final String TITLE_INVALID_SYNTAX = "Invalid Syntax";
   public static final String TITLE_MISSING_PARAMS = "Missing parameters";
+
   public static final String TITLE_INTERNAL_SERVER_ERROR = "Internal error";
   public static final String TITLE_OPERATION_NOT_ALLOWED = "Operation not allowed";
   public static final String TITLE_LINK_VALIDATION_FAILED = "Link Validation Failed";
@@ -195,7 +196,7 @@ public class Constants {
 
   public static final String DETAIL_INTERNAL_SERVER_ERROR = "Internal error";
   public static final String DETAIL_WRONG_ITEM_TYPE = "Wrong Item Type";
-
+  public static final String DETAIL_ID_NOT_FOUND = "id not present in the request";
 
   public static final String TYPE_INVALID_GEO_PARAM = "urn:dx:cat:InvalidGeoParam";
   public static final String TITLE_INVALID_GEO_PARAM = "Geoquery parameter error";

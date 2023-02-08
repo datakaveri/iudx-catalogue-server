@@ -4,6 +4,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.net.JksOptions;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
@@ -123,7 +124,9 @@ public class ApiServerVerticle extends AbstractVerticle {
       port = config().getInteger(PORT) == null ? 8080
           : config().getInteger(PORT);
     }
-    serverOptions.setCompressionSupported(true).setCompressionLevel(5);
+      LOGGER.debug("Started HTTP server at port : " + port);
+
+      serverOptions.setCompressionSupported(true).setCompressionLevel(5);
     /** Instantiate this server */
     server = vertx.createHttpServer(serverOptions);
 
@@ -593,7 +596,19 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /** Start server */
     server.requestHandler(router).listen(port);
+
+      /* Print the deployed endpoints */
+      printDeployedEndpoints(router);
+      LOGGER.info("API server deployed on :" + serverOptions.getPort());
   }
+
+    private void printDeployedEndpoints(Router router) {
+        for (Route route : router.getRoutes()) {
+            if (route.getPath() != null) {
+                LOGGER.info("API Endpoints deployed : " + route.methods() + " : " + route.getPath());
+            }
+        }
+    }
 
   @Override
   public void stop() {
