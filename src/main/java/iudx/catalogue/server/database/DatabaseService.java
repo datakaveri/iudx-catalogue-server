@@ -275,6 +275,10 @@ public interface DatabaseService {
    */
   @Fluent
   DatabaseService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  @Fluent
+  DatabaseService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler);
+  @Fluent
+  DatabaseService getMlayerDataset(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /* create db service with nlp and geocoding */
   @GenIgnore

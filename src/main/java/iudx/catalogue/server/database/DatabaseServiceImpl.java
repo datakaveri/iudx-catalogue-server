@@ -1334,6 +1334,64 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
+  @Override
+  public DatabaseService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
+    String query = GET_MLAYER_ALL_DATASETS;
+    client.searchAsync(
+            query,
+            docIndex,
+            resultHandler -> {
+              if (resultHandler.failed()) {
+                LOGGER.error("Fail: Check query fail;" + resultHandler.cause());
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              } else {
+                LOGGER.debug("Success: Successful DB Request");
+                handler.handle(Future.succeededFuture(resultHandler.result()));
+
+              }
+            });
+    return this;
+  }
+  @Override
+  public DatabaseService getMlayerDataset(
+          JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.debug("request body" + request);
+    String dataset_id = request.getString("id");
+
+    int index=dataset_id.indexOf("/", dataset_id.indexOf("/") + 1);
+    String provider_id = dataset_id.substring(0, index);
+    LOGGER.debug("provider id " + provider_id);
+
+    String query= GET_MLAYER_DATASET.replace("$1",dataset_id).replace("$2",provider_id);
+    LOGGER.debug("Query "+query);
+    client.searchAsyncDataset(
+            query,
+            docIndex,
+            resultHandler -> {
+              if (resultHandler.succeeded()) {
+                LOGGER.debug("Success: Successful DB Request");
+                String instance_name = resultHandler.result().getJsonArray(RESULTS).getJsonObject(0).getJsonObject("dataset").getString(INSTANCE);
+                String get_icon_query = GET_MLAYER_INSTANCE_ICON.replace("$1",instance_name);
+                client.searchAsync(get_icon_query,mlayerInstanceIndex,iconResultHandler -> {
+                  if(iconResultHandler.succeeded()) {
+                    LOGGER.debug("Success: Successful DB Request");
+                    String instance_path = iconResultHandler.result().getJsonArray(RESULTS).getJsonObject(0).getString("icon");
+                    resultHandler.result().getJsonArray(RESULTS).getJsonObject(0).getJsonObject("dataset").put("instance_icon",instance_path);
+                    handler.handle(Future.succeededFuture(resultHandler.result()));
+                  }
+                });
+
+
+
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
+
+    return this;
+  }
+
   /* Verify the existance of an instance */
   Future<Boolean> verifyInstance(String instanceId) {
 

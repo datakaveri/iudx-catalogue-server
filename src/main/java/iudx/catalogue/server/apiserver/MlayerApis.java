@@ -463,4 +463,33 @@ public class MlayerApis {
           }
         });
   }
+  public void getMlayerAllDatasetsHandler(RoutingContext routingContext) {
+      LOGGER.debug("Info : fetching all datasets that belong to IUDX");
+      HttpServerResponse response = routingContext.response();
+      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+      mlayerService.getMlayerAllDatasets(
+              handler -> {
+                  if (handler.succeeded()) {
+                      response.setStatusCode(200).end(handler.result().toString());
+                  } else {
+                      response.setStatusCode(400).end(handler.cause().getMessage());
+                  }
+              });
+  }
+    public void getMlayerDatasetHandler(RoutingContext routingContext) {
+        LOGGER.debug("Info : fetching details of the dataset");
+        HttpServerResponse response = routingContext.response();
+        JsonObject requestBody = routingContext.body().asJsonObject();
+
+        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+        mlayerService.getMlayerDataset(requestBody,
+                handler -> {
+                    if (handler.succeeded()) {
+                        response.setStatusCode(200).end(handler.result().toString());
+                    } else {
+                        response.setStatusCode(400).end(handler.cause().getMessage());
+                    }
+                });
+    }
+
 }

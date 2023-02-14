@@ -208,4 +208,34 @@ public class MlayerServiceImpl implements MlayerService {
         });
     return this;
   }
+    @Override
+    public MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
+        databaseService.getMlayerAllDatasets(
+                getMlayerAllDatasets -> {
+                    if (getMlayerAllDatasets.succeeded()) {
+                        LOGGER.info("Success: Getting all domain values");
+                        handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
+                    } else {
+                        LOGGER.error("Fail: Getting all domains failed");
+                        handler.handle(Future.failedFuture(getMlayerAllDatasets.cause()));
+                    }
+                });
+        return this;
+    }
+    @Override
+    public MlayerService getMlayerDataset(
+            JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+        databaseService.getMlayerDataset(
+                request,
+                getMlayerDatasetHandler -> {
+                    if (getMlayerDatasetHandler.succeeded()) {
+                        LOGGER.info("Success: Getting locations of datasets");
+                        handler.handle(Future.succeededFuture(getMlayerDatasetHandler.result()));
+                    } else {
+                        LOGGER.error("Fail: Getting locations of datasets failed");
+                        handler.handle(Future.failedFuture(getMlayerDatasetHandler.cause()));
+                    }
+                });
+        return this;
+    }
 }
