@@ -1337,21 +1337,67 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_MLAYER_ALL_DATASETS;
+    LOGGER.debug(query);
+
     client.searchAsync(
             query,
             docIndex,
             resultHandler -> {
-              if (resultHandler.failed()) {
-                LOGGER.error("Fail: Check query fail;" + resultHandler.cause());
-                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-              } else {
+              if (resultHandler.succeeded()) {
                 LOGGER.debug("Success: Successful DB Request");
-                handler.handle(Future.succeededFuture(resultHandler.result()));
+                int size = resultHandler.result().getJsonArray(RESULTS).size();
+                for(int i =0;i< size;i++)
+                {
+                  JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
+                  String dataset_id = record.getString("id");
+                  int index=dataset_id.indexOf("/", dataset_id.indexOf("/") + 1);
+                  String provider_id = dataset_id.substring(0, index);
+                  String query_provider = GET_PROVIDER_RESOURCE_COUNT.replace("$1",dataset_id).replace("$2",provider_id);
+                  int finalI = i;
+                  client.searchAsync(query_provider,docIndex, getProvider->{
+                    if(getProvider.succeeded()) {
+                      String providerDescription = "";
+                      int totalResources = getProvider.result().getInteger(TOTAL_HITS)-1;
+                      for(int j=0;j<getProvider.result().getJsonArray(RESULTS).size();j++)
+                      {
+                        JsonObject resource = getProvider.result().getJsonArray(RESULTS).getJsonObject(j);
+                        if(resource.getJsonArray(TYPE).getString(0).equals("iudx:Provider")) {
+                           providerDescription = resource.getString("description");
+                        }
+                      }
+                      record.put("totalResources",totalResources).put("providerDescription",providerDescription);
+                      String instance =record.getString("instance");
+                      String get_instance_query = GET_MLAYER_INSTANCE_ICON.replace("$1",instance);
+                      client.searchAsync(get_instance_query,mlayerInstanceIndex,getIconRes->
+                      {
+                        if(getIconRes.succeeded()) {
+                          String icon_path = getIconRes.result().getJsonArray(RESULTS).getJsonObject(0).getString("icon");
+                          record.put("icon",icon_path);
+                          if(finalI==(size-1))
+                            handler.handle(Future.succeededFuture(resultHandler.result()));
+                        }
+                        else {
+                          LOGGER.error("Fail: query fail;" + getIconRes.cause());
+                          handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                        }
+                      });
+                    }
+                    else {
+                      LOGGER.error("Fail: query fail;" + getProvider.cause());
+                      handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    }
+                  });
+                }
+              } else {
+
+                LOGGER.error("Fail: query fail;" + resultHandler.cause());
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
 
               }
             });
     return this;
   }
+
   @Override
   public DatabaseService getMlayerDataset(
           JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -1370,19 +1416,26 @@ public class DatabaseServiceImpl implements DatabaseService {
             resultHandler -> {
               if (resultHandler.succeeded()) {
                 LOGGER.debug("Success: Successful DB Request");
-                String instance_name = resultHandler.result().getJsonArray(RESULTS).getJsonObject(0).getJsonObject("dataset").getString(INSTANCE);
+                int resource_count = resultHandler.result().getInteger(TOTAL_HITS)-2;
+                JsonObject record =  resultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
+                record.getJsonObject("dataset").put("totalResources",resource_count);
+                resultHandler.result().remove(TOTAL_HITS);
+
+                String instance_name = record.getJsonObject("dataset").getString(INSTANCE);
                 String get_icon_query = GET_MLAYER_INSTANCE_ICON.replace("$1",instance_name);
                 client.searchAsync(get_icon_query,mlayerInstanceIndex,iconResultHandler -> {
                   if(iconResultHandler.succeeded()) {
                     LOGGER.debug("Success: Successful DB Request");
-                    String instance_path = iconResultHandler.result().getJsonArray(RESULTS).getJsonObject(0).getString("icon");
-                    resultHandler.result().getJsonArray(RESULTS).getJsonObject(0).getJsonObject("dataset").put("instance_icon",instance_path);
+                    JsonObject resource = iconResultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
+                    String instance_path = resource.getString("icon");
+                    record.getJsonObject("dataset").put("instance_icon",instance_path);
                     handler.handle(Future.succeededFuture(resultHandler.result()));
                   }
+                  else {
+                    LOGGER.error("Fail: failed DB request");
+                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                  }
                 });
-
-
-
               } else {
                 LOGGER.error("Fail: failed DB request");
                 handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));

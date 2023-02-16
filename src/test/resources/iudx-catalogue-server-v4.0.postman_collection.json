@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "649ef54b-a617-4e10-a05b-7ecce7cd10a0",
+		"_postman_id": "919a7531-4e90-4552-892c-f4e28bbc0a8b",
 		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "23234057"
@@ -1137,7 +1137,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}{{base}}/instance?id=mumbai",
+							"raw": "{{host}}{{base}}/instance?id=poone",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -11866,6 +11866,108 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "Mlayer Dataset",
+					"item": [
+						{
+							"name": "200 (Success) - Get All Datasets",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/datasets",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"datasets"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (Success) - Post Dataset",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/dataset",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"dataset"
+									]
+								}
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},
@@ -11900,7 +12002,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}{{base}}/geo?q=malleswaram",
+							"raw": "{{host}}/{{base}}/geo?q=malleswaram",
 							"host": [
 								"{{host}}"
 							],
@@ -11946,7 +12048,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}{{base}}/geo?q=",
+							"raw": "{{host}}/{{base}}/geo?q=",
 							"host": [
 								"{{host}}"
 							],
@@ -11992,7 +12094,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}{{base}}/geo?p=malleswaram",
+							"raw": "{{host}}/{{base}}/geo?p=malleswaram",
 							"host": [
 								"{{host}}"
 							],
@@ -12038,7 +12140,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}{{base}}/geo?q=++",
+							"raw": "{{host}}/{{base}}/geo?q=++",
 							"host": [
 								"{{host}}"
 							],

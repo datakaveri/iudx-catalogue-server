@@ -142,12 +142,13 @@ public class Constants {
   public static final String GET_MLAYER_BOOL_GEOQUERY =
       "{\"bool\": {\"should\": [{ \"match\": { \"type.keyword\": \"iudx:Resource\" } },{ \"match\": { \"type.keyword\": \"iudx:ResourceGroup\" } }],\"must\": [{\"match\": {\"instance.keyword\": \"$2\"}},{\"match\": {\"id.keyword\": \"$3\"}}]}}";
   public static final String GET_MLAYER_ALL_DATASETS =
-      "{\"query\":{\"bool\":{\"should\":[{\"match\":{\"type.keyword\":\"iudx:Resource\"}},{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}]}},\"_source\":{\"includes\": [\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\"]}}";
+      "{\"query\":{\"bool\":{\"must\":{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}}},\"_source\":{\"includes\": [\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\"]}}";
   public static final String GET_MLAYER_DATASET =
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\": {\"id.keyword\": \"$1\"}},{\"match\": {\"type.keyword\":\"iudx:ResourceGroup\"}}]}},{\"bool\":{\"must\":[{\"match\": {\"id.keyword\": \"$2\"}},{\"match\":{\"type.keyword\": \"iudx:Provider\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"resourceGroup.keyword\": \"$1\"}},{\"match\":{\"type.keyword\": \"iudx:Resource\"}}]}}]}},\"_source\": {\"includes\": [\"id\",\"type\",\"label\",\"description\",\"instance\",\"accessPolicy\",\"dataSample\",\"dataDescriptor\",\"@context\",\"dataQualityFile\",\"dataSampleFile\",\"resourceType\"]}}";
   public static final String GET_MLAYER_INSTANCE_ICON =
       "{\"query\":{\"match\":{\"name\":\"$1\"}},\"_source\": {\"includes\": [\"icon\"]}}";
-
+  public static final String GET_PROVIDER_RESOURCE_COUNT =
+      "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"iudx:Resource\"}},{\"match\":{\"resourceGroup.keyword\":\"$1\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"id.keyword\":\"$2\"}},{\"match\":{\"type.keyword\": \"iudx:Provider\"}}]}}]}},\"_source\":{\"includes\":[\"description\",\"type\"]}}";
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
   public static final String SHOULD_QUERY = "{\"bool\":{\"should\":$1}}";
