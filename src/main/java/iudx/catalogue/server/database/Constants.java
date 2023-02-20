@@ -141,8 +141,18 @@ public class Constants {
       "{ \"query\": { \"bool\": { \"minimum_should_match\": 1, \"should\": [$1]}},\"_source\": {\"includes\": [\"id\",\"location\",\"instance\",\"label\"] }}";
   public static final String GET_MLAYER_BOOL_GEOQUERY =
       "{\"bool\": {\"should\": [{ \"match\": { \"type.keyword\": \"iudx:Resource\" } },{ \"match\": { \"type.keyword\": \"iudx:ResourceGroup\" } }],\"must\": [{\"match\": {\"instance.keyword\": \"$2\"}},{\"match\": {\"id.keyword\": \"$3\"}}]}}";
+  public static final String GET_MLAYER_BOOL_ICON =
+      "{\"bool\":{\"must\":[{\"match\":{\"name\":\"$2\"}}]}}";
+  public static final String GET_MLAYER_INSTANCE_ICON_PATH =
+          "{ \"query\": { \"bool\": { \"minimum_should_match\": 1, \"should\": [$1]}},\"_source\": {\"includes\": [\"icon\",\"name\"] }}";
+  public static final String GET_MLAYER_PROVIDER_DESCRIPTION =
+          "{ \"query\": { \"bool\": { \"minimum_should_match\": 1, \"should\": [$1]}},\"_source\": {\"includes\": [\"id\",\"description\"] }}";
+  public static final String GET_MLAYER_BOOL_PROVIDER =
+      "{\"bool\": {\"must\": [{\"match\": {\"id.keyword\":\"$2\"}},{\"match\":{\"type.keyword\":\"iudx:Provider\"}}]}}";
   public static final String GET_MLAYER_ALL_DATASETS =
-      "{\"query\":{\"bool\":{\"must\":{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}}},\"_source\":{\"includes\": [\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\"]}}";
+      "{\"query\":{\"bool\":{\"must\":{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}}},\"_source\":{\"includes\": [\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\",\"provider\"]}}";
+  public static final String GET_MLAYER_ALL_RESOURCE_DATASETS =
+      "{\"query\":{\"bool\":{\"must\":{\"match\":{\"type.keyword\":\"iudx:Resource\"}}}},\"_source\":{\"includes\": [\"id\",\"resourceGroup\"]},\"size\":980}";
   public static final String GET_MLAYER_DATASET =
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\": {\"id.keyword\": \"$1\"}},{\"match\": {\"type.keyword\":\"iudx:ResourceGroup\"}}]}},{\"bool\":{\"must\":[{\"match\": {\"id.keyword\": \"$2\"}},{\"match\":{\"type.keyword\": \"iudx:Provider\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"resourceGroup.keyword\": \"$1\"}},{\"match\":{\"type.keyword\": \"iudx:Resource\"}}]}}]}},\"_source\": {\"includes\": [\"id\",\"type\",\"label\",\"description\",\"instance\",\"accessPolicy\",\"dataSample\",\"dataDescriptor\",\"@context\",\"dataQualityFile\",\"dataSampleFile\",\"resourceType\"]}}";
   public static final String GET_MLAYER_INSTANCE_ICON =
