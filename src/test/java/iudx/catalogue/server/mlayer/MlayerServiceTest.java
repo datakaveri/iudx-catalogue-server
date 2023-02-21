@@ -662,4 +662,124 @@ public class MlayerServiceTest {
           }
         });
   }
+
+  @Test
+  @DisplayName("Success: test get all datasets")
+  void successfulGetMlayerAllDatasetsTest(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService);
+    JsonObject request = new JsonObject();
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerAllDatasets(any());
+    mlayerService.getMlayerAllDatasets(
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerAllDatasets(any());
+            testContext.completeNow();
+          } else {
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Failure: test get all datasets")
+  void failureMlayerAllDatasetsTest(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService);
+    JsonObject request = new JsonObject();
+    when(asyncResult.succeeded()).thenReturn(false);
+    Mockito.doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerAllDatasets(any());
+
+    mlayerService.getMlayerAllDatasets(
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerAllDatasets(any());
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Success: test get dataset detail")
+  void successfulGetMlayerDatasetTest(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService);
+    JsonObject request = new JsonObject();
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerDataset(any(), any());
+    mlayerService.getMlayerDataset(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerDataset(any(), any());
+            testContext.completeNow();
+          } else {
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Failure: test get dataset details")
+  void failureMlayerDatasetTest(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService);
+    JsonObject request = new JsonObject();
+    when(asyncResult.succeeded()).thenReturn(false);
+    Mockito.doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerDataset(any(), any());
+
+    mlayerService.getMlayerDataset(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerDataset(any(), any());
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
 }

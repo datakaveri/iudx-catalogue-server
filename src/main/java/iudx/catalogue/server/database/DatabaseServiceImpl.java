@@ -15,7 +15,6 @@ import static iudx.catalogue.server.database.Constants.*;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 
-
 /**
  * The Database Service Implementation.
  *
@@ -1333,23 +1332,23 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     return this;
   }
-  
+
   @Override
   public DatabaseService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_MLAYER_ALL_DATASETS;
     LOGGER.debug(query);
-
+    // Elastic client call to get all datasets.
     client.searchAsync(
         query,
         docIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {
-
             LOGGER.debug("Success: Successful DB Request");
             int size = resultHandler.result().getJsonArray(RESULTS).size();
             ArrayList<String> instanceList = new ArrayList<String>();
             ArrayList<String> providerList = new ArrayList<String>();
-
+            // make a list of instance names and provider_id. The lists contains unique values, no
+            // duplicate values
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
               String instance = record.getString(INSTANCE);
@@ -1361,6 +1360,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 providerList.add(provider_id);
               }
             }
+            // Query to get instances icon path
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < instanceList.size(); i++) {
               String instance = instanceList.get(i);
@@ -1369,6 +1369,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
             sb.deleteCharAt(sb.length() - 1);
             String get_icon_query = GET_MLAYER_INSTANCE_ICON_PATH.replace("$1", sb);
+            // query to get provider description and total Resource
             StringBuilder sb1 = new StringBuilder();
 
             for (int i = 0; i < providerList.size(); i++) {
@@ -1379,7 +1380,8 @@ public class DatabaseServiceImpl implements DatabaseService {
               sb1.append(combinedQuery).append(",");
             }
             sb1.deleteCharAt(sb1.length() - 1);
-            String get_provider_query = GET_MLAYER_PROVIDER_DESCRIPTION.replace("$1", sb1);
+            String get_provider_query = GET_MLAYER_PROVIDER_RESOURCE.replace("$1", sb1);
+            // Elastic client call to get instance icon paths.
             client.searchAsync(
                 get_icon_query,
                 mlayerInstanceIndex,
@@ -1394,16 +1396,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                       String icon = iconRes_record.getString("icon");
                       iconPath.put(instance_name, icon);
                     }
-                    for (int i = 0; i < size; i++) {
-                      JsonObject record =
-                          resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-                      resultHandler
-                          .result()
-                          .getJsonArray(RESULTS)
-                          .getJsonObject(i)
-                          .put("icon", iconPath.get(record.getString(INSTANCE)));
-                    }
-                    // handler.handle(Future.succeededFuture(resultHandler.result()));
+
+                    // Elastic client call to get provider description and total resource.
                     client.searchAsync(
                         get_provider_query,
                         docIndex,
@@ -1411,15 +1405,31 @@ public class DatabaseServiceImpl implements DatabaseService {
                           if (providerRes.succeeded()) {
                             Map<String, String> provider_description_list =
                                 new HashMap<String, String>();
+                            Map<String, Integer> resourceGroupMap = new HashMap<>();
+
                             int provider_description_size =
                                 providerRes.result().getJsonArray(RESULTS).size();
                             for (int i = 0; i < provider_description_size; i++) {
                               JsonObject providerRes_record =
                                   providerRes.result().getJsonArray(RESULTS).getJsonObject(i);
-                              String provider_id = providerRes_record.getString("id");
-                              String provider_description =
-                                  providerRes_record.getString("description");
-                              provider_description_list.put(provider_id, provider_description);
+                              if (providerRes_record
+                                  .getJsonArray(TYPE)
+                                  .getString(0)
+                                  .equals("iudx:Provider")) {
+                                String provider_id = providerRes_record.getString("id");
+                                String provider_description =
+                                    providerRes_record.getString("description");
+                                provider_description_list.put(provider_id, provider_description);
+                              }
+                              if (providerRes_record
+                                  .getJsonArray(TYPE)
+                                  .getString(0)
+                                  .equals("iudx:Resource")) {
+
+                                String resourceGroup =
+                                    providerRes_record.getString("resourceGroup");
+                                resourceGroupMap.merge(resourceGroup, 1, Integer::sum);
+                              }
                             }
                             for (int i = 0; i < size; i++) {
                               JsonObject record =
@@ -1428,60 +1438,33 @@ public class DatabaseServiceImpl implements DatabaseService {
                                   .result()
                                   .getJsonArray(RESULTS)
                                   .getJsonObject(i)
+                                  .put("icon", iconPath.get(record.getString(INSTANCE)));
+                              resultHandler
+                                  .result()
+                                  .getJsonArray(RESULTS)
+                                  .getJsonObject(i)
                                   .put(
                                       "providerDescription",
                                       provider_description_list.get(record.getString(PROVIDER)));
+                              resultHandler
+                                  .result()
+                                  .getJsonArray(RESULTS)
+                                  .getJsonObject(i)
+                                  .put(
+                                      "totalResources", resourceGroupMap.get(record.getString(ID)));
                             }
-                            String resource_dataset_query = GET_MLAYER_ALL_RESOURCE_DATASETS;
-                            client.searchAsync(
-                                resource_dataset_query,
-                                docIndex,
-                                resourceRes -> {
-                                  if (resourceRes.succeeded()) {
-                                    int resource_size =
-                                        resourceRes.result().getJsonArray(RESULTS).size();
-                                    Map<String, Integer> resourceGroupMap = new HashMap<>();
-                                    for (int i = 0; i < resource_size; i++) {
-                                      JsonObject resource_record =
-                                          resourceRes
-                                              .result()
-                                              .getJsonArray(RESULTS)
-                                              .getJsonObject(i);
-                                      String resourceGroup =
-                                          resource_record.getString("resourceGroup");
-                                      resourceGroupMap.merge(resourceGroup, 1, Integer::sum);
-                                    }
-                                    for (int i = 0; i < size; i++) {
-                                      JsonObject record =
-                                          resultHandler
-                                              .result()
-                                              .getJsonArray(RESULTS)
-                                              .getJsonObject(i);
-                                      resultHandler
-                                          .result()
-                                          .getJsonArray(RESULTS)
-                                          .getJsonObject(i)
-                                          .put(
-                                              "totalResources",
-                                              resourceGroupMap.get(record.getString("id")));
-                                    }
-                                    handler.handle(Future.succeededFuture(resultHandler.result()));
-                                  } else {
+                            handler.handle(Future.succeededFuture(resultHandler.result()));
 
-                                      LOGGER.error("Fail: query fail;" + resourceRes.cause());
-                                      handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                                  }
-                                });
                           } else {
 
-                              LOGGER.error("Fail: query fail;" + providerRes.cause());
-                              handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                            LOGGER.error("Fail: query fail;" + providerRes.cause());
+                            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
                           }
                         });
                   } else {
 
-                      LOGGER.error("Fail: query fail;" + iconRes.cause());
-                      handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    LOGGER.error("Fail: query fail;" + iconRes.cause());
+                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
                   }
                 });
 

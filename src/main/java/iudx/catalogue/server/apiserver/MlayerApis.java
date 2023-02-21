@@ -424,13 +424,13 @@ public class MlayerApis {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerProviders(
-            handler -> {
-                if (handler.succeeded()) {
-                    response.setStatusCode(200).end(handler.result().toString());
-                } else {
-                    response.setStatusCode(400).end(handler.cause().getMessage());
-                }
-            });
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
   }
 
   public void getMlayerGeoQueryHandler(RoutingContext routingContext) {
@@ -463,33 +463,50 @@ public class MlayerApis {
           }
         });
   }
+
   public void getMlayerAllDatasetsHandler(RoutingContext routingContext) {
-      LOGGER.debug("Info : fetching all datasets that belong to IUDX");
-      HttpServerResponse response = routingContext.response();
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-      mlayerService.getMlayerAllDatasets(
-              handler -> {
-                  if (handler.succeeded()) {
-                      response.setStatusCode(200).end(handler.result().toString());
-                  } else {
-                      response.setStatusCode(400).end(handler.cause().getMessage());
-                  }
-              });
+    LOGGER.debug("Info : fetching all datasets that belong to IUDX");
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    mlayerService.getMlayerAllDatasets(
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
   }
-    public void getMlayerDatasetHandler(RoutingContext routingContext) {
-        LOGGER.debug("Info : fetching details of the dataset");
-        HttpServerResponse response = routingContext.response();
-        JsonObject requestBody = routingContext.body().asJsonObject();
 
-        response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-        mlayerService.getMlayerDataset(requestBody,
+  public void getMlayerDatasetHandler(RoutingContext routingContext) {
+    LOGGER.debug("Info : fetching details of the dataset");
+    HttpServerResponse response = routingContext.response();
+    JsonObject requestBody = routingContext.body().asJsonObject();
+
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    validatorService.validateMlayerDatasetId(
+        requestBody,
+        validationHandler -> {
+          if (validationHandler.failed()) {
+            response
+                .setStatusCode(400)
+                .end(
+                    new RespBuilder()
+                        .withType(TYPE_INVALID_SCHEMA)
+                        .withTitle(TITLE_INVALID_SCHEMA)
+                        .withDetail("The Schema of requested body is invalid.")
+                        .getResponse());
+          } else {
+            mlayerService.getMlayerDataset(
+                requestBody,
                 handler -> {
-                    if (handler.succeeded()) {
-                        response.setStatusCode(200).end(handler.result().toString());
-                    } else {
-                        response.setStatusCode(400).end(handler.cause().getMessage());
-                    }
+                  if (handler.succeeded()) {
+                    response.setStatusCode(200).end(handler.result().toString());
+                  } else {
+                    response.setStatusCode(400).end(handler.cause().getMessage());
+                  }
                 });
-    }
-
+          }
+        });
+  }
 }

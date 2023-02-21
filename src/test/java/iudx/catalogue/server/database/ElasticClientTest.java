@@ -173,4 +173,12 @@ public class ElasticClientTest {
     assertNotNull(elasticClient.countAsync(query,docIndex, handler));
     vertxTestContext.completeNow();
   }
+
+  @Test
+  @Description("test searchAsyncDataset method")
+  public void testSearchAsync(VertxTestContext vertxTestContext) {
+    String query="dummy";
+    assertNotNull(elasticClient.searchAsyncDataset(query,docIndex, handler));
+    vertxTestContext.completeNow();
+  }
 }

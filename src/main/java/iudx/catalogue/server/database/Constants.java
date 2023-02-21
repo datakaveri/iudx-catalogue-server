@@ -13,6 +13,10 @@ public class Constants {
   static final String SIZE_KEY = "size";
   static final int STATIC_DELAY_TIME = 3000;
 
+  public static final String DATA_SAMPLE = "dataSample";
+  public static final String DATA_DESCRIPTOR = "dataDescriptor";
+  public static final String LABEL = "label";
+
   /* Database */
   static final String AGGREGATION_KEY = "aggs";
 
@@ -70,10 +74,13 @@ public class Constants {
   public static final String DEVICEID_KEY = "deviceId";
   public static final String TAG_AQM = "aqm";
   public static final String DESCRIPTION_ATTR = "description";
+  public static final String ACCESS_POLICY = "accessPolicy";
+
 
   /** ElasticClient search types */
   public static final String DOC_IDS_ONLY = "DOCIDS";
   public static final String SOURCE_ONLY = "SOURCE";
+  public static final String DATASET = "DATASET";
 
   public static final String FORWARD_SLASH = "/";
   public static final String WILDCARD_KEY = "wildcard";
@@ -145,8 +152,8 @@ public class Constants {
       "{\"bool\":{\"must\":[{\"match\":{\"name\":\"$2\"}}]}}";
   public static final String GET_MLAYER_INSTANCE_ICON_PATH =
           "{ \"query\": { \"bool\": { \"minimum_should_match\": 1, \"should\": [$1]}},\"_source\": {\"includes\": [\"icon\",\"name\"] }}";
-  public static final String GET_MLAYER_PROVIDER_DESCRIPTION =
-          "{ \"query\": { \"bool\": { \"minimum_should_match\": 1, \"should\": [$1]}},\"_source\": {\"includes\": [\"id\",\"description\"] }}";
+  public static final String GET_MLAYER_PROVIDER_RESOURCE =
+      "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"iudx:Resource\"}}]}},$1]}},\"_source\": {\"includes\": [\"id\",\"description\",\"type\",\"resourceGroup\"]},\"size\": 981}";
   public static final String GET_MLAYER_BOOL_PROVIDER =
       "{\"bool\": {\"must\": [{\"match\": {\"id.keyword\":\"$2\"}},{\"match\":{\"type.keyword\":\"iudx:Provider\"}}]}}";
   public static final String GET_MLAYER_ALL_DATASETS =

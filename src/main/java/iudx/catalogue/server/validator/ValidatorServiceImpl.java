@@ -46,6 +46,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator mlayerInstanceValidator;
   private Validator mlayerDomainValidator;
   private Validator mlayerGeoQueryValidator;
+  private Validator mlayerDatasetValidator;
 
 
 
@@ -66,6 +67,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       mlayerInstanceValidator=new Validator("/mlayerInstanceSchema.json");
       mlayerDomainValidator = new Validator("/mlayerDomainSchema.json");
       mlayerGeoQueryValidator = new Validator("/mlayerGeoQuerySchema.json");
+      mlayerDatasetValidator = new Validator("/mlayerDatasetSchema.json");
 
     } catch (IOException | ProcessingException e) {
       e.printStackTrace();
@@ -285,6 +287,19 @@ public class ValidatorServiceImpl implements ValidatorService {
   @Override
   public ValidatorService validateMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema = mlayerGeoQueryValidator.validate(request.toString());
+
+    if(isValidSchema) {
+      handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
+    } else {
+      LOGGER.error("Fail: Invalid Schema");
+      handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
+    }
+    return this;
+  }
+
+  @Override
+  public ValidatorService validateMlayerDatasetId(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    isValidSchema = mlayerDatasetValidator.validate(request.toString());
 
     if(isValidSchema) {
       handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));

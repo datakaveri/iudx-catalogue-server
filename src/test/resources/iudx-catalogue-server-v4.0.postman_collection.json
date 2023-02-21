@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "919a7531-4e90-4552-892c-f4e28bbc0a8b",
+		"_postman_id": "c2731b89-a30d-49ff-9a44-1ebb7ca5e32a",
 		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "23234057"
@@ -1137,7 +1137,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}{{base}}/instance?id=poone",
+							"raw": "{{host}}{{base}}/instance?id=mumbai",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -11966,6 +11966,61 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "400 (Invalid Schema) - Post Dataset",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"idd\":\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/dataset",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"dataset"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				}
@@ -12002,7 +12057,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/{{base}}/geo?q=malleswaram",
+							"raw": "{{host}}{{base}}/geo?q=malleswaram",
 							"host": [
 								"{{host}}"
 							],
@@ -12048,7 +12103,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/{{base}}/geo?q=",
+							"raw": "{{host}}{{base}}/geo?q=",
 							"host": [
 								"{{host}}"
 							],
@@ -12094,7 +12149,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/{{base}}/geo?p=malleswaram",
+							"raw": "{{host}}{{base}}/geo?p=malleswaram",
 							"host": [
 								"{{host}}"
 							],
@@ -12140,7 +12195,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/{{base}}/geo?q=++",
+							"raw": "{{host}}{{base}}/geo?q=++",
 							"host": [
 								"{{host}}"
 							],

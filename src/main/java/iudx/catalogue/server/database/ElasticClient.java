@@ -66,16 +66,20 @@ public final class ElasticClient {
    */
   public ElasticClient searchAsync(String query, String index,
       Handler<AsyncResult<JsonObject>> resultHandler) {
+
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
     queryRequest.setJsonEntity(query);
+    LOGGER.debug(queryRequest);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
     future.onComplete(resultHandler);
     return this;
   }
-  public ElasticClient searchAsyncDataset(String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
+
+  public ElasticClient searchAsyncDataset(
+      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
     queryRequest.setJsonEntity(query);
-    Future<JsonObject> future = searchAsync(queryRequest, "DATASET");
+    Future<JsonObject> future = searchAsync(queryRequest, DATASET);
     future.onComplete(resultHandler);
     return this;
   }
@@ -314,10 +318,6 @@ public final class ElasticClient {
       return this;
     }
 
-    DBRespMsgBuilder addResult(JsonArray value) {
-      response.put(RESULTS, results.add(value));
-      return this;
-    }
     DBRespMsgBuilder addResult() {
       response.put(RESULTS, results);
       return this;
@@ -365,10 +365,9 @@ public final class ElasticClient {
                     || (options == DOC_IDS_ONLY)
                     || (options == SOURCE_AND_ID)
                     || (options == SOURCE_AND_ID_GEOQUERY)
-                ||(options == "DATASET")) {
-                  if(responseJson.getJsonObject(HITS).containsKey(HITS)) {
+                    || (options == DATASET)) {
+                  if (responseJson.getJsonObject(HITS).containsKey(HITS)) {
                     results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
-
                   }
                 }
                 if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY) {
@@ -376,7 +375,6 @@ public final class ElasticClient {
                                   .getJsonObject(RESULTS)
                                   .getJsonArray(BUCKETS);
             }
-
 
             for (int i = 0; i < results.size(); i++) {
               if (options == SOURCE_ONLY) {
@@ -414,50 +412,56 @@ public final class ElasticClient {
                     result.mergeIn(source);
                     responseMsg.addResult(result);
                   }
-
                 }
-            if(options == "DATASET") {
-              JsonArray resource = new JsonArray();
-              JsonObject finalResult = new JsonObject();
-              JsonObject datasetJson = new JsonObject();
-              for (int i = 0; i < results.size(); i++) {
-                JsonObject record = results.getJsonObject(i).getJsonObject(SOURCE);
-                JsonObject provider = new JsonObject();
-                String type = record.getJsonArray(TYPE).getString(0);
-                if(type.equals("iudx:Provider")) {
-                  provider.put("id",record.getString("id")).put("description",record.getString("description"));
-                  datasetJson.put("provider",provider);
-
+                if (options == DATASET) {
+                  JsonArray resource = new JsonArray();
+                  JsonObject dataset_detail = new JsonObject();
+                  JsonObject dataset = new JsonObject();
+                  for (int i = 0; i < results.size(); i++) {
+                    JsonObject record = results.getJsonObject(i).getJsonObject(SOURCE);
+                    JsonObject provider = new JsonObject();
+                    String type = record.getJsonArray(TYPE).getString(0);
+                    if (type.equals("iudx:Provider")) {
+                      provider
+                          .put(ID, record.getString(ID))
+                          .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
+                      dataset.put(PROVIDER, provider);
+                    }
+                    if (type.equals("iudx:Resource")) {
+                      JsonObject resource_json = new JsonObject();
+                      resource_json
+                          .put(RESOURCE_ID, record.getString(ID))
+                          .put(LABEL, record.getString(LABEL))
+                          .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
+                          .put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE))
+                          .put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR))
+                          .put(RESOURCETYPE, record.getString(RESOURCETYPE));
+                      resource.add(resource_json);
+                    }
+                    if (type.equals("iudx:ResourceGroup")) {
+                      String schema =
+                          record.getString("@context")
+                              + record
+                                  .getJsonArray(TYPE)
+                                  .getString(1)
+                                  .substring(5, record.getJsonArray(TYPE).getString(1).length());
+                      dataset
+                          .put(ID, record.getString(ID))
+                          .put(LABEL, record.getString(LABEL))
+                          .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
+                          .put(ACCESS_POLICY, record.getString(ACCESS_POLICY))
+                          .put(INSTANCE, record.getString(INSTANCE))
+                          .put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE))
+                          .put("dataSampleFile", record.getJsonArray("dataSampleFile"))
+                          .put("dataQualityFile", record.getJsonArray("dataQualityFile"))
+                          .put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR))
+                          .put("schema", schema);
+                    }
+                  }
+                  dataset_detail.put("dataset", dataset);
+                  dataset_detail.put("resource", resource);
+                  responseMsg.addResult(dataset_detail);
                 }
-                if(type.equals("iudx:Resource")) {
-                  JsonObject resource_json = new JsonObject();
-                  resource_json.put("resourceId",record.getString("id"))
-                          .put("label",record.getString("label"))
-                          .put("description",record.getString("description"))
-                          .put("dataSample",record.getJsonObject("dataSample"))
-                          .put("dataDescriptor",record.getJsonObject("dataDescriptor"))
-                          .put("resourceType",record.getString("resourceType"));
-                  resource.add(resource_json);
-                }
-                if(type.equals("iudx:ResourceGroup")) {
-                  String schema = record.getString("@context")+record.getJsonArray(TYPE).getString(1).substring(5,record.getJsonArray(TYPE).getString(1).length());
-                  datasetJson.put("id",record.getString("id")).
-                          put("label",record.getString("label"))
-                          .put("description",record.getString("description"))
-                          .put("accessPolicy",record.getString("accessPolicy"))
-                          .put("instance",record.getString("instance"))
-                          .put("dataSample",record.getJsonObject("dataSample"))
-                          .put("dataSampleFile",record.getJsonArray("dataSampleFile"))
-                          .put("dataQualityFile",record.getJsonArray("dataQualityFile"))
-                          .put("dataDescriptor",record.getJsonObject("dataDescriptor"))
-                          .put("schema",schema);
-                }
-              }
-              finalResult.put("dataset",datasetJson);
-              finalResult.put("resource",resource);
-              responseMsg.addResult(finalResult);
-
-            }
               } else {
                 responseMsg.addResult();
               }
@@ -480,97 +484,93 @@ public final class ElasticClient {
    * countAsync - private function which perform performRequestAsync for count apis
    *
    * @param request Elastic Request
-   * @param options SOURCE - Source only
-   *                DOCIDS - DOCIDs only
-   *                IDS - IDs only
-   * @TODO XPack Security
-   * @TODO Can combine countAsync and searchAsync
+   * @param options SOURCE - Source only DOCIDS - DOCIDs only IDS - IDs only @TODO XPack
+   *     Security @TODO Can combine countAsync and searchAsync
    */
   private Future<JsonObject> countAsync(Request request) {
     Promise<JsonObject> promise = Promise.promise();
 
     DBRespMsgBuilder responseMsg = new DBRespMsgBuilder();
 
-    client.performRequestAsync(request, new ResponseListener() {
-      @Override
-      public void onSuccess(Response response) {
+    client.performRequestAsync(
+        request,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
 
-        try {
-          int statusCode = response.getStatusLine().getStatusCode();
-          if (statusCode != 200 && statusCode != 204) {
-            promise.fail(DATABASE_BAD_QUERY);
-            return;
+            try {
+              int statusCode = response.getStatusLine().getStatusCode();
+              if (statusCode != 200 && statusCode != 204) {
+                promise.fail(DATABASE_BAD_QUERY);
+                return;
+              }
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              responseMsg.statusSuccess().setTotalHits(responseJson.getInteger(COUNT));
+              promise.complete(responseMsg.getResponse());
+
+            } catch (IOException e) {
+              promise.fail(e);
+            } finally {
+            }
           }
-          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-          responseMsg.statusSuccess()
-                      .setTotalHits(responseJson.getInteger(COUNT));
-          promise.complete(responseMsg.getResponse());
 
-        } catch (IOException e) {
+          @Override
+          public void onFailure(Exception e) {
             promise.fail(e);
-        } finally {
-        }
-      }
-      @Override
-      public void onFailure(Exception e) {
-        promise.fail(e);
-      }
-    });
+          }
+        });
     return promise.future();
   }
-
 
   /**
    * docAsync - private function which perform performRequestAsync for doc apis
    *
    * @param request Elastic Request
-   * @param options SOURCE - Source only
-   *                DOCIDS - DOCIDs only
-   *                IDS - IDs only
-   * @TODO XPack Security
-   * @TODO Can combine countAsync and searchAsync
+   * @param options SOURCE - Source only DOCIDS - DOCIDs only IDS - IDs only @TODO XPack
+   *     Security @TODO Can combine countAsync and searchAsync
    */
   private Future<JsonObject> docAsync(String method, Request request) {
     Promise<JsonObject> promise = Promise.promise();
 
-    client.performRequestAsync(request, new ResponseListener() {
-      @Override
-      public void onSuccess(Response response) {
-        try {
-          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-          int statusCode = response.getStatusLine().getStatusCode();
-          switch (method) {
-            case REQUEST_POST:
-              if (statusCode == 201) {
-                promise.complete(responseJson);
-                return;
+    client.performRequestAsync(
+        request,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
+            try {
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              int statusCode = response.getStatusLine().getStatusCode();
+              switch (method) {
+                case REQUEST_POST:
+                  if (statusCode == 201) {
+                    promise.complete(responseJson);
+                    return;
+                  }
+                case REQUEST_DELETE:
+                  if (statusCode == 200) {
+                    promise.complete(responseJson);
+                    return;
+                  }
+                case REQUEST_PUT:
+                  if (statusCode == 200) {
+                    promise.complete(responseJson);
+                    return;
+                  }
+                default:
+                  promise.fail(DATABASE_BAD_QUERY);
               }
-            case REQUEST_DELETE:
-              if (statusCode == 200) {
-                promise.complete(responseJson);
-                return;
-              }
-            case REQUEST_PUT:
-              if (statusCode == 200) {
-                promise.complete(responseJson);
-                return;
-              }
-            default:
-              promise.fail(DATABASE_BAD_QUERY);
+              promise.fail("Failed request");
+            } catch (IOException e) {
+              promise.fail(e);
+            } finally {
+            }
           }
-          promise.fail("Failed request");
-        } catch (IOException e) {
+
+          @Override
+          public void onFailure(Exception e) {
             promise.fail(e);
-        } finally {
-        }
-      }
-      @Override
-      public void onFailure(Exception e) {
-        promise.fail(e);
-      }
-    });
+          }
+        });
     return promise.future();
   }
-
-
 }
