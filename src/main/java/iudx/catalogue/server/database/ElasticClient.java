@@ -75,6 +75,15 @@ public final class ElasticClient {
     return this;
   }
 
+  public ElasticClient searchAsyncDataset(
+      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
+    Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
+    queryRequest.setJsonEntity(query);
+    Future<JsonObject> future = searchAsync(queryRequest, DATASET);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
   public ElasticClient searchAsyncGeoQuery(
       String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
     Request queryRequest =
@@ -355,8 +364,9 @@ public final class ElasticClient {
                 if ((options == SOURCE_ONLY)
                     || (options == DOC_IDS_ONLY)
                     || (options == SOURCE_AND_ID)
-                    || (options == SOURCE_AND_ID_GEOQUERY)) {
-                  if(responseJson.getJsonObject(HITS).containsKey(HITS)) {
+                    || (options == SOURCE_AND_ID_GEOQUERY)
+                    || (options == DATASET)) {
+                  if (responseJson.getJsonObject(HITS).containsKey(HITS)) {
                     results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
                   }
                 }
@@ -402,6 +412,55 @@ public final class ElasticClient {
                     result.mergeIn(source);
                     responseMsg.addResult(result);
                   }
+                }
+                if (options == DATASET) {
+                  JsonArray resource = new JsonArray();
+                  JsonObject dataset_detail = new JsonObject();
+                  JsonObject dataset = new JsonObject();
+                  for (int i = 0; i < results.size(); i++) {
+                    JsonObject record = results.getJsonObject(i).getJsonObject(SOURCE);
+                    JsonObject provider = new JsonObject();
+                    String type = record.getJsonArray(TYPE).getString(0);
+                    if (type.equals("iudx:Provider")) {
+                      provider
+                          .put(ID, record.getString(ID))
+                          .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
+                      dataset.put(PROVIDER, provider);
+                    }
+                    if (type.equals("iudx:Resource")) {
+                      JsonObject resource_json = new JsonObject();
+                      resource_json
+                          .put(RESOURCE_ID, record.getString(ID))
+                          .put(LABEL, record.getString(LABEL))
+                          .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
+                          .put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE))
+                          .put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR))
+                          .put(RESOURCETYPE, record.getString(RESOURCETYPE));
+                      resource.add(resource_json);
+                    }
+                    if (type.equals("iudx:ResourceGroup")) {
+                      String schema =
+                          record.getString("@context")
+                              + record
+                                  .getJsonArray(TYPE)
+                                  .getString(1)
+                                  .substring(5, record.getJsonArray(TYPE).getString(1).length());
+                      dataset
+                          .put(ID, record.getString(ID))
+                          .put(LABEL, record.getString(LABEL))
+                          .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
+                          .put(ACCESS_POLICY, record.getString(ACCESS_POLICY))
+                          .put(INSTANCE, record.getString(INSTANCE))
+                          .put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE))
+                          .put("dataSampleFile", record.getJsonArray("dataSampleFile"))
+                          .put("dataQualityFile", record.getJsonArray("dataQualityFile"))
+                          .put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR))
+                          .put("schema", schema);
+                    }
+                  }
+                  dataset_detail.put("dataset", dataset);
+                  dataset_detail.put("resource", resource);
+                  responseMsg.addResult(dataset_detail);
                 }
               } else {
                 responseMsg.addResult();

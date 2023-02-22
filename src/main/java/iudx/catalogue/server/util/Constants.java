@@ -41,12 +41,17 @@ public class Constants {
   public static final String DATABASE_PASSWD = "databasePassword";
   public static final String SOURCE = "_source";
 
+
+
   /** Item type */
   public static final String RELATIONSHIP = "relationship";
   public static final String RESOURCE = "resource";
   public static final String RESOURCE_GRP = "resourceGroup";
   public static final String RESOURCE_SVR = "resourceServer";
   public static final String PROVIDER = "provider";
+  public static final String RESOURCETYPE = "resourceType";
+
+
 
   /** Item types */
   public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
@@ -63,6 +68,8 @@ public class Constants {
   public static final String INSTANCE = "instance";
   public static final String BUCKETS = "buckets";
   public static final String ID = "id";
+  public static final String RESOURCE_ID = "resourceId";
+
   public static final String ITEM_TYPE = "itemType";
 
   public static final String PROPERTY = "property";

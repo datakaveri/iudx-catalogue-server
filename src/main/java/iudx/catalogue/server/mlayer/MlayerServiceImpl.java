@@ -182,10 +182,10 @@ public class MlayerServiceImpl implements MlayerService {
     databaseService.getMlayerProviders(
         getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
-            LOGGER.info("Success: Getting all domain values");
+            LOGGER.info("Success: Getting all  providers");
             handler.handle(Future.succeededFuture(getMlayerDomainHandler.result()));
           } else {
-            LOGGER.error("Fail: Getting all domains failed");
+            LOGGER.error("Fail: Getting all providers failed");
             handler.handle(Future.failedFuture(getMlayerDomainHandler.cause()));
           }
         });
@@ -204,6 +204,38 @@ public class MlayerServiceImpl implements MlayerService {
           } else {
             LOGGER.error("Fail: Getting locations of datasets failed");
             handler.handle(Future.failedFuture(postMlayerGeoQueryHandler.cause()));
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
+    databaseService.getMlayerAllDatasets(
+        getMlayerAllDatasets -> {
+          if (getMlayerAllDatasets.succeeded()) {
+            LOGGER.info("Success: Getting all datasets");
+            handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
+          } else {
+            LOGGER.error("Fail: Getting all datasets failed");
+            handler.handle(Future.failedFuture(getMlayerAllDatasets.cause()));
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public MlayerService getMlayerDataset(
+      String dataset_id, Handler<AsyncResult<JsonObject>> handler) {
+    databaseService.getMlayerDataset(
+        dataset_id,
+        getMlayerDatasetHandler -> {
+          if (getMlayerDatasetHandler.succeeded()) {
+            LOGGER.info("Success: Getting details of dataset");
+            handler.handle(Future.succeededFuture(getMlayerDatasetHandler.result()));
+          } else {
+            LOGGER.error("Fail: Getting details of dataset");
+            handler.handle(Future.failedFuture(getMlayerDatasetHandler.cause()));
           }
         });
     return this;

@@ -2458,4 +2458,204 @@ public class DatabaseServiceImplTest {
           }
         });
   }
+
+  @Test
+  @Description("test getMlayerDataset method when DB Request is successful")
+  public void testGetMlayerDataset(VertxTestContext testContext) {
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    String dataset_id = "abc/abc/abc";
+    JsonObject request = new JsonObject();
+    JsonArray jsonArray = new JsonArray();
+    JsonObject dataset_record = new JsonObject();
+    JsonObject dataset = new JsonObject();
+    dataset.put(INSTANCE, "dummy instance");
+    dataset_record.put("dataset", dataset);
+    jsonArray.add(dataset_record);
+    request.put("id", "abc/abc/abc").put(TOTAL_HITS, 3).put(RESULTS, jsonArray);
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsyncDataset(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    dbService.getMlayerDataset(
+        dataset_id,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+
+            testContext.completeNow();
+
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test getMlayerDataset method when DB Request fails")
+  public void testGetMlayerDatasetFailure(VertxTestContext testContext) {
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    String dataset_id = "abc/abc/abc";
+    JsonObject request = new JsonObject();
+    request.put("id", "abc/abc/abc");
+    when(asyncResult.succeeded()).thenReturn(false);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsyncDataset(any(), any(), any());
+    dbService.getMlayerDataset(
+        dataset_id,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
+            testContext.completeNow();
+
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description(
+      "test getMlayerAllDatasets method when DB Request is successful and type equals provider")
+  public void testGetMlayerAllDatasetsSuccess(VertxTestContext testContext) {
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject request = new JsonObject();
+    JsonArray jsonArray = new JsonArray();
+    JsonArray provider = new JsonArray();
+    provider.add("iudx:Provider");
+    JsonObject dataset_record = new JsonObject();
+    dataset_record
+        .put(INSTANCE, "dummy instance")
+        .put(PROVIDER, "dummy provider")
+        .put(TYPE, provider);
+    jsonArray.add(dataset_record);
+    request.put(RESULTS, jsonArray);
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+
+    dbService.getMlayerAllDatasets(
+        handler -> {
+          if (handler.succeeded()) {
+            // verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+
+            testContext.completeNow();
+
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description(
+      "test getMlayerAllDatasets method when DB Request is successful and type equals resource")
+  public void testGetMlayerAllDatasetsResourceSuccess(VertxTestContext testContext) {
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject request = new JsonObject();
+    JsonArray jsonArray = new JsonArray();
+    JsonArray resource = new JsonArray();
+    resource.add("iudx:Resource");
+    JsonObject dataset_record = new JsonObject();
+    dataset_record
+        .put(INSTANCE, "dummy instance")
+        .put(PROVIDER, "dummy provider")
+        .put(TYPE, resource);
+    jsonArray.add(dataset_record);
+    request.put(RESULTS, jsonArray);
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+
+    dbService.getMlayerAllDatasets(
+        handler -> {
+          if (handler.succeeded()) {
+            // verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+
+            testContext.completeNow();
+
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test getMlayerAllDatasets method when DB Request fails")
+  public void testGetMlayerAllDatasetsResourceFails(VertxTestContext testContext) {
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject request = new JsonObject();
+
+    when(asyncResult.succeeded()).thenReturn(false);
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+
+    dbService.getMlayerAllDatasets(
+        handler -> {
+          if (handler.failed()) {
+            // verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+
+            testContext.completeNow();
+
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
 }

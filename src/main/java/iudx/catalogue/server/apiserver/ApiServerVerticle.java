@@ -594,6 +594,25 @@ public class ApiServerVerticle extends AbstractVerticle {
               mlayerApis.getMlayerGeoQueryHandler(routingContext);
             });
 
+    /** Routes for Mlayer Dataset API */
+    /* route to get all datasets*/
+    router
+        .get(api.getRouteMlayerDataset())
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              mlayerApis.getMlayerAllDatasetsHandler(routingContext);
+            });
+    /* route to get a dataset detail*/
+    router
+        .post(api.getRouteMlayerDataset())
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              mlayerApis.getMlayerDatasetHandler(routingContext);
+            });
     /** Start server */
     server.requestHandler(router).listen(port);
 

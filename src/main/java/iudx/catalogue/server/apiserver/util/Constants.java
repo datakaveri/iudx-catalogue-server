@@ -83,6 +83,8 @@ public class Constants {
   public static final String ROUTE_MLAYER_DOMAIN = "/internal/ui/domain";
   public static final String ROUTE_MLAYER_PROVIDER = "/internal/ui/providers";
   public static final String ROUTE_MLAYER_GEOQUERY = "/internal/ui/geoquery";
+  public static final String ROUTE_MLAYER_DATASET = "/internal/ui/dataset";
+
 
 
   /** Geometries */
