@@ -15,6 +15,7 @@ import static iudx.catalogue.server.database.Constants.*;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 
+
 /**
  * The Database Service Implementation.
  *
@@ -1479,10 +1480,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService getMlayerDataset(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.debug("request body" + request);
-    String dataset_id = request.getString("id");
-
+      String dataset_id, Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.debug("dataset Id" + dataset_id);
     int index = dataset_id.indexOf("/", dataset_id.indexOf("/") + 1);
     String provider_id = dataset_id.substring(0, index);
     LOGGER.debug("provider id " + provider_id);

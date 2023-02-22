@@ -275,10 +275,25 @@ public interface DatabaseService {
    */
   @Fluent
   DatabaseService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The get Mlayer All Datasets gets all the dataset belonging to IUDX.
+   *
+   * @param handler which is a request handler
+   * @return DatabaseService which is a Service
+   */
   @Fluent
   DatabaseService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * The get Mlayer datasset get details of the dataset.
+   *
+   * @param dataset_id which is a String.
+   * @param handler which is a request handler.
+   * @return DatabaseService which is a Service.
+   */
   @Fluent
-  DatabaseService getMlayerDataset(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerDataset(String dataset_id, Handler<AsyncResult<JsonObject>> handler);
 
   /* create db service with nlp and geocoding */
   @GenIgnore

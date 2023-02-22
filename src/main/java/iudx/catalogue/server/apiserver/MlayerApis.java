@@ -102,7 +102,11 @@ public class MlayerApis {
                               response.setStatusCode(201).end(handler.result().toString());
 
                             } else {
-                              response.setStatusCode(400).end(handler.cause().getMessage());
+                              if (handler.cause().getMessage().contains("Item already exists")) {
+                                response.setStatusCode(409).end(handler.cause().getMessage());
+                              } else {
+                                response.setStatusCode(400).end(handler.cause().getMessage());
+                              }
                             }
                           });
                     }
@@ -295,7 +299,11 @@ public class MlayerApis {
                             if (handler.succeeded()) {
                               response.setStatusCode(201).end(handler.result().toString());
                             } else {
-                              response.setStatusCode(400).end(handler.cause().getMessage());
+                              if (handler.cause().getMessage().contains("Item already exists")) {
+                                response.setStatusCode(409).end(handler.cause().getMessage());
+                              } else {
+                                response.setStatusCode(400).end(handler.cause().getMessage());
+                              }
                             }
                           });
                     }
@@ -424,13 +432,13 @@ public class MlayerApis {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerProviders(
-        handler -> {
-          if (handler.succeeded()) {
-            response.setStatusCode(200).end(handler.result().toString());
-          } else {
-            response.setStatusCode(400).end(handler.cause().getMessage());
-          }
-        });
+            handler -> {
+                if (handler.succeeded()) {
+                    response.setStatusCode(200).end(handler.result().toString());
+                } else {
+                    response.setStatusCode(400).end(handler.cause().getMessage());
+                }
+            });
   }
 
   public void getMlayerGeoQueryHandler(RoutingContext routingContext) {
@@ -481,31 +489,19 @@ public class MlayerApis {
   public void getMlayerDatasetHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching details of the dataset");
     HttpServerResponse response = routingContext.response();
+    HttpServerRequest request = routingContext.request();
     JsonObject requestBody = routingContext.body().asJsonObject();
+    String dataset_Id = request.getParam(ID);
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    validatorService.validateMlayerDatasetId(
-        requestBody,
-        validationHandler -> {
-          if (validationHandler.failed()) {
-            response
-                .setStatusCode(400)
-                .end(
-                    new RespBuilder()
-                        .withType(TYPE_INVALID_SCHEMA)
-                        .withTitle(TITLE_INVALID_SCHEMA)
-                        .withDetail("The Schema of requested body is invalid.")
-                        .getResponse());
+
+    mlayerService.getMlayerDataset(
+        dataset_Id,
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
           } else {
-            mlayerService.getMlayerDataset(
-                requestBody,
-                handler -> {
-                  if (handler.succeeded()) {
-                    response.setStatusCode(200).end(handler.result().toString());
-                  } else {
-                    response.setStatusCode(400).end(handler.cause().getMessage());
-                  }
-                });
+            response.setStatusCode(400).end(handler.cause().getMessage());
           }
         });
   }

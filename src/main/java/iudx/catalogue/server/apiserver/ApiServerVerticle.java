@@ -597,7 +597,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     /** Routes for Mlayer Dataset API */
     /* route to get all datasets*/
     router
-        .get(api.getRouteMlayerAllDatasets())
+        .get(api.getRouteMlayerDataset())
         .produces(MIME_APPLICATION_JSON)
         .failureHandler(exceptionhandler)
         .handler(

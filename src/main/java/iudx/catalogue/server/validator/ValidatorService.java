@@ -67,9 +67,6 @@ public interface ValidatorService {
   ValidatorService validateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
   @Fluent
   ValidatorService validateMlayerGeoQuery (JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-  @Fluent
-  ValidatorService validateMlayerDatasetId (JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
    * @param vertx which is the vertx instance

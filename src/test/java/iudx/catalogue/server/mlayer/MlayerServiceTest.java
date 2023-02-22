@@ -726,7 +726,7 @@ public class MlayerServiceTest {
   @DisplayName("Success: test get dataset detail")
   void successfulGetMlayerDatasetTest(VertxTestContext testContext) {
     mlayerService = new MlayerServiceImpl(databaseService);
-    JsonObject request = new JsonObject();
+    String dataset_id ="abc/abc/abc";
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -740,7 +740,7 @@ public class MlayerServiceTest {
         .when(databaseService)
         .getMlayerDataset(any(), any());
     mlayerService.getMlayerDataset(
-        request,
+        dataset_id,
         handler -> {
           if (handler.succeeded()) {
             verify(databaseService, times(1)).getMlayerDataset(any(), any());
@@ -756,7 +756,7 @@ public class MlayerServiceTest {
   @DisplayName("Failure: test get dataset details")
   void failureMlayerDatasetTest(VertxTestContext testContext) {
     mlayerService = new MlayerServiceImpl(databaseService);
-    JsonObject request = new JsonObject();
+    String dataset_id ="abc/abc/abc";
     when(asyncResult.succeeded()).thenReturn(false);
     Mockito.doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -771,7 +771,7 @@ public class MlayerServiceTest {
         .getMlayerDataset(any(), any());
 
     mlayerService.getMlayerDataset(
-        request,
+        dataset_id,
         handler -> {
           if (handler.succeeded()) {
             verify(databaseService, times(1)).getMlayerDataset(any(), any());

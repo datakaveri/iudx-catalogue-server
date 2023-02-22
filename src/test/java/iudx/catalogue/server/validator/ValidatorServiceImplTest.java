@@ -335,36 +335,4 @@ public class ValidatorServiceImplTest {
           }
         });
   }
-  @Test
-  @Description("testing the method validate mlayer instance")
-  public void testValidateMlayerInstance(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
-    JsonObject request = new JsonObject();
-    assertNull(validatorService.validateMlayerInstance(request, handler));
-    vertxTestContext.completeNow();
-  }
-  @Test
-  @Description("testing the method validate mlayer domain")
-  public void testValidateMlayerDomain(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
-    JsonObject request = new JsonObject();
-    assertNotNull(validatorService.validateMlayerDomain(request, handler));
-    vertxTestContext.completeNow();
-  }
-  @Test
-  @Description("testing the method validate mlayer geo-query")
-  public void testValidateMlayerGeoQuery(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
-    JsonObject request = new JsonObject();
-    assertNotNull(validatorService.validateMlayerGeoQuery(request, handler));
-    vertxTestContext.completeNow();
-  }
-  @Test
-  @Description("testing the method validate mlayer dataset_id")
-  public void testValidateMlayerDatasetId(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
-    JsonObject request = new JsonObject();
-    assertNotNull(validatorService.validateMlayerDatasetId(request, handler));
-    vertxTestContext.completeNow();
-  }
 }

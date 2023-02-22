@@ -2463,6 +2463,7 @@ public class DatabaseServiceImplTest {
   @Description("test getMlayerDataset method when DB Request is successful")
   public void testGetMlayerDataset(VertxTestContext testContext) {
     DatabaseServiceImpl.client = mock(ElasticClient.class);
+    String dataset_id = "abc/abc/abc";
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     JsonObject dataset_record = new JsonObject();
@@ -2494,7 +2495,7 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .searchAsync(any(), any(), any());
     dbService.getMlayerDataset(
-        request,
+        dataset_id,
         handler -> {
           if (handler.succeeded()) {
             verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
@@ -2512,6 +2513,7 @@ public class DatabaseServiceImplTest {
   @Description("test getMlayerDataset method when DB Request fails")
   public void testGetMlayerDatasetFailure(VertxTestContext testContext) {
     DatabaseServiceImpl.client = mock(ElasticClient.class);
+    String dataset_id = "abc/abc/abc";
     JsonObject request = new JsonObject();
     request.put("id", "abc/abc/abc");
     when(asyncResult.succeeded()).thenReturn(false);
@@ -2526,7 +2528,7 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .searchAsyncDataset(any(), any(), any());
     dbService.getMlayerDataset(
-        request,
+        dataset_id,
         handler -> {
           if (handler.failed()) {
             verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());

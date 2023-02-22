@@ -484,93 +484,97 @@ public final class ElasticClient {
    * countAsync - private function which perform performRequestAsync for count apis
    *
    * @param request Elastic Request
-   * @param options SOURCE - Source only DOCIDS - DOCIDs only IDS - IDs only @TODO XPack
-   *     Security @TODO Can combine countAsync and searchAsync
+   * @param options SOURCE - Source only
+   *                DOCIDS - DOCIDs only
+   *                IDS - IDs only
+   * @TODO XPack Security
+   * @TODO Can combine countAsync and searchAsync
    */
   private Future<JsonObject> countAsync(Request request) {
     Promise<JsonObject> promise = Promise.promise();
 
     DBRespMsgBuilder responseMsg = new DBRespMsgBuilder();
 
-    client.performRequestAsync(
-        request,
-        new ResponseListener() {
-          @Override
-          public void onSuccess(Response response) {
+    client.performRequestAsync(request, new ResponseListener() {
+      @Override
+      public void onSuccess(Response response) {
 
-            try {
-              int statusCode = response.getStatusLine().getStatusCode();
-              if (statusCode != 200 && statusCode != 204) {
-                promise.fail(DATABASE_BAD_QUERY);
-                return;
-              }
-              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-              responseMsg.statusSuccess().setTotalHits(responseJson.getInteger(COUNT));
-              promise.complete(responseMsg.getResponse());
-
-            } catch (IOException e) {
-              promise.fail(e);
-            } finally {
-            }
+        try {
+          int statusCode = response.getStatusLine().getStatusCode();
+          if (statusCode != 200 && statusCode != 204) {
+            promise.fail(DATABASE_BAD_QUERY);
+            return;
           }
+          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+          responseMsg.statusSuccess()
+                      .setTotalHits(responseJson.getInteger(COUNT));
+          promise.complete(responseMsg.getResponse());
 
-          @Override
-          public void onFailure(Exception e) {
+        } catch (IOException e) {
             promise.fail(e);
-          }
-        });
+        } finally {
+        }
+      }
+      @Override
+      public void onFailure(Exception e) {
+        promise.fail(e);
+      }
+    });
     return promise.future();
   }
+
 
   /**
    * docAsync - private function which perform performRequestAsync for doc apis
    *
    * @param request Elastic Request
-   * @param options SOURCE - Source only DOCIDS - DOCIDs only IDS - IDs only @TODO XPack
-   *     Security @TODO Can combine countAsync and searchAsync
+   * @param options SOURCE - Source only
+   *                DOCIDS - DOCIDs only
+   *                IDS - IDs only
+   * @TODO XPack Security
+   * @TODO Can combine countAsync and searchAsync
    */
   private Future<JsonObject> docAsync(String method, Request request) {
     Promise<JsonObject> promise = Promise.promise();
 
-    client.performRequestAsync(
-        request,
-        new ResponseListener() {
-          @Override
-          public void onSuccess(Response response) {
-            try {
-              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-              int statusCode = response.getStatusLine().getStatusCode();
-              switch (method) {
-                case REQUEST_POST:
-                  if (statusCode == 201) {
-                    promise.complete(responseJson);
-                    return;
-                  }
-                case REQUEST_DELETE:
-                  if (statusCode == 200) {
-                    promise.complete(responseJson);
-                    return;
-                  }
-                case REQUEST_PUT:
-                  if (statusCode == 200) {
-                    promise.complete(responseJson);
-                    return;
-                  }
-                default:
-                  promise.fail(DATABASE_BAD_QUERY);
+    client.performRequestAsync(request, new ResponseListener() {
+      @Override
+      public void onSuccess(Response response) {
+        try {
+          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+          int statusCode = response.getStatusLine().getStatusCode();
+          switch (method) {
+            case REQUEST_POST:
+              if (statusCode == 201) {
+                promise.complete(responseJson);
+                return;
               }
-              promise.fail("Failed request");
-            } catch (IOException e) {
-              promise.fail(e);
-            } finally {
-            }
+            case REQUEST_DELETE:
+              if (statusCode == 200) {
+                promise.complete(responseJson);
+                return;
+              }
+            case REQUEST_PUT:
+              if (statusCode == 200) {
+                promise.complete(responseJson);
+                return;
+              }
+            default:
+              promise.fail(DATABASE_BAD_QUERY);
           }
-
-          @Override
-          public void onFailure(Exception e) {
+          promise.fail("Failed request");
+        } catch (IOException e) {
             promise.fail(e);
-          }
-        });
+        } finally {
+        }
+      }
+      @Override
+      public void onFailure(Exception e) {
+        promise.fail(e);
+      }
+    });
     return promise.future();
   }
+
+
 }

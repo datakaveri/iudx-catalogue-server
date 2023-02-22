@@ -31,7 +31,6 @@ public class Api {
     private StringBuilder routeMlayerDoamin;
     private StringBuilder routeMlayerProvider;
     private StringBuilder routeMlayerGeoquery;
-    private StringBuilder routeMlayerAllDatasets;
     private StringBuilder routeMlayerDataset;
 
 
@@ -81,7 +80,6 @@ public class Api {
         routeMlayerDoamin = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_DOMAIN);
         routeMlayerProvider = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_PROVIDER);
         routeMlayerGeoquery = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_GEOQUERY);
-        routeMlayerAllDatasets = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_ALL_DATASETS);
         routeMlayerDataset = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_DATASET);
 
 
@@ -149,7 +147,6 @@ public class Api {
     public String getRouteMlayerDomains() { return  routeMlayerDoamin.toString(); }
     public String getRouteMlayerProviders() { return  routeMlayerProvider.toString(); }
     public String getRouteMlayerGeoQuery() { return routeMlayerGeoquery.toString(); }
-    public String getRouteMlayerAllDatasets() { return routeMlayerAllDatasets.toString(); }
     public String getRouteMlayerDataset() { return routeMlayerDataset.toString(); }
 
 

@@ -50,6 +50,6 @@ public interface MlayerService {
   @Fluent
   MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler);
   @Fluent
-  MlayerService getMlayerDataset(JsonObject request,Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getMlayerDataset(String dataset_id,Handler<AsyncResult<JsonObject>> handler);
 }
 
