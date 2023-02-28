@@ -25,8 +25,9 @@ info:
         - **Base path**:
           - Base path is the path on which API is served, relative to the host
           - It is the initial part of the API
-          - Currently, `/iudx/cat/v1` is being used as base path
-          - This value could be configured according to the deployment
+          - The base path for [DX AAA Server](https://github.com/datakaveri/iudx-aaa-server) is set to `/auth/v1`
+          - Currently, `/iudx/cat/v1` is being used as base path for all the DX Catalogue Server APIs
+          - These value could be configured according to the deployment
         - **Request Samples**:
           - The `<tokeValue>` in the header of request sample could be replaced with respective token value that could be obtained from DX Auth Server
           - The `<payload>` in the request sample could be replaced with the payload given adjacent to the request sample

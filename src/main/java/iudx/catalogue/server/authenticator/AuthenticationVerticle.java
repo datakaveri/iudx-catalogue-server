@@ -114,7 +114,8 @@ public class AuthenticationVerticle extends AbstractVerticle {
     if (config.containsKey(PUBLIC_KEY)) {
       promise.complete(config.getString(PUBLIC_KEY));
     } else {
-      webClient.get(443, config.getString("authServerHost"), "/auth/v1/cert")
+      String authCert = config.getString("dxAuthBasePath") + AUTH_CERTIFICATE_PATH;
+      webClient.get(443, config.getString("authServerHost"), authCert)
               .send(handler -> {
                 if (handler.succeeded()) {
                   JsonObject json = handler.result().bodyAsJsonObject();
