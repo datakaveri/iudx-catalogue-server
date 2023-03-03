@@ -1,7 +1,7 @@
 <project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>datakaveri.org</groupId>
     <artifactId>iudx.catalogue.server</artifactId>
@@ -69,12 +69,6 @@
             <version>2.1</version>
         </dependency>
         <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${testcontainer.params}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-service-proxy</artifactId>
         </dependency>
@@ -131,12 +125,12 @@
             <artifactId>json-schema-validator</artifactId>
             <version>2.2.12</version>
         </dependency>
-       <!-- Packages for Vertx metrics through micrometer  -->
+        <!-- Packages for Vertx metrics through micrometer  -->
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-micrometer-metrics</artifactId>
         </dependency>
-       <!-- micrometer core package  -->
+        <!-- micrometer core package  -->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-core</artifactId>
@@ -149,7 +143,7 @@
             <version>${micrometer.version}</version>
         </dependency>
         <!-- Packages for Vertx Hazelcast cluster manager  -->
-         <dependency>
+        <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-hazelcast</artifactId>
         </dependency>
@@ -192,16 +186,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-commons</artifactId>
-			<version>1.9.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-engine</artifactId>
-			<version>1.9.0</version>
-			<scope>test</scope>
-		</dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-commons</artifactId>
+            <version>1.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-engine</artifactId>
+            <version>1.9.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-auth-jwt</artifactId>
@@ -224,6 +218,27 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>3.11.1</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- test container dependency-->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainer.params}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- test container dependency for JUnit5-->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainer.params}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- test container dependency for postgresql-->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainer.params}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -315,7 +330,7 @@
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/services/io.vertx.core.spi.VerticleFactory</resource>
-                                     <resource>META-INF/services/io.vertx.core.spi.VertxServiceProvider</resource>
+                                    <resource>META-INF/services/io.vertx.core.spi.VertxServiceProvider</resource>
                                 </transformer>
                             </transformers>
                             <artifactSet></artifactSet>
@@ -380,23 +395,23 @@
                 </configuration>
             </plugin>
             <plugin>
-                 <groupId>org.apache.maven.plugins</groupId>
-                 <artifactId>maven-javadoc-plugin</artifactId>
-                 <version>${maven-javadoc-plugin.version}</version>
-                 <configuration>
-                     <source>${openjdk.version}</source>
-                     <target>${openjdk.version}</target>
-                 </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <configuration>
+                    <source>${openjdk.version}</source>
+                    <target>${openjdk.version}</target>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec-maven-plugin.version}</version>
                 <executions>
-					<execution>
-						<id>catalogue-server</id>
-						<configuration>
-							<mainClass>iudx.catalogue.server.deploy.DeployerDev </mainClass>
+                    <execution>
+                        <id>catalogue-server</id>
+                        <configuration>
+                            <mainClass>iudx.catalogue.server.deploy.DeployerDev </mainClass>
                             <classpathScope>test</classpathScope>
                             <arguments>
                                 <argument>-jar</argument>
@@ -404,8 +419,8 @@
                                 <argument>-c</argument>
                                 <argument>./configs/config-dev.json</argument>
                             </arguments>
-						</configuration>
-					</execution>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -413,44 +428,44 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-report-plugin.version}</version>
                 <configuration>
-					<useSystemClassLoader>true</useSystemClassLoader>
-					<testFailureIgnore>true</testFailureIgnore>
-					<argLine>
-						@{argLine} -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.6/aspectjweaver-1.9.6.jar"
-					</argLine>
-					<systemProperties>
-						<property>
-							<name>allure.results.directory</name>
-							<value>target/allure-results</value>
-						</property>
-					</systemProperties>
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.aspectj</groupId>
-						<artifactId>aspectjweaver</artifactId>
-						<version>1.9.6</version>
-					</dependency>
-				</dependencies>
+                    <useSystemClassLoader>true</useSystemClassLoader>
+                    <testFailureIgnore>true</testFailureIgnore>
+                    <argLine>
+                        @{argLine} -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.6/aspectjweaver-1.9.6.jar"
+                    </argLine>
+                    <systemProperties>
+                        <property>
+                            <name>allure.results.directory</name>
+                            <value>target/allure-results</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>1.9.6</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
                 <version>2.10.0</version>
                 <configuration>
-					<reportVersion>2.4.1</reportVersion>
-				</configuration>
+                    <reportVersion>2.4.1</reportVersion>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${openjdk.version}</source>
                     <target>${openjdk.version}</target>
-                            <annotationProcessors>
-                            <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
-                            </annotationProcessors>
+                    <annotationProcessors>
+                        <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
+                    </annotationProcessors>
                 </configuration>
             </plugin>
         </plugins>

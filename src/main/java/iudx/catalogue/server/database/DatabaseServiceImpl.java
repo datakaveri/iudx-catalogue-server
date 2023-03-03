@@ -46,16 +46,16 @@ public class DatabaseServiceImpl implements DatabaseService {
   private String mlayerDomainIndex;
 
   private static String INTERNAL_ERROR_RESP = new RespBuilder()
-      .withType(TYPE_INTERNAL_SERVER_ERROR)
-      .withTitle(TITLE_INTERNAL_SERVER_ERROR)
-      .getResponse();
+          .withType(TYPE_INTERNAL_SERVER_ERROR)
+          .withTitle(TITLE_INTERNAL_SERVER_ERROR)
+          .getResponse();
 
   public DatabaseServiceImpl(
-      ElasticClient client,
-      String docIndex,
-      String ratingIndex,
-      String mlayerInstanceIndex,
-      String mlayerDomainIndex) {
+          ElasticClient client,
+          String docIndex,
+          String ratingIndex,
+          String mlayerInstanceIndex,
+          String mlayerDomainIndex) {
     this(client);
     this.docIndex = docIndex;
     this.ratingIndex = ratingIndex;
@@ -64,12 +64,12 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   public DatabaseServiceImpl(
-      ElasticClient client, String docIndex,
-      String ratingIndex,
-      String mlayerInstanceIndex,
-      String mlayerDomainIndex,
-      NLPSearchService nlpService,
-      GeocodingService geoService) {
+          ElasticClient client, String docIndex,
+          String ratingIndex,
+          String mlayerInstanceIndex,
+          String mlayerDomainIndex,
+          NLPSearchService nlpService,
+          GeocodingService geoService) {
     this(client, nlpService, geoService);
     this.docIndex = docIndex;
     this.ratingIndex = ratingIndex;
@@ -84,7 +84,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   public DatabaseServiceImpl(
-      ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
+          ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
     this.client = client;
     this.nlpService = nlpService;
     this.geoService = geoService;
@@ -103,10 +103,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     /* Validate the Request */
     if (!request.containsKey(SEARCH_TYPE)) {
       handler.handle(Future.failedFuture(
-          respBuilder.withType(TYPE_INVALID_SYNTAX)
-              .withTitle(TITLE_INVALID_SYNTAX)
-              .withDetail(NO_SEARCH_TYPE_FOUND)
-              .getResponse()));
+              respBuilder.withType(TYPE_INVALID_SYNTAX)
+                      .withTitle(TITLE_INVALID_SYNTAX)
+                      .withDetail(NO_SEARCH_TYPE_FOUND)
+                      .getResponse()));
       return null;
     }
 
@@ -170,23 +170,23 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     // When all futures return, respond back with the result object in the response
     CompositeFuture.all(futures)
-        .onComplete(ar -> {
-          if(ar.succeeded()) {
-            if(results.isEmpty()) {
-              RespBuilder respBuilder = new RespBuilder()
-                  .withType(TYPE_ITEM_NOT_FOUND)
-                  .withTitle(TITLE_ITEM_NOT_FOUND)
-                  .withDetail("NLP Search Failed");
-              handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
-            } else {
-              RespBuilder respBuilder = new RespBuilder()
-                  .withType(TYPE_SUCCESS)
-                  .withTitle(TITLE_SUCCESS)
-                  .withResult(results);
-              handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
-            }
-          }
-        });
+            .onComplete(ar -> {
+              if(ar.succeeded()) {
+                if(results.isEmpty()) {
+                  RespBuilder respBuilder = new RespBuilder()
+                          .withType(TYPE_ITEM_NOT_FOUND)
+                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                          .withDetail("NLP Search Failed");
+                  handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+                } else {
+                  RespBuilder respBuilder = new RespBuilder()
+                          .withType(TYPE_SUCCESS)
+                          .withTitle(TITLE_SUCCESS)
+                          .withResult(results);
+                  handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+                }
+              }
+            });
 
     return this;
   }
@@ -363,19 +363,19 @@ public class DatabaseServiceImpl implements DatabaseService {
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Doc doesn't exist, can't update");
               handler.handle(Future.failedFuture(
-                  respBuilder.withType(TYPE_ITEM_NOT_FOUND)
-                      .withTitle(TITLE_ITEM_NOT_FOUND)
-                      .withResult(id, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
-                      .getResponse()));
+                      respBuilder.withType(TYPE_ITEM_NOT_FOUND)
+                              .withTitle(TITLE_ITEM_NOT_FOUND)
+                              .withResult(id, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
+                              .getResponse()));
               return;
             }
             String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
             client.docPutAsync(docId, docIndex, doc.toString(), putRes -> {
               if (putRes.succeeded()) {
                 handler.handle(Future.succeededFuture(
-                    respBuilder.withType(TYPE_SUCCESS)
-                        .withTitle(TYPE_SUCCESS)
-                        .withResult(id, UPDATE, TYPE_SUCCESS).getJsonResponse()));
+                        respBuilder.withType(TYPE_SUCCESS)
+                                .withTitle(TYPE_SUCCESS)
+                                .withResult(id, UPDATE, TYPE_SUCCESS).getJsonResponse()));
               } else {
                 handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
                 LOGGER.error("Fail: Updation failed;" + putRes.cause());
@@ -424,20 +424,20 @@ public class DatabaseServiceImpl implements DatabaseService {
             if (checkRes.result().getInteger(TOTAL_HITS) > 1 && isParent.value == true) {
               LOGGER.error("Fail: Can't delete, parent doc has associated item;");
               handler
-                  .handle(Future.failedFuture(
-                      respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
-                          .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-                          .withResult(id, DELETE, FAILED,
-                              "Fail: Can't delete, resourceGroup has associated item")
-                          .getResponse()));
+                      .handle(Future.failedFuture(
+                              respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
+                                      .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                                      .withResult(id, DELETE, FAILED,
+                                              "Fail: Can't delete, resourceGroup has associated item")
+                                      .getResponse()));
               return;
             } else if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Doc doesn't exist, can't delete;");
               handler.handle(Future.failedFuture(
-                  respBuilder.withType(TYPE_ITEM_NOT_FOUND)
-                      .withTitle(TITLE_ITEM_NOT_FOUND)
-                      .withResult(id, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
-                      .getResponse()));
+                      respBuilder.withType(TYPE_ITEM_NOT_FOUND)
+                              .withTitle(TITLE_ITEM_NOT_FOUND)
+                              .withResult(id, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
+                              .getResponse()));
               return;
             }
           }
@@ -446,9 +446,9 @@ public class DatabaseServiceImpl implements DatabaseService {
           client.docDelAsync(docId, docIndex, delRes -> {
             if (delRes.succeeded()) {
               handler.handle(Future.succeededFuture(
-                  respBuilder.withType(TYPE_SUCCESS)
-                      .withTitle(TITLE_SUCCESS)
-                      .withResult(id, DELETE, TYPE_SUCCESS).getJsonResponse()));
+                      respBuilder.withType(TYPE_SUCCESS)
+                              .withTitle(TITLE_SUCCESS)
+                              .withResult(id, DELETE, TYPE_SUCCESS).getJsonResponse()));
             } else {
               handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
               LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
@@ -481,9 +481,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: Failed getting item;" + clientHandler.cause());
         /* Handle request error */
         handler.handle(
-            Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
-                .withTitle(TITLE_INTERNAL_SERVER_ERROR)
-                .getResponse()));
+                Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
+                        .withTitle(TITLE_INTERNAL_SERVER_ERROR)
+                        .getResponse()));
       }
     });
     return this;
@@ -509,9 +509,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: DB request has failed;" + clientHandler.cause());
         /* Handle request error */
         handler.handle(
-            Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
-                .withTitle(TITLE_INTERNAL_SERVER_ERROR)
-                .getResponse()));
+                Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
+                        .withTitle(TITLE_INTERNAL_SERVER_ERROR)
+                        .getResponse()));
       }
     });
     return this;
@@ -538,9 +538,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
         /* Handle request error */
         handler.handle(
-            Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
-                .withDetail(TITLE_INTERNAL_SERVER_ERROR)
-                .getResponse()));
+                Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
+                        .withDetail(TITLE_INTERNAL_SERVER_ERROR)
+                        .getResponse()));
       }
     });
     return this;
@@ -555,15 +555,15 @@ public class DatabaseServiceImpl implements DatabaseService {
     RespBuilder respBuilder = new RespBuilder();
     String subQuery = "";
     String errorJson = respBuilder.withType(FAILED)
-        .withDetail(ERROR_INVALID_PARAMETER)
-        .getResponse();
+            .withDetail(ERROR_INVALID_PARAMETER)
+            .getResponse();
 
     /* Validating the request */
     if (request.containsKey(RELATIONSHIP) && request.containsKey(VALUE)) {
 
 
       /* parsing data parameters from the request */
-    String relReq = request.getJsonArray(RELATIONSHIP).getString(0);
+      String relReq = request.getJsonArray(RELATIONSHIP).getString(0);
       if (relReq.contains(".")) {
 
         LOGGER.debug("Info: Reached relationship search dbServiceImpl");
@@ -572,7 +572,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         String[] relReqs = relReq.split("\\.", 2);
         String relReqsKey = relReqs[1];
         String relReqsValue = request.getJsonArray(VALUE)
-            .getJsonArray(0).getString(0);
+                .getJsonArray(0).getString(0);
         if (relReqs[0].equalsIgnoreCase(PROVIDER)) {
           typeValue = ITEM_TYPE_PROVIDER;
 
@@ -592,10 +592,10 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
 
         subQuery = TERM_QUERY.replace("$1", TYPE_KEYWORD)
-            .replace("$2", typeValue)
-            + "," +
-            MATCH_QUERY.replace("$1", relReqsKey)
-                .replace("$2", relReqsValue);
+                .replace("$2", typeValue)
+                + "," +
+                MATCH_QUERY.replace("$1", relReqsKey)
+                        .replace("$2", relReqsValue);
       } else {
         LOGGER.error("Fail: Incorrect/missing query parameters");
         handler.handle(Future.failedFuture(errorJson));
@@ -603,7 +603,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       }
 
       JsonObject elasticQuery =
-          new JsonObject(BOOL_MUST_QUERY.replace("$1", subQuery)).put(SOURCE, ID);
+              new JsonObject(BOOL_MUST_QUERY.replace("$1", subQuery)).put(SOURCE, ID);
 
       /* Initial db query to filter matching attributes */
       client.searchAsync(elasticQuery.toString(), docIndex, searchRes -> {
@@ -620,8 +620,8 @@ public class DatabaseServiceImpl implements DatabaseService {
               JsonObject id = (JsonObject) idIndex;
               if (!id.isEmpty()) {
                 idCollection.add(new JsonObject().put(WILDCARD_KEY,
-                    new JsonObject().put(ID_KEYWORD,
-                        id.getString(ID) + "*")));
+                        new JsonObject().put(ID_KEYWORD,
+                                id.getString(ID) + "*")));
               }
             }
           } else {
@@ -629,7 +629,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           }
 
           elasticQuery.put(QUERY_KEY,
-              new JsonObject(SHOULD_QUERY.replace("$1", idCollection.toString())));
+                  new JsonObject(SHOULD_QUERY.replace("$1", idCollection.toString())));
 
           /* checking the requests for limit attribute */
           if (request.containsKey(LIMIT)) {
@@ -670,61 +670,61 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService createRating(
-      JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
+          JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String ratingId = ratingDoc.getString("ratingID");
 
     String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
 
     client.searchAsync(
-        checkForExistingRecord,
-        ratingIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Insertion of rating failed: " + checkRes.cause());
-            handler.handle(
-                Future.failedFuture(
-                    respBuilder
-                        .withType(FAILED)
-                        .withResult(ratingId)
-                        .getResponse()));
-          } else {
-            if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ALREADY_EXISTS)
-                          .withTitle(TITLE_ALREADY_EXISTS)
-                          .withResult(ratingId, INSERT, FAILED, " Fail: Doc Already Exists")
-                          .getResponse()));
-              return;
-            }
-
-            client.docPostAsync(
-                ratingIndex,
-                ratingDoc.toString(),
-                postRes -> {
-                  if (postRes.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                                .withResult(ratingId, INSERT, TYPE_SUCCESS)
-                                .getJsonResponse()));
-                  } else {
-
-                    handler.handle(
+            checkForExistingRecord,
+            ratingIndex,
+            checkRes -> {
+              if (checkRes.failed()) {
+                LOGGER.error("Fail: Insertion of rating failed: " + checkRes.cause());
+                handler.handle(
                         Future.failedFuture(
-                            respBuilder
-                                .withType(TYPE_FAIL)
-                                .withResult(ratingId, INSERT, FAILED)
-                                .getResponse()));
-                    LOGGER.error("Fail: Insertion failed" + postRes.cause());
-                  }
-                });
-          }
-        });
+                                respBuilder
+                                        .withType(FAILED)
+                                        .withResult(ratingId)
+                                        .getResponse()));
+              } else {
+                if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_ALREADY_EXISTS)
+                                          .withTitle(TITLE_ALREADY_EXISTS)
+                                          .withResult(ratingId, INSERT, FAILED, " Fail: Doc Already Exists")
+                                          .getResponse()));
+                  return;
+                }
+
+                client.docPostAsync(
+                        ratingIndex,
+                        ratingDoc.toString(),
+                        postRes -> {
+                          if (postRes.succeeded()) {
+                            handler.handle(
+                                    Future.succeededFuture(
+                                            respBuilder
+                                                    .withType(TYPE_SUCCESS)
+                                                    .withTitle(TITLE_SUCCESS)
+                                                    .withResult(ratingId, INSERT, TYPE_SUCCESS)
+                                                    .getJsonResponse()));
+                          } else {
+
+                            handler.handle(
+                                    Future.failedFuture(
+                                            respBuilder
+                                                    .withType(TYPE_FAIL)
+                                                    .withResult(ratingId, INSERT, FAILED)
+                                                    .getResponse()));
+                            LOGGER.error("Fail: Insertion failed" + postRes.cause());
+                          }
+                        });
+              }
+            });
     return this;
   }
 
@@ -733,108 +733,108 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
   @Override
   public DatabaseService updateRating(
-      JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
+          JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String ratingId = ratingDoc.getString("ratingID");
 
     String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
 
     client.searchGetId(
-        checkForExistingRecord,
-        ratingIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          } else {
-            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-              LOGGER.error("Fail: Doc doesn't exist, can't update");
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ITEM_NOT_FOUND)
-                          .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withResult(
-                              ratingId, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
-                          .getResponse()));
-              return;
-            }
+            checkForExistingRecord,
+            ratingIndex,
+            checkRes -> {
+              if (checkRes.failed()) {
+                LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              } else {
+                if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+                  LOGGER.error("Fail: Doc doesn't exist, can't update");
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_ITEM_NOT_FOUND)
+                                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                                          .withResult(
+                                                  ratingId, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
+                                          .getResponse()));
+                  return;
+                }
 
-            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+                String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
 
-            client.docPutAsync(
-                docId,
-                ratingIndex,
-                ratingDoc.toString(),
-                putRes -> {
-                  if (putRes.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                                .withResult(ratingId)
-                                .getJsonResponse()));
-                  } else {
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                    LOGGER.error("Fail: Updation failed;" + putRes.cause());
-                  }
-                });
-          }
-        });
+                client.docPutAsync(
+                        docId,
+                        ratingIndex,
+                        ratingDoc.toString(),
+                        putRes -> {
+                          if (putRes.succeeded()) {
+                            handler.handle(
+                                    Future.succeededFuture(
+                                            respBuilder
+                                                    .withType(TYPE_SUCCESS)
+                                                    .withTitle(TITLE_SUCCESS)
+                                                    .withResult(ratingId)
+                                                    .getJsonResponse()));
+                          } else {
+                            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                            LOGGER.error("Fail: Updation failed;" + putRes.cause());
+                          }
+                        });
+              }
+            });
     return this;
   }
 
   @Override
   public DatabaseService deleteRating(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+          JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String ratingId = request.getString("ratingID");
 
     String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
 
     client.searchGetId(
-        checkForExistingRecord,
-        ratingIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          } else {
-            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-              LOGGER.error("Fail: Doc doesn't exist, can't delete");
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ITEM_NOT_FOUND)
-                          .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withResult(
-                              ratingId, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
-                          .getResponse()));
-              return;
-            }
+            checkForExistingRecord,
+            ratingIndex,
+            checkRes -> {
+              if (checkRes.failed()) {
+                LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              } else {
+                if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+                  LOGGER.error("Fail: Doc doesn't exist, can't delete");
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_ITEM_NOT_FOUND)
+                                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                                          .withResult(
+                                                  ratingId, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
+                                          .getResponse()));
+                  return;
+                }
 
-            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+                String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
 
-            client.docDelAsync(
-                docId,
-                ratingIndex,
-                putRes -> {
-                  if (putRes.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                                .withResult(ratingId)
-                                .getJsonResponse()));
-                  } else {
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                    LOGGER.error("Fail: Deletion failed;" + putRes.cause());
-                  }
-                });
-          }
-        });
+                client.docDelAsync(
+                        docId,
+                        ratingIndex,
+                        putRes -> {
+                          if (putRes.succeeded()) {
+                            handler.handle(
+                                    Future.succeededFuture(
+                                            respBuilder
+                                                    .withType(TYPE_SUCCESS)
+                                                    .withTitle(TITLE_SUCCESS)
+                                                    .withResult(ratingId)
+                                                    .getJsonResponse()));
+                          } else {
+                            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                            LOGGER.error("Fail: Deletion failed;" + putRes.cause());
+                          }
+                        });
+              }
+            });
     return this;
   }
 
@@ -869,78 +869,78 @@ public class DatabaseServiceImpl implements DatabaseService {
     LOGGER.debug(query);
 
     client.searchAsync(
-        query,
-        ratingIndex,
-        getRes -> {
-          if (getRes.succeeded()) {
-            LOGGER.debug("Success: Successful DB request");
-            JsonObject result = getRes.result();
-            if (request.containsKey("ratingID")) {
-              result.remove(TOTAL_HITS);
-            }
-            handler.handle(Future.succeededFuture(result));
-          } else {
-            LOGGER.error("Fail: failed getting rating: " + getRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          }
-        });
+            query,
+            ratingIndex,
+            getRes -> {
+              if (getRes.succeeded()) {
+                LOGGER.debug("Success: Successful DB request");
+                JsonObject result = getRes.result();
+                if (request.containsKey("ratingID")) {
+                  result.remove(TOTAL_HITS);
+                }
+                handler.handle(Future.succeededFuture(result));
+              } else {
+                LOGGER.error("Fail: failed getting rating: " + getRes.cause());
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
     return this;
   }
 
   /** {@inheritDoc} */
   @Override
   public DatabaseService createMlayerInstance(
-      JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
+          JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String instanceId = instanceDoc.getString(INSTANCE_ID);
     String id = instanceDoc.getString(MLAYER_ID);
     String checkForExistingRecord = CHECK_MDOC_QUERY.replace("$1", id).replace("$2", "");
     client.searchAsync(
-        checkForExistingRecord,
-        mlayerInstanceIndex,
-        res -> {
-          if (res.failed()) {
-            LOGGER.error("Fail: Insertion of mlayer Instance failed: " + res.cause());
-            handler.handle(
-                Future.failedFuture(respBuilder.withType(FAILED).withResult(MLAYER_ID).getResponse()));
+            checkForExistingRecord,
+            mlayerInstanceIndex,
+            res -> {
+              if (res.failed()) {
+                LOGGER.error("Fail: Insertion of mlayer Instance failed: " + res.cause());
+                handler.handle(
+                        Future.failedFuture(respBuilder.withType(FAILED).withResult(MLAYER_ID).getResponse()));
 
-          } else {
-            if (res.result().getInteger(TOTAL_HITS) != 0) {
-              JsonObject json = new JsonObject(res.result().getJsonArray(RESULTS).getString(0));
-              String InstanceIDExists = json.getString(INSTANCE_ID);
+              } else {
+                if (res.result().getInteger(TOTAL_HITS) != 0) {
+                  JsonObject json = new JsonObject(res.result().getJsonArray(RESULTS).getString(0));
+                  String InstanceIDExists = json.getString(INSTANCE_ID);
 
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ALREADY_EXISTS)
-                          .withTitle(TITLE_ALREADY_EXISTS)
-                          .withResult(
-                              InstanceIDExists,  " Fail: Instance Already Exists")
-                          .getResponse()));
-              return;
-            }
-            client.docPostAsync(
-                mlayerInstanceIndex,
-                instanceDoc.toString(),
-                result -> {
-                  if (result.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                    .withType(TYPE_SUCCESS)
-                                    .withTitle(SUCCESS)
-                                    .withResult(instanceId, "Instance created Sucesssfully")
-                                    .getJsonResponse()));
-                  } else {
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_ALREADY_EXISTS)
+                                          .withTitle(TITLE_ALREADY_EXISTS)
+                                          .withResult(
+                                                  InstanceIDExists,  " Fail: Instance Already Exists")
+                                          .getResponse()));
+                  return;
+                }
+                client.docPostAsync(
+                        mlayerInstanceIndex,
+                        instanceDoc.toString(),
+                        result -> {
+                          if (result.succeeded()) {
+                            handler.handle(
+                                    Future.succeededFuture(
+                                            respBuilder
+                                                    .withType(TYPE_SUCCESS)
+                                                    .withTitle(SUCCESS)
+                                                    .withResult(instanceId, "Instance created Sucesssfully")
+                                                    .getJsonResponse()));
+                          } else {
 
-                    handler.handle(
-                        Future.failedFuture(
-                            respBuilder.withType(TYPE_FAIL).withResult(FAILED).getResponse()));
-                    LOGGER.error("Fail: Insertion failed" + result.cause());
-                  }
-                });
-          }
-        });
+                            handler.handle(
+                                    Future.failedFuture(
+                                            respBuilder.withType(TYPE_FAIL).withResult(FAILED).getResponse()));
+                            LOGGER.error("Fail: Insertion failed" + result.cause());
+                          }
+                        });
+              }
+            });
 
     return this;
   }
@@ -949,194 +949,194 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_MLAYER_INSTANCE_QUERY;
     client.searchAsync(
-        query,
-        mlayerInstanceIndex,
-        resultHandler -> {
-          if (resultHandler.succeeded()) {
-            LOGGER.debug("Success: Successful DB Request");
-            JsonObject result = resultHandler.result();
-            handler.handle(Future.succeededFuture(result));
-          } else {
-            LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          }
-        });
+            query,
+            mlayerInstanceIndex,
+            resultHandler -> {
+              if (resultHandler.succeeded()) {
+                LOGGER.debug("Success: Successful DB Request");
+                JsonObject result = resultHandler.result();
+                handler.handle(Future.succeededFuture(result));
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
     return this;
   }
 
   @Override
   public DatabaseService deleteMlayerInstance(
-      String instanceId, Handler<AsyncResult<JsonObject>> handler) {
+          String instanceId, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
 
     String checkForExistingRecord =
-        CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
+            CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
 
     client.searchGetId(
-        checkForExistingRecord,
-        mlayerInstanceIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          } else {
-            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-              LOGGER.error("Fail: Instance doesn't exist, can't delete");
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ITEM_NOT_FOUND)
-                          .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withResult(
-                              instanceId,
-                              "Fail: Instance doesn't exist, can't delete")
-                          .getResponse()));
-              return;
-            }
-            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+            checkForExistingRecord,
+            mlayerInstanceIndex,
+            checkRes -> {
+              if (checkRes.failed()) {
+                LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              } else {
+                if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+                  LOGGER.error("Fail: Instance doesn't exist, can't delete");
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_ITEM_NOT_FOUND)
+                                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                                          .withResult(
+                                                  instanceId,
+                                                  "Fail: Instance doesn't exist, can't delete")
+                                          .getResponse()));
+                  return;
+                }
+                String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
 
-            client.docDelAsync(
-                docId,
-                mlayerInstanceIndex,
-                delRes -> {
-                  if (delRes.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                    .withType(TYPE_SUCCESS)
-                                    .withTitle(SUCCESS)
-                                    .withResult(instanceId,"Instance deleted Successfully")
-                                    .getJsonResponse()));
-                  } else {
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                    LOGGER.error("Fail: Deletion failed;" + delRes.cause());
-                  }
-                });
-          }
-        });
+                client.docDelAsync(
+                        docId,
+                        mlayerInstanceIndex,
+                        delRes -> {
+                          if (delRes.succeeded()) {
+                            handler.handle(
+                                    Future.succeededFuture(
+                                            respBuilder
+                                                    .withType(TYPE_SUCCESS)
+                                                    .withTitle(SUCCESS)
+                                                    .withResult(instanceId,"Instance deleted Successfully")
+                                                    .getJsonResponse()));
+                          } else {
+                            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                            LOGGER.error("Fail: Deletion failed;" + delRes.cause());
+                          }
+                        });
+              }
+            });
     return this;
   }
 
   @Override
   public DatabaseService updateMlayerInstance(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+          JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String instanceId = request.getString(INSTANCE_ID);
     String checkForExistingRecord =
-        CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
+            CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
     client.searchAsyncGetId(
-        checkForExistingRecord,
-        mlayerInstanceIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          } else {
-            LOGGER.debug(checkRes.result());
-            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-              LOGGER.error("Fail: Instance doesn't exist, can't update");
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ITEM_NOT_FOUND)
-                          .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withResult(
-                              instanceId,
-                              "Fail : Instance doesn't exist, can't update")
-                          .getResponse()));
-              return;
-            }
-            JsonObject result =
-                    new JsonObject(checkRes.result().getJsonArray(RESULTS).getString(0));
+            checkForExistingRecord,
+            mlayerInstanceIndex,
+            checkRes -> {
+              if (checkRes.failed()) {
+                LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              } else {
+                LOGGER.debug(checkRes.result());
+                if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+                  LOGGER.error("Fail: Instance doesn't exist, can't update");
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_ITEM_NOT_FOUND)
+                                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                                          .withResult(
+                                                  instanceId,
+                                                  "Fail : Instance doesn't exist, can't update")
+                                          .getResponse()));
+                  return;
+                }
+                JsonObject result =
+                        new JsonObject(checkRes.result().getJsonArray(RESULTS).getString(0));
 
-            String parameterIdName = result.getJsonObject(SOURCE).getString("name").toLowerCase();
-            String requestBodyName = request.getString("name").toLowerCase();
-            if (parameterIdName.equals(requestBodyName)) {
-              String docId = result.getString(DOC_ID);
-              client.docPutAsync(
-                      docId,
-                      mlayerInstanceIndex,
-                      request.toString(),
-                      putRes -> {
-                        if (putRes.succeeded()) {
-                          handler.handle(
-                                  Future.succeededFuture(
-                                          respBuilder
-                                                  .withType(TYPE_SUCCESS)
-                                                  .withTitle(SUCCESS)
-                                                  .withResult(
-                                                          instanceId,"Instance Updated Successfully")
-                                                  .getJsonResponse()));
-                        } else {
-                          handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                          LOGGER.error("Fail: Updation failed" + putRes.cause());
-                        }
-                      });
-            } else {
-              handler.handle(
-                      Future.failedFuture(
-                              respBuilder
-                                      .withType(TYPE_FAIL)
-                                      .withTitle(TITLE_WRONG_INSTANCE_NAME)
-                                      .withDetail(WRONG_INSTANCE_NAME)
-                                      .getResponse()));
-              LOGGER.error("Fail: Updation Failed" + checkRes.cause());
-            }
-          }
-        });
+                String parameterIdName = result.getJsonObject(SOURCE).getString("name").toLowerCase();
+                String requestBodyName = request.getString("name").toLowerCase();
+                if (parameterIdName.equals(requestBodyName)) {
+                  String docId = result.getString(DOC_ID);
+                  client.docPutAsync(
+                          docId,
+                          mlayerInstanceIndex,
+                          request.toString(),
+                          putRes -> {
+                            if (putRes.succeeded()) {
+                              handler.handle(
+                                      Future.succeededFuture(
+                                              respBuilder
+                                                      .withType(TYPE_SUCCESS)
+                                                      .withTitle(SUCCESS)
+                                                      .withResult(
+                                                              instanceId,"Instance Updated Successfully")
+                                                      .getJsonResponse()));
+                            } else {
+                              handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                              LOGGER.error("Fail: Updation failed" + putRes.cause());
+                            }
+                          });
+                } else {
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_FAIL)
+                                          .withTitle(TITLE_WRONG_INSTANCE_NAME)
+                                          .withDetail(WRONG_INSTANCE_NAME)
+                                          .getResponse()));
+                  LOGGER.error("Fail: Updation Failed" + checkRes.cause());
+                }
+              }
+            });
     return this;
   }
 
   @Override
   public DatabaseService createMlayerDomain(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+          JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String domainId = request.getString(DOMAIN_ID);
     String id = request.getString(MLAYER_ID);
     String checkForExistingDomain = CHECK_MDOC_QUERY.replace("$1", id).replace("$2", "");
     client.searchAsync(
-        checkForExistingDomain,
-        mlayerDomainIndex,
-        res -> {
-          if (res.failed()) {
-            LOGGER.error("Fail: Insertion of mLayer domain failed: " + res.cause());
-            handler.handle(
-                Future.failedFuture(respBuilder.withType(FAILED).withResult(id).getResponse()));
-          } else {
-            if (res.result().getInteger(TOTAL_HITS) != 0) {
-              JsonObject json = new JsonObject(res.result().getJsonArray(RESULTS).getString(0));
-              String domainIdExists = json.getString(DOMAIN_ID);
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ALREADY_EXISTS)
-                          .withTitle(TITLE_ALREADY_EXISTS)
-                          .withResult(domainIdExists,  "Fail: Domain Already Exists")
-                          .getResponse()));
-              return;
-            }
-            client.docPostAsync(
-                mlayerDomainIndex,
-                request.toString(),
-                result -> {
-                  if (result.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(SUCCESS)
-                                .withResult(
-                                    domainId,  "domain Created Successfully")
-                                .getJsonResponse()));
-                  } else {
-                    handler.handle(
-                        Future.failedFuture(
-                            respBuilder.withType(TYPE_FAIL).withResult(FAILED).getResponse()));
-                    LOGGER.error("Fail: Insertion failed" + result.cause());
-                  }
-                });
-          }
-        });
+            checkForExistingDomain,
+            mlayerDomainIndex,
+            res -> {
+              if (res.failed()) {
+                LOGGER.error("Fail: Insertion of mLayer domain failed: " + res.cause());
+                handler.handle(
+                        Future.failedFuture(respBuilder.withType(FAILED).withResult(id).getResponse()));
+              } else {
+                if (res.result().getInteger(TOTAL_HITS) != 0) {
+                  JsonObject json = new JsonObject(res.result().getJsonArray(RESULTS).getString(0));
+                  String domainIdExists = json.getString(DOMAIN_ID);
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_ALREADY_EXISTS)
+                                          .withTitle(TITLE_ALREADY_EXISTS)
+                                          .withResult(domainIdExists,  "Fail: Domain Already Exists")
+                                          .getResponse()));
+                  return;
+                }
+                client.docPostAsync(
+                        mlayerDomainIndex,
+                        request.toString(),
+                        result -> {
+                          if (result.succeeded()) {
+                            handler.handle(
+                                    Future.succeededFuture(
+                                            respBuilder
+                                                    .withType(TYPE_SUCCESS)
+                                                    .withTitle(SUCCESS)
+                                                    .withResult(
+                                                            domainId,  "domain Created Successfully")
+                                                    .getJsonResponse()));
+                          } else {
+                            handler.handle(
+                                    Future.failedFuture(
+                                            respBuilder.withType(TYPE_FAIL).withResult(FAILED).getResponse()));
+                            LOGGER.error("Fail: Insertion failed" + result.cause());
+                          }
+                        });
+              }
+            });
     return this;
   }
 
@@ -1144,142 +1144,142 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_MLAYER_DOMAIN_QUERY;
     client.searchAsync(
-        query,
-        mlayerDomainIndex,
-        resultHandler -> {
-          if (resultHandler.succeeded()) {
-            LOGGER.debug("Success: Successful DB Request");
-            JsonObject result = resultHandler.result();
-            handler.handle(Future.succeededFuture(result));
-          } else {
-            LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          }
-        });
+            query,
+            mlayerDomainIndex,
+            resultHandler -> {
+              if (resultHandler.succeeded()) {
+                LOGGER.debug("Success: Successful DB Request");
+                JsonObject result = resultHandler.result();
+                handler.handle(Future.succeededFuture(result));
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
     return this;
   }
 
   @Override
   public DatabaseService updateMlayerDomain(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+          JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String domainId = request.getString(DOMAIN_ID);
     String checkForExistingRecord =
-        CHECK_MDOC_QUERY_DOMAIN.replace("$1", domainId).replace("$2", "");
+            CHECK_MDOC_QUERY_DOMAIN.replace("$1", domainId).replace("$2", "");
     client.searchAsyncGetId(
-        checkForExistingRecord,
-        mlayerDomainIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Check Query Fail");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          } else {
-            LOGGER.debug(checkRes.result());
-            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-              LOGGER.error("Fail: Domain does not exist, can't update");
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ITEM_NOT_FOUND)
-                          .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withResult(
-                              domainId, "Fail: Domain doesn't exist, can't update")
-                          .getResponse()));
-              return;
-            }
+            checkForExistingRecord,
+            mlayerDomainIndex,
+            checkRes -> {
+              if (checkRes.failed()) {
+                LOGGER.error("Fail: Check Query Fail");
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              } else {
+                LOGGER.debug(checkRes.result());
+                if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+                  LOGGER.error("Fail: Domain does not exist, can't update");
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_ITEM_NOT_FOUND)
+                                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                                          .withResult(
+                                                  domainId, "Fail: Domain doesn't exist, can't update")
+                                          .getResponse()));
+                  return;
+                }
 
-            JsonObject result =
-                    new JsonObject(checkRes.result().getJsonArray(RESULTS).getString(0));
+                JsonObject result =
+                        new JsonObject(checkRes.result().getJsonArray(RESULTS).getString(0));
 
-            String parameterIdName = result.getJsonObject(SOURCE).getString("name").toLowerCase();
-            String requestBodyName = request.getString("name").toLowerCase();
-            if (parameterIdName.equals(requestBodyName)) {
-              String docId = result.getString(DOC_ID);
-              client.docPutAsync(
-                      docId,
-                      mlayerDomainIndex,
-                      request.toString(),
-                      putRes -> {
-                        if (putRes.succeeded()) {
-                          handler.handle(
-                                  Future.succeededFuture(
-                                          respBuilder
-                                                  .withType(TYPE_SUCCESS)
-                                                  .withTitle(SUCCESS)
-                                                  .withResult(
-                                                          domainId,"Domain Updated Successfully")
-                                                  .getJsonResponse()));
-                        } else {
-                          handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                          LOGGER.error("Fail: Updation failed" + putRes.cause());
-                        }
-                      });
-            } else {
-              handler.handle(
-                      Future.failedFuture(
-                              respBuilder
-                                      .withType(TYPE_FAIL)
-                                      .withTitle(TITLE_WRONG_INSTANCE_NAME)
-                                      .withDetail(WRONG_INSTANCE_NAME)
-                                      .getResponse()));
-              LOGGER.error("Fail: Updation Failed" + checkRes.cause());
-            }
-          }
-        });
+                String parameterIdName = result.getJsonObject(SOURCE).getString("name").toLowerCase();
+                String requestBodyName = request.getString("name").toLowerCase();
+                if (parameterIdName.equals(requestBodyName)) {
+                  String docId = result.getString(DOC_ID);
+                  client.docPutAsync(
+                          docId,
+                          mlayerDomainIndex,
+                          request.toString(),
+                          putRes -> {
+                            if (putRes.succeeded()) {
+                              handler.handle(
+                                      Future.succeededFuture(
+                                              respBuilder
+                                                      .withType(TYPE_SUCCESS)
+                                                      .withTitle(SUCCESS)
+                                                      .withResult(
+                                                              domainId,"Domain Updated Successfully")
+                                                      .getJsonResponse()));
+                            } else {
+                              handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                              LOGGER.error("Fail: Updation failed" + putRes.cause());
+                            }
+                          });
+                } else {
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_FAIL)
+                                          .withTitle(TITLE_WRONG_INSTANCE_NAME)
+                                          .withDetail(WRONG_INSTANCE_NAME)
+                                          .getResponse()));
+                  LOGGER.error("Fail: Updation Failed" + checkRes.cause());
+                }
+              }
+            });
     return this;
   }
 
   @Override
   public DatabaseService deleteMlayerDomain(
-      String domainId, Handler<AsyncResult<JsonObject>> handler) {
+          String domainId, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     LOGGER.debug(domainId);
 
     String checkForExistingRecord =
-        CHECK_MDOC_QUERY_DOMAIN.replace("$1", domainId).replace("$2", "");
+            CHECK_MDOC_QUERY_DOMAIN.replace("$1", domainId).replace("$2", "");
 
     client.searchGetId(
-        checkForExistingRecord,
-        mlayerDomainIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          } else {
-            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-              LOGGER.error("Fail: Domain doesn't exist, can't delete");
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ITEM_NOT_FOUND)
-                          .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withResult(
-                              domainId,  "Fail: Domain doesn't exist, can't delete")
-                          .getResponse()));
-              return;
-            }
-            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
+            checkForExistingRecord,
+            mlayerDomainIndex,
+            checkRes -> {
+              if (checkRes.failed()) {
+                LOGGER.error("Fail: Check query fail;" + checkRes.cause());
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              } else {
+                if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+                  LOGGER.error("Fail: Domain doesn't exist, can't delete");
+                  handler.handle(
+                          Future.failedFuture(
+                                  respBuilder
+                                          .withType(TYPE_ITEM_NOT_FOUND)
+                                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                                          .withResult(
+                                                  domainId,  "Fail: Domain doesn't exist, can't delete")
+                                          .getResponse()));
+                  return;
+                }
+                String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
 
-            client.docDelAsync(
-                docId,
-                mlayerDomainIndex,
-                putRes -> {
-                  if (putRes.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(SUCCESS)
-                                .withResult(
-                                    domainId, "Domain deleted Successfully")
-                                .getJsonResponse()));
-                  } else {
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                    LOGGER.error("Fail: Deletion failed;" + putRes.cause());
-                  }
-                });
-          }
-        });
+                client.docDelAsync(
+                        docId,
+                        mlayerDomainIndex,
+                        putRes -> {
+                          if (putRes.succeeded()) {
+                            handler.handle(
+                                    Future.succeededFuture(
+                                            respBuilder
+                                                    .withType(TYPE_SUCCESS)
+                                                    .withTitle(SUCCESS)
+                                                    .withResult(
+                                                            domainId, "Domain deleted Successfully")
+                                                    .getJsonResponse()));
+                          } else {
+                            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                            LOGGER.error("Fail: Deletion failed;" + putRes.cause());
+                          }
+                        });
+              }
+            });
     return this;
   }
 
@@ -1287,24 +1287,24 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_MLAYER_PROVIDERS_QUERY;
     client.searchAsync(
-        query,
-        docIndex,
-        resultHandler -> {
-          if (resultHandler.succeeded()) {
-            LOGGER.debug("Success: Successful DB Request");
-            JsonObject result = resultHandler.result();
-            handler.handle(Future.succeededFuture(result));
-          } else {
-            LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          }
-        });
+            query,
+            docIndex,
+            resultHandler -> {
+              if (resultHandler.succeeded()) {
+                LOGGER.debug("Success: Successful DB Request");
+                JsonObject result = resultHandler.result();
+                handler.handle(Future.succeededFuture(result));
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
     return this;
   }
 
   @Override
   public DatabaseService getMlayerGeoQuery(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+          JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.debug("request body" + request);
 
     String instance = request.getString(INSTANCE);
@@ -1313,24 +1313,24 @@ public class DatabaseServiceImpl implements DatabaseService {
     for (int i = 0; i < id.size(); i++) {
       String dataset_id = id.getString(i);
       String combinedQuery =
-          GET_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", dataset_id);
+              GET_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", dataset_id);
       sb.append(combinedQuery).append(",");
     }
     sb.deleteCharAt(sb.length() - 1);
     String query = GET_MLAYER_GEOQUERY.replace("$1", sb);
     client.searchAsyncGeoQuery(
-        query,
-        docIndex,
-        resultHandler -> {
-          if (resultHandler.succeeded()) {
-            LOGGER.debug("Success: Successful DB Request");
-            handler.handle(Future.succeededFuture(resultHandler.result()));
+            query,
+            docIndex,
+            resultHandler -> {
+              if (resultHandler.succeeded()) {
+                LOGGER.debug("Success: Successful DB Request");
+                handler.handle(Future.succeededFuture(resultHandler.result()));
 
-          } else {
-            LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          }
-        });
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
 
     return this;
   }
@@ -1341,149 +1341,149 @@ public class DatabaseServiceImpl implements DatabaseService {
     LOGGER.debug(query);
     // Elastic client call to get all datasets.
     client.searchAsync(
-        query,
-        docIndex,
-        resultHandler -> {
-          if (resultHandler.succeeded()) {
-            LOGGER.debug("Success: Successful DB Request");
-            int size = resultHandler.result().getJsonArray(RESULTS).size();
-            ArrayList<String> instanceList = new ArrayList<String>();
-            ArrayList<String> providerList = new ArrayList<String>();
-            // make a list of instance names and provider_id. The lists contains unique values, no
-            // duplicate values
-            for (int i = 0; i < size; i++) {
-              JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              String instance = record.getString(INSTANCE);
-              String provider_id = record.getString(PROVIDER);
-              if (!instanceList.contains(instance) && !instanceList.equals(null)) {
-                instanceList.add(instance);
-              }
-              if (!providerList.contains(provider_id)) {
-                providerList.add(provider_id);
-              }
-            }
-            instanceList.remove(null);
-            providerList.remove(null);
-            // Query to get instances icon path
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < instanceList.size(); i++) {
-              String instance = instanceList.get(i);
-              String combinedQuery = GET_MLAYER_BOOL_ICON.replace("$2", instance);
-              sb.append(combinedQuery).append(",");
-            }
-            sb.deleteCharAt(sb.length() - 1);
-            String get_icon_query = GET_MLAYER_INSTANCE_ICON_PATH.replace("$1", sb);
-            // query to get provider description and total Resource
-            StringBuilder sb1 = new StringBuilder();
+            query,
+            docIndex,
+            resultHandler -> {
+              if (resultHandler.succeeded()) {
+                LOGGER.debug("Success: Successful DB Request");
+                int size = resultHandler.result().getJsonArray(RESULTS).size();
+                ArrayList<String> instanceList = new ArrayList<String>();
+                ArrayList<String> providerList = new ArrayList<String>();
+                // make a list of instance names and provider_id. The lists contains unique values, no
+                // duplicate values
+                for (int i = 0; i < size; i++) {
+                  JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
+                  String instance = record.getString(INSTANCE);
+                  String provider_id = record.getString(PROVIDER);
+                  if (!instanceList.contains(instance) && !instanceList.equals(null)) {
+                    instanceList.add(instance);
+                  }
+                  if (!providerList.contains(provider_id)) {
+                    providerList.add(provider_id);
+                  }
+                }
+                instanceList.remove(null);
+                providerList.remove(null);
+                // Query to get instances icon path
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < instanceList.size(); i++) {
+                  String instance = instanceList.get(i);
+                  String combinedQuery = GET_MLAYER_BOOL_ICON.replace("$2", instance);
+                  sb.append(combinedQuery).append(",");
+                }
+                sb.deleteCharAt(sb.length() - 1);
+                String get_icon_query = GET_MLAYER_INSTANCE_ICON_PATH.replace("$1", sb);
+                // query to get provider description and total Resource
+                StringBuilder sb1 = new StringBuilder();
 
-            for (int i = 0; i < providerList.size(); i++) {
-              String provider = providerList.get(i);
+                for (int i = 0; i < providerList.size(); i++) {
+                  String provider = providerList.get(i);
 
-              String combinedQuery = GET_MLAYER_BOOL_PROVIDER.replace("$2", provider);
+                  String combinedQuery = GET_MLAYER_BOOL_PROVIDER.replace("$2", provider);
 
-              sb1.append(combinedQuery).append(",");
-            }
-            sb1.deleteCharAt(sb1.length() - 1);
-            String get_provider_query = GET_MLAYER_PROVIDER_RESOURCE.replace("$1", sb1);
-            // Elastic client call to get instance icon paths.
-            client.searchAsync(
-                get_icon_query,
-                mlayerInstanceIndex,
-                iconRes -> {
-                  if (iconRes.succeeded()) {
-                    Map<String, String> iconPath = new HashMap<String, String>();
-                    int iconRes_size = iconRes.result().getJsonArray(RESULTS).size();
-                    for (int i = 0; i < iconRes_size; i++) {
-                      JsonObject iconRes_record =
-                          iconRes.result().getJsonArray(RESULTS).getJsonObject(i);
-                      String instance_name = iconRes_record.getString("name");
-                      String icon = iconRes_record.getString("icon");
-                      iconPath.put(instance_name, icon);
-                    }
-
-                    // Elastic client call to get provider description and total resource.
-                    client.searchAsync(
-                        get_provider_query,
-                        docIndex,
-                        providerRes -> {
-                          if (providerRes.succeeded()) {
-                            Map<String, String> provider_description_list =
-                                new HashMap<String, String>();
-                            Map<String, Integer> resourceGroupMap = new HashMap<>();
-
-                            int provider_description_size =
-                                providerRes.result().getJsonArray(RESULTS).size();
-                            for (int i = 0; i < provider_description_size; i++) {
-                              JsonObject providerRes_record =
-                                  providerRes.result().getJsonArray(RESULTS).getJsonObject(i);
-                              if (providerRes_record
-                                  .getJsonArray(TYPE)
-                                  .getString(0)
-                                  .equals("iudx:Provider")) {
-                                String provider_id = providerRes_record.getString("id");
-                                String provider_description =
-                                    providerRes_record.getString("description");
-                                provider_description_list.put(provider_id, provider_description);
-                              }
-                              if (providerRes_record
-                                  .getJsonArray(TYPE)
-                                  .getString(0)
-                                  .equals("iudx:Resource")) {
-
-                                String resourceGroup =
-                                    providerRes_record.getString("resourceGroup");
-                                resourceGroupMap.merge(resourceGroup, 1, Integer::sum);
-                              }
+                  sb1.append(combinedQuery).append(",");
+                }
+                sb1.deleteCharAt(sb1.length() - 1);
+                String get_provider_query = GET_MLAYER_PROVIDER_RESOURCE.replace("$1", sb1);
+                // Elastic client call to get instance icon paths.
+                client.searchAsync(
+                        get_icon_query,
+                        mlayerInstanceIndex,
+                        iconRes -> {
+                          if (iconRes.succeeded()) {
+                            Map<String, String> iconPath = new HashMap<String, String>();
+                            int iconRes_size = iconRes.result().getJsonArray(RESULTS).size();
+                            for (int i = 0; i < iconRes_size; i++) {
+                              JsonObject iconRes_record =
+                                      iconRes.result().getJsonArray(RESULTS).getJsonObject(i);
+                              String instance_name = iconRes_record.getString("name");
+                              String icon = iconRes_record.getString("icon");
+                              iconPath.put(instance_name, icon);
                             }
-                            for (int i = 0; i < size; i++) {
-                              JsonObject record =
-                                  resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-                              resultHandler
-                                  .result()
-                                  .getJsonArray(RESULTS)
-                                  .getJsonObject(i)
-                                  .put("icon", iconPath.get(record.getString(INSTANCE)));
-                              resultHandler
-                                  .result()
-                                  .getJsonArray(RESULTS)
-                                  .getJsonObject(i)
-                                  .put(
-                                      "providerDescription",
-                                      provider_description_list.get(record.getString(PROVIDER)));
-                              resultHandler
-                                  .result()
-                                  .getJsonArray(RESULTS)
-                                  .getJsonObject(i)
-                                  .put(
-                                      "totalResources", resourceGroupMap.get(record.getString(ID)));
-                            }
-                            handler.handle(Future.succeededFuture(resultHandler.result()));
 
+                            // Elastic client call to get provider description and total resource.
+                            client.searchAsync(
+                                    get_provider_query,
+                                    docIndex,
+                                    providerRes -> {
+                                      if (providerRes.succeeded()) {
+                                        Map<String, String> provider_description_list =
+                                                new HashMap<String, String>();
+                                        Map<String, Integer> resourceGroupMap = new HashMap<>();
+
+                                        int provider_description_size =
+                                                providerRes.result().getJsonArray(RESULTS).size();
+                                        for (int i = 0; i < provider_description_size; i++) {
+                                          JsonObject providerRes_record =
+                                                  providerRes.result().getJsonArray(RESULTS).getJsonObject(i);
+                                          if (providerRes_record
+                                                  .getJsonArray(TYPE)
+                                                  .getString(0)
+                                                  .equals("iudx:Provider")) {
+                                            String provider_id = providerRes_record.getString("id");
+                                            String provider_description =
+                                                    providerRes_record.getString("description");
+                                            provider_description_list.put(provider_id, provider_description);
+                                          }
+                                          if (providerRes_record
+                                                  .getJsonArray(TYPE)
+                                                  .getString(0)
+                                                  .equals("iudx:Resource")) {
+
+                                            String resourceGroup =
+                                                    providerRes_record.getString("resourceGroup");
+                                            resourceGroupMap.merge(resourceGroup, 1, Integer::sum);
+                                          }
+                                        }
+                                        for (int i = 0; i < size; i++) {
+                                          JsonObject record =
+                                                  resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
+                                          resultHandler
+                                                  .result()
+                                                  .getJsonArray(RESULTS)
+                                                  .getJsonObject(i)
+                                                  .put("icon", iconPath.get(record.getString(INSTANCE)));
+                                          resultHandler
+                                                  .result()
+                                                  .getJsonArray(RESULTS)
+                                                  .getJsonObject(i)
+                                                  .put(
+                                                          "providerDescription",
+                                                          provider_description_list.get(record.getString(PROVIDER)));
+                                          resultHandler
+                                                  .result()
+                                                  .getJsonArray(RESULTS)
+                                                  .getJsonObject(i)
+                                                  .put(
+                                                          "totalResources", resourceGroupMap.get(record.getString(ID)));
+                                        }
+                                        handler.handle(Future.succeededFuture(resultHandler.result()));
+
+                                      } else {
+
+                                        LOGGER.error("Fail: query fail;" + providerRes.cause());
+                                        handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                                      }
+                                    });
                           } else {
 
-                            LOGGER.error("Fail: query fail;" + providerRes.cause());
+                            LOGGER.error("Fail: query fail;" + iconRes.cause());
                             handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
                           }
                         });
-                  } else {
 
-                    LOGGER.error("Fail: query fail;" + iconRes.cause());
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                  }
-                });
+              } else {
 
-          } else {
-
-            LOGGER.error("Fail: query fail;" + resultHandler.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          }
-        });
+                LOGGER.error("Fail: query fail;" + resultHandler.cause());
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
     return this;
   }
 
   @Override
   public DatabaseService getMlayerDataset(
-      String dataset_id, Handler<AsyncResult<JsonObject>> handler) {
+          String dataset_id, Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.debug("dataset Id" + dataset_id);
     int index = dataset_id.indexOf("/", dataset_id.indexOf("/") + 1);
     String provider_id = dataset_id.substring(0, index);
@@ -1492,46 +1492,46 @@ public class DatabaseServiceImpl implements DatabaseService {
     String query = GET_MLAYER_DATASET.replace("$1", dataset_id).replace("$2", provider_id);
     LOGGER.debug("Query " + query);
     client.searchAsyncDataset(
-        query,
-        docIndex,
-        resultHandler -> {
-          if (resultHandler.succeeded()) {
-            LOGGER.debug("Success: Successful DB Request");
-            int resource_count = resultHandler.result().getInteger(TOTAL_HITS) - 2;
-            JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
-            record.getJsonObject("dataset").put("totalResources", resource_count);
-            resultHandler.result().remove(TOTAL_HITS);
+            query,
+            docIndex,
+            resultHandler -> {
+              if (resultHandler.succeeded()) {
+                LOGGER.debug("Success: Successful DB Request");
+                int resource_count = resultHandler.result().getInteger(TOTAL_HITS) - 2;
+                JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
+                record.getJsonObject("dataset").put("totalResources", resource_count);
+                resultHandler.result().remove(TOTAL_HITS);
 
-            String instance_name = record.getJsonObject("dataset").getString(INSTANCE);
-            String get_icon_query = GET_MLAYER_INSTANCE_ICON.replace("$1", instance_name);
-            client.searchAsync(
-                get_icon_query,
-                mlayerInstanceIndex,
-                iconResultHandler -> {
-                  if (iconResultHandler.succeeded()) {
-                    LOGGER.debug("Success: Successful DB Request");
-                    JsonObject resource =
-                        iconResultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
-                    String instance_path = resource.getString("icon");
-                    record.getJsonObject("dataset").put("instance_icon", instance_path);
-                    handler.handle(Future.succeededFuture(resultHandler.result()));
-                  } else {
-                    LOGGER.error("Fail: failed DB request");
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-                  }
-                });
-          } else {
-            LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          }
-        });
+                String instance_name = record.getJsonObject("dataset").getString(INSTANCE);
+                String get_icon_query = GET_MLAYER_INSTANCE_ICON.replace("$1", instance_name);
+                client.searchAsync(
+                        get_icon_query,
+                        mlayerInstanceIndex,
+                        iconResultHandler -> {
+                          if (iconResultHandler.succeeded()) {
+                            LOGGER.debug("Success: Successful DB Request");
+                            JsonObject resource =
+                                    iconResultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
+                            String instance_path = resource.getString("icon");
+                            record.getJsonObject("dataset").put("instance_icon", instance_path);
+                            handler.handle(Future.succeededFuture(resultHandler.result()));
+                          } else {
+                            LOGGER.error("Fail: failed DB request");
+                            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                          }
+                        });
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
 
     return this;
   }
 
   @Override
   public DatabaseService getMlayerPopularDatasets(
-      JsonArray highestCountResource, Handler<AsyncResult<JsonObject>> handler) {
+          JsonArray highestCountResource, Handler<AsyncResult<JsonObject>> handler) {
     Promise<JsonObject> instanceResult = Promise.promise();
 
     Promise<JsonArray> domainResult = Promise.promise();
@@ -1542,227 +1542,224 @@ public class DatabaseServiceImpl implements DatabaseService {
     allMlayerDomains(domainResult);
     datasets(datasetResult, highestCountResource);
     CompositeFuture.all(instanceResult.future(), domainResult.future(), datasetResult.future())
-        .onComplete(
-            ar -> {
-              if (ar.succeeded()) {
-                JsonObject instanceList = ar.result().resultAt(0);
-                JsonArray domainList = ar.result().resultAt(1);
-                JsonObject datasetJson = ar.result().resultAt(2);
-                for (int i = 0; i < datasetJson.getJsonArray("latestDataset").size(); i++) {
-                  datasetJson
-                      .getJsonArray("latestDataset")
-                      .getJsonObject(i)
-                      .put(
-                          "icon",
-                          instanceList
-                              .getJsonObject("instanceIconPath")
-                              .getString(
-                                  datasetJson
-                                      .getJsonArray("latestDataset")
-                                      .getJsonObject(i)
-                                      .getString("instance")));
-
-                }
-                for (int i = 0; i < datasetJson.getJsonArray("featuredDataset").size(); i++) {
-                  datasetJson
-                      .getJsonArray("featuredDataset")
-                      .getJsonObject(i)
-                      .put(
-                          "icon",
-                          instanceList
-                              .getJsonObject("instanceIconPath")
-                              .getString(
-                                  datasetJson
-                                      .getJsonArray("featuredDataset")
-                                      .getJsonObject(i)
-                                      .getString("instance")));
-                }
-                JsonObject result =
-                    new JsonObject()
-                        .put("totalInstance", instanceList.getInteger("totalInstance"))
-                        .put("totalDomain", domainList.size())
-                        .put(
-                            "totalPublishers",
-                            datasetJson.getJsonObject("typeCount").getInteger("iudx:Provider"))
-                        .put(
-                            "totalDatasets",
-                            datasetJson.getJsonObject("typeCount").getInteger("iudx:ResourceGroup"))
-                        .put(
-                            "totalResources",
-                            datasetJson.getJsonObject("typeCount").getInteger("iudx:Resource"))
-                        .put("domains", domainList)
-                        .put("instance", instanceList.getJsonArray("instanceList"))
-                        .put("featuredDataset", datasetJson.getJsonArray("featuredDataset"))
-                        .put("latestDataset", datasetJson.getJsonArray("latestDataset"));
-                RespBuilder respBuilder =
-                    new RespBuilder().withType(TYPE_SUCCESS).withTitle(SUCCESS).withResult(result);
-                handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
-              } else {
-                LOGGER.error("Fail: failed DB request");
-                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-              }
-            });
+            .onComplete(
+                    ar -> {
+                      if (ar.succeeded()) {
+                        JsonObject instanceList = ar.result().resultAt(0);
+                        JsonArray domainList = ar.result().resultAt(1);
+                        JsonObject datasetJson = ar.result().resultAt(2);
+                        for (int i = 0; i < datasetJson.getJsonArray("latestDataset").size(); i++) {
+                          datasetJson
+                                  .getJsonArray("latestDataset")
+                                  .getJsonObject(i)
+                                  .put(
+                                          "icon",
+                                          instanceList
+                                                  .getJsonObject("instanceIconPath")
+                                                  .getString(
+                                                          datasetJson
+                                                                  .getJsonArray("latestDataset")
+                                                                  .getJsonObject(i)
+                                                                  .getString("instance")));
+                        }
+                        for (int i = 0; i < datasetJson.getJsonArray("featuredDataset").size(); i++) {
+                          datasetJson
+                                  .getJsonArray("featuredDataset")
+                                  .getJsonObject(i)
+                                  .put(
+                                          "icon",
+                                          instanceList
+                                                  .getJsonObject("instanceIconPath")
+                                                  .getString(
+                                                          datasetJson
+                                                                  .getJsonArray("featuredDataset")
+                                                                  .getJsonObject(i)
+                                                                  .getString("instance")));
+                        }
+                        JsonObject result =
+                                new JsonObject()
+                                        .put("totalInstance", instanceList.getInteger("totalInstance"))
+                                        .put("totalDomain", domainList.size())
+                                        .put(
+                                                "totalPublishers",
+                                                datasetJson.getJsonObject("typeCount").getInteger("iudx:Provider"))
+                                        .put(
+                                                "totalDatasets",
+                                                datasetJson.getJsonObject("typeCount").getInteger("iudx:ResourceGroup"))
+                                        .put(
+                                                "totalResources",
+                                                datasetJson.getJsonObject("typeCount").getInteger("iudx:Resource"))
+                                        .put("domains", domainList)
+                                        .put("instance", instanceList.getJsonArray("instanceList"))
+                                        .put("featuredDataset", datasetJson.getJsonArray("featuredDataset"))
+                                        .put("latestDataset", datasetJson.getJsonArray("latestDataset"));
+                        RespBuilder respBuilder =
+                                new RespBuilder().withType(TYPE_SUCCESS).withTitle(SUCCESS).withResult(result);
+                        handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+                      } else {
+                        LOGGER.error("Fail: failed DB request");
+                        handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                      }
+                    });
     return this;
   }
 
- private void   searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
+  private void   searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
     client.searchAsync(
-        GET_SORTED_MLAYER_INSTANCES,
-        mlayerInstanceIndex,
-        resultHandler -> {
-          if (resultHandler.succeeded()) {
-            int totalInstance = resultHandler.result().getInteger(TOTAL_HITS);
-            Map<String, String> instanceIconPath = new HashMap<>();
-            JsonArray instanceList = new JsonArray();
-            for (int i = 0; i < resultHandler.result().getJsonArray(RESULTS).size(); i++) {
-              JsonObject instance = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              instanceIconPath.put(instance.getString("name"), instance.getString("icon"));
-              if (i < 4) {
-                instanceList.add(i, instance);
+            GET_SORTED_MLAYER_INSTANCES,
+            mlayerInstanceIndex,
+            resultHandler -> {
+              if (resultHandler.succeeded()) {
+                int totalInstance = resultHandler.result().getInteger(TOTAL_HITS);
+                Map<String, String> instanceIconPath = new HashMap<>();
+                JsonArray instanceList = new JsonArray();
+                for (int i = 0; i < resultHandler.result().getJsonArray(RESULTS).size(); i++) {
+                  JsonObject instance = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
+                  instanceIconPath.put(instance.getString("name"), instance.getString("icon"));
+                  if (i < 4) {
+                    instanceList.add(i, instance);
+                  }
+                }
+
+                JsonObject json =
+                        new JsonObject()
+                                .put("instanceIconPath", instanceIconPath)
+                                .put("instanceList", instanceList)
+                                .put("totalInstance", totalInstance);
+
+                instanceResult.complete(json);
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                instanceResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
               }
-            }
-
-            JsonObject json =
-                new JsonObject()
-                    .put("instanceIconPath", instanceIconPath)
-                    .put("instanceList", instanceList)
-                    .put("totalInstance", totalInstance);
-
-            instanceResult.complete(json);
-          } else {
-            LOGGER.error("Fail: failed DB request");
-            instanceResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          }
-        });
+            });
   }
 
   private void allMlayerDomains(Promise<JsonArray> domainResult) {
     client.searchAsync(
-        GET_MLAYER_DOMAIN_QUERY,
-        mlayerDomainIndex,
-        getDomainHandler -> {
-          if (getDomainHandler.succeeded()) {
-            JsonArray domainList = getDomainHandler.result().getJsonArray(RESULTS);
-            domainResult.complete(domainList);
-          } else {
-            LOGGER.error("Fail: failed DB request");
-            domainResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          }
-        });
+            GET_MLAYER_DOMAIN_QUERY,
+            mlayerDomainIndex,
+            getDomainHandler -> {
+              if (getDomainHandler.succeeded()) {
+                JsonArray domainList = getDomainHandler.result().getJsonArray(RESULTS);
+                domainResult.complete(domainList);
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                domainResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
   }
 
- private  void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
+  private  void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
     client.searchAsync(
-        GET_PROVIDER_AND_RESOURCES,
-        docIndex,
-        getCatRecords -> {
-          if (getCatRecords.succeeded()) {
-            ArrayList<JsonObject> resourceGroupArray = new ArrayList<JsonObject>();
-            Map<String, Integer> resourceGroup_count = new HashMap<>();
-            Map<String, String> provider_description = new HashMap<>();
-            Map<String, Integer> type_count = new HashMap<>();
+            GET_PROVIDER_AND_RESOURCES,
+            docIndex,
+            getCatRecords -> {
+              if (getCatRecords.succeeded()) {
+                ArrayList<JsonObject> resourceGroupArray = new ArrayList<JsonObject>();
+                Map<String, Integer> resourceGroup_count = new HashMap<>();
+                Map<String, String> provider_description = new HashMap<>();
+                Map<String, Integer> type_count = new HashMap<>();
 
-            for (int i = 0; i < getCatRecords.result().getJsonArray(RESULTS).size(); i++) {
-              JsonObject record = getCatRecords.result().getJsonArray(RESULTS).getJsonObject(i);
-              // getting count of all the resources in a resourceGroup
-              if (record.getJsonArray(TYPE).getString(0).equals("iudx:Resource")) {
-                String resourceGroup = record.getString("resourceGroup");
-                if (resourceGroup_count.containsKey(resourceGroup)) {
-                  resourceGroup_count.put(
-                      resourceGroup, resourceGroup_count.get(resourceGroup) + 1);
-                } else {
-                  resourceGroup_count.put(resourceGroup, 1);
-                }
-              }
-              // getting all resource group datasets in an arrayList
-              if (record.getJsonArray(TYPE).getString(0).equals("iudx:ResourceGroup")) {
-                resourceGroupArray.add(record);
-              }
-              // getting count of resource,resourceGroup and provider
-              String type = record.getJsonArray(TYPE).getString(0);
-              if (type_count.containsKey(type)) {
-                type_count.put(type, type_count.get(type) + 1);
-              } else {
-                type_count.put(type, 1);
-              }
-              // getting provider description of all provider
-              if (record.getJsonArray(TYPE).getString(0).equals("iudx:Provider")) {
-                String description = record.getString("description");
-                String provider_id = record.getString("id");
-                provider_description.put(provider_id, description);
-              }
-            }
-            // sorting resource group based on the time of creation.
-            Comparator<JsonObject> jsonComparator =
-                new Comparator<JsonObject>() {
-
-                  @Override
-                  public int compare(JsonObject o1, JsonObject o2) {
-                    DateTimeFormatter formatter =
-                        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-                    LocalDateTime dateTime1 =
-                        LocalDateTime.parse(o1.getString("itemCreatedAt"), formatter);
-                    LocalDateTime dateTime2 =
-                        LocalDateTime.parse(o2.getString("itemCreatedAt"), formatter);
-                    return dateTime2.compareTo(dateTime1);
+                for (int i = 0; i < getCatRecords.result().getJsonArray(RESULTS).size(); i++) {
+                  JsonObject record = getCatRecords.result().getJsonArray(RESULTS).getJsonObject(i);
+                  // getting count of all the resources in a resourceGroup
+                  if (record.getJsonArray(TYPE).getString(0).equals("iudx:Resource")) {
+                    String resourceGroup = record.getString("resourceGroup");
+                    if (resourceGroup_count.containsKey(resourceGroup)) {
+                      resourceGroup_count.put(
+                              resourceGroup, resourceGroup_count.get(resourceGroup) + 1);
+                    } else {
+                      resourceGroup_count.put(resourceGroup, 1);
+                    }
                   }
-                };
-            resourceGroupArray.sort(jsonComparator);
-            ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
-            int resourceGroupSize = 0;
-            if (resourceGroupArray.size() < 6) resourceGroupSize = resourceGroupArray.size();
-            else resourceGroupSize = 6;
-            for (int i = 0; i < resourceGroupSize; i++) {
-              JsonObject resource = resourceGroupArray.get(i);
-              resource
-                  .put(
-                      "totalResources",
-                      resourceGroup_count.get(resourceGroupArray.get(i).getString("id")))
-                  .put(
-                      "provider",
-                      provider_description.get(resourceGroupArray.get(i).getString("provider")));
-              latestResourceGroup.add(resource);
-              resource = new JsonObject();
-            }
+                  // getting all resource group datasets in an arrayList
+                  if (record.getJsonArray(TYPE).getString(0).equals("iudx:ResourceGroup")) {
+                    resourceGroupArray.add(record);
+                  }
+                  // getting count of resource,resourceGroup and provider
+                  String type = record.getJsonArray(TYPE).getString(0);
+                  if (type_count.containsKey(type)) {
+                    type_count.put(type, type_count.get(type) + 1);
+                  } else {
+                    type_count.put(type, 1);
+                  }
+                  // getting provider description of all provider
+                  if (record.getJsonArray(TYPE).getString(0).equals("iudx:Provider")) {
+                    String description = record.getString("description");
+                    String provider_id = record.getString("id");
+                    provider_description.put(provider_id, description);
+                  }
+                }
+                // sorting resource group based on the time of creation.
+                Comparator<JsonObject> jsonComparator =
+                        new Comparator<JsonObject>() {
 
-            ArrayList<JsonObject> featuredResourceGroup = new ArrayList<>();
-
-
-            for (int j = 0; j < highestCountResource.size(); j++) {
-              for (int i = 0; i < resourceGroupArray.size(); i++) {
-                if (resourceGroupArray
-                    .get(i)
-                    .getString("id")
-                    .equals(highestCountResource.getJsonObject(j).getString("rgid"))) {
-                  String dataset_id = highestCountResource.getJsonObject(j).getString("rgid");
-                  int index = dataset_id.indexOf("/", dataset_id.indexOf("/") + 1);
-                  String provider_id = dataset_id.substring(0, index);
+                          @Override
+                          public int compare(JsonObject o1, JsonObject o2) {
+                            DateTimeFormatter formatter =
+                                    DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+                            LocalDateTime dateTime1 =
+                                    LocalDateTime.parse(o1.getString("itemCreatedAt"), formatter);
+                            LocalDateTime dateTime2 =
+                                    LocalDateTime.parse(o2.getString("itemCreatedAt"), formatter);
+                            return dateTime2.compareTo(dateTime1);
+                          }
+                        };
+                resourceGroupArray.sort(jsonComparator);
+                ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
+                int resourceGroupSize = 0;
+                if (resourceGroupArray.size() < 6) resourceGroupSize = resourceGroupArray.size();
+                else resourceGroupSize = 6;
+                for (int i = 0; i < resourceGroupSize; i++) {
                   JsonObject resource = resourceGroupArray.get(i);
                   resource
-                      .put(
-                          "totalResources",
-                          resourceGroup_count.get(resourceGroupArray.get(i).getString("id")))
-                      .put("provider", provider_description.get(provider_id));
-
-                  featuredResourceGroup.add(resource);
+                          .put(
+                                  "totalResources",
+                                  resourceGroup_count.get(resourceGroupArray.get(i).getString("id")))
+                          .put(
+                                  "provider",
+                                  provider_description.get(resourceGroupArray.get(i).getString("provider")));
+                  latestResourceGroup.add(resource);
                   resource = new JsonObject();
-
-
                 }
-              }
-            }
-            JsonObject jsonDataset =
-                new JsonObject()
-                    .put("latestDataset", latestResourceGroup)
-                    .put("typeCount", type_count)
-                    .put("featuredDataset", featuredResourceGroup);
-            datasetResult.complete(jsonDataset);
 
-          } else {
-            LOGGER.error("Fail: failed DB request");
-            datasetResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
-          }
-        });
+                ArrayList<JsonObject> featuredResourceGroup = new ArrayList<>();
+                for (int j = 0; j < highestCountResource.size(); j++) {
+                  for (int i = 0; i < resourceGroupArray.size(); i++) {
+                    if (resourceGroupArray
+                            .get(i)
+                            .getString("id")
+                            .equals(highestCountResource.getJsonObject(j).getString("rgid"))) {
+                      String dataset_id = highestCountResource.getJsonObject(j).getString("rgid");
+                      int index = dataset_id.indexOf("/", dataset_id.indexOf("/") + 1);
+                      String provider_id = dataset_id.substring(0, index);
+                      JsonObject resource = resourceGroupArray.get(i);
+                      resource
+                              .put(
+                                      "totalResources",
+                                      resourceGroup_count.get(resourceGroupArray.get(i).getString("id")))
+                              .put("provider", provider_description.get(provider_id));
+
+                      featuredResourceGroup.add(resource);
+                      resource = new JsonObject();
+
+
+                    }
+                  }
+                }
+                JsonObject jsonDataset =
+                        new JsonObject()
+                                .put("latestDataset", latestResourceGroup)
+                                .put("typeCount", type_count)
+                                .put("featuredDataset", featuredResourceGroup);
+                datasetResult.complete(jsonDataset);
+
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                datasetResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
   }
   /* Verify the existance of an instance */
   Future<Boolean> verifyInstance(String instanceId) {
@@ -1777,20 +1774,20 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     String checkInstance = GET_DOC_QUERY.replace("$1", instanceId).replace("$2", "");
     client.searchAsync(
-        checkInstance,
-        docIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error(ERROR_DB_REQUEST + checkRes.cause().getMessage());
-            promise.fail(TYPE_INTERNAL_SERVER_ERROR);
-          } else if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
-            LOGGER.debug(INSTANCE_NOT_EXISTS);
-            promise.fail("Fail: Instance doesn't exist/registered");
-          } else {
-            promise.complete(true);
-          }
-          return;
-        });
+            checkInstance,
+            docIndex,
+            checkRes -> {
+              if (checkRes.failed()) {
+                LOGGER.error(ERROR_DB_REQUEST + checkRes.cause().getMessage());
+                promise.fail(TYPE_INTERNAL_SERVER_ERROR);
+              } else if (checkRes.result().getInteger(TOTAL_HITS) == 0) {
+                LOGGER.debug(INSTANCE_NOT_EXISTS);
+                promise.fail("Fail: Instance doesn't exist/registered");
+              } else {
+                promise.complete(true);
+              }
+              return;
+            });
 
     return promise.future();
   }
