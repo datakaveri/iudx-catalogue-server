@@ -163,6 +163,9 @@ public class Constants {
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\": {\"id.keyword\": \"$1\"}},{\"match\": {\"type.keyword\":\"iudx:ResourceGroup\"}}]}},{\"bool\":{\"must\":[{\"match\": {\"id.keyword\": \"$2\"}},{\"match\":{\"type.keyword\": \"iudx:Provider\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"resourceGroup.keyword\": \"$1\"}},{\"match\":{\"type.keyword\": \"iudx:Resource\"}}]}}]}},\"_source\": {\"includes\": [\"id\",\"type\",\"label\",\"description\",\"instance\",\"accessPolicy\",\"dataSample\",\"dataDescriptor\",\"@context\",\"dataQualityFile\",\"dataSampleFile\",\"resourceType\"]}}";
   public static final String GET_MLAYER_INSTANCE_ICON =
       "{\"query\":{\"match\":{\"name\":\"$1\"}},\"_source\": {\"includes\": [\"icon\"]}}";
+  public static final String GET_PROVIDER_AND_RESOURCES =
+          "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"iudx:Resource\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"type.keyword\": \"iudx:Provider\"}}]}}]}},\"_source\":{\"includes\": [\"id\",\"description\",\"type\",\"resourceGroup\",\"accessPolicy\",\"provider\",\"itemCreatedAt\",\"instance\",\"label\"]},\"size\":1185}";
+
 
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";

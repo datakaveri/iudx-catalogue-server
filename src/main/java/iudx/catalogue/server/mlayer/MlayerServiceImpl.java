@@ -4,9 +4,11 @@ import com.google.common.hash.Hashing;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.DatabaseService;
 
+import iudx.catalogue.server.database.postgres.PostgresService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,9 +20,14 @@ import static iudx.catalogue.server.mlayer.util.Constants.*;
 public class MlayerServiceImpl implements MlayerService {
   private static final Logger LOGGER = LogManager.getLogger(MlayerServiceImpl.class);
   DatabaseService databaseService;
+  PostgresService postgresService;
+  private String databaseTable;
 
-  MlayerServiceImpl(DatabaseService databaseService) {
+  MlayerServiceImpl(
+      DatabaseService databaseService, PostgresService postgresService, String databaseTable) {
     this.databaseService = databaseService;
+    this.postgresService = postgresService;
+    this.databaseTable = databaseTable;
   }
 
   @Override
@@ -238,6 +245,37 @@ public class MlayerServiceImpl implements MlayerService {
             handler.handle(Future.failedFuture(getMlayerDatasetHandler.cause()));
           }
         });
+    return this;
+  }
+
+  @Override
+  public MlayerService getMlayerPopularDatasets(Handler<AsyncResult<JsonObject>> handler) {
+
+    String query =
+        "with auditing_rs_view as (select resourceid, count(*) as hits, (select count(*) from regexp_matches(resourceid, '/', 'g')) as idtype from auditing_rs group by resourceid) select left(resourceid,length(resourceid) -strpos(reverse(resourceid),'/')) as rgid, sum(hits) as totalhits from auditing_rs_view where idtype=4 group by rgid order by totalhits desc limit 6";
+    postgresService.executeQuery(
+        query,
+        dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonArray popularDataset = dbHandler.result().getJsonArray("results");
+            LOGGER.debug("Query executed: " + popularDataset);
+            databaseService.getMlayerPopularDatasets(
+                popularDataset,
+                getMlayerOverview -> {
+                  if (getMlayerOverview.succeeded()) {
+                    LOGGER.info("Success: Getting data for the landing page.");
+                    handler.handle(Future.succeededFuture(getMlayerOverview.result()));
+                  } else {
+                    LOGGER.error("Fail: Getting data for the landing page.");
+                    handler.handle(Future.failedFuture(getMlayerOverview.cause()));
+                  }
+                });
+
+          } else {
+            LOGGER.debug("postgres query failed");
+          }
+        });
+
     return this;
   }
 }
