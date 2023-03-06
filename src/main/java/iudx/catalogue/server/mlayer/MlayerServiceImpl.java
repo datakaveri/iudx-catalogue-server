@@ -251,8 +251,9 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService getMlayerPopularDatasets(Handler<AsyncResult<JsonObject>> handler) {
 
-    String query =
-        "with auditing_rs_view as (select resourceid, count(*) as hits, (select count(*) from regexp_matches(resourceid, '/', 'g')) as idtype from auditing_rs group by resourceid) select left(resourceid,length(resourceid) -strpos(reverse(resourceid),'/')) as rgid, sum(hits) as totalhits from auditing_rs_view where idtype=4 group by rgid order by totalhits desc limit 6";
+    String query = GET_HIGH_COUNT_DATASET.replace("$1", databaseTable);
+    LOGGER.debug("postgres query second" + query);
+
     postgresService.executeQuery(
         query,
         dbHandler -> {
@@ -261,18 +262,19 @@ public class MlayerServiceImpl implements MlayerService {
             LOGGER.debug("Query executed: " + popularDataset);
             databaseService.getMlayerPopularDatasets(
                 popularDataset,
-                getMlayerOverview -> {
-                  if (getMlayerOverview.succeeded()) {
+                getPopularDatasetsHandler -> {
+                  if (getPopularDatasetsHandler.succeeded()) {
                     LOGGER.info("Success: Getting data for the landing page.");
-                    handler.handle(Future.succeededFuture(getMlayerOverview.result()));
+                    handler.handle(Future.succeededFuture(getPopularDatasetsHandler.result()));
                   } else {
                     LOGGER.error("Fail: Getting data for the landing page.");
-                    handler.handle(Future.failedFuture(getMlayerOverview.cause()));
+                    handler.handle(Future.failedFuture(getPopularDatasetsHandler.cause()));
                   }
                 });
 
           } else {
             LOGGER.debug("postgres query failed");
+            handler.handle(Future.failedFuture(dbHandler.cause()));
           }
         });
 
