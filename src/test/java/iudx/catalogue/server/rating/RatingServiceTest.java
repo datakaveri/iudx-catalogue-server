@@ -22,7 +22,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -51,7 +50,14 @@ public class RatingServiceTest {
     databaseService = mock(DatabaseService.class);
     dataBrokerService = mock(DataBrokerService.class);
     asyncResult = mock(AsyncResult.class);
-    ratingService = new RatingServiceImpl(exchangeName, rsauditingtable, minReadNumber, pgPool, databaseService, dataBrokerService);
+    ratingService =
+        new RatingServiceImpl(
+            exchangeName,
+            rsauditingtable,
+            minReadNumber,
+            pgPool,
+            databaseService,
+            dataBrokerService);
     ratingServiceSpy = spy(ratingService);
     testContext.completeNow();
   }
@@ -152,6 +158,25 @@ public class RatingServiceTest {
   }
 
   @Test
+  @DisplayName("test create rating - get audit info failed")
+  void testAuditInfoFailed(VertxTestContext testContext) {
+
+    doAnswer(Answer -> Future.failedFuture(new Throwable("empty message")))
+        .when(ratingServiceSpy)
+        .getAuditingInfo(any());
+
+    ratingServiceSpy.createRating(
+        requestJson(),
+        handler -> {
+          if (handler.succeeded()) {
+            verify(ratingServiceSpy, times(1)).getAuditingInfo(any());
+            testContext.failNow(handler.cause());
+          } else {
+            testContext.completeNow();
+          }
+        });  }
+
+  @Test
   @DisplayName("Success: test get rating")
   void testGetingRating(VertxTestContext testContext) {
     JsonObject request = requestJson();
@@ -186,8 +211,7 @@ public class RatingServiceTest {
   @Test
   @DisplayName("failure testing get rating")
   void failureTestingGetRating(VertxTestContext testContext) {
-    JsonObject request =
-            requestJson();
+    JsonObject request = requestJson();
 
     when(asyncResult.succeeded()).thenReturn(false);
 
@@ -218,8 +242,7 @@ public class RatingServiceTest {
   @Test
   @DisplayName("Success: test update rating")
   void successfulRatingUpdationTest(VertxTestContext testContext) {
-    JsonObject request =
-requestJson();
+    JsonObject request = requestJson();
 
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(new JsonObject());
@@ -252,8 +275,7 @@ requestJson();
   @Test
   @DisplayName("Failure testing rating updation")
   void failureTestingRatingUpdation(VertxTestContext testContext) {
-    JsonObject request =
-            requestJson();
+    JsonObject request = requestJson();
 
     when(asyncResult.succeeded()).thenReturn(false);
 
@@ -285,8 +307,7 @@ requestJson();
   @Test
   @DisplayName("Success: test delete rating")
   void successfulRatingDeletionTest(VertxTestContext testContext) {
-    JsonObject request =
-            requestJson();
+    JsonObject request = requestJson();
 
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(new JsonObject());
@@ -319,8 +340,7 @@ requestJson();
   @Test
   @DisplayName("Failure testing rating updation")
   void failureTestingRatingDeletion(VertxTestContext testContext) {
-    JsonObject request =
-            requestJson();
+    JsonObject request = requestJson();
 
     when(asyncResult.succeeded()).thenReturn(false);
 

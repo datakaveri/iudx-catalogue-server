@@ -100,10 +100,13 @@ public class GeocodingServiceTest {
     JsonObject json = new JsonObject();
     JsonObject feature = new JsonObject();
     JsonObject properties = new JsonObject();
-    properties.put("confidence", 1);
-    feature.put("properties", properties);
+    properties.put("confidence", 0.7);
+    feature
+        .put("properties", properties)
+        .put("bbox", new JsonArray().add(77.563072).add(12.968362).add(77.573072).add(12.978362));
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(feature);
+    jsonArray.add(new JsonObject().put("properties", new JsonObject().put("confidence", 1)));
     json.put("features", jsonArray);
     GeocodingServiceImpl.webClient = mock(WebClient.class);
     when(webClient.get(anyInt(), anyString(), anyString())).thenReturn(httpRequest);
@@ -199,7 +202,7 @@ public class GeocodingServiceTest {
     when(httpRequest.addQueryParam(anyString(), anyString())).thenReturn(httpRequest);
     when(httpRequest.putHeader(anyString(), anyString())).thenReturn(httpRequest);
     when(ar.succeeded()).thenReturn(false);
-//    when(ar.cause()).thenReturn(throwable);
+    //    when(ar.cause()).thenReturn(throwable);
     doAnswer(
             new Answer<AsyncResult<HttpResponse<Buffer>>>() {
               @Override
@@ -213,15 +216,15 @@ public class GeocodingServiceTest {
         .send(any());
     geoService = new GeocodingServiceImpl(webClient, peliasUrl, peliasPort);
     JsonObject expected = new JsonObject();
-    expected.put("type",TYPE_INVALID_SYNTAX);
-    expected.put("title",TITLE_INVALID_SYNTAX);
-    expected.put("detail","Failed to find coordinates");
+    expected.put("type", TYPE_INVALID_SYNTAX);
+    expected.put("title", TITLE_INVALID_SYNTAX);
+    expected.put("detail", "Failed to find coordinates");
     geoService.geocoder(
         location,
         handler -> {
           if (handler.failed()) {
             verify(httpRequest, times(1)).send(any());
-            assertEquals(expected.encode(),handler.cause().getMessage());
+            assertEquals(expected.encode(), handler.cause().getMessage());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -376,13 +379,18 @@ public class GeocodingServiceTest {
   void testGeocoderHelper(VertxTestContext testContext) {
     String peliasUrl = "dummy";
     int peliasPort = 200;
-    JsonObject doc = new JsonObject()
-        .put(LOCATION, new JsonObject()
-            .put(GEOMETRY, new JsonObject()
-                .put(TYPE, "point")
-                .put(COORDINATES, new JsonArray()
-                    .add(0, "73.8723841")
-                    .add(1, "18.527615"))));
+    JsonObject doc =
+        new JsonObject()
+            .put(
+                LOCATION,
+                new JsonObject()
+                    .put(
+                        GEOMETRY,
+                        new JsonObject()
+                            .put(TYPE, "point")
+                            .put(
+                                COORDINATES,
+                                new JsonArray().add(0, "73.8723841").add(1, "18.527615"))));
     JsonObject jsonObject = new JsonObject();
     JsonObject jsonObject2 = new JsonObject();
     JsonObject jsonObject3 = new JsonObject();
