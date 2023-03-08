@@ -1357,13 +1357,15 @@ public class DatabaseServiceImpl implements DatabaseService {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
               String instance = record.getString(INSTANCE);
               String provider_id = record.getString(PROVIDER);
-              if (!instanceList.contains(instance)) {
+              if (!instanceList.contains(instance) && !instanceList.equals(null) ) {
                 instanceList.add(instance);
               }
               if (!providerList.contains(provider_id)) {
                 providerList.add(provider_id);
               }
             }
+            instanceList.remove(null);
+            providerList.remove(null);
             // Query to get instances icon path
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < instanceList.size(); i++) {
@@ -1533,9 +1535,12 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService getMlayerPopularDatasets(
       JsonArray highestCountResource, Handler<AsyncResult<JsonObject>> handler) {
     Promise<JsonObject> instanceResult = Promise.promise();
+
     Promise<JsonArray> domainResult = Promise.promise();
     Promise<JsonObject> datasetResult = Promise.promise();
+
     searchSortedMlayerInstances(instanceResult);
+
     allMlayerDomains(domainResult);
     datasets(datasetResult, highestCountResource);
     CompositeFuture.all(instanceResult.future(), domainResult.future(), datasetResult.future())
@@ -1545,6 +1550,20 @@ public class DatabaseServiceImpl implements DatabaseService {
                 JsonObject instanceList = ar.result().resultAt(0);
                 JsonArray domainList = ar.result().resultAt(1);
                 JsonObject datasetJson = ar.result().resultAt(2);
+               for (int i = 0; i < datasetJson.getJsonArray("latestDataset").size(); i++) {
+                 datasetJson
+                         .getJsonArray("latestDataset")
+                         .getJsonObject(i)
+                         .put(
+                                 "icon",
+                                 instanceList
+                                         .getJsonObject("instanceIconPath")
+                                         .getString(
+                                                 datasetJson
+                                                         .getJsonArray("latestDataset")
+                                                         .getJsonObject(i)
+                                                         .getString("instance")));
+                }
                 for (int i = 0; i < datasetJson.getJsonArray("featuredDataset").size(); i++) {
                   datasetJson
                       .getJsonArray("featuredDataset")
@@ -1558,18 +1577,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                       .getJsonArray("featuredDataset")
                                       .getJsonObject(i)
                                       .getString("instance")));
-                  datasetJson
-                      .getJsonArray("latestDataset")
-                      .getJsonObject(i)
-                      .put(
-                          "icon",
-                          instanceList
-                              .getJsonObject("instanceIconPath")
-                              .getString(
-                                  datasetJson
-                                      .getJsonArray("latestDataset")
-                                      .getJsonObject(i)
-                                      .getString("instance")));
+
                 }
                 JsonObject result =
                     new JsonObject()
@@ -1591,14 +1599,14 @@ public class DatabaseServiceImpl implements DatabaseService {
                 RespBuilder respBuilder = new RespBuilder().withType(TYPE_SUCCESS).withTitle(SUCCESS).withResult(result);
                 handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
               } else {
-                Throwable error = ar.cause();
-                System.out.println("Failed: " + error.getMessage());
+                LOGGER.error("Fail: failed DB request");
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
               }
             });
     return this;
   }
 
-  private void searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
+ private void   searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
     client.searchAsync(
         GET_SORTED_MLAYER_INSTANCES,
         mlayerInstanceIndex,
@@ -1614,17 +1622,20 @@ public class DatabaseServiceImpl implements DatabaseService {
                 instanceList.add(i, instance);
               }
             }
+
             JsonObject json =
                 new JsonObject()
                     .put("instanceIconPath", instanceIconPath)
                     .put("instanceList", instanceList)
                     .put("totalInstance", totalInstance);
+
             instanceResult.complete(json);
           } else {
             LOGGER.error("Fail: failed DB request");
-            instanceResult.fail(new RuntimeException("Failed DB request. Unable to get instances"));
+            instanceResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
           }
         });
+  //  return instanceResult.future();
   }
 
   private void allMlayerDomains(Promise<JsonArray> domainResult) {
@@ -1637,12 +1648,12 @@ public class DatabaseServiceImpl implements DatabaseService {
             domainResult.complete(domainList);
           } else {
             LOGGER.error("Fail: failed DB request");
-            domainResult.fail(new RuntimeException("Failed DB request. Unable to get Domains"));
+            domainResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
           }
         });
   }
 
-  private void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
+ private  void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
     client.searchAsync(
         GET_PROVIDER_AND_RESOURCES,
         docIndex,
@@ -1686,6 +1697,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             //sorting resource group based on the time of creation.
             Comparator<JsonObject> jsonComparator =
                 new Comparator<JsonObject>() {
+
                   @Override
                   public int compare(JsonObject o1, JsonObject o2) {
                     DateTimeFormatter formatter =
@@ -1711,42 +1723,47 @@ public class DatabaseServiceImpl implements DatabaseService {
                   .put(
                       "provider",
                       provider_description.get(resourceGroupArray.get(i).getString("provider")));
+
+
               latestResourceGroup.add(resource);
               resource = new JsonObject();
             }
-            //getting deatils of featured datasets
+
             ArrayList<JsonObject> featuredResourceGroup = new ArrayList<>();
-            for (int j = 0; j < highestCountResource.size(); j++) {
+
+           for (int j = 0; j < highestCountResource.size(); j++) {
               for (int i = 0; i < resourceGroupArray.size(); i++) {
                 if (resourceGroupArray
                     .get(i)
                     .getString("id")
                     .equals(highestCountResource.getJsonObject(j).getString("rgid"))) {
+                  String dataset_id = highestCountResource.getJsonObject(j).getString("rgid");
+                  int index = dataset_id.indexOf("/", dataset_id.indexOf("/") + 1);
+                  String provider_id = dataset_id.substring(0, index);
                   JsonObject resource = resourceGroupArray.get(i);
                   resource
-                      .put(
-                          "totalResources",
-                          resourceGroup_count.get(resourceGroupArray.get(i).getString("id")))
-                      .put(
-                          "provider",
-                          provider_description.get(
-                              resourceGroupArray.get(i).getString("provider")));
+                          .put(
+                                  "totalResources",
+                                  resourceGroup_count.get(resourceGroupArray.get(i).getString("id")))
+                          .put("provider",provider_description.get(provider_id));
 
                   featuredResourceGroup.add(resource);
                   resource = new JsonObject();
+
+
                 }
               }
             }
             JsonObject jsonDataset =
-                new JsonObject()
-                    .put("featuredDataset", featuredResourceGroup)
-                    .put("latestDataset", latestResourceGroup)
-                    .put("typeCount", type_count);
+                    new JsonObject()
+                            .put("latestDataset", latestResourceGroup)
+                            .put("typeCount", type_count)
+                            .put("featuredDataset", featuredResourceGroup);
             datasetResult.complete(jsonDataset);
 
           } else {
             LOGGER.error("Fail: failed DB request");
-            datasetResult.fail(new RuntimeException("Failed DB request. Unable to get Datasets and Providers"));
+            datasetResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
           }
         });
   }

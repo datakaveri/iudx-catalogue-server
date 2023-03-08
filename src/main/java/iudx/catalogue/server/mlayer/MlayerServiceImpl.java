@@ -252,7 +252,7 @@ public class MlayerServiceImpl implements MlayerService {
   public MlayerService getMlayerPopularDatasets(Handler<AsyncResult<JsonObject>> handler) {
 
     String query = GET_HIGH_COUNT_DATASET.replace("$1", databaseTable);
-    LOGGER.debug("postgres query second" + query);
+    LOGGER.debug("postgres query" + query);
 
     postgresService.executeQuery(
         query,
