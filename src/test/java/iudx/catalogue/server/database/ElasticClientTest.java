@@ -1,5 +1,6 @@
 package iudx.catalogue.server.database;
 
+import static iudx.catalogue.server.database.Constants.GET_AVG_RATING;
 import static iudx.catalogue.server.geocoding.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static junit.framework.Assert.assertEquals;
@@ -38,7 +39,7 @@ public class ElasticClientTest {
   private static ElasticClient elasticClient;
   private static String databaseIP;
   private static int databasePort;
-  private static String docIndex;
+  private static String docIndex,ratingIndex;
   private static String databaseUser;
   private static String databasePassword;
   private static String databaseIndex;
@@ -57,6 +58,7 @@ public class ElasticClientTest {
     databaseUser = elasticConfig.getString(DATABASE_UNAME);
     databasePassword = elasticConfig.getString(DATABASE_PASSWD);
     docIndex = elasticConfig.getString(DOC_INDEX);
+    ratingIndex = elasticConfig.getString(RATING_INDEX);
 
     elasticClient = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
@@ -104,6 +106,22 @@ public class ElasticClientTest {
       }
     });
   }
+
+  @Test
+  @DisplayName("test get rating aggs")
+  void testGetRatingAggregations(VertxTestContext testContext) {
+
+    String req = GET_AVG_RATING.replace("$1", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR048");
+    elasticClient.ratingAggregationAsync(req, ratingIndex, res -> {
+      if(res.succeeded()) {
+        LOGGER.debug(res.result());
+        testContext.completeNow();
+      } else {
+        testContext.failNow("test failed");
+      }
+    });
+  }
+
   @Test
   @Description("test script search method ")
   public void testScriptSearch(VertxTestContext vertxTestContext) {

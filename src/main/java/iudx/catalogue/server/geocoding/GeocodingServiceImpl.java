@@ -88,12 +88,13 @@ public class GeocodingServiceImpl implements GeocodingService {
 
               } else {
                 LOGGER.error("Failed to find coordinates");
-                handler.handle(Future.failedFuture(
-                    new JsonObject()
-                    .put("type",TYPE_INVALID_SYNTAX)
-                    .put("title",TITLE_INVALID_SYNTAX)
-                    .put("detail","Failed to find coordinates").toString()
-                ));
+                handler.handle(
+                    Future.failedFuture(
+                        new JsonObject()
+                            .put("type", TYPE_INVALID_SYNTAX)
+                            .put("title", TITLE_INVALID_SYNTAX)
+                            .put("detail", "Failed to find coordinates")
+                            .toString()));
               }
             });
   }

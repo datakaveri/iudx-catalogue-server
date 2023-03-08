@@ -847,7 +847,6 @@ public class DatabaseServiceImpl implements DatabaseService {
       String id = request.getString(ID);
       if (request.containsKey(TYPE) && request.getString(TYPE).equalsIgnoreCase("average")) {
         query = GET_AVG_RATING.replace("$1", id);
-        LOGGER.debug(query);
         client.ratingAggregationAsync(query, ratingIndex, getRes -> {
           if (getRes.succeeded()) {
             LOGGER.debug("Success: Successful DB request");

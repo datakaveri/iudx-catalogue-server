@@ -30,18 +30,8 @@ public class ResponseBuilder {
     return this;
   }
 
-  /** Overloaded methods for Error messages. */
-  public ResponseBuilder setMessage(String error) {
-    response.put(DETAIL, error);
-    return this;
-  }
-
   public ResponseBuilder setJsonArray(JsonArray jsonArray) {
     response.put(RESULTS, jsonArray);
     return this;
-  }
-
-  public JsonObject getResponse() {
-    return response;
   }
 }
