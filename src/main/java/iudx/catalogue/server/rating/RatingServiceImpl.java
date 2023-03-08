@@ -85,7 +85,7 @@ public class RatingServiceImpl implements RatingService {
             failureHandler -> {
               LOGGER.error(
                   "User has not accessed resource before and hence is not authorised to give rating");
-              handler.handle(Future.failedFuture(failureHandler.getCause().getMessage()));
+              handler.handle(Future.failedFuture(failureHandler.getMessage()));
             });
 
     return this;

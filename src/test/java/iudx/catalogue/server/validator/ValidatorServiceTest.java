@@ -47,7 +47,7 @@ public class ValidatorServiceTest {
 
     // TODO : Need to enable TLS using xpack security
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
-    validator = new ValidatorServiceImpl(client,docIndex);
+    validator = new ValidatorServiceImpl(client, docIndex);
     testContext.completeNow();
   }
 
@@ -57,7 +57,7 @@ public class ValidatorServiceTest {
     vertxObj.close(testContext.succeeding(response -> testContext.completeNow()));
   }
 
-/*  @Test
+  /*  @Test
   @Order(1)
   @DisplayName("Test Link Validation [Resource]")
   void validResourceLinkTest(VertxTestContext testContext) {
@@ -158,12 +158,20 @@ public class ValidatorServiceTest {
   @DisplayName("Valid Schema Test [Resource]")
   void validResourceSchemaTest(VertxTestContext testContext) {
 
-    JsonObject resource = fileSystem.readFileBlocking("./src/test/resources/resources.json")
-        .toJsonArray().getJsonObject(0);
+    JsonObject resource =
+        fileSystem
+            .readFileBlocking("./src/test/resources/resources.json")
+            .toJsonArray()
+            .getJsonObject(0);
 
-    validator.validateSchema(resource, testContext.succeeding(response -> testContext.verify(() -> {
-      testContext.completeNow();
-    })));
+    validator.validateSchema(
+        resource,
+        testContext.succeeding(
+            response ->
+                testContext.verify(
+                    () -> {
+                      testContext.completeNow();
+                    })));
   }
 
   @Test
@@ -172,14 +180,21 @@ public class ValidatorServiceTest {
   void validResourceGroupSchemaTest(VertxTestContext testContext) {
 
     JsonObject resourceGrp =
-        fileSystem.readFileBlocking("./src/test/resources/resourceGroup.json").toJsonArray().getJsonObject(0);
+        fileSystem
+            .readFileBlocking("./src/test/resources/resourceGroup.json")
+            .toJsonArray()
+            .getJsonObject(0);
 
     LOGGER.debug(resourceGrp.toString());
 
-    validator.validateSchema(resourceGrp,
-        testContext.succeeding(response -> testContext.verify(() -> {
-          testContext.completeNow();
-        })));
+    validator.validateSchema(
+        resourceGrp,
+        testContext.succeeding(
+            response ->
+                testContext.verify(
+                    () -> {
+                      testContext.completeNow();
+                    })));
   }
 
   @Test
@@ -209,44 +224,206 @@ public class ValidatorServiceTest {
   @DisplayName("Valid Schema Test, large name [Resource]")
   void validResourceSchemaTestName(VertxTestContext testContext) {
 
-    JsonObject resource = fileSystem.readFileBlocking("./src/test/resources/resources.json")
-        .toJsonArray().getJsonObject(0);
-    resource.put("name",
+    JsonObject resource =
+        fileSystem
+            .readFileBlocking("./src/test/resources/resources.json")
+            .toJsonArray()
+            .getJsonObject(0);
+    resource.put(
+        "name",
         "2AgEk25l7odg91lTOolXHouSDUjbB_JbNvqYrhQUjfIfAbkv03tBqBW_EQK7f733MdtfNcqti7K1xt4o3rLEFVQqVrQZHTm4vf8fAGs8KsqVjDFPGcJM/UgDxrcF7YMnbTdePN7pRr8/9T1o_2bUkH3DoktbOTk3FkD8IsdHm_OdKIuGEvjeMis0oqQiEEXqPNqdUpPA5lqjV1c76ihPoOmO/1XzJkWRcgc_MXSWy8Q2u/2FAPTmOKGSW5LE6wHXIDt/0hPlwCByXNazmQxcO/GRdAznMJKo_Xj7BtJHsx3m/oYus9cJYj1KDTJt2qL98mQ1Z0Al_PsknycOspHWplfesuVSsebZ92Xe5wbpy/4OFSHxUjxevkCSUm38Q/XkUTa1zfByV6P2VOSz3Fc_VN0kRHZyNx32NwcG76CV3QDoUoDDyHNvsK8vgdR3Z/AVSP4P/h/IoX3s6o/rcLLYWD7ioOMHDPYqMLcarkSDMKOG_PvLVCGdJbh44n583VbY");
 
-    validator.validateSchema(resource, testContext.failing(response -> testContext.verify(() -> {
-      testContext.completeNow();
-    })));
+    validator.validateSchema(
+        resource,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      testContext.completeNow();
+                    })));
   }
 
   @Test
   @DisplayName("Valid Rating schema")
   void validRatingSchemaTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject()
-        .put("rating",4.5)
-        .put("comment","some-comment")
-        .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
-        .put("userID", "some-user")
-        .put("status", "pending");
+    JsonObject request =
+        new JsonObject()
+            .put("rating", 4.5)
+            .put("comment", "some-comment")
+            .put(
+                "id",
+                "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+            .put("userID", "some-user")
+            .put("status", "pending");
 
-    validator.validateRating(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(TITLE);
-      assertEquals(SUCCESS, status);
-      testContext.completeNow();
-    })));
+    validator.validateRating(
+        request,
+        testContext.succeeding(
+            response ->
+                testContext.verify(
+                    () -> {
+                      String status = response.getString(TITLE);
+                      assertEquals(SUCCESS, status);
+                      testContext.completeNow();
+                    })));
   }
 
   @Test
   @DisplayName("Invalid Rating schema")
   void invalidRatingSchemaTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject()
-        .put("rating",4.5)
-        .put("comment","some-comment")
-        .put("userID", "some-user")
-        .put("status", "pending");
+    JsonObject request =
+        new JsonObject()
+            .put("rating", 4.5)
+            .put("comment", "some-comment")
+            .put("userID", "some-user")
+            .put("status", "pending");
 
-    validator.validateRating(request, testContext.failing(response -> testContext.verify(() -> {
-      testContext.completeNow();
-    })));
+    validator.validateRating(
+        request,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      testContext.completeNow();
+                    })));
+  }
+
+  @Test
+  @DisplayName("Valid mlayer instance schema")
+  void validMLInstanceSchemaTest(VertxTestContext testContext) {
+    JsonObject request =
+        new JsonObject()
+            .put("name", "lucknow")
+            .put(
+                "icon",
+                "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg")
+            .put(
+                "cover",
+                "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg")
+            .put(
+                "logo",
+                "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg");
+
+    validator.validateMlayerInstance(
+        request,
+        testContext.succeeding(
+            response -> {
+              testContext.verify(
+                  () -> {
+                    testContext.completeNow();
+                  });
+            }));
+  }
+
+  @Test
+  @DisplayName("invalid mlayer instance schema")
+  void invalidMLInstanceSchemaTest(VertxTestContext testContext) {
+    JsonObject request =
+        new JsonObject()
+            .put("name", "lucknow")
+            .put(
+                "icon",
+                "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg")
+            .put(
+                "logo",
+                "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg");
+
+    validator.validateMlayerInstance(
+        request,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      testContext.completeNow();
+                    })));
+  }
+
+  @Test
+  @DisplayName("valid mlayer domain schema")
+  void validMLDomainSchemaTest(VertxTestContext testContext) {
+    JsonObject request =
+        new JsonObject()
+            .put("description", "Data Models that pertain to civic domain")
+            .put(
+                "icon",
+                "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png")
+            .put("label", "Civic")
+            .put("name", "civic");
+
+    validator.validateMlayerDomain(
+        request,
+        testContext.succeeding(
+            response -> {
+              testContext.verify(
+                  () -> {
+                    testContext.completeNow();
+                  });
+            }));
+  }
+
+  @Test
+  @DisplayName("invalid mlayer domain schema")
+  void invalidMLDomainSchemaTest(VertxTestContext testContext) {
+    JsonObject request =
+        new JsonObject()
+            .put("description", "Data Models that pertain to civic domain")
+            .put("icon", "akjbaijfbai")
+            .put("label", "Civic")
+            .put("name", "civic");
+
+    validator.validateMlayerDomain(
+        request,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      testContext.completeNow();
+                    })));
+  }
+
+  @Test
+  @DisplayName("valid mlayer gq schema")
+  void validMLGQSchemaTest(VertxTestContext testContext) {
+    JsonObject request =
+        new JsonObject()
+            .put(
+                "id",
+                new JsonArray()
+                    .add(
+                        "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/faridabad-camera-feeds")
+                    .add(
+                        "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/chennai-bike-docking-locations"))
+            .put("instance", "pune");
+
+    validator.validateMlayerGeoQuery(
+        request,
+        testContext.succeeding(
+            response -> {
+              testContext.verify(
+                  () -> {
+                    testContext.completeNow();
+                  });
+            }));
+  }
+
+  @Test
+  @DisplayName("invalid mlaery gq schema")
+  void invalidMLGQSchemaTest(VertxTestContext testContext) {
+    JsonObject request =
+        new JsonObject()
+            .put(
+                "id",
+                new JsonArray()
+                    .add(
+                        "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app")
+                    .add(
+                        "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/chennai-bike-docking-locations"))
+            .put("eynstance", "pune");
+
+    validator.validateMlayerGeoQuery(request, testContext.failing(response -> {
+      testContext.verify(() -> {
+        testContext.completeNow();
+      });
+    }));
   }
 }
