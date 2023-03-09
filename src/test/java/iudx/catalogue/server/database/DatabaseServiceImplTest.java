@@ -16,9 +16,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
@@ -52,6 +57,7 @@ public class DatabaseServiceImplTest {
   @Mock GeocodingService geoService;
 
   @Mock Throwable throwable;
+  @Mock Promise<JsonObject> instanceResult;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -2889,4 +2895,5 @@ public class DatabaseServiceImplTest {
                     }
                 });
     }
+
 }
