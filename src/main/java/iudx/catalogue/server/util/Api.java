@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.apiserver.util.Constants.ROUTE_MLAYER_POPULAR_DATASETS;
 
 
 /**
@@ -32,6 +33,8 @@ public class Api {
     private StringBuilder routeMlayerProvider;
     private StringBuilder routeMlayerGeoquery;
     private StringBuilder routeMlayerDataset;
+    private StringBuilder routeMlayerPopularDatasets;
+
 
 
 
@@ -81,6 +84,8 @@ public class Api {
         routeMlayerProvider = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_PROVIDER);
         routeMlayerGeoquery = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_GEOQUERY);
         routeMlayerDataset = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_DATASET);
+        routeMlayerPopularDatasets = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_POPULAR_DATASETS);
+
 
 
 
@@ -148,6 +153,8 @@ public class Api {
     public String getRouteMlayerProviders() { return  routeMlayerProvider.toString(); }
     public String getRouteMlayerGeoQuery() { return routeMlayerGeoquery.toString(); }
     public String getRouteMlayerDataset() { return routeMlayerDataset.toString(); }
+    public String getRouteMlayerPopularDatasets() { return routeMlayerPopularDatasets.toString(); }
+
 
 
 

@@ -4,9 +4,11 @@ import com.google.common.hash.Hashing;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.DatabaseService;
 
+import iudx.catalogue.server.database.postgres.PostgresService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -18,9 +20,14 @@ import static iudx.catalogue.server.mlayer.util.Constants.*;
 public class MlayerServiceImpl implements MlayerService {
   private static final Logger LOGGER = LogManager.getLogger(MlayerServiceImpl.class);
   DatabaseService databaseService;
+  PostgresService postgresService;
+  private String databaseTable;
 
-  MlayerServiceImpl(DatabaseService databaseService) {
+  MlayerServiceImpl(
+      DatabaseService databaseService, PostgresService postgresService, String databaseTable) {
     this.databaseService = databaseService;
+    this.postgresService = postgresService;
+    this.databaseTable = databaseTable;
   }
 
   @Override
@@ -238,6 +245,37 @@ public class MlayerServiceImpl implements MlayerService {
             handler.handle(Future.failedFuture(getMlayerDatasetHandler.cause()));
           }
         });
+    return this;
+  }
+
+  @Override
+  public MlayerService getMlayerPopularDatasets(Handler<AsyncResult<JsonObject>> handler) {
+
+    String query = GET_HIGH_COUNT_DATASET.replace("$1", databaseTable);
+    LOGGER.debug("postgres query" + query);
+    postgresService.executeQuery(
+        query,
+        dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonArray popularDataset = dbHandler.result().getJsonArray("results");
+            databaseService.getMlayerPopularDatasets(
+                popularDataset,
+                getPopularDatasetsHandler -> {
+                  if (getPopularDatasetsHandler.succeeded()) {
+                    LOGGER.info("Success: Getting data for the landing page.");
+                    handler.handle(Future.succeededFuture(getPopularDatasetsHandler.result()));
+                  } else {
+                    LOGGER.error("Fail: Getting data for the landing page.");
+                    handler.handle(Future.failedFuture(getPopularDatasetsHandler.cause()));
+                  }
+                });
+
+          } else {
+            LOGGER.debug("postgres query failed");
+            handler.handle(Future.failedFuture(dbHandler.cause()));
+          }
+        });
+
     return this;
   }
 }

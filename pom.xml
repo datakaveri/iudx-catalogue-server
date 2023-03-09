@@ -29,6 +29,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <exec.mainClass>iudx.catalogue.server.deploy.Deployer</exec.mainClass>
         <exec.mainClassDev>iudx.catalogue.server.deploy.DeployerDev</exec.mainClassDev>
+        <testcontainer.params>1.17.3</testcontainer.params>
+        <testcontainer-postgres.version>1.17.3</testcontainer-postgres.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -65,6 +67,12 @@
             <groupId>com.ongres.scram</groupId>
             <artifactId>client</artifactId>
             <version>2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainer.params}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>

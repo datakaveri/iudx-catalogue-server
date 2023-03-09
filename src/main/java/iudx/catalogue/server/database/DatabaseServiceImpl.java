@@ -6,15 +6,17 @@ import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static iudx.catalogue.server.database.Constants.GET_PROVIDER_AND_RESOURCES;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.database.Constants.*;
 
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
-
 
 /**
  * The Database Service Implementation.
@@ -1353,13 +1355,15 @@ public class DatabaseServiceImpl implements DatabaseService {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
               String instance = record.getString(INSTANCE);
               String provider_id = record.getString(PROVIDER);
-              if (!instanceList.contains(instance)) {
+              if (!instanceList.contains(instance) && !instanceList.equals(null)) {
                 instanceList.add(instance);
               }
               if (!providerList.contains(provider_id)) {
                 providerList.add(provider_id);
               }
             }
+            instanceList.remove(null);
+            providerList.remove(null);
             // Query to get instances icon path
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < instanceList.size(); i++) {
@@ -1525,6 +1529,238 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
+  @Override
+  public DatabaseService getMlayerPopularDatasets(
+      JsonArray highestCountResource, Handler<AsyncResult<JsonObject>> handler) {
+    Promise<JsonObject> instanceResult = Promise.promise();
+
+    Promise<JsonArray> domainResult = Promise.promise();
+    Promise<JsonObject> datasetResult = Promise.promise();
+
+    searchSortedMlayerInstances(instanceResult);
+
+    allMlayerDomains(domainResult);
+    datasets(datasetResult, highestCountResource);
+    CompositeFuture.all(instanceResult.future(), domainResult.future(), datasetResult.future())
+        .onComplete(
+            ar -> {
+              if (ar.succeeded()) {
+                JsonObject instanceList = ar.result().resultAt(0);
+                JsonArray domainList = ar.result().resultAt(1);
+                JsonObject datasetJson = ar.result().resultAt(2);
+                for (int i = 0; i < datasetJson.getJsonArray("latestDataset").size(); i++) {
+                  datasetJson
+                      .getJsonArray("latestDataset")
+                      .getJsonObject(i)
+                      .put(
+                          "icon",
+                          instanceList
+                              .getJsonObject("instanceIconPath")
+                              .getString(
+                                  datasetJson
+                                      .getJsonArray("latestDataset")
+                                      .getJsonObject(i)
+                                      .getString("instance")));
+                }
+                for (int i = 0; i < datasetJson.getJsonArray("featuredDataset").size(); i++) {
+                  datasetJson
+                      .getJsonArray("featuredDataset")
+                      .getJsonObject(i)
+                      .put(
+                          "icon",
+                          instanceList
+                              .getJsonObject("instanceIconPath")
+                              .getString(
+                                  datasetJson
+                                      .getJsonArray("featuredDataset")
+                                      .getJsonObject(i)
+                                      .getString("instance")));
+                }
+                JsonObject result =
+                    new JsonObject()
+                        .put("totalInstance", instanceList.getInteger("totalInstance"))
+                        .put("totalDomain", domainList.size())
+                        .put(
+                            "totalPublishers",
+                            datasetJson.getJsonObject("typeCount").getInteger("iudx:Provider"))
+                        .put(
+                            "totalDatasets",
+                            datasetJson.getJsonObject("typeCount").getInteger("iudx:ResourceGroup"))
+                        .put(
+                            "totalResources",
+                            datasetJson.getJsonObject("typeCount").getInteger("iudx:Resource"))
+                        .put("domains", domainList)
+                        .put("instance", instanceList.getJsonArray("instanceList"))
+                        .put("featuredDataset", datasetJson.getJsonArray("featuredDataset"))
+                        .put("latestDataset", datasetJson.getJsonArray("latestDataset"));
+                RespBuilder respBuilder =
+                    new RespBuilder().withType(TYPE_SUCCESS).withTitle(SUCCESS).withResult(result);
+                handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              }
+            });
+    return this;
+  }
+
+ private void   searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
+    client.searchAsync(
+        GET_SORTED_MLAYER_INSTANCES,
+        mlayerInstanceIndex,
+        resultHandler -> {
+          if (resultHandler.succeeded()) {
+            int totalInstance = resultHandler.result().getInteger(TOTAL_HITS);
+            Map<String, String> instanceIconPath = new HashMap<>();
+            JsonArray instanceList = new JsonArray();
+            for (int i = 0; i < resultHandler.result().getJsonArray(RESULTS).size(); i++) {
+              JsonObject instance = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
+              instanceIconPath.put(instance.getString("name"), instance.getString("icon"));
+              if (i < 4) {
+                instanceList.add(i, instance);
+              }
+            }
+
+            JsonObject json =
+                new JsonObject()
+                    .put("instanceIconPath", instanceIconPath)
+                    .put("instanceList", instanceList)
+                    .put("totalInstance", totalInstance);
+
+            instanceResult.complete(json);
+          } else {
+            LOGGER.error("Fail: failed DB request");
+            instanceResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
+  }
+
+  private void allMlayerDomains(Promise<JsonArray> domainResult) {
+    client.searchAsync(
+        GET_MLAYER_DOMAIN_QUERY,
+        mlayerDomainIndex,
+        getDomainHandler -> {
+          if (getDomainHandler.succeeded()) {
+            JsonArray domainList = getDomainHandler.result().getJsonArray(RESULTS);
+            domainResult.complete(domainList);
+          } else {
+            LOGGER.error("Fail: failed DB request");
+            domainResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
+  }
+
+ private  void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
+    client.searchAsync(
+        GET_PROVIDER_AND_RESOURCES,
+        docIndex,
+        getCatRecords -> {
+          if (getCatRecords.succeeded()) {
+            ArrayList<JsonObject> resourceGroupArray = new ArrayList<JsonObject>();
+            Map<String, Integer> resourceGroup_count = new HashMap<>();
+            Map<String, String> provider_description = new HashMap<>();
+            Map<String, Integer> type_count = new HashMap<>();
+
+            for (int i = 0; i < getCatRecords.result().getJsonArray(RESULTS).size(); i++) {
+              JsonObject record = getCatRecords.result().getJsonArray(RESULTS).getJsonObject(i);
+              // getting count of all the resources in a resourceGroup
+              if (record.getJsonArray(TYPE).getString(0).equals("iudx:Resource")) {
+                String resourceGroup = record.getString("resourceGroup");
+                if (resourceGroup_count.containsKey(resourceGroup)) {
+                  resourceGroup_count.put(
+                      resourceGroup, resourceGroup_count.get(resourceGroup) + 1);
+                } else {
+                  resourceGroup_count.put(resourceGroup, 1);
+                }
+              }
+              // getting all resource group datasets in an arrayList
+              if (record.getJsonArray(TYPE).getString(0).equals("iudx:ResourceGroup")) {
+                resourceGroupArray.add(record);
+              }
+              // getting count of resource,resourceGroup and provider
+              String type = record.getJsonArray(TYPE).getString(0);
+              if (type_count.containsKey(type)) {
+                type_count.put(type, type_count.get(type) + 1);
+              } else {
+                type_count.put(type, 1);
+              }
+              // getting provider description of all provider
+              if (record.getJsonArray(TYPE).getString(0).equals("iudx:Provider")) {
+                String description = record.getString("description");
+                String provider_id = record.getString("id");
+                provider_description.put(provider_id, description);
+              }
+            }
+            // sorting resource group based on the time of creation.
+            Comparator<JsonObject> jsonComparator =
+                new Comparator<JsonObject>() {
+
+                  @Override
+                  public int compare(JsonObject o1, JsonObject o2) {
+                    DateTimeFormatter formatter =
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+                    LocalDateTime dateTime1 =
+                        LocalDateTime.parse(o1.getString("itemCreatedAt"), formatter);
+                    LocalDateTime dateTime2 =
+                        LocalDateTime.parse(o2.getString("itemCreatedAt"), formatter);
+                    return dateTime2.compareTo(dateTime1);
+                  }
+                };
+            resourceGroupArray.sort(jsonComparator);
+            ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
+            int resourceGroupSize = 0;
+            if (resourceGroupArray.size() < 6) resourceGroupSize = resourceGroupArray.size();
+            else resourceGroupSize = 6;
+            for (int i = 0; i < resourceGroupSize; i++) {
+              JsonObject resource = resourceGroupArray.get(i);
+              resource
+                  .put(
+                      "totalResources",
+                      resourceGroup_count.get(resourceGroupArray.get(i).getString("id")))
+                  .put(
+                      "provider",
+                      provider_description.get(resourceGroupArray.get(i).getString("provider")));
+              latestResourceGroup.add(resource);
+              resource = new JsonObject();
+            }
+
+            ArrayList<JsonObject> featuredResourceGroup = new ArrayList<>();
+            for (int j = 0; j < highestCountResource.size(); j++) {
+              for (int i = 0; i < resourceGroupArray.size(); i++) {
+                if (resourceGroupArray
+                    .get(i)
+                    .getString("id")
+                    .equals(highestCountResource.getJsonObject(j).getString("rgid"))) {
+                  String dataset_id = highestCountResource.getJsonObject(j).getString("rgid");
+                  int index = dataset_id.indexOf("/", dataset_id.indexOf("/") + 1);
+                  String provider_id = dataset_id.substring(0, index);
+                  JsonObject resource = resourceGroupArray.get(i);
+                  resource
+                      .put(
+                          "totalResources",
+                          resourceGroup_count.get(resourceGroupArray.get(i).getString("id")))
+                      .put("provider", provider_description.get(provider_id));
+
+                  featuredResourceGroup.add(resource);
+                  resource = new JsonObject();
+
+
+                }
+              }
+            }
+            JsonObject jsonDataset =
+                new JsonObject()
+                    .put("latestDataset", latestResourceGroup)
+                    .put("typeCount", type_count)
+                    .put("featuredDataset", featuredResourceGroup);
+            datasetResult.complete(jsonDataset);
+
+          } else {
+            LOGGER.error("Fail: failed DB request");
+            datasetResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          }
+        });
+  }
   /* Verify the existance of an instance */
   Future<Boolean> verifyInstance(String instanceId) {
 
