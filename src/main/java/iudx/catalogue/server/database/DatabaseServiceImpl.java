@@ -18,7 +18,6 @@ import static iudx.catalogue.server.database.Constants.*;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 
-
 /**
  * The Database Service Implementation.
  *

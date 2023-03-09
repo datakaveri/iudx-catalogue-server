@@ -167,9 +167,6 @@ public class Constants {
           "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"iudx:Resource\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"type.keyword\": \"iudx:Provider\"}}]}}]}},\"_source\":{\"includes\": [\"id\",\"description\",\"type\",\"resourceGroup\",\"accessPolicy\",\"provider\",\"itemCreatedAt\",\"instance\",\"label\"]},\"size\":1200}";
   public static final String GET_SORTED_MLAYER_INSTANCES =
           "{\"query\": {\"match_all\":{}},\"sort\":[{\"name\":\"asc\"}],\"_source\": {\"includes\": [\"name\",\"cover\",\"icon\"]}}";
-
-
-
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
   public static final String SHOULD_QUERY = "{\"bool\":{\"should\":$1}}";
