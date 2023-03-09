@@ -613,6 +613,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             routingContext -> {
               mlayerApis.getMlayerDatasetHandler(routingContext);
             });
+
     /** Route for Mlayer PopularDatasets API */
     router
         .get(api.getRouteMlayerPopularDatasets())
@@ -622,6 +623,7 @@ public class ApiServerVerticle extends AbstractVerticle {
             routingContext -> {
               mlayerApis.getMlayerPopularDatasetsHandler(routingContext);
             });
+
     /** Start server */
     server.requestHandler(router).listen(port);
 

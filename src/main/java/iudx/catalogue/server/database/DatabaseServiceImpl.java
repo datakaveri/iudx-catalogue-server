@@ -1561,7 +1561,6 @@ public class DatabaseServiceImpl implements DatabaseService {
                                       .getJsonArray("latestDataset")
                                       .getJsonObject(i)
                                       .getString("instance")));
-
                 }
                 for (int i = 0; i < datasetJson.getJsonArray("featuredDataset").size(); i++) {
                   datasetJson
@@ -1726,8 +1725,6 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
 
             ArrayList<JsonObject> featuredResourceGroup = new ArrayList<>();
-
-
             for (int j = 0; j < highestCountResource.size(); j++) {
               for (int i = 0; i < resourceGroupArray.size(); i++) {
                 if (resourceGroupArray

@@ -297,8 +297,6 @@ public interface DatabaseService {
   @Fluent
   DatabaseService getMlayerPopularDatasets(JsonArray highestCountResource,Handler<AsyncResult<JsonObject>> handler);
 
-
-
   /* create db service with nlp and geocoding */
   @GenIgnore
   static DatabaseService create(
