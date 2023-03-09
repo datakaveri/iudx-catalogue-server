@@ -1561,6 +1561,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                       .getJsonArray("latestDataset")
                                       .getJsonObject(i)
                                       .getString("instance")));
+
                 }
                 for (int i = 0; i < datasetJson.getJsonArray("featuredDataset").size(); i++) {
                   datasetJson
@@ -1604,7 +1605,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  private void searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
+ private void   searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
     client.searchAsync(
         GET_SORTED_MLAYER_INSTANCES,
         mlayerInstanceIndex,
@@ -1633,7 +1634,6 @@ public class DatabaseServiceImpl implements DatabaseService {
             instanceResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
           }
         });
-    //  return instanceResult.future();
   }
 
   private void allMlayerDomains(Promise<JsonArray> domainResult) {
@@ -1651,7 +1651,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
   }
 
-  private void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
+ private  void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
     client.searchAsync(
         GET_PROVIDER_AND_RESOURCES,
         docIndex,
@@ -1721,12 +1721,12 @@ public class DatabaseServiceImpl implements DatabaseService {
                   .put(
                       "provider",
                       provider_description.get(resourceGroupArray.get(i).getString("provider")));
-
               latestResourceGroup.add(resource);
               resource = new JsonObject();
             }
 
             ArrayList<JsonObject> featuredResourceGroup = new ArrayList<>();
+
 
             for (int j = 0; j < highestCountResource.size(); j++) {
               for (int i = 0; i < resourceGroupArray.size(); i++) {
@@ -1746,6 +1746,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                   featuredResourceGroup.add(resource);
                   resource = new JsonObject();
+
+
                 }
               }
             }

@@ -4,6 +4,8 @@ import com.google.j2objc.annotations.J2ObjCIncompatible;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
@@ -16,6 +18,7 @@ import org.apache.curator.shaded.com.google.common.hash.HashFunction;
 import org.apache.curator.shaded.com.google.common.hash.Hashing;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +45,7 @@ public class MlayerServiceTest {
 
     @Mock JsonObject json;
     private static String tableName = "database Table";
-   // private static Vertx vertxObj;
+    private static Vertx vertxObj;
     public static final String GET_HIGH_COUNT_DATASET =
             "with auditing_rs_view as (select resourceid, count(*) as hits, (select count(*) from regexp_matches(resourceid, '/', 'g')) as idtype from $1 group by resourceid) select left(resourceid,length(resourceid) -strpos(reverse(resourceid),'/')) as rgid, sum(hits) as totalhits from auditing_rs_view where idtype=4 group by rgid order by totalhits desc limit 6";
 
@@ -867,8 +870,6 @@ public class MlayerServiceTest {
         JsonObject json = new JsonObject();
         json.put("results", jsonArray);
         jsonArray.add("dataset");
-        when(asyncResult.succeeded()).thenReturn(false);
-
         //        when(asyncResult.result()).thenReturn(json);
 
         doAnswer(
@@ -893,6 +894,5 @@ public class MlayerServiceTest {
                         testContext.failNow(handler.cause());
                     }
                 });
-      //  testContext.completeNow();
     }
 }
