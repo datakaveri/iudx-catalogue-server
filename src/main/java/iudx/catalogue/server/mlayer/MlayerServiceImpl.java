@@ -260,13 +260,13 @@ public class MlayerServiceImpl implements MlayerService {
             JsonArray popularDataset = dbHandler.result().getJsonArray("results");
             databaseService.getMlayerPopularDatasets(
                 popularDataset,
-                getMlayerOverview -> {
-                  if (getMlayerOverview.succeeded()) {
+                getPopularDatasetsHandler -> {
+                  if (getPopularDatasetsHandler.succeeded()) {
                     LOGGER.info("Success: Getting data for the landing page.");
-                    handler.handle(Future.succeededFuture(getMlayerOverview.result()));
+                    handler.handle(Future.succeededFuture(getPopularDatasetsHandler.result()));
                   } else {
                     LOGGER.error("Fail: Getting data for the landing page.");
-                    handler.handle(Future.failedFuture(getMlayerOverview.cause()));
+                    handler.handle(Future.failedFuture(getPopularDatasetsHandler.cause()));
                   }
                 });
 
