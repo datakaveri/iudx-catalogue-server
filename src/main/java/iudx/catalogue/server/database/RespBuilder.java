@@ -63,6 +63,11 @@ public class RespBuilder {
     return this;
   }
 
+  public RespBuilder withResult(JsonObject results) {
+    response.put(RESULTS, results);
+    return this;
+  }
+
   public JsonObject getJsonResponse() {
     return response;
   }

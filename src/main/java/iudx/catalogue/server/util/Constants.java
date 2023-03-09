@@ -20,6 +20,8 @@ public class Constants {
   public static final String RATING_SERVICE_ADDRESS = "iudx.catalogue.rating.service";
   public static final String MLAYER_SERVICE_ADDRESSS="iudx.catalogue.mlayer.service";
   public static final String BROKER_SERVICE_ADDRESS = "iudx.catalogue.databroker.service";
+  public static final String PG_SERVICE_ADDRESS = "iudx.catalogue.pgsql.service";
+
 
   /** General */
 

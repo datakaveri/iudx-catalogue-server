@@ -505,4 +505,18 @@ public class MlayerApis {
           }
         });
   }
+
+  public void getMlayerPopularDatasetsHandler(RoutingContext routingContext) {
+    LOGGER.debug("Info : fetching the data for the landing Page");
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    mlayerService.getMlayerPopularDatasets(
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
+  }
 }
