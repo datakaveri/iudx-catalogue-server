@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a00c1cea-ef77-4e58-8c2e-d86fb8cde79b",
+		"_postman_id": "31e37d93-37cc-4587-8694-01c848b3e750",
 		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "23234057"
@@ -11956,6 +11956,55 @@
 											"key": "id",
 											"value": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm"
 										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Mlayer Overview",
+					"item": [
+						{
+							"name": "200 (Success) - Get All Datasets",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/popularDatasets",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"popularDatasets"
 									]
 								}
 							},

@@ -5,10 +5,12 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ServiceBinder;
 import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.postgres.PostgresService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static iudx.catalogue.server.util.Constants.DATABASE_SERVICE_ADDRESS;
+import static iudx.catalogue.server.util.Constants.PG_SERVICE_ADDRESS;
 
 public class MlayerVerticle extends AbstractVerticle {
   private static final String MLAYER_SERVICE_ADDRESS = "iudx.catalogue.mlayer.service";
@@ -17,15 +19,18 @@ public class MlayerVerticle extends AbstractVerticle {
   private MessageConsumer<JsonObject> consumer;
   private MlayerService mlayer;
   DatabaseService databaseService;
+  PostgresService postgresService;
+  private String rs_table;
 
   @Override
   public void start() throws Exception {
     databaseService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
+    postgresService = PostgresService.createProxy(vertx,PG_SERVICE_ADDRESS);
     binder = new ServiceBinder(vertx);
-    mlayer = new MlayerServiceImpl(databaseService);
+    rs_table = config().getString("databaseTable");
+    mlayer = new MlayerServiceImpl(databaseService,postgresService,rs_table);
     consumer = binder.setAddress(MLAYER_SERVICE_ADDRESS).register(MlayerService.class, mlayer);
-    LOGGER.info("Mlayer Service Started");
-  }
+    LOGGER.info("Mlayer Service Started");}
 
   @Override
   public void stop() {
