@@ -10,6 +10,7 @@ import io.vertx.junit5.VertxTestContext;
 import io.vertx.pgclient.PgPool;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +39,7 @@ public class RatingServiceTest {
   private static AsyncResult<JsonObject> asyncResult;
   private static DatabaseService databaseService;
   private static DataBrokerService dataBrokerService;
+  private static PostgresService postgresService;
 
   @BeforeAll
   @DisplayName("Initialize vertx and deploy verticle")
@@ -46,18 +48,18 @@ public class RatingServiceTest {
     exchangeName = config.getString("exchangeName");
     rsauditingtable = config.getString("rsAuditingTableName");
     minReadNumber = config.getInteger("minReadNumber");
-    pgPool = mock(PgPool.class);
     databaseService = mock(DatabaseService.class);
     dataBrokerService = mock(DataBrokerService.class);
+    postgresService = mock(PostgresService.class);
     asyncResult = mock(AsyncResult.class);
     ratingService =
         new RatingServiceImpl(
             exchangeName,
             rsauditingtable,
             minReadNumber,
-            pgPool,
             databaseService,
-            dataBrokerService);
+            dataBrokerService,
+            postgresService);
     ratingServiceSpy = spy(ratingService);
     testContext.completeNow();
   }
@@ -174,7 +176,8 @@ public class RatingServiceTest {
           } else {
             testContext.completeNow();
           }
-        });  }
+        });
+  }
 
   @Test
   @DisplayName("Success: test get rating")
@@ -388,5 +391,36 @@ public class RatingServiceTest {
 
     ratingServiceSpy.publishMessage(requestJson());
     testContext.completeNow();
+  }
+
+  @Test
+  @DisplayName("Success: Test get auditing info future")
+  public void testGetAuditingInfo(VertxTestContext testContext) {
+    StringBuilder query = new StringBuilder("select * from nosuchtable");
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0)
+                  throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1))
+                    .handle(asyncResult);
+                return null;
+              }
+            })
+        .when(postgresService)
+        .executeCountQuery(anyString(), any());
+
+    ratingService
+        .getAuditingInfo(query)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                verify(postgresService, times(1)).executeCountQuery(anyString(), any());
+                testContext.completeNow();
+              } else {
+                testContext.failNow("get auditing info test failed");
+              }
+            });
   }
 }
