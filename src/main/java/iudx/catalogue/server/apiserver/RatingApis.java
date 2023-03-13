@@ -3,7 +3,6 @@ package iudx.catalogue.server.apiserver;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import iudx.catalogue.server.auditing.AuditingService;
-import iudx.catalogue.server.auditing.util.Constants;
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +23,7 @@ import static iudx.catalogue.server.rating.util.Constants.USER_ID;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.ID;
 import static iudx.catalogue.server.util.Constants.METHOD;
+import static iudx.catalogue.server.util.Constants.RESULTS;
 import static iudx.catalogue.server.util.Constants.STATUS;
 
 import iudx.catalogue.server.validator.ValidatorService;
@@ -45,10 +45,10 @@ public class RatingApis {
   private String host;
   private Api api;
 
-  public RatingApis(Api api)
-  {
+  public RatingApis(Api api) {
     this.api = api;
   }
+
   public void setRatingService(RatingService ratingService) {
     this.ratingService = ratingService;
   }
@@ -96,44 +96,46 @@ public class RatingApis {
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
 
-    authenticationFuture.onSuccess(successHandler -> {
-      requestBody
-          .put(ID, id)
-          .put(USER_ID, successHandler.getString(USER_ID))
-          .put("status", PENDING);
+    authenticationFuture
+        .onSuccess(
+            successHandler -> {
+              requestBody
+                  .put(ID, id)
+                  .put(USER_ID, successHandler.getString(USER_ID))
+                  .put("status", PENDING);
 
-      validatorService.validateRating(
-          requestBody,
-          validationHandler -> {
-            if (validationHandler.failed()) {
-              response
-                  .setStatusCode(400)
-                  .end(
-                      new RespBuilder()
-                          .withType(TYPE_INVALID_SCHEMA)
-                          .withTitle(TITLE_INVALID_SCHEMA)
-                          .getResponse());
-            } else {
-              ratingService.createRating(
+              validatorService.validateRating(
                   requestBody,
-                  handler -> {
-                    if (handler.succeeded()) {
-                      response.setStatusCode(201).end(handler.result().toString());
-                      if (hasAuditService) {
-                        updateAuditTable(
-                            successHandler,
-                            new String[]{id, ROUTE_RATING, REQUEST_POST});
-                      }
+                  validationHandler -> {
+                    if (validationHandler.failed()) {
+                      response
+                          .setStatusCode(400)
+                          .end(
+                              new RespBuilder()
+                                  .withType(TYPE_INVALID_SCHEMA)
+                                  .withTitle(TITLE_INVALID_SCHEMA)
+                                  .getResponse());
                     } else {
-                      response.setStatusCode(400).end(handler.cause().getMessage());
+                      ratingService.createRating(
+                          requestBody,
+                          handler -> {
+                            if (handler.succeeded()) {
+                              response.setStatusCode(201).end(handler.result().toString());
+                              if (hasAuditService) {
+                                updateAuditTable(
+                                    successHandler, new String[] {id, ROUTE_RATING, REQUEST_POST});
+                              }
+                            } else {
+                              response.setStatusCode(400).end(handler.cause().getMessage());
+                            }
+                          });
                     }
                   });
-            }
-          });
-
-    }).onFailure(failureHandler -> {
-      response.setStatusCode(401).end(failureHandler.getMessage());
-    });
+            })
+        .onFailure(
+            failureHandler -> {
+              response.setStatusCode(401).end(failureHandler.getMessage());
+            });
   }
 
   /**
@@ -172,7 +174,11 @@ public class RatingApis {
           requestBody,
           handler -> {
             if (handler.succeeded()) {
-              response.setStatusCode(200).end(handler.result().toString());
+              if (!handler.result().getJsonArray(RESULTS).isEmpty()) {
+                response.setStatusCode(200).end(handler.result().toString());
+              } else {
+                response.setStatusCode(204).end();
+              }
             } else {
               if (handler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
                 response.setStatusCode(404);
@@ -202,7 +208,11 @@ public class RatingApis {
                     requestBody,
                     handler -> {
                       if (handler.succeeded()) {
-                        response.setStatusCode(200).end(handler.result().toString());
+                        if (!handler.result().getJsonArray(RESULTS).isEmpty()) {
+                          response.setStatusCode(200).end(handler.result().toString());
+                        } else {
+                          response.setStatusCode(204).end();
+                        }
                         if (hasAuditService) {
                           updateAuditTable(
                               successHandler, new String[] {id, ROUTE_RATING, REQUEST_GET});
@@ -250,50 +260,54 @@ public class RatingApis {
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
 
-    authenticationFuture.onSuccess(successHandler -> {
-      requestBody
-          .put(ID, id)
-          .put(USER_ID, successHandler.getString(USER_ID))
-          .put("status", PENDING);
+    authenticationFuture
+        .onSuccess(
+            successHandler -> {
+              requestBody
+                  .put(ID, id)
+                  .put(USER_ID, successHandler.getString(USER_ID))
+                  .put("status", PENDING);
 
-      validatorService.validateRating(
-          requestBody,
-          validationHandler -> {
-            if (validationHandler.failed()) {
-              response
-                  .setStatusCode(400)
-                  .end(
-                      new RespBuilder()
-                          .withType(TYPE_INVALID_SCHEMA)
-                          .withTitle(TITLE_INVALID_SCHEMA)
-                          .getResponse());
-            } else {
-              ratingService.updateRating(
+              validatorService.validateRating(
                   requestBody,
-                  handler -> {
-                    if (handler.succeeded()) {
-                      response.setStatusCode(200).end(handler.result().toString());
-                      if (hasAuditService) {
-                        updateAuditTable(
-                            successHandler,
-                            new String[]{id, ROUTE_RATING, REQUEST_PUT});
-                      }
+                  validationHandler -> {
+                    if (validationHandler.failed()) {
+                      response
+                          .setStatusCode(400)
+                          .end(
+                              new RespBuilder()
+                                  .withType(TYPE_INVALID_SCHEMA)
+                                  .withTitle(TITLE_INVALID_SCHEMA)
+                                  .getResponse());
                     } else {
-                      if (handler.cause().getLocalizedMessage().contains("Doc doesn't exist")) {
-                        response.setStatusCode(404);
-                      } else {
-                        response.setStatusCode(400);
-                      }
-                      response.end(handler.cause().getMessage());
+                      ratingService.updateRating(
+                          requestBody,
+                          handler -> {
+                            if (handler.succeeded()) {
+                              response.setStatusCode(200).end(handler.result().toString());
+                              if (hasAuditService) {
+                                updateAuditTable(
+                                    successHandler, new String[] {id, ROUTE_RATING, REQUEST_PUT});
+                              }
+                            } else {
+                              if (handler
+                                  .cause()
+                                  .getLocalizedMessage()
+                                  .contains("Doc doesn't exist")) {
+                                response.setStatusCode(404);
+                              } else {
+                                response.setStatusCode(400);
+                              }
+                              response.end(handler.cause().getMessage());
+                            }
+                          });
                     }
                   });
-            }
-          });
-
-    }).onFailure(failureHandler -> {
-      response.setStatusCode(401).end(failureHandler.getMessage());
-    });
-
+            })
+        .onFailure(
+            failureHandler -> {
+              response.setStatusCode(401).end(failureHandler.getMessage());
+            });
   }
 
   /**
@@ -319,53 +333,59 @@ public class RatingApis {
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
 
-    authenticationFuture.onSuccess(successHandler -> {
-      String id = request.getParam(ID);
+    authenticationFuture
+        .onSuccess(
+            successHandler -> {
+              String id = request.getParam(ID);
 
-      JsonObject requestBody =
-          new JsonObject().put(USER_ID, successHandler.getString(USER_ID)).put(ID, id);
+              JsonObject requestBody =
+                  new JsonObject().put(USER_ID, successHandler.getString(USER_ID)).put(ID, id);
 
-      ratingService.deleteRating(
-          requestBody,
-          dbHandler -> {
-            if (dbHandler.succeeded()) {
-              LOGGER.info("Success: Item deleted;");
-              LOGGER.debug(dbHandler.result().toString());
-              if (dbHandler.result().getString(STATUS).equals(TITLE_SUCCESS)) {
-                response.setStatusCode(200).end(dbHandler.result().toString());
-                if (hasAuditService) {
-                  updateAuditTable(
-                      successHandler, new String[]{id, ROUTE_RATING, REQUEST_DELETE});
-                }
-              } else {
-                response.setStatusCode(404).end(dbHandler.result().toString());
-              }
-            } else if (dbHandler.failed()) {
-              response.setStatusCode(400).end(dbHandler.cause().getMessage());
-            }
-          });
-
-    }).onFailure(failureHandler -> {
-      response.setStatusCode(401).end(failureHandler.getMessage());
-    });
+              ratingService.deleteRating(
+                  requestBody,
+                  dbHandler -> {
+                    if (dbHandler.succeeded()) {
+                      LOGGER.info("Success: Item deleted;");
+                      LOGGER.debug(dbHandler.result().toString());
+                      if (dbHandler.result().getString(STATUS).equals(TITLE_SUCCESS)) {
+                        response.setStatusCode(200).end(dbHandler.result().toString());
+                        if (hasAuditService) {
+                          updateAuditTable(
+                              successHandler, new String[] {id, ROUTE_RATING, REQUEST_DELETE});
+                        }
+                      } else {
+                        response.setStatusCode(404).end(dbHandler.result().toString());
+                      }
+                    } else if (dbHandler.failed()) {
+                      response.setStatusCode(400).end(dbHandler.cause().getMessage());
+                    }
+                  });
+            })
+        .onFailure(
+            failureHandler -> {
+              response.setStatusCode(401).end(failureHandler.getMessage());
+            });
   }
 
   private Future<JsonObject> inspectToken(JsonObject jwtAuthenticationInfo) {
     Promise<JsonObject> promise = Promise.promise();
 
-    authService.tokenInterospect(new JsonObject(),
-        jwtAuthenticationInfo, authHandler -> {
+    authService.tokenInterospect(
+        new JsonObject(),
+        jwtAuthenticationInfo,
+        authHandler -> {
           if (authHandler.succeeded()) {
             LOGGER.debug("JWT Auth Successful");
             LOGGER.debug(authHandler.result());
             promise.complete(authHandler.result());
           } else {
             LOGGER.error(authHandler.cause().getMessage());
-            promise.fail(new RespBuilder()
-                .withType(TYPE_TOKEN_INVALID)
-                .withTitle(TITLE_TOKEN_INVALID)
-                .withDetail(authHandler.cause().getMessage())
-                .getResponse());
+            promise.fail(
+                new RespBuilder()
+                    .withType(TYPE_TOKEN_INVALID)
+                    .withTitle(TITLE_TOKEN_INVALID)
+                    .withDetail(authHandler.cause().getMessage())
+                    .getResponse());
           }
         });
     return promise.future();
@@ -383,21 +403,22 @@ public class RatingApis {
     ZonedDateTime zst = ZonedDateTime.now();
     LOGGER.debug("TIME ZST: " + zst);
     long epochTime = getEpochTime(zst);
-    auditInfo.put(IUDX_ID, otherInfo[0])
-            .put(API, otherInfo[1])
-            .put(HTTP_METHOD, otherInfo[2])
-            .put(EPOCH_TIME, epochTime)
-            .put(USERID,jwtDecodedInfo.getString(USER_ID));
+    auditInfo
+        .put(IUDX_ID, otherInfo[0])
+        .put(API, otherInfo[1])
+        .put(HTTP_METHOD, otherInfo[2])
+        .put(EPOCH_TIME, epochTime)
+        .put(USERID, jwtDecodedInfo.getString(USER_ID));
     LOGGER.debug("audit auditInfo: " + auditInfo);
     auditingService.insertAuditngValuesInRMQ(
-            auditInfo,
-            auditHandler -> {
-              if (auditHandler.succeeded()) {
-                LOGGER.info("message published in RMQ.");
-              } else {
-                LOGGER.error("failed to publish message in RMQ.");
-              }
-            });
+        auditInfo,
+        auditHandler -> {
+          if (auditHandler.succeeded()) {
+            LOGGER.info("message published in RMQ.");
+          } else {
+            LOGGER.error("failed to publish message in RMQ.");
+          }
+        });
   }
 
   private long getEpochTime(ZonedDateTime zst) {

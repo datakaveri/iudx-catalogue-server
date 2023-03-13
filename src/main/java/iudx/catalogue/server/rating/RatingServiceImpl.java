@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgPool;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,24 +22,23 @@ import static iudx.catalogue.server.util.Constants.TYPE_ACCESS_DENIED;
 
 public class RatingServiceImpl implements RatingService {
   private static final Logger LOGGER = LogManager.getLogger(RatingServiceImpl.class);
-  PgPool pool;
   DatabaseService databaseService;
   DataBrokerService dataBrokerService;
+  PostgresService postgresService;
   private String ratingExchangeName;
   private final String rsauditingtable;
   private final int minReadNumber;
 
   public RatingServiceImpl(
       String exchangeName, String rsauditingtable, int minReadNumber,
-      PgPool pool,
       DatabaseService databaseService,
-      DataBrokerService dataBrokerService) {
+      DataBrokerService dataBrokerService,PostgresService postgresService) {
     this.ratingExchangeName = exchangeName;
     this.rsauditingtable = rsauditingtable;
     this.minReadNumber = minReadNumber;
-    this.pool = pool;
     this.databaseService = databaseService;
     this.dataBrokerService = dataBrokerService;
+    this.postgresService = postgresService;
   }
 
   @Override
@@ -166,21 +166,13 @@ public class RatingServiceImpl implements RatingService {
 
   Future<JsonObject> getAuditingInfo(StringBuilder query) {
     Promise<JsonObject> promise = Promise.promise();
-    pool.withConnection(
-            connection ->
-                connection
-                    .query(query.toString())
-                    .execute()
-                    .map(rows -> rows.iterator().next().getInteger(0)))
-        .onSuccess(
-            count -> {
-              promise.complete(new JsonObject().put("totalHits", count));
-            })
-        .onFailure(
-            failureHandler -> {
-              promise.fail("Empty Message");
-            });
-
+    postgresService.executeCountQuery(query.toString(), pgHandler -> {
+      if(pgHandler.succeeded()) {
+        promise.complete(pgHandler.result());
+      } else {
+        promise.fail(pgHandler.cause());
+      }
+    });
     return promise.future();
   }
 
