@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "31e37d93-37cc-4587-8694-01c848b3e750",
-		"name": "iudx-catalogue-server",
+		"_postman_id": "f9d0848b-972d-4dc8-90f0-e46083ccf54b",
+		"name": "iudx-catalogue-server Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "23234057"
+		"_exporter_id": "17194681"
 	},
 	"item": [
 		{
@@ -10206,6 +10206,60 @@
 									}
 								},
 								"url": {
+									"raw": "{{host}}consumer/ratings?id=datakaveri.org/1022f4c20542abd5087107c0b6de4cb3130c5b7b/rs.iudx.io/sqtc-test-group-1/FWR015",
+									"host": [
+										"{{host}}consumer"
+									],
+									"path": [
+										"ratings"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "datakaveri.org/1022f4c20542abd5087107c0b6de4cb3130c5b7b/rs.iudx.io/sqtc-test-group-1/FWR015"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "204 (No Content) - Get Rating",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(204);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{openToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
 									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta",
 									"host": [
 										"{{host}}consumer"
@@ -10260,7 +10314,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta&type=group",
+									"raw": "{{host}}consumer/ratings?id=datakaveri.org/1022f4c20542abd5087107c0b6de4cb3130c5b7b/rs.iudx.io/sqtc-test-group-1/FWR015&type=group",
 									"host": [
 										"{{host}}consumer"
 									],
@@ -10270,7 +10324,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
+											"value": "datakaveri.org/1022f4c20542abd5087107c0b6de4cb3130c5b7b/rs.iudx.io/sqtc-test-group-1/FWR015"
 										},
 										{
 											"key": "type",

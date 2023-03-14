@@ -49,10 +49,38 @@ public class PostgresServiceImpl implements PostgresService {
               LOGGER.debug(failureHandler);
               RespBuilder respBuilder =
                   new RespBuilder()
-                      .withType(TYPE_INTERNAL_SERVER_ERROR)
+                      .withType(TYPE_DB_ERROR)
+                      .withTitle(TITLE_DB_ERROR)
                       .withDetail(failureHandler.getLocalizedMessage());
 
               handler.handle(Future.failedFuture(respBuilder.getResponse()));
+            });
+    return this;
+  }
+
+  @Override
+  public PostgresService executeCountQuery(
+      final String query, Handler<AsyncResult<JsonObject>> handler) {
+
+    LOGGER.debug(query);
+    client
+        .withConnection(
+            connection ->
+                connection.query(query).execute().map(rows -> rows.iterator().next().getInteger(0)))
+        .onSuccess(
+            count -> {
+              handler.handle(Future.succeededFuture(new JsonObject().put("totalHits", count)));
+            })
+        .onFailure(
+            failureHandler -> {
+              LOGGER.debug(failureHandler);
+              String response =
+                  new RespBuilder()
+                      .withType(TYPE_DB_ERROR)
+                      .withTitle(TITLE_DB_ERROR)
+                      .withDetail(failureHandler.getLocalizedMessage())
+                      .getResponse();
+              handler.handle(Future.failedFuture(response));
             });
     return this;
   }

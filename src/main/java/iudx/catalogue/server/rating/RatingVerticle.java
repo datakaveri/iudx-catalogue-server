@@ -3,17 +3,14 @@ package iudx.catalogue.server.rating;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.pgclient.PgConnectOptions;
-import io.vertx.pgclient.PgPool;
 import io.vertx.serviceproxy.ServiceBinder;
-import io.vertx.sqlclient.PoolOptions;
 import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.util.Constants.DATABASE_SERVICE_ADDRESS;
-import static iudx.catalogue.server.util.Constants.BROKER_SERVICE_ADDRESS;
+import static iudx.catalogue.server.util.Constants.*;
 
 /**
  *
@@ -31,20 +28,12 @@ public class RatingVerticle extends AbstractVerticle {
   private static final String RATING_SERVICE_ADDRESS = "iudx.catalogue.rating.service";
   private static final Logger LOGGER = LogManager.getLogger(RatingVerticle.class);
 
-  PgConnectOptions connectOptions;
-  PoolOptions poolOptions;
-  PgPool pool;
   DatabaseService databaseService;
   DataBrokerService dataBrokerService;
-  private String databaseIP;
-  private int databasePort;
-  private String databaseName;
-  private String databaseUserName;
-  private String databasePassword;
+  PostgresService postgresService;
   private String ratingExchangeName;
   private String rsauditingtable;
   private int minReadNumber;
-  private int poolSize;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
   private RatingService rating;
@@ -59,33 +48,16 @@ public class RatingVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    databaseIP = config().getString("ratingDatabaseIP");
-    databasePort = config().getInteger("ratingDatabasePort");
-    databaseName = config().getString("ratingDatabaseName");
-    databaseUserName = config().getString("ratingDatabaseUserName");
-    databasePassword = config().getString("ratingDatabasePassword");
-    poolSize = config().getInteger("ratingPoolSize");
     ratingExchangeName = config().getString("ratingExchangeName");
     rsauditingtable = config().getString("rsAuditingTableName");
     minReadNumber = config().getInteger("minReadNumber");
 
-    connectOptions =
-        new PgConnectOptions()
-            .setPort(databasePort)
-            .setHost(databaseIP)
-            .setDatabase(databaseName)
-            .setUser(databaseUserName)
-            .setPassword(databasePassword)
-            .setReconnectAttempts(2)
-            .setReconnectInterval(1000);
-
-    poolOptions = new PoolOptions().setMaxSize(poolSize);
-    pool = PgPool.pool(vertx, connectOptions, poolOptions);
     databaseService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
     dataBrokerService = DataBrokerService.createProxy(vertx, BROKER_SERVICE_ADDRESS);
+    postgresService = PostgresService.createProxy(vertx, PG_SERVICE_ADDRESS);
 
     binder = new ServiceBinder(vertx);
-    rating = new RatingServiceImpl(ratingExchangeName, rsauditingtable, minReadNumber, pool, databaseService, dataBrokerService);
+    rating = new RatingServiceImpl(ratingExchangeName, rsauditingtable, minReadNumber, databaseService, dataBrokerService, postgresService);
     consumer = binder.setAddress(RATING_SERVICE_ADDRESS).register(RatingService.class, rating);
     LOGGER.info("Rating Service Started");
   }
