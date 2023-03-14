@@ -64,6 +64,7 @@ services:
       - ./src/:/usr/share/app/src
       - ./docker/runTests.sh:/usr/share/app/docker/runTests.sh
       - ${WORKSPACE}:/tmp/test
+      - /var/run/docker.sock:/var/run/docker.sock
     command: bash -c "docker/runTests.sh && cp -r target /tmp/test"
     networks: 
       - cat-net
