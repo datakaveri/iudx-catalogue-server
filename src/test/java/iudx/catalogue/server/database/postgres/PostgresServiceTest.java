@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static iudx.catalogue.server.mlayer.util.Constants.GET_HIGH_COUNT_DATASET;
@@ -25,60 +26,47 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class PostgresServiceTest {
   public static final Logger LOGGER = LogManager.getLogger(PostgresServiceTest.class);
   private static PostgresServiceImpl pgService;
-  private static PostgreSQLContainer<?> postgresContainer;
-  // @TODO : change configs to get image version, image version and version used by IUDX should be
-  // same.
-  public static String CONTAINER = "postgres:12.11";
   static String table;
   private static JsonObject dbConfig;
 
+  @Container
+  static PostgreSQLContainer container =
+      new PostgreSQLContainer<>("postgres:12.11").withInitScript("pg_test_schema.sql");
+
   @BeforeAll
-  static void setup(Vertx vertx, VertxTestContext testContext) {
+  public static void setup(VertxTestContext testContext) {
     dbConfig = Configuration.getConfiguration("./configs/config-test.json", 10);
-
-    dbConfig.put("databaseIp", "localhost");
-    dbConfig.put("databasePort", 5432);
-    dbConfig.put("databaseName", "postgres");
-    dbConfig.put("databaseUserName", "postgres");
-    dbConfig.put("databasePassword", "qwerty123");
-    dbConfig.put("poolSize", 25);
     table = dbConfig.getString("auditingTableName");
-    postgresContainer = new PostgreSQLContainer<>(CONTAINER).withInitScript("pg_test_schema.sql");
+    // Now we have an address and port for Postgresql, no matter where it is running
+    Integer port = container.getFirstMappedPort();
+    String host = container.getHost();
+    String db = container.getDatabaseName();
+    String user = container.getUsername();
+    String password = container.getPassword();
 
-    postgresContainer.withUsername(dbConfig.getString("databaseUserName"));
-    postgresContainer.withPassword(dbConfig.getString("databasePassword"));
-    postgresContainer.withDatabaseName(dbConfig.getString("databaseName"));
-    postgresContainer.withExposedPorts(dbConfig.getInteger("databasePort"));
+    PgConnectOptions connectOptions =
+        new PgConnectOptions()
+            .setPort(port)
+            .setHost(host)
+            .setDatabase(db)
+            .setUser(user)
+            .setPassword(password);
 
-    postgresContainer.start();
-    if (postgresContainer.isRunning()) {
-      dbConfig.put("databasePort", postgresContainer.getFirstMappedPort());
+    PoolOptions poolOptions = new PoolOptions().setMaxSize(10);
 
-      PgConnectOptions connectOptions =
-          new PgConnectOptions()
-              .setPort(dbConfig.getInteger("databasePort"))
-              .setHost(dbConfig.getString("databaseIp"))
-              .setDatabase(dbConfig.getString("databaseName"))
-              .setUser(dbConfig.getString("databaseUserName"))
-              .setPassword(dbConfig.getString("databasePassword"))
-              .setReconnectAttempts(2)
-              .setReconnectInterval(1000);
+    Vertx vertxObj = Vertx.vertx();
 
-      PoolOptions poolOptions = new PoolOptions().setMaxSize(dbConfig.getInteger("poolSize"));
-      PgPool pool = PgPool.pool(vertx, connectOptions, poolOptions);
+    PgPool pool = PgPool.pool(vertxObj, connectOptions, poolOptions);
 
-      pgService = new PostgresServiceImpl(pool);
-      testContext.completeNow();
-    } else {
-      testContext.failNow("setup failed");
-    }
+    pgService = new PostgresServiceImpl(pool);
+    testContext.completeNow();
   }
+
   @Test
   @Order(1)
   @DisplayName("Test execute query - success")
   public void testExecuteQuerySuccess(VertxTestContext testContext) {
-    StringBuilder stringBuilder =
-        new StringBuilder(GET_HIGH_COUNT_DATASET.replace("$1", table));
+    StringBuilder stringBuilder = new StringBuilder(GET_HIGH_COUNT_DATASET.replace("$1", table));
 
     String expected =
         "{\"type\":\"urn:dx:cat:Success\",\"title\":\"Success\",\"results\":[{\"rgid\":\"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information\",\"totalhits\":1}]}";
@@ -104,19 +92,20 @@ public class PostgresServiceTest {
   @DisplayName("test execute query - failure")
   public void testExecuteQueryFailure(VertxTestContext testContext) {
 
-    StringBuilder stringBuilder =
-        new StringBuilder("select * from nosuchtable");
+    StringBuilder stringBuilder = new StringBuilder("select * from nosuchtable");
 
     String expected =
         "{\"type\":\"urn:dx:cat:DatabaseError\",\"title\":\"database error\",\"detail\":\"ERROR: relation \\\"nosuchtable\\\" does not exist (42P01)\"}";
-    pgService.executeQuery(stringBuilder.toString(), handler -> {
-      if(handler.failed()) {
-        assertEquals(expected,handler.cause().getMessage());
-        testContext.completeNow();
-      } else {
-        testContext.failNow("test execute query unexpectedly failed");
-      }
-    });
+    pgService.executeQuery(
+        stringBuilder.toString(),
+        handler -> {
+          if (handler.failed()) {
+            assertEquals(expected, handler.cause().getMessage());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("test execute query unexpectedly failed");
+          }
+        });
   }
 
   @Test
@@ -125,16 +114,18 @@ public class PostgresServiceTest {
   public void testExecuteCountQuery(VertxTestContext testContext) {
     StringBuilder stringBuilder = new StringBuilder("select count(*) from " + table);
 
-    pgService.executeCountQuery(stringBuilder.toString(), handler -> {
-      if(handler.succeeded()) {
-        JsonObject result = handler.result();
-        int hits = result.getInteger("totalHits");
-        assertEquals(1, hits);
-        testContext.completeNow();
-      } else {
-        testContext.failNow("execute count test failed");
-      }
-    });
+    pgService.executeCountQuery(
+        stringBuilder.toString(),
+        handler -> {
+          if (handler.succeeded()) {
+            JsonObject result = handler.result();
+            int hits = result.getInteger("totalHits");
+            assertEquals(1, hits);
+            testContext.completeNow();
+          } else {
+            testContext.failNow("execute count test failed");
+          }
+        });
   }
 
   @Test
@@ -145,14 +136,15 @@ public class PostgresServiceTest {
 
     String expected =
         "{\"type\":\"urn:dx:cat:DatabaseError\",\"title\":\"database error\",\"detail\":\"ERROR: relation \\\"nosuchtable\\\" does not exist (42P01)\"}";
-    pgService.executeCountQuery(query, handler -> {
-      if(handler.failed()) {
-        assertEquals(expected,handler.cause().getMessage());
-        testContext.completeNow();
-      } else {
-        testContext.failNow("execute count unexpectedly failed");
-      }
-    });
+    pgService.executeCountQuery(
+        query,
+        handler -> {
+          if (handler.failed()) {
+            assertEquals(expected, handler.cause().getMessage());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("execute count unexpectedly failed");
+          }
+        });
   }
-
 }
