@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "f9d0848b-972d-4dc8-90f0-e46083ccf54b",
-		"name": "iudx-catalogue-server Copy",
+		"_postman_id": "bfc694ed-a70b-4c5d-b01f-c21b7d762139",
+		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17194681"
+		"_exporter_id": "23234057"
 	},
 	"item": [
 		{
@@ -12021,10 +12021,10 @@
 					]
 				},
 				{
-					"name": "Mlayer Overview",
+					"name": "Mlayer Popular Datasets",
 					"item": [
 						{
-							"name": "200 (Success) - Get All Datasets",
+							"name": "200 (Success) - Get landing page details",
 							"event": [
 								{
 									"listen": "test",
