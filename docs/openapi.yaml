@@ -44,8 +44,8 @@ info:
         name: For support contact IUDX Team at
         email: support@iudx.org.in
 servers:
-     -  url: 'https://example-cat.com/iudx/cat/v1'
-        description: Production Instance
+    -  url: 'https://example-cat.com/iudx/cat/v1'
+       description: Production Instance
 
 paths:
     /search:
@@ -808,10 +808,10 @@ paths:
                             examples:
                                 Schema Validation Failure:
                                     value:
-                                        {
-                                            "type": "urn:dx:cat:InvalidSchema",
-                                            "title": "Invalid Schema",
-                                        }
+                                      {
+                                          "type": "urn:dx:cat:InvalidSchema",
+                                          "title": "Invalid Schema",
+                                      }
                                 Link Validation Failure:
                                     value:
                                         type: 'urn:dx:cat:LinkValidationFailed'
@@ -1062,15 +1062,15 @@ paths:
                 | ResourceServer          | resource, resourceGroup                 | Return all resource or
                 resource group items associated with the input resource server. Multiple entities maybe
                 returned.           |
-                
-                
+            
+            
 
             tags:
                 - Relationship
             parameters:
                 -
                     name: rel
-                    summary: Relationship attribute of the entity whose id is provided
+                    description: Relationship attribute of the entity whose id is provided
                     schema:
                         enum:
                             - provider
@@ -1218,7 +1218,7 @@ paths:
                 - lang: 'cURL'
                   label: 'create instance'
                   source: |
-                        curl --location --request GET 'https://example-cat.com/iudx/cat/v1/list/instance'
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/list/instance'
 
             responses:
                 '200':
@@ -1854,8 +1854,8 @@ paths:
                 - MLayer
             parameters:
                 - name: id
-                  description: | 
-                    `id` of the Domain to be deleted.
+                  description: |
+                      `id` of the Domain to be deleted.
                   schema:
                       type: string
                   in: query
@@ -1928,19 +1928,18 @@ paths:
                             $ref: '#/components/schemas/exampleReqBodyMapView'
                 required: true
             responses:
-                responses:
-                    '200':
-                        content:
-                            application/json:
-                                schema:
-                                    $ref: '#/components/schemas/successResponseForGettingGeoquery'
-                        description: Successfully inserted
-                    '400':
-                        content:
-                            application/json:
-                                schema:
-                                    $ref: '#/components/schemas/errorResponseForCreatingInstance'
-                        description: Invalid document
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForGettingGeoquery'
+                    description: Successfully inserted
+                400:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseForCreatingInstance'
+                    description: Invalid document
             operationId: UI-geoquery
             description: >
                 List of location of the datasets.
@@ -1957,13 +1956,12 @@ paths:
             tags:
                 - MLayer
             responses:
-                responses:
-                    '200':
-                        content:
-                            application/json:
-                                schema:
-                                    $ref: '#/components/schemas/successResponseForGettingDatasets'
-                        description: Successfully inserted
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForGettingDatasets'
+                    description: Successfully inserted
             operationId: UI-dataset
             description: >
                 Fetches details of all the datasets.
@@ -2028,7 +2026,7 @@ paths:
 
     /nlpsearch:
         description: >
-           NLP Search is used a for a text based search to discover resources and resource groups on Data Exchange Catalogue Server.
+            NLP Search is used a for a text based search to discover resources and resource groups on Data Exchange Catalogue Server.
         get:
             tags:
                 - NLP
@@ -2058,7 +2056,7 @@ paths:
                   label: 'search'
                   source: |
                       curl --location --request GET 'https://example-cat.com/iudx/cat/v1/nlpsearch?q=where can I halt near chandigarh'
-    
+
 
 components:
     schemas:
@@ -3638,6 +3636,8 @@ components:
             properties:
                 id:
                     type: array
+                    items:
+                        type: string
                     description: dataset_id's of resource group whose location is needed
                 instance:
                     type: string
