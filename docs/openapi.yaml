@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
     title: Data Exchange Catalogue Server APIs
-    version: 4.0.0
+    version: 4.5.0
     description: >
         # Introduction
         
@@ -43,8 +43,8 @@ info:
         name: For support contact IUDX Team at
         email: support@iudx.org.in
 servers:
-     -  url: 'https://example-cat.com/iudx/cat/v1'
-        description: Production Instance
+    -  url: 'https://example-cat.com/iudx/cat/v1'
+       description: Production Instance
 
 paths:
     /search:
@@ -807,10 +807,10 @@ paths:
                             examples:
                                 Schema Validation Failure:
                                     value:
-                                        {
-                                            "type": "urn:dx:cat:InvalidSchema",
-                                            "title": "Invalid Schema",
-                                        }
+                                      {
+                                          "type": "urn:dx:cat:InvalidSchema",
+                                          "title": "Invalid Schema",
+                                      }
                                 Link Validation Failure:
                                     value:
                                         type: 'urn:dx:cat:LinkValidationFailed'
@@ -1061,15 +1061,15 @@ paths:
                 | ResourceServer          | resource, resourceGroup                 | Return all resource or
                 resource group items associated with the input resource server. Multiple entities maybe
                 returned.           |
-                
-                
+            
+            
 
             tags:
                 - Relationship
             parameters:
                 -
                     name: rel
-                    summary: Relationship attribute of the entity whose id is provided
+                    description: Relationship attribute of the entity whose id is provided
                     schema:
                         enum:
                             - provider
@@ -1217,7 +1217,7 @@ paths:
                 - lang: 'cURL'
                   label: 'create instance'
                   source: |
-                        curl --location --request GET 'https://example-cat.com/iudx/cat/v1/list/instance'
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/list/instance'
 
             responses:
                 '200':
@@ -1536,13 +1536,20 @@ paths:
                     source: |
                         curl --location --request DELETE 'https://example-cat.com/consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta' \
                         --header 'token: <tokenValue>'
+    
 
     /internal/ui/instance:
+        servers:
+            - url: 'https://example-cat.com/'
+              description: Production Instance
+
         description: >
             A catalogue administrator API to set a middle layer instance, which will be reflected on the catalogue UI.
+            **Instance APIs** : Instance refers to the name of the city/location. 
+                            Instance API creates, updates, deletes and lists the name, icon, cover and logo of each instance.
         post:
             tags:
-                - MLayer
+                - Mlayer - Instance
             parameters:
                 -
                     name: token
@@ -1595,7 +1602,7 @@ paths:
 
         put:
             tags:
-                - MLayer
+                - Mlayer - Instance
             parameters:
                 - name: id
                   description: |
@@ -1654,7 +1661,7 @@ paths:
 
         get:
             tags:
-                - MLayer
+                - Mlayer - Instance
             responses:
                 '200':
                     content:
@@ -1673,7 +1680,7 @@ paths:
 
         delete:
             tags:
-                - MLayer
+                - Mlayer - Instance
             parameters:
                 - name: id
                   description: |
@@ -1719,7 +1726,7 @@ paths:
             A catalogue administrator API to set a middle layer domain, which will be reflected on the catalogue UI.
         post:
             tags:
-                - MLayer
+                - Mlayer - Domain
             parameters:
                 - name: token
                   description: A valid DX Authorization token
@@ -1770,7 +1777,7 @@ paths:
 
         put:
             tags:
-                - MLayer
+                - Mlayer - Domain
             parameters:
                 - name: id
                   description: |
@@ -1831,7 +1838,7 @@ paths:
 
         get:
             tags:
-                - MLayer
+                - Mlayer - Domain
             responses:
                 '200':
                     content:
@@ -1850,11 +1857,11 @@ paths:
 
         delete:
             tags:
-                - MLayer
+                - Mlayer - Domain
             parameters:
                 - name: id
-                  description: | 
-                    `id` of the Domain to be deleted.
+                  description: |
+                      `id` of the Domain to be deleted.
                   schema:
                       type: string
                   in: query
@@ -1905,17 +1912,122 @@ paths:
                     description: Success
             operationId: UI-providers
             description: >
-                List of Providers with the description
+                A catalogue API to list all providers, which will be reflected on the catalogue UI.
             x-codeSamples:
                 - lang: cURL
                   label: 'get providers'
                   source: |
-                    curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/providers'
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/providers'
 
+    /internal/ui/geoquery:
+        post:
+            tags:
+                - MLayer
+            requestBody:
+                description: id's of the dataset belonging to instance whose location is needed.
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/exampleReqBodyMapView'
+                required: true
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForGettingGeoquery'
+                    description: Successfully inserted
+                400:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseForCreatingInstance'
+                    description: Invalid document
+            operationId: UI-geoquery
+            description: >
+                A catalogue API to get location of all resource groups whose id(s) are provided, which will be reflected on the catalogue UI.
+            x-codeSamples:
+                - lang: cURL
+                  label: 'get geoquery'
+                  source: |
+                      curl --location 'https://example-cat.com/iudx/cat/v1/internal/ui/geoquery'
+
+    /internal/ui/dataset:
+        description: >
+            A catalogue API to fetch details of the dataset, which will be reflected on the catalogue UI.
+        get:
+            tags:
+                - Mlayer - Dataset
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForGettingDatasets'
+                    description: Successfully inserted
+            operationId: UI-dataset
+            description: >
+                Fetches details of all the datasets.
+            x-codeSamples:
+                - lang: cURL
+                  label: 'get dataset'
+                  source: |
+                      curl --location 'https://example-cat.com/iudx/cat/v1/internal/ui/dataset'
+        post:
+            tags:
+                - Mlayer - Dataset
+            parameters:
+                - name: id
+                  description: |
+                      `id` of the dataset, whose details have to be fetched
+                  schema:
+                      type: string
+                  in: query
+                  required: true
+            operationId: update-domain
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForGettingDatasetResources'
+                    description: Successfully inserted
+            description: Fetches the dataset details of a particular dataset using dataset_id.
+            x-codeSamples:
+                - lang: cURL
+                  label: 'post dataset'
+                  source: |
+                      curl --location --request POST 'https://example-cat.com/iudx/cat/v1/internal/ui/dataset?id=datakaveri.org%2Fb8bd3e3f39615c8ec96722131ae95056b5938f2f%2Frs.iudx.io%2Fpune-env-aqm'
+
+    /internal/ui/popularDatasets:
+        get:
+            tags:
+                - MLayer
+            responses:
+                '200':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/successResponseForPopularDatasets'
+                    description: Success
+            operationId: UI-popularDatasets
+            description: >
+                A catalogue API to get data for the landing page, which will be reflected on the catalogue UI.
+                <br>
+                **Instances (4)** - On sorting alphabetically, First four instances are required.
+                <br>
+                **Featured Datasets (6)** - (Views) Based on the count of views sort top 6 records.
+                <br>
+                **latest dataset (6)** - (itemCreatedAt) Dataset which was recently added, top 6 records.
+            x-codeSamples:
+                - lang: cURL
+                  label: 'get popularDatasets'
+                  source: |
+                      curl --location 'https://example-cat.com/iudx/cat/v1/internal/ui/popularDatasets'
 
     /nlpsearch:
         description: >
-           NLP Search is used a for a text based search to discover resources and resource groups on Data Exchange Catalogue Server.
+            NLP Search is used a for a text based search to discover resources and resource groups on Data Exchange Catalogue Server.
         get:
             tags:
                 - NLP
@@ -1945,7 +2057,7 @@ paths:
                   label: 'search'
                   source: |
                       curl --location --request GET 'https://example-cat.com/iudx/cat/v1/nlpsearch?q=where can I halt near chandigarh'
-    
+
 
 components:
     schemas:
@@ -2790,6 +2902,267 @@ components:
                   ]
               }
 
+        successResponseForGettingGeoquery:
+            title: Response for getting dataset locations.
+            description: Example success response for getting locations
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query.
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "totalHits": 3,
+                  "results": [
+                      {
+                          "instance": "pune",
+                          "location": {
+                              "address": "Agra",
+                              "type": "Place"
+                          },
+                          "label": "Civic Issues Reported from Swachhata App in Agra city",
+                          "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app",
+                          "doc_id": "29JqFYUBeAMS8LEaZWtM"
+                      }
+                  ]
+              }
+
+        successResponseForGettingDatasets:
+            title: Response for getting dataset locations.
+            description: Example success response for getting datasets
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query.
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "totalHits": 191,
+                  "results": [
+                      {
+                          "instance": "pune",
+                          "provider": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f",
+                          "label": "Civic Issues Reported from Swachhata App in Agra city",
+                          "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app",
+                          "accessPolicy": "SECURE",
+                          "tags": [
+                              "swachhata",
+                              "complaints",
+                              "reporting",
+                              "issue"
+                          ],
+                          "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg",
+                          "providerDescription": "UI Test Provider-other",
+                          "totalResources": 1
+                      }
+                  ]
+              }
+
+        successResponseForGettingDatasetResources:
+            title: Response for getting dataset locations based on the dataset_id.
+            description: Example success response for getting datasets based on dataset_id
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": [
+                      {
+                          "dataset": {
+                              "provider": {
+                                  "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f",
+                                  "description": "UI Test Provider-other"
+                              },
+                              "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm",
+                              "label": "Environment",
+                              "description": "Publishes realtime information of air pollutants from AQM sensors/ devices deployed in Pune city. It gives average values of air pollutant measures  like carbon monoxide, nitrogen dioxide, ozone, particulate matter etc., and also the associated environmental factors like temperature, humidity, illuminance over an time interval of 15 minutes. More details on the type of pollutant measured and units of measurement can be seen in the Data Descriptor.",
+                              "accessPolicy": "OPEN",
+                              "instance": "pune",
+                              "dataSample": {
+                                  "uv": {
+                                      "avgOverTime": 0.81
+                                  }
+                              },
+                              "dataSampleFile": [
+                                  {
+                                      "relationType": "REL_FILE",
+                                      "hasObject": "https://fs-sample-file-bucket.s3.ap-south-1.amazonaws.com/public-access/pune/pune-env-aqm.json",
+                                      "name": "Pune air quality monitoring data sample",
+                                      "description": "Sample file for Air quality monitoring devices/sensors in Pune city"
+                                  }
+                              ],
+                              "dataQualityFile": [
+                                  {
+                                      "relationType": "REL_FILE",
+                                      "hasObject": "https://fs-sample-file-bucket.s3.ap-south-1.amazonaws.com/public-access/pune/DataQuality/puneAQM_Jan22Feb22_DQReport.pdf",
+                                      "name": "Pune AQM Data Quality Report Jan-Feb2022",
+                                      "description": "Data quality report file for Air quality monitoring devices/sensors in Pune city for the time range between Jan-Feb2022."
+                                  }
+                              ],
+                              "dataDescriptor": {
+                                  "uv": {
+                                      "description": "Describes instantaneous and/or aggregated values for Ultraviolet (UV) radiation.",
+                                      "type": [
+                                          "TimeSeriesAggregation"
+                                      ],
+                                      "avgOverTime": {
+                                          "dataSchema": "iudx:Number",
+                                          "unitCode": "C62",
+                                          "description": "Average value of UV radiation for the last 15 minutes",
+                                          "type": [
+                                              "ValueDescriptor"
+                                          ]
+                                      }
+                                  },
+                                  "schema": "https://voc.iudx.org.in/EnvAQM",
+                                  "totalResources": 1,
+                                  "instance_icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg"
+                              },
+                              "resource": [
+                                  {
+                                      "resourceId": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm/c37c6979-6802-4a1c-c852-609b7706f5ba",
+                                      "label": "Environment",
+                                      "description": "Air quality monitoring devices (Bosch-Climo) in Pune city.",
+                                      "dataSample": null,
+                                      "dataDescriptor": null,
+                                      "resourceType": null
+                                  }
+                              ]
+                          }
+                      }
+                  ]
+              }
+        successResponseForPopularDatasets:
+            title: Response for getting dataset locations.
+            description: Example success response for getting datasets
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                results:
+                    description: Results which matched the query. This is an array of objects.
+                    type: array
+                    items:
+                        type: object
+            example:
+              {
+                  "type": "urn:dx:cat:Success",
+                  "title": "Success",
+                  "results": {
+                      "totalInstance": 4,
+                      "totalDomain": 1,
+                      "totalPublishers": 10,
+                      "totalDatasets": 191,
+                      "totalResources": 994,
+                      "domains": [
+                          {
+                              "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/environment.png",
+                              "name": "environment",
+                              "description": "Data Models that pertain to environment domain",
+                              "label": "Environment",
+                              "domainId": "143db678-0816-4bb5-999d-b62ac0ca1b4b"
+                          }
+                      ],
+                      "instance": [
+                          {
+                              "cover": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/agartala.jpg",
+                              "name": "agartala",
+                              "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/agartala.jpg"
+                          }
+                      ],
+                      "featuredDataset": [
+                          {
+                              "itemCreatedAt": "2020-09-28T08:07:06+0530",
+                              "instance": "surat",
+                              "provider": "Administrator of the IUDX platform",
+                              "description": "Realtime information for tracking public transit buses in Surat city.",
+                              "label": "Surat Realtime Bus Position Info",
+                              "accessPolicy": "SECURE",
+                              "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information",
+                              "type": [
+                                  "iudx:ResourceGroup",
+                                  "iudx:TransitManagement"
+                              ],
+                              "totalResources": 1,
+                              "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/surat.jpeg"
+                          }
+                      ],
+                      "latestDataset": [
+                          {
+                              "itemCreatedAt": "2023-03-09T09:08:20+0530",
+                              "instance": "surveyofindia",
+                              "provider": "Administrator of the IUDX platform",
+                              "description": "GIS Layers for roads, railways, water bodies and streams, vegetation and surveyed buildings in Bangalore",
+                              "label": "Features of interest in Bangalore",
+                              "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/geoserver.iudx.io/bangalore_features_of_interest",
+                              "accessPolicy": "SECURE",
+                              "type": [
+                                  "iudx:ResourceGroup",
+                                  "iudx:FeaturesOfInterest"
+                              ],
+                              "totalResources": 6,
+                              "icon": null
+                          }
+                      ]
+                  }
+              }
+
         updateItemResponse:
             title: Response for update Item
             description: Success response for update Item with ID
@@ -3009,7 +3382,7 @@ components:
               }
 
         errorResponseForCreatingInstance:
-            title: Example Response for creating or updating an instance or a domain
+            title: Example Response for creating or updating an instance or a domain or a geoquery
             description: Invalid or missing payload field in the given request
             required:
                 - type
@@ -3213,7 +3586,7 @@ components:
             properties:
                 name:
                     type: string
-                    description: URL of the image
+                    description: name of the instance
                 cover:
                     type: string
                     description: URL of the image
@@ -3233,7 +3606,7 @@ components:
 
 
         exampleDomain:
-            title: Root Type for exampleInstance
+            title: Root Type for exampleDomain
             description: An example domain object of middle layer.
             type: object
             properties:
@@ -3250,10 +3623,33 @@ components:
                     type: string
                     description: Domain name
             example:
-                      description: Data Models that pertain to civic domain
-                      icon: 'https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png'
-                      label: Civic
-                      name: civic
+                description: Data Models that pertain to civic domain
+                icon: 'https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png'
+                label: Civic
+                name: civic
+
+        exampleReqBodyMapView:
+            title: Root Type for exampleReqBodyMapView
+            description: An example of requeted body of geoquery
+            required:
+                - type
+            type: object
+            properties:
+                id:
+                    type: array
+                    items:
+                        type: string
+                    description: dataset_id's of resource group whose location is needed
+                instance:
+                    type: string
+                    description: name of the city/town from where the dataset belongs to
+            example:
+              {
+                  "id": [ "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/faridabad-camera-feeds",
+                          "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app",
+                          "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/chennai-bike-docking-locations" ],
+                  "instance": "pune"
+              }
 
 
 tags:
@@ -3301,21 +3697,26 @@ tags:
         name: MLayer
         description: >
             Catalogue middle layer specific APIs. 
-            These apis consist of instance, domain, providers, geo-query, dataset and overview APIs.
             <br>
-            **Instance APIs** : Instance refers to the name of the city/location. 
-                            Instance API creates, updates, deletes and lists the name, icon, cover and logo of each instance.
-            <br>
-            **Domain APIs** : Catalogue has data-domain models that describes each of the domains.
-                          Domain API creates, updates, deletes and lists the name, description, label and icon of each domain.
-            <br>
-            **Provider APIs** : This lists the name of each of the provider along with the description and id.
-            <br>
-            **Dataset APIs** : It fetches all the datasets that belong to Data Exchange.
-            <br>
-            **Overview APIs** : It has the data for the landing page. Alphabetically first four instances, based on views top six datasets and top six latest datasets are shown.
+            These apis consist of providers, geo-query and overview APIs
         x-displayName: MLayer
-
+    -
+        name: Mlayer - Instance
+        description: >
+            Catalogue middle layer specific APIs. 
+            Instance refers to the name of the city/location.
+        x-displayName: Mlayer - Instance
+    -
+        name: Mlayer - Domain
+        description: >
+            Catalogue middle layer specific APIs. 
+            Catalogue has data-domain models that describes each of the domains.
+        x-displayName: Mlayer - Domain
+    -
+        name: Mlayer - Dataset
+        description: >
+            Catalogue middle layer specific API fetches all the datasets that belong to the Data Exchange
+        x-displayName: Mlayer - Dataset
     -
         name: NLP
         description: |
