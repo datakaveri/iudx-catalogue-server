@@ -1536,13 +1536,20 @@ paths:
                     source: |
                         curl --location --request DELETE 'https://example-cat.com/consumer/ratings?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta' \
                         --header 'token: <tokenValue>'
+    
 
     /internal/ui/instance:
+        servers:
+            - url: 'https://example-cat.com/'
+              description: Production Instance
+
         description: >
             A catalogue administrator API to set a middle layer instance, which will be reflected on the catalogue UI.
+            **Instance APIs** : Instance refers to the name of the city/location. 
+                            Instance API creates, updates, deletes and lists the name, icon, cover and logo of each instance.
         post:
             tags:
-                - MLayer
+                - Mlayer - Instance
             parameters:
                 -
                     name: token
@@ -1595,7 +1602,7 @@ paths:
 
         put:
             tags:
-                - MLayer
+                - Mlayer - Instance
             parameters:
                 - name: id
                   description: |
@@ -1654,7 +1661,7 @@ paths:
 
         get:
             tags:
-                - MLayer
+                - Mlayer - Instance
             responses:
                 '200':
                     content:
@@ -1673,7 +1680,7 @@ paths:
 
         delete:
             tags:
-                - MLayer
+                - Mlayer - Instance
             parameters:
                 - name: id
                   description: |
@@ -1719,7 +1726,7 @@ paths:
             A catalogue administrator API to set a middle layer domain, which will be reflected on the catalogue UI.
         post:
             tags:
-                - MLayer
+                - Mlayer - Domain
             parameters:
                 - name: token
                   description: A valid DX Authorization token
@@ -1770,7 +1777,7 @@ paths:
 
         put:
             tags:
-                - MLayer
+                - Mlayer - Domain
             parameters:
                 - name: id
                   description: |
@@ -1831,7 +1838,7 @@ paths:
 
         get:
             tags:
-                - MLayer
+                - Mlayer - Domain
             responses:
                 '200':
                     content:
@@ -1850,7 +1857,7 @@ paths:
 
         delete:
             tags:
-                - MLayer
+                - Mlayer - Domain
             parameters:
                 - name: id
                   description: |
@@ -1905,17 +1912,14 @@ paths:
                     description: Success
             operationId: UI-providers
             description: >
-                List of Providers with the description
+                A catalogue API to list all providers, which will be reflected on the catalogue UI.
             x-codeSamples:
                 - lang: cURL
                   label: 'get providers'
                   source: |
-                    curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/providers'
-
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/providers'
 
     /internal/ui/geoquery:
-        description: >
-            A catalogue API to get location of all datasets whose dataset_is id provided, which will be reflected on the catalogue UI.
         post:
             tags:
                 - MLayer
@@ -1941,7 +1945,7 @@ paths:
                     description: Invalid document
             operationId: UI-geoquery
             description: >
-                List of location of the datasets.
+                A catalogue API to get location of all resource groups whose id(s) are provided, which will be reflected on the catalogue UI.
             x-codeSamples:
                 - lang: cURL
                   label: 'get geoquery'
@@ -1953,7 +1957,7 @@ paths:
             A catalogue API to fetch details of the dataset, which will be reflected on the catalogue UI.
         get:
             tags:
-                - MLayer
+                - Mlayer - Dataset
             responses:
                 200:
                     content:
@@ -1971,7 +1975,7 @@ paths:
                       curl --location 'https://example-cat.com/iudx/cat/v1/internal/ui/dataset'
         post:
             tags:
-                - MLayer
+                - Mlayer - Dataset
             parameters:
                 - name: id
                   description: |
@@ -1996,14 +2000,6 @@ paths:
                       curl --location --request POST 'https://example-cat.com/iudx/cat/v1/internal/ui/dataset?id=datakaveri.org%2Fb8bd3e3f39615c8ec96722131ae95056b5938f2f%2Frs.iudx.io%2Fpune-env-aqm'
 
     /internal/ui/popularDatasets:
-        description: >
-            A catalogue API to get data for the landing page, which will be reflected on the catalogue UI.
-            <br>
-            **Instances (4)** - On sorting alphabetically, First four instances are required.
-            <br>
-            **Featured Datasets (6)** - (Views) Based on the count of views sort top 6 records.
-            <br>
-            **latest dataset (6)** - (itemCreatedAt) Dataset which was recently added, top 6 records.
         get:
             tags:
                 - MLayer
@@ -2016,7 +2012,13 @@ paths:
                     description: Success
             operationId: UI-popularDatasets
             description: >
-                Data for the catalogue landing page.
+                A catalogue API to get data for the landing page, which will be reflected on the catalogue UI.
+                <br>
+                **Instances (4)** - On sorting alphabetically, First four instances are required.
+                <br>
+                **Featured Datasets (6)** - (Views) Based on the count of views sort top 6 records.
+                <br>
+                **latest dataset (6)** - (itemCreatedAt) Dataset which was recently added, top 6 records.
             x-codeSamples:
                 - lang: cURL
                   label: 'get popularDatasets'
@@ -3621,10 +3623,10 @@ components:
                     type: string
                     description: Domain name
             example:
-                      description: Data Models that pertain to civic domain
-                      icon: 'https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png'
-                      label: Civic
-                      name: civic
+                description: Data Models that pertain to civic domain
+                icon: 'https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png'
+                label: Civic
+                name: civic
 
         exampleReqBodyMapView:
             title: Root Type for exampleReqBodyMapView
@@ -3695,23 +3697,26 @@ tags:
         name: MLayer
         description: >
             Catalogue middle layer specific APIs. 
-            These apis consist of instance, domain, providers, geo-query, dataset and overview APIs.
             <br>
-            **Instance APIs** : Instance refers to the name of the city/location. 
-                            Instance API creates, updates, deletes and lists the name, icon, cover and logo of each instance.
-            <br>
-            **Domain APIs** : Catalogue has data-domain models that describes each of the domains.
-                          Domain API creates, updates, deletes and lists the name, description, label and icon of each domain.
-            <br>
-            **Provider APIs** : This lists the name of each of the provider along with the description and id.
-            <br>
-            **GeoQuery APIs** : This lists the locations of the dataset_id provided belonging to an instance.
-            <br>
-            **Dataset APIs** : It fetches all the datasets that belong to Data Exchange.
-            <br>
-            **Overview APIs** : It has the data for the landing page. Alphabetically first four instances, based on views top six datasets and top six latest datasets are shown.
+            These apis consist of providers, geo-query and overview APIs
         x-displayName: MLayer
-
+    -
+        name: Mlayer - Instance
+        description: >
+            Catalogue middle layer specific APIs. 
+            Instance refers to the name of the city/location.
+        x-displayName: Mlayer - Instance
+    -
+        name: Mlayer - Domain
+        description: >
+            Catalogue middle layer specific APIs. 
+            Catalogue has data-domain models that describes each of the domains.
+        x-displayName: Mlayer - Domain
+    -
+        name: Mlayer - Dataset
+        description: >
+            Catalogue middle layer specific API fetches all the datasets that belong to the Data Exchange
+        x-displayName: Mlayer - Dataset
     -
         name: NLP
         description: |
