@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.impl.predicate.ResponsePredicateImpl;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.apiserver.SearchApis;
@@ -43,17 +44,7 @@ public class AuthenticationServiceImplTest {
 
   private JsonObject config;
 
-  @BeforeEach
-  public void setUp(VertxTestContext vertxTestContext)
-  {
-    config = new JsonObject();
 
-    config.put("dxApiBasePath", "/iudx/cat/v1");
-    config.put("dxAuthBasePath", "/auth/v1");
-    authenticationService = new AuthenticationServiceImpl(webClient, "dummy", config);
-
-    vertxTestContext.completeNow();
-  }
   @Test
   @Description("testing the method validateAuthInfo")
   public void testValidateAuthInfo(VertxTestContext vertxTestContext) {
@@ -83,6 +74,10 @@ public class AuthenticationServiceImplTest {
             })
         .when(httpRequest)
         .sendJsonObject(any(), any());
+    config = new JsonObject();
+
+    config.put("dxApiBasePath", "/iudx/cat/v1");
+    config.put("dxAuthBasePath", "/auth/v1");
 
     authenticationService = new AuthenticationServiceImpl(webClient, authHost, config);
     authenticationService.tokenInterospect(
@@ -124,6 +119,13 @@ public class AuthenticationServiceImplTest {
     when(webClient.post(anyInt(), anyString(), anyString())).thenReturn(httpRequest);
     when(httpRequest.expect(any())).thenReturn(httpRequest);
     when(httpResponseAsyncResult.result()).thenReturn(httpResponse);
+
+    config = new JsonObject();
+
+    config.put("dxApiBasePath", "/iudx/cat/v1");
+    config.put("dxAuthBasePath", "/auth/v1");
+    authenticationService = new AuthenticationServiceImpl(webClient, "dummy", config);
+
 
     when(httpResponse.statusCode()).thenReturn(200);
     when(httpResponse.bodyAsJsonObject()).thenReturn(json);
