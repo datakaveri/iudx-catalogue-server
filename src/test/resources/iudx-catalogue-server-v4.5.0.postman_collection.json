@@ -48,14 +48,13 @@
 							}
 						},
 						"url": {
-							"raw": "https://{{auth-url}}/auth/v1/token",
+							"raw": "https://{{auth-url}}/{{dxAuthBasePath}}/token",
 							"protocol": "https",
 							"host": [
 								"{{auth-url}}"
 							],
 							"path": [
-								"auth",
-								"v1",
+								"{{dxAuthBasePath}}",
 								"token"
 							]
 						}
@@ -116,14 +115,13 @@
 							}
 						},
 						"url": {
-							"raw": "https://{{auth-url}}/auth/v1/token",
+							"raw": "https://{{auth-url}}/{{dxAuthBasePath}}/token",
 							"protocol": "https",
 							"host": [
 								"{{auth-url}}"
 							],
 							"path": [
-								"auth",
-								"v1",
+								"{{dxAuthBasePath}}",
 								"token"
 							]
 						}
@@ -184,14 +182,13 @@
 							}
 						},
 						"url": {
-							"raw": "https://{{auth-url}}/auth/v1/token",
+							"raw": "https://{{auth-url}}/{{dxAuthBasePath}}/token",
 							"protocol": "https",
 							"host": [
 								"{{auth-url}}"
 							],
 							"path": [
-								"auth",
-								"v1",
+								"{{dxAuthBasePath}}",
 								"token"
 							]
 						}
