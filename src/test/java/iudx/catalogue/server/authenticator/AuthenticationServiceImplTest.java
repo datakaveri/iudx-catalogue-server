@@ -12,6 +12,7 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.apiserver.SearchApis;
 import jdk.jfr.Description;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -41,15 +42,24 @@ public class AuthenticationServiceImplTest {
   @Mock AsyncResult<HttpResponse<Buffer>> httpResponseAsyncResult;
 
   private JsonObject config;
+
+  @BeforeEach
+  public void setUp(VertxTestContext vertxTestContext)
+  {
+    config = new JsonObject();
+
+    config.put("dxApiBasePath", "/iudx/cat/v1");
+    config.put("dxAuthBasePath", "/auth/v1");
+    authenticationService = new AuthenticationServiceImpl(webClient, "dummy", config);
+
+    vertxTestContext.completeNow();
+  }
   @Test
   @Description("testing the method validateAuthInfo")
   public void testValidateAuthInfo(VertxTestContext vertxTestContext) {
     String authHost = "dummy";
     authenticationInfo = new JsonObject();
-    config = new JsonObject();
 
-    config.put("dxApiBasePath", "/iudx/cat/v1");
-    config.put("dxAuthBasePath", "/auth/v1");
 
     request = new JsonObject();
     authenticationInfo.put(TOKEN, "dummy");
@@ -131,7 +141,6 @@ public class AuthenticationServiceImplTest {
         .when(httpRequest)
         .sendJsonObject(any(), any());
 
-    authenticationService = new AuthenticationServiceImpl(webClient, authHost, config);
     authenticationService.tokenInterospect(
         request,
         authenticationInfo,
