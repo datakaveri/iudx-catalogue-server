@@ -8,10 +8,12 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.impl.predicate.ResponsePredicateImpl;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.apiserver.SearchApis;
 import jdk.jfr.Description;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -40,11 +42,16 @@ public class AuthenticationServiceImplTest {
   @Mock JsonObject json;
   @Mock AsyncResult<HttpResponse<Buffer>> httpResponseAsyncResult;
 
+  private JsonObject config;
+
+
   @Test
   @Description("testing the method validateAuthInfo")
   public void testValidateAuthInfo(VertxTestContext vertxTestContext) {
     String authHost = "dummy";
     authenticationInfo = new JsonObject();
+
+
     request = new JsonObject();
     authenticationInfo.put(TOKEN, "dummy");
     authenticationInfo.put(OPERATION, "dummy");
@@ -67,8 +74,12 @@ public class AuthenticationServiceImplTest {
             })
         .when(httpRequest)
         .sendJsonObject(any(), any());
+    config = new JsonObject();
 
-    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    config.put("dxApiBasePath", "/iudx/cat/v1");
+    config.put("dxAuthBasePath", "/auth/v1");
+
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost, config);
     authenticationService.tokenInterospect(
         request,
         authenticationInfo,
@@ -109,6 +120,13 @@ public class AuthenticationServiceImplTest {
     when(httpRequest.expect(any())).thenReturn(httpRequest);
     when(httpResponseAsyncResult.result()).thenReturn(httpResponse);
 
+    config = new JsonObject();
+
+    config.put("dxApiBasePath", "/iudx/cat/v1");
+    config.put("dxAuthBasePath", "/auth/v1");
+    authenticationService = new AuthenticationServiceImpl(webClient, "dummy", config);
+
+
     when(httpResponse.statusCode()).thenReturn(200);
     when(httpResponse.bodyAsJsonObject()).thenReturn(json);
     doAnswer(
@@ -125,7 +143,6 @@ public class AuthenticationServiceImplTest {
         .when(httpRequest)
         .sendJsonObject(any(), any());
 
-    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
     authenticationService.tokenInterospect(
         request,
         authenticationInfo,
@@ -147,7 +164,7 @@ public class AuthenticationServiceImplTest {
   public void testIsPermittedMethodTrue(VertxTestContext vertxTestContext) {
 
     String authHost = "dummy";
-    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost, config);
     JsonArray methods = new JsonArray();
     methods.add("*");
     String operation = "dummy";
@@ -160,7 +177,7 @@ public class AuthenticationServiceImplTest {
   public void testIsPermittedMethodFalse(VertxTestContext vertxTestContext) {
 
     String authHost = "dummy value";
-    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost, config);
     JsonArray methods = new JsonArray();
     methods.add("dummyy");
     String operation = "dummy";
@@ -178,7 +195,7 @@ public class AuthenticationServiceImplTest {
     authenticationInfo.put(OPERATION, "");
     request.put(PROVIDER, "dummy");
     AuthenticationServiceImpl.webClient = mock(WebClient.class);
-    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost, config);
     assertNotNull(authenticationService.tokenInterospect(request, authenticationInfo, handler));
     vertxTestContext.completeNow();
   }
@@ -193,7 +210,7 @@ public class AuthenticationServiceImplTest {
     authenticationInfo.put(OPERATION, "dummy");
     request.put(PROVIDER, "dummy");
     AuthenticationServiceImpl.webClient = mock(WebClient.class);
-    authenticationService = new AuthenticationServiceImpl(webClient, authHost);
+    authenticationService = new AuthenticationServiceImpl(webClient, authHost, config);
     assertNotNull(authenticationService.tokenInterospect(request, authenticationInfo, handler));
     vertxTestContext.completeNow();
   }

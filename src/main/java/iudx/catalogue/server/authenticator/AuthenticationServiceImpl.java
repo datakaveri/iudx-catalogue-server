@@ -36,10 +36,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private static final Logger LOGGER = LogManager.getLogger(AuthenticationServiceImpl.class);
     static WebClient webClient;
     private String authHost;
+    private JsonObject config;
 
-    public AuthenticationServiceImpl(WebClient client, String authHost) {
+    public AuthenticationServiceImpl(WebClient client, String authHost, JsonObject config) {
         webClient = client;
         this.authHost = authHost;
+        this.config = config;
     }
 
     static void validateAuthInfo(JsonObject authInfo) throws IllegalArgumentException {
@@ -84,8 +86,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         JsonObject body = new JsonObject();
         body.put(TOKEN, authenticationInfo.getString(TOKEN));
+        String tokenIntrospectPath = config.getString("dxAuthBasePath") + AUTH_TIP_PATH;
         webClient
-            .post(443, authHost, AUTH_TIP_PATH)
+            .post(443, authHost, tokenIntrospectPath)
                 .expect(ResponsePredicate.JSON)
                 .sendJsonObject(body, httpResponseAsyncResult -> {
                     if (httpResponseAsyncResult.failed()) {

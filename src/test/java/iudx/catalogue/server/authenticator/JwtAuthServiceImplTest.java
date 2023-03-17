@@ -29,6 +29,7 @@ public class JwtAuthServiceImplTest {
 
   private static final Logger LOGGER = LogManager.getLogger(JwtAuthServiceImplTest.class);
   private static JsonObject authConfig;
+  private static final String AUTH_CERTINFO_PATH = "/auth/v1/certificate-info";
   private static JwtAuthenticationServiceImpl jwtAuthenticationService;
   private static AuthenticationService authenticationService;
   private static Vertx vertxObj;
@@ -83,7 +84,7 @@ public class JwtAuthServiceImplTest {
   public void testWebClientSetup(Vertx vertx, VertxTestContext testContext) {
     WebClient client = AuthenticationVerticle.createWebClient(vertx, authConfig, true);
     String host = authConfig.getString(Constants.AUTH_SERVER_HOST);
-    client.post(443, host, Constants.AUTH_CERTINFO_PATH).send(httpResponseAsyncResult -> {
+    client.post(443, host, AUTH_CERTINFO_PATH).send(httpResponseAsyncResult -> {
       if (httpResponseAsyncResult.failed()) {
         LOGGER.error("Cert info call failed");
         testContext.failNow(httpResponseAsyncResult.cause());
