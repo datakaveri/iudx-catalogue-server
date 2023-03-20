@@ -1911,7 +1911,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/successResponseForUIProvider'
                     description: Success
-            operationId: UI-providers
+            operationId: get-providers
             description: >
                 A catalogue API to list all providers, which will be reflected on the catalogue UI.
             x-codeSamples:
@@ -1944,7 +1944,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseForCreatingInstance'
                     description: Invalid document
-            operationId: UI-geoquery
+            operationId: get-map-view
             description: >
                 A catalogue API to get location of all resource groups whose id(s) are provided, which will be reflected on the catalogue UI.
             x-codeSamples:
@@ -1966,7 +1966,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/successResponseForGettingDatasets'
                     description: Successfully inserted
-            operationId: UI-dataset
+            operationId: get-datasets
             description: >
                 Fetches details of all the datasets.
             x-codeSamples:
@@ -1985,7 +1985,7 @@ paths:
                       type: string
                   in: query
                   required: true
-            operationId: update-domain
+            operationId: get-dataset-with-resources
             responses:
                 '200':
                     content:
@@ -3614,13 +3614,13 @@ components:
                 description:
                     type: string
                     description: Description about the domain
-                cover:
-                    type: string
-                    description: URL of the image
                 icon:
                     type: string
+                    description: URL of the image
+                label:
+                    type: string
                     description: type or tag of the domain
-                logo:
+                name:
                     type: string
                     description: Domain name
             example:
