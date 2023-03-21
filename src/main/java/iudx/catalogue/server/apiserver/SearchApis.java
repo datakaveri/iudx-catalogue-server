@@ -98,6 +98,7 @@ public final class SearchApis {
         .end(new RespBuilder()
                   .withType(TYPE_INVALID_SYNTAX)
                   .withTitle(TITLE_INVALID_SYNTAX)
+                  .withDetail("Mandatory field(s) not provided")
                   .getResponse());
       return;
 
@@ -123,6 +124,7 @@ public final class SearchApis {
                   .end(new RespBuilder()
                               .withType(TYPE_INVALID_GEO_VALUE)
                               .withTitle(TITLE_INVALID_GEO_VALUE)
+                              .withDetail(TITLE_INVALID_QUERY_PARAM_VALUE)
                               .getResponse());
       return;
     }
@@ -150,6 +152,7 @@ public final class SearchApis {
               }
               response.end(resultJson.toString());
             } else if (handler.failed()) {
+              LOGGER.debug("ndjsnsdfjn djnf");
               LOGGER.error("Fail: Search;" + handler.cause().getMessage());
               response.setStatusCode(400).end(handler.cause().getMessage());
             }
@@ -179,6 +182,7 @@ public final class SearchApis {
         }
       } else {
         LOGGER.error("Fail: Search/Count; Invalid request query parameters");
+        LOGGER.debug(resp);
         response.setStatusCode(400)
                 .end(resp.toString());
       }
@@ -188,6 +192,7 @@ public final class SearchApis {
           .end(new RespBuilder()
                     .withType(TYPE_INVALID_SYNTAX)
                     .withTitle(TITLE_INVALID_SYNTAX)
+                    .withDetail(TITLE_INVALID_QUERY_PARAM_VALUE)
                     .getResponse());
     }
 

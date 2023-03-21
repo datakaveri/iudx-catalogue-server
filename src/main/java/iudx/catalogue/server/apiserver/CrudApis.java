@@ -9,6 +9,7 @@ import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.auditing.AuditingServiceImpl;
 import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
+import iudx.catalogue.server.util.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -393,6 +394,7 @@ public final class CrudApis {
               .end( new RespBuilder()
                           .withType(TYPE_TOKEN_INVALID)
                           .withTitle(TITLE_TOKEN_INVALID)
+                          .withDetail(Constants.FAILED)
                           .getResponse());
         return;
       }
@@ -446,6 +448,7 @@ public final class CrudApis {
             .end( new RespBuilder()
                         .withType(TYPE_TOKEN_INVALID)
                         .withTitle(TITLE_TOKEN_INVALID)
+                        .withDetail(Constants.FAILED)
                         .getResponse());
         return;
       }

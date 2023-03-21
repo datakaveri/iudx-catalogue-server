@@ -120,7 +120,7 @@ public class QueryMapper {
 
   /**
    * Validates the request parameters, headers to compliance with default values.
-   * 
+   *
    * @param JsonObject requestBody
    * @return JsonObject having success and failure status
    */
@@ -154,30 +154,38 @@ public class QueryMapper {
 
               if (isPrecise == Boolean.FALSE) {
                 LOGGER.error("Error: Overflow coordinate precision");
-                return errResponse.put(DESC,
-                    "The max point of 'coordinates' precision is " + COORDINATES_PRECISION);
+                return errResponse
+                    .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+                    .put(
+                        DESC,
+                        "The max point of 'coordinates' precision is " + COORDINATES_PRECISION);
               }
             } else {
               LOGGER.error("Error: Overflow coordinate value");
-              return errResponse.put(DESC, "Unable to parse 'coordinates'; value is " + tempValue);
+              return errResponse
+                  .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+                  .put(DESC, "Unable to parse 'coordinates'; value is " + tempValue);
             }
           }
         } else {
           LOGGER.error("Error: Overflow coordinate values");
-          return errResponse.put(DESC,
-              "The max number of 'coordinates' value is " + COORDINATES_SIZE);
+          return errResponse
+              .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+              .put(DESC, "The max number of 'coordinates' value is " + COORDINATES_SIZE);
         }
-        
+
         String geometry = requestBody.getString(GEOMETRY, "");
         boolean flag = true;
         int countStr = StringUtils.countMatches(coordinateStr.substring(0, 5), "[");
         if (geometry.equalsIgnoreCase(POLYGON) && countStr == 3) {
         } else if (geometry.equalsIgnoreCase(POINT) && countStr == 1) {
-        } else if ((geometry.equalsIgnoreCase(LINESTRING) 
+        } else if ((geometry.equalsIgnoreCase(LINESTRING)
             || geometry.equals(BBOX)) && countStr == 2) {
         } else {
           LOGGER.error("Error: Invalid coordinate format");
-          return errResponse.put(DESC, "Invalid coordinate format");
+          return errResponse
+              .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+              .put(DESC, "Invalid coordinate format");
         }
       }
 
@@ -186,7 +194,9 @@ public class QueryMapper {
         if (requestBody.containsKey(MAX_DISTANCE)) {
           if (!Range.closed(0, MAXDISTANCE_LIMIT).contains(requestBody.getInteger(MAX_DISTANCE))) {
             LOGGER.error("Error: maxDistance should range between 0-10000m");
-            return errResponse.put(DESC, "The 'maxDistance' should range between 0-10000m");
+            return errResponse
+                .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+                .put(DESC, "The 'maxDistance' should range between 0-10000m");
           }
         } else {
             return new RespBuilder()
@@ -203,14 +213,15 @@ public class QueryMapper {
       String searchString = requestBody.getString(Q_VALUE);
       if (searchString.length() > STRING_SIZE) {
         LOGGER.error("Error: 'q' must be " + STRING_SIZE + " in char");
-        return errResponse.put(DESC,
-            "The max string(q) size supported is " + STRING_SIZE);
+        return errResponse
+            .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+            .put(DESC, "The max string(q) size supported is " + STRING_SIZE);
       }
     }
 
     /* Validating AttributeSearch limits */
     if (searchType.contains(SEARCH_TYPE_ATTRIBUTE)) {
-      
+
       Pattern valuePattern = Pattern.compile("^[a-zA-Z0-9]([\\w-._:\\/() ]*[a-zA-Z0-9])?$");
 
       /* Checking the number of property and value within the request */
@@ -225,22 +236,30 @@ public class QueryMapper {
               LOGGER.debug(entry);
               LOGGER.debug(valuePattern.matcher((String) entry).matches());
               if (!valuePattern.matcher((String) entry).matches()) {
-                return errResponse.put(DESC, "Invalid 'value' format");
+                return errResponse
+                    .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+                    .put(DESC, "Invalid 'value' format");
               }
             }
 
             if (nestedValue.size() > VALUE_SIZE) {
               LOGGER.error("Error: The value query param has exceeded the limit");
-              return errResponse.put(DESC, "The max number of 'value' should be " + VALUE_SIZE);
+              return errResponse
+                  .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+                  .put(DESC, "The max number of 'value' should be " + VALUE_SIZE);
             }
           }
         } else {
           LOGGER.error("Error: The value query param has exceeded the limit");
-          return errResponse.put(DESC, "The max number of 'value' should be " + VALUE_SIZE);
+          return errResponse
+              .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+              .put(DESC, "The max number of 'value' should be " + VALUE_SIZE);
         }
       } else {
         LOGGER.error("Error: The property query param has exceeded the limit");
-        return errResponse.put(DESC, "The max number of 'property' should be " + PROPERTY_SIZE);
+        return errResponse
+            .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+            .put(DESC, "The max number of 'property' should be " + PROPERTY_SIZE);
       }
     }
 
@@ -248,7 +267,9 @@ public class QueryMapper {
     if (searchType.contains(RESPONSE_FILTER)) {
       if (requestBody.getJsonArray(FILTER, new JsonArray()).size() > FILTER_VALUE_SIZE) {
         LOGGER.error("Error: The filter in query param has exceeded the limit");
-        return errResponse.put(DESC, "The max number of 'filter' should be " + FILTER_VALUE_SIZE);
+        return errResponse
+            .put(TYPE, TYPE_BAD_FILTER)
+            .put(DESC, "The max number of 'filter' should be " + FILTER_VALUE_SIZE);
       }
     }
 
@@ -257,7 +278,9 @@ public class QueryMapper {
       String instance = requestBody.getString(INSTANCE, "");
       if (instance != null && instance.length() > INSTANCE_SIZE) {
         LOGGER.error("Error: The instance length has exceeded the limit");
-        return errResponse.put(DESC, "The max length of 'instance' should be " + INSTANCE_SIZE);
+        return errResponse
+            .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+            .put(DESC, "The max length of 'instance' should be " + INSTANCE_SIZE);
       }
     }
 
@@ -268,8 +291,9 @@ public class QueryMapper {
       Integer totalSize = limit + offset;
       if (totalSize <= 0 || totalSize > MAX_RESULT_WINDOW) {
         LOGGER.error("Error: The limit + offset param has exceeded the limit");
-        return errResponse.put(DESC,
-            "The limit + offset should be between 1 to " + MAX_RESULT_WINDOW);
+        return errResponse
+            .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
+            .put(DESC, "The limit + offset should be between 1 to " + MAX_RESULT_WINDOW);
       }
     }
 

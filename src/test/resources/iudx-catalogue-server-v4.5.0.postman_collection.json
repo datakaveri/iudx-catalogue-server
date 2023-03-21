@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "bfc694ed-a70b-4c5d-b01f-c21b7d762139",
+		"_postman_id": "f9d0848b-972d-4dc8-90f0-e46083ccf54b",
 		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "23234057"
+		"_exporter_id": "17194681"
 	},
 	"item": [
 		{
@@ -2459,7 +2459,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:InvalidSyntax\");\r",
+									"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:InvalidParamValue\");\r",
 									"});\r",
 									"\r",
 									""
@@ -2510,7 +2510,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSyntax\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidParamValue\");\r",
 									"});\r",
 									"\r",
 									""
@@ -2561,7 +2561,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSyntax\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:MissingParams\");\r",
 									"});\r",
 									"\r",
 									""
@@ -2612,7 +2612,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InvalidSyntax\");\r",
+									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:MissingParams\");\r",
 									"});\r",
 									"\r",
 									""
@@ -6022,55 +6022,6 @@
 										{
 											"key": "value",
 											"value": "[[pollution, flood]]"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "200 (success) - Tag Search 2 (filter,limit,offset)",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{host}}{{base}}/search?property=\"[tags]\"&value=\"[[pollution]]\"",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"search"
-									],
-									"query": [
-										{
-											"key": "property",
-											"value": "\"[tags]\""
-										},
-										{
-											"key": "value",
-											"value": "\"[[pollution]]\""
 										}
 									]
 								}
