@@ -48,6 +48,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   private static String INTERNAL_ERROR_RESP = new RespBuilder()
       .withType(TYPE_INTERNAL_SERVER_ERROR)
       .withTitle(TITLE_INTERNAL_SERVER_ERROR)
+      .withDetail(DETAIL_INTERNAL_SERVER_ERROR)
       .getResponse();
 
   public DatabaseServiceImpl(

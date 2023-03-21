@@ -23,6 +23,7 @@ queries and consume the data from *Resource Servers* in an automated and machine
 - Support for text, geo-spatial, relationship, list and attributes searches
 - Upload, delete and modify operations on catalogue objects (meta-information corresponding to resources)
 - Stores meta-information as JSON-LD documents using published vocabulary and attributes
+- Rate and review data resources hosted on IUDX platform
 - Scalable, service mesh architecture based implementation using open source components: Vert.X API framework, Elasticsearch for data-base
 - Hazelcast and Zookeeper based cluster management and service discovery
 
@@ -90,7 +91,7 @@ The server requires certificates to be stored in Java keystore format.
 
 
 ### Integration tests
-Integration tests are through Postman/Newman whose script can be found from [here](./src/test/resources/iudx-catalogue-server-v4.0.postman_collection.json).
+Integration tests are through Postman/Newman whose script can be found from [here](./src/test/resources/iudx-catalogue-server-v4.5.0.postman_collection.json).
 1. Install prerequisites 
    - [postman](https://www.postman.com/) + [newman](https://www.npmjs.com/package/newman)
    - [newman reporter-htmlextra](https://www.npmjs.com/package/newman-reporter-htmlextra)

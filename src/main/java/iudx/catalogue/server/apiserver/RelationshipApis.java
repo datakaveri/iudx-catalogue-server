@@ -108,16 +108,18 @@ public final class RelationshipApis {
         LOGGER.error("Fail: Issue in query parameter");
         response.setStatusCode(400)
                   .end(new RespBuilder()
-                        .withType(TYPE_INVALID_SYNTAX)
-                        .withTitle(TITLE_INVALID_SYNTAX)
+                        .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
+                        .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+                        .withDetail("Invalid relationship value")
                         .getResponse());
       }
     } else {
       LOGGER.error("Fail: Issue in query parameter");
       response.setStatusCode(400)
                   .end(new RespBuilder()
-                        .withType(TYPE_INVALID_SYNTAX)
-                        .withTitle(TITLE_INVALID_SYNTAX)
+                        .withType(TYPE_MISSING_PARAMS)
+                        .withTitle(TITLE_MISSING_PARAMS)
+                        .withDetail("Mandatory field(s) not provided")
                         .getResponse());
     }
   }
