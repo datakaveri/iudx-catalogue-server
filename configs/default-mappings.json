@@ -2,218 +2,251 @@
     "mappings": {
         "dynamic": false,
         "properties": {
+            "_geosummary": {
+                "properties": {
+                    "_geocoded": {
+                        "properties": {
+                            "results": {
+                                "properties": {
+                                    "borough": {
+                                        "type": "text"
+                                    },
+                                    "country": {
+                                        "type": "text"
+                                    },
+                                    "county": {
+                                        "type": "text"
+                                    },
+                                    "locality": {
+                                        "type": "text"
+                                    },
+                                    "name": {
+                                        "type": "text"
+                                    },
+                                    "region": {
+                                        "type": "text"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "_reverseGeocoded": {
+                        "type": "object"
+                    }
+                }
+            },
             "_summary": {
                 "type": "text"
             },
-            "@context" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
+            "_word_vector": {
+                "dims": 100,
+                "type": "dense_vector"
+            },
+            "@context": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
                     }
-                }
-            },
-            "id" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "tags" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 2000
-                    }
-                }
-            },
-            "type" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "instance" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "itemStatus" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "label" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "iudxResourceAPIs" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "accessPolicy" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "authControlLevel" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "dataDescriptor" : {
-                "type": "flattened"
-            },
-            "description" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "deviceInfo": {
-                "type": "flattened"
-            },
-            "location" : {
-                "properties" : {
-                    "address" : {
-                        "type" : "text",
-                        "fields" : {
-                            "keyword" : {
-                                "type" : "keyword",
-                                "ignore_above" : 256
-                            }
-                        }
-                    },
-                    "geometry" : {
-                        "type" : "geo_shape",
-                        "strategy" : "recursive"
-                    },
-                    "type" : {
-                        "type" : "text",
-                        "fields" : {
-                            "keyword" : {
-                                "type" : "keyword",
-                                "ignore_above" : 256
-                            }
-                        }
-                    }
-                }
-            },
-            "name" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "providerOrg": {
-                "type": "flattened"
+                },
+                "type": "text"
             },
             "accessObjectInfo": {
                 "type": "flattened"
             },
+            "accessPolicy": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "authControlLevel": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
             "authServerInfo": {
                 "type": "flattened"
+            },
+            "dataDescriptor": {
+                "type": "flattened"
+            },
+            "description": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "deviceInfo": {
+                "type": "flattened"
+            },
+            "id": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "instance": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "itemStatus": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "iudxResourceAPIs": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "label": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "location": {
+                "properties": {
+                    "address": {
+                        "fields": {
+                            "keyword": {
+                                "ignore_above": 256,
+                                "type": "keyword"
+                            }
+                        },
+                        "type": "text"
+                    },
+                    "geometry": {
+                        "type": "geo_shape"
+                    },
+                    "type": {
+                        "fields": {
+                            "keyword": {
+                                "ignore_above": 256,
+                                "type": "keyword"
+                            }
+                        },
+                        "type": "text"
+                    }
+                }
+            },
+            "name": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "provider": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "providerOrg": {
+                "type": "flattened"
+            },
+            "resourceGroup": {
+                "fielddata": true,
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "resourceServer": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
+            },
+            "resourceServerHTTPAccessURL": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
+                    }
+                },
+                "type": "text"
             },
             "resourceServerOrg": {
                 "type": "flattened"
             },
             "resourceServerStreamingAccessURL": {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
                     }
-                }
+                },
+                "type": "text"
             },
-            "resourceServerHTTPAccessURL": {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
+            "resourceType": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
                     }
-                }
+                },
+                "type": "text"
             },
-            "resourceGroup" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
+            "tags": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 2000,
+                        "type": "keyword"
                     }
-                }
+                },
+                "type": "text"
             },
-            "resourceType" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
+            "type": {
+                "fields": {
+                    "keyword": {
+                        "ignore_above": 256,
+                        "type": "keyword"
                     }
-                }
-            },
-            "provider" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "resourceServer" : {
-                "type" : "text",
-                "fields" : {
-                    "keyword" : {
-                        "type" : "keyword",
-                        "ignore_above" : 256
-                    }
-                }
-            },
-            "_word_vector" : {
-                "type": "dense_vector",
-                "dims": 100
+                },
+                "type": "text"
             }
         }
     }
