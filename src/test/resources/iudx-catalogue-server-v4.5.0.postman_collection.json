@@ -10,7 +10,7 @@
 			"name": "Get Token",
 			"item": [
 				{
-					"name": "Get CONSUMER token for accessing an Open Resource Copy 2",
+					"name": "Get CONSUMER token for accessing an Open Resource",
 					"event": [
 						{
 							"listen": "test",
