@@ -384,7 +384,7 @@ public class RatingApis {
                 new RespBuilder()
                     .withType(TYPE_TOKEN_INVALID)
                     .withTitle(TITLE_TOKEN_INVALID)
-                    .withDetail(authHandler.cause().getMessage())
+                    .withDetail(DETAIL_INVALID_TOKEN)
                     .getResponse());
           }
         });

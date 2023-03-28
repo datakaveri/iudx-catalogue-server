@@ -480,7 +480,7 @@ paths:
                       type: string
                   in: query
                   required: true
-            operationId: get-geolocations
+            operationId: get geolocations
             responses:
                 '200':
                     content:
@@ -561,7 +561,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/listTypesErrorResponse'
                     description: Bad Request
-            operationId: list-types
+            operationId: list types
             description: List a particular type
             x-codeSamples:
                 -
@@ -649,7 +649,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseForGetEntity'
                     description: Didn't find the item.
-            operationId: get-item
+            operationId: get item
             description: Get an item given the id
             x-codeSamples:
                 -
@@ -708,7 +708,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/updateItemNotFound'
                     description: Document doesn't exist to update it
-            operationId: update-item
+            operationId: update item
             description: >
                 Update an item where the body contains a fully valid item with id. Relationship links like
 
@@ -797,7 +797,7 @@ paths:
                                             -
                                                 id: >
                                                     datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io
-                                                method: update
+                                                method: create
                                                 title: 'urn:dx:cat:Success'
                     description: Successfully inserted
                 '400':
@@ -829,7 +829,7 @@ paths:
                                         title: Token is invalid
                                         detail: failed
                     description: Unauthorized access
-            operationId: create-item
+            operationId: create item
             description: >
                 Insert an item into the catalogue where the item's body specifies the type of item and
                 instance name. id and itemStatus are added by server. Items maybe subClasses of type
@@ -902,7 +902,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseWithObjects'
                     description: Didn't find the item
-            operationId: delete-item
+            operationId: delete item
             description: Delete an item
             x-codeSamples:
                 -
@@ -979,7 +979,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/relSearchErrorResponse'
                     description: Bad request
-            operationId: relationship-search
+            operationId: relationship search
             description: 'Search related items in the catalogue '
             x-codeSamples:
                 -
@@ -1104,8 +1104,10 @@ paths:
                             examples:
                                 Invalid Query Param:
                                     value:
-                                        type: 'urn:dx:cat:InvalidQueryParam'
-                                        title: Generic invalid query param error
+                                        type: urn:dx:cat:InvalidParamValue
+                                        title: Invalid value for a query param
+                                        detail: Invalid relationship value
+
                                 Invalid Syntax:
                                     value:
                                         type: 'urn:dx:cat:InvalidSyntax'
@@ -1119,7 +1121,7 @@ paths:
                                         type: 'failed'
                                         title: The limit + offset should be between 1 to 10000
                     description: Bad Request
-            operationId: get-related-entity
+            operationId: get related entity
             x-codeSamples:
                 -
                     lang: cURL
@@ -1205,7 +1207,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/unAuthorizedAccess'
                     description: Unauthorized access
-            operationId: create-instance
+            operationId: create instance
             description: Create an DX instance
 
     /list/instance:
@@ -1227,13 +1229,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/successResponseForGetInstance'
                     description: Successfully inserted
-                '400':
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/errorResponseForCreateInstance'
-                    description: Bad Request
-            operationId: get-instances
+            operationId: get instances
             description: This API gets the list of instances from the DX Catalogue Server
 
         delete:
@@ -1282,7 +1278,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseForDeleteInstance'
                     description: Instance doesn't exist
-            operationId: delete-instance
+            operationId: delete instance
             description: Delete an DX instance
     /consumer/ratings:
         servers:
@@ -1295,7 +1291,7 @@ paths:
         post:
             tags:
                 - Consumer
-            operationId: create-rating-object
+            operationId: create rating object
             parameters:
                 -
                     name: id
@@ -1370,7 +1366,7 @@ paths:
         put:
             tags:
                 - Consumer
-            operationId: update-rating-object
+            operationId: update rating object
             parameters:
                 -
                     name: id
@@ -1430,7 +1426,7 @@ paths:
         get:
             tags:
                 - Consumer
-            operationId: get-ratings
+            operationId: get ratings
             parameters:
                 -
                     name: id
@@ -1467,8 +1463,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/successResponseGetRating'
+                                oneOf:
+                                    - $ref: '#/components/schemas/successResponseGetRating'
+                                    - $ref: '#/components/schemas/successResponseAvgRating'
                     description: Success
+                '204':
+                    description: No content
                 '401':
                     content:
                         application/json:
@@ -1478,6 +1478,11 @@ paths:
             description: >
                 Get a rating, all ratings or average rating for a resource or for a resource group
             x-codeSamples:
+                -
+                    lang: cURL
+                    label: 'get user rating'
+                    source: |
+                        curl --location --request GET 'http://localhost:8080/consumer/ratings?id=datakaveri.org/1022f4c20542abd5087107c0b6de4cb3130c5b7b/rs.iudx.io/sqtc-test-group-1/FWR015' --header 'token: <consumer-token>'
 
                 -
                     lang: cURL
@@ -1492,7 +1497,7 @@ paths:
         delete:
             tags:
                 - Consumer
-            operationId: delete-rating-object
+            operationId: delete rating object
             parameters:
                 -
                     name: id
@@ -1550,7 +1555,7 @@ paths:
                             Instance API creates, updates, deletes and lists the name, icon, cover and logo of each instance.
         post:
             tags:
-                - Mlayer - Instance
+                - Mlayer Instance
             parameters:
                 -
                     name: token
@@ -1569,7 +1574,7 @@ paths:
                         schema:
                             $ref: '#/components/schemas/exampleInstance'
                 required: true
-            operationId: create-instance
+            operationId: create instance
             responses:
                 '201':
                     content:
@@ -1603,7 +1608,7 @@ paths:
 
         put:
             tags:
-                - Mlayer - Instance
+                - Mlayer Instance
             parameters:
                 - name: id
                   description: |
@@ -1649,7 +1654,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/unAuthorizedAccess'
                     description: Unauthorized access
-            operationId: update-instance
+            operationId: update instance
             description: Update the instance of the middle layer
             x-codeSamples:
                 - lang: cURL
@@ -1662,7 +1667,7 @@ paths:
 
         get:
             tags:
-                - Mlayer - Instance
+                - Mlayer Instance
             responses:
                 '200':
                     content:
@@ -1670,7 +1675,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/successResponseForGettingInstance'
                     description: Success
-            operationId: get-instance
+            operationId: get instance
             description: >
                 Get list of all Instances
             x-codeSamples:
@@ -1681,7 +1686,7 @@ paths:
 
         delete:
             tags:
-                - Mlayer - Instance
+                - Mlayer Instance
             parameters:
                 - name: id
                   description: |
@@ -1699,7 +1704,7 @@ paths:
                       type: string
                   in: header
                   required: true
-            operationId: delete-instance
+            operationId: delete instance
             responses:
                 '200':
                     content:
@@ -1727,7 +1732,7 @@ paths:
             A catalogue administrator API to set a middle layer domain, which will be reflected on the catalogue UI.
         post:
             tags:
-                - Mlayer - Domain
+                - Mlayer Domain
             parameters:
                 - name: token
                   description: A valid DX Authorization token
@@ -1745,7 +1750,7 @@ paths:
                         schema:
                             $ref: '#/components/schemas/exampleDomain'
                 required: true
-            operationId: create-domain
+            operationId: create domain
             responses:
                 '201':
                     content:
@@ -1778,7 +1783,7 @@ paths:
 
         put:
             tags:
-                - Mlayer - Domain
+                - Mlayer Domain
             parameters:
                 - name: id
                   description: |
@@ -1797,7 +1802,7 @@ paths:
                       type: string
                   in: header
                   required: true
-            operationId: update-domain
+            operationId: update domain
 
 
             requestBody:
@@ -1839,7 +1844,7 @@ paths:
 
         get:
             tags:
-                - Mlayer - Domain
+                - Mlayer Domain
             responses:
                 '200':
                     content:
@@ -1847,7 +1852,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/successResponseForGettingDomain'
                     description: Success
-            operationId: get-domain
+            operationId: get domain
             description: >
                 Get list of all Data-model Domains.
             x-codeSamples:
@@ -1858,7 +1863,7 @@ paths:
 
         delete:
             tags:
-                - Mlayer - Domain
+                - Mlayer Domain
             parameters:
                 - name: id
                   description: |
@@ -1890,7 +1895,7 @@ paths:
                                 $ref: '#/components/schemas/unAuthorizedAccess'
                     description: Unauthorized access
             description: delete a data model domain
-            operationId: delete-domain
+            operationId: delete domain
             x-codeSamples:
                 - lang: cURL
                   label: 'delete domain'
@@ -1911,7 +1916,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/successResponseForUIProvider'
                     description: Success
-            operationId: get-providers
+            operationId: get providers
             description: >
                 A catalogue API to list all providers, which will be reflected on the catalogue UI.
             x-codeSamples:
@@ -1944,7 +1949,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/errorResponseForCreatingInstance'
                     description: Invalid document
-            operationId: get-map-view
+            operationId: get map view
             description: >
                 A catalogue API to get location of all resource groups whose id(s) are provided, which will be reflected on the catalogue UI.
             x-codeSamples:
@@ -1958,7 +1963,7 @@ paths:
             A catalogue API to fetch details of the dataset, which will be reflected on the catalogue UI.
         get:
             tags:
-                - Mlayer - Dataset
+                - Mlayer Dataset
             responses:
                 200:
                     content:
@@ -1966,7 +1971,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/successResponseForGettingDatasets'
                     description: Successfully inserted
-            operationId: get-datasets
+            operationId: get datasets
             description: >
                 Fetches details of all the datasets.
             x-codeSamples:
@@ -1976,7 +1981,7 @@ paths:
                       curl --location 'https://example-cat.com/iudx/cat/v1/internal/ui/dataset'
         post:
             tags:
-                - Mlayer - Dataset
+                - Mlayer Dataset
             parameters:
                 - name: id
                   description: |
@@ -1985,7 +1990,7 @@ paths:
                       type: string
                   in: query
                   required: true
-            operationId: get-dataset-with-resources
+            operationId: get dataset and its resources
             responses:
                 '200':
                     content:
@@ -2011,7 +2016,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/successResponseForPopularDatasets'
                     description: Success
-            operationId: UI-popularDatasets
+            operationId: get popular datasets
             description: >
                 A catalogue API to get data for the landing page, which will be reflected on the catalogue UI.
                 <br>
@@ -2046,13 +2051,13 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/successResponseWithObjects'
                     description: Success
-                '400':
+                '404':
                     content:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/errorResponseForNlpSearch'
                     description: Bad Request
-            operationId: NLP-search
+            operationId: NLP search
             x-codeSamples:
                 - lang: cURL
                   label: 'search'
@@ -2252,15 +2257,11 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "id": "b8e43a3895373412725cd557730bcf8c6c60019b8092761a66248a927784cfbe"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - id: b8e43a3895373412725cd557730bcf8c6c60019b8092761a66248a927784cfbe
+
 
         successResponseForUIProvider:
             title: Response for list of providers
@@ -2286,17 +2287,12 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "totalHits": 10,
-                  "results": [
-                      {
-                          "description": "UI Test Provider-other",
-                          "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 10
+                results:
+                    - description: UI Test Provider-other
+                      id: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f
 
         listTypesSuccessResponse:
             title: Response for list with instance type
@@ -2322,17 +2318,14 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "totalHits": 5,
-                  "results": [
-                      "10",
-                      "pune",
-                      "stqc",
-                      "surat"
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 5
+                results:
+                    - '10'
+                    - pune
+                    - stqc
+                    - surat
 
         successResponseForGeoLocations:
             title: Response for get geolocations
@@ -2358,27 +2351,22 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "totalHits": 3,
-                  "results": [
-                      {
-                          "name": "Mallesvaram",
-                          "country": "India",
-                          "region": "Karnataka",
-                          "county": "Bangalore",
-                          "locality": "Bangalore",
-                          "borough": "West Bangalore",
-                          "bbox": [
-                              77.563072,
-                              12.968362,
-                              77.573072,
-                              12.978362
-                          ]
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 3
+                results:
+                    - name: Mallesvaram
+                      country: India
+                      region: Karnataka
+                      county: Bangalore
+                      locality: Bangalore
+                      borough: West Bangalore
+                      bbox:
+                          - 77.563072
+                          - 12.968362
+                          - 77.573072
+                          - 12.978362
+
         successResponseForCreatingInstance:
             title: Response for creating an instance
             description: Example success response for creating the given instance
@@ -2399,16 +2387,12 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "id": "191e35e3-99c2-43a5-ba8d-811a756b08de",
-                          "detail": "Instance created Sucesssfully"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - id: 191e35e3-99c2-43a5-ba8d-811a756b08de
+                      detail: Instance created Sucesssfully
+
         successResponseForGetInstance:
             title: Response for getting instance
             description: Example success response for getting DX Catalogue instances
@@ -2429,21 +2413,19 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "totalHits": 9,
-                  "results": [
-                      "10",
-                      "abcd",
-                      "bengaluru",
-                      "mumbai",
-                      "poone",
-                      "pune",
-                      "stqc",
-                      "surat"
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 9
+                results:
+                    - '10'
+                    - abcd
+                    - bengaluru
+                    - mumbai
+                    - poone
+                    - pune
+                    - stqc
+                    - surat
+
         successResponseForUpdatingInstance:
             title: Response for updating an instance
             description: Example success response for updating the given instance
@@ -2464,16 +2446,12 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "id": "191e35e3-99c2-43a5-ba8d-811a756b08de",
-                          "detail": "Instance Updated Successfully"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - id: 191e35e3-99c2-43a5-ba8d-811a756b08de
+                      detail: Instance Updated Successfully
+
 
         successResponseForGettingInstance:
             title: Response for getting an instance
@@ -2499,20 +2477,16 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "totalHits": 1,
-                  "results": [
-                      {
-                          "cover": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpeg",
-                          "instanceId": "191e35e3-99c2-43a5-ba8d-811a756b08de",
-                          "name": "lucknow",
-                          "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg",
-                          "logo": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 1
+                results:
+                    - cover: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpeg
+                      instanceId: 191e35e3-99c2-43a5-ba8d-811a756b08de
+                      name: lucknow
+                      icon: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg
+                      logo: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg
+
 
         successResponseForDeletingInstance:
             title: Response for deleting an instance
@@ -2534,16 +2508,12 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "id": "191e35e3-99c2-43a5-ba8d-811a756b08de",
-                          "detail": "Instance deleted Successfully"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - id: 191e35e3-99c2-43a5-ba8d-811a756b08de
+                      detail: Instance deleted Successfully
+
 
         successResponseForCreatingDomain:
             title: Response for creating a domain
@@ -2565,16 +2535,12 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "id": "3d73067f-2855-4155-b918-14d621b7a576",
-                          "detail": "domain Created Successfully"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - id: 3d73067f-2855-4155-b918-14d621b7a576
+                      detail: domain Created Successfully
+
 
         successResponseForUpdatingDomain:
             title: Response for updating a domain
@@ -2596,16 +2562,12 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "id": "3d73067f-2855-4155-b918-14d621b7a576",
-                          "detail": "Domain Updated Successfully"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - id: 3d73067f-2855-4155-b918-14d621b7a576
+                      detail: Domain Updated Successfully
+
 
         successResponseForGettingDomain:
             title: Response for getting a domain
@@ -2631,27 +2593,21 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "totalHits": 2,
-                  "results": [
-                      {
-                          "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/environment.png",
-                          "name": "environment",
-                          "description": "Data Models that pertain to environment domain",
-                          "label": "Environment",
-                          "domainId": "143db678-0816-4bb5-999d-b62ac0ca1b4b"
-                      },
-                      {
-                          "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.jpeg",
-                          "name": "civic",
-                          "description": "Data Models that pertain to civic domain",
-                          "label": "Civic",
-                          "domainId": "3d73067f-2855-4155-b918-14d621b7a576"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 2
+                results:
+                    - icon: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/environment.png
+                      name: environment
+                      description: Data Models that pertain to environment domain
+                      label: Environment
+                      domainId: 143db678-0816-4bb5-999d-b62ac0ca1b4b
+                    - icon: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.jpeg
+                      name: civic
+                      description: Data Models that pertain to civic domain
+                      label: Civic
+                      domainId: 3d73067f-2855-4155-b918-14d621b7a576
+
 
         successResponseForDeletingDomain:
             title: Response for deleting a domain
@@ -2673,16 +2629,12 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "id": "3d73067f-2855-4155-b918-14d621b7a576",
-                          "detail": "Domain deleted Successfully"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - id: 3d73067f-2855-4155-b918-14d621b7a576
+                      detail: Domain deleted Successfully
+
 
 
 
@@ -2710,17 +2662,47 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "totalHits": 1,
-                  "results": [
-                      {
-                          "rating": 4.8,
-                          "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 1
+                results:
+                    - rating: 4.8
+                      id: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta
+
+        successResponseAvgRating:
+            title: Success response for average rating
+            description: Example response for get average ratings
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        URN type of the response indicating if the query was successful or if any errors have
+                        been triggered.
+                    type: string
+                title:
+                    description: A human readable title to the message response.
+                totalHits:
+                    format: int32
+                    description: Total number of documents which matched the query
+                    type: integer
+                results:
+                    description: Results which matched the query. This is an array of objects
+                    type: array
+                    items:
+                        type: object
+            example:
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 6
+                results:
+                    - id: datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b/rs.iudx.io/pune-env-flood/FWR053
+                      totalRatings: '1'
+                      average_rating: 4.099999904632568
+                    - id: datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b/rs.iudx.io/pune-env-flood/FWR057
+                      totalRatings: '1'
+                      average_rating: 4.599999904632568
 
         successResponseCreateInstance:
             title: Response for list with instance type
@@ -2740,16 +2722,12 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "results": [
-                      {
-                          "id": "Bengaluru",
-                          "method": "insert",
-                          "title": "urn:dx:cat:Success"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                results:
+                    - id: Bengaluru
+                      method: insert
+                      title: urn:dx:cat:Success
+
 
         successResponseForDeleteInstance:
             title: Response for list with instance type
@@ -2772,17 +2750,13 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "id": "Bengaluru",
-                          "method": "delete",
-                          "title": "urn:dx:cat:Success"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - id: Bengaluru
+                      method: delete
+                      title: urn:dx:cat:Success
+
 
         successResponseForUpdateRating:
             title: Response for update rating
@@ -2805,15 +2779,11 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "id": "b8e43a3895373412725cd557730bcf8c6c60019b8092761a66248a927784cfbe"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - id: b8e43a3895373412725cd557730bcf8c6c60019b8092761a66248a927784cfbe
+
 
         successResponseForConsumerRating:
             title: Response for list with instance type
@@ -2836,17 +2806,13 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "id": "b8e43a3895373412725cd557730bcf8c6c60019b8092761a66248a927784cfbe",
-                          "method": "insert",
-                          "title": "urn:dx:cat:Success"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - id: b8e43a3895373412725cd557730bcf8c6c60019b8092761a66248a927784cfbe
+                      method: insert
+                      title: urn:dx:cat:Success
+
         successResponseForRelationship:
             title: Response for relationship search
             description: Given the type of relationship is Provider mentioned in query param
@@ -2871,37 +2837,28 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "totalHits": 1,
-                  "results": [
-                      {
-                          "@context": "https://voc.iudx.org.in/",
-                          "type": [
-                              "iudx:Provider"
-                          ],
-                          "id": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc",
-                          "name": "testProvider",
-                          "description": "Test Provider",
-                          "providerOrg": {
-                              "name": "testorg",
-                              "additionalInfoURL": "https://test.in",
-                              "location": {
-                                  "type": "Place",
-                                  "address": "bangalore",
-                                  "geometry": {
-                                      "type": "Point",
-                                      "coordinates": [
-                                          75.92,
-                                          14.5
-                                      ]
-                                  }
-                              }
-                          }
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 1
+                results:
+                    - '@context': https://voc.iudx.org.in/
+                      type:
+                          - iudx:Provider
+                      id: datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc
+                      name: testProvider
+                      description: Test Provider
+                      providerOrg:
+                          name: testorg
+                          additionalInfoURL: https://test.in
+                          location:
+                              type: Place
+                              address: bangalore
+                              geometry:
+                                  type: Point
+                                  coordinates:
+                                      - 75.92
+                                      - 14.5
+
 
         successResponseForGettingGeoquery:
             title: Response for getting dataset locations.
@@ -2927,23 +2884,18 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "totalHits": 3,
-                  "results": [
-                      {
-                          "instance": "pune",
-                          "location": {
-                              "address": "Agra",
-                              "type": "Place"
-                          },
-                          "label": "Civic Issues Reported from Swachhata App in Agra city",
-                          "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app",
-                          "doc_id": "29JqFYUBeAMS8LEaZWtM"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 3
+                results:
+                    - instance: pune
+                      location:
+                          address: Agra
+                          type: Place
+                      label: Civic Issues Reported from Swachhata App in Agra city
+                      id: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app
+                      doc_id: 29JqFYUBeAMS8LEaZWtM
+
 
         successResponseForGettingDatasets:
             title: Response for getting dataset locations.
@@ -2969,29 +2921,23 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "totalHits": 191,
-                  "results": [
-                      {
-                          "instance": "pune",
-                          "provider": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f",
-                          "label": "Civic Issues Reported from Swachhata App in Agra city",
-                          "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app",
-                          "accessPolicy": "SECURE",
-                          "tags": [
-                              "swachhata",
-                              "complaints",
-                              "reporting",
-                              "issue"
-                          ],
-                          "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg",
-                          "providerDescription": "UI Test Provider-other",
-                          "totalResources": 1
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                totalHits: 191
+                results:
+                    - instance: pune
+                      provider: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f
+                      label: Civic Issues Reported from Swachhata App in Agra city
+                      id: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app
+                      accessPolicy: SECURE
+                      tags:
+                          - swachhata
+                          - complaints
+                          - reporting
+                          - issue
+                      icon: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg
+                      providerDescription: UI Test Provider-other
+                      totalResources: 1
 
         successResponseForGettingDatasetResources:
             title: Response for getting dataset locations based on the dataset_id.
@@ -3013,75 +2959,53 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": [
-                      {
-                          "dataset": {
-                              "provider": {
-                                  "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f",
-                                  "description": "UI Test Provider-other"
-                              },
-                              "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm",
-                              "label": "Environment",
-                              "description": "Publishes realtime information of air pollutants from AQM sensors/ devices deployed in Pune city. It gives average values of air pollutant measures  like carbon monoxide, nitrogen dioxide, ozone, particulate matter etc., and also the associated environmental factors like temperature, humidity, illuminance over an time interval of 15 minutes. More details on the type of pollutant measured and units of measurement can be seen in the Data Descriptor.",
-                              "accessPolicy": "OPEN",
-                              "instance": "pune",
-                              "dataSample": {
-                                  "uv": {
-                                      "avgOverTime": 0.81
-                                  }
-                              },
-                              "dataSampleFile": [
-                                  {
-                                      "relationType": "REL_FILE",
-                                      "hasObject": "https://fs-sample-file-bucket.s3.ap-south-1.amazonaws.com/public-access/pune/pune-env-aqm.json",
-                                      "name": "Pune air quality monitoring data sample",
-                                      "description": "Sample file for Air quality monitoring devices/sensors in Pune city"
-                                  }
-                              ],
-                              "dataQualityFile": [
-                                  {
-                                      "relationType": "REL_FILE",
-                                      "hasObject": "https://fs-sample-file-bucket.s3.ap-south-1.amazonaws.com/public-access/pune/DataQuality/puneAQM_Jan22Feb22_DQReport.pdf",
-                                      "name": "Pune AQM Data Quality Report Jan-Feb2022",
-                                      "description": "Data quality report file for Air quality monitoring devices/sensors in Pune city for the time range between Jan-Feb2022."
-                                  }
-                              ],
-                              "dataDescriptor": {
-                                  "uv": {
-                                      "description": "Describes instantaneous and/or aggregated values for Ultraviolet (UV) radiation.",
-                                      "type": [
-                                          "TimeSeriesAggregation"
-                                      ],
-                                      "avgOverTime": {
-                                          "dataSchema": "iudx:Number",
-                                          "unitCode": "C62",
-                                          "description": "Average value of UV radiation for the last 15 minutes",
-                                          "type": [
-                                              "ValueDescriptor"
-                                          ]
-                                      }
-                                  },
-                                  "schema": "https://voc.iudx.org.in/EnvAQM",
-                                  "totalResources": 1,
-                                  "instance_icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg"
-                              },
-                              "resource": [
-                                  {
-                                      "resourceId": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm/c37c6979-6802-4a1c-c852-609b7706f5ba",
-                                      "label": "Environment",
-                                      "description": "Air quality monitoring devices (Bosch-Climo) in Pune city.",
-                                      "dataSample": null,
-                                      "dataDescriptor": null,
-                                      "resourceType": null
-                                  }
-                              ]
-                          }
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    - dataset:
+                          provider:
+                              id: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f
+                              description: UI Test Provider-other
+                          id: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm
+                          label: Environment
+                          description: Publishes realtime information of air pollutants from AQM sensors/ devices deployed in Pune city. It gives average values of air pollutant measures  like carbon monoxide, nitrogen dioxide, ozone, particulate matter etc., and also the associated environmental factors like temperature, humidity, illuminance over an time interval of 15 minutes. More details on the type of pollutant measured and units of measurement can be seen in the Data Descriptor.
+                          accessPolicy: OPEN
+                          instance: pune
+                          dataSample:
+                              uv:
+                                  avgOverTime: 0.81
+                          dataSampleFile:
+                              - relationType: REL_FILE
+                                hasObject: https://fs-sample-file-bucket.s3.ap-south-1.amazonaws.com/public-access/pune/pune-env-aqm.json
+                                name: Pune air quality monitoring data sample
+                                description: Sample file for Air quality monitoring devices/sensors in Pune city
+                          dataQualityFile:
+                              - relationType: REL_FILE
+                                hasObject: https://fs-sample-file-bucket.s3.ap-south-1.amazonaws.com/public-access/pune/DataQuality/puneAQM_Jan22Feb22_DQReport.pdf
+                                name: Pune AQM Data Quality Report Jan-Feb2022
+                                description: Data quality report file for Air quality monitoring devices/sensors in Pune city for the time range between Jan-Feb2022.
+                          dataDescriptor:
+                              uv:
+                                  description: Describes instantaneous and/or aggregated values for Ultraviolet (UV) radiation.
+                                  type:
+                                      - TimeSeriesAggregation
+                                  avgOverTime:
+                                      dataSchema: iudx:Number
+                                      unitCode: C62
+                                      description: Average value of UV radiation for the last 15 minutes
+                                      type:
+                                          - ValueDescriptor
+                              schema: https://voc.iudx.org.in/EnvAQM
+                              totalResources: 1
+                              instance_icon: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg
+                          resource:
+                              - resourceId: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm/c37c6979-6802-4a1c-c852-609b7706f5ba
+                                label: Environment
+                                description: Air quality monitoring devices (Bosch-Climo) in Pune city.
+                                dataSample: null
+                                dataDescriptor: null
+                                resourceType: null
+
         successResponseForPopularDatasets:
             title: Response for getting dataset locations.
             description: Example success response for getting datasets
@@ -3102,67 +3026,51 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "Success",
-                  "results": {
-                      "totalInstance": 4,
-                      "totalDomain": 1,
-                      "totalPublishers": 10,
-                      "totalDatasets": 191,
-                      "totalResources": 994,
-                      "domains": [
-                          {
-                              "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/environment.png",
-                              "name": "environment",
-                              "description": "Data Models that pertain to environment domain",
-                              "label": "Environment",
-                              "domainId": "143db678-0816-4bb5-999d-b62ac0ca1b4b"
-                          }
-                      ],
-                      "instance": [
-                          {
-                              "cover": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/agartala.jpg",
-                              "name": "agartala",
-                              "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/agartala.jpg"
-                          }
-                      ],
-                      "featuredDataset": [
-                          {
-                              "itemCreatedAt": "2020-09-28T08:07:06+0530",
-                              "instance": "surat",
-                              "provider": "Administrator of the IUDX platform",
-                              "description": "Realtime information for tracking public transit buses in Surat city.",
-                              "label": "Surat Realtime Bus Position Info",
-                              "accessPolicy": "SECURE",
-                              "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information",
-                              "type": [
-                                  "iudx:ResourceGroup",
-                                  "iudx:TransitManagement"
-                              ],
-                              "totalResources": 1,
-                              "icon": "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/surat.jpeg"
-                          }
-                      ],
-                      "latestDataset": [
-                          {
-                              "itemCreatedAt": "2023-03-09T09:08:20+0530",
-                              "instance": "surveyofindia",
-                              "provider": "Administrator of the IUDX platform",
-                              "description": "GIS Layers for roads, railways, water bodies and streams, vegetation and surveyed buildings in Bangalore",
-                              "label": "Features of interest in Bangalore",
-                              "id": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/geoserver.iudx.io/bangalore_features_of_interest",
-                              "accessPolicy": "SECURE",
-                              "type": [
-                                  "iudx:ResourceGroup",
-                                  "iudx:FeaturesOfInterest"
-                              ],
-                              "totalResources": 6,
-                              "icon": null
-                          }
-                      ]
-                  }
-              }
+                type: urn:dx:cat:Success
+                title: Success
+                results:
+                    totalInstance: 4
+                    totalDomain: 1
+                    totalPublishers: 10
+                    totalDatasets: 191
+                    totalResources: 994
+                    domains:
+                        - icon: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/environment.png
+                          name: environment
+                          description: Data Models that pertain to environment domain
+                          label: Environment
+                          domainId: 143db678-0816-4bb5-999d-b62ac0ca1b4b
+                    instance:
+                        - cover: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/agartala.jpg
+                          name: agartala
+                          icon: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/agartala.jpg
+                    featuredDataset:
+                        - itemCreatedAt: 2020-09-28T08:07:06+0530
+                          instance: surat
+                          provider: Administrator of the IUDX platform
+                          description: Realtime information for tracking public transit buses in Surat city.
+                          label: Surat Realtime Bus Position Info
+                          accessPolicy: SECURE
+                          id: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information
+                          type:
+                              - iudx:ResourceGroup
+                              - iudx:TransitManagement
+                          totalResources: 1
+                          icon: https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/surat.jpeg
+                    latestDataset:
+                        - itemCreatedAt: 2023-03-09T09:08:20+0530
+                          instance: surveyofindia
+                          provider: Administrator of the IUDX platform
+                          description: GIS Layers for roads, railways, water bodies and streams, vegetation and surveyed buildings in Bangalore
+                          label: Features of interest in Bangalore
+                          id: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/geoserver.iudx.io/bangalore_features_of_interest
+                          accessPolicy: SECURE
+                          type:
+                              - iudx:ResourceGroup
+                              - iudx:FeaturesOfInterest
+                          totalResources: 6
+                          icon: null
+
 
         updateItemResponse:
             title: Response for update Item
@@ -3184,17 +3092,13 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:Success",
-                  "title": "urn:dx:cat:Success",
-                  "results": [
-                      {
-                          "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_2",
-                          "method": "update",
-                          "title": "urn:dx:cat:Success"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:Success
+                title: urn:dx:cat:Success
+                results:
+                    - id: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_2
+                      method: update
+                      title: urn:dx:cat:Success
+
 
         errorResponseForDiscovery:
             title: Root Type for Discovery APIs
@@ -3271,11 +3175,10 @@ components:
                     description: Detailed description of the type or response
                     type: string
             example:
-              {
-                  "type": "urn:dx:cat:InvalidAuthorizationToken",
-                  "title": "Token is invalid",
-                  "detail": "failed"
-              }
+                type: urn:dx:cat:InvalidAuthorizationToken
+                title: Token is invalid
+                detail: Authorization failed, Invalid token.
+
 
         errorResponseForCreateInstance:
             title: Response for bad request
@@ -3294,11 +3197,10 @@ components:
                     description: Detailed description of the type or response
                     type: string
             example:
-              {
-                  "type": "urn:dx:cat:InvalidSyntax",
-                  "title": "Invalid Syntax",
-                  "detail": "id not present in the request"
-              }
+                type: urn:dx:cat:InvalidSyntax
+                title: Invalid Syntax
+                detail: id not present in the request
+
 
         errorResponseForDeleteInstance:
             title: Response for bad request
@@ -3319,18 +3221,14 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:ItemNotFound",
-                  "title": "Item is not found",
-                  "results": [
-                      {
-                          "id": "Abcd",
-                          "method": "delete",
-                          "title": "failed",
-                          "detail": "Fail: Doc doesn't exist, can't delete"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:ItemNotFound
+                title: Item is not found
+                results:
+                    - id: Abcd
+                      method: delete
+                      title: failed
+                      detail: 'Fail: Doc doesn''t exist, can''t delete'
+
 
         errorResponseForRelationship:
             title: Indicates bad request
@@ -3377,10 +3275,9 @@ components:
                 title:
                     description: A human readable title to the message response
             example:
-              {
-                  "type": "urn:dx:cat:InvalidSchema",
-                  "title": "Invalid Schema"
-              }
+                type: urn:dx:cat:InvalidSchema
+                title: Invalid Schema
+
 
         errorResponseForCreatingInstance:
             title: Example Response for creating or updating an instance or a domain or a geoquery
@@ -3396,11 +3293,10 @@ components:
                 title:
                     description: A human readable title to the message response
             example:
-              {
-                  "type": "urn:dx:cat:InvalidSchema",
-                  "title": "Invalid Schema",
-                  "detail": "The Schema of requested body is invalid."
-              }
+                type: urn:dx:cat:InvalidSchema
+                title: Invalid Schema
+                detail: The Schema of requested body is invalid.
+
 
 
 
@@ -3422,11 +3318,9 @@ components:
                     description: Detailed description of the type or response
                     type: string
             example:
-              {
-                  "type": "urn:dx:cat:InvalidSyntax",
-                  "title": "Invalid Syntax",
-                  "detail": "Wrong Item Type"
-              }
+                type: urn:dx:cat:InvalidSyntax
+                title: Invalid Syntax
+                detail: Wrong Item Type
 
 
         relSearchErrorResponse:
@@ -3443,10 +3337,9 @@ components:
                 title:
                     description: A human readable title to the message response
             example:
-              {
-                  "type": "urn:dx:cat:InvalidSyntax",
-                  "title": "Invalid Syntax"
-              }
+                type: urn:dx:cat:InvalidSyntax
+                title: Invalid Syntax
+
 
         errorResponseForNlpSearch:
             title: Root Type for standardResponse
@@ -3466,11 +3359,10 @@ components:
                     description: Detailed description of the type or response
                     type: string
             example:
-              {
-                  "type": "urn:dx:cat:InvalidSyntax",
-                  "title": "Invalid Syntax",
-                  "detail": "Failed to find coordinates"
-              }
+                type: urn:dx:cat:ItemNotFound
+                title: Item is not found
+                detail: Failed to find coordinates
+
 
         updateItemBadRequest:
             title: 400 Bad Request
@@ -3495,12 +3387,11 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:InvalidSchema",
-                  "title": "Invalid Schema",
-                  "detail": "Invalid Schema",
-                  "results": [ ]
-              }
+                type: urn:dx:cat:InvalidSchema
+                title: Invalid Schema
+                detail: Invalid Schema
+                results: []
+
 
         updateItemNotFound:
             title: 404 Not Found
@@ -3522,18 +3413,14 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:ItemNotFound",
-                  "title": "Item is not found",
-                  "results": [
-                      {
-                          "id": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_2abcdefg",
-                          "method": "update",
-                          "title": "failed",
-                          "detail": "Fail: Doc doesn't exist, can't update"
-                      }
-                  ]
-              }
+                type: urn:dx:cat:ItemNotFound
+                title: Item is not found
+                results:
+                    - id: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-point-of-interests/ppoi_2abcdefg
+                      method: update
+                      title: failed
+                      detail: 'Fail: Doc doesn''t exist, can''t update'
+
 
 
         errorResponseForGetEntity:
@@ -3560,12 +3447,11 @@ components:
                     items:
                         type: object
             example:
-              {
-                  "type": "urn:dx:cat:ItemNotFound",
-                  "title": "error",
-                  "totalHits": 0,
-                  "results": [ ]
-              }
+                type: urn:dx:cat:ItemNotFound
+                title: error
+                totalHits: 0
+                results: []
+
 
         exampleRating:
             title: Root Type for exampleRating
@@ -3645,12 +3531,12 @@ components:
                     type: string
                     description: name of the city/town from where the dataset belongs to
             example:
-              {
-                  "id": [ "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/faridabad-camera-feeds",
-                          "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app",
-                          "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/chennai-bike-docking-locations" ],
-                  "instance": "pune"
-              }
+                id:
+                    - datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/faridabad-camera-feeds
+                    - datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app
+                    - datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/chennai-bike-docking-locations
+                instance: pune
+
 
 
 tags:
@@ -3702,22 +3588,22 @@ tags:
             These apis consist of providers, geo-query and overview APIs
         x-displayName: MLayer
     -
-        name: Mlayer - Instance
+        name: Mlayer Instance
         description: >
             Catalogue middle layer specific APIs. 
             Instance refers to the name of the city/location.
-        x-displayName: Mlayer - Instance
+        x-displayName: Mlayer Instance
     -
-        name: Mlayer - Domain
+        name: Mlayer Domain
         description: >
             Catalogue middle layer specific APIs. 
             Catalogue has data-domain models that describes each of the domains.
-        x-displayName: Mlayer - Domain
+        x-displayName: Mlayer Domain
     -
-        name: Mlayer - Dataset
+        name: Mlayer Dataset
         description: >
             Catalogue middle layer specific API fetches all the datasets that belong to the Data Exchange
-        x-displayName: Mlayer - Dataset
+        x-displayName: Mlayer Dataset
     -
         name: NLP
         description: |

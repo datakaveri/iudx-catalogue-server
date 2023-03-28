@@ -252,7 +252,7 @@ public class MlayerApis {
                 new RespBuilder()
                     .withType(TYPE_TOKEN_INVALID)
                     .withTitle(TITLE_TOKEN_INVALID)
-                    .withDetail("Authorization failed, Invalid token.")
+                    .withDetail(DETAIL_INVALID_TOKEN)
                     .getResponse());
           }
         });

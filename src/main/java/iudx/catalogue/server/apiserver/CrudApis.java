@@ -168,7 +168,8 @@ public final class CrudApis {
               .end( new RespBuilder()
                           .withType(TYPE_TOKEN_INVALID)
                           .withTitle(TITLE_TOKEN_INVALID)
-                          .withDetail(authHandler.cause().getMessage()).getResponse());
+                          .withDetail(DETAIL_INVALID_TOKEN)
+                          .getResponse());
           } else {
             LOGGER.debug("Success: JWT Auth successful");
             /* Link Validating the request to ensure item correctness */
@@ -327,7 +328,7 @@ public final class CrudApis {
               .end( new RespBuilder()
                           .withType(TYPE_TOKEN_INVALID)
                           .withTitle(TITLE_TOKEN_INVALID)
-                          .withDetail(authHandler.cause().getMessage())
+                          .withDetail(DETAIL_INVALID_TOKEN)
                           .getResponse());
         } else {
           LOGGER.debug("Success: JWT Auth successful");
@@ -346,8 +347,13 @@ public final class CrudApis {
                         .end(dbHandler.result().toString());
               }
             } else if (dbHandler.failed()) {
-              response.setStatusCode(400)
+              if(dbHandler.cause().getMessage().contains(TYPE_ITEM_NOT_FOUND)) {
+                response.setStatusCode(404)
+                    .end(dbHandler.cause().getMessage());
+              } else {
+                response.setStatusCode(400)
                       .end(dbHandler.cause().getMessage());
+              }
             }
           });
         }
@@ -394,7 +400,7 @@ public final class CrudApis {
               .end( new RespBuilder()
                           .withType(TYPE_TOKEN_INVALID)
                           .withTitle(TITLE_TOKEN_INVALID)
-                          .withDetail(Constants.FAILED)
+                          .withDetail(DETAIL_INVALID_TOKEN)
                           .getResponse());
         return;
       }
@@ -448,7 +454,7 @@ public final class CrudApis {
             .end( new RespBuilder()
                         .withType(TYPE_TOKEN_INVALID)
                         .withTitle(TITLE_TOKEN_INVALID)
-                        .withDetail(Constants.FAILED)
+                        .withDetail(DETAIL_INVALID_TOKEN)
                         .getResponse());
         return;
       }
