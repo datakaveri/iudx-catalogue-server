@@ -220,7 +220,7 @@ public class Constants {
   public static final String DETAIL_INVALID_GEO_PARAMETER = "Missing/Invalid geo parameters";
   public static final String DETAIL_INVALID_RESPONSE_FILTER = "Missing/Invalid responseFilter parameters";
 
-  public static final String DETAIL_INVALID_TOKEN = "Check if token is valid";
+  public static final String DETAIL_INVALID_TOKEN = "Authorization failed, Invalid token.";
 
   public static final String TYPE_INVALID_PROPERTY_PARAM = "urn:dx:cat:InvalidProperty";
   public static final String TITLE_INVALID_PROPERTY_PARAM = "Invalid Property";
