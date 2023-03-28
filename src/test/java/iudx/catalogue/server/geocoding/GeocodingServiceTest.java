@@ -32,8 +32,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import static iudx.catalogue.server.geocoding.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.TITLE_INVALID_SYNTAX;
-import static iudx.catalogue.server.util.Constants.TYPE_INVALID_SYNTAX;
+import static iudx.catalogue.server.util.Constants.TITLE_ITEM_NOT_FOUND;
+import static iudx.catalogue.server.util.Constants.TYPE_ITEM_NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -216,8 +216,8 @@ public class GeocodingServiceTest {
         .send(any());
     geoService = new GeocodingServiceImpl(webClient, peliasUrl, peliasPort);
     JsonObject expected = new JsonObject();
-    expected.put("type", TYPE_INVALID_SYNTAX);
-    expected.put("title", TITLE_INVALID_SYNTAX);
+    expected.put("type", TYPE_ITEM_NOT_FOUND);
+    expected.put("title", TITLE_ITEM_NOT_FOUND);
     expected.put("detail", "Failed to find coordinates");
     geoService.geocoder(
         location,
