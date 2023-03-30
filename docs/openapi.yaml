@@ -1482,7 +1482,7 @@ paths:
                     lang: cURL
                     label: 'get user rating'
                     source: |
-                        curl --location --request GET 'http://localhost:8080/consumer/ratings?id=datakaveri.org/1022f4c20542abd5087107c0b6de4cb3130c5b7b/rs.iudx.io/sqtc-test-group-1/FWR015' --header 'token: <consumer-token>'
+                        curl --location --request GET 'http://example-cat.com/consumer/ratings?id=datakaveri.org/1022f4c20542abd5087107c0b6de4cb3130c5b7b/rs.iudx.io/sqtc-test-group-1/FWR015' --header 'token: <consumer-token>'
 
                 -
                     lang: cURL
@@ -1956,7 +1956,9 @@ paths:
                 - lang: cURL
                   label: 'get geoquery'
                   source: |
-                      curl --location 'https://example-cat.com/iudx/cat/v1/internal/ui/geoquery'
+                      curl --location --request POST 'https://example-cat.com/iudx/cat/v1/internal/ui/geoquery' \
+                      --header 'Content-Type: application/json' \
+                      --data-raw '<payload>'
 
     /internal/ui/dataset:
         description: >
@@ -1978,7 +1980,7 @@ paths:
                 - lang: cURL
                   label: 'get dataset'
                   source: |
-                      curl --location 'https://example-cat.com/iudx/cat/v1/internal/ui/dataset'
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/dataset'
         post:
             tags:
                 - Mlayer Dataset
@@ -2029,7 +2031,7 @@ paths:
                 - lang: cURL
                   label: 'get popularDatasets'
                   source: |
-                      curl --location 'https://example-cat.com/iudx/cat/v1/internal/ui/popularDatasets'
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/popularDatasets'
 
     /nlpsearch:
         description: >
