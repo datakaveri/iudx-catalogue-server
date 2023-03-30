@@ -1956,7 +1956,7 @@ paths:
                 - lang: cURL
                   label: 'get geoquery'
                   source: |
-                      curl --location --request POST ' https://example-cat.com/iudx/cat/v1/internal/ui/geoquery' \
+                      curl --location --request POST 'https://example-cat.com/iudx/cat/v1/internal/ui/geoquery' \
                       --header 'Content-Type: application/json' \
                       --data-raw '<payload>'
 
@@ -2031,7 +2031,7 @@ paths:
                 - lang: cURL
                   label: 'get popularDatasets'
                   source: |
-                      curl --location --request GET ' https://example-cat.com/iudx/cat/v1/internal/ui/popularDatasets'
+                      curl --location --request GET 'https://example-cat.com/iudx/cat/v1/internal/ui/popularDatasets'
 
     /nlpsearch:
         description: >
