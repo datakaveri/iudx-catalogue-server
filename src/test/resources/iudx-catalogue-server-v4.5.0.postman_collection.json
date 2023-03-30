@@ -8186,7 +8186,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\",159);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\",137);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8301,7 +8301,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 687);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\", 295);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8718,7 +8718,7 @@
 									"\r",
 									"pm.test(\"Check response count\", function() {\r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\",160);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\",78);\r",
 									"})"
 								],
 								"type": "text/javascript"
