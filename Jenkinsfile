@@ -97,7 +97,7 @@ pipeline {
           node('built-in') {
             script{
                publishHTML([allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true, reportDir: '/var/lib/jenkins/iudx/cat/Newman/report/', reportFiles: 'report.html', reportName: 'Integration Test Report', reportTitles: ''])
-               archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 8
+               archiveZap failHighAlerts: 1, failMediumAlerts: 1, failLowAlerts: 1
             }  
           }
         }
@@ -129,8 +129,8 @@ pipeline {
           steps {
             script {
               docker.withRegistry( registryUri, registryCredential ) {
-                devImage.push("4.5.0-alpha-${env.GIT_HASH}")
-                deplImage.push("4.5.0-alpha-${env.GIT_HASH}")
+                devImage.push("5.0.0-alpha-${env.GIT_HASH}")
+                deplImage.push("5.0.0-alpha-${env.GIT_HASH}")
               }
             }
           }
@@ -138,7 +138,7 @@ pipeline {
         stage('Docker Swarm deployment') {
           steps {
             script {
-              sh "ssh azureuser@docker-swarm 'docker service update cat_cat --image ghcr.io/datakaveri/cat-prod:4.5.0-alpha-${env.GIT_HASH}'"
+              sh "ssh azureuser@docker-swarm 'docker service update cat_cat --image ghcr.io/datakaveri/cat-prod:5.0.0-alpha-${env.GIT_HASH}'"
               sh 'sleep 10'
             }
           }
