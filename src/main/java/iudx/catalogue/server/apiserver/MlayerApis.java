@@ -10,14 +10,12 @@ import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.mlayer.MlayerService;
 import iudx.catalogue.server.util.Api;
-
 import iudx.catalogue.server.validator.ValidatorService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.*;
-
 import static iudx.catalogue.server.authenticator.Constants.METHOD;
 import static iudx.catalogue.server.authenticator.Constants.MLAYER_DOMAIN_ENDPOINT;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
@@ -48,7 +46,7 @@ public class MlayerApis {
   
 
   /**
-   * Create Mlayer Instance Handler
+   * Create Mlayer Instance Handler.
    *
    * @param routingContext {@link RoutingContext}
    */
@@ -112,7 +110,7 @@ public class MlayerApis {
   }
 
   /**
-   * Get mlayer instance handler
+   * Get mlayer instance handler.
    *
    * @param routingContext {@link RoutingContext}
    */
@@ -131,7 +129,7 @@ public class MlayerApis {
   }
 
   /**
-   * Delete Mlayer Instance Handler
+   * Delete Mlayer Instance Handler.
    *
    * @param routingContext {@link RoutingContext}
    */
@@ -174,6 +172,11 @@ public class MlayerApis {
             });
   }
 
+  /**
+   * Update Mlayer Instance Handler.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
   public void updateMlayerInstanceHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: Updating Mlayer Instance");
 
@@ -252,6 +255,11 @@ public class MlayerApis {
     return promise.future();
   }
 
+  /**
+   * Create Mlayer Domain Handler.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
   public void createMlayerDomainHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: Doamin Created");
 
@@ -308,6 +316,11 @@ public class MlayerApis {
             });
   }
 
+  /**
+   * Get Mlayer Domain Handler.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
   public void getMlayerDomainHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: fetching mlayer domains");
     HttpServerResponse response = routingContext.response();
@@ -321,6 +334,12 @@ public class MlayerApis {
           }
         });
   }
+
+  /**
+   * Update Mlayer Domain Handler.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
 
   public void updateMlayerDomainHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: Updating Mlayer Instance");
@@ -376,6 +395,12 @@ public class MlayerApis {
             });
   }
 
+  /**
+   * Delete Mlayer Domain Handler.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
+
   public void deleteMlayerDomainHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : deleting mlayer Domain");
 
@@ -416,7 +441,7 @@ public class MlayerApis {
   }
 
   /**
-   * Get mlayer providers handler
+   * Get mlayer providers handler.
    *
    * @param routingContext {@link RoutingContext}
    */
@@ -426,14 +451,19 @@ public class MlayerApis {
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerProviders(
             handler -> {
-                if (handler.succeeded()) {
-                    response.setStatusCode(200).end(handler.result().toString());
-                } else {
-                    response.setStatusCode(400).end(handler.cause().getMessage());
-                }
+              if (handler.succeeded()) {
+                response.setStatusCode(200).end(handler.result().toString());
+              } else {
+                response.setStatusCode(400).end(handler.cause().getMessage());
+              }
             });
   }
 
+  /**
+   * Get mlayer GeoQuery Handler.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
   public void getMlayerGeoQueryHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching location and label of datasets");
     JsonObject requestBody = routingContext.body().asJsonObject();
@@ -465,6 +495,11 @@ public class MlayerApis {
         });
   }
 
+  /**
+   * Get mlayer All Datasets Handler.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
   public void getMlayerAllDatasetsHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching all datasets that belong to IUDX");
     HttpServerResponse response = routingContext.response();
@@ -479,6 +514,11 @@ public class MlayerApis {
         });
   }
 
+  /**
+   * Get mlayer Dataset Handler.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
   public void getMlayerDatasetHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching details of the dataset");
     HttpServerResponse response = routingContext.response();
@@ -498,6 +538,11 @@ public class MlayerApis {
         });
   }
 
+  /**
+   * Get mlayer popular Datasets handler.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
   public void getMlayerPopularDatasetsHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching the data for the landing Page");
     HttpServerResponse response = routingContext.response();
