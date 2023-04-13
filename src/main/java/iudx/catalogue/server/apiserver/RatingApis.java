@@ -2,22 +2,26 @@ package iudx.catalogue.server.apiserver;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import iudx.catalogue.server.auditing.AuditingService;
-import iudx.catalogue.server.util.Api;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
+import iudx.catalogue.server.auditing.AuditingService;
+import iudx.catalogue.server.authenticator.AuthenticationService;
+import iudx.catalogue.server.rating.RatingService;
+import iudx.catalogue.server.util.Api;
+import iudx.catalogue.server.validator.ValidatorService;
+import java.time.ZonedDateTime;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.apiserver.util.Constants.MIME_APPLICATION_JSON;
 import static iudx.catalogue.server.auditing.util.Constants.*;
-import static iudx.catalogue.server.authenticator.Constants.TOKEN;
 import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
 import static iudx.catalogue.server.authenticator.Constants.RATINGS_ENDPOINT;
+import static iudx.catalogue.server.authenticator.Constants.TOKEN;
 import static iudx.catalogue.server.rating.util.Constants.*;
 import static iudx.catalogue.server.rating.util.Constants.USER_ID;
 import static iudx.catalogue.server.util.Constants.*;
@@ -26,12 +30,7 @@ import static iudx.catalogue.server.util.Constants.METHOD;
 import static iudx.catalogue.server.util.Constants.RESULTS;
 import static iudx.catalogue.server.util.Constants.STATUS;
 
-import iudx.catalogue.server.validator.ValidatorService;
-import iudx.catalogue.server.apiserver.util.RespBuilder;
-import iudx.catalogue.server.authenticator.AuthenticationService;
-import iudx.catalogue.server.rating.RatingService;
 
-import java.time.ZonedDateTime;
 
 public class RatingApis {
   private static final Logger LOGGER = LogManager.getLogger(RatingApis.class);
@@ -71,7 +70,7 @@ public class RatingApis {
   }
 
   /**
-   * Create Rating handler
+   * Create Rating handler.
    *
    * @param routingContext {@link RoutingContext}
    */
@@ -139,7 +138,7 @@ public class RatingApis {
   }
 
   /**
-   * GET Rating handler
+   * GET Rating handler.
    *
    * @param routingContext {@link RoutingContext}
    */
@@ -235,7 +234,7 @@ public class RatingApis {
   }
 
   /**
-   * Update Rating handler
+   * Update Rating handler.
    *
    * @param routingContext {@link RoutingContext}
    */
@@ -311,7 +310,7 @@ public class RatingApis {
   }
 
   /**
-   * Delete Rating handler
+   * Delete Rating handler.
    *
    * @param routingContext {@link RoutingContext}
    */
@@ -392,7 +391,7 @@ public class RatingApis {
   }
 
   /**
-   * function to handle call to audit service
+   * function to handle call to audit service.
    *
    * @param jwtDecodedInfo contains the user-role, user-id, iid
    * @param otherInfo contains item-id, api-endpoint and the HTTP method.

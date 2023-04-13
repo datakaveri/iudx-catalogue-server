@@ -3,29 +3,33 @@
  *
  * <h1>GeocodingApis.java</h1>
  *
- * Callback handlers for Geocoding APIs
+ *<p>Callback handlers for Geocoding APIs</p>
  */
+
 package iudx.catalogue.server.apiserver;
 
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
+import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.json.JsonArray;
+
+
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
-import iudx.catalogue.server.apiserver.util.RespBuilder;
 
-import iudx.catalogue.server.geocoding.GeocodingService;
 
 public final class GeocodingApis {
 
   private GeocodingService geoService;
   private static final Logger LOGGER = LogManager.getLogger(GeocodingApis.class);
   private Api api;
+
   public GeocodingApis(Api api) {
     this.api = api;
   }
@@ -35,7 +39,7 @@ public final class GeocodingApis {
   }
 
   /**
-   * Get bounding box for location
+   * Get bounding box for location.
    *
    * @param routingContext handles web requests in Vert.x Web
    */
@@ -106,7 +110,7 @@ public final class GeocodingApis {
   }
 
   /**
-   * Get location for coordinates
+   * Get location for coordinates.
    *
    * @param routingContext handles web requests in Vert.x Web
    */

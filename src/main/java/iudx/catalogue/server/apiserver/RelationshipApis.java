@@ -5,22 +5,20 @@
 
 package iudx.catalogue.server.apiserver;
 
+import io.vertx.core.MultiMap;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
+import iudx.catalogue.server.apiserver.util.QueryMapper;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
+import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
-import io.vertx.core.MultiMap;
-import iudx.catalogue.server.apiserver.util.RespBuilder;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.http.HttpServerResponse;
-
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
-import iudx.catalogue.server.database.DatabaseService;
-import iudx.catalogue.server.apiserver.util.QueryMapper;
 
 
 public final class RelationshipApis {
@@ -32,7 +30,7 @@ public final class RelationshipApis {
   private Api api;
 
   /**
-   * Crud  constructor
+   * Crud  constructor.
    *
    * @param DBService DataBase Service class
    * @return void

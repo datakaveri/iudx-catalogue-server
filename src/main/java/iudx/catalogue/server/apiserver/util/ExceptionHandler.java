@@ -6,15 +6,18 @@ import static iudx.catalogue.server.util.Constants.FAILED;
 import static iudx.catalogue.server.util.Constants.INSERT;
 import static iudx.catalogue.server.util.Constants.REQUEST_POST;
 import static iudx.catalogue.server.util.Constants.UPDATE;
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.Handler;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.RoutingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
+import io.vertx.ext.web.RoutingContext;
+
+
 
 public class ExceptionHandler implements Handler<RoutingContext> {
 
@@ -53,7 +56,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
     String response = "";
 
     if (routingContext.request().uri().startsWith(ROUTE_ITEMS)) {
-       response = new RespBuilder()
+      response = new RespBuilder()
            .withType(TYPE_FAIL)
            .withResult()
            .getResponse();
@@ -61,7 +64,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
       response = new JsonObject().put(STATUS, FAILED)
                                  .put(DESC, "Invalid Json Format")
                                  .encode();
-    } else if(routingContext.request().uri().startsWith(ROUTE_RATING)) {
+    } else if (routingContext.request().uri().startsWith(ROUTE_RATING)) {
       response = new RespBuilder()
           .withType(TYPE_INVALID_SCHEMA)
           .withTitle(TITLE_INVALID_SCHEMA)
@@ -81,7 +84,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
                             .getResponse();
     }
 
-  String INTERNAL_ERROR_RESP = new RespBuilder()
+    String INTERNAL_ERROR_RESP = new RespBuilder()
                                           .withType(TYPE_INTERNAL_SERVER_ERROR)
                                           .withTitle(TITLE_INTERNAL_SERVER_ERROR)
                                           .getResponse();
@@ -102,8 +105,8 @@ public class ExceptionHandler implements Handler<RoutingContext> {
    */
   public void handleClassCastException(RoutingContext routingContext) {
 
-    LOGGER.error("Error: Invalid request payload; " + 
-        routingContext.failure().getLocalizedMessage());
+    LOGGER.error("Error: Invalid request payload; "
+            + routingContext.failure().getLocalizedMessage());
     
     routingContext.response()
                   .setStatusCode(400)
