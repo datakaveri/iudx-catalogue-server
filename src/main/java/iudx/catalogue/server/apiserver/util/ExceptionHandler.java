@@ -76,7 +76,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
                             .withTitle(TITLE_INVALID_SYNTAX)
                             .getResponse();
     }
-    
+
   String internalErrorResp = new RespBuilder()
                                           .withType(TYPE_INTERNAL_SERVER_ERROR)
                                           .withTitle(TITLE_INTERNAL_SERVER_ERROR)
