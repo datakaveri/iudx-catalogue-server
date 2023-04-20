@@ -3,10 +3,7 @@ package iudx.catalogue.server.geocoding;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -27,7 +24,6 @@ import static iudx.catalogue.server.util.Constants.*;
 
 public class GeocodingVerticle extends AbstractVerticle {
 
-  private static final Logger LOGGER = LogManager.getLogger(GeocodingVerticle.class);
   private GeocodingService Geocoding;
   private String peliasUrl;
   private int peliasPort;

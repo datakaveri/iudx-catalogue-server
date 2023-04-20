@@ -4,7 +4,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
@@ -65,8 +64,8 @@ public class GeocodingServiceImpl implements GeocodingService {
                   feature = features.getJsonObject(i);
                   property = feature.getJsonObject(PROPERTIES);
                   resultEntry = generateGeocodingJson(property);
-                  if ((confidence < property.getDouble(CONFIDENCE) && resultArray.isEmpty())
-                      || (confidence == property.getDouble(CONFIDENCE))) {
+                  if (confidence < property.getDouble(CONFIDENCE) && resultArray.isEmpty()
+                      || confidence == property.getDouble(CONFIDENCE)) {
                     confidence = property.getDouble(CONFIDENCE);
                   } else if (confidence < property.getDouble(CONFIDENCE)
                       && !resultArray.isEmpty()) {

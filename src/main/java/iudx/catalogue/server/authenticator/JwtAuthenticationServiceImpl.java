@@ -42,7 +42,6 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
   final JWTAuth jwtAuth;
   final String audience;
-  private String endPoint;
   private Api api;
 
   JwtAuthenticationServiceImpl(Vertx vertx, final JWTAuth jwtAuth, final JsonObject config, final Api api) {
@@ -148,7 +147,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         response.put(IID, (jwtData.getIid().split(":")[1]).split("/")[0]
             +"/"+(jwtData.getIid().split(":")[1]).split("/")[1]);
       } else {
-        response.put(IID, (jwtData.getIid().split(":")[1]));
+        response.put(IID, jwtData.getIid().split(":")[1]);
       }
       promise.complete(response);
     } else {

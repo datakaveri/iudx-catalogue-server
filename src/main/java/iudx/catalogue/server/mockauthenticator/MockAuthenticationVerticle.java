@@ -3,8 +3,6 @@ package iudx.catalogue.server.mockauthenticator;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.client.WebClient;
@@ -30,8 +28,6 @@ import static iudx.catalogue.server.util.Constants.*;
 
 public class MockAuthenticationVerticle extends AbstractVerticle {
 
-
-  private static final Logger LOGGER = LogManager.getLogger(MockAuthenticationVerticle.class);
   private AuthenticationService authentication;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
@@ -75,7 +71,7 @@ public class MockAuthenticationVerticle extends AbstractVerticle {
     webClientOptions
             .setSsl(true)
             .setKeyStoreOptions(new JksOptions()
-                    .setPath(config.getString((KEYSTORE_PATH)))
+                    .setPath(config.getString(KEYSTORE_PATH))
                     .setPassword(config.getString(KEYSTORE_PASSWORD)));
     return WebClient.create(vertx, webClientOptions);
   }

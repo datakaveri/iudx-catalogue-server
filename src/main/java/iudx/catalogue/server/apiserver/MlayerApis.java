@@ -10,7 +10,6 @@ import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.mlayer.MlayerService;
 import iudx.catalogue.server.util.Api;
-import iudx.catalogue.server.util.Constants;
 
 import iudx.catalogue.server.validator.ValidatorService;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +21,6 @@ import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.METHOD;
 import static iudx.catalogue.server.authenticator.Constants.MLAYER_DOMAIN_ENDPOINT;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
-import static iudx.catalogue.server.rating.util.Constants.USER_ID;
 import static iudx.catalogue.server.util.Constants.*;
 
 public class MlayerApis {
@@ -490,7 +488,6 @@ public class MlayerApis {
     LOGGER.debug("Info : fetching details of the dataset");
     HttpServerResponse response = routingContext.response();
     HttpServerRequest request = routingContext.request();
-    JsonObject requestBody = routingContext.body().asJsonObject();
     String dataset_Id = request.getParam(ID);
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);

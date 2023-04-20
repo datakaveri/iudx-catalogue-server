@@ -1,8 +1,6 @@
 package iudx.catalogue.server.deploy;
 
 
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +19,6 @@ import io.vertx.core.Promise;
 public class ReDeployerDev extends AbstractVerticle {
 
   private static final Logger LOGGER = LogManager.getLogger(ReDeployerDev.class);
-  private static VertxOptions options;
 
   @Override
   public void start(Promise<Void> promise) throws Exception {

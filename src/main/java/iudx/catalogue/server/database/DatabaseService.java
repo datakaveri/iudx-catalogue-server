@@ -9,9 +9,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
-import io.vertx.ext.web.client.WebClient;
-
-import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 

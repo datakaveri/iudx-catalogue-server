@@ -17,8 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import static iudx.catalogue.server.util.Constants.*;
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import iudx.catalogue.server.apiserver.util.RespBuilder;
+
 
 /**
  * QueryMapper class to convert NGSILD query into json object for the purpose of debugrmation
@@ -149,8 +148,8 @@ public class QueryMapper {
             Double tempValue = Double.parseDouble(value);
             if (Double.isFinite(tempValue)) {
 
-              boolean isPrecise = (BigDecimal.valueOf(tempValue).scale() >= 0)
-                  && (BigDecimal.valueOf(tempValue).scale() <= COORDINATES_PRECISION);
+              boolean isPrecise = BigDecimal.valueOf(tempValue).scale() >= 0
+                  && BigDecimal.valueOf(tempValue).scale() <= COORDINATES_PRECISION;
 
               if (isPrecise == Boolean.FALSE) {
                 LOGGER.error("Error: Overflow coordinate precision");
@@ -175,7 +174,6 @@ public class QueryMapper {
         }
 
         String geometry = requestBody.getString(GEOMETRY, "");
-        boolean flag = true;
         int countStr = StringUtils.countMatches(coordinateStr.substring(0, 5), "[");
         if (geometry.equalsIgnoreCase(POLYGON) && countStr == 3) {
         } else if (geometry.equalsIgnoreCase(POINT) && countStr == 1) {

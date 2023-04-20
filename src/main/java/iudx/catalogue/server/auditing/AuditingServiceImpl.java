@@ -3,17 +3,12 @@ package iudx.catalogue.server.auditing;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
 import iudx.catalogue.server.auditing.util.QueryBuilder;
-import iudx.catalogue.server.auditing.util.ResponseBuilder;
 import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,7 +33,6 @@ public class AuditingServiceImpl implements AuditingService {
   PoolOptions poolOptions;
   PgPool pool;
   private final QueryBuilder queryBuilder = new QueryBuilder();
-  private JsonObject query = new JsonObject();
   private String databaseIP;
   private int databasePort;
   private String databaseName;
@@ -46,7 +40,6 @@ public class AuditingServiceImpl implements AuditingService {
   private String databasePassword;
   private int databasePoolSize;
   private String databaseTableName;
-  private ResponseBuilder responseBuilder;
   public static DataBrokerService rmqService;
 
   public AuditingServiceImpl(JsonObject propObj, Vertx vertxInstance) {

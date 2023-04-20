@@ -5,7 +5,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
-import io.vertx.pgclient.PgPool;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.database.postgres.PostgresService;

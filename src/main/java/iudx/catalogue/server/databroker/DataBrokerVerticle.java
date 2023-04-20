@@ -5,8 +5,6 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rabbitmq.RabbitMQClient;
 import io.vertx.serviceproxy.ServiceBinder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import io.vertx.rabbitmq.RabbitMQOptions;
 
 /**
@@ -23,7 +21,6 @@ import io.vertx.rabbitmq.RabbitMQOptions;
 public class DataBrokerVerticle extends AbstractVerticle {
 
   public static final String BROKER_SERVICE_ADDRESS = "iudx.catalogue.databroker.service";
-  private static final Logger LOGGER = LogManager.getLogger(DataBrokerVerticle.class);
 
   private DataBrokerService dataBrokerService;
   private RabbitMQOptions options;

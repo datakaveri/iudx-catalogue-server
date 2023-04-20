@@ -36,7 +36,6 @@ public class AuditingVerticle extends AbstractVerticle{
   private String databasePassword;
   private String databaseTableName;
   private int poolSize;
-  private PgConnectOptions config;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
   private AuditingService auditing;

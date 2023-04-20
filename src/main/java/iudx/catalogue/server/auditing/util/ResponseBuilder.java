@@ -1,6 +1,5 @@
 package iudx.catalogue.server.auditing.util;
 
-import static iudx.catalogue.server.auditing.util.Constants.DETAIL;
 import static iudx.catalogue.server.auditing.util.Constants.ERROR_TYPE;
 import static iudx.catalogue.server.auditing.util.Constants.FAILED;
 import static iudx.catalogue.server.auditing.util.Constants.RESULTS;

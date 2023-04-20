@@ -1,6 +1,5 @@
 package iudx.catalogue.server.geocoding;
 
-import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
@@ -46,7 +45,7 @@ public interface GeocodingService {
    * @param doc which is a JsonObject
    * @return address for the lat lon in doc
    */
-  public void geoSummarize(JsonObject doc, Handler<AsyncResult<String>> handler);
+  void geoSummarize(JsonObject doc, Handler<AsyncResult<String>> handler);
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.

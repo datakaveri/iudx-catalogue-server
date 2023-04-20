@@ -14,7 +14,6 @@ import io.vertx.serviceproxy.ServiceBinder;
 
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.auth.PubSecKeyOptions;
-import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 

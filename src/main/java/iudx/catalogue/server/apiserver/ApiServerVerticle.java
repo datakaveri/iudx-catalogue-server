@@ -10,14 +10,12 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.DecodeException;
 import iudx.catalogue.server.mlayer.MlayerService;
 import iudx.catalogue.server.rating.RatingService;
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import iudx.catalogue.server.apiserver.util.ExceptionHandler;
-import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.validator.ValidatorService;
@@ -68,7 +66,6 @@ public class ApiServerVerticle extends AbstractVerticle {
   private int port;
 
   private String dxApiBasePath;
-  private String dxAuthBasePath;
   private Api api;
 
   private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
@@ -84,7 +81,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     router = Router.router(vertx);
 
     dxApiBasePath = config().getString("dxApiBasePath");
-    dxAuthBasePath = config().getString("dxAuthBasePath");
     api = Api.getInstance(dxApiBasePath);
 
     /* Configure */

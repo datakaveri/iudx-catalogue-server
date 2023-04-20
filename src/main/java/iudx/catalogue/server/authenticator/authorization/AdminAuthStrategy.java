@@ -4,9 +4,7 @@ import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;

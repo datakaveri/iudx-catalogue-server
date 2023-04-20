@@ -1,8 +1,5 @@
 package iudx.catalogue.server.util;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.apiserver.util.Constants.ROUTE_MLAYER_POPULAR_DATASETS;
 
@@ -39,7 +36,6 @@ public class Api {
 
 
 
-    private static final Logger LOG = LogManager.getLogger(Api.class);
     private static volatile Api apiInstance;
 
     private Api(String dxApiBasePath) {

@@ -16,13 +16,8 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.auth.AuthScope;
-
-import java.util.Map;
-import java.util.HashMap;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 
 import static iudx.catalogue.server.database.Constants.*;
@@ -361,11 +356,11 @@ public final class ElasticClient {
           if (totalHits > 0 ) {
             JsonArray results = new JsonArray();
 
-                if ((options == SOURCE_ONLY)
-                    || (options == DOC_IDS_ONLY)
-                    || (options == SOURCE_AND_ID)
-                    || (options == SOURCE_AND_ID_GEOQUERY)
-                    || (options == DATASET)) {
+                if (options == SOURCE_ONLY
+                    || options == DOC_IDS_ONLY
+                    || options == SOURCE_AND_ID
+                    || options == SOURCE_AND_ID_GEOQUERY
+                    || options == DATASET) {
                   if (responseJson.getJsonObject(HITS).containsKey(HITS)) {
                     results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
                   }
