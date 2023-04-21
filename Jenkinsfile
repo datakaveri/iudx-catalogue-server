@@ -60,6 +60,13 @@ pipeline {
             sh 'sleep 45'
         }
       }
+      post{
+        failure{
+          script{
+            sh 'docker compose down --remove-orphans'
+          }
+        }
+      }
     }
     
     stage('Run Jmeter Performance Tests'){
