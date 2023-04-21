@@ -28,7 +28,7 @@ pipeline {
     stage('Unit Tests and CodeCoverage Test'){
       steps{
         script{
-          sh 'docker-compose up test'
+          sh 'docker compose up test'
         }
         xunit (
           thresholds: [ skipped(failureThreshold: '6'), failed(failureThreshold: '0') ],
@@ -39,7 +39,7 @@ pipeline {
       post{
         failure{
           script{
-            sh 'docker-compose down --remove-orphans'
+            sh 'docker compose down --remove-orphans'
           }
           error "Test failure. Stopping pipeline execution!"
         }
@@ -56,8 +56,15 @@ pipeline {
         script{
             sh 'scp Jmeter/CatalogueServer.jmx jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Jmeter/'
             sh 'scp src/test/resources/iudx-catalogue-server-v4.5.0.postman_collection.json jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Newman/'
-            sh 'docker-compose up -d perfTest'
+            sh 'docker compose up -d perfTest'
             sh 'sleep 45'
+        }
+      }
+      post{
+        failure{
+          script{
+            sh 'docker compose down --remove-orphans'
+          }
         }
       }
     }
@@ -74,7 +81,7 @@ pipeline {
       post{
         failure{
           script{
-            sh 'docker-compose down --remove-orphans'
+            sh 'docker compose down --remove-orphans'
           }
           error "Test failure. Stopping pipeline execution!"
         }
@@ -103,7 +110,7 @@ pipeline {
         }
         cleanup{
           script{
-            sh 'docker-compose down --remove-orphans'
+            sh 'docker compose down --remove-orphans'
           } 
         }
       }
