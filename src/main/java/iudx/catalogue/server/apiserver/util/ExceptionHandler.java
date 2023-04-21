@@ -77,7 +77,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
                             .getResponse();
     }
 
-  String INTERNAL_ERROR_RESP = new RespBuilder()
+  String internalErrorResp = new RespBuilder()
                                           .withType(TYPE_INTERNAL_SERVER_ERROR)
                                           .withTitle(TITLE_INTERNAL_SERVER_ERROR)
                                           .getResponse();
@@ -85,7 +85,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
     routingContext.response()
                   .setStatusCode(500)
                   .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                  .end(INTERNAL_ERROR_RESP);
+                  .end(internalErrorResp);
     
     routingContext.next();
 

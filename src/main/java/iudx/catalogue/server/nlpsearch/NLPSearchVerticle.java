@@ -24,7 +24,7 @@ import static iudx.catalogue.server.util.Constants.*;
 
 public class NLPSearchVerticle extends AbstractVerticle {
 
-  private NLPSearchService NlpSearch;
+  private NLPSearchService nlpSearch;
   private String nlpServiceUrl;
   private int nlpServicePort;
   private ServiceBinder binder;
@@ -43,11 +43,11 @@ public class NLPSearchVerticle extends AbstractVerticle {
     binder = new ServiceBinder(vertx);
     nlpServiceUrl = config().getString("nlpServiceUrl");
     nlpServicePort = config().getInteger("nlpServicePort");
-    NlpSearch = new NLPSearchServiceImpl(createWebClient(vertx, config()),
+    nlpSearch = new NLPSearchServiceImpl(createWebClient(vertx, config()),
                                           nlpServiceUrl, nlpServicePort);
     consumer =
         binder.setAddress(NLP_SERVICE_ADDRESS)
-      .register(NLPSearchService.class, NlpSearch);
+      .register(NLPSearchService.class, nlpSearch);
   }
 
   static WebClient createWebClient(Vertx vertx, JsonObject config) {
@@ -57,7 +57,7 @@ public class NLPSearchVerticle extends AbstractVerticle {
   /**
    * Helper function to create a WebClient to talk to the nlpsearch server.
    * @param vertx the vertx instance
-   * @param properties the properties field of the verticle
+   * @param config the properties field of the verticle
    * @param testing a bool which is used to disable client side ssl checks for testing purposes
    * @return a web client initialized with the relevant client certificate
    */

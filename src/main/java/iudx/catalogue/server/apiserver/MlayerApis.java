@@ -66,17 +66,17 @@ public class MlayerApis {
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    JsonObject jwtAuthenticationInfo = new JsonObject();
+    JsonObject jwtAuthInfo = new JsonObject();
 
-    jwtAuthenticationInfo
+    jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_POST)
         .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
         .put(ID, host);
 
-    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
+    Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
 
-    authenticationFuture
+    authFuture
         .onSuccess(
             successHandler -> {
               validatorService.validateMlayerInstance(
@@ -148,16 +148,16 @@ public class MlayerApis {
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    JsonObject jwtAuthenticationInfo = new JsonObject();
+    JsonObject jwtAuthInfo = new JsonObject();
 
-    jwtAuthenticationInfo
+    jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_DELETE)
         .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
         .put(ID, host);
 
-    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
-    authenticationFuture
+    Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
+    authFuture
         .onSuccess(
             successHandler -> {
               String instanceId = request.getParam(MLAYER_ID);
@@ -188,15 +188,15 @@ public class MlayerApis {
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    JsonObject jwtAuthenticationInfo = new JsonObject();
-    jwtAuthenticationInfo
+    JsonObject jwtAuthInfo = new JsonObject();
+    jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_PUT)
         .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
         .put(ID, host);
 
-    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
-    authenticationFuture
+    Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
+    authFuture
         .onSuccess(
             successHandler -> {
               validatorService.validateMlayerInstance(
@@ -233,12 +233,12 @@ public class MlayerApis {
             });
   }
 
-  private Future<JsonObject> inspectToken(JsonObject jwtAuthenticationInfo) {
+  private Future<JsonObject> inspectToken(JsonObject jwtAuthInfo) {
     Promise<JsonObject> promise = Promise.promise();
 
     authService.tokenInterospect(
         new JsonObject(),
-        jwtAuthenticationInfo,
+        jwtAuthInfo,
         authHandler -> {
           if (authHandler.succeeded()) {
             LOGGER.debug("JWT Auth Successful");
@@ -266,14 +266,14 @@ public class MlayerApis {
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    JsonObject jwtAuthenticationInfo = new JsonObject();
-    jwtAuthenticationInfo
+    JsonObject jwtAuthInfo = new JsonObject();
+    jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_POST)
         .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
         .put(ID, host);
 
-    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
+    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthInfo);
     authenticationFuture
         .onSuccess(
             successHandler -> {
@@ -336,15 +336,15 @@ public class MlayerApis {
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    JsonObject jwtAuthenticationInfo = new JsonObject();
-    jwtAuthenticationInfo
+    JsonObject jwtAuthInfo = new JsonObject();
+    jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_PUT)
         .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
         .put(ID, host);
 
-    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
-    authenticationFuture
+    Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
+    authFuture
         .onSuccess(
             successHandler -> {
               validatorService.validateMlayerDomain(
@@ -389,15 +389,15 @@ public class MlayerApis {
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    JsonObject jwtAuthenticationInfo = new JsonObject();
+    JsonObject jwtAuthInfo = new JsonObject();
 
-    jwtAuthenticationInfo
+    jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_DELETE)
         .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
         .put(ID, host);
 
-    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
+    Future<JsonObject> authenticationFuture = inspectToken(jwtAuthInfo);
     authenticationFuture
         .onSuccess(
             successHandler -> {
@@ -488,12 +488,12 @@ public class MlayerApis {
     LOGGER.debug("Info : fetching details of the dataset");
     HttpServerResponse response = routingContext.response();
     HttpServerRequest request = routingContext.request();
-    String dataset_Id = request.getParam(ID);
+    String datasetId = request.getParam(ID);
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     mlayerService.getMlayerDataset(
-        dataset_Id,
+        datasetId,
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());

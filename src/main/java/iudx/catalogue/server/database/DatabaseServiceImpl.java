@@ -45,7 +45,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   private String mlayerInstanceIndex;
   private String mlayerDomainIndex;
 
-  private static String INTERNAL_ERROR_RESP = new RespBuilder()
+  private static String internalErrorResp = new RespBuilder()
       .withType(TYPE_INTERNAL_SERVER_ERROR)
       .withTitle(TITLE_INTERNAL_SERVER_ERROR)
       .withDetail(DETAIL_INTERNAL_SERVER_ERROR)
@@ -128,7 +128,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB Request;" + searchRes.cause().getMessage());
-        handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+        handler.handle(Future.failedFuture(internalErrorResp));
       }
     });
     return this;
@@ -142,7 +142,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB request;" + searchRes.cause().getMessage());
-        handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+        handler.handle(Future.failedFuture(internalErrorResp));
       }
     });
     return this;
@@ -199,7 +199,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     /* Validate the Request */
     if (!request.containsKey(SEARCH_TYPE)) {
-      handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+      handler.handle(Future.failedFuture(internalErrorResp));
       return null;
     }
 
@@ -220,7 +220,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         handler.handle(Future.succeededFuture(searchRes.result()));
       } else {
         LOGGER.error("Fail: DB Request;" + searchRes.cause().getMessage());
-        handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+        handler.handle(Future.failedFuture(internalErrorResp));
       }
     });
     return this;
@@ -357,7 +357,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         client.searchGetId(checkQuery, docIndex, checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
             return;
           }
           if (checkRes.succeeded()) {
@@ -378,7 +378,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                         .withTitle(TYPE_SUCCESS)
                         .withResult(id, UPDATE, TYPE_SUCCESS).getJsonResponse()));
               } else {
-                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                handler.handle(Future.failedFuture(internalErrorResp));
                 LOGGER.error("Fail: Updation failed;" + putRes.cause());
               }
             });
@@ -417,7 +417,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         client.searchGetId(checkQuery, docIndex, checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause().getMessage());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           }
 
           if (checkRes.succeeded()) {
@@ -451,7 +451,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                       .withTitle(TITLE_SUCCESS)
                       .withResult(id, DELETE, TYPE_SUCCESS).getJsonResponse()));
             } else {
-              handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              handler.handle(Future.failedFuture(internalErrorResp));
               LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
             }
           });
@@ -654,12 +654,12 @@ public class DatabaseServiceImpl implements DatabaseService {
               handler.handle(Future.succeededFuture(relSearchRes.result()));
             } else if (relSearchRes.failed()) {
               LOGGER.error("Fail: DB request has failed;" + relSearchRes.cause().getMessage());
-              handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+              handler.handle(Future.failedFuture(internalErrorResp));
             }
           });
         } else {
           LOGGER.error("Fail: DB request has failed;" + searchRes.cause().getMessage());
-          handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+          handler.handle(Future.failedFuture(internalErrorResp));
         }
       });
     }
@@ -746,7 +746,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           } else {
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Doc doesn't exist, can't update");
@@ -777,7 +777,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                 .withResult(ratingId)
                                 .getJsonResponse()));
                   } else {
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    handler.handle(Future.failedFuture(internalErrorResp));
                     LOGGER.error("Fail: Updation failed;" + putRes.cause());
                   }
                 });
@@ -800,7 +800,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           } else {
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Doc doesn't exist, can't delete");
@@ -830,7 +830,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                 .withResult(ratingId)
                                 .getJsonResponse()));
                   } else {
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    handler.handle(Future.failedFuture(internalErrorResp));
                     LOGGER.error("Fail: Deletion failed;" + putRes.cause());
                   }
                 });
@@ -857,7 +857,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             handler.handle(Future.succeededFuture(result));
           } else {
             LOGGER.error("Fail: failed getting average rating: " + getRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           }
         });
 
@@ -882,7 +882,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             handler.handle(Future.succeededFuture(result));
           } else {
             LOGGER.error("Fail: failed getting rating: " + getRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           }
         });
     return this;
@@ -908,7 +908,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           } else {
             if (res.result().getInteger(TOTAL_HITS) != 0) {
               JsonObject json = new JsonObject(res.result().getJsonArray(RESULTS).getString(0));
-              String InstanceIDExists = json.getString(INSTANCE_ID);
+              String instanceIDExists = json.getString(INSTANCE_ID);
 
               handler.handle(
                   Future.failedFuture(
@@ -916,7 +916,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ALREADY_EXISTS)
                           .withTitle(TITLE_ALREADY_EXISTS)
                           .withResult(
-                              InstanceIDExists,  " Fail: Instance Already Exists")
+                              instanceIDExists,  " Fail: Instance Already Exists")
                           .getResponse()));
               return;
             }
@@ -959,7 +959,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             handler.handle(Future.succeededFuture(result));
           } else {
             LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           }
         });
     return this;
@@ -979,7 +979,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           } else {
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Instance doesn't exist, can't delete");
@@ -1009,7 +1009,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                     .withResult(instanceId,"Instance deleted Successfully")
                                     .getJsonResponse()));
                   } else {
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    handler.handle(Future.failedFuture(internalErrorResp));
                     LOGGER.error("Fail: Deletion failed;" + delRes.cause());
                   }
                 });
@@ -1031,7 +1031,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           } else {
             LOGGER.debug(checkRes.result());
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
@@ -1069,7 +1069,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                                           instanceId,"Instance Updated Successfully")
                                                   .getJsonResponse()));
                         } else {
-                          handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                          handler.handle(Future.failedFuture(internalErrorResp));
                           LOGGER.error("Fail: Updation failed" + putRes.cause());
                         }
                       });
@@ -1154,7 +1154,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             handler.handle(Future.succeededFuture(result));
           } else {
             LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           }
         });
     return this;
@@ -1173,7 +1173,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check Query Fail");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           } else {
             LOGGER.debug(checkRes.result());
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
@@ -1211,7 +1211,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                                           domainId,"Domain Updated Successfully")
                                                   .getJsonResponse()));
                         } else {
-                          handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                          handler.handle(Future.failedFuture(internalErrorResp));
                           LOGGER.error("Fail: Updation failed" + putRes.cause());
                         }
                       });
@@ -1245,7 +1245,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           } else {
             if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
               LOGGER.error("Fail: Domain doesn't exist, can't delete");
@@ -1275,7 +1275,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                     domainId, "Domain deleted Successfully")
                                 .getJsonResponse()));
                   } else {
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    handler.handle(Future.failedFuture(internalErrorResp));
                     LOGGER.error("Fail: Deletion failed;" + putRes.cause());
                   }
                 });
@@ -1297,7 +1297,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             handler.handle(Future.succeededFuture(result));
           } else {
             LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           }
         });
     return this;
@@ -1312,9 +1312,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     JsonArray id = request.getJsonArray("id");
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < id.size(); i++) {
-      String dataset_id = id.getString(i);
+      String datasetId = id.getString(i);
       String combinedQuery =
-          GET_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", dataset_id);
+          GET_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", datasetId);
       sb.append(combinedQuery).append(",");
     }
     sb.deleteCharAt(sb.length() - 1);
@@ -1329,7 +1329,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
           } else {
             LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           }
         });
 
@@ -1355,12 +1355,12 @@ public class DatabaseServiceImpl implements DatabaseService {
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
               String instance = record.getString(INSTANCE);
-              String provider_id = record.getString(PROVIDER);
+              String providerId = record.getString(PROVIDER);
               if (!instanceList.contains(instance) && !instanceList.equals(null)) {
                 instanceList.add(instance);
               }
-              if (!providerList.contains(provider_id)) {
-                providerList.add(provider_id);
+              if (!providerList.contains(providerId)) {
+                providerList.add(providerId);
               }
             }
             instanceList.remove(null);
@@ -1373,7 +1373,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               sb.append(combinedQuery).append(",");
             }
             sb.deleteCharAt(sb.length() - 1);
-            String get_icon_query = GET_MLAYER_INSTANCE_ICON_PATH.replace("$1", sb);
+            String getIconQuery = GET_MLAYER_INSTANCE_ICON_PATH.replace("$1", sb);
             // query to get provider description and total Resource
             StringBuilder sb1 = new StringBuilder();
 
@@ -1385,54 +1385,54 @@ public class DatabaseServiceImpl implements DatabaseService {
               sb1.append(combinedQuery).append(",");
             }
             sb1.deleteCharAt(sb1.length() - 1);
-            String get_provider_query = GET_MLAYER_PROVIDER_RESOURCE.replace("$1", sb1);
+            String getProviderQuery = GET_MLAYER_PROVIDER_RESOURCE.replace("$1", sb1);
             // Elastic client call to get instance icon paths.
             client.searchAsync(
-                get_icon_query,
+                getIconQuery,
                 mlayerInstanceIndex,
                 iconRes -> {
                   if (iconRes.succeeded()) {
                     Map<String, String> iconPath = new HashMap<String, String>();
-                    int iconRes_size = iconRes.result().getJsonArray(RESULTS).size();
-                    for (int i = 0; i < iconRes_size; i++) {
-                      JsonObject iconRes_record =
+                    int iconResSize = iconRes.result().getJsonArray(RESULTS).size();
+                    for (int i = 0; i < iconResSize; i++) {
+                      JsonObject iconResRecord =
                           iconRes.result().getJsonArray(RESULTS).getJsonObject(i);
-                      String instance_name = iconRes_record.getString("name");
-                      String icon = iconRes_record.getString("icon");
-                      iconPath.put(instance_name, icon);
+                      String instanceName = iconResRecord.getString("name");
+                      String icon = iconResRecord.getString("icon");
+                      iconPath.put(instanceName, icon);
                     }
 
                     // Elastic client call to get provider description and total resource.
                     client.searchAsync(
-                        get_provider_query,
+                        getProviderQuery,
                         docIndex,
                         providerRes -> {
                           if (providerRes.succeeded()) {
-                            Map<String, String> provider_description_list =
+                            Map<String, String> providerDescriptionList =
                                 new HashMap<String, String>();
                             Map<String, Integer> resourceGroupMap = new HashMap<>();
 
-                            int provider_description_size =
+                            int providerDescriptionSize =
                                 providerRes.result().getJsonArray(RESULTS).size();
-                            for (int i = 0; i < provider_description_size; i++) {
-                              JsonObject providerRes_record =
+                            for (int i = 0; i < providerDescriptionSize; i++) {
+                              JsonObject providerResRecord =
                                   providerRes.result().getJsonArray(RESULTS).getJsonObject(i);
-                              if (providerRes_record
+                              if (providerResRecord
                                   .getJsonArray(TYPE)
                                   .getString(0)
                                   .equals("iudx:Provider")) {
-                                String provider_id = providerRes_record.getString("id");
-                                String provider_description =
-                                    providerRes_record.getString("description");
-                                provider_description_list.put(provider_id, provider_description);
+                                String providerId = providerResRecord.getString("id");
+                                String providerDescription =
+                                    providerResRecord.getString("description");
+                                providerDescriptionList.put(providerId, providerDescription);
                               }
-                              if (providerRes_record
+                              if (providerResRecord
                                   .getJsonArray(TYPE)
                                   .getString(0)
                                   .equals("iudx:Resource")) {
 
                                 String resourceGroup =
-                                    providerRes_record.getString("resourceGroup");
+                                    providerResRecord.getString("resourceGroup");
                                 resourceGroupMap.merge(resourceGroup, 1, Integer::sum);
                               }
                             }
@@ -1450,7 +1450,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                   .getJsonObject(i)
                                   .put(
                                       "providerDescription",
-                                      provider_description_list.get(record.getString(PROVIDER)));
+                                      providerDescriptionList.get(record.getString(PROVIDER)));
                               resultHandler
                                   .result()
                                   .getJsonArray(RESULTS)
@@ -1463,20 +1463,20 @@ public class DatabaseServiceImpl implements DatabaseService {
                           } else {
 
                             LOGGER.error("Fail: query fail;" + providerRes.cause());
-                            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                            handler.handle(Future.failedFuture(internalErrorResp));
                           }
                         });
                   } else {
 
                     LOGGER.error("Fail: query fail;" + iconRes.cause());
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    handler.handle(Future.failedFuture(internalErrorResp));
                   }
                 });
 
           } else {
 
             LOGGER.error("Fail: query fail;" + resultHandler.cause());
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           }
         });
     return this;
@@ -1484,13 +1484,13 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService getMlayerDataset(
-      String dataset_id, Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.debug("dataset Id" + dataset_id);
-    int index = dataset_id.indexOf("/", dataset_id.indexOf("/") + 1);
-    String provider_id = dataset_id.substring(0, index);
-    LOGGER.debug("provider id " + provider_id);
+      String datasetId, Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.debug("dataset Id" + datasetId);
+    int index = datasetId.indexOf("/", datasetId.indexOf("/") + 1);
+    String providerId = datasetId.substring(0, index);
+    LOGGER.debug("provider id " + providerId);
 
-    String query = GET_MLAYER_DATASET.replace("$1", dataset_id).replace("$2", provider_id);
+    String query = GET_MLAYER_DATASET.replace("$1", datasetId).replace("$2", providerId);
     LOGGER.debug("Query " + query);
     client.searchAsyncDataset(
         query,
@@ -1498,32 +1498,32 @@ public class DatabaseServiceImpl implements DatabaseService {
         resultHandler -> {
           if (resultHandler.succeeded()) {
             LOGGER.debug("Success: Successful DB Request");
-            int resource_count = resultHandler.result().getInteger(TOTAL_HITS) - 2;
+            int resourceCount = resultHandler.result().getInteger(TOTAL_HITS) - 2;
             JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
-            record.getJsonObject("dataset").put("totalResources", resource_count);
+            record.getJsonObject("dataset").put("totalResources", resourceCount);
             resultHandler.result().remove(TOTAL_HITS);
 
-            String instance_name = record.getJsonObject("dataset").getString(INSTANCE);
-            String get_icon_query = GET_MLAYER_INSTANCE_ICON.replace("$1", instance_name);
+            String instanceName = record.getJsonObject("dataset").getString(INSTANCE);
+            String getIconQuery = GET_MLAYER_INSTANCE_ICON.replace("$1", instanceName);
             client.searchAsync(
-                get_icon_query,
+                getIconQuery,
                 mlayerInstanceIndex,
                 iconResultHandler -> {
                   if (iconResultHandler.succeeded()) {
                     LOGGER.debug("Success: Successful DB Request");
                     JsonObject resource =
                         iconResultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
-                    String instance_path = resource.getString("icon");
-                    record.getJsonObject("dataset").put("instance_icon", instance_path);
+                    String instancePath = resource.getString("icon");
+                    record.getJsonObject("dataset").put("instance_icon", instancePath);
                     handler.handle(Future.succeededFuture(resultHandler.result()));
                   } else {
                     LOGGER.error("Fail: failed DB request");
-                    handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                    handler.handle(Future.failedFuture(internalErrorResp));
                   }
                 });
           } else {
             LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            handler.handle(Future.failedFuture(internalErrorResp));
           }
         });
 
@@ -1599,7 +1599,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
               } else {
                 LOGGER.error("Fail: failed DB request");
-                handler.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+                handler.handle(Future.failedFuture(internalErrorResp));
               }
             });
     return this;
@@ -1631,7 +1631,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             instanceResult.complete(json);
           } else {
             LOGGER.error("Fail: failed DB request");
-            instanceResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            instanceResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
   }
@@ -1646,7 +1646,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             domainResult.complete(domainList);
           } else {
             LOGGER.error("Fail: failed DB request");
-            domainResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            domainResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
   }
@@ -1658,20 +1658,20 @@ public class DatabaseServiceImpl implements DatabaseService {
         getCatRecords -> {
           if (getCatRecords.succeeded()) {
             ArrayList<JsonObject> resourceGroupArray = new ArrayList<JsonObject>();
-            Map<String, Integer> resourceGroup_count = new HashMap<>();
-            Map<String, String> provider_description = new HashMap<>();
-            Map<String, Integer> type_count = new HashMap<>();
+            Map<String, Integer> resourceGroupCount = new HashMap<>();
+            Map<String, String> providerDescription = new HashMap<>();
+            Map<String, Integer> typeCount = new HashMap<>();
 
             for (int i = 0; i < getCatRecords.result().getJsonArray(RESULTS).size(); i++) {
               JsonObject record = getCatRecords.result().getJsonArray(RESULTS).getJsonObject(i);
               // getting count of all the resources in a resourceGroup
               if (record.getJsonArray(TYPE).getString(0).equals("iudx:Resource")) {
                 String resourceGroup = record.getString("resourceGroup");
-                if (resourceGroup_count.containsKey(resourceGroup)) {
-                  resourceGroup_count.put(
-                      resourceGroup, resourceGroup_count.get(resourceGroup) + 1);
+                if (resourceGroupCount.containsKey(resourceGroup)) {
+                  resourceGroupCount.put(
+                      resourceGroup, resourceGroupCount.get(resourceGroup) + 1);
                 } else {
-                  resourceGroup_count.put(resourceGroup, 1);
+                  resourceGroupCount.put(resourceGroup, 1);
                 }
               }
               // getting all resource group datasets in an arrayList
@@ -1680,16 +1680,16 @@ public class DatabaseServiceImpl implements DatabaseService {
               }
               // getting count of resource,resourceGroup and provider
               String type = record.getJsonArray(TYPE).getString(0);
-              if (type_count.containsKey(type)) {
-                type_count.put(type, type_count.get(type) + 1);
+              if (typeCount.containsKey(type)) {
+                typeCount.put(type, typeCount.get(type) + 1);
               } else {
-                type_count.put(type, 1);
+                typeCount.put(type, 1);
               }
               // getting provider description of all provider
               if (record.getJsonArray(TYPE).getString(0).equals("iudx:Provider")) {
                 String description = record.getString("description");
-                String provider_id = record.getString("id");
-                provider_description.put(provider_id, description);
+                String providerId = record.getString("id");
+                providerDescription.put(providerId, description);
               }
             }
             // sorting resource group based on the time of creation.
@@ -1717,10 +1717,10 @@ public class DatabaseServiceImpl implements DatabaseService {
               resource
                   .put(
                       "totalResources",
-                      resourceGroup_count.get(resourceGroupArray.get(i).getString("id")))
+                      resourceGroupCount.get(resourceGroupArray.get(i).getString("id")))
                   .put(
                       "provider",
-                      provider_description.get(resourceGroupArray.get(i).getString("provider")));
+                      providerDescription.get(resourceGroupArray.get(i).getString("provider")));
               latestResourceGroup.add(resource);
               resource = new JsonObject();
             }
@@ -1732,15 +1732,15 @@ public class DatabaseServiceImpl implements DatabaseService {
                     .get(i)
                     .getString("id")
                     .equals(highestCountResource.getJsonObject(j).getString("rgid"))) {
-                  String dataset_id = highestCountResource.getJsonObject(j).getString("rgid");
-                  int index = dataset_id.indexOf("/", dataset_id.indexOf("/") + 1);
-                  String provider_id = dataset_id.substring(0, index);
+                  String datasetId = highestCountResource.getJsonObject(j).getString("rgid");
+                  int index = datasetId.indexOf("/", datasetId.indexOf("/") + 1);
+                  String providerId = datasetId.substring(0, index);
                   JsonObject resource = resourceGroupArray.get(i);
                   resource
                       .put(
                           "totalResources",
-                          resourceGroup_count.get(resourceGroupArray.get(i).getString("id")))
-                      .put("provider", provider_description.get(provider_id));
+                          resourceGroupCount.get(resourceGroupArray.get(i).getString("id")))
+                      .put("provider", providerDescription.get(providerId));
 
                   featuredResourceGroup.add(resource);
                   resource = new JsonObject();
@@ -1752,13 +1752,13 @@ public class DatabaseServiceImpl implements DatabaseService {
             JsonObject jsonDataset =
                 new JsonObject()
                     .put("latestDataset", latestResourceGroup)
-                    .put("typeCount", type_count)
+                    .put("typeCount", typeCount)
                     .put("featuredDataset", featuredResourceGroup);
             datasetResult.complete(jsonDataset);
 
           } else {
             LOGGER.error("Fail: failed DB request");
-            datasetResult.handle(Future.failedFuture(INTERNAL_ERROR_RESP));
+            datasetResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
   }

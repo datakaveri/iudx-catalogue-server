@@ -15,6 +15,7 @@ services:
     volumes:
       - ./configs/config-depl.json:/usr/share/app/configs/config.json
       - ./configs/keystore.jks:/usr/share/app/configs/keystore.jks
+      - ./iudx-pmd-ruleset.xml:/usr/share/app/iudx-pmd-ruleset.xml
     depends_on:
       - "zookeeper"
     ports:

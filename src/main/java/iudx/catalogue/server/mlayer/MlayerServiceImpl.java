@@ -233,9 +233,9 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService getMlayerDataset(
-      String dataset_id, Handler<AsyncResult<JsonObject>> handler) {
+      String datasetId, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerDataset(
-        dataset_id,
+        datasetId,
         getMlayerDatasetHandler -> {
           if (getMlayerDatasetHandler.succeeded()) {
             LOGGER.info("Success: Getting details of dataset");

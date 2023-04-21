@@ -265,7 +265,7 @@ public final class ElasticClient {
    * docDelAsync - Wrapper around elasticsearch async doc delete request
    *
    * @param index Index to search on
-   * @param doc Document
+   * @param docId Document
    * @param resultHandler JsonObject
    * @TODO XPack Security
    */
@@ -400,9 +400,9 @@ public final class ElasticClient {
                     responseMsg.addResult(result);
                   }
                   if (options == SOURCE_AND_ID_GEOQUERY) {
-                    String doc_id = results.getJsonObject(i).getString(DOC_ID);
+                    String docId = results.getJsonObject(i).getString(DOC_ID);
                     JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
-                    source.put("doc_id",doc_id);
+                    source.put("doc_id",docId);
                     JsonObject result = new JsonObject();
                     result.mergeIn(source);
                     responseMsg.addResult(result);
@@ -410,7 +410,7 @@ public final class ElasticClient {
                 }
                 if (options == DATASET) {
                   JsonArray resource = new JsonArray();
-                  JsonObject dataset_detail = new JsonObject();
+                  JsonObject datasetDetail = new JsonObject();
                   JsonObject dataset = new JsonObject();
                   for (int i = 0; i < results.size(); i++) {
                     JsonObject record = results.getJsonObject(i).getJsonObject(SOURCE);
@@ -423,15 +423,15 @@ public final class ElasticClient {
                       dataset.put(PROVIDER, provider);
                     }
                     if (type.equals("iudx:Resource")) {
-                      JsonObject resource_json = new JsonObject();
-                      resource_json
+                      JsonObject resourceJson = new JsonObject();
+                      resourceJson
                           .put(RESOURCE_ID, record.getString(ID))
                           .put(LABEL, record.getString(LABEL))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
                           .put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE))
                           .put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR))
                           .put(RESOURCETYPE, record.getString(RESOURCETYPE));
-                      resource.add(resource_json);
+                      resource.add(resourceJson);
                     }
                     if (type.equals("iudx:ResourceGroup")) {
                       String schema =
@@ -453,9 +453,9 @@ public final class ElasticClient {
                           .put("schema", schema);
                     }
                   }
-                  dataset_detail.put("dataset", dataset);
-                  dataset_detail.put("resource", resource);
-                  responseMsg.addResult(dataset_detail);
+                  datasetDetail.put("dataset", dataset);
+                  datasetDetail.put("resource", resource);
+                  responseMsg.addResult(datasetDetail);
                 }
               } else {
                 responseMsg.addResult();
@@ -479,9 +479,6 @@ public final class ElasticClient {
    * countAsync - private function which perform performRequestAsync for count apis
    *
    * @param request Elastic Request
-   * @param options SOURCE - Source only
-   *                DOCIDS - DOCIDs only
-   *                IDS - IDs only
    * @TODO XPack Security
    * @TODO Can combine countAsync and searchAsync
    */

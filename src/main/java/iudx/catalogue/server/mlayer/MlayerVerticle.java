@@ -20,15 +20,15 @@ public class MlayerVerticle extends AbstractVerticle {
   private MlayerService mlayer;
   DatabaseService databaseService;
   PostgresService postgresService;
-  private String rs_table;
+  private String rsTable;
 
   @Override
   public void start() throws Exception {
     databaseService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
     postgresService = PostgresService.createProxy(vertx,PG_SERVICE_ADDRESS);
     binder = new ServiceBinder(vertx);
-    rs_table = config().getString("databaseTable");
-    mlayer = new MlayerServiceImpl(databaseService,postgresService,rs_table);
+    rsTable = config().getString("databaseTable");
+    mlayer = new MlayerServiceImpl(databaseService,postgresService,rsTable);
     consumer = binder.setAddress(MLAYER_SERVICE_ADDRESS).register(MlayerService.class, mlayer);
     LOGGER.info("Mlayer Service Started");}
 
