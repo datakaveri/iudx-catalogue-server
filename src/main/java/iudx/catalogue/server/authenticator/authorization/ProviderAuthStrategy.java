@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import iudx.catalogue.server.authenticator.model.JwtData;
 
 public class ProviderAuthStrategy implements AuthorizationStratergy{
-  private static final Logger LOGGER = LogManager.getLogger(ProviderAuthStrategy.class);
   static List<AuthorizationRequest> accessList = new ArrayList<>();
   private Api api;
   private static volatile ProviderAuthStrategy instance;

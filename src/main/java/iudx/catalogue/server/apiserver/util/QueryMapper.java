@@ -120,7 +120,7 @@ public class QueryMapper {
   /**
    * Validates the request parameters, headers to compliance with default values.
    *
-   * @param JsonObject requestBody
+   * @param requestBody which is a JsonObject
    * @return JsonObject having success and failure status
    */
   public static JsonObject validateQueryParam(JsonObject requestBody) {
@@ -262,13 +262,13 @@ public class QueryMapper {
     }
 
     /* Validating ResponseFilter limits */
-    if (searchType.contains(RESPONSE_FILTER)) {
-      if (requestBody.getJsonArray(FILTER, new JsonArray()).size() > FILTER_VALUE_SIZE) {
+    if (searchType.contains(RESPONSE_FILTER) && requestBody.getJsonArray(FILTER, new JsonArray()).size() > FILTER_VALUE_SIZE) {
+
         LOGGER.error("Error: The filter in query param has exceeded the limit");
         return errResponse
             .put(TYPE, TYPE_BAD_FILTER)
             .put(DESC, "The max number of 'filter' should be " + FILTER_VALUE_SIZE);
-      }
+
     }
 
     /* Validating length of instance header */

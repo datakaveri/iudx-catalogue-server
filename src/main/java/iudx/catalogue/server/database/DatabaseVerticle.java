@@ -24,7 +24,6 @@ import io.vertx.core.json.JsonObject;
  */
 public class DatabaseVerticle extends AbstractVerticle {
 
-  private static final Logger LOGGER = LogManager.getLogger(DatabaseVerticle.class);
   private DatabaseService database;
   private String databaseIP;
   private String docIndex;

@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Logger;
 import iudx.catalogue.server.authenticator.model.JwtData;
 
 public class DelegateAuthStrategy implements AuthorizationStratergy{
-  private static final Logger LOGGER = LogManager.getLogger(DelegateAuthStrategy.class);
   private Api api;
   private static volatile DelegateAuthStrategy instance;
   static List<AuthorizationRequest> accessList = new ArrayList<>();

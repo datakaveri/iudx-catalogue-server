@@ -356,15 +356,15 @@ public final class ElasticClient {
           if (totalHits > 0 ) {
             JsonArray results = new JsonArray();
 
-                if (options == SOURCE_ONLY
+                if ((options == SOURCE_ONLY
                     || options == DOC_IDS_ONLY
                     || options == SOURCE_AND_ID
                     || options == SOURCE_AND_ID_GEOQUERY
-                    || options == DATASET) {
-                  if (responseJson.getJsonObject(HITS).containsKey(HITS)) {
+                    || options == DATASET) && (responseJson.getJsonObject(HITS).containsKey(HITS)) ) {
+
                     results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
-                  }
                 }
+
                 if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY) {
                   results = responseJson.getJsonObject(AGGREGATIONS)
                                   .getJsonObject(RESULTS)
