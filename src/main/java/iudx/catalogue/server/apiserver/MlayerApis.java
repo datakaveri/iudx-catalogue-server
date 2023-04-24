@@ -46,11 +46,11 @@ public class MlayerApis {
     this.host = host;
   }
 
-  private Api api;
+  // private Api api;
 
-  public MlayerApis(Api api) {
-    this.api = api;
-  }
+  // public MlayerApis(Api api) {
+  //  this.api = api;
+  //}
 
   /**
    * Create Mlayer Instance Handler

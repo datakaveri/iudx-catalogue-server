@@ -25,10 +25,6 @@ public final class GeocodingApis {
 
   private GeocodingService geoService;
   private static final Logger LOGGER = LogManager.getLogger(GeocodingApis.class);
-  private Api api;
-  public GeocodingApis(Api api) {
-    this.api = api;
-  }
 
   public void setGeoService(GeocodingService geoService) {
     this.geoService = geoService;

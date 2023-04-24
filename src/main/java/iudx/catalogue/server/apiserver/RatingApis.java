@@ -43,11 +43,6 @@ public class RatingApis {
   private boolean hasAuditService = false;
 
   private String host;
-  private Api api;
-
-  public RatingApis(Api api) {
-    this.api = api;
-  }
 
   public void setRatingService(RatingService ratingService) {
     this.ratingService = ratingService;

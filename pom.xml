@@ -477,6 +477,11 @@
                     <rulesets>
                         <ruleset>./iudx-pmd-ruleset.xml</ruleset>
                     </rulesets>
+                    <printFailingErrors>true</printFailingErrors>
+                    <!--<maxAllowedViolations>622</maxAllowedViolations>-->
+                    <excludeRoots>
+                        <excludeRoot>target/generated-sources</excludeRoot>
+                    </excludeRoots>
                 </configuration>
             </plugin>
         </plugins>

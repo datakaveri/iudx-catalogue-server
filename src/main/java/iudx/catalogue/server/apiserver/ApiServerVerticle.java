@@ -132,11 +132,11 @@ public class ApiServerVerticle extends AbstractVerticle {
     /** API Callback managers */
     crudApis = new CrudApis(api);
     searchApis = new SearchApis(api);
-    listApis = new ListApis(api);
-    relApis = new RelationshipApis(api);
-    geoApis = new GeocodingApis(api);
-    ratingApis = new RatingApis(api);
-    mlayerApis = new MlayerApis(api);
+    listApis = new ListApis();
+    relApis = new RelationshipApis();
+    geoApis = new GeocodingApis();
+    ratingApis = new RatingApis();
+    mlayerApis = new MlayerApis();
     /**
      *
      * Get proxies and handlers
