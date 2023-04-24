@@ -175,11 +175,8 @@ public class QueryMapper {
 
         String geometry = requestBody.getString(GEOMETRY, "");
         int countStr = StringUtils.countMatches(coordinateStr.substring(0, 5), "[");
-        if (geometry.equalsIgnoreCase(POLYGON) && countStr == 3) {
-        } else if (geometry.equalsIgnoreCase(POINT) && countStr == 1) {
-        } else if ((geometry.equalsIgnoreCase(LINESTRING)
-            || geometry.equals(BBOX)) && countStr == 2) {
-        } else {
+        if (!(geometry.equalsIgnoreCase(POLYGON) && countStr == 3) && !(geometry.equalsIgnoreCase(POINT) && countStr == 1) && !((geometry.equalsIgnoreCase(LINESTRING)
+            || geometry.equals(BBOX)) && countStr == 2)) {
           LOGGER.error("Error: Invalid coordinate format");
           return errResponse
               .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)

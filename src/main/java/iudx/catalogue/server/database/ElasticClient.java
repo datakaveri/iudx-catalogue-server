@@ -360,7 +360,7 @@ public final class ElasticClient {
                     || options == DOC_IDS_ONLY
                     || options == SOURCE_AND_ID
                     || options == SOURCE_AND_ID_GEOQUERY
-                    || options == DATASET) && (responseJson.getJsonObject(HITS).containsKey(HITS)) ) {
+                    || options == DATASET) && responseJson.getJsonObject(HITS).containsKey(HITS)){
 
                     results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
                 }

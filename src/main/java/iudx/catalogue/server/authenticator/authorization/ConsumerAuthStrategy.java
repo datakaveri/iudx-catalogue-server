@@ -12,7 +12,6 @@ import static iudx.catalogue.server.apiserver.util.Constants.ROUTE_RATING;
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
 
 public class ConsumerAuthStrategy implements AuthorizationStratergy {
-  private static final Logger LOGGER = LogManager.getLogger(ProviderAuthStrategy.class);
 
   static List<AuthorizationRequest> accessList = new ArrayList<>();
   private static volatile ConsumerAuthStrategy instance;
