@@ -45,12 +45,7 @@ public class MlayerApis {
   public void setHost(String host) {
     this.host = host;
   }
-
-  // private Api api;
-
-  // public MlayerApis(Api api) {
-  //  this.api = api;
-  //}
+  
 
   /**
    * Create Mlayer Instance Handler
