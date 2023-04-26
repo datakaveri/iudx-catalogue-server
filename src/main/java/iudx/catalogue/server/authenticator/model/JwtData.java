@@ -28,6 +28,7 @@ public final class JwtData {
 
   public JwtData(JsonObject json) {
     JwtDataConverter.fromJson(json, this);
+    setAccessToken(json.getString("access_token"));
   }
 
   public String getAccessToken() {
