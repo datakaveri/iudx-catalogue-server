@@ -7,6 +7,7 @@ import io.vertx.rabbitmq.RabbitMQClient;
 import io.vertx.rabbitmq.RabbitMQOptions;
 import io.vertx.serviceproxy.ServiceBinder;
 
+
 /**
  * The Data Broker Verticle.
  *

@@ -14,6 +14,7 @@ import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+
 /**
  * Mock Auth Service. Bypass main auth service.
  */

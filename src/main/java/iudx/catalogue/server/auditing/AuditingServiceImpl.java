@@ -23,6 +23,7 @@ public class AuditingServiceImpl implements AuditingService {
   PoolOptions poolOptions;
   PgPool pool;
   private final QueryBuilder queryBuilder = new QueryBuilder();
+
   private String databaseIp;
   private int databasePort;
   private String databaseName;

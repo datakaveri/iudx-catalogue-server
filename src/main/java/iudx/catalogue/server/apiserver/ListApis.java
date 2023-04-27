@@ -28,13 +28,6 @@ public final class ListApis {
 
   private static final Logger LOGGER = LogManager.getLogger(ListApis.class);
 
-  /**
-   * Crud  constructor.
-   *
-   * @param dbService DataBase Service class
-   * @return void
-   * @TODO Throw error if load failed
-   */
 
   public void setDbService(DatabaseService dbService) {
     this.dbService = dbService;

@@ -907,7 +907,6 @@ public class DatabaseServiceImpl implements DatabaseService {
           } else {
             if (res.result().getInteger(TOTAL_HITS) != 0) {
               JsonObject json = new JsonObject(res.result().getJsonArray(RESULTS).getString(0));
-
               String instanceIdExists = json.getString(INSTANCE_ID);
 
               handler.handle(
@@ -916,7 +915,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ALREADY_EXISTS)
                           .withTitle(TITLE_ALREADY_EXISTS)
                           .withResult(
-                                  instanceIdExists,  " Fail: Instance Already Exists")
+                              instanceIdExists,  " Fail: Instance Already Exists")
                           .getResponse()));
               return;
             }

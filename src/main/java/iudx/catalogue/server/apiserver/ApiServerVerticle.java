@@ -6,26 +6,25 @@ import static iudx.catalogue.server.util.Constants.*;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-import io.vertx.core.http.HttpServerResponse;
-import iudx.catalogue.server.mlayer.MlayerService;
-import iudx.catalogue.server.rating.RatingService;
-import iudx.catalogue.server.util.Api;
 import iudx.catalogue.server.apiserver.util.ExceptionHandler;
+import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
-import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.geocoding.GeocodingService;
+import iudx.catalogue.server.mlayer.MlayerService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
-import iudx.catalogue.server.auditing.AuditingService;
+import iudx.catalogue.server.rating.RatingService;
+import iudx.catalogue.server.util.Api;
+import iudx.catalogue.server.validator.ValidatorService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 
 /**
  * The Catalogue Server API Verticle.

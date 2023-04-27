@@ -1,6 +1,5 @@
 package iudx.catalogue.server.auditing.util;
 
-
 import static iudx.catalogue.server.auditing.util.Constants.*;
 
 import io.vertx.core.json.JsonArray;

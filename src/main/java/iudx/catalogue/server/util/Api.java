@@ -58,8 +58,6 @@ public class Api {
         return apiInstance;
     }
 
-
-
     public void buildEndpoints() {
         routeItems = new StringBuilder(dxApiBasePath).append(ROUTE_ITEMS);
         routUpdateItems = new StringBuilder(dxApiBasePath).append(ROUTE_UPDATE_ITEMS);
@@ -81,12 +79,6 @@ public class Api {
         routeMlayerGeoquery = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_GEOQUERY);
         routeMlayerDataset = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_DATASET);
         routeMlayerPopularDatasets = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_POPULAR_DATASETS);
-
-
-
-
-
-
     }
 
 
@@ -150,14 +142,6 @@ public class Api {
     public String getRouteMlayerGeoQuery() { return routeMlayerGeoquery.toString(); }
     public String getRouteMlayerDataset() { return routeMlayerDataset.toString(); }
     public String getRouteMlayerPopularDatasets() { return routeMlayerPopularDatasets.toString(); }
-
-
-
-
-
-
-
-
 }
 
 

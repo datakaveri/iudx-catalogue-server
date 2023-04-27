@@ -139,8 +139,9 @@ public class Deployer {
     return config.mergeIn(commonConfigs, true);
   }
 
+
   public static ClusterManager getClusterManager(String host, List<String> zookeepers,
-      String clusterId) {
+      String clusterID) {
     Config config = new Config();
     config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
     config.getNetworkConfig().setPublicAddress(host);
@@ -150,7 +151,7 @@ public class Deployer {
         new DiscoveryStrategyConfig(new ZookeeperDiscoveryStrategyFactory());
     discoveryStrategyConfig.addProperty(ZookeeperDiscoveryProperties.ZOOKEEPER_URL.key(),
         String.join(",", zookeepers));
-    discoveryStrategyConfig.addProperty(ZookeeperDiscoveryProperties.GROUP.key(), clusterId);
+    discoveryStrategyConfig.addProperty(ZookeeperDiscoveryProperties.GROUP.key(), clusterID);
     config.getNetworkConfig().getJoin().getDiscoveryConfig()
         .addDiscoveryStrategyConfig(discoveryStrategyConfig);
 
