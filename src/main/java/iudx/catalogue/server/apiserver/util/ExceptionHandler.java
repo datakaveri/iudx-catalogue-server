@@ -1,22 +1,14 @@
 package iudx.catalogue.server.apiserver.util;
 
-import static iudx.catalogue.server.apiserver.util.Constants.HEADER_CONTENT_TYPE;
-import static iudx.catalogue.server.apiserver.util.Constants.MIME_APPLICATION_JSON;
-import static iudx.catalogue.server.util.Constants.FAILED;
-import static iudx.catalogue.server.util.Constants.INSERT;
-import static iudx.catalogue.server.util.Constants.REQUEST_POST;
-import static iudx.catalogue.server.util.Constants.UPDATE;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
 import io.vertx.core.Handler;
-import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import io.vertx.ext.web.RoutingContext;
-
 
 
 public class ExceptionHandler implements Handler<RoutingContext> {
@@ -48,7 +40,8 @@ public class ExceptionHandler implements Handler<RoutingContext> {
   /**
    * Handles the JsonDecode Exception.
    * 
-   * @param routingContext
+   *
+   * @param routingContext for handling HTTP Request
    */
   public void handleDecodeException(RoutingContext routingContext) {
 
@@ -84,7 +77,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
                             .getResponse();
     }
 
-    String INTERNAL_ERROR_RESP = new RespBuilder()
+    String internalErrorResp = new RespBuilder()
                                           .withType(TYPE_INTERNAL_SERVER_ERROR)
                                           .withTitle(TITLE_INTERNAL_SERVER_ERROR)
                                           .getResponse();
@@ -92,7 +85,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
     routingContext.response()
                   .setStatusCode(500)
                   .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-                  .end(INTERNAL_ERROR_RESP);
+                  .end(internalErrorResp);
     
     routingContext.next();
 
@@ -101,6 +94,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
   /**
    * Handles the exception from casting a object to different object.
    * 
+   *
    * @param routingContext
    */
   public void handleClassCastException(RoutingContext routingContext) {

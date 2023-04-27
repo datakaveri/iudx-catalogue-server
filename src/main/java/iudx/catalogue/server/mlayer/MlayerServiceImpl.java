@@ -1,5 +1,7 @@
 package iudx.catalogue.server.mlayer;
 
+import static iudx.catalogue.server.mlayer.util.Constants.*;
+
 import com.google.common.hash.Hashing;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -7,15 +9,11 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.DatabaseService;
-
 import iudx.catalogue.server.database.postgres.PostgresService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-
-import static iudx.catalogue.server.mlayer.util.Constants.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MlayerServiceImpl implements MlayerService {
   private static final Logger LOGGER = LogManager.getLogger(MlayerServiceImpl.class);
@@ -233,9 +231,9 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService getMlayerDataset(
-      String dataset_id, Handler<AsyncResult<JsonObject>> handler) {
+      String datasetId, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerDataset(
-        dataset_id,
+        datasetId,
         getMlayerDatasetHandler -> {
           if (getMlayerDatasetHandler.succeeded()) {
             LOGGER.info("Success: Getting details of dataset");

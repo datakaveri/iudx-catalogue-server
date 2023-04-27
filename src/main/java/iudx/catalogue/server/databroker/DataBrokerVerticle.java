@@ -4,10 +4,11 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rabbitmq.RabbitMQClient;
+import io.vertx.rabbitmq.RabbitMQOptions;
 import io.vertx.serviceproxy.ServiceBinder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import io.vertx.rabbitmq.RabbitMQOptions;
+
 
 /**
  * The Data Broker Verticle.
@@ -28,7 +29,7 @@ public class DataBrokerVerticle extends AbstractVerticle {
   private DataBrokerService dataBrokerService;
   private RabbitMQOptions options;
   private RabbitMQClient client;
-  private String dataBrokerIP;
+  private String dataBrokerIp;
   private int dataBrokerPort;
   private String dataBrokerVhost;
   private String dataBrokerUserName;
@@ -48,7 +49,7 @@ public class DataBrokerVerticle extends AbstractVerticle {
    */
   @Override
   public void start() throws Exception {
-    dataBrokerIP = config().getString("dataBrokerIP");
+    dataBrokerIp = config().getString("dataBrokerIP");
     dataBrokerPort = config().getInteger("dataBrokerPort");
     dataBrokerVhost = config().getString("dataBrokerVhost");
     dataBrokerUserName = config().getString("dataBrokerUserName");
@@ -62,7 +63,7 @@ public class DataBrokerVerticle extends AbstractVerticle {
     options = new RabbitMQOptions();
     options.setUser(dataBrokerUserName);
     options.setPassword(dataBrokerPassword);
-    options.setHost(dataBrokerIP);
+    options.setHost(dataBrokerIp);
     options.setPort(dataBrokerPort);
     options.setVirtualHost(dataBrokerVhost);
     options.setConnectionTimeout(connectionTimeout);

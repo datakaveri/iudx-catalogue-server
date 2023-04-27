@@ -5,6 +5,9 @@
 
 package iudx.catalogue.server.apiserver;
 
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -17,9 +20,6 @@ import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
-
 
 public final class RelationshipApis {
 
@@ -29,13 +29,6 @@ public final class RelationshipApis {
   private static final Logger LOGGER = LogManager.getLogger(RelationshipApis.class);
   private Api api;
 
-  /**
-   * Crud  constructor.
-   *
-   * @param DBService DataBase Service class
-   * @return void
-   * @TODO Throw error if load failed
-   */
   public RelationshipApis(Api api) {
     this.api = api;
   }
@@ -59,7 +52,7 @@ public final class RelationshipApis {
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     JsonObject requestBody = new JsonObject();
-    String instanceID = request.getHeader(HEADER_INSTANCE);
+    String instanceId = request.getHeader(HEADER_INSTANCE);
 
     if (request.getParam(ID) != null && request.getParam(REL_KEY) != null) {
       String id = request.getParam(ID);
@@ -69,7 +62,7 @@ public final class RelationshipApis {
         requestBody = QueryMapper.map2Json(queryParameters);
 
         if (requestBody != null) {
-          requestBody.put(INSTANCE, instanceID);
+          requestBody.put(INSTANCE, instanceId);
           requestBody.put(RELATIONSHIP, queryParameters.get(REL_KEY));
           JsonObject resp = QueryMapper.validateQueryParam(requestBody);
 
@@ -136,7 +129,7 @@ public final class RelationshipApis {
     HttpServerResponse response = routingContext.response();
     JsonObject requestBody = new JsonObject();
 
-    String instanceID = request.getHeader(HEADER_INSTANCE);
+    String instanceId = request.getHeader(HEADER_INSTANCE);
 
     MultiMap queryParameters = routingContext.queryParams();
 
@@ -148,7 +141,7 @@ public final class RelationshipApis {
 
       if (requestBody != null) {
 
-        requestBody.put(INSTANCE, instanceID);
+        requestBody.put(INSTANCE, instanceId);
 
         /* Request database service with requestBody for listing domains */
         dbService.relSearch(requestBody, dbhandler -> {

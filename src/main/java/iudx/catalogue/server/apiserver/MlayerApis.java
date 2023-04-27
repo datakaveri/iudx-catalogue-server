@@ -1,5 +1,10 @@
 package iudx.catalogue.server.apiserver;
 
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.authenticator.Constants.*;
+import static iudx.catalogue.server.mlayer.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServerRequest;
@@ -9,19 +14,12 @@ import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.mlayer.MlayerService;
+import iudx.catalogue.server.mlayer.util.Constants;
 import iudx.catalogue.server.util.Api;
-import iudx.catalogue.server.util.Constants;
 import iudx.catalogue.server.validator.ValidatorService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.authenticator.Constants.*;
-import static iudx.catalogue.server.authenticator.Constants.METHOD;
-import static iudx.catalogue.server.authenticator.Constants.MLAYER_DOMAIN_ENDPOINT;
-import static iudx.catalogue.server.mlayer.util.Constants.*;
-import static iudx.catalogue.server.rating.util.Constants.USER_ID;
-import static iudx.catalogue.server.util.Constants.*;
 
 public class MlayerApis {
   private MlayerService mlayerService;
@@ -70,7 +68,7 @@ public class MlayerApis {
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(METHOD, REQUEST_POST)
+        .put(Constants.METHOD, REQUEST_POST)
         .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
         .put(ID, host);
 
@@ -152,7 +150,7 @@ public class MlayerApis {
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(METHOD, REQUEST_DELETE)
+        .put(Constants.METHOD, REQUEST_DELETE)
         .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
         .put(ID, host);
 
@@ -196,7 +194,7 @@ public class MlayerApis {
     JsonObject jwtAuthenticationInfo = new JsonObject();
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(METHOD, REQUEST_PUT)
+        .put(Constants.METHOD, REQUEST_PUT)
         .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
         .put(ID, host);
 
@@ -279,7 +277,7 @@ public class MlayerApis {
     JsonObject jwtAuthenticationInfo = new JsonObject();
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(METHOD, REQUEST_POST)
+        .put(Constants.METHOD, REQUEST_POST)
         .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
         .put(ID, host);
 
@@ -360,7 +358,7 @@ public class MlayerApis {
     JsonObject jwtAuthenticationInfo = new JsonObject();
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(METHOD, REQUEST_PUT)
+        .put(Constants.METHOD, REQUEST_PUT)
         .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
         .put(ID, host);
 
@@ -420,7 +418,7 @@ public class MlayerApis {
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(METHOD, REQUEST_DELETE)
+        .put(Constants.METHOD, REQUEST_DELETE)
         .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
         .put(ID, host);
 
@@ -531,12 +529,12 @@ public class MlayerApis {
     HttpServerResponse response = routingContext.response();
     HttpServerRequest request = routingContext.request();
     JsonObject requestBody = routingContext.body().asJsonObject();
-    String dataset_Id = request.getParam(ID);
+    String datasetId = request.getParam(ID);
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     mlayerService.getMlayerDataset(
-        dataset_Id,
+        datasetId,
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());

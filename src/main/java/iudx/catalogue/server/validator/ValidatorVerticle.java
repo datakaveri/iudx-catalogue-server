@@ -1,13 +1,15 @@
 package iudx.catalogue.server.validator;
 
 import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
 import iudx.catalogue.server.database.ElasticClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 /**
  * The Validator Verticle.
@@ -25,7 +27,7 @@ public class ValidatorVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LogManager.getLogger(ValidatorVerticle.class);
 
   private ValidatorService validator;
-  private String databaseIP;
+  private String databaseIp;
   private String docIndex;
   private int databasePort;
   private String databaseUser;
@@ -42,20 +44,20 @@ public class ValidatorVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
     binder = new ServiceBinder(vertx);
-    databaseIP = config().getString(DATABASE_IP);
+    databaseIp = config().getString(DATABASE_IP);
     databasePort = config().getInteger(DATABASE_PORT);
     databaseUser = config().getString(DATABASE_UNAME);
     databasePassword = config().getString(DATABASE_PASSWD);
     docIndex = config().getString(DOC_INDEX);
     /* Create a reference to HazelcastClusterManager. */
 
-    client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
+    client = new ElasticClient(databaseIp, databasePort, docIndex, databaseUser, databasePassword);
 
     /* Create or Join a Vert.x Cluster. */
 
     /* Publish the Validator service with the Event Bus against an address. */
 
-    validator = new ValidatorServiceImpl(client,docIndex);
+    validator = new ValidatorServiceImpl(client, docIndex);
     consumer =
         binder.setAddress(VALIDATION_SERVICE_ADDRESS)
       .register(ValidatorService.class, validator);

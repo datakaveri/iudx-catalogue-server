@@ -1,5 +1,7 @@
 package iudx.catalogue.server.databroker;
 
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -10,9 +12,6 @@ import iudx.catalogue.server.apiserver.util.RespBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.util.Constants.TYPE_SUCCESS;
-import static iudx.catalogue.server.util.Constants.TYPE_INTERNAL_SERVER_ERROR;
-import static iudx.catalogue.server.util.Constants.TITLE_INTERNAL_SERVER_ERROR;
 
 /**
  * The Data Broker Service Implementation.
@@ -52,7 +51,9 @@ public class DataBrokerServiceImpl implements DataBrokerService {
 
     Buffer buffer = Buffer.buffer(body.toString());
 
-    if (!client.isConnected()) client.start();
+    if (!client.isConnected()) {
+      client.start();
+    }
 
     client.basicPublish(
         toExchange,

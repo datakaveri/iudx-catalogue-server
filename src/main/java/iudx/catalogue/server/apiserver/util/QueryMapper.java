@@ -1,13 +1,12 @@
 package iudx.catalogue.server.apiserver.util;
 
+import static iudx.catalogue.server.util.Constants.*;
+
+import com.google.common.collect.Range;
 import io.vertx.core.MultiMap;
 import io.vertx.core.json.DecodeException;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +15,10 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import static iudx.catalogue.server.util.Constants.*;
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import iudx.catalogue.server.apiserver.util.RespBuilder;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 /**
  * QueryMapper class to convert NGSILD query into json object for the purpose of debugrmation
@@ -121,7 +121,7 @@ public class QueryMapper {
   /**
    * Validates the request parameters, headers to compliance with default values.
    *
-   * @param JsonObject requestBody
+   * @param requestBody which is JsonObject
    * @return JsonObject having success and failure status
    */
   public static JsonObject validateQueryParam(JsonObject requestBody) {
@@ -177,11 +177,10 @@ public class QueryMapper {
         String geometry = requestBody.getString(GEOMETRY, "");
         boolean flag = true;
         int countStr = StringUtils.countMatches(coordinateStr.substring(0, 5), "[");
-        if (geometry.equalsIgnoreCase(POLYGON) && countStr == 3) {
-        } else if (geometry.equalsIgnoreCase(POINT) && countStr == 1) {
-        } else if ((geometry.equalsIgnoreCase(LINESTRING)
-            || geometry.equals(BBOX)) && countStr == 2) {
-        } else {
+        if (!(geometry.equalsIgnoreCase(POLYGON) && countStr == 3)
+                && !(geometry.equalsIgnoreCase(POINT) && countStr == 1)
+                && !((geometry.equalsIgnoreCase(LINESTRING)
+            || geometry.equals(BBOX)) && countStr == 2)) {
           LOGGER.error("Error: Invalid coordinate format");
           return errResponse
               .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
@@ -199,7 +198,7 @@ public class QueryMapper {
                 .put(DESC, "The 'maxDistance' should range between 0-10000m");
           }
         } else {
-            return new RespBuilder()
+          return new RespBuilder()
                   .withType(TYPE_INVALID_SYNTAX)
                   .withTitle(TITLE_INVALID_SYNTAX)
                   .getJsonResponse();

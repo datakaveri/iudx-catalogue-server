@@ -1,36 +1,33 @@
 package iudx.catalogue.server.deploy;
 
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
-
-import io.vertx.core.eventbus.EventBusOptions;
-
 import io.vertx.core.cli.CLI;
-import io.vertx.core.cli.Option;
 import io.vertx.core.cli.CommandLine;
+import io.vertx.core.cli.Option;
+import io.vertx.core.eventbus.EventBusOptions;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.DeploymentOptions;
-
-
-import java.util.Arrays;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.nio.file.Files;
-
+import java.nio.file.Paths;
+import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
 /**
- * DeploySingle - Deploy a single non-clustered catalogue instance
+ * DeploySingle - Deploy a single non-clustered catalogue instance.
  **/
 public class DeployerDev {
   private static final Logger LOGGER = LogManager.getLogger(DeployerDev.class);
-  private static JsonObject getConfigForModule(int moduleIndex,JsonObject configurations) {
+
+  private static JsonObject getConfigForModule(int moduleIndex, JsonObject configurations) {
     JsonObject commonConfigs = configurations.getJsonObject("commonConfig");
     JsonObject config = configurations.getJsonArray("modules").getJsonObject(moduleIndex);
     return config.mergeIn(commonConfigs, true);
   }
+
   public static void recursiveDeploy(Vertx vertx, JsonObject configs, int i) {
     if (i >= configs.getJsonArray("modules").size()) {
       LOGGER.info("Deployed all");
@@ -46,13 +43,13 @@ public class DeployerDev {
                             .setInstances(numInstances)
                             .setConfig(moduleConfigurations),
                           ar -> {
-      if (ar.succeeded()) {
-        LOGGER.info("Deployed " + moduleName);
-        recursiveDeploy(vertx, configs, i+1);
-      } else {
-        LOGGER.fatal("Failed to deploy " + moduleName + " cause:", ar.cause());
-      }
-    });
+        if (ar.succeeded()) {
+          LOGGER.info("Deployed " + moduleName);
+          recursiveDeploy(vertx, configs, i + 1);
+        } else {
+          LOGGER.fatal("Failed to deploy " + moduleName + " cause:", ar.cause());
+        }
+      });
   }
 
   public static void deploy(String configPath) {
@@ -61,7 +58,7 @@ public class DeployerDev {
 
     String config;
     try {
-     config = new String(Files.readAllBytes(Paths.get(configPath)), StandardCharsets.UTF_8);
+      config = new String(Files.readAllBytes(Paths.get(configPath)), StandardCharsets.UTF_8);
     } catch (Exception e) {
       LOGGER.fatal("Couldn't read configuration file");
       return;

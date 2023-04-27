@@ -7,13 +7,10 @@ import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
-import io.vertx.ext.web.client.WebClient;
-
-import iudx.catalogue.server.database.ElasticClient;
-import iudx.catalogue.server.nlpsearch.NLPSearchService;
+import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.geocoding.GeocodingService;
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
 
 /**
  * The Database Service.
@@ -43,7 +40,7 @@ public interface DatabaseService {
   @Fluent
   DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
-   /**
+  /**
    * The searchQuery implements the nlp search operation with the database.
    *
    * @param request which is a JsonObject
@@ -57,7 +54,7 @@ public interface DatabaseService {
    * The searchQuery implements the nlp search operation with the database.
    *
    * @param request which is a JsonObject
-   * @param location which is a String
+   * @param queryParams which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
    */
@@ -143,6 +140,7 @@ public interface DatabaseService {
 
   /**
    * The createRating implements the rating creation operation with the database.
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -152,6 +150,7 @@ public interface DatabaseService {
 
   /**
    * The updateRating implements the rating updation operation with the database.
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -161,6 +160,7 @@ public interface DatabaseService {
 
   /**
    * The deleteRating implements the rating deletion operation with the database.
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -169,7 +169,8 @@ public interface DatabaseService {
   DatabaseService deleteRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The getRatings implements fetching ratings from the database
+   * The getRatings implements fetching ratings from the database.
+   *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
    * @return DatabaseService which is a Service
@@ -189,7 +190,7 @@ public interface DatabaseService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The getMlayerInstance implements fetching instance from the database
+   * The getMlayerInstance implements fetching instance from the database.
    *
    * @param handler which is a request handler
    * @return DatabaseService which is a Service
@@ -198,7 +199,7 @@ public interface DatabaseService {
   DatabaseService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The deleteMlayerInstance implements deleting instance from the database
+   * The deleteMlayerInstance implements deleting instance from the database.
    *
    * @param request which is JsonObject
    * @param handler which is a request handler
@@ -208,7 +209,7 @@ public interface DatabaseService {
   DatabaseService deleteMlayerInstance(String request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The updateMlayerInstance implements updating instance from the database
+   * The updateMlayerInstance implements updating instance from the database.
    *
    * @param request which is a jsonobject
    * @param handler which is a request handler
@@ -219,7 +220,7 @@ public interface DatabaseService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The createMlayerDomain implemenets creation of a domain from the database
+   * The createMlayerDomain implemenets creation of a domain from the database.
    *
    * @param request is a jsonObject
    * @param handler which is a request handler
@@ -229,7 +230,7 @@ public interface DatabaseService {
   DatabaseService createMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The getMlayerDomain implements getting all domain from database
+   * The getMlayerDomain implements getting all domain from database.
    *
    * @param handler which is a request handler
    * @return DatabaseService which is a Service
@@ -238,7 +239,7 @@ public interface DatabaseService {
   DatabaseService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The updateMlayerDomain implements updating all domain from database
+   * The updateMlayerDomain implements updating all domain from database.
    *
    * @param request is a JsonObject
    * @param handler which is a request handler
@@ -248,7 +249,7 @@ public interface DatabaseService {
   DatabaseService updateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The deleteMlayerDomain deletes a domain from the darabase
+   * The deleteMlayerDomain deletes a domain from the darabase.
    *
    * @param request is a JsonObject
    * @param handler which is a request handler
@@ -258,7 +259,7 @@ public interface DatabaseService {
   DatabaseService deleteMlayerDomain(String request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The get Mlayer Providers get all the provider's description
+   * The get Mlayer Providers get all the provider's description.
    *
    * @param handler which is a request handler
    * @return DatabaseService which is a Service
@@ -267,7 +268,7 @@ public interface DatabaseService {
   DatabaseService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   * The post Mlayer GeoQuery posts all the dataset_id's location and label
+   * The post Mlayer GeoQuery posts all the dataset_id's location and label.
    *
    * @param request which is a JsonObject
    * @param handler which is a request handler
@@ -288,14 +289,16 @@ public interface DatabaseService {
   /**
    * The get Mlayer datasset get details of the dataset.
    *
-   * @param dataset_id which is a String.
+   * @param datasetId which is a String.
    * @param handler which is a request handler.
    * @return DatabaseService which is a Service.
    */
   @Fluent
-  DatabaseService getMlayerDataset(String dataset_id, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerDataset(String datasetId, Handler<AsyncResult<JsonObject>> handler);
+
   @Fluent
-  DatabaseService getMlayerPopularDatasets(JsonArray highestCountResource,Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerPopularDatasets(JsonArray highestCountResource,
+                                           Handler<AsyncResult<JsonObject>> handler);
 
   /* create db service with nlp and geocoding */
   @GenIgnore
@@ -304,6 +307,7 @@ public interface DatabaseService {
     return new DatabaseServiceImpl(client, nlpService, geoService);
   }
   /* create db service vanilla */
+
   @GenIgnore
   static DatabaseService create(ElasticClient client) {
     return new DatabaseServiceImpl(client);

@@ -8,6 +8,9 @@
 
 package iudx.catalogue.server.apiserver;
 
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
@@ -18,10 +21,6 @@ import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
 
 
 public final class GeocodingApis {

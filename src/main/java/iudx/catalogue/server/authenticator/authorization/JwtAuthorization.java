@@ -1,9 +1,10 @@
 package iudx.catalogue.server.authenticator.authorization;
 
+import iudx.catalogue.server.authenticator.model.JwtData;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import iudx.catalogue.server.authenticator.model.JwtData;
 
 public class JwtAuthorization {
 

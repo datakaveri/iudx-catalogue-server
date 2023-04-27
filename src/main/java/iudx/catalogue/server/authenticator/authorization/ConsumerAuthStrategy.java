@@ -44,9 +44,7 @@ public class ConsumerAuthStrategy implements AuthorizationStratergy {
     accessList.add(new AuthorizationRequest(DELETE, ROUTE_RATING));
   }
 
-
-
-    @Override
+  @Override
   public boolean isAuthorized(AuthorizationRequest authorizationRequest, JwtData jwtData) {
     return accessList.contains(authorizationRequest);
   }

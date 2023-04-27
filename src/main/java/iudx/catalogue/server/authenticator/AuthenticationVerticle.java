@@ -1,26 +1,24 @@
 package iudx.catalogue.server.authenticator;
 
+import static iudx.catalogue.server.authenticator.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
-import io.vertx.ext.auth.jwt.JWTAuth;
-import iudx.catalogue.server.util.Api;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
-import io.vertx.serviceproxy.ServiceBinder;
-
-import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.auth.PubSecKeyOptions;
+import io.vertx.ext.auth.jwt.JWTAuth;
 import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
+import io.vertx.serviceproxy.ServiceBinder;
+import iudx.catalogue.server.util.Api;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-
-import static iudx.catalogue.server.authenticator.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
 
 /**
  * The Authentication Verticle.
@@ -29,7 +27,8 @@ import static iudx.catalogue.server.util.Constants.*;
  * The Authentication Verticle implementation in the the IUDX Catalogue Server exposes the
  * {@link iudx.catalogue.server.authenticator.AuthenticationService} over the Vert.x Event Bus.
  * </p>
- * 
+ *
+ *
  * @version 1.0
  * @since 2020-05-31
  */
@@ -51,7 +50,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
 
   static WebClient createWebClient(Vertx vertx, JsonObject config, boolean testing) {
     WebClientOptions webClientOptions = new WebClientOptions();
-    if(testing) {
+    if (testing) {
       webClientOptions.setTrustAll(true).setVerifyHost(false);
     }
     webClientOptions.setSsl(true);
@@ -61,7 +60,8 @@ public class AuthenticationVerticle extends AbstractVerticle {
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
    * service with the Event bus against an address, publishes the service with the service discovery
    * interface.
-   * 
+   *
+   *
    * @throws Exception which is a startup exception
    */
 
@@ -77,12 +77,13 @@ public class AuthenticationVerticle extends AbstractVerticle {
                       .setAlgorithm("ES256")
                       .setBuffer(cert));
       /* Default jwtIgnoreExpiry is false. If set through config, then that value is taken */
-      boolean jwtIgnoreExpiry = config().getBoolean("jwtIgnoreExpiry") != null && config().getBoolean("jwtIgnoreExpiry");
-      if (jwtIgnoreExpiry)
-      {
+      boolean jwtIgnoreExpiry = config().getBoolean("jwtIgnoreExpiry") != null
+              && config().getBoolean("jwtIgnoreExpiry");
+      if (jwtIgnoreExpiry) {
         jwtAuthOptions.getJWTOptions().setIgnoreExpiration(true);
         LOGGER
-                .warn("JWT ignore expiration set to true, do not set IgnoreExpiration in production!!");
+                .warn("JWT ignore expiration set to true, do not "
+                        + "set IgnoreExpiration in production!!");
       }
       JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
 
@@ -93,7 +94,8 @@ public class AuthenticationVerticle extends AbstractVerticle {
 
       /* Publish the Authentication service with the Event Bus against an address. */
       consumer =
-              binder.setAddress(AUTH_SERVICE_ADDRESS).register(AuthenticationService.class, jwtAuthenticationService);
+              binder.setAddress(AUTH_SERVICE_ADDRESS).register(AuthenticationService.class,
+                      jwtAuthenticationService);
 
       LOGGER.info("Authentication verticle deployed");
 
