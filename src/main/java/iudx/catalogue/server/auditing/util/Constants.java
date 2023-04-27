@@ -16,8 +16,8 @@ public class Constants {
   /* Database */
   public static final String ERROR = "Error";
   public static final String QUERY_KEY = "query";
-  public static final String DATA_NOT_FOUND="Required Data not Found";
-  public static final String USERID_NOT_FOUND = "User ID not found" ;
+  public static final String DATA_NOT_FOUND = "Required Data not Found";
+  public static final String USERID_NOT_FOUND = "User ID not found";
   public static final String START_TIME = "startTime";
   public static final String END_TIME = "endTime";
   public static final String ENDPOINT = "endPoint";
@@ -43,7 +43,7 @@ public class Constants {
   public static final String IID = "iid";
   public static final String API = "api";
   public static final String METHOD = "httpMethod";
-  public static final String DATABASE_TABLE_NAME= "databaseTableName";
+  public static final String DATABASE_TABLE_NAME = "databaseTableName";
   public static final String IUDX_ID = "iudxID";
   public static final String EXCHANGE_NAME = "auditing";
   public static final String ROUTING_KEY = "#";
@@ -51,7 +51,8 @@ public class Constants {
   public static final String ORIGIN = "origin";
   public static final String ORIGIN_SERVER = "cat-server";
   public static final String WRITE_QUERY =
-          "INSERT INTO $0 (id, userRole, userId, iid, api, method, time, iudxID) VALUES ('$1','$2','$3','$4','$5','$6',$7,'$8')";
+          "INSERT INTO $0 (id, userRole, userId, iid, api, method, time, iudxID) VALUES"
+                  + " ('$1','$2','$3','$4','$5','$6',$7,'$8')";
   public static final String READ_QUERY =
           "SELECT userRole, userId, iid, api, method, time, iudxID from $0 where userId='$1'";
   public static final String START_TIME_QUERY = " and time>=$2";

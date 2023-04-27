@@ -11,7 +11,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
-
 public class ExceptionHandler implements Handler<RoutingContext> {
 
   private static final Logger LOGGER = LogManager.getLogger(ExceptionHandler.class);
@@ -41,7 +40,8 @@ public class ExceptionHandler implements Handler<RoutingContext> {
   /**
    * Handles the JsonDecode Exception.
    * 
-   * @param routingContext
+   *
+   * @param routingContext for handling HTTP Request
    */
   public void handleDecodeException(RoutingContext routingContext) {
 
@@ -94,6 +94,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
   /**
    * Handles the exception from casting a object to different object.
    * 
+   *
    * @param routingContext
    */
   public void handleClassCastException(RoutingContext routingContext) {

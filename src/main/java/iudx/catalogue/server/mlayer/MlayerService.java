@@ -45,12 +45,13 @@ public interface MlayerService {
   MlayerService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) ;
+  MlayerService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
   MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler);
   @Fluent
-  MlayerService getMlayerDataset(String datasetId,Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getMlayerDataset(String datasetId, Handler<AsyncResult<JsonObject>> handler);
+
   @Fluent
   MlayerService getMlayerPopularDatasets(Handler<AsyncResult<JsonObject>> handler);
 }

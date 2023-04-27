@@ -111,7 +111,7 @@ public class AuditingServiceTest {
                 .when(auditingService.rmqService)
                 .publishMessage(any(), anyString(), anyString(), any());
 
-        auditingService.insertAuditngValuesInRMQ(
+        auditingService.insertAuditngValuesInRmq(
                 request,
                 handler -> {
                     if (handler.succeeded()) {

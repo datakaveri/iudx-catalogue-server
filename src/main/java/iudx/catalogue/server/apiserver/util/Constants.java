@@ -10,11 +10,11 @@ import java.util.Set;
 
 public class Constants {
 
-  /** General purpose */
+  /** General purpose. */
   public static final String CAT_ADMIN = "catAdmin";
   public static final String HOST = "host";
 
-  /** Accept Headers and CORS */
+  /** Accept Headers and CORS. */
   public static final String HEADER_ACCEPT = "Accept";
   public static final String HEADER_TOKEN = "token";
   public static final String HEADER_CONTENT_LENGTH = "Content-Length";
@@ -37,7 +37,7 @@ public class Constants {
   public static final String MIME_TEXT_HTML = "text/html";
 
   /**
-   *Routes
+   *Routes.
    */
 
 
@@ -87,10 +87,7 @@ public class Constants {
   public static final String ROUTE_MLAYER_DATASET = "/internal/ui/dataset";
   public static final String ROUTE_MLAYER_POPULAR_DATASETS = "/internal/ui/popularDatasets";
 
-
-
-
-  /** Geometries */
+  /** Geometries. */
   public static final ArrayList<String> GEOMETRIES
       = new ArrayList<String>(Arrays.asList(BBOX, POLYGON,
                                           LINESTRING, POINT));
@@ -98,13 +95,13 @@ public class Constants {
   public static final String OPERATION = "operation";
   public static final String ATTRIBUTE_FILTER = "attribute-filter";
 
-  /** Errors */
+  /** Errors. */
   public static final String INVALID_SYNTAX = "invalidSyntax";
   public static final String INVALID_VALUE = "invalidValue";
   public static final String BAD_REQUEST = "Bad Request";
   public static final String LOCATION_NOT_FOUND = "location not found";
 
-  /** Query Pattern */
+  /** Query Pattern. */
   public static final String PATTERN_TEXT = "^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}";
   public static final String PATTERN_ARRAY = "^\\[.*\\]$";
 

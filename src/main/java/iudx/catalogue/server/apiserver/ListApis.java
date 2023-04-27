@@ -5,10 +5,13 @@
 
 package iudx.catalogue.server.apiserver;
 
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
+import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.MultiMap;
 import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
@@ -17,8 +20,6 @@ import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
 
 public final class ListApis {
 
@@ -30,7 +31,7 @@ public final class ListApis {
   /**
    * Crud  constructor.
    *
-   * @param DBService DataBase Service class
+   * @param dbService DataBase Service class
    * @return void
    * @TODO Throw error if load failed
    */
@@ -58,7 +59,7 @@ public final class ListApis {
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_INSTANCE);
+    String instanceId = request.getHeader(HEADER_INSTANCE);
 
     String itemType = request.getParam(ITEM_TYPE);
     JsonObject requestBody = QueryMapper.map2Json(queryParameters);
@@ -66,7 +67,7 @@ public final class ListApis {
 
       requestBody.put(ITEM_TYPE, itemType);
       /* Populating query mapper */
-      requestBody.put(HEADER_INSTANCE, instanceID);
+      requestBody.put(HEADER_INSTANCE, instanceId);
 
       JsonObject resp = QueryMapper.validateQueryParam(requestBody);
       if (resp.getString(STATUS).equals(SUCCESS)) {

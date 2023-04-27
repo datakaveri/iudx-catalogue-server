@@ -40,7 +40,7 @@ public class MockAuthenticationServiceImplTest {
         mockAuthenticationService=new MockAuthenticationServiceImpl(client,authHost);
         String requestID="abcd/abcd/abcd/abcd";
         String providerID="dummy";
-        assertFalse(mockAuthenticationService.isPermittedProviderID(requestID,providerID));
+        assertFalse(mockAuthenticationService.isPermittedProviderId(requestID,providerID));
         vertxTestContext.completeNow();
     }
     @Test

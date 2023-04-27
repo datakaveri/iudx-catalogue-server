@@ -1,9 +1,7 @@
 package iudx.catalogue.server.authenticator;
 
-import iudx.catalogue.server.authenticator.model.JwtData;
-import iudx.catalogue.server.util.Api;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static iudx.catalogue.server.auditing.util.Constants.*;
+import static iudx.catalogue.server.authenticator.Constants.*;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -18,18 +16,18 @@ import iudx.catalogue.server.authenticator.authorization.AuthorizationRequest;
 import iudx.catalogue.server.authenticator.authorization.AuthorizationStratergy;
 import iudx.catalogue.server.authenticator.authorization.JwtAuthorization;
 import iudx.catalogue.server.authenticator.authorization.Method;
+import iudx.catalogue.server.authenticator.model.JwtData;
+import iudx.catalogue.server.util.Api;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.auditing.util.Constants.USER_ROLE;
-import static iudx.catalogue.server.auditing.util.Constants.USER_ID;
-import static iudx.catalogue.server.auditing.util.Constants.IID;
-import static iudx.catalogue.server.authenticator.Constants.*;
-import static iudx.catalogue.server.util.Constants.ID;
 
 /**
  * The JWT Authentication Service Implementation.
  * <h1>JWT Authentication Service Implementation</h1>
  * <p>
- * The JWT Authentication Service implementation in the IUDX Catalogue Server implements the definitions
+ * The JWT Authentication Service implementation in the
+ * IUDX Catalogue Server implements the definitions
  * of the {@link iudx.catalogue.server.authenticator.AuthenticationService}.
  * </p>
  *
@@ -44,7 +42,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   final String audience;
   private Api api;
 
-  JwtAuthenticationServiceImpl(Vertx vertx, final JWTAuth jwtAuth, final JsonObject config, final Api api) {
+  JwtAuthenticationServiceImpl(Vertx vertx, final JWTAuth jwtAuth, final JsonObject config,
+                               final Api api) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("host");
     this.api = api;
@@ -60,7 +59,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
               JwtData jwtData = new JwtData(user.principal());
               promise.complete(jwtData);
             }).onFailure(err -> {
-              LOGGER.error("failed to decode/validate jwt token : "+err.getMessage());
+              LOGGER.error("failed to decode/validate jwt token : " + err.getMessage());
               promise.fail("failed");
             });
     return promise.future();
@@ -74,8 +73,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   Future<Boolean> isValidAudienceValue(JwtData jwtData) {
     Promise<Boolean> promise = Promise.promise();
 
-    LOGGER.debug("Audience in jwt is: "+jwtData.getAud());
-    if(audience !=null && audience.equalsIgnoreCase(jwtData.getAud())) {
+    LOGGER.debug("Audience in jwt is: " + jwtData.getAud());
+    if (audience != null && audience.equalsIgnoreCase(jwtData.getAud())) {
       promise.complete(true);
     } else {
       LOGGER.error("Incorrect audience value in jwt");
@@ -90,7 +89,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     // id is the (substring [1] of Iid with delimiter as ':' )'s substring [1] with delimiter as '/'
     String jwtId = "";
     if (jwtData.getIid().contains("/")) {
-      jwtId = (jwtData.getIid().split(":")[1]).split("/")[0]+"/"+(jwtData.getIid().split(":")[1]).split("/")[1];
+      jwtId = (jwtData.getIid().split(":")[1]).split("/")[0] + "/" + (jwtData.getIid()
+              .split(":")[1]).split("/")[1];
     } else {
       jwtId = jwtData.getIid().split(":")[1];
     }
@@ -125,18 +125,19 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     LOGGER.trace("validateAccess() started");
     Promise<JsonObject> promise = Promise.promise();
 
-    Method method = Method.valueOf(authenticationInfo.getString(METHOD));
+    Method method = Method.valueOf(authenticationInfo.getString(Constants.METHOD));
     String api = authenticationInfo.getString(API_ENDPOINT);
 
-    AuthorizationRequest authRequest = new AuthorizationRequest(method,api);
+    AuthorizationRequest authRequest = new AuthorizationRequest(method, api);
 
-    AuthorizationStratergy authStrategy = AuthorizationContextFactory.create(jwtData.getRole(), this.api);
+    AuthorizationStratergy authStrategy = AuthorizationContextFactory.create(jwtData.getRole(),
+            this.api);
     LOGGER.debug("strategy: " + authStrategy.getClass().getSimpleName());
 
     JwtAuthorization jwtAuthStrategy = new JwtAuthorization(authStrategy);
-    LOGGER.debug("endpoint: "+authenticationInfo.getString(API_ENDPOINT));
+    LOGGER.debug("endpoint: " + authenticationInfo.getString(API_ENDPOINT));
 
-    if(jwtAuthStrategy.isAuthorized(authRequest, jwtData)) {
+    if (jwtAuthStrategy.isAuthorized(authRequest, jwtData)) {
       LOGGER.debug("User access is allowed");
       JsonObject response = new JsonObject();
       // adding user id, user role and iid to response for auditing purpose
@@ -145,14 +146,14 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
               .put(USER_ID, jwtData.getSub());
       if (jwtData.getIid().contains("/")) {
         response.put(IID, (jwtData.getIid().split(":")[1]).split("/")[0]
-            +"/"+(jwtData.getIid().split(":")[1]).split("/")[1]);
+            + "/" + (jwtData.getIid().split(":")[1]).split("/")[1]);
       } else {
         response.put(IID, jwtData.getIid().split(":")[1]);
       }
       promise.complete(response);
     } else {
       LOGGER.error("user access denied");
-      JsonObject result = new JsonObject().put("401","no access provided to endpoint");
+      JsonObject result = new JsonObject().put("401", "no access provided to endpoint");
       promise.fail(result.toString());
     }
     return promise.future();

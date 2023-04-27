@@ -5,12 +5,12 @@ import java.util.Arrays;
 
 public class Constants {
 
-  /** Class Names */
+  /** Class Names. */
   public static final String GEOCODING_PACKAGE_NAME = "iudx.catalogue.server.geocoding";
   public static final String NLPSEARCH_PACKAGE_NAME = "iudx.catalogue.server.nlpsearch";
 
 
-  /** Service Addresses */
+  /** Service Addresses. */
   public static final String DATABASE_SERVICE_ADDRESS = "iudx.catalogue.database.service";
   public static final String AUTH_SERVICE_ADDRESS = "iudx.catalogue.authentication.service";
   public static final String VALIDATION_SERVICE_ADDRESS = "iudx.catalogue.validator.service";
@@ -18,12 +18,12 @@ public class Constants {
   public static final String NLP_SERVICE_ADDRESS = "iudx.catalogue.nlpsearch.service";
   public static final String AUDITING_SERVICE_ADDRESS = "iudx.catalogue.auditing.service";
   public static final String RATING_SERVICE_ADDRESS = "iudx.catalogue.rating.service";
-  public static final String MLAYER_SERVICE_ADDRESSS="iudx.catalogue.mlayer.service";
+  public static final String MLAYER_SERVICE_ADDRESSS = "iudx.catalogue.mlayer.service";
   public static final String BROKER_SERVICE_ADDRESS = "iudx.catalogue.databroker.service";
   public static final String PG_SERVICE_ADDRESS = "iudx.catalogue.pgsql.service";
 
 
-  /** General */
+  /** General. */
 
   public static final String CONFIG_FILE = "config.properties";
   public static final String OPTIONAL_MODULES = "optionalModules";
@@ -36,8 +36,8 @@ public class Constants {
   public static final String DATABASE_UNAME = "databaseUser";
   public static final String DOC_INDEX = "docIndex";
   public static final String RATING_INDEX = "ratingIndex";
-  public static final String MLAYER_INSTANCE_INDEX="mlayerInstanceIndex";
-  public static final String MLAYER_DOMAIN_INDEX="mlayerDomainIndex";
+  public static final String MLAYER_INSTANCE_INDEX = "mlayerInstanceIndex";
+  public static final String MLAYER_DOMAIN_INDEX = "mlayerDomainIndex";
 
   public static final String PUBLIC_KEY = "publicKey";
   public static final String DATABASE_PASSWD = "databasePassword";
@@ -45,7 +45,7 @@ public class Constants {
 
 
 
-  /** Item type */
+  /** Item type. */
   public static final String RELATIONSHIP = "relationship";
   public static final String RESOURCE = "resource";
   public static final String RESOURCE_GRP = "resourceGroup";
@@ -55,7 +55,7 @@ public class Constants {
 
 
 
-  /** Item types */
+  /** Item types. */
   public static final String ITEM_TYPE_RESOURCE = "iudx:Resource";
   public static final String ITEM_TYPE_RESOURCE_GROUP = "iudx:ResourceGroup";
   public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
@@ -77,7 +77,7 @@ public class Constants {
   public static final String PROPERTY = "property";
   public static final String VALUE = "value";
 
-  /** GeoRels */
+  /** GeoRels. */
   public static final String GEOREL_WITHIN = "within";
   public static final String GEOREL_NEAR = "near";
   public static final String GEOREL_COVERED_BY = "coveredBy";
@@ -85,7 +85,7 @@ public class Constants {
   public static final String GEOREL_EQUALS = "equals";
   public static final String GEOREL_DISJOINT = "disjoint";
 
-  /** Geometries */
+  /** Geometries. */
   public static final String BBOX = "bbox";
   public static final String GEOMETRY = "geometry";
   public static final String GEOPROPERTY = "geoproperty";
@@ -101,7 +101,7 @@ public class Constants {
   public static final String LIMIT = "limit";
   public static final String OFFSET = "offset";
 
-  /** SearchTypes */
+  /** SearchTypes. */
   public static final String SEARCH_TYPE = "searchType";
   public static final String SEARCH_TYPE_GEO = "geoSearch_";
   public static final String SEARCH_TYPE_TEXT = "textSearch_";
@@ -121,7 +121,7 @@ public class Constants {
   public static final String ERROR = "error";
   public static final String DESC = "detail";
 
-  /** DB Query */
+  /** DB Query. */
   public static final String TOTAL_HITS = "totalHits";
   public static final String QUERY_KEY = "query";
   public static final String HITS = "hits";
@@ -133,21 +133,21 @@ public class Constants {
   public static final String AVERAGE_RATING = "average_rating";
   public static final String TOTAL_RATINGS = "totalRatings";
 
-  /** HTTP Methods */
+  /** HTTP Methods. */
   public static final String REQUEST_GET = "GET";
   public static final String REQUEST_POST = "POST";
   public static final String REQUEST_PUT = "PUT";
   public static final String REQUEST_DELETE = "DELETE";
 
-  /** Error Messages */
+  /** Error Messages. */
   public static final String DATABASE_ERROR = "DB Error. Check logs for more information";
 
-  /** Operation type */
+  /** Operation type. */
   public static final String INSERT = "insert";
   public static final String UPDATE = "update";
   public static final String DELETE = "delete";
 
-  /** Limits/Constraints */
+  /** Limits/Constraints. */
   public static final long COORDINATES_SIZE = 10;
   public static final int COORDINATES_PRECISION = 6;
   public static final int STRING_SIZE = 100;
@@ -174,7 +174,7 @@ public class Constants {
   public static final String TYPE_ALREADY_EXISTS = "urn:dx:cat:AlreadyExists";
   public static final String TYPE_SUCCESS = "urn:dx:cat:Success";
   public static final String TYPE_FAIL = "urn:dx:cat:Fail";
-  public static final String TYPE_ACCESS_DENIED= "urn:dx:cat:AccessDenied";
+  public static final String TYPE_ACCESS_DENIED = "urn:dx:cat:AccessDenied";
   public static final String TYPE_TOKEN_INVALID = "urn:dx:cat:InvalidAuthorizationToken";
   public static final String TYPE_MISSING_TOKEN = "urn:dx:cat:MissingAuthorizationToken";
   public static final String TYPE_ITEM_NOT_FOUND = "urn:dx:cat:ItemNotFound";
@@ -201,7 +201,8 @@ public class Constants {
   public static final String TITLE_INTERNAL_SERVER_ERROR = "Internal error";
   public static final String TITLE_OPERATION_NOT_ALLOWED = "Operation not allowed";
   public static final String TITLE_LINK_VALIDATION_FAILED = "Link Validation Failed";
-  public static final String TITLE_REQUIREMENTS_NOT_MET = "Resource usage requirements not satisfied";
+  public static final String TITLE_REQUIREMENTS_NOT_MET =
+          "Resource usage requirements not satisfied";
 
 
   public static final String DETAIL_INTERNAL_SERVER_ERROR = "Internal error";
@@ -218,7 +219,8 @@ public class Constants {
   public static final String DETAIL_INVALID_COORDINATE_POLYGON = "Coordinate mismatch (Polygon)";
   public static final String DETAIL_INVALID_BBOX = "Issue with bbox coordinates";
   public static final String DETAIL_INVALID_GEO_PARAMETER = "Missing/Invalid geo parameters";
-  public static final String DETAIL_INVALID_RESPONSE_FILTER = "Missing/Invalid responseFilter parameters";
+  public static final String DETAIL_INVALID_RESPONSE_FILTER =
+          "Missing/Invalid responseFilter parameters";
 
   public static final String DETAIL_INVALID_TOKEN = "Authorization failed, Invalid token.";
 
@@ -234,7 +236,7 @@ public class Constants {
 
   public static final String TYPE_BAD_FILTER = "urn:dx:cat:BadFilter";
   public static final String TITLE_BAD_FILTER = "Bad filters applied";
-  public static final String INSTANCE_CREATION_SUCCESS="Instance created successfully.";
+  public static final String INSTANCE_CREATION_SUCCESS = "Instance created successfully.";
   public static final String WRONG_INSTANCE_NAME = "Requested Body Instance Name wrong";
   public static final String TITLE_WRONG_INSTANCE_NAME = "Inavlid Requested Body";
   public static final String TITLE_DB_ERROR = "database error";

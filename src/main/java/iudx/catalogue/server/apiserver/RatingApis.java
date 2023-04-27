@@ -1,5 +1,11 @@
 package iudx.catalogue.server.apiserver;
 
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.auditing.util.Constants.*;
+import static iudx.catalogue.server.authenticator.Constants.*;
+import static iudx.catalogue.server.rating.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServerRequest;
@@ -10,26 +16,12 @@ import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.rating.RatingService;
+import iudx.catalogue.server.rating.util.Constants;
 import iudx.catalogue.server.util.Api;
 import iudx.catalogue.server.validator.ValidatorService;
 import java.time.ZonedDateTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.apiserver.util.Constants.MIME_APPLICATION_JSON;
-import static iudx.catalogue.server.auditing.util.Constants.*;
-import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
-import static iudx.catalogue.server.authenticator.Constants.RATINGS_ENDPOINT;
-import static iudx.catalogue.server.authenticator.Constants.TOKEN;
-import static iudx.catalogue.server.rating.util.Constants.*;
-import static iudx.catalogue.server.rating.util.Constants.USER_ID;
-import static iudx.catalogue.server.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.ID;
-import static iudx.catalogue.server.util.Constants.METHOD;
-import static iudx.catalogue.server.util.Constants.RESULTS;
-import static iudx.catalogue.server.util.Constants.STATUS;
-
 
 
 public class RatingApis {
@@ -80,13 +72,13 @@ public class RatingApis {
 
     JsonObject jwtAuthenticationInfo = new JsonObject();
 
-    String id = request.getParam(ID);
+    String id = request.getParam(iudx.catalogue.server.util.Constants.ID);
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(METHOD, REQUEST_POST)
+        .put(iudx.catalogue.server.util.Constants.METHOD, REQUEST_POST)
         .put(API_ENDPOINT, RATINGS_ENDPOINT)
-        .put(ID, host);
+        .put(iudx.catalogue.server.util.Constants.ID, host);
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
 
@@ -94,8 +86,8 @@ public class RatingApis {
         .onSuccess(
             successHandler -> {
               requestBody
-                  .put(ID, id)
-                  .put(USER_ID, successHandler.getString(USER_ID))
+                  .put(Constants.ID, id)
+                  .put(Constants.USER_ID, successHandler.getString(Constants.USER_ID))
                   .put("status", PENDING);
 
               validatorService.validateRating(
@@ -145,9 +137,9 @@ public class RatingApis {
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    String id = request.getParam(ID);
+    String id = request.getParam(Constants.ID);
 
-    JsonObject requestBody = new JsonObject().put(ID, id);
+    JsonObject requestBody = new JsonObject().put(Constants.ID, id);
 
     if (request.params().contains("type")) {
       String requestType = request.getParam("type");
@@ -168,7 +160,8 @@ public class RatingApis {
           requestBody,
           handler -> {
             if (handler.succeeded()) {
-              if (!handler.result().getJsonArray(RESULTS).isEmpty()) {
+              if (!handler.result().getJsonArray(iudx.catalogue.server.util.Constants.RESULTS)
+                      .isEmpty()) {
                 response.setStatusCode(200).end(handler.result().toString());
               } else {
                 response.setStatusCode(204).end();
@@ -186,23 +179,24 @@ public class RatingApis {
       JsonObject authenticationInfo =
           new JsonObject()
               .put(TOKEN, request.getHeader(TOKEN))
-              .put(METHOD, REQUEST_GET)
+              .put(iudx.catalogue.server.util.Constants.METHOD, REQUEST_GET)
               .put(API_ENDPOINT, RATINGS_ENDPOINT)
-              .put(ID, host);
+              .put(Constants.ID, host);
 
       Future<JsonObject> authenticationFuture = inspectToken(authenticationInfo);
 
       authenticationFuture
           .onSuccess(
               successHandler -> {
-                LOGGER.debug(successHandler.getString(USER_ID));
-                requestBody.put(USER_ID, successHandler.getString(USER_ID));
+                LOGGER.debug(successHandler.getString(Constants.USER_ID));
+                requestBody.put(Constants.USER_ID, successHandler.getString(Constants.USER_ID));
 
                 ratingService.getRating(
                     requestBody,
                     handler -> {
                       if (handler.succeeded()) {
-                        if (!handler.result().getJsonArray(RESULTS).isEmpty()) {
+                        if (!handler.result().getJsonArray(
+                                iudx.catalogue.server.util.Constants.RESULTS).isEmpty()) {
                           response.setStatusCode(200).end(handler.result().toString());
                         } else {
                           response.setStatusCode(204).end();
@@ -244,13 +238,13 @@ public class RatingApis {
 
     JsonObject jwtAuthenticationInfo = new JsonObject();
 
-    String id = request.getParam(ID);
+    String id = request.getParam(Constants.ID);
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(METHOD, REQUEST_PUT)
+        .put(iudx.catalogue.server.util.Constants.METHOD, REQUEST_PUT)
         .put(API_ENDPOINT, RATINGS_ENDPOINT)
-        .put(ID, host);
+        .put(Constants.ID, host);
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
 
@@ -258,8 +252,8 @@ public class RatingApis {
         .onSuccess(
             successHandler -> {
               requestBody
-                  .put(ID, id)
-                  .put(USER_ID, successHandler.getString(USER_ID))
+                  .put(Constants.ID, id)
+                  .put(Constants.USER_ID, successHandler.getString(Constants.USER_ID))
                   .put("status", PENDING);
 
               validatorService.validateRating(
@@ -321,19 +315,20 @@ public class RatingApis {
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(METHOD, REQUEST_DELETE)
+        .put(iudx.catalogue.server.util.Constants.METHOD, REQUEST_DELETE)
         .put(API_ENDPOINT, RATINGS_ENDPOINT)
-        .put(ID, host);
+        .put(Constants.ID, host);
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
 
     authenticationFuture
         .onSuccess(
             successHandler -> {
-              String id = request.getParam(ID);
+              String id = request.getParam(Constants.ID);
 
               JsonObject requestBody =
-                  new JsonObject().put(USER_ID, successHandler.getString(USER_ID)).put(ID, id);
+                  new JsonObject().put(Constants.USER_ID, successHandler.getString(
+                          Constants.USER_ID)).put(Constants.ID, id);
 
               ratingService.deleteRating(
                   requestBody,
@@ -341,7 +336,8 @@ public class RatingApis {
                     if (dbHandler.succeeded()) {
                       LOGGER.info("Success: Item deleted;");
                       LOGGER.debug(dbHandler.result().toString());
-                      if (dbHandler.result().getString(STATUS).equals(TITLE_SUCCESS)) {
+                      if (dbHandler.result().getString(iudx.catalogue.server.util.Constants.STATUS)
+                              .equals(TITLE_SUCCESS)) {
                         response.setStatusCode(200).end(dbHandler.result().toString());
                         if (hasAuditService) {
                           updateAuditTable(
@@ -402,9 +398,9 @@ public class RatingApis {
         .put(API, otherInfo[1])
         .put(HTTP_METHOD, otherInfo[2])
         .put(EPOCH_TIME, epochTime)
-        .put(USERID, jwtDecodedInfo.getString(USER_ID));
+        .put(USERID, jwtDecodedInfo.getString(USERID));
     LOGGER.debug("audit auditInfo: " + auditInfo);
-    auditingService.insertAuditngValuesInRMQ(
+    auditingService.insertAuditngValuesInRmq(
         auditInfo,
         auditHandler -> {
           if (auditHandler.succeeded()) {

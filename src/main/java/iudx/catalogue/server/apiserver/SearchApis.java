@@ -5,6 +5,9 @@
 
 package iudx.catalogue.server.apiserver;
 
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -20,9 +23,6 @@ import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
-
 
 public final class SearchApis {
 
@@ -34,8 +34,7 @@ public final class SearchApis {
 
   private static final Logger LOGGER = LogManager.getLogger(SearchApis.class);
 
-  public SearchApis(Api api)
-  {
+  public SearchApis(Api api) {
     this.api = api;
   }
 
@@ -76,12 +75,12 @@ public final class SearchApis {
     JsonObject requestBody = new JsonObject();
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_INSTANCE);
+    String instanceId = request.getHeader(HEADER_INSTANCE);
 
     MultiMap queryParameters = routingContext.queryParams();
 
     LOGGER.debug("Info: routed to search/count");
-    LOGGER.debug("Info: instance;" + instanceID);
+    LOGGER.debug("Info: instance;" + instanceId);
 
     /* validating proper actual query parameters from request */
     if ((request.getParam(PROPERTY) == null || request.getParam(VALUE) == null)
@@ -129,7 +128,7 @@ public final class SearchApis {
     }
 
     if (requestBody != null) {
-      requestBody.put(HEADER_INSTANCE, instanceID);
+      requestBody.put(HEADER_INSTANCE, instanceId);
 
       JsonObject resp = QueryMapper.validateQueryParam(requestBody);
       if (resp.getString(STATUS).equals(SUCCESS)) {

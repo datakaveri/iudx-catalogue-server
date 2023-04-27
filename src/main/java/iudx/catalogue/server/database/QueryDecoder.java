@@ -1,13 +1,14 @@
 package iudx.catalogue.server.database;
 
+import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.database.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
 
 public final class QueryDecoder {
 
@@ -27,9 +28,6 @@ public final class QueryDecoder {
     String queryGeoShape = null;
     JsonArray mustQuery = new JsonArray();
     Boolean match = false;
-
-    /* Will be used for multi-tenancy */
-    String instanceId = request.getString(INSTANCE);
 
     /* TODO: Pagination for large result set */
     if (request.getBoolean(SEARCH)) {
@@ -74,14 +72,16 @@ public final class QueryDecoder {
                       .withDetail(DETAIL_INVALID_COORDINATE_POLYGON)
                       .getJsonResponse());
         }
-        queryGeoShape = GEO_SHAPE_QUERY.replace("$1", geometry).replace("$2", coordinates.toString())
+        queryGeoShape = GEO_SHAPE_QUERY.replace("$1", geometry)
+                .replace("$2", coordinates.toString())
             .replace("$3", relation).replace("$4", geoProperty + GEO_KEY);
 
       } else if (BBOX.equalsIgnoreCase(geometry)) {
         /* Construct the query for BBOX */
         relation = request.getString(GEORELATION);
         coordinates = request.getJsonArray(COORDINATES_KEY);
-        queryGeoShape = GEO_SHAPE_QUERY.replace("$1", GEO_BBOX).replace("$2", coordinates.toString())
+        queryGeoShape = GEO_SHAPE_QUERY
+                .replace("$1", GEO_BBOX).replace("$2", coordinates.toString())
             .replace("$3", relation).replace("$4", geoProperty + GEO_KEY);
       } else {
         return new JsonObject().put(ERROR, new RespBuilder()
@@ -163,6 +163,9 @@ public final class QueryDecoder {
       }
     }
 
+    /* Will be used for multi-tenancy */
+    String instanceId = request.getString(INSTANCE);
+
     if (instanceId != null) {
       String instanceFilter = INSTANCE_FILTER.replace("$1", instanceId);
       LOGGER.debug("Info: Instance found in query;" + instanceFilter);
@@ -209,7 +212,7 @@ public final class QueryDecoder {
     }
 
     if (!match) {
-        return new JsonObject().put(ERROR, new RespBuilder()
+      return new JsonObject().put(ERROR, new RespBuilder()
             .withType(TYPE_INVALID_SYNTAX)
             .withTitle(TITLE_INVALID_SYNTAX)
             .getJsonResponse());
@@ -253,8 +256,8 @@ public final class QueryDecoder {
       
       subQuery = TERM_QUERY.replace("$1", RESOURCE_GRP + KEYWORD_KEY)
                            .replace("$2", resourceGroupId) 
-                            + "," + 
-                 TERM_QUERY.replace("$1", TYPE_KEYWORD)
+                            + ","
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_RESOURCE);
 
     } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType)) {
@@ -264,8 +267,8 @@ public final class QueryDecoder {
       
       subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
                            .replace("$2", resourceGroupId) 
-                           + "," + 
-                 TERM_QUERY.replace("$1", TYPE_KEYWORD)
+                           + ","
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
 
     } else if (request.containsKey(ID) && PROVIDER.equals(relationshipType)) {
@@ -276,8 +279,8 @@ public final class QueryDecoder {
 
       subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
                            .replace("$2", providerId) 
-                           + "," + 
-                 TERM_QUERY.replace("$1", TYPE_KEYWORD)
+                           + ","
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_PROVIDER);
 
     } else if (request.containsKey(ID) && RESOURCE_SVR.equals(relationshipType)) {
@@ -287,11 +290,11 @@ public final class QueryDecoder {
 
       subQuery = MATCH_QUERY.replace("$1", ID)
                             .replace("$2", id[0])
-                            + "," + 
-                 MATCH_QUERY.replace("$1", ID)
+                            + ","
+              + MATCH_QUERY.replace("$1", ID)
                             .replace("$2", id[2])
-                            + "," + 
-                 TERM_QUERY.replace("$1", TYPE_KEYWORD)
+                            + ","
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_RESOURCE_SERVER);
 
     } else if (request.containsKey(ID) && TYPE_KEY.equals(relationshipType)) {
@@ -346,21 +349,21 @@ public final class QueryDecoder {
     LOGGER.debug("Info: Reached list items;" + request.toString());
     String itemType = request.getString(ITEM_TYPE);
     String type = request.getString(TYPE_KEY);
-    String instanceID = request.getString(INSTANCE);
+    String instanceId = request.getString(INSTANCE);
     String elasticQuery = "";
     String tempQuery = "";
 
     if (itemType.equalsIgnoreCase(TAGS)) {
-      if (instanceID == null || instanceID == "") {
+      if (instanceId == null || instanceId == "") {
         tempQuery = LIST_TAGS_QUERY;
       } else {
-        tempQuery = LIST_INSTANCE_TAGS_QUERY.replace("$1", instanceID);
+        tempQuery = LIST_INSTANCE_TAGS_QUERY.replace("$1", instanceId);
       }
     } else {
-      if (instanceID == null || instanceID == "") {
+      if (instanceId == null || instanceId == "") {
         tempQuery = LIST_TYPES_QUERY.replace("$1", type);
       } else {
-        tempQuery = LIST_INSTANCE_TYPES_QUERY.replace("$1", type).replace("$2", instanceID);
+        tempQuery = LIST_INSTANCE_TYPES_QUERY.replace("$1", type).replace("$2", instanceId);
       }
     }
     

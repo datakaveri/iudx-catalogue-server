@@ -1,13 +1,10 @@
 package iudx.catalogue.server.auditing.util;
 
-import static iudx.catalogue.server.auditing.util.Constants.ERROR_TYPE;
-import static iudx.catalogue.server.auditing.util.Constants.FAILED;
-import static iudx.catalogue.server.auditing.util.Constants.RESULTS;
-import static iudx.catalogue.server.auditing.util.Constants.SUCCESS;
-import static iudx.catalogue.server.auditing.util.Constants.TITLE;
 
-import io.vertx.core.json.JsonObject;
+import static iudx.catalogue.server.auditing.util.Constants.*;
+
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class ResponseBuilder {
   private String status;

@@ -62,7 +62,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private Router router;
 
   private String catAdmin;
-  private boolean isSSL;
+  private boolean isSsL;
   private int port;
 
   private String dxApiBasePath;
@@ -85,13 +85,13 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Configure */
     catAdmin = config().getString(CAT_ADMIN);
-    isSSL = config().getBoolean(IS_SSL);
+    isSsL = config().getBoolean(IS_SSL);
 
 
     HttpServerOptions serverOptions = new HttpServerOptions();
 
 
-    if (isSSL) {
+    if (isSsL) {
       LOGGER.debug("Info: Starting HTTPs server");
 
       /* Read the configuration and set the HTTPs server properties. */
@@ -147,16 +147,17 @@ public class ApiServerVerticle extends AbstractVerticle {
     DatabaseService dbService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
 
     RatingService ratingService = RatingService.createProxy(vertx, RATING_SERVICE_ADDRESS);
+    ratingApis.setRatingService(ratingService);
+
     MlayerService mlayerService = MlayerService.createProxy(vertx, MLAYER_SERVICE_ADDRESSS);
+    mlayerApis.setMlayerService(mlayerService);
 
     crudApis.setDbService(dbService);
     listApis.setDbService(dbService);
     relApis.setDbService(dbService);
     // TODO : set db service for Rating APIs
     crudApis.setHost(config().getString(HOST));
-    ratingApis.setRatingService(ratingService);
     ratingApis.setHost(config().getString(HOST));
-    mlayerApis.setMlayerService(mlayerService);
     mlayerApis.setHost(config().getString(HOST));
 
     AuthenticationService authService =

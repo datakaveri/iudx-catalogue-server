@@ -1,15 +1,15 @@
 package iudx.catalogue.server.database;
 
 import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.MessageConsumer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import io.vertx.serviceproxy.ServiceBinder;
-import iudx.catalogue.server.nlpsearch.NLPSearchService;
-import iudx.catalogue.server.geocoding.GeocodingService;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.serviceproxy.ServiceBinder;
+import iudx.catalogue.server.geocoding.GeocodingService;
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
+
 
 /**
  * The Database Verticle.
@@ -25,7 +25,7 @@ import io.vertx.core.json.JsonObject;
 public class DatabaseVerticle extends AbstractVerticle {
 
   private DatabaseService database;
-  private String databaseIP;
+  private String databaseIp;
   private String docIndex;
   private String ratingIndex;
   private String mlayerIndex;
@@ -48,7 +48,7 @@ public class DatabaseVerticle extends AbstractVerticle {
   @Override
   public void start() throws Exception {
     binder = new ServiceBinder(vertx);
-    databaseIP = config().getString(DATABASE_IP);
+    databaseIp = config().getString(DATABASE_IP);
     databasePort = config().getInteger(DATABASE_PORT);
     databaseUser = config().getString(DATABASE_UNAME);
     databasePassword = config().getString(DATABASE_PASSWD);
@@ -58,7 +58,7 @@ public class DatabaseVerticle extends AbstractVerticle {
     mlayerDomainIndex = config().getString(MLAYER_DOMAIN_INDEX);
     optionalModules = config().getJsonArray(OPTIONAL_MODULES);
 
-    client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
+    client = new ElasticClient(databaseIp, databasePort, docIndex, databaseUser, databasePassword);
 
     if (optionalModules.contains(NLPSEARCH_PACKAGE_NAME)
         && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
@@ -66,9 +66,11 @@ public class DatabaseVerticle extends AbstractVerticle {
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
       database =
           new DatabaseServiceImpl(
-              client, docIndex, ratingIndex, mlayerIndex,mlayerDomainIndex, nlpService, geoService);
+              client, docIndex, ratingIndex, mlayerIndex, mlayerDomainIndex,
+                  nlpService, geoService);
     } else {
-      database = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerIndex,mlayerDomainIndex);
+      database = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerIndex,
+              mlayerDomainIndex);
     }
 
     consumer =

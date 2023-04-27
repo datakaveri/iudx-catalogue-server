@@ -1,8 +1,9 @@
 package iudx.catalogue.server.database;
 
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import static iudx.catalogue.server.util.Constants.*;
 
 
 public class RespBuilder {
@@ -25,24 +26,25 @@ public class RespBuilder {
 
   public RespBuilder withResult(String id, String method, String status) {
     JsonObject resultAttrs = new JsonObject().put(ID, id)
-      .put(METHOD, method)
-      .put(STATUS, status);
+        .put(METHOD, method)
+        .put(STATUS, status);
     response.put(RESULTS, new JsonArray().add(resultAttrs));
     return this;
   }
 
   public RespBuilder withResult(String id, String method, String status, String detail) {
     JsonObject resultAttrs = new JsonObject().put(ID, id)
-      .put(METHOD, method)
-      .put(STATUS, status)
-      .put(DETAIL, detail);
+        .put(METHOD, method)
+        .put(STATUS, status)
+        .put(DETAIL, detail);
     response.put(RESULTS, new JsonArray().add(resultAttrs));
     return this;
   }
+
   public RespBuilder withResult(String id, String detail) {
-    JsonObject resultAttrs = new JsonObject().put(ID,id)
+    JsonObject resultAttrs = new JsonObject().put(ID, id)
             .put(DETAIL, detail);
-    response.put(RESULTS,new JsonArray().add(resultAttrs));
+    response.put(RESULTS, new JsonArray().add(resultAttrs));
     return this;
   }
 
@@ -61,10 +63,12 @@ public class RespBuilder {
     response.put(RESULTS, results);
     return this;
   }
+
   public RespBuilder withResult(JsonObject results) {
     response.put(RESULTS, results);
     return this;
   }
+
   public JsonObject getJsonResponse() {
     return response;
   }

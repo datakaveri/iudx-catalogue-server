@@ -1,8 +1,10 @@
 package iudx.catalogue.server.apiserver.util;
 
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import static iudx.catalogue.server.util.Constants.*;
+
 
 public class RespBuilder {
   private JsonObject response = new JsonObject();

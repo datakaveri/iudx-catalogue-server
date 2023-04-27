@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+
 public final class CrudApis {
 
 
@@ -54,7 +55,7 @@ public final class CrudApis {
   /**
    * Crud  constructor.
    *
-   * @param api
+   * @param api endpoint for base path
    * @return void
    * @TODO Throw error if load failed
    */
@@ -84,7 +85,7 @@ public final class CrudApis {
   }
 
   /**
-   * Create/Update Item
+   * Create/Update Item.
    *
    * @param routingContext {@link RoutingContext}
    * @TODO Throw error if load failed
@@ -96,9 +97,7 @@ public final class CrudApis {
 
     /* Contains the cat-item */
     JsonObject requestBody = routingContext.body().asJsonObject();
-    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
-    JsonObject jwtAuthenticationInfo = new JsonObject();
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
@@ -135,6 +134,10 @@ public final class CrudApis {
       }
       if (schValHandler.succeeded()) {
         LOGGER.debug("Success: Schema validation");
+
+        JsonObject jwtAuthenticationInfo = new JsonObject();
+
+        HttpServerRequest request = routingContext.request();
 
         // populating jwt authentication info ->
         jwtAuthenticationInfo
@@ -391,15 +394,14 @@ public final class CrudApis {
     /** Introspect token and authorize operation */
     authService.tokenInterospect(new JsonObject(), authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
-            response.setStatusCode(401)
-              .end(new RespBuilder()
+        response.setStatusCode(401)
+                .end(new RespBuilder()
                           .withType(TYPE_TOKEN_INVALID)
                           .withTitle(TITLE_TOKEN_INVALID)
                           .withDetail(DETAIL_INVALID_TOKEN)
                           .getResponse());
         return;
-      }
-      else {
+      } else {
         /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */
         JsonObject body = new JsonObject().put(ID, instance)
                                           .put(TYPE, new JsonArray().add(ITEM_TYPE_INSTANCE))
@@ -451,8 +453,7 @@ public final class CrudApis {
                         .withDetail(DETAIL_INVALID_TOKEN)
                         .getResponse());
         return;
-      }
-      else {
+      } else {
         /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */
         JsonObject body = new JsonObject().put(ID, instance)
                                           .put(INSTANCE, "");
@@ -460,7 +461,7 @@ public final class CrudApis {
           if (res.succeeded()) {
             LOGGER.info("Success: Instance deleted;");
             response.setStatusCode(200)
-              .end(res.result().toString());
+                .end(res.result().toString());
             // TODO: call auditing service here
           } else {
             LOGGER.error("Fail: Deleting instance");
@@ -474,8 +475,9 @@ public final class CrudApis {
 
   /**
    * Check if the itemId contains certain invalid characters.
-   * 
-   * @param itemId
+   *
+   *
+   * @param itemId which is a String
    * @return
    */
   private boolean validateId(String itemId) {
@@ -486,7 +488,7 @@ public final class CrudApis {
   }
 
   /**
-   * function to handle call to audit service
+   * function to handle call to audit service.
    *
    * @param jwtDecodedInfo contains the user-role, user-id, iid
    * @param otherInfo contains item-id, api-endpoint and the HTTP method.
@@ -502,10 +504,10 @@ public final class CrudApis {
             .put(API, otherInfo[1])
             .put(HTTP_METHOD, otherInfo[2])
             .put(EPOCH_TIME, epochTime)
-            .put(USERID,jwtDecodedInfo.getString(USER_ID));
+            .put(USERID, jwtDecodedInfo.getString(USER_ID));
 
     LOGGER.debug("audit data: " + auditInfo.encodePrettily());
-    auditingService.insertAuditngValuesInRMQ(auditInfo, auditHandler -> {
+    auditingService.insertAuditngValuesInRmq(auditInfo, auditHandler -> {
       if (auditHandler.succeeded()) {
         LOGGER.info("message published in RMQ.");
       } else {
