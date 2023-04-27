@@ -21,12 +21,11 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 
 import static iudx.catalogue.server.database.Constants.*;
-import static iudx.catalogue.server.database.Constants.SOURCE_AND_ID_GEOQUERY;
+//import static iudx.catalogue.server.database.Constants.SOURCE_AND_ID_GEOQUERY;
 import static iudx.catalogue.server.geocoding.util.Constants.*;
-import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
+//import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
 import static iudx.catalogue.server.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.RESULTS;
-import static iudx.catalogue.server.util.Constants.TYPE;
+
 
 public final class ElasticClient {
 
@@ -117,7 +116,7 @@ public final class ElasticClient {
 
   public Future<JsonObject> scriptLocationSearch(JsonArray queryVector, JsonObject queryParams) {
     Promise<JsonObject> promise = Promise.promise();
-    JsonArray bboxCoords = queryParams.getJsonArray(BBOX);
+    JsonArray bboxCoords = queryParams.getJsonArray(iudx.catalogue.server.util.Constants.BBOX);
 
     StringBuilder query = new StringBuilder("{\"query\": {\"script_score\": {\"query\": {\"bool\": {\"should\": [");
     if(queryParams.containsKey(BOROUGH)) {
@@ -291,7 +290,7 @@ public final class ElasticClient {
     }
 
     DBRespMsgBuilder statusSuccess() {
-      response.put(TYPE, TYPE_SUCCESS);
+      response.put(iudx.catalogue.server.util.Constants.TYPE, TYPE_SUCCESS);
       response.put(TITLE, TITLE_SUCCESS);
       return this;
     }
@@ -303,18 +302,18 @@ public final class ElasticClient {
 
     /** Overloaded for source only request */
     DBRespMsgBuilder addResult(JsonObject obj) {
-      response.put(RESULTS, results.add(obj));
+      response.put(iudx.catalogue.server.util.Constants.RESULTS, results.add(obj));
       return this;
     }
 
     /** Overloaded for doc-ids request */
     DBRespMsgBuilder addResult(String value) {
-      response.put(RESULTS, results.add(value));
+      response.put(iudx.catalogue.server.util.Constants.RESULTS, results.add(value));
       return this;
     }
 
     DBRespMsgBuilder addResult() {
-      response.put(RESULTS, results);
+      response.put(iudx.catalogue.server.util.Constants.RESULTS, results);
       return this;
     }
 
@@ -367,7 +366,7 @@ public final class ElasticClient {
 
                 if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY) {
                   results = responseJson.getJsonObject(AGGREGATIONS)
-                                  .getJsonObject(RESULTS)
+                                  .getJsonObject(iudx.catalogue.server.util.Constants.RESULTS)
                                   .getJsonArray(BUCKETS);
             }
 
@@ -415,7 +414,7 @@ public final class ElasticClient {
                   for (int i = 0; i < results.size(); i++) {
                     JsonObject record = results.getJsonObject(i).getJsonObject(SOURCE);
                     JsonObject provider = new JsonObject();
-                    String type = record.getJsonArray(TYPE).getString(0);
+                    String type = record.getJsonArray(iudx.catalogue.server.util.Constants.TYPE).getString(0);
                     if (type.equals("iudx:Provider")) {
                       provider
                           .put(ID, record.getString(ID))
@@ -437,9 +436,9 @@ public final class ElasticClient {
                       String schema =
                           record.getString("@context")
                               + record
-                                  .getJsonArray(TYPE)
+                                  .getJsonArray(iudx.catalogue.server.util.Constants.TYPE)
                                   .getString(1)
-                                  .substring(5, record.getJsonArray(TYPE).getString(1).length());
+                                  .substring(5, record.getJsonArray(iudx.catalogue.server.util.Constants.TYPE).getString(1).length());
                       dataset
                           .put(ID, record.getString(ID))
                           .put(LABEL, record.getString(LABEL))
