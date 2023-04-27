@@ -3,10 +3,7 @@ package iudx.catalogue.server.geocoding;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.serviceproxy.ServiceBinder;
@@ -27,8 +24,7 @@ import static iudx.catalogue.server.util.Constants.*;
 
 public class GeocodingVerticle extends AbstractVerticle {
 
-  private static final Logger LOGGER = LogManager.getLogger(GeocodingVerticle.class);
-  private GeocodingService Geocoding;
+  private GeocodingService geocoding;
   private String peliasUrl;
   private int peliasPort;
   private ServiceBinder binder;
@@ -47,11 +43,11 @@ public class GeocodingVerticle extends AbstractVerticle {
     binder = new ServiceBinder(vertx);
     peliasUrl = config().getString("peliasUrl");
     peliasPort = config().getInteger("peliasPort");
-    Geocoding = new GeocodingServiceImpl(createWebClient(vertx, config()), peliasUrl, peliasPort);
+    geocoding = new GeocodingServiceImpl(createWebClient(vertx, config()), peliasUrl, peliasPort);
 
     consumer =
         binder.setAddress(GEOCODING_SERVICE_ADDRESS)
-      .register(GeocodingService.class, Geocoding);
+      .register(GeocodingService.class, geocoding);
   }
 
   static WebClient createWebClient(Vertx vertx, JsonObject config) {
@@ -61,7 +57,7 @@ public class GeocodingVerticle extends AbstractVerticle {
   /**
    * Helper function to create a WebClient to talk to the geocoding server.
    * @param vertx the vertx instance
-   * @param properties the properties field of the verticle
+   * @param config the properties field of the verticle
    * @param testing a bool which is used to disable client side ssl checks for testing purposes
    * @return a web client initialized with the relevant client certificate
    */

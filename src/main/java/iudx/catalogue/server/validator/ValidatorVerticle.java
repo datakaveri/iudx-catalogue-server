@@ -4,8 +4,6 @@ import static iudx.catalogue.server.util.Constants.*;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
 import iudx.catalogue.server.database.ElasticClient;
 
@@ -21,8 +19,6 @@ import iudx.catalogue.server.database.ElasticClient;
  * @since 2020-05-31
  */
 public class ValidatorVerticle extends AbstractVerticle {
-
-  private static final Logger LOGGER = LogManager.getLogger(ValidatorVerticle.class);
 
   private ValidatorService validator;
   private String databaseIP;

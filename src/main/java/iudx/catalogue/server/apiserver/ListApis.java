@@ -29,7 +29,6 @@ public final class ListApis {
   private DatabaseService dbService;
 
   private static final Logger LOGGER = LogManager.getLogger(ListApis.class);
-  private Api api;
 
   /**
    * Crud  constructor
@@ -38,9 +37,6 @@ public final class ListApis {
    * @return void
    * @TODO Throw error if load failed
    */
-  public ListApis(Api api) {
-    this.api = api;
-  }
 
   public void setDbService(DatabaseService dbService) {
     this.dbService = dbService;

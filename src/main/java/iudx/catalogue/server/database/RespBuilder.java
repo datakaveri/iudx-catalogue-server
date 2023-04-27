@@ -2,7 +2,6 @@ package iudx.catalogue.server.database;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
 

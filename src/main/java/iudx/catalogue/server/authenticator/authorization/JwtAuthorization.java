@@ -7,8 +7,6 @@ import iudx.catalogue.server.authenticator.model.JwtData;
 
 public class JwtAuthorization {
 
-  private static final Logger LOGGER = LogManager.getLogger(JwtAuthorization.class);
-
   private final AuthorizationStratergy authStrategy;
 
   public JwtAuthorization(final AuthorizationStratergy authStrategy) {

@@ -9,9 +9,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
-import io.vertx.ext.web.client.WebClient;
-
-import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 
@@ -288,12 +285,12 @@ public interface DatabaseService {
   /**
    * The get Mlayer datasset get details of the dataset.
    *
-   * @param dataset_id which is a String.
+   * @param datasetId which is a String.
    * @param handler which is a request handler.
    * @return DatabaseService which is a Service.
    */
   @Fluent
-  DatabaseService getMlayerDataset(String dataset_id, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerDataset(String datasetId, Handler<AsyncResult<JsonObject>> handler);
   @Fluent
   DatabaseService getMlayerPopularDatasets(JsonArray highestCountResource,Handler<AsyncResult<JsonObject>> handler);
 

@@ -4,9 +4,7 @@ import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 import iudx.catalogue.server.authenticator.model.JwtData;
 
 public class AdminAuthStrategy implements AuthorizationStratergy{
-  private static final Logger LOGGER = LogManager.getLogger(ProviderAuthStrategy.class);
   private Api api;
   private static volatile AdminAuthStrategy instance;
   static List<AuthorizationRequest> accessList = new ArrayList<>();

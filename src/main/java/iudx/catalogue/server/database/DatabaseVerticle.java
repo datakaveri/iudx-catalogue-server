@@ -6,7 +6,6 @@ import io.vertx.core.eventbus.MessageConsumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.serviceproxy.ServiceBinder;
-import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import io.vertx.core.json.JsonArray;
@@ -25,7 +24,6 @@ import io.vertx.core.json.JsonObject;
  */
 public class DatabaseVerticle extends AbstractVerticle {
 
-  private static final Logger LOGGER = LogManager.getLogger(DatabaseVerticle.class);
   private DatabaseService database;
   private String databaseIP;
   private String docIndex;

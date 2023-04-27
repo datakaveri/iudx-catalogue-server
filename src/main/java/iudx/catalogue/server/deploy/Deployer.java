@@ -231,16 +231,16 @@ public class Deployer {
     Set<String> deployIDSet = vertx.deploymentIDs();
     Logger LOGGER = LogManager.getLogger(Deployer.class);
     LOGGER.info("Shutting down the application");
-    CountDownLatch latch_verticles = new CountDownLatch(deployIDSet.size());
-    CountDownLatch latch_cluster = new CountDownLatch(1);
-    CountDownLatch latch_vertx = new CountDownLatch(1);
+    CountDownLatch latchVerticles = new CountDownLatch(deployIDSet.size());
+    CountDownLatch latchCluster = new CountDownLatch(1);
+    CountDownLatch latchVertx = new CountDownLatch(1);
     LOGGER.debug("number of verticles being undeployed are:" + deployIDSet.size());
     // shutdown verticles
     for (String deploymentID : deployIDSet) {
       vertx.undeploy(deploymentID, handler -> {
         if (handler.succeeded()) {
           LOGGER.debug(deploymentID + " verticle  successfully Undeployed");
-          latch_verticles.countDown();
+          latchVerticles.countDown();
         } else {
           LOGGER.warn(deploymentID + "Undeploy failed!");
         }
@@ -248,7 +248,7 @@ public class Deployer {
       });
     }
     try {
-      latch_verticles.await(5, TimeUnit.SECONDS);
+      latchVerticles.await(5, TimeUnit.SECONDS);
       LOGGER.info("All the verticles undeployed");
       Promise<Void> promise = Promise.promise();
       // leave the cluster
@@ -258,12 +258,12 @@ public class Deployer {
       e.printStackTrace();
     }
     try {
-      latch_cluster.await(5, TimeUnit.SECONDS);
+      latchCluster.await(5, TimeUnit.SECONDS);
       // shutdown the vertx
       vertx.close(handler -> {
         if (handler.succeeded()) {
           LOGGER.info("vertx closed successfully");
-          latch_vertx.countDown();
+          latchVertx.countDown();
         } else {
           LOGGER.warn("Vertx didn't close properly, reason:" + handler.cause());
         }
@@ -273,7 +273,7 @@ public class Deployer {
     }
 
     try {
-      latch_vertx.await(5, TimeUnit.SECONDS);
+      latchVertx.await(5, TimeUnit.SECONDS);
       // then shut down log4j
       if (LogManager.getContext() instanceof LoggerContext) {
         LOGGER.info("Shutting down log4j2");

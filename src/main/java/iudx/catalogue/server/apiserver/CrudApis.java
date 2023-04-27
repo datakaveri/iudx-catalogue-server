@@ -6,10 +6,7 @@
 package iudx.catalogue.server.apiserver;
 
 import iudx.catalogue.server.auditing.AuditingService;
-import iudx.catalogue.server.auditing.AuditingServiceImpl;
-import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
-import iudx.catalogue.server.util.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,7 +26,6 @@ import java.util.HashSet;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.auditing.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
-import io.vertx.core.http.HttpMethod;
 import static iudx.catalogue.server.authenticator.Constants.TOKEN;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.ERROR;
@@ -122,9 +118,6 @@ public final class CrudApis {
 
     LOGGER.debug("Info: itemType;" + itemType);
 
-    /* checking the operation type */
-    String methodType =
-        routingContext.request().method().toString() == REQUEST_POST ? INSERT : UPDATE;
 
     /**
      * Start insertion flow 
@@ -378,7 +371,6 @@ public final class CrudApis {
 
 
     JsonObject authenticationInfo = new JsonObject();
-    JsonObject authRequest = new JsonObject();
 
     String instance = routingContext.queryParams().get(ID);
 
@@ -434,7 +426,6 @@ public final class CrudApis {
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     JsonObject authenticationInfo = new JsonObject();
-    JsonObject authRequest = new JsonObject();
 
     String instance = routingContext.queryParams().get(ID);
 

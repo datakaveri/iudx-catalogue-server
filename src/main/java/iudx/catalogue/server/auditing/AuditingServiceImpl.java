@@ -3,17 +3,12 @@ package iudx.catalogue.server.auditing;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
 import iudx.catalogue.server.auditing.util.QueryBuilder;
-import iudx.catalogue.server.auditing.util.ResponseBuilder;
 import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,20 +20,10 @@ import static iudx.catalogue.server.util.Constants.BROKER_SERVICE_ADDRESS;
 public class AuditingServiceImpl implements AuditingService {
 
   private static final Logger LOGGER = LogManager.getLogger(AuditingServiceImpl.class);
-  private final String METHOD_COLUMN_NAME;
-  private final String TIME_COLUMN_NAME;
-  private final String USERID_COLUMN_NAME;
-  private final String BODY_COLUMN_NAME;
-  private final String ENDPOINT_COLUMN_NAME;
-  private final String API_COLUMN_NAME;
-  private final String IID_COLUMN_NAME;
-  private final String IUDX_COLUMN_NAME;
-  private final String USERROLE_COLUMN_NAME;
   PgConnectOptions connectOptions;
   PoolOptions poolOptions;
   PgPool pool;
   private final QueryBuilder queryBuilder = new QueryBuilder();
-  private JsonObject query = new JsonObject();
   private String databaseIP;
   private int databasePort;
   private String databaseName;
@@ -46,7 +31,6 @@ public class AuditingServiceImpl implements AuditingService {
   private String databasePassword;
   private int databasePoolSize;
   private String databaseTableName;
-  private ResponseBuilder responseBuilder;
   public static DataBrokerService rmqService;
 
   public AuditingServiceImpl(JsonObject propObj, Vertx vertxInstance) {
@@ -74,34 +58,6 @@ public class AuditingServiceImpl implements AuditingService {
     this.pool = PgPool.pool(vertxInstance, connectOptions, poolOptions);
     this.rmqService = DataBrokerService.createProxy(vertxInstance, BROKER_SERVICE_ADDRESS);
 
-    METHOD_COLUMN_NAME =
-        _METHOD_COLUMN_NAME
-            .insert(0, "(" + databaseName + "." + databaseTableName + ".")
-            .toString();
-    TIME_COLUMN_NAME =
-        _TIME_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".").toString();
-    USERID_COLUMN_NAME =
-        _USERID_COLUMN_NAME
-            .insert(0, "(" + databaseName + "." + databaseTableName + ".")
-            .toString();
-    BODY_COLUMN_NAME =
-        _BODY_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".").toString();
-
-    ENDPOINT_COLUMN_NAME =
-        _ENDPOINT_COLUMN_NAME
-            .insert(0, "(" + databaseName + "." + databaseTableName + ".")
-            .toString();
-
-    API_COLUMN_NAME =
-        _API_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".").toString();
-    IID_COLUMN_NAME =
-        _IID_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".").toString();
-    IUDX_COLUMN_NAME =
-        _IUDX_COLUMN_NAME.insert(0, "(" + databaseName + "." + databaseTableName + ".").toString();
-    USERROLE_COLUMN_NAME =
-        _USERROLE_COLUMN_NAME
-            .insert(0, "(" + databaseName + "." + databaseTableName + ".")
-            .toString();
   }
 
   @Override

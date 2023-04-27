@@ -29,7 +29,6 @@ public final class RelationshipApis {
   private DatabaseService dbService;
 
   private static final Logger LOGGER = LogManager.getLogger(RelationshipApis.class);
-  private Api api;
 
   /**
    * Crud  constructor
@@ -38,9 +37,7 @@ public final class RelationshipApis {
    * @return void
    * @TODO Throw error if load failed
    */
-  public RelationshipApis(Api api) {
-    this.api = api;
-  }
+
 
   public void setDbService(DatabaseService dbService) {
     this.dbService = dbService;

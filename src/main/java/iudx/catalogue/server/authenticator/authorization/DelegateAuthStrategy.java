@@ -5,18 +5,13 @@ import static iudx.catalogue.server.authenticator.authorization.Method.POST;
 import static iudx.catalogue.server.authenticator.authorization.Method.PUT;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import iudx.catalogue.server.authenticator.model.JwtData;
 
 public class DelegateAuthStrategy implements AuthorizationStratergy{
-  private static final Logger LOGGER = LogManager.getLogger(DelegateAuthStrategy.class);
   private Api api;
   private static volatile DelegateAuthStrategy instance;
   static List<AuthorizationRequest> accessList = new ArrayList<>();

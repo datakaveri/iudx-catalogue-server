@@ -3,8 +3,6 @@ package iudx.catalogue.server.nlpsearch;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
@@ -26,8 +24,7 @@ import static iudx.catalogue.server.util.Constants.*;
 
 public class NLPSearchVerticle extends AbstractVerticle {
 
-  private static final Logger LOGGER = LogManager.getLogger(NLPSearchVerticle.class);
-  private NLPSearchService NlpSearch;
+  private NLPSearchService nlpSearch;
   private String nlpServiceUrl;
   private int nlpServicePort;
   private ServiceBinder binder;
@@ -46,11 +43,11 @@ public class NLPSearchVerticle extends AbstractVerticle {
     binder = new ServiceBinder(vertx);
     nlpServiceUrl = config().getString("nlpServiceUrl");
     nlpServicePort = config().getInteger("nlpServicePort");
-    NlpSearch = new NLPSearchServiceImpl(createWebClient(vertx, config()),
+    nlpSearch = new NLPSearchServiceImpl(createWebClient(vertx, config()),
                                           nlpServiceUrl, nlpServicePort);
     consumer =
         binder.setAddress(NLP_SERVICE_ADDRESS)
-      .register(NLPSearchService.class, NlpSearch);
+      .register(NLPSearchService.class, nlpSearch);
   }
 
   static WebClient createWebClient(Vertx vertx, JsonObject config) {
@@ -60,7 +57,7 @@ public class NLPSearchVerticle extends AbstractVerticle {
   /**
    * Helper function to create a WebClient to talk to the nlpsearch server.
    * @param vertx the vertx instance
-   * @param properties the properties field of the verticle
+   * @param config the properties field of the verticle
    * @param testing a bool which is used to disable client side ssl checks for testing purposes
    * @return a web client initialized with the relevant client certificate
    */
