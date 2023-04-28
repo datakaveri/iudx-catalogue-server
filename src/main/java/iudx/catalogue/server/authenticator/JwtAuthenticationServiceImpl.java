@@ -2,6 +2,7 @@ package iudx.catalogue.server.authenticator;
 
 import static iudx.catalogue.server.auditing.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.*;
+import static iudx.catalogue.server.authenticator.Constants.METHOD;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -125,7 +126,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     LOGGER.trace("validateAccess() started");
     Promise<JsonObject> promise = Promise.promise();
 
-    Method method = Method.valueOf(authenticationInfo.getString(Constants.METHOD));
+    Method method = Method.valueOf(authenticationInfo.getString(METHOD));
     String api = authenticationInfo.getString(API_ENDPOINT);
 
     AuthorizationRequest authRequest = new AuthorizationRequest(method, api);

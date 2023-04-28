@@ -2,9 +2,14 @@ package iudx.catalogue.server.apiserver;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.auditing.util.Constants.*;
+import static iudx.catalogue.server.auditing.util.Constants.ID;
+import static iudx.catalogue.server.auditing.util.Constants.USER_ID;
 import static iudx.catalogue.server.authenticator.Constants.*;
+import static iudx.catalogue.server.authenticator.Constants.METHOD;
+import static iudx.catalogue.server.geocoding.util.Constants.RESULTS;
 import static iudx.catalogue.server.rating.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.STATUS;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -72,13 +77,13 @@ public class RatingApis {
 
     JsonObject jwtAuthenticationInfo = new JsonObject();
 
-    String id = request.getParam(iudx.catalogue.server.util.Constants.ID);
+    String id = request.getParam(ID);
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(iudx.catalogue.server.util.Constants.METHOD, REQUEST_POST)
+        .put(METHOD, REQUEST_POST)
         .put(API_ENDPOINT, RATINGS_ENDPOINT)
-        .put(iudx.catalogue.server.util.Constants.ID, host);
+        .put(ID, host);
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
 
@@ -87,7 +92,7 @@ public class RatingApis {
             successHandler -> {
               requestBody
                   .put(Constants.ID, id)
-                  .put(Constants.USER_ID, successHandler.getString(Constants.USER_ID))
+                  .put(USER_ID, successHandler.getString(Constants.USER_ID))
                   .put("status", PENDING);
 
               validatorService.validateRating(
@@ -160,7 +165,7 @@ public class RatingApis {
           requestBody,
           handler -> {
             if (handler.succeeded()) {
-              if (!handler.result().getJsonArray(iudx.catalogue.server.util.Constants.RESULTS)
+              if (!handler.result().getJsonArray(RESULTS)
                       .isEmpty()) {
                 response.setStatusCode(200).end(handler.result().toString());
               } else {
@@ -179,7 +184,7 @@ public class RatingApis {
       JsonObject authenticationInfo =
           new JsonObject()
               .put(TOKEN, request.getHeader(TOKEN))
-              .put(iudx.catalogue.server.util.Constants.METHOD, REQUEST_GET)
+              .put(METHOD, REQUEST_GET)
               .put(API_ENDPOINT, RATINGS_ENDPOINT)
               .put(Constants.ID, host);
 
@@ -196,7 +201,7 @@ public class RatingApis {
                     handler -> {
                       if (handler.succeeded()) {
                         if (!handler.result().getJsonArray(
-                                iudx.catalogue.server.util.Constants.RESULTS).isEmpty()) {
+                                RESULTS).isEmpty()) {
                           response.setStatusCode(200).end(handler.result().toString());
                         } else {
                           response.setStatusCode(204).end();
@@ -242,7 +247,7 @@ public class RatingApis {
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(iudx.catalogue.server.util.Constants.METHOD, REQUEST_PUT)
+        .put(METHOD, REQUEST_PUT)
         .put(API_ENDPOINT, RATINGS_ENDPOINT)
         .put(Constants.ID, host);
 
@@ -315,7 +320,7 @@ public class RatingApis {
 
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(iudx.catalogue.server.util.Constants.METHOD, REQUEST_DELETE)
+        .put(METHOD, REQUEST_DELETE)
         .put(API_ENDPOINT, RATINGS_ENDPOINT)
         .put(Constants.ID, host);
 
@@ -336,7 +341,7 @@ public class RatingApis {
                     if (dbHandler.succeeded()) {
                       LOGGER.info("Success: Item deleted;");
                       LOGGER.debug(dbHandler.result().toString());
-                      if (dbHandler.result().getString(iudx.catalogue.server.util.Constants.STATUS)
+                      if (dbHandler.result().getString(STATUS)
                               .equals(TITLE_SUCCESS)) {
                         response.setStatusCode(200).end(dbHandler.result().toString());
                         if (hasAuditService) {

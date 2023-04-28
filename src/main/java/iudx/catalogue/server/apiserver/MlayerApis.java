@@ -3,6 +3,7 @@ package iudx.catalogue.server.apiserver;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
+import static iudx.catalogue.server.mlayer.util.Constants.METHOD;
 import static iudx.catalogue.server.util.Constants.*;
 
 import io.vertx.core.Future;
@@ -63,7 +64,7 @@ public class MlayerApis {
 
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(Constants.METHOD, REQUEST_POST)
+        .put(METHOD, REQUEST_POST)
         .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
         .put(ID, host);
 
@@ -145,7 +146,7 @@ public class MlayerApis {
 
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(Constants.METHOD, REQUEST_DELETE)
+        .put(METHOD, REQUEST_DELETE)
         .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
         .put(ID, host);
 
@@ -189,7 +190,7 @@ public class MlayerApis {
     JsonObject jwtAuthInfo = new JsonObject();
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(Constants.METHOD, REQUEST_PUT)
+        .put(METHOD, REQUEST_PUT)
         .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
         .put(ID, host);
 
@@ -272,7 +273,7 @@ public class MlayerApis {
     JsonObject jwtAuthInfo = new JsonObject();
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(Constants.METHOD, REQUEST_POST)
+        .put(METHOD, REQUEST_POST)
         .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
         .put(ID, host);
 
@@ -353,7 +354,7 @@ public class MlayerApis {
     JsonObject jwtAuthInfo = new JsonObject();
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(Constants.METHOD, REQUEST_PUT)
+        .put(METHOD, REQUEST_PUT)
         .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
         .put(ID, host);
 
@@ -413,7 +414,7 @@ public class MlayerApis {
 
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
-        .put(Constants.METHOD, REQUEST_DELETE)
+        .put(METHOD, REQUEST_DELETE)
         .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
         .put(ID, host);
 

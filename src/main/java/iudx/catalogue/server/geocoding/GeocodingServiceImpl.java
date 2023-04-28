@@ -1,6 +1,14 @@
 package iudx.catalogue.server.geocoding;
 
 import static iudx.catalogue.server.geocoding.util.Constants.*;
+import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
+import static iudx.catalogue.server.geocoding.util.Constants.COORDINATES;
+import static iudx.catalogue.server.geocoding.util.Constants.GEOMETRY;
+import static iudx.catalogue.server.geocoding.util.Constants.LOCATION;
+import static iudx.catalogue.server.geocoding.util.Constants.NAME;
+import static iudx.catalogue.server.geocoding.util.Constants.RESULTS;
+import static iudx.catalogue.server.geocoding.util.Constants.SERVICE_TIMEOUT;
+import static iudx.catalogue.server.geocoding.util.Constants.TYPE;
 import static iudx.catalogue.server.util.Constants.*;
 
 import io.vertx.core.AsyncResult;
@@ -45,7 +53,7 @@ public class GeocodingServiceImpl implements GeocodingService {
   public void geocoder(String location, Handler<AsyncResult<String>> handler) {
     webClient
         .get(peliasPort, peliasUrl, "/v1/search")
-        .timeout(Constants.SERVICE_TIMEOUT)
+        .timeout(SERVICE_TIMEOUT)
         .addQueryParam("text", location)
         .putHeader("Accept", "application/json")
         .send(
@@ -73,15 +81,15 @@ public class GeocodingServiceImpl implements GeocodingService {
                     resultArray.add(resultEntry);
                   }
 
-                  if (feature.getJsonArray(Constants.BBOX) == null) {
+                  if (feature.getJsonArray(BBOX) == null) {
                     continue;
                   } else {
-                    resultEntry.put(Constants.BBOX, feature.getJsonArray(Constants.BBOX));
+                    resultEntry.put(BBOX, feature.getJsonArray(BBOX));
                     resultArray.add(resultEntry);
                   }
                 }
                 LOGGER.debug("Request succeeded!");
-                JsonObject result = new JsonObject().put(Constants.RESULTS, resultArray);
+                JsonObject result = new JsonObject().put(RESULTS, resultArray);
                 handler.handle(Future.succeededFuture(result.toString()));
 
               } else {
@@ -99,9 +107,9 @@ public class GeocodingServiceImpl implements GeocodingService {
 
   private JsonObject generateGeocodingJson(JsonObject property) {
     JsonObject resultEntry = new JsonObject();
-    if (property.containsKey(Constants.NAME)) {
-      resultEntry.put(Constants.NAME,
-              property.getString(Constants.NAME));
+    if (property.containsKey(NAME)) {
+      resultEntry.put(NAME,
+              property.getString(NAME));
     }
     if (property.containsKey(COUNTRY)) {
       resultEntry.put(COUNTRY, property.getString(COUNTRY));
@@ -142,7 +150,7 @@ public class GeocodingServiceImpl implements GeocodingService {
   public void reverseGeocoder(String lat, String lon, Handler<AsyncResult<JsonObject>> handler) {
     webClient
         .get(peliasPort, peliasUrl, "/v1/reverse")
-        .timeout(Constants.SERVICE_TIMEOUT)
+        .timeout(SERVICE_TIMEOUT)
         .addQueryParam("point.lon", lon)
         .addQueryParam("point.lat", lat)
         .putHeader("Accept", "application/json")
@@ -182,10 +190,10 @@ public class GeocodingServiceImpl implements GeocodingService {
     Promise<JsonObject> p1 = Promise.promise();
     Promise<JsonObject> p2 = Promise.promise();
 
-    if (doc.containsKey(Constants.LOCATION)) {
+    if (doc.containsKey(LOCATION)) {
 
       /* Geocoding information*/
-      JsonObject location = doc.getJsonObject(Constants.LOCATION);
+      JsonObject location = doc.getJsonObject(LOCATION);
       String address = location.getString(ADDRESS);
       if (address != null) {
         p1 = geocoderHelper(address);
@@ -194,11 +202,11 @@ public class GeocodingServiceImpl implements GeocodingService {
       }
 
       /* Reverse Geocoding information */
-      if (location.containsKey(Constants.GEOMETRY)
-          && location.getJsonObject(Constants.GEOMETRY).getString(Constants.TYPE)
+      if (location.containsKey(GEOMETRY)
+          && location.getJsonObject(GEOMETRY).getString(TYPE)
               .equalsIgnoreCase("Point")) {
-        JsonObject geometry = location.getJsonObject(Constants.GEOMETRY);
-        JsonArray pos = geometry.getJsonArray(Constants.COORDINATES);
+        JsonObject geometry = location.getJsonObject(GEOMETRY);
+        JsonArray pos = geometry.getJsonArray(COORDINATES);
         String lon = pos.getString(0);
         String lat = pos.getString(1);
         p2 = reverseGeocoderHelper(lat, lon);

@@ -2,6 +2,9 @@ package iudx.catalogue.server.database;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.geocoding.util.Constants.*;
+import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
+import static iudx.catalogue.server.geocoding.util.Constants.RESULTS;
+import static iudx.catalogue.server.geocoding.util.Constants.TYPE;
 import static iudx.catalogue.server.util.Constants.*;
 
 import io.vertx.core.AsyncResult;
@@ -83,18 +86,17 @@ public final class ElasticClient {
           if (totalHits > 0) {
             JsonArray results = new JsonArray();
 
-            if ((options == SOURCE_ONLY)
-                    || (options == DOC_IDS_ONLY)
-                    || (options == SOURCE_AND_ID)
-                    || (options == SOURCE_AND_ID_GEOQUERY)
-                    || (options == DATASET)) {
-              if (responseJson.getJsonObject(HITS).containsKey(HITS)) {
+            if( (options == SOURCE_ONLY
+                    || options == DOC_IDS_ONLY
+                    || options == SOURCE_AND_ID
+                    || options == SOURCE_AND_ID_GEOQUERY
+                    || options == DATASET) &&  responseJson.getJsonObject(HITS).containsKey(HITS)){
                 results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
-              }
+
             }
             if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY) {
               results = responseJson.getJsonObject(AGGREGATIONS)
-                      .getJsonObject(iudx.catalogue.server.util.Constants.RESULTS)
+                      .getJsonObject(RESULTS)
                       .getJsonArray(BUCKETS);
             }
 
@@ -143,7 +145,7 @@ public final class ElasticClient {
               for (int i = 0; i < results.size(); i++) {
                 JsonObject record = results.getJsonObject(i).getJsonObject(SOURCE);
                 JsonObject provider = new JsonObject();
-                String type = record.getJsonArray(iudx.catalogue.server.util.Constants.TYPE)
+                String type = record.getJsonArray(TYPE)
                         .getString(0);
                 if (type.equals("iudx:Provider")) {
                   provider
@@ -166,10 +168,9 @@ public final class ElasticClient {
                   String schema =
                           record.getString("@context")
                                   + record
-                                  .getJsonArray(iudx.catalogue.server.util.Constants.TYPE)
+                                  .getJsonArray(TYPE)
                                   .getString(1)
-                                  .substring(5, record.getJsonArray(
-                                          iudx.catalogue.server.util.Constants.TYPE)
+                                  .substring(5, record.getJsonArray(TYPE)
                                           .getString(1).length());
                   dataset
                           .put(ID, record.getString(ID))
@@ -297,7 +298,7 @@ public final class ElasticClient {
     } else {
       query.deleteCharAt(query.length() - 1);
     }
-    JsonArray bboxCoords = queryParams.getJsonArray(iudx.catalogue.server.util.Constants.BBOX);
+    JsonArray bboxCoords = queryParams.getJsonArray(BBOX);
     query.append("],\"minimum_should_match\": 1, \"filter\": {\"geo_shape\":"
                     + " {\"location.geometry\": {\"shape\": {\"type\": \"envelope\",")
         .append("\"coordinates\": [ [ ").append(bboxCoords.getFloat(0)).append(",")
@@ -499,7 +500,7 @@ public final class ElasticClient {
     }
 
     DBRespMsgBuilder statusSuccess() {
-      response.put(iudx.catalogue.server.util.Constants.TYPE, TYPE_SUCCESS);
+      response.put(TYPE, TYPE_SUCCESS);
       response.put(TITLE, TITLE_SUCCESS);
       return this;
     }
@@ -511,18 +512,18 @@ public final class ElasticClient {
 
     /** Overloaded for source only request. */
     DBRespMsgBuilder addResult(JsonObject obj) {
-      response.put(iudx.catalogue.server.util.Constants.RESULTS, results.add(obj));
+      response.put(RESULTS, results.add(obj));
       return this;
     }
 
     /** Overloaded for doc-ids request. */
     DBRespMsgBuilder addResult(String value) {
-      response.put(iudx.catalogue.server.util.Constants.RESULTS, results.add(value));
+      response.put(RESULTS, results.add(value));
       return this;
     }
 
     DBRespMsgBuilder addResult() {
-      response.put(iudx.catalogue.server.util.Constants.RESULTS, results);
+      response.put(RESULTS, results);
       return this;
     }
 

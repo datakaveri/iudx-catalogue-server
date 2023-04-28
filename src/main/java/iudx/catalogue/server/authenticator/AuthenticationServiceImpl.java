@@ -117,8 +117,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                   for (Object req : responseRequests) {
                     JsonObject requestEntry = (JsonObject) req;
                     String requestId = requestEntry.getString(ID, "");
-                    JsonArray requestMethods = requestEntry.getJsonArray("methods");
-                    String operation = authenticationInfo.getString(OPERATION);
                     if (isPermittedProviderId(requestId, providerId)) {
                       result.put(STATUS, SUCCESS);
                       result.put(BODY, new JsonObject());

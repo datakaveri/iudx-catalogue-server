@@ -1,5 +1,7 @@
 package iudx.catalogue.server.rating;
 
+import static iudx.catalogue.server.auditing.util.Constants.ID;
+import static iudx.catalogue.server.geocoding.util.Constants.TYPE;
 import static iudx.catalogue.server.rating.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
@@ -43,7 +45,7 @@ public class RatingServiceImpl implements RatingService {
   @Override
   public RatingService createRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String sub = request.getString(USER_ID);
-    String id = request.getString(Constants.ID);
+    String id = request.getString(ID);
     StringBuilder query = new StringBuilder(AUDIT_INFO_QUERY
             .replace("$1", rsauditingtable).replace("$2", sub).replace("$3", id));
     Future<JsonObject> getRsAuditingInfo = getAuditingInfo(query);
@@ -95,9 +97,8 @@ public class RatingServiceImpl implements RatingService {
 
   @Override
   public RatingService getRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    String id = request.getString(Constants.ID);
-
-    if (!request.containsKey(Constants.TYPE)) {
+    String id = request.getString(ID);
+    if (!request.containsKey(TYPE)) {
       String sub = request.getString(USER_ID);
       String ratingId = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
@@ -120,7 +121,7 @@ public class RatingServiceImpl implements RatingService {
   @Override
   public RatingService updateRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String sub = request.getString(USER_ID);
-    String id = request.getString(Constants.ID);
+    String id = request.getString(ID);
 
     String ratingId = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
@@ -145,7 +146,7 @@ public class RatingServiceImpl implements RatingService {
   @Override
   public RatingService deleteRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String sub = request.getString(USER_ID);
-    String id = request.getString(Constants.ID);
+    String id = request.getString(ID);
 
     String ratingId = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
