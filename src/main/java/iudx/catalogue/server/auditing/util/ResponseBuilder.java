@@ -15,6 +15,11 @@ public class ResponseBuilder {
     response = new JsonObject();
   }
 
+  /**
+   * Sets the error type and title of the response based on the given status code.
+   * @param statusCode The status code to set the error type and title.
+   * @return The response builder instance with the error type and title set.
+   */
   public ResponseBuilder setTypeAndTitle(int statusCode) {
     response.put(ERROR_TYPE, statusCode);
     if (SUCCESS.equalsIgnoreCase(status)) {

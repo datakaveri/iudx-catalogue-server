@@ -1,5 +1,8 @@
 package iudx.catalogue.server.database.postgres;
 
+
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -8,14 +11,12 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.Row;
 import iudx.catalogue.server.database.RespBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.util.Constants.*;
 
 public class PostgresServiceImpl implements PostgresService {
   private static final Logger LOGGER = LogManager.getLogger(PostgresServiceImpl.class);

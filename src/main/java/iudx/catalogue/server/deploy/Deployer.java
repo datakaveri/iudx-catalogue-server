@@ -98,6 +98,7 @@ public class Deployer {
    * @param configs the JSON configuration
    * @param modules the list of modules to deploy
    */
+
   public static void recursiveDeploy(Vertx vertx, JsonObject configs, List<String> modules) {
     if (modules.isEmpty()) {
       LOGGER.info("Deployed requested verticles");

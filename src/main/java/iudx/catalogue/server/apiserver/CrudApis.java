@@ -22,12 +22,9 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.auditing.AuditingService;
-import iudx.catalogue.server.auditing.AuditingServiceImpl;
 import iudx.catalogue.server.authenticator.AuthenticationService;
-import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.util.Api;
-import iudx.catalogue.server.util.Constants;
 import iudx.catalogue.server.validator.ValidatorService;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -56,7 +53,6 @@ public final class CrudApis {
    * Crud  constructor.
    *
    * @param api endpoint for base path
-   * @return void
    * @TODO Throw error if load failed
    */
   public CrudApis(Api api) {
@@ -115,11 +111,11 @@ public final class CrudApis {
     LOGGER.debug("Info: itemType;" + itemType);
 
 
-    /**
-     * Start insertion flow 
-     **/
 
-    /** Json schema validate item */
+    // Start insertion flow
+
+
+    // Json schema validate item
     validatorService.validateSchema(requestBody, schValHandler -> {
       if (schValHandler.failed()) {
         // response.setStatusCode(400).end(schValHandler.cause().getMessage());
@@ -178,7 +174,7 @@ public final class CrudApis {
                 if (valhandler.succeeded()) {
                   LOGGER.debug("Success: Item link validation");
 
-                  /** If post, create. If put, update */
+                  // If post, create. If put, update
                   if (routingContext.request().method().toString() == REQUEST_POST) {
                     /* Requesting database service, creating a item */
                     LOGGER.debug("Info: Inserting item");
@@ -367,6 +363,14 @@ public final class CrudApis {
     }
   }
 
+
+  /**
+   * Creates a new instance of an item and handles the request/response flow.
+   *
+   * @param routingContext the routing context for handling HTTP requests and responses
+   * @param catAdmin he catalogue admin for the item
+   * @throws  RuntimeException if item creation fails
+   */
   public void createInstanceHandler(RoutingContext routingContext, String catAdmin) {
 
     LOGGER.debug("Info: Creating new instance");
@@ -381,17 +385,17 @@ public final class CrudApis {
     String instance = routingContext.queryParams().get(ID);
 
 
-    /**
-     * Start insertion flow 
-     **/
 
-    /** Json schema validate item */
+    //  Start insertion flow
+
+
+    // Json schema validate item
     authenticationInfo.put(TOKEN,
                             request.getHeader(HEADER_TOKEN))
                             .put(METHOD, REQUEST_POST)
                             .put(API_ENDPOINT, api.getRouteInstance())
                             .put(ID, host);
-    /** Introspect token and authorize operation */
+    // Introspect token and authorize operation
     authService.tokenInterospect(new JsonObject(), authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
         response.setStatusCode(401)
@@ -422,6 +426,15 @@ public final class CrudApis {
     });
   }
 
+  /**
+   * Deletes the specified instance from the database.
+   *
+   * @param routingContext the routing context
+   * @param catAdmin  the catalogue admin
+   * @throws NullPointerException if routingContext is null
+   * @throws RuntimeException if the instance cannot be deleted
+   * @TODO call auditing service after successful deletion
+   */
   public void deleteInstanceHandler(RoutingContext routingContext, String catAdmin) {
 
     LOGGER.debug("Info: Deleting instance");
@@ -434,16 +447,16 @@ public final class CrudApis {
 
     String instance = routingContext.queryParams().get(ID);
 
-    /**
-     * Start insertion flow 
-     **/
 
-    /** Json schema validate item */
+    //  Start insertion flow
+
+
+    // Json schema validate item
     authenticationInfo.put(TOKEN, request.getHeader(HEADER_TOKEN))
                       .put(METHOD, REQUEST_DELETE)
                       .put(API_ENDPOINT, api.getRouteInstance())
                       .put(ID, host);
-    /** Introspect token and authorize operation */
+    // Introspect token and authorize operation
     authService.tokenInterospect(new JsonObject(), authenticationInfo, authhandler -> {
       if (authhandler.failed()) {
         response.setStatusCode(401)
@@ -478,7 +491,7 @@ public final class CrudApis {
    *
    *
    * @param itemId which is a String
-   * @return
+   * @return  true if the item ID contains invalid characters, false otherwise
    */
   private boolean validateId(String itemId) {
     Pattern pattern = Pattern.compile("[<>;=]");

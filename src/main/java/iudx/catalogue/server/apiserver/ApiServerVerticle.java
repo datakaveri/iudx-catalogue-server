@@ -124,11 +124,11 @@ public class ApiServerVerticle extends AbstractVerticle {
     LOGGER.debug("Started HTTP server at port : " + port);
 
     serverOptions.setCompressionSupported(true).setCompressionLevel(5);
-    /** Instantiate this server */
+    // Instantiate this server
     server = vertx.createHttpServer(serverOptions);
 
 
-    /** API Callback managers */
+    // API Callback managers
     crudApis = new CrudApis(api);
     searchApis = new SearchApis(api);
     listApis = new ListApis();
@@ -136,13 +136,9 @@ public class ApiServerVerticle extends AbstractVerticle {
     geoApis = new GeocodingApis();
     ratingApis = new RatingApis();
     mlayerApis = new MlayerApis();
-    /**
-     *
-     * Get proxies and handlers
-     *
-     */
 
-    /** Todo - Set service proxies based on availability? */
+
+    // Todo - Set service proxies based on availability?
     DatabaseService dbService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
 
     RatingService ratingService = RatingService.createProxy(vertx, RATING_SERVICE_ADDRESS);
@@ -187,15 +183,9 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     ExceptionHandler exceptionhandler = new ExceptionHandler();
 
-    /**
-     *
-     * API Routes and Callbacks
-     *
-     */
+    //API Routes and Callbacks
 
-    /**
-     * Routes - Defines the routes and callbacks
-     */
+    // Routes - Defines the routes and callbacks
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
     router.route().handler(
@@ -212,9 +202,9 @@ public class ApiServerVerticle extends AbstractVerticle {
       routingContext.next();
     });
 
-    /**
-     * Documentation routes
-     */
+
+    //  Documentation routes
+
     /* Static Resource Handler */
     /* Get openapiv3 spec */
     router.get(ROUTE_STATIC_SPEC)
@@ -232,9 +222,9 @@ public class ApiServerVerticle extends AbstractVerticle {
         });
 
 
-    /**
-     * UI routes
-     */
+
+    // UI routes
+
     /* Static Resource Handler */
     router.route("/*").produces("text/html")
       .handler(StaticHandler.create("ui/dist/dk-customer-ui/"));
@@ -248,9 +238,9 @@ public class ApiServerVerticle extends AbstractVerticle {
           response.sendFile("ui/dist/dk-customer-ui/index.html");
         });
 
-    /**
-     * Routes for item CRUD
-     */
+
+    // Routes for item CRUD
+
     /* Create Item - Body contains data */
     router.post(api.getRouteItems())
         .consumes(MIME_APPLICATION_JSON)
@@ -280,7 +270,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         .handler(routingContext -> {
           /* checking auhthentication info in requests */
           if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            /** Update params checked in createItemHandler */
+            // Update params checked in createItemHandler
             crudApis.createItemHandler(routingContext);
           } else {
             LOGGER.warn("Unathorized CRUD operation");
@@ -295,7 +285,7 @@ public class ApiServerVerticle extends AbstractVerticle {
           /* checking auhthentication info in requests */
           if (routingContext.request().headers().contains(HEADER_TOKEN)
                 && routingContext.queryParams().contains(ID)) {
-            /** Update params checked in createItemHandler */
+            // Update params checked in createItemHandler
             crudApis.deleteItemHandler(routingContext);
           } else {
             LOGGER.warn("Unathorized CRUD operation");
@@ -330,9 +320,9 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
 
-    /**
-     * Routes for search and count
-     */
+
+    // Routes for search and count
+
     /* Search for an item */
     router.get(api.getRouteSearch())
         .produces(MIME_APPLICATION_JSON)
@@ -355,10 +345,8 @@ public class ApiServerVerticle extends AbstractVerticle {
           searchApis.searchHandler(routingContext);
         });
 
+    //  Routes for list
 
-    /**
-     * Routes for list
-     */
     /* list the item from database using itemId */
     router.get(api.getRouteListItems())
         .produces(MIME_APPLICATION_JSON)
@@ -366,9 +354,8 @@ public class ApiServerVerticle extends AbstractVerticle {
           listApis.listItemsHandler(routingContext);
         });
 
-    /**
-     * Routes for relationships
-     */
+    //  Routes for relationships
+
     /* Relationship related search */
     router.get(api.getRouteRelSearch())
         .handler(routingContext -> {
@@ -380,9 +367,9 @@ public class ApiServerVerticle extends AbstractVerticle {
       relApis.listRelationshipHandler(routingContext);
     });
 
-    /**
-     * Routes for Geocoding
-     */
+
+    //  Routes for Geocoding
+
     router.get(api.getRouteGeoCoordinates())
         .handler(routingContext -> {
           geoApis.getCoordinates(routingContext);
@@ -393,9 +380,9 @@ public class ApiServerVerticle extends AbstractVerticle {
           geoApis.getLocation(routingContext);
         });
 
-    /**
-     * Routes for Rating APIs
-     */
+
+    //  Routes for Rating APIs
+
     /* Create Rating */
     router.post(ROUTE_RATING)
         .consumes(MIME_APPLICATION_JSON)
@@ -456,7 +443,8 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
 
-    /** Routes for Mlayer Instance APIs */
+    // Routes for Mlayer Instance APIs
+
     /* Create Mlayer Instance */
     router
         .post(api.getRouteMlayerInstance())
@@ -514,7 +502,8 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
-    /** Routes for Mlayer Domain APIs */
+    // Routes for Mlayer Domain APIs
+
     /* Create Mlayer Domain */
     router
         .post(api.getRouteMlayerDomains())
@@ -572,7 +561,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
-    /** Routes for Mlayer Provider API */
+    // Routes for Mlayer Provider API
     router
         .get(api.getRouteMlayerProviders())
         .produces(MIME_APPLICATION_JSON)
@@ -582,7 +571,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 mlayerApis.getMlayerProvidersHandler(routingContext);
             });
 
-    /** Routes for Mlayer GeoQuery API */
+    // Routes for Mlayer GeoQuery API
     router
         .post(api.getRouteMlayerGeoQuery())
         .produces(MIME_APPLICATION_JSON)
@@ -592,7 +581,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               mlayerApis.getMlayerGeoQueryHandler(routingContext);
             });
 
-    /** Routes for Mlayer Dataset API */
+    // Routes for Mlayer Dataset API
     /* route to get all datasets*/
     router
         .get(api.getRouteMlayerDataset())
@@ -612,7 +601,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               mlayerApis.getMlayerDatasetHandler(routingContext);
             });
 
-    /** Route for Mlayer PopularDatasets API */
+    // Route for Mlayer PopularDatasets API
     router
         .get(api.getRouteMlayerPopularDatasets())
         .produces(MIME_APPLICATION_JSON)
@@ -622,7 +611,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               mlayerApis.getMlayerPopularDatasetsHandler(routingContext);
             });
 
-    /** Start server */
+    // Start server
     server.requestHandler(router).listen(port);
 
     /* Print the deployed endpoints */

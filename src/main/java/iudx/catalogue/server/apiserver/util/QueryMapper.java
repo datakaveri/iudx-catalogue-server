@@ -262,10 +262,11 @@ public class QueryMapper {
     }
 
     /* Validating ResponseFilter limits */
-    if (searchType.contains(RESPONSE_FILTER) && requestBody.getJsonArray(FILTER, new JsonArray()).size() > FILTER_VALUE_SIZE) {
+    if (searchType.contains(RESPONSE_FILTER) && requestBody.getJsonArray(FILTER,
+            new JsonArray()).size() > FILTER_VALUE_SIZE) {
 
-        LOGGER.error("Error: The filter in query param has exceeded the limit");
-        return errResponse
+      LOGGER.error("Error: The filter in query param has exceeded the limit");
+      return errResponse
             .put(TYPE, TYPE_BAD_FILTER)
             .put(DESC, "The max number of 'filter' should be " + FILTER_VALUE_SIZE);
 

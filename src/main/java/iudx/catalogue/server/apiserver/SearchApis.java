@@ -38,6 +38,13 @@ public final class SearchApis {
     this.api = api;
   }
 
+  /**
+   * Sets the database service, geocoding service, and NLP search service for this class.
+   *
+   * @param dbService the database service to be set
+   * @param  geoService the geocoding service to be set
+   * @param nlpService the NLPService to be set
+   */
   public void setService(DatabaseService dbService,
                          GeocodingService geoService, NLPSearchService nlpService) {
     this.dbService = dbService;
@@ -196,6 +203,11 @@ public final class SearchApis {
 
   }
 
+  /**
+   * Handles the NLP search request from the client and responds with
+   * a JSON array of search results.
+   * @param routingContext the routing context of the request
+   */
   public void nlpSearchHandler(RoutingContext routingContext) {
     String query = "";
     HttpServerResponse response = routingContext.response();

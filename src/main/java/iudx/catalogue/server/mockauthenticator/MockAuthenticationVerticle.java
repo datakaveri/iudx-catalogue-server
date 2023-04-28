@@ -66,7 +66,7 @@ public class MockAuthenticationVerticle extends AbstractVerticle {
    * initializations also.
    *
    * @param vertx the vertx instance
-   * @param properties the properties field of the verticle
+   * @param config the properties field of the verticle
    * @param testing a bool which is used to disable client side ssl checks for testing purposes
    * @return a web client initialized with the relevant client certificate
    */

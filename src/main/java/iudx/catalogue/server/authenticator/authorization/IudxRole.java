@@ -17,6 +17,12 @@ public enum IudxRole {
     return this.role;
   }
 
+  /**
+   * Returns the IudxRole corresponding to the given role string.
+   * @param role the role string
+   * @return the IudxRole corresponding to the given role string,
+   *         or null if no match is found
+   */
   public static IudxRole fromRole(final String role) {
     return Stream.of(values())
             .filter(v -> v.role.equalsIgnoreCase(role))

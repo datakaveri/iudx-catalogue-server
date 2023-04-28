@@ -1,5 +1,8 @@
 package iudx.catalogue.server.auditing;
 
+import static iudx.catalogue.server.auditing.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -13,8 +16,6 @@ import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.auditing.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
 
 public class AuditingServiceImpl implements AuditingService {
 
@@ -33,6 +34,13 @@ public class AuditingServiceImpl implements AuditingService {
   private String databaseTableName;
   public static DataBrokerService rmqService;
 
+  /**
+   * Constructs an instance of the AuditingServiceImpl class with the given property
+   * object and Vert.x instance.
+   * Initializes the class members with values from the property object.
+   * @param propObj The property object containing the database configuration parameters.
+   * @param vertxInstance The Vert.x instance to use for database connections.
+   */
   public AuditingServiceImpl(JsonObject propObj, Vertx vertxInstance) {
     if (propObj != null && !propObj.isEmpty()) {
       databaseIp = propObj.getString("auditingDatabaseIP");

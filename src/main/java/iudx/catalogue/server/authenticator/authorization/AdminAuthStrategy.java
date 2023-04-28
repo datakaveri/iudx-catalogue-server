@@ -21,6 +21,11 @@ public class AdminAuthStrategy implements AuthorizationStratergy {
     buildPermissions(api);
   }
 
+  /**
+   * Returns a singleton instance of the AdminAuthStrategy class for the specified API.
+   * @param api the API to create an AdminAuthStrategy instance for
+   * @return a singleton instance of the AdminAuthStrategy class
+   */
   public static AdminAuthStrategy getInstance(Api api) {
     if (instance == null) {
       synchronized (AdminAuthStrategy.class) {

@@ -39,6 +39,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   private String authHost;
   private JsonObject config;
 
+  /**
+   * Constructs a new instance of AuthenticationServiceImpl.
+   * @param client The web client to use for authentication requests.
+   * @param authHost The authentication host to send requests to.
+   * @param config The configuration properties for the authentication service.
+   */
   public AuthenticationServiceImpl(WebClient client, String authHost, JsonObject config) {
     webClient = client;
     this.authHost = authHost;
@@ -138,6 +144,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     return providerId.equals(tipProvider);
   }
 
+  /**
+   * Iterates through each method in the given array and checks if
+   * it matches the given operation or if the method is "*", which represents all methods.
+   * @param methods The list of methods to check.
+   * @param operation The operation to check against the list of methods.
+   * @return True if the operation is permitted, false otherwise.
+   */
   public boolean isPermittedMethod(JsonArray methods, String operation) {
     for (Object o : methods) {
       String method = (String) o;

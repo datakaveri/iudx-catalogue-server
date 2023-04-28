@@ -20,6 +20,13 @@ public class DelegateAuthStrategy implements AuthorizationStratergy {
     buildPermissions(api);
   }
 
+  /**
+   * Returns the instance of the DelegateAuthStrategy class.
+   * If the instance does not exist, creates one using the
+   * provided API object and returns it.
+   * @param api The API object used to create the instance.
+   * @return The instance of DelegateAuthStrategy.
+   */
   public static DelegateAuthStrategy getInstance(Api api) {
     if (instance == null) {
       synchronized (DelegateAuthStrategy.class) {

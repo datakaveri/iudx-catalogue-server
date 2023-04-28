@@ -48,6 +48,14 @@ public class DatabaseServiceImpl implements DatabaseService {
       .withDetail(DETAIL_INTERNAL_SERVER_ERROR)
       .getResponse();
 
+  /**
+   * Constructs a new DatabaseServiceImpl instance with the given ElasticClient and index names.
+   * @param client the ElasticClient used for accessing Elasticsearch
+   * @param docIndex the name of the index used for document storage
+   * @param ratingIndex the name of the index used for rating storage
+   * @param mlayerInstanceIndex the name of the index used for ML layer instance storage
+   * @param mlayerDomainIndex the name of the index used for ML layer domain storage
+   */
   public DatabaseServiceImpl(
       ElasticClient client,
       String docIndex,
@@ -61,8 +69,19 @@ public class DatabaseServiceImpl implements DatabaseService {
     this.mlayerDomainIndex = mlayerDomainIndex;
   }
 
+  /**
+   * client and index names for documents, ratings, mlayer instances, and mlayer domains.
+   * @param client the Elasticsearch client used to interact with the Elasticsearch cluster
+   * @param docIndex the name of the Elasticsearch index used to store documents
+   * @param ratingIndex the name of the Elasticsearch index used to store document ratings
+   * @param mlayerInstanceIndex the name of the Elasticsearch index used to store mlayer instances
+   * @param mlayerDomainIndex the name of the Elasticsearch index used to store mlayer domains
+   * @param nlpService the NLP search service used to perform NLP searches
+   * @param geoService the geocoding service used to perform geocoding operations
+   */
   public DatabaseServiceImpl(
-      ElasticClient client, String docIndex,
+      ElasticClient client,
+      String docIndex,
       String ratingIndex,
       String mlayerInstanceIndex,
       String mlayerDomainIndex,
@@ -75,12 +94,22 @@ public class DatabaseServiceImpl implements DatabaseService {
     this.mlayerDomainIndex = mlayerDomainIndex;
   }
 
+  /**
+   * Constructs a new instance of DatabaseServiceImpl with only the ElasticClient provided. This
+   * constructor sets the values of nlpPluggedIn and geoPluggedIn to false.
+   * @param client the ElasticClient used to interact with the Elasticsearch instance
+   */
   public DatabaseServiceImpl(ElasticClient client) {
     this.client = client;
     nlpPluggedIn = false;
     geoPluggedIn = false;
   }
 
+  /**
+   * Constructor for initializing DatabaseServiceImpl object.
+   * @param client the ElasticClient object for connecting to Elasticsearch
+   * @param nlpService the NLPSearchService object for natural language processing searches
+   */
   public DatabaseServiceImpl(
       ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
     this.client = client;
@@ -131,8 +160,15 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  public DatabaseService nlpSearchQuery(JsonArray request,
-                                        Handler<AsyncResult<JsonObject>> handler) {
+  /**
+   * Executes an NLP search query by passing in the request embeddings and invoking the appropriate
+   * search method on the ElasticSearch client.
+   * @param request the request embeddings
+   * @param handler the handler to be called when the search completes
+   * @return the DatabaseService instance
+   */
+  public DatabaseService nlpSearchQuery(
+      JsonArray request, Handler<AsyncResult<JsonObject>> handler) {
     JsonArray embeddings = request.getJsonArray(0);
     client.scriptSearch(embeddings, searchRes -> {
       if (searchRes.succeeded()) {
@@ -146,9 +182,14 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  public DatabaseService nlpSearchLocationQuery(JsonArray request,
-                                                JsonObject queryParams,
-                                                Handler<AsyncResult<JsonObject>> handler) {
+  /**
+   * Performs an NLP search for a location query.
+   * @param queryParams the query parameters to search with
+   * @param handler the handler to call with the response
+   * @return the current DatabaseService instance
+   */
+  public DatabaseService nlpSearchLocationQuery(
+      JsonArray request, JsonObject queryParams, Handler<AsyncResult<JsonObject>> handler) {
     JsonArray embeddings = request.getJsonArray(0);
     JsonArray params = queryParams.getJsonArray(RESULTS);
     JsonArray results = new JsonArray();
@@ -886,7 +927,12 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * Creates a new mlayer instance in the Elasticsearch database with the given instance document.
+   * @param instanceDoc the JsonObject representing the mlayer instance document
+   * @param handler the asynchronous result handler
+   * @return the DatabaseService instance
+   */
   @Override
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {

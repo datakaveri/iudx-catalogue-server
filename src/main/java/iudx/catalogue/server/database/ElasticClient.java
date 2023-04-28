@@ -86,11 +86,11 @@ public final class ElasticClient {
           if (totalHits > 0) {
             JsonArray results = new JsonArray();
 
-            if( (options == SOURCE_ONLY
+            if ((options == SOURCE_ONLY
                     || options == DOC_IDS_ONLY
                     || options == SOURCE_AND_ID
                     || options == SOURCE_AND_ID_GEOQUERY
-                    || options == DATASET) &&  responseJson.getJsonObject(HITS).containsKey(HITS)){
+                    || options == DATASET) &&  responseJson.getJsonObject(HITS).containsKey(HITS)) {
                 results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
 
             }
@@ -102,7 +102,7 @@ public final class ElasticClient {
 
             for (int i = 0; i < results.size(); i++) {
               if (options == SOURCE_ONLY) {
-                /** Todo: This might slow system down */
+                // Todo: This might slow system down
                 JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
                 source.remove(SUMMARY_KEY);
                 source.remove(WORD_VECTOR_KEY);
@@ -197,6 +197,7 @@ public final class ElasticClient {
         } catch (IOException e) {
           promise.fail(e);
         } finally {
+          EntityUtils.consumeQuietly(response.getEntity());
         }
       }
 
@@ -226,6 +227,14 @@ public final class ElasticClient {
     return this;
   }
 
+  /**
+   * Searches for a dataset in the specified Elasticsearch index using the provided query string.
+   *
+   * @param query the query string to use for the search
+   * @param index the name of the Elasticsearch index to search in
+   * @param resultHandler the async result handler to receive the search results in JSON format
+   * @return the ElasticClient instance for chaining method calls
+   */
   public ElasticClient searchAsyncDataset(
       String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
@@ -235,6 +244,13 @@ public final class ElasticClient {
     return this;
   }
 
+  /**
+   * Executes an asynchronous search operation with a geo query in the specified index.
+   * @param query the query to execute
+   * @param index the name of the index to search
+   * @param resultHandler the handler for the search result
+   * @return this ElasticClient instance
+   */
   public ElasticClient searchAsyncGeoQuery(
       String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
     Request queryRequest =
@@ -246,6 +262,13 @@ public final class ElasticClient {
     return this;
   }
 
+  /**
+   * Asynchronously search for documents and retrieve only their ids and sources in the given index.
+   * @param query the query in JSON format as a string
+   * @param index the name of the index to search in
+   * @param resultHandler the handler for the asynchronous result of the search
+   * @return the ElasticClient instance to enable method chaining
+   */
   public ElasticClient searchAsyncGetId(
       String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH_ID_AND_SOURCE);
@@ -256,8 +279,16 @@ public final class ElasticClient {
     return this;
   }
 
-  public ElasticClient scriptSearch(JsonArray queryVector,
-                                      Handler<AsyncResult<JsonObject>> resultHandler) {
+  /**
+   * Performs a search based on the given query vector using a script score query
+   * with cosine similarity between the query vector and the word
+   * vectors of the documents in the index.
+   * @param queryVector the query vector in a JSON array format
+   * @param resultHandler the handler for the result of the search operation
+   * @return the ElasticClient instance for chaining calls
+   */
+  public ElasticClient scriptSearch(
+      JsonArray queryVector, Handler<AsyncResult<JsonObject>> resultHandler) {
     // String query = NLP_SEARCH.replace("$1", queryVector.toString());
     String query = "{\"query\": {\"script_score\": {\"query\": {\"match\": {}},"
             + " \"script\": {\"source\": \"doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity"
@@ -272,6 +303,13 @@ public final class ElasticClient {
     return this;
   }
 
+  /**
+   * Performs a location-based search query using a vector and a set of query parameters.
+   *
+   * @param queryVector The vector to use for the query.
+   * @param queryParams The parameters to filter results based on location.
+   * @return A Future of a JsonObject containing the search results.
+   */
   public Future<JsonObject> scriptLocationSearch(JsonArray queryVector, JsonObject queryParams) {
 
     StringBuilder query = new StringBuilder("{\"query\": {\"script_score\": {\"query\": {\"bool\":"
@@ -341,8 +379,16 @@ public final class ElasticClient {
     return this;
   }
 
-  public ElasticClient ratingAggregationAsync(String query, String index,
-      Handler<AsyncResult<JsonObject>> resultHandler) {
+  /**
+   * Executes a rating aggregation request asynchronously for the given query and index, and returns
+   * the result through the resultHandler.
+   * @param query the aggregation query to execute
+   * @param index the index to search in
+   * @param resultHandler the handler for the result of the aggregation query
+   * @return the ElasticClient object
+   */
+  public ElasticClient ratingAggregationAsync(
+      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
     Request queryRequest = new Request(REQUEST_GET, index
         + "/_search"
         + FILTER_PATH_AGGREGATION);
@@ -401,6 +447,7 @@ public final class ElasticClient {
         } catch (IOException e) {
           promise.fail(e);
         } finally {
+          EntityUtils.consumeQuietly(response.getEntity());
         }
       }
 
@@ -441,7 +488,7 @@ public final class ElasticClient {
   public ElasticClient docPostAsync(
       String index, String doc, Handler<AsyncResult<JsonObject>> resultHandler) {
 
-    /** TODO: Validation */
+    // TODO: Validation
     Request docRequest = new Request(REQUEST_POST, index + "/_doc");
     docRequest.setJsonEntity(doc.toString());
 
@@ -462,7 +509,7 @@ public final class ElasticClient {
   public ElasticClient docPutAsync(String docId, String index, String doc,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
-    /** TODO: Validation */
+    // TODO: Validation
     Request docRequest = new Request(REQUEST_PUT, index + "/_doc/" + docId);
     docRequest.setJsonEntity(doc.toString());
     Future<JsonObject> future = docAsync(REQUEST_PUT, docRequest);
@@ -481,7 +528,7 @@ public final class ElasticClient {
   public ElasticClient docDelAsync(String docId, String index,
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
-    /** TODO: Validation */
+    // TODO: Validation
     Request docRequest = new Request(REQUEST_DELETE, index + "/_doc/" + docId);
 
     Future<JsonObject> future = docAsync(REQUEST_DELETE, docRequest);
@@ -574,6 +621,7 @@ public final class ElasticClient {
         } catch (IOException e) {
             promise.fail(e);
         } finally {
+          EntityUtils.consumeQuietly(response.getEntity());
         }
       }
 

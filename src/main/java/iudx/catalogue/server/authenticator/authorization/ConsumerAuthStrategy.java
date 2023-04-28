@@ -1,33 +1,35 @@
 package iudx.catalogue.server.authenticator.authorization;
 
+import static iudx.catalogue.server.apiserver.util.Constants.ROUTE_RATING;
+import static iudx.catalogue.server.authenticator.authorization.Method.*;
+
 import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import static iudx.catalogue.server.apiserver.util.Constants.ROUTE_RATING;
-import static iudx.catalogue.server.authenticator.authorization.Method.*;
 
 public class ConsumerAuthStrategy implements AuthorizationStratergy {
 
   static List<AuthorizationRequest> accessList = new ArrayList<>();
   private static volatile ConsumerAuthStrategy instance;
   private Api api;
+
   private ConsumerAuthStrategy(Api api) {
     this.api = api;
     buildPermissions(api);
   }
-  public static ConsumerAuthStrategy getInstance(Api api)
-  {
-    if (instance == null)
-    {
-      synchronized (ConsumerAuthStrategy.class)
-      {
-        if (instance == null)
-        {
+
+  /**
+   * Returns the singleton instance of ConsumerAuthStrategy for a given API.
+   * If the instance doesn't exist, creates one and returns it.
+   * @param api the API for which the instance needs to be created
+   * @return the singleton instance of ConsumerAuthStrategy for the given API
+   */
+  public static ConsumerAuthStrategy getInstance(Api api) {
+    if (instance == null) {
+      synchronized (ConsumerAuthStrategy.class) {
+        if (instance == null) {
           instance = new ConsumerAuthStrategy(api);
         }
       }

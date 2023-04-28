@@ -158,7 +158,10 @@ public class Constants {
       "{ \"query\": { \"bool\": { \"minimum_should_match\": 1, \"should\": [$1]}},\"_source\": "
               + "{\"includes\": [\"id\",\"location\",\"instance\",\"label\"] }}";
   public static final String GET_MLAYER_BOOL_GEOQUERY =
-      "{\"bool\": {\"should\": [{ \"match\": { \"type.keyword\": \"iudx:Resource\" } },{ \"match\": { \"type.keyword\": \"iudx:ResourceGroup\" } }],\"must\": [{\"match\": {\"instance.keyword\": \"$2\"}},{\"match\": {\"id.keyword\": \"$3\"}}]}}";
+      "{\"bool\": {\"should\": [{ \"match\": { \"type.keyword\": \"iudx:Resource\" } },"
+              + "{ \"match\": { \"type.keyword\": \"iudx:ResourceGroup\" } }],\"must\": "
+              + "[{\"match\": {\"instance.keyword\": \"$2\"}},{\"match\": {\"id.keyword\": "
+              + "\"$3\"}}]}}";
   public static final String GET_MLAYER_BOOL_ICON =
       "{\"bool\":{\"must\":[{\"match\":{\"name\":\"$2\"}}]}}";
   public static final String GET_MLAYER_INSTANCE_ICON_PATH =

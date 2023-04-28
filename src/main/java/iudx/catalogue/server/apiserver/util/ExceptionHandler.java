@@ -77,7 +77,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
                             .getResponse();
     }
 
-  String internalErrorResp = new RespBuilder()
+    String internalErrorResp = new RespBuilder()
                                           .withType(TYPE_INTERNAL_SERVER_ERROR)
                                           .withTitle(TITLE_INTERNAL_SERVER_ERROR)
                                           .getResponse();
@@ -94,8 +94,7 @@ public class ExceptionHandler implements Handler<RoutingContext> {
   /**
    * Handles the exception from casting a object to different object.
    * 
-   *
-   * @param routingContext
+   *@param routingContext the routing context of the request
    */
   public void handleClassCastException(RoutingContext routingContext) {
 

@@ -122,6 +122,14 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     return promise.future();
   }
 
+  /**
+   * Validates the user's access to the given API endpoint based
+   * on the user's role and the HTTP method used.
+   * @param jwtData the user's JWT data
+   * @param authenticationInfo a JsonObject containing the HTTP method
+   * @return a Future containing a JsonObject with user information if the access is allowed,
+   *         or a failure if the access is denied
+   */
   public Future<JsonObject> validateAccess(JwtData jwtData, JsonObject authenticationInfo) {
     LOGGER.trace("validateAccess() started");
     Promise<JsonObject> promise = Promise.promise();
