@@ -28,6 +28,12 @@ public class DeployerDev {
     return config.mergeIn(commonConfigs, true);
   }
 
+  /**
+   * Recursively deploys all modules specified in the given JsonObject {@code configs}.
+   * @param vertx the Vert.x instance to use for deployment
+   * @param configs a JsonObject containing the configuration for all modules to deploy
+   * @param i the index of the module to deploy
+   */
   public static void recursiveDeploy(Vertx vertx, JsonObject configs, int i) {
     if (i >= configs.getJsonArray("modules").size()) {
       LOGGER.info("Deployed all");
@@ -52,6 +58,11 @@ public class DeployerDev {
       });
   }
 
+  /**
+   * Deploys the configuration file to Vert.x and recursively deploys
+   * all the modules in the configuration.
+   * @param configPath the path to the configuration file.
+   */
   public static void deploy(String configPath) {
     EventBusOptions ebOptions = new EventBusOptions();
     VertxOptions options = new VertxOptions().setEventBusOptions(ebOptions);
@@ -72,6 +83,12 @@ public class DeployerDev {
     recursiveDeploy(vertx, configuration, 0);
   }
 
+  /**
+   * Main method that deploys the catalogue using a CLI tool. Parses the command
+   * line arguments using the CLI class and deploys the modules specified in the
+   * configuration file.
+   * @param args the command line arguments
+   */
   public static void main(String[] args) {
     CLI cli = CLI.create("IUDX Cat").setSummary("A CLI to deploy the catalogue")
         .addOption(new Option().setLongName("help").setShortName("h").setFlag(true)

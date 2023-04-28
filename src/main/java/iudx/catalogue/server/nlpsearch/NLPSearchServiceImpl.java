@@ -29,6 +29,12 @@ public class NLPSearchServiceImpl implements NLPSearchService {
   private final String nlpServiceUrl;
   private final int nlpServicePort;
 
+  /**
+   * Constructs a new instance of NLPSearchServiceImpl with the given parameters.
+   * @param client the WebClient used to make HTTP requests to the NLP service
+   * @param nlpServiceUrl the URL of the NLP service
+   * @param nlpServicePort the port number of the NLP service
+   */
   public NLPSearchServiceImpl(WebClient client, String nlpServiceUrl, int nlpServicePort) {
     webClient = client;
     this.nlpServiceUrl = nlpServiceUrl;

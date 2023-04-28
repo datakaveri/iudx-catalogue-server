@@ -28,12 +28,15 @@ import io.vertx.core.json.JsonObject;
 public interface GeocodingService {
 
   /**
+   * This method performs geocoding using a third-party service and
+   * returns a JSON array of geocoding results for the specified location.
    * @param location which is a String
    * @param handler which is a request handler
    */
   void geocoder(String location, Handler<AsyncResult<String>> handler);
 
   /**
+   * This method performs geocoding using a third-party API and returns the result to the handler.
    * @param lat which is a Float
    * @param lon which is a Float
    * @param handler which is a request handler
@@ -41,6 +44,8 @@ public interface GeocodingService {
   void reverseGeocoder(String lat, String lon, Handler<AsyncResult<JsonObject>> handler);
 
   /**
+   * This method performs a reverse geocoding request to a Pelias geocoding service
+   * using latitude and longitude coordinates.
    * @param doc which is a JsonObject
    */
   void geoSummarize(JsonObject doc, Handler<AsyncResult<String>> handler);

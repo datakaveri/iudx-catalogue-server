@@ -20,6 +20,11 @@ public final class Validator {
     PKGBASE = '/' + pkgName.replace(".", "/");
   }
 
+  /**
+   * Creates a new instance of Validator that can validate JSON objects against a given JSON schema.
+   * @param schemaPath a String that represents the path of the JSON schema file
+   * @throws IOException if there is an error reading the schema file
+   */
   public Validator(String schemaPath) throws IOException, ProcessingException {
     final JsonNode schemaNode = loadResource(schemaPath);
     final JsonSchemaFactory factory = JsonSchemaFactory.byDefault();

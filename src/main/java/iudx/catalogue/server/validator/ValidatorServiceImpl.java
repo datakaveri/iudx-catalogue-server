@@ -54,6 +54,11 @@ public class ValidatorServiceImpl implements ValidatorService {
 
   private String docIndex;
 
+  /**
+   * Constructs a new ValidatorServiceImpl object with the specified ElasticClient and docIndex.
+   * @param client the ElasticClient object to use for interacting with the Elasticsearch instance
+   * @param docIndex the index name to use for storing documents in Elasticsearch
+   */
   public ValidatorServiceImpl(ElasticClient client, String docIndex) {
 
     this.client = client;
@@ -74,7 +79,9 @@ public class ValidatorServiceImpl implements ValidatorService {
 
   }
 
-  /** {@inheritDoc} */
+  /**
+   *  {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   public ValidatorService validateSchema(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -122,7 +129,9 @@ public class ValidatorServiceImpl implements ValidatorService {
   }
 
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public ValidatorService validateItem(JsonObject request,
@@ -144,7 +153,7 @@ public class ValidatorServiceImpl implements ValidatorService {
                         + "\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}";
 
 
-    /** Validate if Resource */
+    // Validate if Resource
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
       String resourceGroup = request.getString(RESOURCE_GRP);
       String id = resourceGroup + "/" + request.getString(NAME);
@@ -185,10 +194,10 @@ public class ValidatorServiceImpl implements ValidatorService {
           .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
       handler.handle(Future.succeededFuture(request));
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
-      /** Validate if Provider */
+      // Validate if Provider
       handler.handle(Future.succeededFuture(request));
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
-      /** Validate if ResourceGroup */
+      // Validate if ResourceGroup
       String resourceServer = request.getString(RESOURCE_SVR);
       String[] domain = resourceServer.split("/");
       String provider = request.getString(PROVIDER);
@@ -229,7 +238,9 @@ public class ValidatorServiceImpl implements ValidatorService {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /** {@inheritDoc}
+   *  @return null, as this method is not implemented in this class
+   */
   @Override
   public ValidatorService validateProvider(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {

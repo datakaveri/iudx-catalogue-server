@@ -30,10 +30,22 @@ public class RatingServiceImpl implements RatingService {
   private final String rsauditingtable;
   private final int minReadNumber;
 
+  /**
+   * Constructor for RatingServiceImpl class. Initializes the object with the given parameters.
+   * @param exchangeName the name of the exchange used for rating
+   * @param rsauditingtable the name of the table used for auditing the rating system
+   * @param minReadNumber the minimum number of reads for a rating to be considered valid
+   * @param databaseService the service used for interacting with the database
+   * @param dataBrokerService the service used for interacting with the data broker
+   * @param postgresService the service used for interacting with the PostgreSQL database
+   */
   public RatingServiceImpl(
-      String exchangeName, String rsauditingtable, int minReadNumber,
+      String exchangeName,
+      String rsauditingtable,
+      int minReadNumber,
       DatabaseService databaseService,
-      DataBrokerService dataBrokerService, PostgresService postgresService) {
+      DataBrokerService dataBrokerService,
+      PostgresService postgresService) {
     this.ratingExchangeName = exchangeName;
     this.rsauditingtable = rsauditingtable;
     this.minReadNumber = minReadNumber;

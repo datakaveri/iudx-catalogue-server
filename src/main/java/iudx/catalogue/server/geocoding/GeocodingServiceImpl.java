@@ -43,6 +43,14 @@ public class GeocodingServiceImpl implements GeocodingService {
   private final int peliasPort;
   StringBuilder sb = new StringBuilder();
 
+  /**
+   * Constructs a new instance of GeocodingServiceImpl with the provided WebClient and
+   * Pelias URL and port.
+   * The geocoding service is used to convert textual location queries into geographic coordinates.
+   * @param webClient the WebClient used to perform HTTP requests
+   * @param peliasUrl the URL of the Pelias geocoding service
+   * @param peliasPort the port number of the Pelias geocoding service
+   */
   public GeocodingServiceImpl(WebClient webClient, String peliasUrl, int peliasPort) {
     this.webClient = webClient;
     this.peliasUrl = peliasUrl;

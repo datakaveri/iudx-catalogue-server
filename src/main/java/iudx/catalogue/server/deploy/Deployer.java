@@ -140,9 +140,17 @@ public class Deployer {
     return config.mergeIn(commonConfigs, true);
   }
 
-
-  public static ClusterManager getClusterManager(String host, List<String> zookeepers,
-      String clusterID) {
+  /**
+   * Returns a ClusterManager instance that uses Hazelcast as the underlying clustering technology,
+   * with Zookeeper-based discovery strategy.
+   *
+   * @param host The public IP address of the current node in the cluster.
+   * @param zookeepers A list of IP addresses/hosts where the Zookeeper instances are running.
+   * @param clusterID A unique identifier for the cluster to which the node belongs.
+   * @return A ClusterManager instance that uses Hazelcast and Zookeeper-based discovery.
+   */
+  public static ClusterManager getClusterManager(
+      String host, List<String> zookeepers, String clusterID) {
     Config config = new Config();
     config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
     config.getNetworkConfig().setPublicAddress(host);
@@ -159,6 +167,12 @@ public class Deployer {
     return new HazelcastClusterManager(config);
   }
 
+  /**
+   * Returns an instance of {@link MetricsOptions} configured with Micrometer
+   * metrics options for Prometheus
+   * along with additional labels and enabled status.
+   * @return an instance of {@link MetricsOptions}
+   */
   public static MetricsOptions getMetricsOptions() {
     return new MicrometerMetricsOptions()
         .setPrometheusOptions(
@@ -170,6 +184,11 @@ public class Deployer {
         .setEnabled(true);
   }
 
+  /**
+   * Binds JVM metrics to the default meter registry.
+   * The registry collects and records various JVM-related metrics such as memory usage,
+   * garbage collection statistics, and thread count.
+   */
   public static void setJvmMetrics() {
     MeterRegistry registry = BackendRegistries.getDefaultNow();
     LOGGER.debug(registry);
@@ -235,31 +254,31 @@ public class Deployer {
    */
   public static void gracefulShutdown() {
     Set<String> deployIdSet = vertx.deploymentIDs();
-    Logger LOGGER = LogManager.getLogger(Deployer.class);
-    LOGGER.info("Shutting down the application");
+    Logger logger = LogManager.getLogger(Deployer.class);
+    logger.info("Shutting down the application");
     CountDownLatch latchVerticles = new CountDownLatch(deployIdSet.size());
     CountDownLatch latchCluster = new CountDownLatch(1);
     CountDownLatch latchVertx = new CountDownLatch(1);
-    LOGGER.debug("number of verticles being undeployed are:" + deployIdSet.size());
+    logger.debug("number of verticles being undeployed are:" + deployIdSet.size());
     // shutdown verticles
     for (String deploymentId : deployIdSet) {
       vertx.undeploy(deploymentId, handler -> {
         if (handler.succeeded()) {
-          LOGGER.debug(deploymentId + " verticle  successfully Undeployed");
+          logger.debug(deploymentId + " verticle  successfully Undeployed");
           latchVerticles.countDown();
         } else {
-          LOGGER.warn(deploymentId + "Undeploy failed!");
+          logger.warn(deploymentId + "Undeploy failed!");
         }
 
       });
     }
     try {
       latchVerticles.await(5, TimeUnit.SECONDS);
-      LOGGER.info("All the verticles undeployed");
+      logger.info("All the verticles undeployed");
       Promise<Void> promise = Promise.promise();
       // leave the cluster
       mgr.leave(promise);
-      LOGGER.info("vertx left cluster succesfully");
+      logger.info("vertx left cluster succesfully");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -268,10 +287,10 @@ public class Deployer {
       // shutdown the vertx
       vertx.close(handler -> {
         if (handler.succeeded()) {
-          LOGGER.info("vertx closed successfully");
+          logger.info("vertx closed successfully");
           latchVertx.countDown();
         } else {
-          LOGGER.warn("Vertx didn't close properly, reason:" + handler.cause());
+          logger.warn("Vertx didn't close properly, reason:" + handler.cause());
         }
       });
     } catch (Exception e) {
@@ -292,6 +311,10 @@ public class Deployer {
     }
   }
 
+  /**
+   * Main method for IUDX Cat CLI.
+   * @param args an array of command line arguments
+   */
   public static void main(String[] args) {
     CLI cli = CLI.create("IUDX Cat").setSummary("A CLI to deploy the catalogue")
         .addOption(new Option().setLongName("help").setShortName("h").setFlag(true)
