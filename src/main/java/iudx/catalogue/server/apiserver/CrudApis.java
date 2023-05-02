@@ -365,7 +365,7 @@ public final class CrudApis {
 
 
   /**
-   * Creates a new instance of an item and handles the request/response flow.
+   * Creates a new catalogue instance and handles the request/response flow.
    *
    * @param routingContext the routing context for handling HTTP requests and responses
    * @param catAdmin he catalogue admin for the item
