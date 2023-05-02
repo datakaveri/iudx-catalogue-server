@@ -1,18 +1,5 @@
 package iudx.catalogue.server.deploy;
 
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.DiscoveryStrategyConfig;
 import com.hazelcast.zookeeper.ZookeeperDiscoveryProperties;
@@ -42,6 +29,20 @@ import io.vertx.micrometer.MicrometerMetricsOptions;
 import io.vertx.micrometer.VertxPrometheusOptions;
 import io.vertx.micrometer.backends.BackendRegistries;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+
 
 /**
  * Deploys clustered vert.x instance of the server. As a JAR, the application requires 3 runtime
@@ -51,9 +52,8 @@ import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
  * <li>--hostname/-i : the hostname for clustering</li>
  * <li>--modules/-m : comma separated list of module names to deploy</li>
  * </ul>
- * 
  * e.g. <i>java -jar ./fatjar.jar --host $(hostname) -c configs/config.json -m
- * iudx.catalogue.server.ApiServerVerticle</i>
+ * iudx.catalogue.server.ApiServerVerticle</i></p>
  */
 
 
@@ -64,7 +64,8 @@ public class Deployer {
 
   /**
    * Recursively deploy all modules.
-   * 
+   *
+   *
    * @param vertx the vert.x instance
    * @param configs the JSON configuration
    * @param i for recursive base case
@@ -89,19 +90,15 @@ public class Deployer {
             LOGGER.fatal("Failed to deploy " + moduleName + " cause:", ar.cause());
           }
         });
-      }
-  private static JsonObject getConfigForModule(int moduleIndex,JsonObject configurations) {
-    JsonObject commonConfigs = configurations.getJsonObject("commonConfig");
-    JsonObject config = configurations.getJsonArray("modules").getJsonObject(moduleIndex);
-    return config.mergeIn(commonConfigs, true);
   }
   /**
    * Recursively deploy modules/verticles (if they exist) present in the `modules` list.
-   * 
+   *
    * @param vertx the vert.x instance
    * @param configs the JSON configuration
    * @param modules the list of modules to deploy
    */
+
   public static void recursiveDeploy(Vertx vertx, JsonObject configs, List<String> modules) {
     if (modules.isEmpty()) {
       LOGGER.info("Deployed requested verticles");
@@ -112,7 +109,8 @@ public class Deployer {
 
     String moduleName = modules.get(0);
     JsonObject config = configuredModules.stream().map(obj -> (JsonObject) obj)
-        .filter(obj -> obj.getString("id").equals(moduleName)).findFirst().orElse(new JsonObject());
+            .filter(obj -> obj.getString("id").equals(moduleName))
+            .findFirst().orElse(new JsonObject());
 
     if (config.isEmpty()) {
       LOGGER.fatal("Failed to deploy " + moduleName + " cause: Not Found");
@@ -120,24 +118,39 @@ public class Deployer {
     }
 
     //get common configs and add this to config object
-    JsonObject commonConfigs=configs.getJsonObject("commonConfig");
+    JsonObject commonConfigs = configs.getJsonObject("commonConfig");
     config.mergeIn(commonConfigs, true);
-    
+
     int numInstances = config.getInteger("verticleInstances");
     vertx.deployVerticle(moduleName,
-        new DeploymentOptions().setInstances(numInstances).setConfig(config), ar -> {
-          if (ar.succeeded()) {
-            LOGGER.info("Deployed " + moduleName);
-            modules.remove(0);
-            recursiveDeploy(vertx, configs, modules);
-          } else {
-            LOGGER.fatal("Failed to deploy " + moduleName + " cause:", ar.cause());
-          }
-        });
+            new DeploymentOptions().setInstances(numInstances).setConfig(config), ar -> {
+              if (ar.succeeded()) {
+                LOGGER.info("Deployed " + moduleName);
+                modules.remove(0);
+                recursiveDeploy(vertx, configs, modules);
+              } else {
+                LOGGER.fatal("Failed to deploy " + moduleName + " cause:", ar.cause());
+              }
+            });
   }
 
-  public static ClusterManager getClusterManager(String host, List<String> zookeepers,
-      String clusterID) {
+  private static JsonObject getConfigForModule(int moduleIndex, JsonObject configurations) {
+    JsonObject commonConfigs = configurations.getJsonObject("commonConfig");
+    JsonObject config = configurations.getJsonArray("modules").getJsonObject(moduleIndex);
+    return config.mergeIn(commonConfigs, true);
+  }
+
+  /**
+   * Returns a ClusterManager instance that uses Hazelcast as the underlying clustering technology,
+   * with Zookeeper-based discovery strategy.
+   *
+   * @param host The public IP address of the current node in the cluster.
+   * @param zookeepers A list of IP addresses/hosts where the Zookeeper instances are running.
+   * @param clusterID A unique identifier for the cluster to which the node belongs.
+   * @return A ClusterManager instance that uses Hazelcast and Zookeeper-based discovery.
+   */
+  public static ClusterManager getClusterManager(
+      String host, List<String> zookeepers, String clusterID) {
     Config config = new Config();
     config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
     config.getNetworkConfig().setPublicAddress(host);
@@ -154,6 +167,12 @@ public class Deployer {
     return new HazelcastClusterManager(config);
   }
 
+  /**
+   * Returns an instance of {@link MetricsOptions} configured with Micrometer
+   * metrics options for Prometheus
+   * along with additional labels and enabled status.
+   * @return an instance of {@link MetricsOptions}
+   */
   public static MetricsOptions getMetricsOptions() {
     return new MicrometerMetricsOptions()
         .setPrometheusOptions(
@@ -163,9 +182,14 @@ public class Deployer {
         .setLabels(EnumSet.of(Label.EB_ADDRESS, Label.EB_FAILURE, Label.HTTP_CODE,
             Label.HTTP_METHOD))
         .setEnabled(true);
-      }
+  }
 
-  public static void setJVMmetrics() {
+  /**
+   * Binds JVM metrics to the default meter registry.
+   * The registry collects and records various JVM-related metrics such as memory usage,
+   * garbage collection statistics, and thread count.
+   */
+  public static void setJvmMetrics() {
     MeterRegistry registry = BackendRegistries.getDefaultNow();
     LOGGER.debug(registry);
     new ClassLoaderMetrics().bindTo(registry);
@@ -178,9 +202,10 @@ public class Deployer {
 
   /**
    * Deploy clustered vert.x instance.
-   * 
+   *
+   *
    * @param configPath the path for JSON config file
-   * @param host
+   * @param host is String consisting of host name
    * @param modules list of modules to deploy. If list is empty, all modules are deployed
    */
   public static void deploy(String configPath, String host, List<String> modules) {
@@ -194,7 +219,7 @@ public class Deployer {
     if (config.length() < 1) {
       LOGGER.fatal("Couldn't read configuration file");
       return;
-        }
+    }
     JsonObject configuration = new JsonObject(config);
     List<String> zookeepers = configuration.getJsonArray("zookeepers").getList();
     String clusterId = configuration.getString("clusterId");
@@ -208,7 +233,7 @@ public class Deployer {
       if (res.succeeded()) {
         vertx = res.result();
         LOGGER.debug(vertx.isMetricsEnabled());
-        setJVMmetrics();
+        setJvmMetrics();
         if (modules.isEmpty()) {
           recursiveDeploy(vertx, configuration, 0);
         } else {
@@ -228,32 +253,32 @@ public class Deployer {
    * on a normal shutdown of application.
    */
   public static void gracefulShutdown() {
-    Set<String> deployIDSet = vertx.deploymentIDs();
-    Logger LOGGER = LogManager.getLogger(Deployer.class);
-    LOGGER.info("Shutting down the application");
-    CountDownLatch latchVerticles = new CountDownLatch(deployIDSet.size());
+    Set<String> deployIdSet = vertx.deploymentIDs();
+    Logger logger = LogManager.getLogger(Deployer.class);
+    logger.info("Shutting down the application");
+    CountDownLatch latchVerticles = new CountDownLatch(deployIdSet.size());
     CountDownLatch latchCluster = new CountDownLatch(1);
     CountDownLatch latchVertx = new CountDownLatch(1);
-    LOGGER.debug("number of verticles being undeployed are:" + deployIDSet.size());
+    logger.debug("number of verticles being undeployed are:" + deployIdSet.size());
     // shutdown verticles
-    for (String deploymentID : deployIDSet) {
-      vertx.undeploy(deploymentID, handler -> {
+    for (String deploymentId : deployIdSet) {
+      vertx.undeploy(deploymentId, handler -> {
         if (handler.succeeded()) {
-          LOGGER.debug(deploymentID + " verticle  successfully Undeployed");
+          logger.debug(deploymentId + " verticle  successfully Undeployed");
           latchVerticles.countDown();
         } else {
-          LOGGER.warn(deploymentID + "Undeploy failed!");
+          logger.warn(deploymentId + "Undeploy failed!");
         }
 
       });
     }
     try {
       latchVerticles.await(5, TimeUnit.SECONDS);
-      LOGGER.info("All the verticles undeployed");
+      logger.info("All the verticles undeployed");
       Promise<Void> promise = Promise.promise();
       // leave the cluster
       mgr.leave(promise);
-      LOGGER.info("vertx left cluster succesfully");
+      logger.info("vertx left cluster succesfully");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -262,10 +287,10 @@ public class Deployer {
       // shutdown the vertx
       vertx.close(handler -> {
         if (handler.succeeded()) {
-          LOGGER.info("vertx closed successfully");
+          logger.info("vertx closed successfully");
           latchVertx.countDown();
         } else {
-          LOGGER.warn("Vertx didn't close properly, reason:" + handler.cause());
+          logger.warn("Vertx didn't close properly, reason:" + handler.cause());
         }
       });
     } catch (Exception e) {
@@ -278,13 +303,18 @@ public class Deployer {
       if (LogManager.getContext() instanceof LoggerContext) {
         LOGGER.info("Shutting down log4j2");
         LogManager.shutdown((LoggerContext) LogManager.getContext());
-      } else
+      } else {
         LOGGER.warn("Unable to shutdown log4j2");
+      }
     } catch (Exception e) {
       e.printStackTrace();
-        }
+    }
   }
 
+  /**
+   * Main method for IUDX Cat CLI.
+   * @param args an array of command line arguments
+   */
   public static void main(String[] args) {
     CLI cli = CLI.create("IUDX Cat").setSummary("A CLI to deploy the catalogue")
         .addOption(new Option().setLongName("help").setShortName("h").setFlag(true)
@@ -319,4 +349,4 @@ public class Deployer {
     }
   }
 
-    }
+}

@@ -1,14 +1,15 @@
 package iudx.catalogue.server.validator;
 
+import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.validator.Constants.*;
+
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.apache.commons.lang.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import iudx.catalogue.server.database.ElasticClient;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -16,18 +17,17 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TimeZone;
-
-import iudx.catalogue.server.database.ElasticClient;
-import static iudx.catalogue.server.validator.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The Validator Service Implementation.
  *
  * <h1>Validator Service Implementation</h1>
  *
- * <p>
- * The Validator Service implementation in the IUDX Catalogue Server implements the definitions of
+ * <p>The Validator Service implementation in the
+ * IUDX Catalogue Server implements the definitions of
  * the {@link iudx.catalogue.server.validator.ValidatorService}.
  *
  * @version 1.0
@@ -49,10 +49,16 @@ public class ValidatorServiceImpl implements ValidatorService {
 
 
 
-  /** ES client */
+  /** ES client. */
   static ElasticClient client;
 
   private String docIndex;
+
+  /**
+   * Constructs a new ValidatorServiceImpl object with the specified ElasticClient and docIndex.
+   * @param client the ElasticClient object to use for interacting with the Elasticsearch instance
+   * @param docIndex the index name to use for storing documents in Elasticsearch
+   */
   public ValidatorServiceImpl(ElasticClient client, String docIndex) {
 
     this.client = client;
@@ -63,7 +69,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       resourceServerValidator = new Validator("/resourceServerItemSchema.json");
       providerValidator = new Validator("/providerItemSchema.json");
       ratingValidator = new Validator("/ratingSchema.json");
-      mlayerInstanceValidator=new Validator("/mlayerInstanceSchema.json");
+      mlayerInstanceValidator = new Validator("/mlayerInstanceSchema.json");
       mlayerDomainValidator = new Validator("/mlayerDomainSchema.json");
       mlayerGeoQueryValidator = new Validator("/mlayerGeoQuerySchema.json");
 
@@ -73,7 +79,9 @@ public class ValidatorServiceImpl implements ValidatorService {
 
   }
 
-  /** {@inheritDoc} */
+  /**
+   *  {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   public ValidatorService validateSchema(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -90,7 +98,7 @@ public class ValidatorServiceImpl implements ValidatorService {
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
     LOGGER.debug("Info: itemType: " + itemType);
 
-    switch(itemType) {
+    switch (itemType) {
 
       case ITEM_TYPE_RESOURCE:
         isValidSchema = resourceValidator.validate(request.toString());
@@ -121,7 +129,9 @@ public class ValidatorServiceImpl implements ValidatorService {
   }
 
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public ValidatorService validateItem(JsonObject request,
@@ -140,10 +150,10 @@ public class ValidatorServiceImpl implements ValidatorService {
 
 
     String checkQuery = "{\"_source\": [\"id\"],"
-                        +"\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}";
+                        + "\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}";
 
 
-    /** Validate if Resource */
+    // Validate if Resource
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
       String resourceGroup = request.getString(RESOURCE_GRP);
       String id = resourceGroup + "/" + request.getString(NAME);
@@ -175,25 +185,19 @@ public class ValidatorServiceImpl implements ValidatorService {
           return;
         }
       });
-    }
-    /** 
-     * Validate if Resource Server
-     * TODO: More checks and auth rules
-     **/
-    else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+    } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      // Validate if Resource Server TODO: More checks and auth rules
       String provider = request.getString(PROVIDER);
       String name = request.getString(NAME);
       String id = provider + "/" + name;
       request.put(ID, id).put(ITEM_STATUS, ACTIVE)
           .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
       handler.handle(Future.succeededFuture(request));
-    }
-    /** Validate if Provider */
-    else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+    } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+      // Validate if Provider
       handler.handle(Future.succeededFuture(request));
-    }
-    /** Validate if ResourceGroup */
-    else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+    } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+      // Validate if ResourceGroup
       String resourceServer = request.getString(RESOURCE_SVR);
       String[] domain = resourceServer.split("/");
       String provider = request.getString(PROVIDER);
@@ -205,36 +209,38 @@ public class ValidatorServiceImpl implements ValidatorService {
 
       client.searchGetId(
           checkQuery.replace("$1", provider), docIndex, providerRes -> {
-        if (providerRes.failed()) {
-          LOGGER.debug("Fail: DB Error");
-          handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-          return;
-        }
-        if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
-          client.searchGetId(
-              checkQuery.replace("$1", resourceServer), docIndex, serverRes -> {
-              if (serverRes.failed()) {
-                LOGGER.debug("Fail: DB error");
-                handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-                return;
-              } 
-              if (serverRes.result().getInteger(TOTAL_HITS) == 1) {
-                handler.handle(Future.succeededFuture(request));
-              } else {
-                LOGGER.debug("Fail: Server doesn't exist");
-                handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-              }
+          if (providerRes.failed()) {
+            LOGGER.debug("Fail: DB Error");
+            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            return;
+          }
+          if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
+            client.searchGetId(
+                checkQuery.replace("$1", resourceServer), docIndex, serverRes -> {
+                if (serverRes.failed()) {
+                  LOGGER.debug("Fail: DB error");
+                  handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                  return;
+                }
+                if (serverRes.result().getInteger(TOTAL_HITS) == 1) {
+                  handler.handle(Future.succeededFuture(request));
+                } else {
+                  LOGGER.debug("Fail: Server doesn't exist");
+                  handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                }
+              });
+            } else {
+              LOGGER.debug("Fail: Provider doesn't exist");
+              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            }
           });
-        } else {
-          LOGGER.debug("Fail: Provider doesn't exist");
-          handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-        }
-      });
     }
     return this;
   }
 
-  /** {@inheritDoc} */
+  /** {@inheritDoc}
+   *  @return null, as this method is not implemented in this class
+   */
   @Override
   public ValidatorService validateProvider(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -247,7 +253,7 @@ public class ValidatorServiceImpl implements ValidatorService {
 
     isValidSchema = ratingValidator.validate(request.toString());
 
-    if(isValidSchema) {
+    if (isValidSchema) {
       handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
       LOGGER.error("Fail: Invalid Schema");
@@ -257,12 +263,12 @@ public class ValidatorServiceImpl implements ValidatorService {
   }
 
   @Override
-  public ValidatorService validateMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    isValidSchema=mlayerInstanceValidator.validate(request.toString());
-    if(isValidSchema){
+  public ValidatorService validateMlayerInstance(JsonObject request,
+                                                 Handler<AsyncResult<JsonObject>> handler) {
+    isValidSchema = mlayerInstanceValidator.validate(request.toString());
+    if (isValidSchema) {
       handler.handle(Future.succeededFuture(new JsonObject()));
-    }
-    else{
+    } else {
       LOGGER.error("Fail: Invalid Schema");
       handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
     }
@@ -270,10 +276,11 @@ public class ValidatorServiceImpl implements ValidatorService {
   }
 
   @Override
-  public ValidatorService validateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ValidatorService validateMlayerDomain(JsonObject request,
+                                               Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema = mlayerDomainValidator.validate(request.toString());
 
-    if(isValidSchema) {
+    if (isValidSchema) {
       handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
       LOGGER.error("Fail: Invalid Schema");
@@ -283,10 +290,11 @@ public class ValidatorServiceImpl implements ValidatorService {
   }
 
   @Override
-  public ValidatorService validateMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ValidatorService validateMlayerGeoQuery(JsonObject request,
+                                                 Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema = mlayerGeoQueryValidator.validate(request.toString());
 
-    if(isValidSchema) {
+    if (isValidSchema) {
       handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
       LOGGER.error("Fail: Invalid Schema");

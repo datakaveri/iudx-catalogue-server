@@ -1,8 +1,10 @@
 package iudx.catalogue.server.apiserver.util;
 
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import static iudx.catalogue.server.util.Constants.*;
+
 
 public class RespBuilder {
   private JsonObject response = new JsonObject();
@@ -22,12 +24,27 @@ public class RespBuilder {
     return this;
   }
 
+  /**
+   * Builds a response object with the given result attributes and adds it to the current response.
+   * @param id the ID of the result
+   * @param method The method associated with the result
+   * @param status The status of the result
+   * @return The response builder instance with the result added.
+   */
   public RespBuilder withResult(String id, String method, String status) {
     JsonObject resultAttrs = new JsonObject().put(ID, id).put(METHOD, method).put(STATUS, status);
     response.put(RESULTS, new JsonArray().add(resultAttrs));
     return this;
   }
 
+  /**
+   * Builds a response object with the given result attributes and adds it to the current response.
+   * @param id The ID of the result.
+   * @param method The method associated with the result.
+   * @param status  The status of the result.
+   * @param detail The detailed description of the result.
+   * @return The response builder instance with the result added.
+   */
   public RespBuilder withResult(String id, String method, String status, String detail) {
     JsonObject resultAttrs =
         new JsonObject().put(ID, id).put(METHOD, method).put(STATUS, status).put(DETAIL, detail);
@@ -54,6 +71,12 @@ public class RespBuilder {
     totalHits(jsonArray.toString());
     return this;
   }
+
+  /**
+   *Sets the total number of hits for the response, based on the size of the given JSON array.
+   * @param resultJsonArray  The JSON array of results.
+   * @return The response builder instance with the total hits set.
+   */
 
   public RespBuilder totalHits(String resultJsonArray) {
     JsonArray jsonArray = new JsonArray(resultJsonArray);

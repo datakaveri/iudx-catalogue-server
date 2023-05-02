@@ -1,23 +1,25 @@
 package iudx.catalogue.server.rating;
 
+import static iudx.catalogue.server.auditing.util.Constants.ID;
+import static iudx.catalogue.server.geocoding.util.Constants.TYPE;
+import static iudx.catalogue.server.rating.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
+import com.google.common.hash.Hashing;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.databroker.DataBrokerService;
+import iudx.catalogue.server.util.Constants;
+import java.nio.charset.StandardCharsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.google.common.hash.Hashing;
 
-import java.nio.charset.StandardCharsets;
-
-import static iudx.catalogue.server.rating.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.TITLE_REQUIREMENTS_NOT_MET;
-import static iudx.catalogue.server.util.Constants.TYPE_ACCESS_DENIED;
 
 public class RatingServiceImpl implements RatingService {
   private static final Logger LOGGER = LogManager.getLogger(RatingServiceImpl.class);
@@ -28,10 +30,22 @@ public class RatingServiceImpl implements RatingService {
   private final String rsauditingtable;
   private final int minReadNumber;
 
+  /**
+   * Constructor for RatingServiceImpl class. Initializes the object with the given parameters.
+   * @param exchangeName the name of the exchange used for rating
+   * @param rsauditingtable the name of the table used for auditing the rating system
+   * @param minReadNumber the minimum number of reads for a rating to be considered valid
+   * @param databaseService the service used for interacting with the database
+   * @param dataBrokerService the service used for interacting with the data broker
+   * @param postgresService the service used for interacting with the PostgreSQL database
+   */
   public RatingServiceImpl(
-      String exchangeName, String rsauditingtable, int minReadNumber,
+      String exchangeName,
+      String rsauditingtable,
+      int minReadNumber,
       DatabaseService databaseService,
-      DataBrokerService dataBrokerService,PostgresService postgresService) {
+      DataBrokerService dataBrokerService,
+      PostgresService postgresService) {
     this.ratingExchangeName = exchangeName;
     this.rsauditingtable = rsauditingtable;
     this.minReadNumber = minReadNumber;
@@ -44,19 +58,20 @@ public class RatingServiceImpl implements RatingService {
   public RatingService createRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String sub = request.getString(USER_ID);
     String id = request.getString(ID);
-    StringBuilder query = new StringBuilder(AUDIT_INFO_QUERY.replace("$1", rsauditingtable).replace("$2", sub).replace("$3", id));
-    Future<JsonObject> getRSAuditingInfo = getAuditingInfo(query);
+    StringBuilder query = new StringBuilder(AUDIT_INFO_QUERY
+            .replace("$1", rsauditingtable).replace("$2", sub).replace("$3", id));
+    Future<JsonObject> getRsAuditingInfo = getAuditingInfo(query);
 
-    getRSAuditingInfo
+    getRsAuditingInfo
         .onSuccess(
             successHandler -> {
               int countResourceAccess = successHandler.getInteger("totalHits");
               if (countResourceAccess > minReadNumber) {
 
-                String ratingID =
+                String ratingId =
                     Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
-                request.put(RATING_ID, ratingID);
+                request.put(RATING_ID, ratingId);
 
                 databaseService.createRating(
                     request,
@@ -76,14 +91,16 @@ public class RatingServiceImpl implements RatingService {
                     new RespBuilder()
                         .withType(TYPE_ACCESS_DENIED)
                         .withTitle(TITLE_REQUIREMENTS_NOT_MET)
-                        .withDetail("User has to access resource at least " + minReadNumber + " times to give rating")
+                        .withDetail("User has to access resource at least "
+                                + minReadNumber + " times to give rating")
                         .getResponse()));
               }
             })
         .onFailure(
             failureHandler -> {
               LOGGER.error(
-                  "User has not accessed resource before and hence is not authorised to give rating");
+                  "User has not accessed resource"
+                          + " before and hence is not authorised to give rating");
               handler.handle(Future.failedFuture(failureHandler.getMessage()));
             });
 
@@ -93,12 +110,11 @@ public class RatingServiceImpl implements RatingService {
   @Override
   public RatingService getRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String id = request.getString(ID);
-
     if (!request.containsKey(TYPE)) {
       String sub = request.getString(USER_ID);
-      String ratingID = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
+      String ratingId = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
-      request.put(RATING_ID, ratingID);
+      request.put(RATING_ID, ratingId);
     }
 
     databaseService.getRatings(
@@ -119,9 +135,9 @@ public class RatingServiceImpl implements RatingService {
     String sub = request.getString(USER_ID);
     String id = request.getString(ID);
 
-    String ratingID = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
+    String ratingId = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
-    request.put(RATING_ID, ratingID);
+    request.put(RATING_ID, ratingId);
 
     databaseService.updateRating(
         request,
@@ -144,9 +160,9 @@ public class RatingServiceImpl implements RatingService {
     String sub = request.getString(USER_ID);
     String id = request.getString(ID);
 
-    String ratingID = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
+    String ratingId = Hashing.sha256().hashString(sub + id, StandardCharsets.UTF_8).toString();
 
-    request.put(RATING_ID, ratingID);
+    request.put(RATING_ID, ratingId);
 
     databaseService.deleteRating(
         request,
@@ -166,7 +182,7 @@ public class RatingServiceImpl implements RatingService {
   Future<JsonObject> getAuditingInfo(StringBuilder query) {
     Promise<JsonObject> promise = Promise.promise();
     postgresService.executeCountQuery(query.toString(), pgHandler -> {
-      if(pgHandler.succeeded()) {
+      if (pgHandler.succeeded()) {
         promise.complete(pgHandler.result());
       } else {
         promise.fail(pgHandler.cause());

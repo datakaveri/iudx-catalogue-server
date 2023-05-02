@@ -1,38 +1,37 @@
 package iudx.catalogue.server.apiserver;
 
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.net.JksOptions;
 import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CorsHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-import io.vertx.core.http.HttpServerResponse;
-import iudx.catalogue.server.mlayer.MlayerService;
-import iudx.catalogue.server.rating.RatingService;
-import iudx.catalogue.server.util.Api;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import iudx.catalogue.server.apiserver.util.ExceptionHandler;
+import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.database.DatabaseService;
-import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.geocoding.GeocodingService;
+import iudx.catalogue.server.mlayer.MlayerService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
-import iudx.catalogue.server.auditing.AuditingService;
-
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
+import iudx.catalogue.server.rating.RatingService;
+import iudx.catalogue.server.util.Api;
+import iudx.catalogue.server.validator.ValidatorService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The Catalogue Server API Verticle.
  *
  * <h1>Catalogue Server API Verticle</h1>
  *
- * <p>
- * The API Server verticle implements the IUDX Catalogue Server APIs. It handles the API requests
+ * <p>The API Server verticle implements the IUDX Catalogue Server APIs. It handles the API requests
  * from the clients and interacts with the associated Service to respond.
  *
  * @see io.vertx.core.Vertx
@@ -62,7 +61,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private Router router;
 
   private String catAdmin;
-  private boolean isSSL;
+  private boolean isSsL;
   private int port;
 
   private String dxApiBasePath;
@@ -71,7 +70,7 @@ public class ApiServerVerticle extends AbstractVerticle {
   private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
 
   /**
-   * This method is used to start the Verticle and joing a cluster
+   * This method is used to start the Verticle and joing a cluster.
    *
    * @throws Exception which is a startup exception
    */
@@ -85,13 +84,13 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     /* Configure */
     catAdmin = config().getString(CAT_ADMIN);
-    isSSL = config().getBoolean(IS_SSL);
+    isSsL = config().getBoolean(IS_SSL);
 
 
     HttpServerOptions serverOptions = new HttpServerOptions();
 
 
-    if (isSSL) {
+    if (isSsL) {
       LOGGER.debug("Info: Starting HTTPs server");
 
       /* Read the configuration and set the HTTPs server properties. */
@@ -122,14 +121,14 @@ public class ApiServerVerticle extends AbstractVerticle {
       port = config().getInteger(PORT) == null ? 8080
           : config().getInteger(PORT);
     }
-      LOGGER.debug("Started HTTP server at port : " + port);
+    LOGGER.debug("Started HTTP server at port : " + port);
 
-      serverOptions.setCompressionSupported(true).setCompressionLevel(5);
-    /** Instantiate this server */
+    serverOptions.setCompressionSupported(true).setCompressionLevel(5);
+    // Instantiate this server
     server = vertx.createHttpServer(serverOptions);
 
 
-    /** API Callback managers */
+    // API Callback managers
     crudApis = new CrudApis(api);
     searchApis = new SearchApis(api);
     listApis = new ListApis();
@@ -137,26 +136,23 @@ public class ApiServerVerticle extends AbstractVerticle {
     geoApis = new GeocodingApis();
     ratingApis = new RatingApis();
     mlayerApis = new MlayerApis();
-    /**
-     *
-     * Get proxies and handlers
-     *
-     */
 
-    /** Todo - Set service proxies based on availability? */
+
+    // Todo - Set service proxies based on availability?
     DatabaseService dbService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
 
     RatingService ratingService = RatingService.createProxy(vertx, RATING_SERVICE_ADDRESS);
+    ratingApis.setRatingService(ratingService);
+
     MlayerService mlayerService = MlayerService.createProxy(vertx, MLAYER_SERVICE_ADDRESSS);
+    mlayerApis.setMlayerService(mlayerService);
 
     crudApis.setDbService(dbService);
     listApis.setDbService(dbService);
     relApis.setDbService(dbService);
     // TODO : set db service for Rating APIs
     crudApis.setHost(config().getString(HOST));
-    ratingApis.setRatingService(ratingService);
     ratingApis.setHost(config().getString(HOST));
-    mlayerApis.setMlayerService(mlayerService);
     mlayerApis.setHost(config().getString(HOST));
 
     AuthenticationService authService =
@@ -172,30 +168,24 @@ public class ApiServerVerticle extends AbstractVerticle {
     mlayerApis.setValidatorService(validationService);
 
     GeocodingService geoService
-      = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
+        = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
     geoApis.setGeoService(geoService);
 
     NLPSearchService nlpsearchService
-      = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
+        = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
 
     searchApis.setService(dbService, geoService, nlpsearchService);
 
     AuditingService auditingService
-      = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
+        = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
     crudApis.setAuditingService(auditingService);
     ratingApis.setAuditingService(auditingService);
 
     ExceptionHandler exceptionhandler = new ExceptionHandler();
 
-    /**
-     *
-     * API Routes and Callbacks
-     *
-     */
+    //API Routes and Callbacks
 
-    /**
-     * Routes - Defines the routes and callbacks
-     */
+    // Routes - Defines the routes and callbacks
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
     router.route().handler(
@@ -212,29 +202,29 @@ public class ApiServerVerticle extends AbstractVerticle {
       routingContext.next();
     });
 
-    /**
-     * Documentation routes
-     */
+
+    //  Documentation routes
+
     /* Static Resource Handler */
     /* Get openapiv3 spec */
     router.get(ROUTE_STATIC_SPEC)
-      .produces(MIME_APPLICATION_JSON)
-      .handler( routingContext -> {
-        HttpServerResponse response = routingContext.response();
-        response.sendFile("docs/openapi.yaml");
-      });
+        .produces(MIME_APPLICATION_JSON)
+        .handler(routingContext -> {
+          HttpServerResponse response = routingContext.response();
+          response.sendFile("docs/openapi.yaml");
+        });
     /* Get redoc */
     router.get(ROUTE_DOC)
-      .produces(MIME_TEXT_HTML)
-      .handler( routingContext -> {
-        HttpServerResponse response = routingContext.response();
-        response.sendFile("docs/apidoc.html");
-      });
+        .produces(MIME_TEXT_HTML)
+        .handler(routingContext -> {
+          HttpServerResponse response = routingContext.response();
+          response.sendFile("docs/apidoc.html");
+        });
 
 
-    /**
-     * UI routes
-     */
+
+    // UI routes
+
     /* Static Resource Handler */
     router.route("/*").produces("text/html")
       .handler(StaticHandler.create("ui/dist/dk-customer-ui/"));
@@ -243,159 +233,156 @@ public class ApiServerVerticle extends AbstractVerticle {
       .handler(StaticHandler.create("ui/dist/dk-customer-ui/assets/"));
 
     router.route("/").produces("text/html")
-      .handler(routingContext -> {
-      HttpServerResponse response = routingContext.response();
-      response.sendFile("ui/dist/dk-customer-ui/index.html");
-    });
+        .handler(routingContext -> {
+          HttpServerResponse response = routingContext.response();
+          response.sendFile("ui/dist/dk-customer-ui/index.html");
+        });
 
-    /**
-     * Routes for item CRUD
-     */
+
+    // Routes for item CRUD
+
     /* Create Item - Body contains data */
     router.post(api.getRouteItems())
-      .consumes(MIME_APPLICATION_JSON)
-      .produces(MIME_APPLICATION_JSON)
-      .failureHandler(exceptionhandler)
-      .handler( routingContext -> {
-        /* checking auhthentication info in requests */
-        if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-          crudApis.createItemHandler(routingContext);
-        } else {
-          LOGGER.warn("Fail: Unathorized CRUD operation");
-          routingContext.response().setStatusCode(401).end();
-        }
-      });
+        .consumes(MIME_APPLICATION_JSON)
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(routingContext -> {
+          /* checking auhthentication info in requests */
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            crudApis.createItemHandler(routingContext);
+          } else {
+            LOGGER.warn("Fail: Unathorized CRUD operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
 
     /* Get Item */
     router.get(api.getRouteItems())
-      .produces(MIME_APPLICATION_JSON)
-      .handler( routingContext -> {
-        crudApis.getItemHandler(routingContext);
-      });
+        .produces(MIME_APPLICATION_JSON)
+        .handler(routingContext -> {
+          crudApis.getItemHandler(routingContext);
+        });
 
     /* Update Item - Body contains data */
     router.put(api.getRoutUpdateItems())
-      .consumes(MIME_APPLICATION_JSON)
-      .produces(MIME_APPLICATION_JSON)
-      .handler(routingContext -> {
-        /* checking auhthentication info in requests */
-        if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-          /** Update params checked in createItemHandler */
-          crudApis.createItemHandler(routingContext);
-        } else {
-          LOGGER.warn("Unathorized CRUD operation");
-          routingContext.response().setStatusCode(401).end();
-        }
-      });
+        .consumes(MIME_APPLICATION_JSON)
+        .produces(MIME_APPLICATION_JSON)
+        .handler(routingContext -> {
+          /* checking auhthentication info in requests */
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            // Update params checked in createItemHandler
+            crudApis.createItemHandler(routingContext);
+          } else {
+            LOGGER.warn("Unathorized CRUD operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
 
     /* Delete Item - Query param contains id */
     router.delete(api.getRouteDeleteItems())
-      .produces(MIME_APPLICATION_JSON)
-      .handler(routingContext -> {
-        /* checking auhthentication info in requests */
-        if (routingContext.request().headers().contains(HEADER_TOKEN) &&
-            routingContext.queryParams().contains(ID)) {
-          /** Update params checked in createItemHandler */
-          crudApis.deleteItemHandler(routingContext);
-        } else {
-          LOGGER.warn("Unathorized CRUD operation");
-          routingContext.response().setStatusCode(401).end();
-        }
-      });
+        .produces(MIME_APPLICATION_JSON)
+        .handler(routingContext -> {
+          /* checking auhthentication info in requests */
+          if (routingContext.request().headers().contains(HEADER_TOKEN)
+                && routingContext.queryParams().contains(ID)) {
+            // Update params checked in createItemHandler
+            crudApis.deleteItemHandler(routingContext);
+          } else {
+            LOGGER.warn("Unathorized CRUD operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
 
     /* Create instance - Instance name in query param */
     router.post(api.getRouteInstance())
-      .produces(MIME_APPLICATION_JSON)
-      .handler(routingContext -> {
-        /* checking auhthentication info in requests */
-        if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-          crudApis.createInstanceHandler(routingContext, catAdmin);
-        } else {
-          LOGGER.warn("Fail: Unathorized CRUD operation");
-          routingContext.response().setStatusCode(401).end();
-        }
-      });
+        .produces(MIME_APPLICATION_JSON)
+        .handler(routingContext -> {
+          /* checking auhthentication info in requests */
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            crudApis.createInstanceHandler(routingContext, catAdmin);
+          } else {
+            LOGGER.warn("Fail: Unathorized CRUD operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
 
     /* Delete instance - Instance name in query param */
     router.delete(api.getRouteInstance())
-      .produces(MIME_APPLICATION_JSON)
-      .handler(routingContext -> {
-        /* checking auhthentication info in requests */
-        LOGGER.debug("Info: HIT instance");
-        if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-          crudApis.deleteInstanceHandler(routingContext, catAdmin);
-        } else {
-          LOGGER.warn("Fail: Unathorized CRUD operation");
-          routingContext.response().setStatusCode(401).end();
-        }
-      });
+        .produces(MIME_APPLICATION_JSON)
+        .handler(routingContext -> {
+          /* checking auhthentication info in requests */
+          LOGGER.debug("Info: HIT instance");
+          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+            crudApis.deleteInstanceHandler(routingContext, catAdmin);
+          } else {
+            LOGGER.warn("Fail: Unathorized CRUD operation");
+            routingContext.response().setStatusCode(401).end();
+          }
+        });
 
-    /**
-     * Routes for search and count
-     */
+
+    // Routes for search and count
+
     /* Search for an item */
     router.get(api.getRouteSearch())
-      .produces(MIME_APPLICATION_JSON)
-      .failureHandler(exceptionhandler)
-      .handler( routingContext -> {
-        searchApis.searchHandler(routingContext);
-      });
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(routingContext -> {
+          searchApis.searchHandler(routingContext);
+        });
 
     /* NLP Search */
     router.get(api.getRouteNlpSearch())
-      .produces(MIME_APPLICATION_JSON)
-      .handler(routingContext -> {
-        searchApis.nlpSearchHandler(routingContext);
-      });
+        .produces(MIME_APPLICATION_JSON)
+        .handler(routingContext -> {
+          searchApis.nlpSearchHandler(routingContext);
+        });
 
     /* Count the Cataloque server items */
     router.get(api.getRouteCount())
-      .produces(MIME_APPLICATION_JSON)
-      .handler( routingContext -> {
-        searchApis.searchHandler(routingContext);
-      });
+        .produces(MIME_APPLICATION_JSON)
+        .handler(routingContext -> {
+          searchApis.searchHandler(routingContext);
+        });
 
+    //  Routes for list
 
-    /**
-     * Routes for list
-     */
     /* list the item from database using itemId */
     router.get(api.getRouteListItems())
-      .produces(MIME_APPLICATION_JSON)
-      .handler(routingContext -> {
-        listApis.listItemsHandler(routingContext);
-      });
+        .produces(MIME_APPLICATION_JSON)
+        .handler(routingContext -> {
+          listApis.listItemsHandler(routingContext);
+        });
 
-    /**
-     * Routes for relationships
-     */
+    //  Routes for relationships
+
     /* Relationship related search */
     router.get(api.getRouteRelSearch())
-      .handler( routingContext -> {
-        relApis.relSearchHandler(routingContext);
-      });
+        .handler(routingContext -> {
+          relApis.relSearchHandler(routingContext);
+        });
 
     /* Get all resources belonging to a resource group */
     router.get(api.getRouteRelationship()).handler(routingContext -> {
       relApis.listRelationshipHandler(routingContext);
     });
 
-    /**
-     * Routes for Geocoding
-     */
+
+    //  Routes for Geocoding
+
     router.get(api.getRouteGeoCoordinates())
-      .handler(routingContext -> {
-        geoApis.getCoordinates(routingContext);
-      });
+        .handler(routingContext -> {
+          geoApis.getCoordinates(routingContext);
+        });
 
     router.get(api.getRouteGeoReverse())
-      .handler(routingContext -> {
-        geoApis.getLocation(routingContext);
-      });
+        .handler(routingContext -> {
+          geoApis.getLocation(routingContext);
+        });
 
-    /**
-     * Routes for Rating APIs
-     */
+
+    //  Routes for Rating APIs
+
     /* Create Rating */
     router.post(ROUTE_RATING)
         .consumes(MIME_APPLICATION_JSON)
@@ -456,7 +443,8 @@ public class ApiServerVerticle extends AbstractVerticle {
           }
         });
 
-    /** Routes for Mlayer Instance APIs */
+    // Routes for Mlayer Instance APIs
+
     /* Create Mlayer Instance */
     router
         .post(api.getRouteMlayerInstance())
@@ -514,7 +502,8 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
-    /** Routes for Mlayer Domain APIs */
+    // Routes for Mlayer Domain APIs
+
     /* Create Mlayer Domain */
     router
         .post(api.getRouteMlayerDomains())
@@ -572,7 +561,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               }
             });
 
-    /** Routes for Mlayer Provider API */
+    // Routes for Mlayer Provider API
     router
         .get(api.getRouteMlayerProviders())
         .produces(MIME_APPLICATION_JSON)
@@ -582,7 +571,7 @@ public class ApiServerVerticle extends AbstractVerticle {
                 mlayerApis.getMlayerProvidersHandler(routingContext);
             });
 
-    /** Routes for Mlayer GeoQuery API */
+    // Routes for Mlayer GeoQuery API
     router
         .post(api.getRouteMlayerGeoQuery())
         .produces(MIME_APPLICATION_JSON)
@@ -592,7 +581,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               mlayerApis.getMlayerGeoQueryHandler(routingContext);
             });
 
-    /** Routes for Mlayer Dataset API */
+    // Routes for Mlayer Dataset API
     /* route to get all datasets*/
     router
         .get(api.getRouteMlayerDataset())
@@ -612,7 +601,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               mlayerApis.getMlayerDatasetHandler(routingContext);
             });
 
-    /** Route for Mlayer PopularDatasets API */
+    // Route for Mlayer PopularDatasets API
     router
         .get(api.getRouteMlayerPopularDatasets())
         .produces(MIME_APPLICATION_JSON)
@@ -622,21 +611,21 @@ public class ApiServerVerticle extends AbstractVerticle {
               mlayerApis.getMlayerPopularDatasetsHandler(routingContext);
             });
 
-    /** Start server */
+    // Start server
     server.requestHandler(router).listen(port);
 
-      /* Print the deployed endpoints */
-      printDeployedEndpoints(router);
-      LOGGER.info("API server deployed on :" + serverOptions.getPort());
+    /* Print the deployed endpoints */
+    printDeployedEndpoints(router);
+    LOGGER.info("API server deployed on :" + serverOptions.getPort());
   }
 
-    private void printDeployedEndpoints(Router router) {
-        for (Route route : router.getRoutes()) {
-            if (route.getPath() != null) {
-                LOGGER.info("API Endpoints deployed : " + route.methods() + " : " + route.getPath());
-            }
-        }
+  private void printDeployedEndpoints(Router router) {
+    for (Route route : router.getRoutes()) {
+      if (route.getPath() != null) {
+        LOGGER.info("API Endpoints deployed : " + route.methods() + " : " + route.getPath());
+      }
     }
+  }
 
   @Override
   public void stop() {

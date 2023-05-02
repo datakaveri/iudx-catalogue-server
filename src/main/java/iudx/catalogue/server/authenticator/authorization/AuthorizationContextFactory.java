@@ -4,6 +4,14 @@ import iudx.catalogue.server.util.Api;
 
 public class AuthorizationContextFactory {
 
+  /**
+   * Creates an instance of the appropriate AuthorizationStratergy subclass
+   * based on the given role and API.
+   * @param role the role of the user
+   * @param api the API endpoint being accessed
+   * @return an instance of the appropriate AuthorizationStratergy subclass
+   * @throws IllegalArgumentException if the given role is not defined in IUDX
+   */
   public static AuthorizationStratergy create(String role, Api api) {
     switch (role) {
       case "consumer": {

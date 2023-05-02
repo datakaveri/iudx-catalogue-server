@@ -1,36 +1,32 @@
 package iudx.catalogue.server.authenticator.authorization;
 
-import static iudx.catalogue.server.authenticator.authorization.Method.DELETE;
-import static iudx.catalogue.server.authenticator.authorization.Method.POST;
-import static iudx.catalogue.server.authenticator.authorization.Method.PUT;
+import static iudx.catalogue.server.authenticator.authorization.Method.*;
 
+import iudx.catalogue.server.authenticator.model.JwtData;
+import iudx.catalogue.server.util.Api;
 import java.util.ArrayList;
 import java.util.List;
 
-import iudx.catalogue.server.util.Api;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-import iudx.catalogue.server.authenticator.model.JwtData;
-
-public class ProviderAuthStrategy implements AuthorizationStratergy{
+public class ProviderAuthStrategy implements AuthorizationStratergy {
   static List<AuthorizationRequest> accessList = new ArrayList<>();
   private Api api;
   private static volatile ProviderAuthStrategy instance;
-  private ProviderAuthStrategy(Api api)
-  {
+
+  private ProviderAuthStrategy(Api api) {
     this.api = api;
     buildPermissions(api);
   }
 
-  public static ProviderAuthStrategy getInstance(Api api)
-  {
-    if (instance == null)
-    {
-      synchronized (ProviderAuthStrategy.class)
-      {
-        if (instance == null)
-        {
+  /**
+   * This method ensures that there is only one instance of ProviderAuthStrategy class created.
+   * @param api The API object for which the ProviderAuthStrategy instance is created.
+   * @return The ProviderAuthStrategy instance.
+   */
+  public static ProviderAuthStrategy getInstance(Api api) {
+    if (instance == null) {
+      synchronized (ProviderAuthStrategy.class) {
+        if (instance == null) {
           instance = new ProviderAuthStrategy(api);
         }
       }

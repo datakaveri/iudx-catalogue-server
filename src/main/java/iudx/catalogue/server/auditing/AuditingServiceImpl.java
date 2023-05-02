@@ -1,5 +1,8 @@
 package iudx.catalogue.server.auditing;
 
+import static iudx.catalogue.server.auditing.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -13,9 +16,6 @@ import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.auditing.util.Constants.*;
-import static iudx.catalogue.server.auditing.util.Constants.ROUTING_KEY;
-import static iudx.catalogue.server.util.Constants.BROKER_SERVICE_ADDRESS;
 
 public class AuditingServiceImpl implements AuditingService {
 
@@ -24,7 +24,8 @@ public class AuditingServiceImpl implements AuditingService {
   PoolOptions poolOptions;
   PgPool pool;
   private final QueryBuilder queryBuilder = new QueryBuilder();
-  private String databaseIP;
+
+  private String databaseIp;
   private int databasePort;
   private String databaseName;
   private String databaseUserName;
@@ -33,9 +34,16 @@ public class AuditingServiceImpl implements AuditingService {
   private String databaseTableName;
   public static DataBrokerService rmqService;
 
+  /**
+   * Constructs an instance of the AuditingServiceImpl class with the given property
+   * object and Vert.x instance.
+   * Initializes the class members with values from the property object.
+   * @param propObj The property object containing the database configuration parameters.
+   * @param vertxInstance The Vert.x instance to use for database connections.
+   */
   public AuditingServiceImpl(JsonObject propObj, Vertx vertxInstance) {
     if (propObj != null && !propObj.isEmpty()) {
-      databaseIP = propObj.getString("auditingDatabaseIP");
+      databaseIp = propObj.getString("auditingDatabaseIP");
       databasePort = propObj.getInteger("auditingDatabasePort");
       databaseName = propObj.getString("auditingDatabaseName");
       databaseUserName = propObj.getString("auditingDatabaseUserName");
@@ -47,7 +55,7 @@ public class AuditingServiceImpl implements AuditingService {
     this.connectOptions =
         new PgConnectOptions()
             .setPort(databasePort)
-            .setHost(databaseIP)
+            .setHost(databaseIp)
             .setDatabase(databaseName)
             .setUser(databaseUserName)
             .setPassword(databasePassword)
@@ -61,12 +69,12 @@ public class AuditingServiceImpl implements AuditingService {
   }
 
   @Override
-  public AuditingService insertAuditngValuesInRMQ(
+  public AuditingService insertAuditngValuesInRmq(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     request.put(DATABASE_TABLE_NAME, databaseTableName);
     JsonObject rmqMessage = new JsonObject();
 
-    rmqMessage = queryBuilder.buildMessageForRMQ(request);
+    rmqMessage = queryBuilder.buildMessageForRmq(request);
 
     LOGGER.debug("audit rmq Message body: " + rmqMessage);
     rmqService.publishMessage(

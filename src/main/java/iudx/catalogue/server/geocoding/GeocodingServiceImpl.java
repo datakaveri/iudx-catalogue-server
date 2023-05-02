@@ -1,23 +1,28 @@
 package iudx.catalogue.server.geocoding;
 
+import static iudx.catalogue.server.geocoding.util.Constants.*;
+import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
+import static iudx.catalogue.server.geocoding.util.Constants.COORDINATES;
+import static iudx.catalogue.server.geocoding.util.Constants.GEOMETRY;
+import static iudx.catalogue.server.geocoding.util.Constants.LOCATION;
+import static iudx.catalogue.server.geocoding.util.Constants.NAME;
+import static iudx.catalogue.server.geocoding.util.Constants.RESULTS;
+import static iudx.catalogue.server.geocoding.util.Constants.SERVICE_TIMEOUT;
+import static iudx.catalogue.server.geocoding.util.Constants.TYPE;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AsyncResult;
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.core.CompositeFuture;
-
+import iudx.catalogue.server.util.Constants;
+import java.lang.StringBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.lang.StringBuilder;
-
-import static iudx.catalogue.server.geocoding.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.TITLE_ITEM_NOT_FOUND;
-import static iudx.catalogue.server.util.Constants.TYPE_ITEM_NOT_FOUND;
-// import static iudx.catalogue.server.util.Constants.*;
 
 /**
  * The Geocoding Service Implementation.
@@ -38,6 +43,14 @@ public class GeocodingServiceImpl implements GeocodingService {
   private final int peliasPort;
   StringBuilder sb = new StringBuilder();
 
+  /**
+   * Constructs a new instance of GeocodingServiceImpl with the provided WebClient and
+   * Pelias URL and port.
+   * The geocoding service is used to convert textual location queries into geographic coordinates.
+   * @param webClient the WebClient used to perform HTTP requests
+   * @param peliasUrl the URL of the Pelias geocoding service
+   * @param peliasPort the port number of the Pelias geocoding service
+   */
   public GeocodingServiceImpl(WebClient webClient, String peliasUrl, int peliasPort) {
     this.webClient = webClient;
     this.peliasUrl = peliasUrl;
@@ -57,7 +70,9 @@ public class GeocodingServiceImpl implements GeocodingService {
                   && ar.result().body().toJsonObject().containsKey(FEATURES)
                   && !ar.result().body().toJsonObject().getJsonArray(FEATURES).isEmpty()) {
                 JsonArray features = ar.result().body().toJsonObject().getJsonArray(FEATURES);
-                JsonObject property, feature, resultEntry;
+                JsonObject property;
+                JsonObject feature;
+                JsonObject resultEntry;
                 double confidence = 0;
                 JsonArray resultArray = new JsonArray();
                 for (int i = 0; i < features.size(); i++) {
@@ -100,13 +115,25 @@ public class GeocodingServiceImpl implements GeocodingService {
 
   private JsonObject generateGeocodingJson(JsonObject property) {
     JsonObject resultEntry = new JsonObject();
-    if (property.containsKey(NAME)) resultEntry.put(NAME, property.getString(NAME));
-    if (property.containsKey(COUNTRY)) resultEntry.put(COUNTRY, property.getString(COUNTRY));
-    if (property.containsKey(REGION)) resultEntry.put(REGION, property.getString(REGION));
-    if (property.containsKey(COUNTY)) resultEntry.put(COUNTY, property.getString(COUNTY));
-    if (property.containsKey(LOCALITY)) resultEntry.put(LOCALITY, property.getString(LOCALITY));
-    if (property.containsKey(BOROUGH)) resultEntry.put(BOROUGH, property.getString(BOROUGH));
-
+    if (property.containsKey(NAME)) {
+      resultEntry.put(NAME,
+              property.getString(NAME));
+    }
+    if (property.containsKey(COUNTRY)) {
+      resultEntry.put(COUNTRY, property.getString(COUNTRY));
+    }
+    if (property.containsKey(REGION)) {
+      resultEntry.put(REGION, property.getString(REGION));
+    }
+    if (property.containsKey(COUNTY)) {
+      resultEntry.put(COUNTY, property.getString(COUNTY));
+    }
+    if (property.containsKey(LOCALITY)) {
+      resultEntry.put(LOCALITY, property.getString(LOCALITY));
+    }
+    if (property.containsKey(BOROUGH)) {
+      resultEntry.put(BOROUGH, property.getString(BOROUGH));
+    }
     return resultEntry;
   }
 
@@ -184,7 +211,8 @@ public class GeocodingServiceImpl implements GeocodingService {
 
       /* Reverse Geocoding information */
       if (location.containsKey(GEOMETRY)
-          && location.getJsonObject(GEOMETRY).getString(TYPE).equalsIgnoreCase("Point")) {
+          && location.getJsonObject(GEOMETRY).getString(TYPE)
+              .equalsIgnoreCase("Point")) {
         JsonObject geometry = location.getJsonObject(GEOMETRY);
         JsonArray pos = geometry.getJsonArray(COORDINATES);
         String lon = pos.getString(0);

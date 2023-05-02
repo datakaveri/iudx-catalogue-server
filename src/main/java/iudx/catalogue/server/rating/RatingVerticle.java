@@ -1,5 +1,7 @@
 package iudx.catalogue.server.rating;
 
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
@@ -9,8 +11,6 @@ import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import static iudx.catalogue.server.util.Constants.*;
 
 /**
  *
@@ -57,7 +57,8 @@ public class RatingVerticle extends AbstractVerticle {
     postgresService = PostgresService.createProxy(vertx, PG_SERVICE_ADDRESS);
 
     binder = new ServiceBinder(vertx);
-    rating = new RatingServiceImpl(ratingExchangeName, rsauditingtable, minReadNumber, databaseService, dataBrokerService, postgresService);
+    rating = new RatingServiceImpl(ratingExchangeName,
+            rsauditingtable, minReadNumber, databaseService, dataBrokerService, postgresService);
     consumer = binder.setAddress(RATING_SERVICE_ADDRESS).register(RatingService.class, rating);
     LOGGER.info("Rating Service Started");
   }

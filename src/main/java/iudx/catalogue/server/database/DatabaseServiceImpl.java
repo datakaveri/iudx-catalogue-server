@@ -1,30 +1,27 @@
 package iudx.catalogue.server.database;
 
+import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.mlayer.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import iudx.catalogue.server.geocoding.GeocodingService;
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.database.Constants.GET_PROVIDER_AND_RESOURCES;
-import static iudx.catalogue.server.mlayer.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
-import static iudx.catalogue.server.database.Constants.*;
-
-import iudx.catalogue.server.nlpsearch.NLPSearchService;
-import iudx.catalogue.server.geocoding.GeocodingService;
 
 /**
  * The Database Service Implementation.
  *
  * <h1>Database Service Implementation</h1>
  *
- * <p>
- * The Database Service implementation in the IUDX Catalogue Server implements the definitions of
+ * <p>The Database Service implementation in the IUDX Catalogue Server implements the definitions of
  * the {@link iudx.catalogue.server.database.DatabaseService}.
  *
  * @version 1.0
@@ -51,6 +48,14 @@ public class DatabaseServiceImpl implements DatabaseService {
       .withDetail(DETAIL_INTERNAL_SERVER_ERROR)
       .getResponse();
 
+  /**
+   * Constructs a new DatabaseServiceImpl instance with the given ElasticClient and index names.
+   * @param client the ElasticClient used for accessing Elasticsearch
+   * @param docIndex the name of the index used for document storage
+   * @param ratingIndex the name of the index used for rating storage
+   * @param mlayerInstanceIndex the name of the index used for ML layer instance storage
+   * @param mlayerDomainIndex the name of the index used for ML layer domain storage
+   */
   public DatabaseServiceImpl(
       ElasticClient client,
       String docIndex,
@@ -64,8 +69,19 @@ public class DatabaseServiceImpl implements DatabaseService {
     this.mlayerDomainIndex = mlayerDomainIndex;
   }
 
+  /**
+   * client and index names for documents, ratings, mlayer instances, and mlayer domains.
+   * @param client the Elasticsearch client used to interact with the Elasticsearch cluster
+   * @param docIndex the name of the Elasticsearch index used to store documents
+   * @param ratingIndex the name of the Elasticsearch index used to store document ratings
+   * @param mlayerInstanceIndex the name of the Elasticsearch index used to store mlayer instances
+   * @param mlayerDomainIndex the name of the Elasticsearch index used to store mlayer domains
+   * @param nlpService the NLP search service used to perform NLP searches
+   * @param geoService the geocoding service used to perform geocoding operations
+   */
   public DatabaseServiceImpl(
-      ElasticClient client, String docIndex,
+      ElasticClient client,
+      String docIndex,
       String ratingIndex,
       String mlayerInstanceIndex,
       String mlayerDomainIndex,
@@ -78,12 +94,22 @@ public class DatabaseServiceImpl implements DatabaseService {
     this.mlayerDomainIndex = mlayerDomainIndex;
   }
 
+  /**
+   * Constructs a new instance of DatabaseServiceImpl with only the ElasticClient provided. This
+   * constructor sets the values of nlpPluggedIn and geoPluggedIn to false.
+   * @param client the ElasticClient used to interact with the Elasticsearch instance
+   */
   public DatabaseServiceImpl(ElasticClient client) {
     this.client = client;
     nlpPluggedIn = false;
     geoPluggedIn = false;
   }
 
+  /**
+   * Constructor for initializing DatabaseServiceImpl object.
+   * @param client the ElasticClient object for connecting to Elasticsearch
+   * @param nlpService the NLPSearchService object for natural language processing searches
+   */
   public DatabaseServiceImpl(
       ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
     this.client = client;
@@ -134,7 +160,15 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  public DatabaseService nlpSearchQuery(JsonArray request, Handler<AsyncResult<JsonObject>> handler) {
+  /**
+   * Executes an NLP search query by passing in the request embeddings and invoking the appropriate
+   * search method on the ElasticSearch client.
+   * @param request the request embeddings
+   * @param handler the handler to be called when the search completes
+   * @return the DatabaseService instance
+   */
+  public DatabaseService nlpSearchQuery(
+      JsonArray request, Handler<AsyncResult<JsonObject>> handler) {
     JsonArray embeddings = request.getJsonArray(0);
     client.scriptSearch(embeddings, searchRes -> {
       if (searchRes.succeeded()) {
@@ -148,9 +182,14 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  public DatabaseService nlpSearchLocationQuery(JsonArray request,
-                                                JsonObject queryParams,
-                                                Handler<AsyncResult<JsonObject>> handler) {
+  /**
+   * Performs an NLP search for a location query.
+   * @param queryParams the query parameters to search with
+   * @param handler the handler to call with the response
+   * @return the current DatabaseService instance
+   */
+  public DatabaseService nlpSearchLocationQuery(
+      JsonArray request, JsonObject queryParams, Handler<AsyncResult<JsonObject>> handler) {
     JsonArray embeddings = request.getJsonArray(0);
     JsonArray params = queryParams.getJsonArray(RESULTS);
     JsonArray results = new JsonArray();
@@ -172,8 +211,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     // When all futures return, respond back with the result object in the response
     CompositeFuture.all(futures)
         .onComplete(ar -> {
-          if(ar.succeeded()) {
-            if(results.isEmpty()) {
+          if (ar.succeeded()) {
+            if (results.isEmpty()) {
               RespBuilder respBuilder = new RespBuilder()
                   .withType(TYPE_ITEM_NOT_FOUND)
                   .withTitle(TITLE_ITEM_NOT_FOUND)
@@ -235,8 +274,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     RespBuilder respBuilder = new RespBuilder();
     String id = doc.getString("id");
     /* check if the id is present */
-    if(id != null)
-    {
+    if (id != null) {
       final String instanceId = doc.getString(INSTANCE);
 
       String errorJson = respBuilder.withType(FAILED).withResult(id, INSERT, FAILED).getResponse();
@@ -265,7 +303,8 @@ public class DatabaseServiceImpl implements DatabaseService {
               doc.put(SUMMARY_KEY, Summarizer.summarize(doc));
 
               /* If geo and nlp services are initialized */
-              if (geoPluggedIn && nlpPluggedIn && !(instanceId == null || instanceId.isBlank() || instanceId.isEmpty())) {
+              if (geoPluggedIn && nlpPluggedIn
+                      && !(instanceId == null || instanceId.isBlank() || instanceId.isEmpty())) {
                 geoService.geoSummarize(doc, geoHandler -> {
                   /* Not going to check if success or fail */
                   JsonObject geoResult;
@@ -275,7 +314,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                     LOGGER.debug("no geocoding result generated");
                     geoResult = new JsonObject();
                   }
-                  doc.put(GEOSUMMARY_KEY,geoResult);
+                  doc.put(GEOSUMMARY_KEY, geoResult);
                   nlpService.getEmbedding(doc, ar -> {
                     if (ar.succeeded()) {
                       LOGGER.debug("Info: Document embeddings created");
@@ -322,13 +361,13 @@ public class DatabaseServiceImpl implements DatabaseService {
           handler.handle(Future.failedFuture(
                   respBuilder.withType(TYPE_OPERATION_NOT_ALLOWED)
                           .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-                          .withResult(id, INSERT, FAILED, instanceHandler.cause().getLocalizedMessage())
+                          .withResult(id, INSERT, FAILED,
+                                  instanceHandler.cause().getLocalizedMessage())
                           .getResponse()));
         }
       });
       return this;
-    }else
-    {
+    } else {
       LOGGER.error("Fail : id not present in the request");
       handler.handle(Future.failedFuture(
               respBuilder.withType(TYPE_INVALID_SYNTAX)
@@ -564,7 +603,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
 
       /* parsing data parameters from the request */
-    String relReq = request.getJsonArray(RELATIONSHIP).getString(0);
+      String relReq = request.getJsonArray(RELATIONSHIP).getString(0);
       if (relReq.contains(".")) {
 
         LOGGER.debug("Info: Reached relationship search dbServiceImpl");
@@ -594,8 +633,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         subQuery = TERM_QUERY.replace("$1", TYPE_KEYWORD)
             .replace("$2", typeValue)
-            + "," +
-            MATCH_QUERY.replace("$1", relReqsKey)
+            + ","
+            + MATCH_QUERY.replace("$1", relReqsKey)
                 .replace("$2", relReqsValue);
       } else {
         LOGGER.error("Fail: Incorrect/missing query parameters");
@@ -844,8 +883,8 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     String query;
     if (request.containsKey("ratingID")) {
-      String ratingID = request.getString("ratingID");
-      query = GET_RATING_DOCS.replace("$1", "ratingID").replace("$2", ratingID);
+      String ratingId = request.getString("ratingID");
+      query = GET_RATING_DOCS.replace("$1", "ratingID").replace("$2", ratingId);
     } else {
       String id = request.getString(ID);
       if (request.containsKey(TYPE) && request.getString(TYPE).equalsIgnoreCase("average")) {
@@ -888,7 +927,12 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * Creates a new mlayer instance in the Elasticsearch database with the given instance document.
+   * @param instanceDoc the JsonObject representing the mlayer instance document
+   * @param handler the asynchronous result handler
+   * @return the DatabaseService instance
+   */
   @Override
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
@@ -903,12 +947,13 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (res.failed()) {
             LOGGER.error("Fail: Insertion of mlayer Instance failed: " + res.cause());
             handler.handle(
-                Future.failedFuture(respBuilder.withType(FAILED).withResult(MLAYER_ID).getResponse()));
+                Future.failedFuture(respBuilder.withType(FAILED).withResult(MLAYER_ID)
+                        .getResponse()));
 
           } else {
             if (res.result().getInteger(TOTAL_HITS) != 0) {
               JsonObject json = new JsonObject(res.result().getJsonArray(RESULTS).getString(0));
-              String instanceIDExists = json.getString(INSTANCE_ID);
+              String instanceIdExists = json.getString(INSTANCE_ID);
 
               handler.handle(
                   Future.failedFuture(
@@ -916,7 +961,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ALREADY_EXISTS)
                           .withTitle(TITLE_ALREADY_EXISTS)
                           .withResult(
-                              instanceIDExists,  " Fail: Instance Already Exists")
+                              instanceIdExists,  " Fail: Instance Already Exists")
                           .getResponse()));
               return;
             }
@@ -1006,7 +1051,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                             respBuilder
                                     .withType(TYPE_SUCCESS)
                                     .withTitle(SUCCESS)
-                                    .withResult(instanceId,"Instance deleted Successfully")
+                                    .withResult(instanceId, "Instance deleted Successfully")
                                     .getJsonResponse()));
                   } else {
                     handler.handle(Future.failedFuture(internalErrorResp));
@@ -1065,8 +1110,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                                           respBuilder
                                                   .withType(TYPE_SUCCESS)
                                                   .withTitle(SUCCESS)
-                                                  .withResult(
-                                                          instanceId,"Instance Updated Successfully")
+                                                  .withResult(instanceId,
+                                                          "Instance Updated Successfully")
                                                   .getJsonResponse()));
                         } else {
                           handler.handle(Future.failedFuture(internalErrorResp));
@@ -1208,7 +1253,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                                   .withType(TYPE_SUCCESS)
                                                   .withTitle(SUCCESS)
                                                   .withResult(
-                                                          domainId,"Domain Updated Successfully")
+                                                          domainId, "Domain Updated Successfully")
                                                   .getJsonResponse()));
                         } else {
                           handler.handle(Future.failedFuture(internalErrorResp));
@@ -1605,7 +1650,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
- private void   searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
+  private void   searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
     client.searchAsync(
         GET_SORTED_MLAYER_INSTANCES,
         mlayerInstanceIndex,
@@ -1651,7 +1696,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
   }
 
- private  void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
+  private  void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
     client.searchAsync(
         GET_PROVIDER_AND_RESOURCES,
         docIndex,
@@ -1710,8 +1755,11 @@ public class DatabaseServiceImpl implements DatabaseService {
             resourceGroupArray.sort(jsonComparator);
             ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
             int resourceGroupSize = 0;
-            if (resourceGroupArray.size() < 6) resourceGroupSize = resourceGroupArray.size();
-            else resourceGroupSize = 6;
+            if (resourceGroupArray.size() < 6) {
+              resourceGroupSize = resourceGroupArray.size();
+            } else {
+              resourceGroupSize = 6;
+            }
             for (int i = 0; i < resourceGroupSize; i++) {
               JsonObject resource = resourceGroupArray.get(i);
               resource
@@ -1763,6 +1811,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
   }
   /* Verify the existance of an instance */
+
   Future<Boolean> verifyInstance(String instanceId) {
 
     Promise<Boolean> promise = Promise.promise();

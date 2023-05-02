@@ -5,22 +5,20 @@
 
 package iudx.catalogue.server.apiserver;
 
-import iudx.catalogue.server.util.Api;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static iudx.catalogue.server.apiserver.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 
-
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-
-import static iudx.catalogue.server.apiserver.util.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.util.Api;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 
 public final class ListApis {
@@ -30,13 +28,6 @@ public final class ListApis {
 
   private static final Logger LOGGER = LogManager.getLogger(ListApis.class);
 
-  /**
-   * Crud  constructor
-   *
-   * @param DBService DataBase Service class
-   * @return void
-   * @TODO Throw error if load failed
-   */
 
   public void setDbService(DatabaseService dbService) {
     this.dbService = dbService;
@@ -61,7 +52,7 @@ public final class ListApis {
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     /* HTTP request instance/host details */
-    String instanceID = request.getHeader(HEADER_INSTANCE);
+    String instanceId = request.getHeader(HEADER_INSTANCE);
 
     String itemType = request.getParam(ITEM_TYPE);
     JsonObject requestBody = QueryMapper.map2Json(queryParameters);
@@ -69,7 +60,7 @@ public final class ListApis {
 
       requestBody.put(ITEM_TYPE, itemType);
       /* Populating query mapper */
-      requestBody.put(HEADER_INSTANCE, instanceID);
+      requestBody.put(HEADER_INSTANCE, instanceId);
 
       JsonObject resp = QueryMapper.validateQueryParam(requestBody);
       if (resp.getString(STATUS).equals(SUCCESS)) {
@@ -100,7 +91,7 @@ public final class ListApis {
                               .withTitle(TITLE_INVALID_SYNTAX)
                               .withDetail(DETAIL_WRONG_ITEM_TYPE)
                               .getResponse());
-        return;
+            return;
         }
         requestBody.put(TYPE, type);
 
@@ -123,7 +114,7 @@ public final class ListApis {
       } else {
         LOGGER.error("Fail: Search/Count; Invalid request query parameters");
         response.setStatusCode(400)
-          .end(new RespBuilder()
+            .end(new RespBuilder()
               .withType(TYPE_INVALID_SYNTAX)
               .withTitle(TITLE_INVALID_SYNTAX)
               .withDetail(DETAIL_WRONG_ITEM_TYPE)
@@ -131,8 +122,8 @@ public final class ListApis {
       }
     } else {
       LOGGER.error("Fail: Search/Count; Invalid request query parameters");
-        response.setStatusCode(400)
-          .end(new RespBuilder()
+      response.setStatusCode(400)
+            .end(new RespBuilder()
               .withType(TYPE_INVALID_SYNTAX)
               .withTitle(TITLE_INVALID_SYNTAX)
               .withDetail(DETAIL_WRONG_ITEM_TYPE)

@@ -16,6 +16,10 @@ public final class JwtData {
   private String role;
   private JsonObject cons;
 
+  /**
+   * Returns a JSON representation of the JwtData object.
+   * @return the JSON representation of the JwtData object.
+   */
   public JsonObject toJson() {
     JsonObject json = new JsonObject();
     JwtDataConverter.toJson(this, json);
@@ -105,7 +109,8 @@ public final class JwtData {
 
   @Override
   public String toString() {
-    return "JwtData [access_token=" + accessToken + ", sub=" + sub + ", iss=" + iss + ", aud=" + aud + ", iid=" + iid
+    return "JwtData [access_token=" + accessToken + ", sub=" + sub
+            + ", iss=" + iss + ", aud=" + aud + ", iid=" + iid
             + ", role=" + role + ", cons=" + cons + "]";
   }
 }

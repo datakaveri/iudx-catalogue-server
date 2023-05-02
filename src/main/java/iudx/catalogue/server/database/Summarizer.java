@@ -1,8 +1,7 @@
 package iudx.catalogue.server.database;
 
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
-
+import io.vertx.core.json.JsonObject;
 import java.lang.StringBuilder;
 
 
@@ -11,12 +10,13 @@ public final class Summarizer {
   private static String jsonArtifactMatcher = "[\n:{},\"\\[\\]]";
   private static String spaceMatcher = "\\s+";
   /**
-   * Summarizer - Summarize a doument for Elastic text search
-   * 
-   * @param databaseIP IP of the DB
-   * @param databasePort Port
+   * Summarizer - Summarize a doument for Elastic text search.
+   *
+   *
+   * @param doc is a JsonObject
    * @TODO XPack Security
    */
+
   public static String summarize(JsonObject doc) {
   
     StringBuilder sb = new StringBuilder(); 
@@ -35,7 +35,7 @@ public final class Summarizer {
     /* Tags */
     if (doc.containsKey("tags")) {
       JsonArray tags = doc.getJsonArray("tags");
-      for (int i=0; i<tags.size(); i++) {
+      for (int i = 0; i < tags.size(); i++) {
         sb.append(tags.getString(i) + " ");
       }
     }

@@ -16,7 +16,8 @@ import io.vertx.core.json.JsonObject;
  * The Authentication Service in the IUDX Catalogue Server defines the operations to be performed
  * with the IUDX Authentication and Authorization server.
  * </p>
- * 
+ *
+ *
  * @see io.vertx.codegen.annotations.ProxyGen
  * @see io.vertx.codegen.annotations.VertxGen
  * @version 1.0
@@ -30,7 +31,8 @@ public interface AuthenticationService {
   /**
    * The tokenInterospect method implements the authentication and authorization module using IUDX
    * APIs.
-   * 
+   *
+   *
    * @param request which is a JsonObject
    * @param authenticationInfo which is a JsonObject
    * @param handler which is a request handler
@@ -43,6 +45,7 @@ public interface AuthenticationService {
 
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
+   *
    * @param vertx which is the vertx instance
    * @param address which is the proxy address
    * @return AuthenticationServiceVertxEBProxy which is a service proxy 

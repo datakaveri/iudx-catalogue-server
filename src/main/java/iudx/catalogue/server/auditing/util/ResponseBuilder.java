@@ -1,13 +1,9 @@
 package iudx.catalogue.server.auditing.util;
 
-import static iudx.catalogue.server.auditing.util.Constants.ERROR_TYPE;
-import static iudx.catalogue.server.auditing.util.Constants.FAILED;
-import static iudx.catalogue.server.auditing.util.Constants.RESULTS;
-import static iudx.catalogue.server.auditing.util.Constants.SUCCESS;
-import static iudx.catalogue.server.auditing.util.Constants.TITLE;
+import static iudx.catalogue.server.auditing.util.Constants.*;
 
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class ResponseBuilder {
   private String status;
@@ -19,6 +15,11 @@ public class ResponseBuilder {
     response = new JsonObject();
   }
 
+  /**
+   * Sets the error type and title of the response based on the given status code.
+   * @param statusCode The status code to set the error type and title.
+   * @return The response builder instance with the error type and title set.
+   */
   public ResponseBuilder setTypeAndTitle(int statusCode) {
     response.put(ERROR_TYPE, statusCode);
     if (SUCCESS.equalsIgnoreCase(status)) {

@@ -1,5 +1,7 @@
 package iudx.catalogue.server.databroker;
 
+import static iudx.catalogue.server.util.Constants.*;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -10,9 +12,6 @@ import iudx.catalogue.server.apiserver.util.RespBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static iudx.catalogue.server.util.Constants.TYPE_SUCCESS;
-import static iudx.catalogue.server.util.Constants.TYPE_INTERNAL_SERVER_ERROR;
-import static iudx.catalogue.server.util.Constants.TITLE_INTERNAL_SERVER_ERROR;
 
 /**
  * The Data Broker Service Implementation.
@@ -30,6 +29,10 @@ public class DataBrokerServiceImpl implements DataBrokerService {
 
   private RabbitMQClient client;
 
+  /**
+   * Constructs a new instance of DataBrokerServiceImpl with the specified RabbitMQClient.
+   * @param client the RabbitMQClient to use for communication with the RabbitMQ server
+   */
   public DataBrokerServiceImpl(RabbitMQClient client) {
     this.client = client;
     this.client.start(
@@ -52,7 +55,9 @@ public class DataBrokerServiceImpl implements DataBrokerService {
 
     Buffer buffer = Buffer.buffer(body.toString());
 
-    if (!client.isConnected()) client.start();
+    if (!client.isConnected()) {
+      client.start();
+    }
 
     client.basicPublish(
         toExchange,

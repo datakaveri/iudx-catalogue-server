@@ -19,6 +19,7 @@ public interface AuditingService {
   }
 
   @Fluent
-  AuditingService insertAuditngValuesInRMQ(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  AuditingService insertAuditngValuesInRmq(JsonObject request,
+                                           Handler<AsyncResult<JsonObject>> handler);
 
 }

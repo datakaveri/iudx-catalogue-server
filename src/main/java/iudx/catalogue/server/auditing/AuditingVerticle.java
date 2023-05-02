@@ -11,7 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The Auditing Verticle
+ * The Auditing Verticle.
  * <h1>Auditing Verticle</h1>
  * <p>
  * The Auditing Verticle implementation in the IUDX Catalouge Server exposes the
@@ -22,14 +22,14 @@ import org.apache.logging.log4j.Logger;
  * @since 2021-08-30
  */
 
-public class AuditingVerticle extends AbstractVerticle{
+public class AuditingVerticle extends AbstractVerticle {
 
   private static final String AUDITING_SERVICE_ADDRESS = "iudx.catalogue.auditing.service";
   private static final Logger LOGGER = LogManager.getLogger(AuditingVerticle.class);
   PgConnectOptions connectOptions;
   PoolOptions poolOptions;
   PgPool pool;
-  private String databaseIP;
+  private String databaseIp;
   private int databasePort;
   private String databaseName;
   private String databaseUserName;
@@ -51,16 +51,16 @@ public class AuditingVerticle extends AbstractVerticle{
   @Override
   public void start() throws Exception {
 
-    databaseIP = config().getString("auditingDatabaseIP");
+    databaseIp = config().getString("auditingDatabaseIP");
     databasePort = config().getInteger("auditingDatabasePort");
     databaseName = config().getString("auditingDatabaseName");
     databaseUserName = config().getString("auditingDatabaseUserName");
     databasePassword = config().getString("auditingDatabasePassword");
-    databaseTableName= config().getString("auditingDatabaseTableName");
+    databaseTableName = config().getString("auditingDatabaseTableName");
     poolSize = config().getInteger("auditingPoolSize");
 
     JsonObject propObj = new JsonObject();
-    propObj.put("auditingDatabaseIP", databaseIP);
+    propObj.put("auditingDatabaseIP", databaseIp);
     propObj.put("auditingDatabasePort", databasePort);
     propObj.put("auditingDatabaseName", databaseName);
     propObj.put("auditingDatabaseUserName", databaseUserName);
