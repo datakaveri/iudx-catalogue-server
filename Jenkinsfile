@@ -37,10 +37,22 @@ pipeline {
         jacoco classPattern: 'target/classes', execPattern: 'target/*.exec', sourcePattern: 'src/main/java', exclusionPattern: 'iudx/catalogue/server/apiserver/*,iudx/catalogue/server/deploy/*,iudx/catalogue/server/mockauthenticator/*,iudx/catalogue/server/**/*EBProxy.*,iudx/catalogue/server/**/*ProxyHandler.*,iudx/catalogue/server/**/reactivex/*,**/constants.class,**/*Verticle.class'
       }
       post{
-        always {
-                  recordIssues enabledForFailure: true, tool: checkStyle(pattern: 'target/checkstyle-result.xml')
-                  recordIssues enabledForFailure: true, tool: pmdParser(pattern: 'target/pmd.xml')
-                }
+       always {
+                             recordIssues(
+                               enabledForFailure: true,
+                               blameDisabled: true,
+                               forensicsDisabled: true,
+                               qualityGates: [[threshold:8, type: 'TOTAL', unstable: false]],
+                               tool: checkStyle(pattern: 'target/checkstyle-result.xml')
+                             )
+                             recordIssues(
+                               enabledForFailure: true,
+                             	blameDisabled: true,
+                               forensicsDisabled: true,
+                               qualityGates: [[threshold:9, type: 'TOTAL', unstable: false]],
+                               tool: pmdParser(pattern: 'target/pmd.xml')
+                             )
+                           }
         failure{
           script{
             sh 'docker compose down --remove-orphans'
