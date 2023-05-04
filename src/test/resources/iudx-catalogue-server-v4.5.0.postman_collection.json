@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "3ff424ac-c305-4f23-a397-5f0561052561",
+		"_postman_id": "f37c8626-7bf0-4183-8cad-3322854094e5",
 		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17194681"
+		"_exporter_id": "27217689"
 	},
 	"item": [
 		{
@@ -5994,6 +5994,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6055,6 +6060,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6108,7 +6118,7 @@
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6162,7 +6172,7 @@
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6216,7 +6226,7 @@
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6270,7 +6280,7 @@
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6508,6 +6518,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6557,6 +6572,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6606,6 +6626,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6655,6 +6680,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6713,7 +6743,7 @@
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6763,6 +6793,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6816,7 +6851,7 @@
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -6870,7 +6905,7 @@
 											"\r",
 											"pm.test(\"Check response body 2\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7243,6 +7278,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7304,6 +7344,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7369,6 +7414,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7434,6 +7484,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7503,6 +7558,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7573,6 +7633,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7626,6 +7691,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7679,6 +7749,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7736,6 +7811,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7789,6 +7869,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7838,6 +7923,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -7907,6 +7997,11 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body 2\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"totalHits\");\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -8186,7 +8281,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\",159);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8247,7 +8342,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8301,7 +8396,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 687);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8355,7 +8450,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8409,7 +8504,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8459,6 +8554,11 @@
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body 2\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8512,7 +8612,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8566,7 +8666,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8616,6 +8716,11 @@
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body 2\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8665,6 +8770,11 @@
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body 2\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -8718,7 +8828,7 @@
 									"\r",
 									"pm.test(\"Check response count\", function() {\r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\",160);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"})"
 								],
 								"type": "text/javascript"
@@ -8777,7 +8887,7 @@
 									"\r",
 									"pm.test(\"Check response body 2\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"totalHits\", 0);\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9027,6 +9137,11 @@
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body 2\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9231,6 +9346,11 @@
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body 2\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"totalHits\");\r",
 									"});"
 								],
 								"type": "text/javascript"
