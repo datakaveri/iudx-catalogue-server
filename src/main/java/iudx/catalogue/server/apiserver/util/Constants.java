@@ -74,6 +74,8 @@ public class Constants {
 
   public static final String PROVIDER_NAME = "provider.name";
   public static final String PARTIAL_CONTENT = "partial-content";
+  public static final String GEO_PROPERTY = "location";
+
   public static final String TEXT = "text";
 
   public static final ArrayList<String> GEORELS
