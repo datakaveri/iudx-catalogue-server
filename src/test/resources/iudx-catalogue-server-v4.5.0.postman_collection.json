@@ -9414,7 +9414,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InternalError\");\r",
+									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InvalidGeoValue\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9599,7 +9599,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InternalError\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidGeoValue\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9770,7 +9770,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InternalError\");\r",
+									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InvalidGeoValue\");\r",
 									"});"
 								],
 								"type": "text/javascript"
