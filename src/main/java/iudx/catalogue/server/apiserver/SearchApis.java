@@ -117,7 +117,7 @@ public final class SearchApis {
       /* checking the values of the query parameters for geo related count */
     } else if (GEOMETRIES.contains(request.getParam(GEOMETRY))
         && GEORELS.contains(request.getParam(GEORELATION))
-        && GEO_PROPERTY.contains(request.getParam(GEOPROPERTY))) {
+        && request.getParam(GEOPROPERTY).equals(GEO_PROPERTY)) {
       requestBody = QueryMapper.map2Json(queryParameters);
     } else if (request.getParam(Q_VALUE) != null
         && !request.getParam(Q_VALUE).isBlank()) {
