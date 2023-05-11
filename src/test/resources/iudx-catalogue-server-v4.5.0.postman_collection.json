@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f37c8626-7bf0-4183-8cad-3322854094e5",
+		"_postman_id": "674c6f78-eb2d-4731-bcb5-d430154a2554",
 		"name": "iudx-catalogue-server",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "27217689"
@@ -3164,7 +3164,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InternalError\");\r",
+													"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InvalidGeoValue\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -3845,7 +3845,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InternalError\");\r",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidGeoValue\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -4483,7 +4483,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:InternalError\");\r",
+													"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:InvalidGeoValue\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -5065,7 +5065,7 @@
 													"\r",
 													"pm.test(\"Check response body\", function () {    \r",
 													"    const body = pm.response.json();\r",
-													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InternalError\");\r",
+													"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:InvalidGeoValue\");\r",
 													"});"
 												],
 												"type": "text/javascript"
@@ -9414,7 +9414,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InternalError\");\r",
+									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InvalidGeoValue\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9599,7 +9599,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InternalError\");\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidGeoValue\");\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -9770,7 +9770,7 @@
 									"\r",
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InternalError\");\r",
+									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:InvalidGeoValue\");\r",
 									"});"
 								],
 								"type": "text/javascript"
