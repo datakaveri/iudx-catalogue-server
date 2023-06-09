@@ -11,12 +11,12 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.ElasticClient;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TimeZone;
+import java.util.*;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,7 +47,9 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator mlayerDomainValidator;
   private Validator mlayerGeoQueryValidator;
 
-
+  private static final Pattern UUID_PATTERN =
+      Pattern.compile(
+          ("^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"));
 
   /** ES client. */
   static ElasticClient client;
@@ -195,6 +197,20 @@ public class ValidatorServiceImpl implements ValidatorService {
       handler.handle(Future.succeededFuture(request));
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
       // Validate if Provider
+      if (request.containsKey("id")) {
+        String id = request.getString("id");
+        LOGGER.debug("id in the request body: " + id);
+
+        if (!isValidUuid(id)) {
+          handler.handle(Future.failedFuture("validation failed. Incorrect id"));
+        }
+      } else if (!request.getBoolean("isUACinstance") && !request.containsKey("id")) {
+        byte[] inputBytes = request.getString("name").getBytes(StandardCharsets.UTF_8);
+        UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
+        request.put("id", uuid.toString());
+      } else if (request.getBoolean("isUACinstance") && !request.containsKey("id")) {
+        handler.handle(Future.failedFuture("id not found"));
+      }
       handler.handle(Future.succeededFuture(request));
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
       // Validate if ResourceGroup
@@ -236,6 +252,10 @@ public class ValidatorServiceImpl implements ValidatorService {
           });
     }
     return this;
+  }
+
+  private boolean isValidUuid(String uuidString) {
+    return UUID_PATTERN.matcher(uuidString).matches();
   }
 
   /** {@inheritDoc}

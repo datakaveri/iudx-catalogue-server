@@ -188,14 +188,14 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
               result.jwtData = decodeHandler;
               return isValidAudienceValue(result.jwtData);
             })
-        .compose(
+       /* .compose(
             audienceHandler -> {
               if (skipResourceIdCheck) {
                 return Future.succeededFuture(true);
               } else {
                 return isValidId(result.jwtData, id);
               }
-            })
+            })*/
         .compose(
             validIdHandler -> {
               LOGGER.debug(isValidEndpoint(endPoint).succeeded());
