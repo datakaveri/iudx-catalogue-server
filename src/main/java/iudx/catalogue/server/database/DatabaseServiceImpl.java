@@ -343,7 +343,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                   public void run() {
                     client.docPostAsync(docIndex, doc.toString(), postRes -> {
                       if (postRes.succeeded()) {
-                        if(doc.containsKey("isUACinstance")) {
+                        if(doc.getJsonArray("type").getString(0).equals( "iudx:Provider")
+                                || doc.getJsonArray("type").getString(0).equals( "iudx:Resource")
+                                || doc.getJsonArray("type").getString(0).equals( "iudx:ResourceGroup")
+                                || doc.getJsonArray("type").getString(0).equals( "iudx:ResourceServer")) {
                           handler.handle(Future.succeededFuture(
                                   respBuilder.withType(TYPE_SUCCESS)
                                           .withResultBody(doc, INSERT, TYPE_SUCCESS)

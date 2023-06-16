@@ -165,6 +165,22 @@ public final class CrudApis {
               validatorService.validateItem(requestBody, valhandler -> {
                 if (valhandler.failed()) {
                   LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
+                  if(valhandler.cause().getMessage().contains("id not found"))
+                  {
+                    response.setStatusCode(404)
+                            .end(new RespBuilder()
+                                    .withType(TYPE_ITEM_NOT_FOUND)
+                                    .withTitle(TITLE_ITEM_NOT_FOUND)
+                                    .getResponse());
+                  }
+                  if(valhandler.cause().getMessage().contains("validation failed. Incorrect id"))
+                  {
+                    response.setStatusCode(400)
+                            .end(new RespBuilder()
+                                    .withType(TYPE_INVALID_UUID)
+                                    .withTitle(TITLE_INVALID_UUID)
+                                    .getResponse());
+                  }
                   response.setStatusCode(400)
                       .end(new RespBuilder()
                             .withType(TYPE_LINK_VALIDATION_FAILED)
