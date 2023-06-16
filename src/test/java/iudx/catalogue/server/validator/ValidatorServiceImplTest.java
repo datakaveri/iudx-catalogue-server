@@ -109,13 +109,26 @@ public class ValidatorServiceImplTest {
   }
 
   @Test
-  @Description("testing the method validateItem when itemType equals ITEM_TYPE_PROVIDER")
+  @Description("testing the method validateItem when itemType equals ITEM_TYPE_PROVIDER and id is generated")
   public void testValidateItemPROVIDER(VertxTestContext vertxTestContext) {
     validatorService = new ValidatorServiceImpl(client, docIndex,isUacInstance);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(ITEM_TYPE_PROVIDER);
-    request.put(TYPE, jsonArray);
+    request.put(TYPE, jsonArray).put("name","provider name");
+
+    assertNotNull(validatorService.validateItem(request, handler));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing the method validateItem when itemType equals ITEM_TYPE_PROVIDER and id is validated")
+  public void testValidateItemProviderId(VertxTestContext vertxTestContext) {
+    validatorService = new ValidatorServiceImpl(client, docIndex,isUacInstance);
+    JsonObject request = new JsonObject();
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(ITEM_TYPE_PROVIDER);
+    request.put(TYPE, jsonArray).put("name","provider name").put("id","40bbe849-9f35-32b9-8f64-00d5e62db47");
 
     assertNotNull(validatorService.validateItem(request, handler));
     vertxTestContext.completeNow();
@@ -231,7 +244,7 @@ public class ValidatorServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(ValidatorServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            verify(ValidatorServiceImpl.client, times(2)).searchGetId(anyString(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -313,8 +326,6 @@ public class ValidatorServiceImplTest {
     request.put(NAME, "dummy");
     ValidatorServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.failed()).thenReturn(true);
-    when(asyncResult.cause()).thenReturn(throwable);
-    when(throwable.getMessage()).thenReturn("dummy");
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @Override
