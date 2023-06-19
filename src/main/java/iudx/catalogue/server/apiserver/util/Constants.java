@@ -76,6 +76,8 @@ public class Constants {
   public static final String PARTIAL_CONTENT = "partial-content";
   public static final String GEO_PROPERTY = "location";
 
+  public static final String UAC_DEPLOYMENT = "isUACInstance";
+
   public static final String TEXT = "text";
 
   public static final ArrayList<String> GEORELS

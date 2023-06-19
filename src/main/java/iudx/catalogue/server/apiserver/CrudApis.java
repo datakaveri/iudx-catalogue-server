@@ -49,6 +49,7 @@ public final class CrudApis {
   private static final Pattern UUID_PATTERN =
           Pattern.compile(
                   "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
+  private boolean isUAC;
 
 
 
@@ -58,8 +59,9 @@ public final class CrudApis {
    * @param api endpoint for base path
    * @TODO Throw error if load failed
    */
-  public CrudApis(Api api) {
+  public CrudApis(Api api, boolean isUAC) {
     this.api = api;
+    this.isUAC = isUAC;
   }
 
   public void setDbService(DatabaseService dbService) {
@@ -231,7 +233,7 @@ public final class CrudApis {
                         LOGGER.info("Success: Item created;");
                         response.setStatusCode(201)
                               .end(dbhandler.result().toString());
-                        if (hasAuditService) {
+                        if (hasAuditService && !isUAC) {
                           updateAuditTable(
                                   authHandler.result(),
                                   new String[]{valhandler.result().getString(ID),
@@ -374,7 +376,7 @@ public final class CrudApis {
                 LOGGER.debug(dbHandler.result().toString());
                 if (dbHandler.result().getString(STATUS).equals(TITLE_SUCCESS)) {
                   response.setStatusCode(200).end(dbHandler.result().toString());
-                  if (hasAuditService) {
+                  if (hasAuditService && !isUAC) {
                     updateAuditTable(authHandler.result(),
                           new String[]{itemId, api.getRouteItems(), REQUEST_DELETE});
                   }
