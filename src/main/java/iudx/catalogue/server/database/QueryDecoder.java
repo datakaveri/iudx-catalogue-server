@@ -244,6 +244,7 @@ public final class QueryDecoder {
    * @return JsonObject which contains fully formed ElasticSearch query.
    */
   public String listRelationshipQuery(JsonObject request) {
+    LOGGER.debug("request: "+request);
 
     String relationshipType = request.getString(RELATIONSHIP);
     String subQuery = "";
@@ -262,9 +263,9 @@ public final class QueryDecoder {
 
     } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType)) {
 
-      String resourceGroupId =
-          StringUtils.substringBeforeLast(request.getString(ID), FORWARD_SLASH);
-      
+    /*  String resourceGroupId =
+          StringUtils.substringBeforeLast(request.getString(ID), FORWARD_SLASH);*/
+      String resourceGroupId = request.getString("resourceGroup");
       subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
                            .replace("$2", resourceGroupId) 
                            + ","
@@ -275,7 +276,9 @@ public final class QueryDecoder {
 
       /* parsing id/providerId from the request */
       String id = request.getString(ID);
-      String providerId = StringUtils.substring(id, 0, id.indexOf("/", id.indexOf("/") + 1));
+     // String providerId = StringUtils.substring(id, 0, id.indexOf("/", id.indexOf("/") + 1));
+
+      String providerId = request.getString("provider");
 
       subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
                            .replace("$2", providerId) 
@@ -286,14 +289,14 @@ public final class QueryDecoder {
     } else if (request.containsKey(ID) && RESOURCE_SVR.equals(relationshipType)) {
             
       /* parsing id from the request */
-      String[] id = request.getString(ID).split(FORWARD_SLASH);
+      //String[] id = request.getString(ID).split(FORWARD_SLASH);
 
-      subQuery = MATCH_QUERY.replace("$1", ID)
-                            .replace("$2", id[0])
+      String resourceServer = request.getString(RESOURCE_SVR);
+
+      subQuery = MATCH_QUERY.replace("$1", ID_KEYWORD)
+                            .replace("$2",resourceServer)
                             + ","
-              + MATCH_QUERY.replace("$1", ID)
-                            .replace("$2", id[2])
-                            + ","
+
               + TERM_QUERY.replace("$1", TYPE_KEYWORD)
                            .replace("$2", ITEM_TYPE_RESOURCE_SERVER);
 
@@ -333,7 +336,8 @@ public final class QueryDecoder {
       JsonArray sourceFilter = request.getJsonArray(FILTER, new JsonArray());
       tempQuery.put(SOURCE, sourceFilter);
     }
-
+    LOGGER.debug("relationshipType336: "+relationshipType);
+LOGGER.debug("tempQuery337: "+tempQuery);
     return tempQuery.toString();
   }
 

@@ -233,5 +233,28 @@ public class Constants {
 
   public static final String NLP_LOCATION_SEARCH = "{\"query\": {\"script_score\": {\"query\":"
           + " {\"bool\": {\"should\": [";
+  public static final String GET_TYPE_SEARCH = "{\n" +
+          "  \"query\": {\n" +
+          "    \"bool\": {\n" +
+          "      \"filter\": [\n" +
+          "        {\n" +
+          "          \"terms\": {\n" +
+          "            \"id.keyword\": [\n" +
+          "              \"$1\"\n" +
+          "            ],\n" +
+          "            \"boost\": 1\n" +
+          "          }\n" +
+          "        }\n" +
+          "      ]\n" +
+          "    }\n" +
+          "  },\n" +
+          "  \"_source\": [\n" +
+          "    \"resourceServer\", \n" +
+          "    \"type\",\n" +
+          "    \"provider\",\n" +
+          "    \"resourceGroup\",\n" +
+          "    \"id\"\n" +
+          "  ]\n" +
+          "}";
 
 }
