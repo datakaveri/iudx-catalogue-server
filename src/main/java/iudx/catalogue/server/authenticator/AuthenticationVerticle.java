@@ -125,7 +125,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
 
       dxApiBasePath = config().getString("dxApiBasePath");
       api = Api.getInstance(dxApiBasePath);
-      kcAuthenticationService = new KCAuthenticationServiceImpl(jwtProcessor, api);
+      kcAuthenticationService = new KCAuthenticationServiceImpl(jwtProcessor, config(), api);
 
       consumer = binder.register(AuthenticationService.class, kcAuthenticationService);
       LOGGER.debug("AuthVerticle Deployed");

@@ -1,10 +1,7 @@
 package iudx.catalogue.server.authenticator;
 
 import static iudx.catalogue.server.authenticator.Constants.*;
-import static iudx.catalogue.server.util.Constants.ID;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.JWTProcessor;
@@ -13,12 +10,11 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.authenticator.authorization.Method;
 import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.text.ParseException;
 
 /**
  * The KC(Keycloak) Authentication Service Implementation.
@@ -36,10 +32,12 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
 
   final JWTProcessor<SecurityContext> jwtProcessor;
   private Api api;
+  private String uacAdmin;
 
   public KCAuthenticationServiceImpl(
-      final JWTProcessor<SecurityContext> jwtProcessor, final Api api) {
+      final JWTProcessor<SecurityContext> jwtProcessor, final JsonObject config, final Api api) {
     this.jwtProcessor = jwtProcessor;
+    this.uacAdmin = config.getString(UAC_ADMIN);
     this.api = api;
   }
 
@@ -63,7 +61,8 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
   public AuthenticationService tokenInterospect(
       JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     String endpoint = authenticationInfo.getString(API_ENDPOINT);
-//    String id = authenticationInfo.getString(ID);
+    //    String id = authenticationInfo.getString(ID);
+    Method method = Method.valueOf(authenticationInfo.getString(METHOD));
     String token = authenticationInfo.getString(TOKEN);
     Future<JwtData> decodeTokenFuture = decodeKCToken(token);
 
@@ -74,6 +73,14 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
             decodeHandler -> {
               result.jwtData = decodeHandler;
               return isValidEndpoint(endpoint);
+            })
+        .compose(
+            isValidHandler -> {
+              if (method.equals(Method.DELETE)) {
+                return isValidUACAdmin(result.jwtData);
+              } else {
+                return Future.succeededFuture();
+              }
             })
         .onComplete(
             completeHandler -> {
@@ -86,10 +93,20 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
     return this;
   }
 
+  Future<Void> isValidUACAdmin(JwtData jwtData) {
+    Promise<Void> promise = Promise.promise();
+
+    if (uacAdmin.equalsIgnoreCase(jwtData.getSub())) {
+      promise.complete();
+    } else {
+      promise.fail("Invalid Token : UAC Admin Token required");
+    }
+    return promise.future();
+  }
+
   Future<Boolean> isValidEndpoint(String endpoint) {
     Promise<Boolean> promise = Promise.promise();
 
-    LOGGER.debug(endpoint);
     if (endpoint.equals(api.getRouteItems()) || endpoint.equals(api.getRouteInstance())) {
       promise.complete(true);
     } else {
