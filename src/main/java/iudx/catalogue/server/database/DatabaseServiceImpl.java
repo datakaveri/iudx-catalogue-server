@@ -589,6 +589,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 type.retainAll(ITEM_TYPES);
                 String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
                 LOGGER.debug("Info: itemType: " + itemType);
+                relType.put("itemType",itemType);
 
                 if (request.getString(RELATIONSHIP).equalsIgnoreCase("resource") && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
 
@@ -654,10 +655,41 @@ public class DatabaseServiceImpl implements DatabaseService {
                             });
                         }
                     });
-                }else {
+                } else if (request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+                    {
 
+                        StringBuilder typeQuery4RSGROUP = new StringBuilder(GET_RSGROUP.
+                                replace("$1", relType.getString(ID)));
+                        LOGGER.debug("typeQuery4RSGROUP: " + typeQuery4RSGROUP);
+
+                        client.searchAsync(typeQuery4RSGROUP.toString(), docIndex, serverSearch -> {
+                            if (serverSearch.succeeded()) {
+                                JsonArray serverResult = serverSearch.result().getJsonArray("results");
+                                LOGGER.debug("serverResult: "+serverResult);
+                                request.put("grpIds",serverResult);
+                                request.mergeIn(relType);
+                                String elasticQuery = queryDecoder.listRelationshipQuery(request);
+
+                                LOGGER.debug("Info: Query constructed;" + elasticQuery);
+
+                                client.searchAsync(elasticQuery, docIndex, searchRes -> {
+                                    if (searchRes.succeeded()) {
+                                        LOGGER.debug("Success: Successful DB request");
+                                        handler.handle(Future.succeededFuture(searchRes.result()));
+                                    } else {
+
+                                        LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
+                                        /* Handle request error */
+                                        handler.handle(
+                                                Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
+                                                        .withDetail(TITLE_INTERNAL_SERVER_ERROR).getResponse()));
+                                    }
+                                });
+                            }
+                        });
+                    }
+                } else {
                     request.mergeIn(relType);
-                   // RespBuilder respBuilder = new RespBuilder();
                     String elasticQuery = queryDecoder.listRelationshipQuery(request);
 
                     LOGGER.debug("Info: Query constructed;" + elasticQuery);
@@ -679,29 +711,6 @@ public class DatabaseServiceImpl implements DatabaseService {
                 }
             }
         });
-
-
-
-
-    /*RespBuilder respBuilder = new RespBuilder();
-    String elasticQuery = queryDecoder.listRelationshipQuery(request);
-
-    LOGGER.debug("Info: Query constructed;" + elasticQuery);
-
-    client.searchAsync(elasticQuery, docIndex, searchRes -> {
-      if (searchRes.succeeded()) {
-        LOGGER.debug("Success: Successful DB request");
-        handler.handle(Future.succeededFuture(searchRes.result()));
-      } else {
-
-        LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
-        *//* Handle request error *//*
-        handler.handle(
-            Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
-                .withDetail(TITLE_INTERNAL_SERVER_ERROR)
-                .getResponse()));
-      }
-    });*/
         return this;
     }
 

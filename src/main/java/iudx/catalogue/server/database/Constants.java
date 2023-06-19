@@ -256,5 +256,39 @@ public class Constants {
           "    \"id\"\n" +
           "  ]\n" +
           "}";
+  public static final String GET_RSGROUP = "{\n" +
+          "    \"query\": {\n" +
+          "    \"bool\": {\n" +
+          "      \"must\": [{\n" +
+          "        \"match\": {\n" +
+          "          \"resourceServer.keyword\": \"$1\"\n" +
+          "        }\n" +
+          "      },\n" +
+          "      {\n" +
+          "        \"term\": {\n" +
+          "        \"type.keyword\": \"iudx:ResourceGroup\"\n" +
+          "      }\n" +
+          "      }\n" +
+          "\t\t\t]\n" +
+          "    }\n" +
+          "  },\n" +
+          "    \"_source\": [\"id\"],\n" +
+          "    \"size\": \"10000\"\n" +
+          "  }";
+
+  public static final String GET_RS1 = "{\n" +
+          "  \"query\": {\n" +
+          "    \"bool\": {\n" +
+          "      \"should\": [";
+  public static final String GET_RS2 ="{\n" +
+          "          \"match\": {\n" +
+          "            \"resourceGroup.keyword\": \"$1\"\n" +
+          "          }\n" +
+          "        }";
+  public static final String GET_RS3 ="],\n" +
+          "      \"minimum_should_match\": 1\n" +
+          "    }\n" +
+          "  }\n" +
+          "}";
 
 }

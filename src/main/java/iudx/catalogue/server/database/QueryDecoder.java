@@ -244,61 +244,84 @@ public final class QueryDecoder {
    * @return JsonObject which contains fully formed ElasticSearch query.
    */
   public String listRelationshipQuery(JsonObject request) {
-    LOGGER.debug("request: "+request);
+    LOGGER.debug("request: " + request);
 
     String relationshipType = request.getString(RELATIONSHIP);
+    String itemType = request.getString(ITEM_TYPE);
     String subQuery = "";
 
     /* Validating the request */
-    if (request.containsKey(ID) && RESOURCE.equals(relationshipType)) {
+    if (request.containsKey(ID) && RESOURCE.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
 
-      /* parsing resourceGroupId from the request */
-      String resourceGroupId = request.getString(ID);
-      
-      subQuery = TERM_QUERY.replace("$1", RESOURCE_GRP + KEYWORD_KEY)
-                           .replace("$2", resourceGroupId) 
-                            + ","
+      String providerId = request.getString(ID);
+      subQuery = TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY)
+              .replace("$2", providerId)
+              + ","
               + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-                           .replace("$2", ITEM_TYPE_RESOURCE);
+              .replace("$2", ITEM_TYPE_RESOURCE);
+    } else if (request.containsKey(ID) && RESOURCE.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+      String resourceGroupId = request.getString(ID);
 
-    } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType)) {
+      subQuery = TERM_QUERY.replace("$1", RESOURCE_GRP + KEYWORD_KEY)
+              .replace("$2", resourceGroupId)
+              + ","
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
+              .replace("$2", ITEM_TYPE_RESOURCE);
+    } else if (request.containsKey(ID) && RESOURCE.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      JsonArray groupIds = request.getJsonArray("grpIds");
+      StringBuilder first = new StringBuilder(GET_RS1);
+      for (int grpIndex = 0; grpIndex < request.getJsonArray("grpIds").size(); grpIndex++) {
+        first.append(GET_RS2.replace("$1", groupIds.getJsonObject(grpIndex).getString(ID)));
+        if (grpIndex != request.getJsonArray("grpIds").size() - 1) {
+          first.append(",");
+        }
+      }
+      first.append(GET_RS3);
+      return first.toString();
 
-    /*  String resourceGroupId =
-          StringUtils.substringBeforeLast(request.getString(ID), FORWARD_SLASH);*/
+    } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
       String resourceGroupId = request.getString("resourceGroup");
       subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
-                           .replace("$2", resourceGroupId) 
-                           + ","
+              .replace("$2", resourceGroupId)
+              + ","
               + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-                           .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+              .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+
+    } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+      String providerId = request.getString(ID);
+      subQuery = TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY)
+              .replace("$2", providerId)
+              + ","
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
+              .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+
+    } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      String rsServer = request.getString(ID);
+      subQuery = TERM_QUERY.replace("$1", RESOURCE_SVR + KEYWORD_KEY)
+              .replace("$2", rsServer)
+              + ","
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
+              .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
 
     } else if (request.containsKey(ID) && PROVIDER.equals(relationshipType)) {
-
-      /* parsing id/providerId from the request */
       String id = request.getString(ID);
-     // String providerId = StringUtils.substring(id, 0, id.indexOf("/", id.indexOf("/") + 1));
-
-      String providerId = request.getString("provider");
+      String providerId = request.getString(PROVIDER);
 
       subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
-                           .replace("$2", providerId) 
-                           + ","
+              .replace("$2", providerId)
+              + ","
               + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-                           .replace("$2", ITEM_TYPE_PROVIDER);
+              .replace("$2", ITEM_TYPE_PROVIDER);
 
     } else if (request.containsKey(ID) && RESOURCE_SVR.equals(relationshipType)) {
-            
-      /* parsing id from the request */
-      //String[] id = request.getString(ID).split(FORWARD_SLASH);
-
       String resourceServer = request.getString(RESOURCE_SVR);
 
       subQuery = MATCH_QUERY.replace("$1", ID_KEYWORD)
-                            .replace("$2",resourceServer)
-                            + ","
+              .replace("$2", resourceServer)
+              + ","
 
               + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-                           .replace("$2", ITEM_TYPE_RESOURCE_SERVER);
+              .replace("$2", ITEM_TYPE_RESOURCE_SERVER);
 
     } else if (request.containsKey(ID) && TYPE_KEY.equals(relationshipType)) {
 
@@ -306,14 +329,14 @@ public final class QueryDecoder {
       String itemId = request.getString(ID);
 
       subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
-                           .replace("$2", itemId);
+              .replace("$2", itemId);
     } else {
       return null;
     }
 
     String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
     Integer limit =
-        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
     JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
 
     if (TYPE_KEY.equals(relationshipType)) {
@@ -336,8 +359,6 @@ public final class QueryDecoder {
       JsonArray sourceFilter = request.getJsonArray(FILTER, new JsonArray());
       tempQuery.put(SOURCE, sourceFilter);
     }
-    LOGGER.debug("relationshipType336: "+relationshipType);
-LOGGER.debug("tempQuery337: "+tempQuery);
     return tempQuery.toString();
   }
 
