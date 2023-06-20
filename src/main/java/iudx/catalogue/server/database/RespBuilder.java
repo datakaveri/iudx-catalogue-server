@@ -24,6 +24,11 @@ public class RespBuilder {
     return this;
   }
 
+  public RespBuilder withMethod(String method) {
+    response.put(METHOD, method);
+    return this;
+  }
+
   /**
    * Adds a result to the response with the given id, method, and status.
    * @param id The id of the result to be added
@@ -52,21 +57,6 @@ public class RespBuilder {
         .put(METHOD, method)
         .put(STATUS, status)
         .put(DETAIL, detail);
-    response.put(RESULTS, new JsonArray().add(resultAttrs));
-    return this;
-  }
-
-  /**
-   * Adds a result with the provided attributes to the response.
-   * @param itemBody the request body with uuid.
-   * @param method the method used to perform the operation resulting in this result
-   * @param status the status of the operation resulting in this result
-   * @return this RespBuilder instance
-   */
-  public RespBuilder withResultBody(JsonObject itemBody, String method, String status) {
-    JsonObject resultAttrs = new JsonObject().put(ITEM, itemBody)
-            .put(METHOD, method)
-            .put(STATUS, status);
     response.put(RESULTS, new JsonArray().add(resultAttrs));
     return this;
   }
