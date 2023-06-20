@@ -46,6 +46,9 @@ public final class CrudApis {
   private boolean hasAuditService = false;
   private String host;
   private Api api;
+  private static final Pattern UUID_PATTERN =
+          Pattern.compile(
+                  ("^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"));
 
 
 
@@ -263,7 +266,7 @@ public final class CrudApis {
     JsonObject requestBody = new JsonObject().put(ID, itemId);
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     
-    if (validateId(itemId) == false) {
+    if (validateId(itemId) == true) {
       dbService.getItem(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
           if (dbhandler.result().getInteger(TOTAL_HITS) == 0) {
@@ -288,8 +291,8 @@ public final class CrudApis {
       LOGGER.error("Fail: Invalid request payload");
       response.setStatusCode(400)
               .end(new RespBuilder()
-                        .withType(TYPE_ID_NONEXISTANT)
-                        .withTitle(TITLE_ID_NONEXISTANT)
+                        .withType(TYPE_INVALID_SYNTAX)
+                        .withTitle(TITLE_INVALID_SYNTAX)
                         .getResponse());
     }
   }
@@ -318,16 +321,13 @@ public final class CrudApis {
 
     LOGGER.debug("Info: Deleting item; id=" + itemId);
 
-    if (validateId(itemId) == false) {
-      String providerId = String.join("/", Arrays.copyOfRange(itemId.split("/"), 0, 2));
-      LOGGER.debug("Info: Provider ID is  " + providerId);
+    if (validateId(itemId) == true) {
 
       // populating JWT authentication info ->
       jwtAuthenticationInfo
               .put(TOKEN, request.getHeader(HEADER_TOKEN))
               .put(METHOD, REQUEST_POST)
-              .put(API_ENDPOINT, api.getRouteItems())
-              .put(ID, providerId);
+              .put(API_ENDPOINT, api.getRouteItems());
 
       /* JWT implementation of tokenInterospect */
       authService.tokenInterospect(new JsonObject(),
@@ -373,8 +373,8 @@ public final class CrudApis {
       LOGGER.error("Fail: Invalid request payload");
       response.setStatusCode(400)
               .end(new RespBuilder()
-                        .withType(TYPE_ID_NONEXISTANT)
-                        .withTitle(TITLE_ID_NONEXISTANT)
+                        .withType(TYPE_INVALID_SYNTAX)
+                        .withTitle(TITLE_INVALID_SYNTAX)
                         .getResponse());
     }
   }
@@ -510,10 +510,8 @@ public final class CrudApis {
    * @return  true if the item ID contains invalid characters, false otherwise
    */
   private boolean validateId(String itemId) {
-    Pattern pattern = Pattern.compile("[<>;=]");
-    boolean flag = pattern.matcher(itemId).find();
+    return UUID_PATTERN.matcher(itemId).matches();
 
-    return flag;
   }
 
   /**

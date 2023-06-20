@@ -221,12 +221,9 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"    const resultsjsonData = body.results[0].item;\r",
-											"    pm.expect(resultsjsonData).to.have.property(\"id\");\r",
-											"    const ID = resultsjsonData.id;\r",
-											"    pm.globals.set(\"provider_item_id\",ID);\r",
-											" \r",
-											"\r",
+											"    pm.expect(body.results).to.have.property(\"id\");\r",
+											"    const ID = body.results.id;\r",
+											"    pm.globals.set(\"provider_id\", ID);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -288,12 +285,9 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"    const resultsjsonData = body.results[0].item;\r",
-											"    pm.expect(resultsjsonData).to.have.property(\"id\");\r",
-											"    const ID = resultsjsonData.id;\r",
-											"    pm.globals.set(\"rs_item_id\",ID);\r",
-											" \r",
-											"\r",
+											"    pm.expect(body.results).to.have.property(\"id\");\r",
+											"    const ID = body.results.id;\r",
+											"    pm.globals.set(\"resource_server_id\", ID);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -323,7 +317,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceServer\"\r\n          ],\r\n          \"provider\": \"{{provider_item_id}}\",\r\n          \"name\": \"rs.iudx.io\",\r\n          \"description\": \"dummy  IUDX resource server\",\r\n          \"tags\": [\r\n            \"IUDX\",\r\n            \"Resource\",\r\n            \"Server\",\r\n            \"Platform\"\r\n          ],\r\n          \"resourceServerOrg\":  {\r\n                    \"name\": \"iudx\",\r\n                    \"additionalInfoURL\": \"https://iudx.org.in\",\r\n                    \"location\": {\r\n                        \"type\": \"Place\",\r\n                        \"address\": \"IISc, Bangalore\",\r\n                        \"geometry\": {\r\n                            \"type\": \"Point\",\r\n                            \"coordinates\": [\r\n                                77.570423,\r\n                                13.013945\r\n                            ]\r\n                        }\r\n                    }\r\n                }\r\n        }",
+									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceServer\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"name\": \"rs.iudx.io\",\r\n          \"description\": \"dummy  IUDX resource server\",\r\n          \"tags\": [\r\n            \"IUDX\",\r\n            \"Resource\",\r\n            \"Server\",\r\n            \"Platform\"\r\n          ],\r\n          \"resourceServerOrg\":  {\r\n                    \"name\": \"iudx\",\r\n                    \"additionalInfoURL\": \"https://iudx.org.in\",\r\n                    \"location\": {\r\n                        \"type\": \"Place\",\r\n                        \"address\": \"IISc, Bangalore\",\r\n                        \"geometry\": {\r\n                            \"type\": \"Point\",\r\n                            \"coordinates\": [\r\n                                77.570423,\r\n                                13.013945\r\n                            ]\r\n                        }\r\n                    }\r\n                }\r\n        }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -361,12 +355,9 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"    const resultsjsonData = body.results[0].item;\r",
-											"    pm.expect(resultsjsonData).to.have.property(\"id\");\r",
-											"    const ID = resultsjsonData.id;\r",
-											"    pm.globals.set(\"resource_group_item_id\",ID);\r",
-											" \r",
-											"\r",
+											"    pm.expect(body.results).to.have.property(\"id\");\r",
+											"    const ID = body.results.id;\r",
+											"    pm.globals.set(\"resource_group_id\", ID);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -390,7 +381,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceGroup\",\r\n            \"iudx:IssueReporting\"\r\n          ],\r\n          \"name\": \"agra-swachhata-app\",\r\n          \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n          \"tags\": [\r\n            \"swachhata\",\r\n            \"complaints\",\r\n            \"reporting\",\r\n            \"issue\",\r\n            \"garbage dump\",\r\n            \"debris removal\",\r\n            \"open defecation\",\r\n            \"construction material\",\r\n            \"requests\"\r\n          ],\r\n          \"provider\": \"{{provider_item_id}}\",\r\n          \"resourceServer\":  \"{{rs_item_id}}\"\r\n        }",
+									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceGroup\",\r\n            \"iudx:IssueReporting\"\r\n          ],\r\n          \"name\": \"agra-swachhata-app\",\r\n          \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n          \"tags\": [\r\n            \"swachhata\",\r\n            \"complaints\",\r\n            \"reporting\",\r\n            \"issue\",\r\n            \"garbage dump\",\r\n            \"debris removal\",\r\n            \"open defecation\",\r\n            \"construction material\",\r\n            \"requests\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceServer\":  \"{{resource_server_id}}\"\r\n        }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -428,12 +419,9 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"    const resultsjsonData = body.results[0].item;\r",
-											"    pm.expect(resultsjsonData).to.have.property(\"id\");\r",
-											"    const ID = resultsjsonData.id;\r",
-											"    pm.globals.set(\"resource_item_id\",ID);\r",
-											" \r",
-											"\r",
+											"    pm.expect(body.results).to.have.property(\"id\");\r",
+											"    const ID = body.results.id;\r",
+											"    pm.globals.set(\"resource_item_id\", ID);\r",
 											"});"
 										],
 										"type": "text/javascript"
@@ -457,7 +445,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": " {\r\n         \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:PointOfInterest\"\r\n          ],\r\n          \"name\": \"wifi-locations\",\r\n          \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n          \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n          \"tags\": [\r\n            \"Wi-Fi\",\r\n            \"Wi-Fi zone\",\r\n            \"hotspot\",\r\n            \"internet\",\r\n            \"Wi-Fi access\",\r\n            \"Wi-Fi location\",\r\n            \"wireless internet\",\r\n            \"internet access\"\r\n          ],\r\n          \"provider\": \"{{provider_item_id}}\",\r\n          \"resourceGroup\": \"{{resource_group_item_id}}\"\r\n        }",
+									"raw": " {\r\n         \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:PointOfInterest\"\r\n          ],\r\n          \"name\": \"wifi-locations\",\r\n          \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n          \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n          \"tags\": [\r\n            \"Wi-Fi\",\r\n            \"Wi-Fi zone\",\r\n            \"hotspot\",\r\n            \"internet\",\r\n            \"Wi-Fi access\",\r\n            \"Wi-Fi location\",\r\n            \"wireless internet\",\r\n            \"internet access\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceGroup\": \"{{resource_group_id}}\"\r\n        }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -744,7 +732,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{host}}{{base}}/item?id=datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Hadapsar_Gadital_03",
+									"raw": "{{host}}{{base}}/item?id=7c8b58a7-6e5b-4a97-a15d-8f4aeb4e987e",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -754,7 +742,55 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.org.in/aqm-bosch-climo/Hadapsar_Gadital_03"
+											"value": "7c8b58a7-6e5b-4a97-a15d-8f4aeb4e987e"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (invalid UUID) - Get DX Entity by invalid ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.be.badRequest;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSyntax\");\r",
+											"});\r",
+											"\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/item?id=7c8b58a7-6e5b-4a97-a15d-8f4aeb4e",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "7c8b58a7-6e5b-4a97-a15d-8f4aeb4e"
 										}
 									]
 								}
@@ -840,7 +876,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{host}}{{base}}/relationship?id={{resource_group_item_id}}&rel=type",
+									"raw": "{{host}}{{base}}/relationship?id={{resource_group_id}}&rel=type",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -850,7 +886,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "{{resource_group_item_id}}"
+											"value": "{{resource_group_id}}"
 										},
 										{
 											"key": "rel",
@@ -960,7 +996,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceServer\"\r\n          ],\r\n          \"provider\": \"{{provider_item_id}}\",\r\n          \"id\":\"{{rs_item_id}}\",\r\n          \"name\": \"rs.iudx.io\",\r\n          \"description\": \"updated dummy  IUDX resource server\",\r\n          \"tags\": [\r\n            \"IUDX\",\r\n            \"Resource\",\r\n            \"Server\",\r\n            \"Platform\"\r\n          ],\r\n          \"resourceServerOrg\":  {\r\n                    \"name\": \"iudx\",\r\n                    \"additionalInfoURL\": \"https://iudx.org.in\",\r\n                    \"location\": {\r\n                        \"type\": \"Place\",\r\n                        \"address\": \"IISc, Bangalore\",\r\n                        \"geometry\": {\r\n                            \"type\": \"Point\",\r\n                            \"coordinates\": [\r\n                                77.570423,\r\n                                13.013945\r\n                            ]\r\n                        }\r\n                    }\r\n                }\r\n        }",
+									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceServer\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"id\":\"{{resource_server_id}}\",\r\n          \"name\": \"rs.iudx.io\",\r\n          \"description\": \"updated dummy  IUDX resource server\",\r\n          \"tags\": [\r\n            \"IUDX\",\r\n            \"Resource\",\r\n            \"Server\",\r\n            \"Platform\"\r\n          ],\r\n          \"resourceServerOrg\":  {\r\n                    \"name\": \"iudx\",\r\n                    \"additionalInfoURL\": \"https://iudx.org.in\",\r\n                    \"location\": {\r\n                        \"type\": \"Place\",\r\n                        \"address\": \"IISc, Bangalore\",\r\n                        \"geometry\": {\r\n                            \"type\": \"Point\",\r\n                            \"coordinates\": [\r\n                                77.570423,\r\n                                13.013945\r\n                            ]\r\n                        }\r\n                    }\r\n                }\r\n        }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1017,7 +1053,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceGroup\",\r\n            \"iudx:IssueReporting\"\r\n          ],\r\n          \"name\": \"agra-swachhata-app\",\r\n          \"description\": \"updated Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n          \"tags\": [\r\n            \"swachhata\",\r\n            \"complaints\",\r\n            \"reporting\",\r\n            \"issue\",\r\n            \"garbage dump\",\r\n            \"debris removal\",\r\n            \"open defecation\",\r\n            \"construction material\",\r\n            \"requests\"\r\n          ],\r\n          \"provider\": \"{{provider_item_id}}\",\r\n          \"resourceServer\":  \"{{rs_item_id}}\",\r\n          \"id\":\"{{resource_group_item_id}}\"\r\n        }",
+									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceGroup\",\r\n            \"iudx:IssueReporting\"\r\n          ],\r\n          \"name\": \"agra-swachhata-app\",\r\n          \"description\": \"updated Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n          \"tags\": [\r\n            \"swachhata\",\r\n            \"complaints\",\r\n            \"reporting\",\r\n            \"issue\",\r\n            \"garbage dump\",\r\n            \"debris removal\",\r\n            \"open defecation\",\r\n            \"construction material\",\r\n            \"requests\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceServer\":  \"{{resource_server_id}}\",\r\n          \"id\":\"{{resource_group_id}}\"\r\n        }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1074,7 +1110,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": " {\r\n         \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:PointOfInterest\"\r\n          ],\r\n          \"name\": \"wifi-locations\",\r\n          \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n          \"description\": \"updated The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n          \"tags\": [\r\n            \"Wi-Fi\",\r\n            \"Wi-Fi zone\",\r\n            \"hotspot\",\r\n            \"internet\",\r\n            \"Wi-Fi access\",\r\n            \"Wi-Fi location\",\r\n            \"wireless internet\",\r\n            \"internet access\"\r\n          ],\r\n          \"provider\": \"{{provider_item_id}}\",\r\n          \"resourceGroup\": \"{{resource_group_item_id}}\",\r\n          \"id\":\"{{resource_item_id}}\"\r\n        }",
+									"raw": " {\r\n         \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:PointOfInterest\"\r\n          ],\r\n          \"name\": \"wifi-locations\",\r\n          \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n          \"description\": \"updated The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n          \"tags\": [\r\n            \"Wi-Fi\",\r\n            \"Wi-Fi zone\",\r\n            \"hotspot\",\r\n            \"internet\",\r\n            \"Wi-Fi access\",\r\n            \"Wi-Fi location\",\r\n            \"wireless internet\",\r\n            \"internet access\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceGroup\": \"{{resource_group_id}}\",\r\n          \"id\":\"{{resource_item_id}}\"\r\n        }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1131,7 +1167,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"0ed6f05f-2f35-3f70-a472-79763fc81679\",\r\n  \"name\": \"abcde\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 28\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood.test\"\r\n  ],\r\n  \"provider\": \"{{provider_item_id}}\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"{{resource_group_item_id}}\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
+									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"0ed6f05f-2f35-3f70-a472-79763fc81679\",\r\n  \"name\": \"abcde\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 28\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood.test\"\r\n  ],\r\n  \"provider\": \"{{provider_id}}\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"{{resource_group_id}}\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1335,124 +1371,6 @@
 					"name": "Delete Item",
 					"item": [
 						{
-							"name": "200 (success) - Delete an Provider DX Entity",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "token",
-										"value": "{{token}}",
-										"type": "text"
-									},
-									{
-										"key": "instance",
-										"value": "pune",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"url": {
-									"raw": "{{host}}{{base}}/item?id={{provider_item_id}}",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item"
-									],
-									"query": [
-										{
-											"key": "id",
-											"value": "{{provider_item_id}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "200 (success) - Delete an Resource Server DX Entity Copy",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "token",
-										"value": "{{token}}",
-										"type": "text"
-									},
-									{
-										"key": "instance",
-										"value": "pune",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"url": {
-									"raw": "{{host}}{{base}}/item?id={{rs_item_id}}",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item"
-									],
-									"query": [
-										{
-											"key": "id",
-											"value": "{{rs_item_id}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "200 (success) - Delete an Resource Item DX Entity",
 							"event": [
 								{
@@ -1553,7 +1471,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{host}}{{base}}/item?id={{resource_group_item_id}}",
+									"raw": "{{host}}{{base}}/item?id={{resource_group_id}}",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -1563,7 +1481,126 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "{{resource_group_item_id}}"
+											"value": "{{resource_group_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Delete an Resource Server DX Entity Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{token}}",
+										"type": "text"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/item?id={{resource_server_id}}",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "{{resource_server_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Delete an Provider DX Entity",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{token}}",
+										"type": "text"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/item?id={{provider_id}}",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "{{provider_id}}"
 										}
 									]
 								}
@@ -1612,7 +1649,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{host}}{{base}}/item?id={{item_id}}abcde",
+									"raw": "{{host}}{{base}}/item?id=7c8b58a7-6e5b-4a97-a15d-8f4aeb4e987e",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -1622,7 +1659,67 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "{{item_id}}abcde"
+											"value": "7c8b58a7-6e5b-4a97-a15d-8f4aeb4e987e"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (invalid uuid format) - Invalid UUID Format",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.be.badRequest;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSyntax\");\r",
+											"});\r",
+											"\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{token}}",
+										"type": "text"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/item?id=7c8b58a7-6e5b-4a97-a15d-8f4aeb",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "7c8b58a7-6e5b-4a97-a15d-8f4aeb"
 										}
 									]
 								}
@@ -1671,7 +1768,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{host}}{{base}}/item?id=iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood-abc",
+									"raw": "{{host}}{{base}}/item?id=7c8b58a7-6e5b-4a97-a15d-8f4aeb4e987e",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -1681,7 +1778,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood-abc"
+											"value": "7c8b58a7-6e5b-4a97-a15d-8f4aeb4e987e"
 										}
 									]
 								}

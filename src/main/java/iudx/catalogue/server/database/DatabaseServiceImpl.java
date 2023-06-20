@@ -9,6 +9,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
+
+import java.nio.file.LinkOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -349,7 +351,9 @@ public class DatabaseServiceImpl implements DatabaseService {
                                 || doc.getJsonArray("type").getString(0).equals( "iudx:ResourceServer")) {
                           handler.handle(Future.succeededFuture(
                                   respBuilder.withType(TYPE_SUCCESS)
-                                          .withResultBody(doc, INSERT, TYPE_SUCCESS)
+                                          .withTitle(TITLE_SUCCESS)
+                                          .withMethod(INSERT)
+                                          .withResult(doc)
                                           .getJsonResponse()));
                         }
                         handler.handle(Future.succeededFuture(
@@ -397,7 +401,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     RespBuilder respBuilder = new RespBuilder();
     String id = doc.getString("id");
-    String checkQuery = GET_DOC_QUERY.replace("$1", id).replace("$2", "\"" + id + "\"");
+    String type = doc.getJsonArray("type").getString(0);
+    String checkQuery = GET_DOC_QUERY_WITH_TYPE.replace("$1", id).replace("$3",type).replace("$2", "\"" + id + "\"");
+    LOGGER.debug("query"+checkQuery);
 
 
     new Timer().schedule(new TimerTask() {
@@ -451,16 +457,11 @@ public class DatabaseServiceImpl implements DatabaseService {
     new Timer().schedule(new TimerTask() {
       public void run() {
         String checkQuery = "";
-        var isParent = new Object() {
-          boolean value = false;
-        };
 
-        if (id.split("/").length < 5) {
-          isParent.value = true;
-          checkQuery = QUERY_RESOURCE_GRP.replace("$1", id).replace("$2", id);
-        } else {
-          checkQuery = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
-        }
+        /* the check query checks if any type item is present more than once. If it's present
+        then the item cannot be deleted.  */
+        checkQuery = QUERY_RESOURCE_GRP.replace("$1", id);
+        LOGGER.debug("the query"+checkQuery);
 
         client.searchGetId(checkQuery, docIndex, checkRes -> {
           if (checkRes.failed()) {
@@ -470,7 +471,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
           if (checkRes.succeeded()) {
             LOGGER.debug("Success: Check index for doc");
-            if (checkRes.result().getInteger(TOTAL_HITS) > 1 && isParent.value == true) {
+            if (checkRes.result().getInteger(TOTAL_HITS) > 1 ) {
               LOGGER.error("Fail: Can't delete, parent doc has associated item;");
               handler
                   .handle(Future.failedFuture(

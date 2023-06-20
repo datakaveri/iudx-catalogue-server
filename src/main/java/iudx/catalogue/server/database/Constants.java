@@ -132,6 +132,11 @@ public class Constants {
   public static final String GET_DOC_QUERY =
       "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
 
+  public static final String GET_DOC_QUERY_WITH_TYPE =
+          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": "
+                  + "[{\"term\": {\"id.keyword\": \"$1\"}},"
+                  + "{\"match\":{ \"type.keyword\": \"$3\"}}]}}}";
+
   public static final String GET_RDOC_QUERY =
       "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": "
           + "[ { \"match\": {\"ratingID.keyword\":\"$1\"} } ],"
@@ -223,8 +228,9 @@ public class Constants {
               + "{ \"match\": { \"status\": \"approved\" } } ] } } }";
 
   public static final String QUERY_RESOURCE_GRP =
-      "{ \"query\": { \"bool\": { \"should\": [ { \"term\": { \"id.keyword\": \"$1\" } }, "
-          + "{ \"term\": { \"resourceGroup.keyword\": \"$2\" } } ] } } }";
+      "{\"query\":{\"bool\":{\"should\":[{\"term\":{\"id.keyword\":\"$1\"}},{\"term\":"
+              + "{\"resourceGroup.keyword\": \"$1\"}},{\"term\":{\"provider.keyword\":\"$1\"}},"
+              + "{\"term\":{\"resourceServer.keyword\": \"$1\"}}]}}}";
 
   public static final String NLP_SEARCH = "{\"query\": {\"script_score\": {\"query\": "
           + "{\"match_all\": {}},\"script\":\"source\": \"cosineSimilarity(params.query_vector,"
