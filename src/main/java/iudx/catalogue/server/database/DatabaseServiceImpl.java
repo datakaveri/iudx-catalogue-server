@@ -891,17 +891,17 @@ public class DatabaseServiceImpl implements DatabaseService {
     } else {
       String id = request.getString(ID);
       if (request.containsKey(TYPE) && request.getString(TYPE).equalsIgnoreCase("average")) {
-        Future<List<String>> getAssociatedIDFuture = getAssociatedIDs(id);
-        getAssociatedIDFuture.onComplete(ids -> {
-          StringBuilder avg_query = new StringBuilder(GET_AVG_RATING_PREFIX);
-          if(ids.succeeded()) {
+        Future<List<String>> getAssociatedIdFuture = getAssociatedIDs(id);
+        getAssociatedIdFuture.onComplete(ids -> {
+          StringBuilder avgQuery = new StringBuilder(GET_AVG_RATING_PREFIX);
+          if (ids.succeeded()) {
             ids.result().stream().forEach(v -> {
-              avg_query.append(GET_AVG_RATING_MATCH_QUERY.replace("$1", v));
+              avgQuery.append(GET_AVG_RATING_MATCH_QUERY.replace("$1", v));
             });
-            avg_query.deleteCharAt(avg_query.lastIndexOf(","));
-            avg_query.append(GET_AVG_RATING_SUFFIX);
-            LOGGER.debug(avg_query);
-            client.ratingAggregationAsync(avg_query.toString(), ratingIndex, getRes -> {
+            avgQuery.deleteCharAt(avgQuery.lastIndexOf(","));
+            avgQuery.append(GET_AVG_RATING_SUFFIX);
+            LOGGER.debug(avgQuery);
+            client.ratingAggregationAsync(avgQuery.toString(), ratingIndex, getRes -> {
               if (getRes.succeeded()) {
                 LOGGER.debug("Success: Successful DB request");
                 JsonObject result = getRes.result();
@@ -947,10 +947,11 @@ public class DatabaseServiceImpl implements DatabaseService {
   private Future<List<String>> getAssociatedIDs(String id) {
     Promise<List<String>> promise = Promise.promise();
 
-    StringBuilder query = new StringBuilder(GET_ASSOCIATED_ID_QUERY.replace("$1", id).replace("$2",id));
+    StringBuilder query =
+        new StringBuilder(GET_ASSOCIATED_ID_QUERY.replace("$1", id).replace("$2", id));
     LOGGER.debug(query);
     client.searchAsync(query.toString(), docIndex, res -> {
-      if(res.succeeded()) {
+      if (res.succeeded()) {
         List<String> idCollector = res.result().getJsonArray(RESULTS).stream()
             .map(JsonObject.class::cast)
             .map(d -> d.getString(ID))
