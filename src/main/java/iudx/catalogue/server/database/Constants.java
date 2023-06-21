@@ -133,11 +133,19 @@ public class Constants {
       "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
 
   public static final String GET_ASSOCIATED_ID_QUERY =
+<<<<<<< HEAD
       "{\"query\":{\"bool\":{\"should\":[{" +
           "\"match\":{\"id.keyword\":\"$1\"}},{" +
           "\"match\":{\"resourceGroup.keyword\":\"$2\"}}]," +
           "\"minimum_should_match\":1}}," +
           "\"_source\":[\"id\"]}";
+=======
+      "{\"query\":{\"bool\":{\"should\":[{"
+          + "\"match\":{\"id.keyword\":\"$1\"}},{"
+          + "\"match\":{\"resourceGroup.keyword\":\"$2\"}}],"
+          + "\"minimum_should_match\":1}},"
+          + "\"_source\":[\"id\"]}";
+>>>>>>> d82030b (fix: rating service for UUID changes)
 
   public static final String GET_RDOC_QUERY =
       "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": "
@@ -224,8 +232,9 @@ public class Constants {
   //    "\"_source\": [\"rating\",\"comment\",\"id\"] }";
 
   public static final String GET_AVG_RATING_PREFIX =
-      "{\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\"},\"aggs\":{\"average_rating\":{\"avg\":{\"field\":\"rating\"}}}}}," +
-          "\"query\":{\"bool\":{\"should\":[";
+      "{\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\"},"
+          + "\"aggs\":{\"average_rating\":{\"avg\":{\"field\":\"rating\"}}}}},"
+          + "\"query\":{\"bool\":{\"should\":[";
   public static final String GET_AVG_RATING_MATCH_QUERY =
           "{\"match\":{\"id.keyword\":\"$1\"}},";
   public static final String GET_AVG_RATING_SUFFIX =
