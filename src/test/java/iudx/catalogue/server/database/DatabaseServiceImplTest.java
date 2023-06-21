@@ -16,14 +16,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
@@ -578,9 +576,24 @@ public class DatabaseServiceImplTest {
     json.put(ID, "dummyId");
     json.put(TYPE, "average");
 
+    JsonObject jsonObjectMock = mock(JsonObject.class);
+    JsonArray jsonArrayMock = mock(JsonArray.class);
+    Stream streamMock = mock(Stream.class);
+    when(jsonObjectMock.getJsonArray(RESULTS)).thenReturn(jsonArrayMock);
+    when(jsonArrayMock.stream()).thenReturn(streamMock);
+    when(streamMock.map(any())).thenReturn(streamMock);
+    when(streamMock.collect(any())).thenReturn(List.of("b58da193-23d9-43eb-b98a-a103d4b6103c", "5b7556b5-0779-4c47-9cf2-3f209779aa22"));
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.succeeded()).thenReturn(true);
-    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.result()).thenReturn(jsonObjectMock);
+    doAnswer(new Answer<AsyncResult<JsonObject>>() {
+      @Override
+      public AsyncResult<JsonObject> answer(InvocationOnMock invocationOnMock) throws Throwable {
+        ((Handler<AsyncResult<JsonObject>>) invocationOnMock.getArgument(2)).handle(asyncResult);
+        return null;
+      }
+    }).when(DatabaseServiceImpl.client)
+            .searchAsync(anyString(), anyString(), any());
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @Override
@@ -1047,6 +1060,24 @@ public class DatabaseServiceImplTest {
     json.put(TYPE, "average");
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.succeeded()).thenReturn(false);
+    AsyncResult<JsonObject> asyncResult1 = mock(AsyncResult.class);
+    JsonObject jsonObjectMock = mock(JsonObject.class);
+    JsonArray jsonArrayMock = mock(JsonArray.class);
+    Stream streamMock = mock(Stream.class);
+    when(jsonObjectMock.getJsonArray(RESULTS)).thenReturn(jsonArrayMock);
+    when(jsonArrayMock.stream()).thenReturn(streamMock);
+    when(streamMock.map(any())).thenReturn(streamMock);
+    when(streamMock.collect(any())).thenReturn(List.of("b58da193-23d9-43eb-b98a-a103d4b6103c", "5b7556b5-0779-4c47-9cf2-3f209779aa22"));
+    when(asyncResult1.succeeded()).thenReturn(true);
+    when(asyncResult1.result()).thenReturn(jsonObjectMock);
+    doAnswer(new Answer<AsyncResult<JsonObject>>() {
+      @Override
+      public AsyncResult<JsonObject> answer(InvocationOnMock invocationOnMock) throws Throwable {
+        ((Handler<AsyncResult<JsonObject>>) invocationOnMock.getArgument(2)).handle(asyncResult1);
+        return null;
+      }
+    }).when(DatabaseServiceImpl.client)
+        .searchAsync(anyString(), anyString(), any());
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @Override
