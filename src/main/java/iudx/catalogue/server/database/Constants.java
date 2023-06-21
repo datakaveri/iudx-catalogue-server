@@ -133,19 +133,11 @@ public class Constants {
       "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
 
   public static final String GET_ASSOCIATED_ID_QUERY =
-<<<<<<< HEAD
-      "{\"query\":{\"bool\":{\"should\":[{" +
-          "\"match\":{\"id.keyword\":\"$1\"}},{" +
-          "\"match\":{\"resourceGroup.keyword\":\"$2\"}}]," +
-          "\"minimum_should_match\":1}}," +
-          "\"_source\":[\"id\"]}";
-=======
       "{\"query\":{\"bool\":{\"should\":[{"
           + "\"match\":{\"id.keyword\":\"$1\"}},{"
           + "\"match\":{\"resourceGroup.keyword\":\"$2\"}}],"
           + "\"minimum_should_match\":1}},"
           + "\"_source\":[\"id\"]}";
->>>>>>> d82030b (fix: rating service for UUID changes)
 
   public static final String GET_RDOC_QUERY =
       "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": "
