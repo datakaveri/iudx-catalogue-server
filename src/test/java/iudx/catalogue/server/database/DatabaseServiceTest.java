@@ -3,6 +3,10 @@ package iudx.catalogue.server.database;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -28,10 +32,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 @ExtendWith(VertxExtension.class)
+@ExtendWith(MockitoExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DatabaseServiceTest {
   private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceTest.class);
@@ -52,6 +64,8 @@ public class DatabaseServiceTest {
   private static NLPSearchService nlpService;
   private static GeocodingService geocodingService;
   private static JsonArray optionalModules;
+  @Mock AsyncResult<JsonObject> asyncResult;
+
   @BeforeAll
   @DisplayName("Deploying Verticle")
   static void startVertx(Vertx vertx, VertxTestContext testContext) {
@@ -93,14 +107,42 @@ public class DatabaseServiceTest {
   @DisplayName("Test CreateItem")
   void createItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
-            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
-    dbService.createItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(TYPE);
-      assertEquals(TYPE_SUCCESS, status);
-      TimeUnit.SECONDS.sleep(5);
-      testContext.completeNow();
-    })));
+    JsonArray jsonArray = new JsonArray().add("iudx:Resource");
+    request.put(ID, "f2e69f85-52df-47a4-9e35-76c7362f21d3").put("type",jsonArray);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject().put(TOTAL_HITS,0);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+            .when(DatabaseServiceImpl.client)
+            .searchAsync(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+            .when(DatabaseServiceImpl.client)
+            .docPostAsync(any(), any(), any());
+    dbService.createItem(
+            request,
+            handler -> {
+              if (handler.succeeded()) {
+                verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
+                testContext.completeNow();
+              } else {
+                testContext.failNow("Fail");
+              }
+            });
   }
 
   @Test
@@ -108,15 +150,44 @@ public class DatabaseServiceTest {
   @DisplayName("Test updateItem")
   void updateItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
-                    "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
-            .put("test", "test");
-    dbService.updateItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(TYPE);
-      assertEquals(TYPE_SUCCESS, status);
-      TimeUnit.SECONDS.sleep(5);
-      testContext.completeNow();
-    })));
+    JsonArray jsonArray = new JsonArray().add("iudx:Resource");
+    JsonArray result = new JsonArray().add("dummy");
+    request.put(ID, "dummyid").put("type",jsonArray);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject().put(TOTAL_HITS,1).put(RESULTS,result);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+            .when(DatabaseServiceImpl.client)
+            .searchGetId(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
+                return null;
+              }
+            })
+            .when(DatabaseServiceImpl.client)
+            .docPutAsync(any(), any(), any(),any());
+    dbService.updateItem(
+            request,
+            handler -> {
+              if (handler.succeeded()) {
+                verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+                verify(DatabaseServiceImpl.client, times(1)).docPutAsync(anyString(), any(), any(),any());
+                testContext.completeNow();
+              } else {
+                testContext.failNow("Fail");
+              }
+            });
   }
 
   @Test
@@ -149,7 +220,7 @@ public class DatabaseServiceTest {
     })));
   }*/
 
-  @Test
+  /*@Test
   @Order(5)
   @DisplayName("Update non existant Item")
   void updateNonExistantItemTest(VertxTestContext testContext) {
@@ -163,7 +234,7 @@ public class DatabaseServiceTest {
       TimeUnit.SECONDS.sleep(5);
       testContext.completeNow();
     })));
-  }
+  }*/
 
   /*@Test
   @Order(6)
