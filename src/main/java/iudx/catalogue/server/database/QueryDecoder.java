@@ -9,6 +9,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 public final class QueryDecoder {
 
@@ -252,7 +255,6 @@ public final class QueryDecoder {
 
     /* Validating the request */
     if (request.containsKey(ID) && RESOURCE.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
-
       String providerId = request.getString(ID);
       subQuery = TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY)
               .replace("$2", providerId)
@@ -270,12 +272,9 @@ public final class QueryDecoder {
     } else if (request.containsKey(ID) && RESOURCE.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       JsonArray groupIds = request.getJsonArray("grpIds");
       StringBuilder first = new StringBuilder(GET_RS1);
-      for (int grpIndex = 0; grpIndex < request.getJsonArray("grpIds").size(); grpIndex++) {
-        first.append(GET_RS2.replace("$1", groupIds.getJsonObject(grpIndex).getString(ID)));
-        if (grpIndex != request.getJsonArray("grpIds").size() - 1) {
-          first.append(",");
-        }
-      }
+      List<String> ids = groupIds.stream().map(JsonObject.class::cast).map(grpId -> grpId.getString(ID)).collect(Collectors.toList());
+      ids.forEach(id -> first.append(GET_RS2.replace("$1", id)));
+      first.deleteCharAt(first.lastIndexOf(","));
       first.append(GET_RS3);
       return first.toString();
 
@@ -324,12 +323,12 @@ public final class QueryDecoder {
               .replace("$2", ITEM_TYPE_RESOURCE_SERVER);
 
     } else if (request.containsKey(ID) && TYPE_KEY.equals(relationshipType)) {
-
       /* parsing id from the request */
       String itemId = request.getString(ID);
 
       subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
               .replace("$2", itemId);
+
     } else {
       return null;
     }
@@ -340,7 +339,7 @@ public final class QueryDecoder {
     JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
 
     if (TYPE_KEY.equals(relationshipType)) {
-      elasticQuery = tempQuery.put(SOURCE, TYPE_KEY).toString();
+      tempQuery.put(SOURCE, TYPE_KEY);
     }
 
     /* checking the requests for limit attribute */

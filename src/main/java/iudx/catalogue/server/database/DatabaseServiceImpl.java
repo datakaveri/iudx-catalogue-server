@@ -3,7 +3,6 @@ package iudx.catalogue.server.database;
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
-import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
@@ -572,7 +571,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public DatabaseService listRelationship(JsonObject request,
                                             Handler<AsyncResult<JsonObject>> handler) {
-        //todo call asycnSearch
         RespBuilder respBuilder = new RespBuilder();
 
         StringBuilder typeQuery = new StringBuilder(GET_TYPE_SEARCH.
@@ -581,137 +579,114 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         client.searchAsync(typeQuery.toString(), docIndex, qeryhandler -> {
             if (qeryhandler.succeeded()) {
-                LOGGER.debug("line 594: " + qeryhandler.result().getJsonArray("results").getJsonObject(0));
                 JsonObject relType = qeryhandler.result().getJsonArray("results").getJsonObject(0);
+                if(relType.isEmpty()) {
+                    handler.handle(Future.failedFuture(
+                        respBuilder.withType(TYPE_ITEM_NOT_FOUND)
+                            .withTitle(TITLE_ITEM_NOT_FOUND)
+                            .withDetail("Item id given is not present")
+                            .getResponse()));
+                    return;
+                }
 
-                Set<String> type = new HashSet<String>(new JsonArray().getList());
-                type = new HashSet<String>(relType.getJsonArray(TYPE).getList());
+                Set<String> type = new HashSet<String>(relType.getJsonArray(TYPE).getList());
                 type.retainAll(ITEM_TYPES);
                 String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
                 LOGGER.debug("Info: itemType: " + itemType);
                 relType.put("itemType",itemType);
 
-                if (request.getString(RELATIONSHIP).equalsIgnoreCase("resource") && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-
+                if(isInvalidRelForGivenItem(request, itemType)) {
                     handler.handle(
-                            Future.failedFuture(respBuilder.withType(TYPE_INVALID_SEARCH_ERROR)
-                                    .withTitle(TITLE_INVALID_SEARCH_ERROR)
-                                    .withDetail(TITLE_INVALID_SEARCH_ERROR)
-                                    .getResponse()));
-
-                } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceGroup") && itemType.equalsIgnoreCase
-                        (ITEM_TYPE_RESOURCE_GROUP)) {
-                    handler.handle(
-                            Future.failedFuture(respBuilder.withType(TYPE_INVALID_SEARCH_ERROR)
-                                    .withTitle(TITLE_INVALID_SEARCH_ERROR)
-                                    .withDetail(TITLE_INVALID_SEARCH_ERROR)
-                                    .getResponse()));
-
-
-                } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceServer") && (itemType.equalsIgnoreCase
-                        (ITEM_TYPE_PROVIDER) || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER))) {
-                    handler.handle(
-                            Future.failedFuture(respBuilder.withType(TYPE_INVALID_SEARCH_ERROR)
-                                    .withTitle(TITLE_INVALID_SEARCH_ERROR)
-                                    .withDetail(TITLE_INVALID_SEARCH_ERROR)
-                                    .getResponse()));
-
-                } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("provider") && (itemType.equalsIgnoreCase
-                        (ITEM_TYPE_PROVIDER) || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER))) {
-                    handler.handle(
-                            Future.failedFuture(respBuilder.withType(TYPE_INVALID_SEARCH_ERROR)
-                                    .withTitle(TITLE_INVALID_SEARCH_ERROR)
-                                    .withDetail(TITLE_INVALID_SEARCH_ERROR)
-                                    .getResponse()));
-                }
+                        Future.failedFuture(respBuilder.withType(TYPE_INVALID_SEARCH_ERROR)
+                            .withTitle(TITLE_INVALID_SEARCH_ERROR)
+                            .withDetail(TITLE_INVALID_SEARCH_ERROR)
+                            .getResponse()));
+                    return;
+                };
 
                 if (request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE_SVR) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-
-
-                    StringBuilder typeQuery4RSERVER = new StringBuilder(GET_TYPE_SEARCH.
-                            replace("$1", relType.getString("resourceGroup")));
-                    LOGGER.debug("typeQuery4RSERVER: " + typeQuery4RSERVER);
-
-                    client.searchAsync(typeQuery4RSERVER.toString(), docIndex, serverSearch -> {
-                        if (serverSearch.succeeded()) {
-                            JsonObject serverResult = serverSearch.result().getJsonArray("results").getJsonObject(0);
-                            request.mergeIn(serverResult);
-                            String elasticQuery = queryDecoder.listRelationshipQuery(request);
-
-                            LOGGER.debug("Info: Query constructed;" + elasticQuery);
-
-                            client.searchAsync(elasticQuery, docIndex, searchRes -> {
-                                if (searchRes.succeeded()) {
-                                    LOGGER.debug("Success: Successful DB request");
-                                    handler.handle(Future.succeededFuture(searchRes.result()));
-                                } else {
-
-                                    LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
-                                    /* Handle request error */
-                                    handler.handle(
-                                            Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
-                                                    .withDetail(TITLE_INTERNAL_SERVER_ERROR).getResponse()));
-                                }
-                            });
-                        }
-                    });
+                    handleRsFetchForResourceItem(request, handler, respBuilder, relType);
                 } else if (request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-                    {
-
-                        StringBuilder typeQuery4RSGROUP = new StringBuilder(GET_RSGROUP.
-                                replace("$1", relType.getString(ID)));
-                        LOGGER.debug("typeQuery4RSGROUP: " + typeQuery4RSGROUP);
-
-                        client.searchAsync(typeQuery4RSGROUP.toString(), docIndex, serverSearch -> {
-                            if (serverSearch.succeeded()) {
-                                JsonArray serverResult = serverSearch.result().getJsonArray("results");
-                                LOGGER.debug("serverResult: "+serverResult);
-                                request.put("grpIds",serverResult);
-                                request.mergeIn(relType);
-                                String elasticQuery = queryDecoder.listRelationshipQuery(request);
-
-                                LOGGER.debug("Info: Query constructed;" + elasticQuery);
-
-                                client.searchAsync(elasticQuery, docIndex, searchRes -> {
-                                    if (searchRes.succeeded()) {
-                                        LOGGER.debug("Success: Successful DB request");
-                                        handler.handle(Future.succeededFuture(searchRes.result()));
-                                    } else {
-
-                                        LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
-                                        /* Handle request error */
-                                        handler.handle(
-                                                Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
-                                                        .withDetail(TITLE_INTERNAL_SERVER_ERROR).getResponse()));
-                                    }
-                                });
-                            }
-                        });
-                    }
+                    handleResourceItemFetchForRs(request, handler, respBuilder, relType);
                 } else {
                     request.mergeIn(relType);
                     String elasticQuery = queryDecoder.listRelationshipQuery(request);
-
                     LOGGER.debug("Info: Query constructed;" + elasticQuery);
-
-                    client.searchAsync(elasticQuery, docIndex, searchRes -> {
-                        if (searchRes.succeeded()) {
-                            LOGGER.debug("Success: Successful DB request");
-                            handler.handle(Future.succeededFuture(searchRes.result()));
-                        } else {
-
-                            LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
-                            /* Handle request error */
-                            handler.handle(
-                                    Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
-                                            .withDetail(TITLE_INTERNAL_SERVER_ERROR)
-                                            .getResponse()));
-                        }
-                    });
+                    handleClientSearchAsync(handler, respBuilder, elasticQuery);
                 }
             }
         });
         return this;
+    }
+
+    private void handleClientSearchAsync(Handler<AsyncResult<JsonObject>> handler, RespBuilder respBuilder, String elasticQuery) {
+        client.searchAsync(elasticQuery, docIndex, searchRes -> {
+            if (searchRes.succeeded()) {
+                LOGGER.debug("Success: Successful DB request");
+                handler.handle(Future.succeededFuture(searchRes.result()));
+            } else {
+                LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
+                /* Handle request error */
+                handler.handle(
+                        Future.failedFuture(respBuilder.withType(TYPE_INTERNAL_SERVER_ERROR)
+                                .withDetail(TITLE_INTERNAL_SERVER_ERROR)
+                                .getResponse()));
+            }
+        });
+    }
+
+    private void handleResourceItemFetchForRs(JsonObject request, Handler<AsyncResult<JsonObject>> handler, RespBuilder respBuilder, JsonObject relType) {
+        StringBuilder typeQuery4RSGROUP = new StringBuilder(GET_RSGROUP.
+                replace("$1", relType.getString(ID)));
+        LOGGER.debug("typeQuery4RSGROUP: " + typeQuery4RSGROUP);
+
+        client.searchAsync(typeQuery4RSGROUP.toString(), docIndex, serverSearch -> {
+            if (serverSearch.succeeded()) {
+                JsonArray serverResult = serverSearch.result().getJsonArray("results");
+                LOGGER.debug("serverResult: "+serverResult);
+                request.put("grpIds",serverResult);
+                request.mergeIn(relType);
+                String elasticQuery = queryDecoder.listRelationshipQuery(request);
+
+                LOGGER.debug("Info: Query constructed;" + elasticQuery);
+
+                handleClientSearchAsync(handler, respBuilder, elasticQuery);
+            }
+        });
+    }
+
+    private void handleRsFetchForResourceItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler, RespBuilder respBuilder, JsonObject relType) {
+        StringBuilder typeQuery4RSERVER = new StringBuilder(GET_TYPE_SEARCH.
+                replace("$1", relType.getString("resourceGroup")));
+        LOGGER.debug("typeQuery4RSERVER: " + typeQuery4RSERVER);
+
+        client.searchAsync(typeQuery4RSERVER.toString(), docIndex, serverSearch -> {
+            if (serverSearch.succeeded()) {
+                JsonObject serverResult = serverSearch.result().getJsonArray("results").getJsonObject(0);
+                request.mergeIn(serverResult);
+                String elasticQuery = queryDecoder.listRelationshipQuery(request);
+
+                LOGGER.debug("Info: Query constructed;" + elasticQuery);
+
+                handleClientSearchAsync(handler, respBuilder, elasticQuery);
+            }
+        });
+    }
+
+    private static boolean isInvalidRelForGivenItem(JsonObject request, String itemType) {
+        if (request.getString(RELATIONSHIP).equalsIgnoreCase("resource") && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
+            return true;
+        } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceGroup") && itemType.equalsIgnoreCase
+                (ITEM_TYPE_RESOURCE_GROUP)) {
+          return true;
+        } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceServer") && (itemType.equalsIgnoreCase
+                (ITEM_TYPE_PROVIDER) || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER))) {
+           return true;
+        } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("provider") && (itemType.equalsIgnoreCase
+                (ITEM_TYPE_PROVIDER) || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER))) {
+            return true;
+        }
+        return false;
     }
 
     /**

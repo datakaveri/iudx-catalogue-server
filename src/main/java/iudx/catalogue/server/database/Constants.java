@@ -233,62 +233,16 @@ public class Constants {
 
   public static final String NLP_LOCATION_SEARCH = "{\"query\": {\"script_score\": {\"query\":"
           + " {\"bool\": {\"should\": [";
-  public static final String GET_TYPE_SEARCH = "{\n" +
-          "  \"query\": {\n" +
-          "    \"bool\": {\n" +
-          "      \"filter\": [\n" +
-          "        {\n" +
-          "          \"terms\": {\n" +
-          "            \"id.keyword\": [\n" +
-          "              \"$1\"\n" +
-          "            ],\n" +
-          "            \"boost\": 1\n" +
-          "          }\n" +
-          "        }\n" +
-          "      ]\n" +
-          "    }\n" +
-          "  },\n" +
-          "  \"_source\": [\n" +
-          "    \"resourceServer\", \n" +
-          "    \"type\",\n" +
-          "    \"provider\",\n" +
-          "    \"resourceGroup\",\n" +
-          "    \"id\"\n" +
-          "  ]\n" +
-          "}";
-  public static final String GET_RSGROUP = "{\n" +
-          "    \"query\": {\n" +
-          "    \"bool\": {\n" +
-          "      \"must\": [{\n" +
-          "        \"match\": {\n" +
-          "          \"resourceServer.keyword\": \"$1\"\n" +
-          "        }\n" +
-          "      },\n" +
-          "      {\n" +
-          "        \"term\": {\n" +
-          "        \"type.keyword\": \"iudx:ResourceGroup\"\n" +
-          "      }\n" +
-          "      }\n" +
-          "\t\t\t]\n" +
-          "    }\n" +
-          "  },\n" +
-          "    \"_source\": [\"id\"],\n" +
-          "    \"size\": \"10000\"\n" +
-          "  }";
+  public static final String GET_TYPE_SEARCH = "{\"query\": {\"bool\": {\"filter\": [{\"terms\": "
+      + "{\"id.keyword\": [\"$1\"],\"boost\": 1}}]}},"
+      + "\"_source\": [\"resourceServer\",\"type\",\"provider\",\"resourceGroup\",\"id\"]}";
+  public static final String GET_RSGROUP = "{\"query\": {\"bool\": {\"must\": [{\"match\": "
+      + "{\"resourceServer.keyword\": \"$1\"}},"
+      + "{\"term\": {\"type.keyword\": \"iudx:ResourceGroup\"}}]}},"
+      + "\"_source\": [\"id\"],\"size\": \"10000\"}";
 
-  public static final String GET_RS1 = "{\n" +
-          "  \"query\": {\n" +
-          "    \"bool\": {\n" +
-          "      \"should\": [";
-  public static final String GET_RS2 ="{\n" +
-          "          \"match\": {\n" +
-          "            \"resourceGroup.keyword\": \"$1\"\n" +
-          "          }\n" +
-          "        }";
-  public static final String GET_RS3 ="],\n" +
-          "      \"minimum_should_match\": 1\n" +
-          "    }\n" +
-          "  }\n" +
-          "}";
+  public static final String GET_RS1 = "{\"query\": {\"bool\": {\"should\": [";
+  public static final String GET_RS2 ="{\"match\": {\"resourceGroup.keyword\": \"$1\"}},";
+  public static final String GET_RS3 ="],\"minimum_should_match\": 1}}}";
 
 }
