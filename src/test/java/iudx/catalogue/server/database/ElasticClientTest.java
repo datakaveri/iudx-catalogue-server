@@ -1,6 +1,6 @@
 package iudx.catalogue.server.database;
 
-import static iudx.catalogue.server.database.Constants.GET_AVG_RATING;
+import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.geocoding.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static junit.framework.Assert.assertEquals;
@@ -111,8 +111,11 @@ public class ElasticClientTest {
   @DisplayName("test get rating aggs")
   void testGetRatingAggregations(VertxTestContext testContext) {
 
-    String req = GET_AVG_RATING.replace("$1", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR048");
-    elasticClient.ratingAggregationAsync(req, ratingIndex, res -> {
+    StringBuilder req = new StringBuilder(GET_AVG_RATING_PREFIX).append(GET_AVG_RATING_MATCH_QUERY.replace("$1", "b58da193-23d9-43eb-b98a-a103d4b6103c"));
+    req.deleteCharAt(req.lastIndexOf(","));
+    req.append(GET_AVG_RATING_SUFFIX);
+    LOGGER.debug(req);
+    elasticClient.ratingAggregationAsync(req.toString(), ratingIndex, res -> {
       if(res.succeeded()) {
         LOGGER.debug(res.result());
         testContext.completeNow();
