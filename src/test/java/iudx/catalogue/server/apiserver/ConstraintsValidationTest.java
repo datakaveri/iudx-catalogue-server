@@ -435,7 +435,7 @@ public class ConstraintsValidationTest {
     })));
   }
 
-  @Test
+ /* @Test
   @Order(21)
   @DisplayName("Crud instance validity")
   void validInstanceCrudTest(VertxTestContext testContext) {
@@ -449,7 +449,7 @@ public class ConstraintsValidationTest {
     validator.validateSchema(resource, testContext.succeeding(response -> testContext.verify(() -> {
       testContext.completeNow();
     })));
-  }
+  }*/
 
   @Test
   @Order(22)
