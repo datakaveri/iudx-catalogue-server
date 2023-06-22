@@ -249,7 +249,6 @@ public class ApiServerVerticle extends AbstractVerticle {
         .handler(routingContext -> {
           /* checking auhthentication info in requests */
           if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-        //    routingContext.body().asJsonObject().put("isUACinstance",config().getBoolean("isUACinstance"));
             crudApis.createItemHandler(routingContext);
           } else {
             LOGGER.warn("Fail: Unathorized CRUD operation");

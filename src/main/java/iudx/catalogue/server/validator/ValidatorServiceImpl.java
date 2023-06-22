@@ -63,7 +63,7 @@ public class ValidatorServiceImpl implements ValidatorService {
    * @param client the ElasticClient object to use for interacting with the Elasticsearch instance
    * @param docIndex the index name to use for storing documents in Elasticsearch
    */
-  public ValidatorServiceImpl(ElasticClient client, String docIndex,boolean isUACinstance) {
+  public ValidatorServiceImpl(ElasticClient client, String docIndex, boolean isUACinstance) {
 
     this.client = client;
     this.docIndex = docIndex;
@@ -90,6 +90,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   @SuppressWarnings("unchecked")
   public ValidatorService validateSchema(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
+
     LOGGER.debug("Info: Reached Validator service validate schema");
     Set<String> type = new HashSet<String>(new JsonArray().getList());
 
@@ -159,6 +160,7 @@ public class ValidatorServiceImpl implements ValidatorService {
 
     // Validate if Resource
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
+      String provider = request.getString(PROVIDER);
       String resourceGroup = request.getString(RESOURCE_GRP);
       if (request.containsKey("id")) {
         String id = request.getString("id");
@@ -177,23 +179,40 @@ public class ValidatorServiceImpl implements ValidatorService {
       request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
       LOGGER.debug("Info: Verifying resourceGroup " + resourceGroup);
-      client.searchGetId(checkQuery.replace("$1", resourceGroup), docIndex, checkRes -> {
-        if (checkRes.failed()) {
-          LOGGER.error("Fail: DB request has failed;" + checkRes.cause().getMessage());
-          handler.handle(Future.failedFuture(TYPE_INTERNAL_SERVER_ERROR));
-          return;
-        }
-
-        if (checkRes.result().getInteger(TOTAL_HITS) == 1) {
-          handler.handle(Future.succeededFuture(request));
-        } else {
-          LOGGER.error("Fail: ResourceGroup doesn't exist");
-          handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-          return;
-        }
-      });
+      client.searchGetId(
+          checkQuery.replace("$1", provider),
+          docIndex,
+          providerRes -> {
+            if (providerRes.failed()) {
+              LOGGER.debug("Fail: DB Error");
+              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+              return;
+            }
+            if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
+              client.searchGetId(
+                  checkQuery.replace("$1", resourceGroup),
+                  docIndex,
+                  serverRes -> {
+                    if (serverRes.failed()) {
+                      LOGGER.debug("Fail: DB error");
+                      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                      return;
+                    }
+                    if (serverRes.result().getInteger(TOTAL_HITS) == 1) {
+                      handler.handle(Future.succeededFuture(request));
+                    } else {
+                      LOGGER.debug("Fail: resource group doesn't exist");
+                      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                    }
+                  });
+            } else {
+              LOGGER.debug("Fail: Provider doesn't exist");
+              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            }
+          });
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       // Validate if Resource Server TODO: More checks and auth rules
+      String provider = request.getString(PROVIDER);
       if (request.containsKey("id")) {
         String id = request.getString("id");
         LOGGER.debug("id in the request body: " + id);
@@ -208,7 +227,23 @@ public class ValidatorServiceImpl implements ValidatorService {
         handler.handle(Future.failedFuture("id not found"));
       }
       request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
-      handler.handle(Future.succeededFuture(request));
+      // handler.handle(Future.succeededFuture(request));
+      client.searchGetId(
+          checkQuery.replace("$1", provider),
+          docIndex,
+          providerRes -> {
+            if (providerRes.failed()) {
+              LOGGER.debug("Fail: DB Error");
+              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+              return;
+            }
+            if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
+              handler.handle(Future.succeededFuture(request));
+            } else {
+              LOGGER.debug("Fail: Provider doesn't exist");
+              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            }
+          });
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
       // Validate if Provider
       if (request.containsKey("id")) {
