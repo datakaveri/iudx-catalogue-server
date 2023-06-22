@@ -158,7 +158,6 @@ public final class SearchApis {
               }
               response.end(resultJson.toString());
             } else if (handler.failed()) {
-              LOGGER.debug("ndjsnsdfjn djnf");
               LOGGER.error("Fail: Search;" + handler.cause().getMessage());
               response.setStatusCode(400).end(handler.cause().getMessage());
             }

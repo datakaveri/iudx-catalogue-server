@@ -61,7 +61,7 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
   public AuthenticationService tokenInterospect(
       JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     String endpoint = authenticationInfo.getString(API_ENDPOINT);
-    //    String id = authenticationInfo.getString(ID);
+//        String id = authenticationInfo.getString(ID);
     Method method = Method.valueOf(authenticationInfo.getString(METHOD));
     String token = authenticationInfo.getString(TOKEN);
     Future<JwtData> decodeTokenFuture = decodeKCToken(token);
@@ -76,10 +76,10 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
             })
         .compose(
             isValidHandler -> {
-              if (method.equals(Method.DELETE)) {
-                return isValidUACAdmin(result.jwtData);
+              if (endpoint.equalsIgnoreCase(api.getRouteItems()) && method.equals(Method.DELETE)) {
+                return Util.isValidAdmin(uacAdmin, result.jwtData);
               } else {
-                return Future.succeededFuture();
+                return Future.succeededFuture(true);
               }
             })
         .onComplete(
@@ -91,17 +91,6 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
               }
             });
     return this;
-  }
-
-  Future<Void> isValidUACAdmin(JwtData jwtData) {
-    Promise<Void> promise = Promise.promise();
-
-    if (uacAdmin.equalsIgnoreCase(jwtData.getSub())) {
-      promise.complete();
-    } else {
-      promise.fail("Invalid Token : UAC Admin Token required");
-    }
-    return promise.future();
   }
 
   Future<Boolean> isValidEndpoint(String endpoint) {

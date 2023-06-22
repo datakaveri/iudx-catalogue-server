@@ -29,6 +29,11 @@ public final class QueryDecoder {
     JsonArray mustQuery = new JsonArray();
     Boolean match = false;
 
+    if (searchType.equalsIgnoreCase("getItemType")) {
+      elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1",request.getString(ID))
+          .replace("$2","\"type\",\"providerKcId\""));
+      return elasticQuery;
+    }
     /* TODO: Pagination for large result set */
     if (request.getBoolean(SEARCH)) {
       Integer limit =

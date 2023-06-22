@@ -1,5 +1,7 @@
 package iudx.catalogue.server.authenticator;
 
+import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
+import static iudx.catalogue.server.authenticator.Constants.METHOD;
 import static org.mockito.Mockito.*;
 
 import com.nimbusds.jose.JOSEException;
@@ -15,15 +17,19 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.Configuration;
+import iudx.catalogue.server.authenticator.authorization.Method;
 import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
 import java.text.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
@@ -32,6 +38,7 @@ public class KCAuthServiceImplTest {
   private static KCAuthenticationServiceImpl kcAuthenticationService, kcAuthenticationServiceSpy;
   private static ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
   private static Api api;
+  private static String admin;
   private static AsyncResult<JsonObject> asyncResult;
 
   @BeforeAll
@@ -39,6 +46,7 @@ public class KCAuthServiceImplTest {
   static void init(Vertx vertx, VertxTestContext testContext) {
 
     JsonObject config = Configuration.getConfiguration("./configs/config-test.json", 1);
+    admin = config.getString("admin");
     api = Api.getInstance("/iudx/cat/v1");
     jwtProcessor = mock(DefaultJWTProcessor.class);
     kcAuthenticationService = new KCAuthenticationServiceImpl(jwtProcessor, config, api);
@@ -56,6 +64,16 @@ public class KCAuthServiceImplTest {
         .decodeKCToken(anyString());
 
     when(authInfo.getString(anyString())).thenReturn(api.getRouteItems());
+    when(authInfo.getString(METHOD)).thenReturn(Method.POST.toString());
+
+////    try (MockedStatic<Util> utilities = Mockito.mockStatic(Util.class)) {
+////      utilities
+////          .when(() -> Util.isValidAdmin(anyString(), new JwtData(new JsonObject())))
+////          .thenReturn(Future.succeededFuture());
+//    }
+//    doAnswer(Answer -> Future.succeededFuture())
+//      when(Util).isValidAdmin(anyString(),new JwtData(new JsonObject()));
+
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),
@@ -81,7 +99,8 @@ public class KCAuthServiceImplTest {
         .when(kcAuthenticationServiceSpy)
         .decodeKCToken(anyString());
 
-    when(authInfo.getString(anyString())).thenReturn(api.getRouteRelationship());
+    when(authInfo.getString(API_ENDPOINT)).thenReturn(api.getRouteRelationship());
+    when(authInfo.getString(METHOD)).thenReturn(Method.DELETE.toString());
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),
@@ -104,7 +123,8 @@ public class KCAuthServiceImplTest {
         .when(kcAuthenticationServiceSpy)
         .decodeKCToken(anyString());
 
-    when(authInfo.getString(anyString())).thenReturn(api.getRouteRelationship());
+    when(authInfo.getString(API_ENDPOINT)).thenReturn(api.getRouteRelationship());
+    when(authInfo.getString(METHOD)).thenReturn(Method.DELETE.toString());
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),
@@ -158,8 +178,8 @@ public class KCAuthServiceImplTest {
 
     JWTClaimsSet jwtClaimsSet = jwtClaimsSetBuilder();
     JwtData jwtData = new JwtData(new JsonObject(jwtClaimsSet.toString()));
-    kcAuthenticationService
-        .isValidUACAdmin(jwtData)
+    Util
+        .isValidAdmin(admin, jwtData)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
