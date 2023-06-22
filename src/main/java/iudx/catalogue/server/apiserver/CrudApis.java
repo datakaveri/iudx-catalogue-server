@@ -15,6 +15,8 @@ import static iudx.catalogue.server.util.Constants.ID;
 import static iudx.catalogue.server.util.Constants.METHOD;
 import static iudx.catalogue.server.util.Constants.STATUS;
 
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.core.json.JsonArray;
@@ -148,8 +150,10 @@ public final class CrudApis {
 
         if (itemType.equals(ITEM_TYPE_PROVIDER)) {
           jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
+          jwtAuthenticationInfo.put(PROVIDER_KC_ID, requestBody.getString(PROVIDER_KC_ID));
         } else {
           jwtAuthenticationInfo.put(ID, requestBody.getString(PROVIDER));
+          jwtAuthenticationInfo.put(PROVIDER_KC_ID, requestBody.getString(PROVIDER_KC_ID));
         }
 
 
@@ -291,8 +295,9 @@ public final class CrudApis {
 
     JsonObject requestBody = new JsonObject().put(ID, itemId);
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    
+
     if (validateId(itemId) == true) {
+//    if (validateId(itemId) == false) {
       dbService.getItem(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
           if (dbhandler.result().getInteger(TOTAL_HITS) == 0) {
@@ -348,54 +353,84 @@ public final class CrudApis {
 
     LOGGER.debug("Info: Deleting item; id=" + itemId);
 
-    if (validateId(itemId) == true) {
+//    if (validateId(itemId) == true) {
 
       // populating JWT authentication info ->
       jwtAuthenticationInfo
               .put(TOKEN, request.getHeader(HEADER_TOKEN))
               .put(METHOD, REQUEST_POST)
               .put(API_ENDPOINT, api.getRouteItems());
+    if (!validateId(itemId)) {
+      // populating JWT authentication info ->
+      Future<JsonObject> itemTypeFuture  = getItemType(itemId);
+      itemTypeFuture.onComplete(itemTypeHandler -> {
+        if(itemTypeHandler.succeeded()) {
 
-      /* JWT implementation of tokenInterospect */
-      authService.tokenInterospect(new JsonObject(),
-          jwtAuthenticationInfo, authHandler -> {
-          if (authHandler.failed()) {
-            LOGGER.error("Error: " + authHandler.cause().getMessage());
-            response.setStatusCode(401)
-                .end(new RespBuilder()
+          Set<String> types =
+              new HashSet<String>(
+                  itemTypeHandler.result()
+                      .getJsonArray(TYPE)
+                      .getList());
+          types.retainAll(ITEM_TYPES);
+          String itemType = types.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+          String providerkcId = itemTypeHandler.result().getString(PROVIDER_KC_ID);
+          jwtAuthenticationInfo
+              .put(TOKEN, request.getHeader(HEADER_TOKEN))
+              .put(METHOD, REQUEST_DELETE)
+              .put(API_ENDPOINT, api.getRouteItems())
+              .put(PROVIDER_KC_ID, providerkcId != null ? providerkcId : "")
+              .put(ITEM_TYPE, itemType);
+
+          /* JWT implementation of tokenInterospect */
+          authService.tokenInterospect(new JsonObject(),
+              jwtAuthenticationInfo, authHandler -> {
+                if (authHandler.failed()) {
+                  LOGGER.error("Error: " + authHandler.cause().getMessage());
+                  response.setStatusCode(401)
+                      .end(new RespBuilder()
                           .withType(TYPE_TOKEN_INVALID)
                           .withTitle(TITLE_TOKEN_INVALID)
                           .withDetail(DETAIL_INVALID_TOKEN)
                           .getResponse());
+                } else {
+                  LOGGER.debug("Success: JWT Auth successful");
+                  /* Requesting database service, deleting a item */
+                  dbService.deleteItem(requestBody, dbHandler -> {
+                    if (dbHandler.succeeded()) {
+                      LOGGER.info("Success: Item deleted;");
+                      LOGGER.debug(dbHandler.result().toString());
+                      if (dbHandler.result().getString(STATUS).equals(TITLE_SUCCESS)) {
+                        response.setStatusCode(200).end(dbHandler.result().toString());
+                        if (hasAuditService && !isUAC) {
+                          updateAuditTable(authHandler.result(),
+                              new String[]{itemId, api.getRouteItems(), REQUEST_DELETE});
+                        }
+                      } else {
+                        response.setStatusCode(404)
+                            .end(dbHandler.result().toString());
+                      }
+                    } else if (dbHandler.failed()) {
+                      if (dbHandler.cause().getMessage().contains(TYPE_ITEM_NOT_FOUND)) {
+                        response.setStatusCode(404)
+                            .end(dbHandler.cause().getMessage());
+                      } else {
+                        response.setStatusCode(400)
+                            .end(dbHandler.cause().getMessage());
+                      }
+                    }
+                  });
+                }
+              });
+        } else {
+          if (itemTypeHandler.cause().getMessage().contains(TYPE_ITEM_NOT_FOUND)) {
+            response.setStatusCode(404)
+                .end(itemTypeHandler.cause().getMessage());
           } else {
-            LOGGER.debug("Success: JWT Auth successful");
-            /* Requesting database service, deleting a item */
-            dbService.deleteItem(requestBody, dbHandler -> {
-              if (dbHandler.succeeded()) {
-                LOGGER.info("Success: Item deleted;");
-                LOGGER.debug(dbHandler.result().toString());
-                if (dbHandler.result().getString(STATUS).equals(TITLE_SUCCESS)) {
-                  response.setStatusCode(200).end(dbHandler.result().toString());
-                  if (hasAuditService && !isUAC) {
-                    updateAuditTable(authHandler.result(),
-                          new String[]{itemId, api.getRouteItems(), REQUEST_DELETE});
-                  }
-                } else {
-                  response.setStatusCode(404)
-                        .end(dbHandler.result().toString());
-                }
-              } else if (dbHandler.failed()) {
-                if (dbHandler.cause().getMessage().contains(TYPE_ITEM_NOT_FOUND)) {
-                  response.setStatusCode(404)
-                      .end(dbHandler.cause().getMessage());
-                } else {
-                  response.setStatusCode(400)
-                      .end(dbHandler.cause().getMessage());
-                }
-              }
-            });
+            response.setStatusCode(400)
+                .end(itemTypeHandler.cause().getMessage());
           }
-        });
+        }
+      });
     } else {
       LOGGER.error("Fail: Invalid request payload");
       response.setStatusCode(400)
@@ -407,6 +442,29 @@ public final class CrudApis {
     }
   }
 
+  Future<JsonObject> getItemType(String itemId) {
+    Promise<JsonObject> promise = Promise.promise();
+    JsonObject req = new JsonObject().put(ID, itemId).put(SEARCH_TYPE, "getItemType");
+    // TODO: get item type from ES
+    dbService.searchQuery(
+        req,
+        handler -> {
+          if (handler.succeeded()) {
+            if (handler.result().getInteger(TOTAL_HITS) != 1) {
+              RespBuilder respBuilder = new RespBuilder()
+                  .withType(TYPE_ITEM_NOT_FOUND)
+                  .withTitle(TITLE_ITEM_NOT_FOUND)
+                  .withDetail("Fail: Doc doesn't exist, can't delete");
+              promise.fail(respBuilder.getResponse());
+            } else {
+              promise.complete(handler.result().getJsonArray("results").getJsonObject(0));
+            }
+          } else {
+            promise.fail(handler.cause());
+          }
+        });
+    return promise.future();
+  }
 
   /**
    * Creates a new catalogue instance and handles the request/response flow.

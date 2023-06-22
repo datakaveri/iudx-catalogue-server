@@ -53,8 +53,9 @@ public class JwtDataTest {
         String iid= jwtData.getIid();
         String role= jwtData.getRole();
         JsonObject cons=jwtData.getCons();
+        String clientid = jwtData.getClientId();
         String result="JwtData [access_token=" + access_token + ", sub=" + sub + ", iss=" + iss + ", aud=" + aud + ", iid=" + iid
-                + ", role=" + role + ", cons=" + cons + "]";
+                + ", role=" + role + ", cons=" + cons + ", clientId=" + clientid + "]";
 
         assertEquals(result,jwtData.toString());
         vertxTestContext.completeNow();
