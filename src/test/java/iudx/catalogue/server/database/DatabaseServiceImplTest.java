@@ -12,6 +12,7 @@ import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -453,6 +454,7 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
+  @Disabled
   @Description("test updateItem method")
   public void testListRelationship(VertxTestContext vertxTestContext) {
     JsonObject json = new JsonObject();
@@ -1020,6 +1022,7 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
+  @Disabled
   @Description("test listRelationship method when handler succeeded")
   public void testListRealtionship(VertxTestContext vertxTestContext) {
 

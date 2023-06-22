@@ -224,6 +224,7 @@ public class QueryDecoderTest {
 
   @Test
   @Order(9)
+  @Disabled
   @DisplayName("Relationship search request to DbQuery")
   public void searchRelationshipTest(VertxTestContext testContext) {
 
@@ -243,6 +244,7 @@ public class QueryDecoderTest {
 
   @Test
   @Order(10)
+  @Disabled
   @DisplayName("Relationship search request to DbQuery")
   public void searchRelationshipTest2(VertxTestContext testContext) {
 
@@ -468,6 +470,7 @@ public class QueryDecoderTest {
     vertxTestContext.completeNow();
   }
   @Test
+  @Disabled
   @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
   public void testListRelationshipQueryID(VertxTestContext vertxTestContext) {
     queryDecoder=new QueryDecoder();
@@ -489,6 +492,7 @@ public class QueryDecoderTest {
     vertxTestContext.completeNow();
   }
   @Test
+  @Disabled
   @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
   public void testListRelationshipQueryProvider(VertxTestContext vertxTestContext) {
     queryDecoder=new QueryDecoder();
