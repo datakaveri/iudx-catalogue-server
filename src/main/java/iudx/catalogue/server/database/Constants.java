@@ -233,5 +233,16 @@ public class Constants {
 
   public static final String NLP_LOCATION_SEARCH = "{\"query\": {\"script_score\": {\"query\":"
           + " {\"bool\": {\"should\": [";
+  public static final String GET_TYPE_SEARCH = "{\"query\": {\"bool\": {\"filter\": [{\"terms\": "
+      + "{\"id.keyword\": [\"$1\"],\"boost\": 1}}]}},"
+      + "\"_source\": [\"resourceServer\",\"type\",\"provider\",\"resourceGroup\",\"id\"]}";
+  public static final String GET_RSGROUP = "{\"query\": {\"bool\": {\"must\": [{\"match\": "
+      + "{\"resourceServer.keyword\": \"$1\"}},"
+      + "{\"term\": {\"type.keyword\": \"iudx:ResourceGroup\"}}]}},"
+      + "\"_source\": [\"id\"],\"size\": \"10000\"}";
+
+  public static final String GET_RS1 = "{\"query\": {\"bool\": {\"should\": [";
+  public static final String GET_RS2 ="{\"match\": {\"resourceGroup.keyword\": \"$1\"}},";
+  public static final String GET_RS3 ="],\"minimum_should_match\": 1}}}";
 
 }

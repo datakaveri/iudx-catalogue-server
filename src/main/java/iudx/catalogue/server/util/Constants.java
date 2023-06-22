@@ -240,6 +240,8 @@ public class Constants {
   public static final String WRONG_INSTANCE_NAME = "Requested Body Instance Name wrong";
   public static final String TITLE_WRONG_INSTANCE_NAME = "Inavlid Requested Body";
   public static final String TITLE_DB_ERROR = "database error";
+  public static final String TYPE_INVALID_SEARCH_ERROR = "urn:dx:cat:InvalidRelationSearch";
+  public static final String TITLE_INVALID_SEARCH_ERROR = "Invalid relationship type search";
 
 
 }
