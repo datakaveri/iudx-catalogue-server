@@ -48,7 +48,7 @@ public final class CrudApis {
   private Api api;
   private static final Pattern UUID_PATTERN =
           Pattern.compile(
-                  ("^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"));
+                  "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
 
 
 
@@ -168,20 +168,44 @@ public final class CrudApis {
               validatorService.validateItem(requestBody, valhandler -> {
                 if (valhandler.failed()) {
                   LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
-                  if(valhandler.cause().getMessage().contains("id not found"))
-                  {
+                  if (valhandler.cause().getMessage().contains("id not found")) {
                     response.setStatusCode(404)
                             .end(new RespBuilder()
                                     .withType(TYPE_ITEM_NOT_FOUND)
                                     .withTitle(TITLE_ITEM_NOT_FOUND)
                                     .getResponse());
                   }
-                  if(valhandler.cause().getMessage().contains("validation failed. Incorrect id"))
-                  {
+                  if (valhandler.cause().getMessage().contains("validation failed. Incorrect id")) {
                     response.setStatusCode(400)
                             .end(new RespBuilder()
                                     .withType(TYPE_INVALID_UUID)
                                     .withTitle(TITLE_INVALID_UUID)
+                                    .withDetail("Syntax of the UUID is incorrect")
+                                    .getResponse());
+                  }
+                  if (valhandler.cause().getMessage().contains("Fail: Provider or Resource Group does not exist")) {
+                    response.setStatusCode(400)
+                            .end(new RespBuilder()
+                                    .withType(TYPE_OPERATION_NOT_ALLOWED)
+                                    .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                                    .withDetail("Fail: Provider or ResourceGroup does not exist")
+                                    .getResponse());
+                  }
+                  if (valhandler.cause().getMessage().contains("Fail: Provider does not exist")) {
+                    response.setStatusCode(400)
+                            .end(new RespBuilder()
+                                    .withType(TYPE_OPERATION_NOT_ALLOWED)
+                                    .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                                    .withDetail("Fail: Provider does not exist")
+                                    .getResponse());
+                  }
+                  if (valhandler.cause().getMessage().contains("Fail: Provider or Resource Server "
+                          + "does not exist")) {
+                    response.setStatusCode(400)
+                            .end(new RespBuilder()
+                                    .withType(TYPE_OPERATION_NOT_ALLOWED)
+                                    .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                                    .withDetail("Fail: Provider or Resource Server does not exist")
                                     .getResponse());
                   }
                   response.setStatusCode(400)
@@ -293,6 +317,7 @@ public final class CrudApis {
               .end(new RespBuilder()
                         .withType(TYPE_INVALID_SYNTAX)
                         .withTitle(TITLE_INVALID_SYNTAX)
+                        .withDetail("The syntax is invalid")
                         .getResponse());
     }
   }
@@ -375,6 +400,7 @@ public final class CrudApis {
               .end(new RespBuilder()
                         .withType(TYPE_INVALID_SYNTAX)
                         .withTitle(TITLE_INVALID_SYNTAX)
+                        .withDetail("Fail: The syntax of the id is incorrect")
                         .getResponse());
     }
   }

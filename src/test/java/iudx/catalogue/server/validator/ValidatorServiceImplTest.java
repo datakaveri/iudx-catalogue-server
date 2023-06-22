@@ -185,7 +185,7 @@ public class ValidatorServiceImplTest {
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 1);
+    json.put(TOTAL_HITS, 2);
     jsonArray.add(ITEM_TYPE_RESOURCE_GROUP);
     request.put(TYPE, jsonArray);
     request.put(RESOURCE_SVR, "abcd/abcd/abcd");
@@ -208,7 +208,7 @@ public class ValidatorServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(ValidatorServiceImpl.client, times(2)).searchGetId(anyString(), any(), any());
+            verify(ValidatorServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -263,7 +263,7 @@ public class ValidatorServiceImplTest {
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 1);
+    json.put(TOTAL_HITS, 2);
     jsonArray.add(ITEM_TYPE_RESOURCE);
     request.put(TYPE, jsonArray);
     request.put(NAME, "name");
@@ -287,7 +287,7 @@ public class ValidatorServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(ValidatorServiceImpl.client, times(2)).searchGetId(anyString(), any(), any());
+            verify(ValidatorServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");

@@ -41,7 +41,8 @@
             "examples": [
                 "SomeID"
             ],
-            "maxLength": 512
+            "maxLength": 36,
+            "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
         },
         "resourceGroup": {
             "$id": "#/properties/resourceGroup",
@@ -52,7 +53,8 @@
             "examples": [
                 "SomeID"
             ],
-            "maxLength": 512
+            "maxLength": 36,
+            "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
         },
         "tags": {
             "$id": "#/properties/tags",

@@ -33,7 +33,7 @@ public class ValidatorVerticle extends AbstractVerticle {
   private ElasticClient client;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
-  private boolean isUACinstance;
+  private boolean isUacInstance;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -48,7 +48,7 @@ public class ValidatorVerticle extends AbstractVerticle {
     databaseUser = config().getString(DATABASE_UNAME);
     databasePassword = config().getString(DATABASE_PASSWD);
     docIndex = config().getString(DOC_INDEX);
-    isUACinstance = config().getBoolean("isUACinstance");
+    isUacInstance = config().getBoolean("isUACinstance");
     /* Create a reference to HazelcastClusterManager. */
 
     client = new ElasticClient(databaseIp, databasePort, docIndex, databaseUser, databasePassword);
@@ -57,7 +57,7 @@ public class ValidatorVerticle extends AbstractVerticle {
 
     /* Publish the Validator service with the Event Bus against an address. */
 
-    validator = new ValidatorServiceImpl(client, docIndex,isUACinstance);
+    validator = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     consumer =
         binder.setAddress(VALIDATION_SERVICE_ADDRESS)
       .register(ValidatorService.class, validator);

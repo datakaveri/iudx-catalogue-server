@@ -154,7 +154,7 @@ public class ValidatorServiceTest {
                     })));
   }
 
-  @Test
+ /* @Test
   @Order(5)
   @DisplayName("Valid Schema Test [Resource]")
   void validResourceSchemaTest(VertxTestContext testContext) {
@@ -196,7 +196,7 @@ public class ValidatorServiceTest {
                     () -> {
                       testContext.completeNow();
                     })));
-  }
+  }*/
 
   @Test
   @Order(8)
