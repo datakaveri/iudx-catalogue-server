@@ -10,7 +10,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -352,8 +351,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                                     public void run() {
                                         client.docPostAsync(docIndex, doc.toString(), postRes -> {
                                             if (postRes.succeeded()) {
-                                                if (doc.getJsonArray("type").getString(0).equals("iudx:Provider")
-                                                        || doc.getJsonArray("type").getString(0).equals("iudx:Resource")
+                                              if (doc.getJsonArray("type").getString(0)
+                                                      .equals("iudx:Provider")
+                                                        || doc.getJsonArray("type")
+                                                      .getString(0).equals("iudx:Resource")
                                                         || doc.getJsonArray("type").getString(0)
                                                         .equals("iudx:ResourceGroup")
                                                         || doc.getJsonArray("type").getString(0)
