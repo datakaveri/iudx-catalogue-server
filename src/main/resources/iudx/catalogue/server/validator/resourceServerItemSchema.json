@@ -110,7 +110,8 @@
             "examples": [
                 "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a/rs.iudx.org.in"
             ],
-            "maxLength":512
+            "maxLength": 36,
+            "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
         },
         "provider": {
             "$id": "#/properties/provider",
@@ -121,7 +122,8 @@
             "examples": [
                 "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a"
             ],
-            "maxLength":512
+            "maxLength": 36,
+            "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
         },
         "name": {
             "$id": "#/properties/name",

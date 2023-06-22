@@ -11,14 +11,11 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.ElasticClient;
 import java.io.IOException;
-import java.lang.module.Configuration;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,18 +53,18 @@ public class ValidatorServiceImpl implements ValidatorService {
   static ElasticClient client;
 
   private String docIndex;
-  private boolean isUACinstance;
+  private boolean isUacInstance;
 
   /**
    * Constructs a new ValidatorServiceImpl object with the specified ElasticClient and docIndex.
    * @param client the ElasticClient object to use for interacting with the Elasticsearch instance
    * @param docIndex the index name to use for storing documents in Elasticsearch
    */
-  public ValidatorServiceImpl(ElasticClient client, String docIndex, boolean isUACinstance) {
+  public ValidatorServiceImpl(ElasticClient client, String docIndex, boolean isUacInstance) {
 
     this.client = client;
     this.docIndex = docIndex;
-    this.isUACinstance = isUACinstance;
+    this.isUacInstance = isUacInstance;
     try {
       resourceValidator = new Validator("/resourceItemSchema.json");
       resourceGroupValidator = new Validator("/resourceGroupItemSchema.json");
@@ -160,27 +157,22 @@ public class ValidatorServiceImpl implements ValidatorService {
 
     // Validate if Resource
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-      String provider = request.getString(PROVIDER);
-      String resourceGroup = request.getString(RESOURCE_GRP);
-      if (request.containsKey("id")) {
-        String id = request.getString("id");
-        LOGGER.debug("id in the request body: " + id);
-        if (!isValidUuid(id)) {
-          handler.handle(Future.failedFuture("validation failed. Incorrect id"));
-        }
-      } else if (!isUACinstance && !request.containsKey("id")) {
-        UUID uuid = UUID.randomUUID();
+      validateId(request, handler, isUacInstance);
+      if (!isUacInstance && !request.containsKey("id")) {
+        String resourceGroupNameUuid = request.getString("resourceGroup")
+                + request.getString("name");
+        byte[] inputBytes = resourceGroupNameUuid.getBytes(StandardCharsets.UTF_8);
+        UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
         request.put("id", uuid.toString());
-        LOGGER.debug("Info: id generated: " + uuid.toString());
-      } else if (isUACinstance && !request.containsKey("id")) {
-        handler.handle(Future.failedFuture("id not found"));
       }
 
       request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
+      String provider = request.getString(PROVIDER);
+      String resourceGroup = request.getString(RESOURCE_GRP);
 
-      LOGGER.debug("Info: Verifying resourceGroup " + resourceGroup);
+      LOGGER.debug("Info: Verifying resourceGroup and provider " + resourceGroup + provider);
       client.searchGetId(
-          checkQuery.replace("$1", provider),
+          RESOURCE_CHECK_QUERY.replace("$1", provider).replace("$2", resourceGroup),
           docIndex,
           providerRes -> {
             if (providerRes.failed()) {
@@ -188,46 +180,25 @@ public class ValidatorServiceImpl implements ValidatorService {
               handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
               return;
             }
-            if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
-              client.searchGetId(
-                  checkQuery.replace("$1", resourceGroup),
-                  docIndex,
-                  serverRes -> {
-                    if (serverRes.failed()) {
-                      LOGGER.debug("Fail: DB error");
-                      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-                      return;
-                    }
-                    if (serverRes.result().getInteger(TOTAL_HITS) == 1) {
-                      handler.handle(Future.succeededFuture(request));
-                    } else {
-                      LOGGER.debug("Fail: resource group doesn't exist");
-                      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-                    }
-                  });
+            if (providerRes.result().getInteger(TOTAL_HITS) == 2) {
+              handler.handle(Future.succeededFuture(request));
             } else {
-              LOGGER.debug("Fail: Provider doesn't exist");
-              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+              LOGGER.debug("Fail: Provider or Resource Group does not exist");
+              handler.handle(Future.failedFuture("Fail: Provider or Resource Group does not exist"));
             }
           });
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       // Validate if Resource Server TODO: More checks and auth rules
-      String provider = request.getString(PROVIDER);
-      if (request.containsKey("id")) {
-        String id = request.getString("id");
-        LOGGER.debug("id in the request body: " + id);
-
-        if (!isValidUuid(id)) {
-          handler.handle(Future.failedFuture("validation failed. Incorrect id"));
-        }
-      } else if (!isUACinstance && !request.containsKey("id")) {
-        UUID uuid = UUID.randomUUID();
-        request.put(ID, uuid.toString());
-      } else if (isUACinstance && !request.containsKey("id")) {
-        handler.handle(Future.failedFuture("id not found"));
+      validateId(request, handler, isUacInstance);
+      if (!isUacInstance && !request.containsKey("id")) {
+        String providerNameUuid = request.getString("provider") + request.getString("name");
+        byte[] inputBytes = providerNameUuid.getBytes(StandardCharsets.UTF_8);
+        UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
+        request.put("id", uuid.toString());
       }
       request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
-      // handler.handle(Future.succeededFuture(request));
+      String provider = request.getString(PROVIDER);
+
       client.searchGetId(
           checkQuery.replace("$1", provider),
           docIndex,
@@ -241,70 +212,48 @@ public class ValidatorServiceImpl implements ValidatorService {
               handler.handle(Future.succeededFuture(request));
             } else {
               LOGGER.debug("Fail: Provider doesn't exist");
-              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+              handler.handle(Future.failedFuture("Fail: Provider does not exist"));
             }
           });
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+      LOGGER.debug(checkQuery);
       // Validate if Provider
-      if (request.containsKey("id")) {
-        String id = request.getString("id");
-        LOGGER.debug("id in the request body: " + id);
-        if (!isValidUuid(id)) {
-          handler.handle(Future.failedFuture("validation failed. Incorrect id"));
-        }
-      } else if (!isUACinstance && !request.containsKey("id")) {
+      validateId(request, handler, isUacInstance);
+      if (!isUacInstance && !request.containsKey("id")) {
         byte[] inputBytes = request.getString("name").getBytes(StandardCharsets.UTF_8);
         UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
         request.put("id", uuid.toString());
-      } else if (isUACinstance && !request.containsKey("id")) {
-        handler.handle(Future.failedFuture("id not found"));
       }
+
       handler.handle(Future.succeededFuture(request));
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
-      // Validate if ResourceGroup
-      String resourceServer = request.getString(RESOURCE_SVR);
-      String provider = request.getString(PROVIDER);
-      if (request.containsKey("id")) {
-        String id = request.getString("id");
-        LOGGER.debug("id in the request body: " + id);
-        if (!isValidUuid(id)) {
-          handler.handle(Future.failedFuture("validation failed. Incorrect id"));
-        }
-      } else if (!isUACinstance && !request.containsKey("id")) {
-        UUID uuid = UUID.randomUUID();
+      validateId(request, handler, isUacInstance);
+      if (!isUacInstance && !request.containsKey("id")) {
+        String providerResourceServerUuid = request.getString("provider")
+                + request.getString("resourceServer");
+        byte[] inputBytes = providerResourceServerUuid.getBytes(StandardCharsets.UTF_8);
+        UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
         request.put("id", uuid.toString());
-        LOGGER.debug("Info: id generated: " + uuid.toString());
-      } else if (isUACinstance && !request.containsKey("id")) {
-        handler.handle(Future.failedFuture("id not found"));
       }
 
       request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
+      String resourceServer = request.getString(RESOURCE_SVR);
+      String provider = request.getString(PROVIDER);
 
       client.searchGetId(
-          checkQuery.replace("$1", provider), docIndex, providerRes -> {
+          RESOURCE_GROUP_CHECK_QUERY.replace("$1", provider)
+                  .replace("$2", resourceServer), docIndex, providerRes -> {
           if (providerRes.failed()) {
             LOGGER.debug("Fail: DB Error");
             handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
             return;
           }
-          if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
-            client.searchGetId(
-                checkQuery.replace("$1", resourceServer), docIndex, serverRes -> {
-                if (serverRes.failed()) {
-                  LOGGER.debug("Fail: DB error");
-                  handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-                  return;
-                }
-                if (serverRes.result().getInteger(TOTAL_HITS) == 1) {
-                  handler.handle(Future.succeededFuture(request));
-                } else {
-                  LOGGER.debug("Fail: Server doesn't exist");
-                  handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-                }
-              });
+          if (providerRes.result().getInteger(TOTAL_HITS) == 2) {
+            handler.handle(Future.succeededFuture(request));
             } else {
               LOGGER.debug("Fail: Provider doesn't exist");
-              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+              handler.handle(Future.failedFuture("Fail: Provider or Resource Server does"
+                      + " not exist"));
             }
           });
     }
@@ -313,6 +262,22 @@ public class ValidatorServiceImpl implements ValidatorService {
 
   private boolean isValidUuid(String uuidString) {
     return UUID_PATTERN.matcher(uuidString).matches();
+  }
+
+  private void validateId(JsonObject request, Handler<AsyncResult<JsonObject>> handler,
+                          boolean isUacInstance) {
+    if (request.containsKey("id")) {
+      String id = request.getString("id");
+      LOGGER.debug("id in the request body: " + id);
+
+      if (!isValidUuid(id)) {
+        handler.handle(Future.failedFuture("validation failed. Incorrect id"));
+        return;
+      }
+    } else if (isUacInstance && !request.containsKey("id")) {
+      handler.handle(Future.failedFuture("id not found"));
+      return;
+    }
   }
 
   /** {@inheritDoc}

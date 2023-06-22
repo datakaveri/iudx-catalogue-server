@@ -9,7 +9,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
-
 import java.nio.file.LinkOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -345,10 +344,12 @@ public class DatabaseServiceImpl implements DatabaseService {
                   public void run() {
                     client.docPostAsync(docIndex, doc.toString(), postRes -> {
                       if (postRes.succeeded()) {
-                        if(doc.getJsonArray("type").getString(0).equals( "iudx:Provider")
-                                || doc.getJsonArray("type").getString(0).equals( "iudx:Resource")
-                                || doc.getJsonArray("type").getString(0).equals( "iudx:ResourceGroup")
-                                || doc.getJsonArray("type").getString(0).equals( "iudx:ResourceServer")) {
+                        if (doc.getJsonArray("type").getString(0).equals("iudx:Provider")
+                                || doc.getJsonArray("type").getString(0).equals("iudx:Resource")
+                                || doc.getJsonArray("type").getString(0)
+                                .equals("iudx:ResourceGroup")
+                                || doc.getJsonArray("type").getString(0)
+                                .equals("iudx:ResourceServer")) {
                           handler.handle(Future.succeededFuture(
                                   respBuilder.withType(TYPE_SUCCESS)
                                           .withTitle(TITLE_SUCCESS)
@@ -402,9 +403,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     RespBuilder respBuilder = new RespBuilder();
     String id = doc.getString("id");
     String type = doc.getJsonArray("type").getString(0);
-    String checkQuery = GET_DOC_QUERY_WITH_TYPE.replace("$1", id).replace("$3",type).replace("$2", "\"" + id + "\"");
-    LOGGER.debug("query"+checkQuery);
-
+    String checkQuery = GET_DOC_QUERY_WITH_TYPE.replace("$1", id).replace("$3", type)
+            .replace("$2", "\"" + id + "\"");
 
     new Timer().schedule(new TimerTask() {
       public void run() {
@@ -430,7 +430,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 handler.handle(Future.succeededFuture(
                     respBuilder.withType(TYPE_SUCCESS)
                         .withTitle(TYPE_SUCCESS)
-                        .withResult(id, UPDATE, TYPE_SUCCESS).getJsonResponse()));
+                        .withResult(id, UPDATE).getJsonResponse()));
               } else {
                 handler.handle(Future.failedFuture(internalErrorResp));
                 LOGGER.error("Fail: Updation failed;" + putRes.cause());
@@ -461,7 +461,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         /* the check query checks if any type item is present more than once. If it's present
         then the item cannot be deleted.  */
         checkQuery = QUERY_RESOURCE_GRP.replace("$1", id);
-        LOGGER.debug("the query"+checkQuery);
 
         client.searchGetId(checkQuery, docIndex, checkRes -> {
           if (checkRes.failed()) {
@@ -471,7 +470,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
           if (checkRes.succeeded()) {
             LOGGER.debug("Success: Check index for doc");
-            if (checkRes.result().getInteger(TOTAL_HITS) > 1 ) {
+            if (checkRes.result().getInteger(TOTAL_HITS) > 1) {
               LOGGER.error("Fail: Can't delete, parent doc has associated item;");
               handler
                   .handle(Future.failedFuture(
@@ -498,7 +497,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               handler.handle(Future.succeededFuture(
                   respBuilder.withType(TYPE_SUCCESS)
                       .withTitle(TITLE_SUCCESS)
-                      .withResult(id, DELETE, TYPE_SUCCESS).getJsonResponse()));
+                      .withResult(id, DELETE).getJsonResponse()));
             } else {
               handler.handle(Future.failedFuture(internalErrorResp));
               LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
