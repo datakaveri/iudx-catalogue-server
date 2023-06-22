@@ -71,7 +71,7 @@ pipeline {
       steps{
         script{
             sh 'scp Jmeter/CatalogueServer.jmx jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Jmeter/'
-            sh 'scp src/test/resources/iudx-catalogue-server-v4.5.0.postman_collection.json jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Newman/'
+            sh 'scp src/test/resources/iudx-catalogue-server-v5.0.0.postman_collection.json jenkins@jenkins-master:/var/lib/jenkins/iudx/cat/Newman/'
             sh 'docker compose up -d perfTest'
             sh 'sleep 45'
         }
@@ -110,7 +110,7 @@ pipeline {
           script{
             startZap ([host: 'localhost', port: 8090, zapHome: '/var/lib/jenkins/tools/com.cloudbees.jenkins.plugins.customtools.CustomTool/OWASP_ZAP/ZAP_2.11.0'])
             sh 'curl http://127.0.0.1:8090/JSON/pscan/action/disableScanners/?ids=10096'
-            sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server-v4.5.0.postman_collection.json -e /home/ubuntu/configs/cat-postman-env.json -n 2 --delay-request 1000 --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/report.html --reporter-htmlextra-skipSensitiveData'
+            sh 'HTTP_PROXY=\'127.0.0.1:8090\' newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server-v5.0.0.postman_collection.json -e /home/ubuntu/configs/cat-postman-env.json -n 2 --delay-request 1000 --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/report.html --reporter-htmlextra-skipSensitiveData'
             runZapAttack()
           }
         }
@@ -175,7 +175,7 @@ pipeline {
           steps {
             node('built-in') {
               script{
-                sh 'newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server-v4.5.0.postman_collection.json -e /home/ubuntu/configs/cd/cat-postman-env.json --delay-request 1000 --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/cd-report.html --reporter-htmlextra-skipSensitiveData'
+                sh 'newman run /var/lib/jenkins/iudx/cat/Newman/iudx-catalogue-server-v5.0.0.postman_collection.json -e /home/ubuntu/configs/cd/cat-postman-env.json --delay-request 1000 --insecure -r htmlextra --reporter-htmlextra-export /var/lib/jenkins/iudx/cat/Newman/report/cd-report.html --reporter-htmlextra-skipSensitiveData'
               }
             }
           }

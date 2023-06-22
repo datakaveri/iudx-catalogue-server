@@ -132,6 +132,13 @@ public class Constants {
   public static final String GET_DOC_QUERY =
       "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
 
+  public static final String GET_ASSOCIATED_ID_QUERY =
+      "{\"query\":{\"bool\":{\"should\":[{"
+          + "\"match\":{\"id.keyword\":\"$1\"}},{"
+          + "\"match\":{\"resourceGroup.keyword\":\"$2\"}}],"
+          + "\"minimum_should_match\":1}},"
+          + "\"_source\":[\"id\"]}";
+
   public static final String GET_RDOC_QUERY =
       "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": "
           + "[ { \"match\": {\"ratingID.keyword\":\"$1\"} } ],"
@@ -216,11 +223,14 @@ public class Constants {
   /* Replace above source list with commented one to include comment in response for rating API */
   //    "\"_source\": [\"rating\",\"comment\",\"id\"] }";
 
-  public static final String GET_AVG_RATING =
-      "{ \"aggs\": {\"results\": {\"terms\" : {\"field\": \"id.keyword\"}, "
-              + "\"aggs\": {\"average_rating\": {\"avg\": {\"field\": \"rating\"} } } } } ,"
-              + "\"query\": {\"bool\": {\"must\": [ { \"regexp\": {\"id.keyword\":\"$1|$1/.*\" } },"
-              + "{ \"match\": { \"status\": \"approved\" } } ] } } }";
+  public static final String GET_AVG_RATING_PREFIX =
+      "{\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\"},"
+          + "\"aggs\":{\"average_rating\":{\"avg\":{\"field\":\"rating\"}}}}},"
+          + "\"query\":{\"bool\":{\"should\":[";
+  public static final String GET_AVG_RATING_MATCH_QUERY =
+          "{\"match\":{\"id.keyword\":\"$1\"}},";
+  public static final String GET_AVG_RATING_SUFFIX =
+          "],\"minimum_should_match\":1,\"must\":[{\"match\":{\"status\":\"approved\"}}]}}}";
 
   public static final String QUERY_RESOURCE_GRP =
       "{ \"query\": { \"bool\": { \"should\": [ { \"term\": { \"id.keyword\": \"$1\" } }, "
