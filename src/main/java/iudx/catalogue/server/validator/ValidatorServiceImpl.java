@@ -11,6 +11,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.ElasticClient;
 import java.io.IOException;
+import java.lang.module.Configuration;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -55,16 +56,18 @@ public class ValidatorServiceImpl implements ValidatorService {
   static ElasticClient client;
 
   private String docIndex;
+  private boolean isUACinstance;
 
   /**
    * Constructs a new ValidatorServiceImpl object with the specified ElasticClient and docIndex.
    * @param client the ElasticClient object to use for interacting with the Elasticsearch instance
    * @param docIndex the index name to use for storing documents in Elasticsearch
    */
-  public ValidatorServiceImpl(ElasticClient client, String docIndex) {
+  public ValidatorServiceImpl(ElasticClient client, String docIndex,boolean isUACinstance) {
 
     this.client = client;
     this.docIndex = docIndex;
+    this.isUACinstance = isUACinstance;
     try {
       resourceValidator = new Validator("/resourceItemSchema.json");
       resourceGroupValidator = new Validator("/resourceGroupItemSchema.json");
@@ -87,7 +90,6 @@ public class ValidatorServiceImpl implements ValidatorService {
   @SuppressWarnings("unchecked")
   public ValidatorService validateSchema(JsonObject request,
       Handler<AsyncResult<JsonObject>> handler) {
-
     LOGGER.debug("Info: Reached Validator service validate schema");
     Set<String> type = new HashSet<String>(new JsonArray().getList());
 
@@ -158,18 +160,21 @@ public class ValidatorServiceImpl implements ValidatorService {
     // Validate if Resource
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
       String resourceGroup = request.getString(RESOURCE_GRP);
-      String id = resourceGroup + "/" + request.getString(NAME);
-      String resGrpProvider = StringUtils.substring(id, 0, id.indexOf("/", id.indexOf("/") + 1));
-
-      if (!request.getString(PROVIDER).equals(resGrpProvider)) {
-        handler.handle(Future.failedFuture("Link validation failed"));
-        return this;
+      if (request.containsKey("id")) {
+        String id = request.getString("id");
+        LOGGER.debug("id in the request body: " + id);
+        if (!isValidUuid(id)) {
+          handler.handle(Future.failedFuture("validation failed. Incorrect id"));
+        }
+      } else if (!isUACinstance && !request.containsKey("id")) {
+        UUID uuid = UUID.randomUUID();
+        request.put("id", uuid.toString());
+        LOGGER.debug("Info: id generated: " + uuid.toString());
+      } else if (isUACinstance && !request.containsKey("id")) {
+        handler.handle(Future.failedFuture("id not found"));
       }
 
-      LOGGER.debug("Info: id generated: " + id);
-      request.put(ID, id).put(ITEM_STATUS,
-          ACTIVE)
-          .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
+      request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
       LOGGER.debug("Info: Verifying resourceGroup " + resourceGroup);
       client.searchGetId(checkQuery.replace("$1", resourceGroup), docIndex, checkRes -> {
@@ -189,14 +194,6 @@ public class ValidatorServiceImpl implements ValidatorService {
       });
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       // Validate if Resource Server TODO: More checks and auth rules
-      String provider = request.getString(PROVIDER);
-      String name = request.getString(NAME);
-      String id = provider + "/" + name;
-      request.put(ID, id).put(ITEM_STATUS, ACTIVE)
-          .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
-      handler.handle(Future.succeededFuture(request));
-    } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
-      // Validate if Provider
       if (request.containsKey("id")) {
         String id = request.getString("id");
         LOGGER.debug("id in the request body: " + id);
@@ -204,24 +201,49 @@ public class ValidatorServiceImpl implements ValidatorService {
         if (!isValidUuid(id)) {
           handler.handle(Future.failedFuture("validation failed. Incorrect id"));
         }
-      } else if (!request.getBoolean("isUACinstance") && !request.containsKey("id")) {
+      } else if (!isUACinstance && !request.containsKey("id")) {
+        UUID uuid = UUID.randomUUID();
+        request.put(ID, uuid.toString());
+      } else if (isUACinstance && !request.containsKey("id")) {
+        handler.handle(Future.failedFuture("id not found"));
+      }
+      request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
+      handler.handle(Future.succeededFuture(request));
+    } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+      // Validate if Provider
+      if (request.containsKey("id")) {
+        String id = request.getString("id");
+        LOGGER.debug("id in the request body: " + id);
+        if (!isValidUuid(id)) {
+          handler.handle(Future.failedFuture("validation failed. Incorrect id"));
+        }
+      } else if (!isUACinstance && !request.containsKey("id")) {
         byte[] inputBytes = request.getString("name").getBytes(StandardCharsets.UTF_8);
         UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
         request.put("id", uuid.toString());
-      } else if (request.getBoolean("isUACinstance") && !request.containsKey("id")) {
+      } else if (isUACinstance && !request.containsKey("id")) {
         handler.handle(Future.failedFuture("id not found"));
       }
       handler.handle(Future.succeededFuture(request));
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
       // Validate if ResourceGroup
       String resourceServer = request.getString(RESOURCE_SVR);
-      String[] domain = resourceServer.split("/");
       String provider = request.getString(PROVIDER);
-      String name = request.getString(NAME);
-      String id = provider + "/" + domain[2] + "/" + name;
-      LOGGER.debug("Info: id generated: " + id);
-      request.put(ID, id).put(ITEM_STATUS, ACTIVE)
-          .put(ITEM_CREATED_AT, getUtcDatetimeAsString());
+      if (request.containsKey("id")) {
+        String id = request.getString("id");
+        LOGGER.debug("id in the request body: " + id);
+        if (!isValidUuid(id)) {
+          handler.handle(Future.failedFuture("validation failed. Incorrect id"));
+        }
+      } else if (!isUACinstance && !request.containsKey("id")) {
+        UUID uuid = UUID.randomUUID();
+        request.put("id", uuid.toString());
+        LOGGER.debug("Info: id generated: " + uuid.toString());
+      } else if (isUACinstance && !request.containsKey("id")) {
+        handler.handle(Future.failedFuture("id not found"));
+      }
+
+      request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
       client.searchGetId(
           checkQuery.replace("$1", provider), docIndex, providerRes -> {

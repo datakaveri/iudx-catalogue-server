@@ -70,6 +70,8 @@ public class Constants {
   public static final String INSTANCE = "instance";
   public static final String BUCKETS = "buckets";
   public static final String ID = "id";
+  public static final String ITEM = "item";
+
   public static final String RESOURCE_ID = "resourceId";
 
   public static final String ITEM_TYPE = "itemType";

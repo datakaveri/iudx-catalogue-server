@@ -57,6 +57,21 @@ public class RespBuilder {
   }
 
   /**
+   * Adds a result with the provided attributes to the response.
+   * @param itemBody the request body with uuid.
+   * @param method the method used to perform the operation resulting in this result
+   * @param status the status of the operation resulting in this result
+   * @return this RespBuilder instance
+   */
+  public RespBuilder withResultBody(JsonObject itemBody, String method, String status) {
+    JsonObject resultAttrs = new JsonObject().put(ITEM, itemBody)
+            .put(METHOD, method)
+            .put(STATUS, status);
+    response.put(RESULTS, new JsonArray().add(resultAttrs));
+    return this;
+  }
+
+  /**
    * Adds a result with the provided ID and detail information to the response.
    * @param id the ID of the result
    * @param detail the detail information of the result
