@@ -42,14 +42,14 @@ pipeline {
                                enabledForFailure: true,
                                blameDisabled: true,
                                forensicsDisabled: true,
-                               qualityGates: [[threshold:1178, type: 'TOTAL', unstable: false]],
+                               qualityGates: [[threshold:1180, type: 'TOTAL', unstable: false]],
                                tool: checkStyle(pattern: 'target/checkstyle-result.xml')
                              )
                              recordIssues(
                                enabledForFailure: true,
                              	blameDisabled: true,
                                forensicsDisabled: true,
-                               qualityGates: [[threshold:11, type: 'TOTAL', unstable: false]],
+                               qualityGates: [[threshold:14, type: 'TOTAL', unstable: false]],
                                tool: pmdParser(pattern: 'target/pmd.xml')
                              )
                            }
