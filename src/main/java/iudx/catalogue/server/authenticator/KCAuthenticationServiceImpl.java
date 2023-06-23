@@ -87,7 +87,7 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
                 if(itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
                   return Future.succeededFuture(true);
                 }
-                return Util.isValidAdmin(resourceServerUrl, result.jwtData);
+                return Util.isValidAdmin(resourceServerUrl, result.jwtData, true);
               }
             })
         .compose(isValidAdmin -> {

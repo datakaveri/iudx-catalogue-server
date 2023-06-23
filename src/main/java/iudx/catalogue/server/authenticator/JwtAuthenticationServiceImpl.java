@@ -215,7 +215,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
             validEndpointHandler -> {
               // verify admin if Resource Server item is to be deleted
               if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-                return Util.isValidAdmin(resourceServerUrl, result.jwtData);
+                return Util.isValidAdmin(resourceServerUrl, result.jwtData, false);
               } else {
                 return Future.succeededFuture(true);
               }

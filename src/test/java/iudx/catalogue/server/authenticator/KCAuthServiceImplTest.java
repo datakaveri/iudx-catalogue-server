@@ -179,7 +179,7 @@ public class KCAuthServiceImplTest {
     JWTClaimsSet jwtClaimsSet = jwtClaimsSetBuilder();
     JwtData jwtData = new JwtData(new JsonObject(jwtClaimsSet.toString()));
     Util
-        .isValidAdmin(admin, jwtData)
+        .isValidAdmin(admin, jwtData, true)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {

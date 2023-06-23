@@ -26,6 +26,7 @@ import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.authenticator.AuthenticationService;
+import iudx.catalogue.server.authenticator.Constants;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.util.Api;
 import iudx.catalogue.server.validator.ValidatorService;
@@ -156,40 +157,42 @@ public final class CrudApis {
               if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
                 if(!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
                   handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
-                }
-                String resourceServer = requestBody.getString(RESOURCE_SVR);
-                Future<JsonObject> rsUrlFuture =
-                    getItemType(
-                        resourceServer,
-                        "getRsUrl",
-                        requestBody.getString(ITEM_TYPE));
+                } else {
+                  String resourceServer = requestBody.getString(RESOURCE_SVR);
+                  Future<JsonObject> rsUrlFuture =
+                      getItemType(
+                          resourceServer,
+                          "getRsUrl",
+                          itemType);
 
-                rsUrlFuture.onComplete(
-                    rsUrl -> {
-                      if (rsUrl.succeeded()) {
-                        requestBody.put(
-                            "resourceServerHTTPAccessURL",
-                            rsUrl.result().getString("resourceServerHTTPAccessURL"));
-                        handleItemCreation(
-                            routingContext, requestBody, response, jwtAuthenticationInfo);
-                      }
-                    });
+                  rsUrlFuture.onComplete(
+                      rsUrl -> {
+                        if (rsUrl.succeeded()) {
+                          requestBody.put(
+                              "resourceServerHTTPAccessURL",
+                              rsUrl.result().getString("resourceServerHTTPAccessURL"));
+                          handleItemCreation(
+                              routingContext, requestBody, response, jwtAuthenticationInfo);
+                        }
+                      });
+                }
               } else {
 
                 Future<JsonObject> rgFuture =
                     getItemType(
                         requestBody.getString(RESOURCE_GRP),
                         "getRsUrl",
-                        requestBody.getString(ITEM_TYPE));
+                        ITEM_TYPE_RESOURCE_GROUP);
 
                 rgFuture.onComplete(
                     rg -> {
                       if (rg.succeeded()) {
+                        LOGGER.debug(rg.result());
                         Future<JsonObject> rsUrlFuture =
                             getItemType(
                                 rg.result().getString(RESOURCE_SVR),
                                 "getRsUrl",
-                                requestBody.getString(ITEM_TYPE));
+                                itemType);
 
                         rsUrlFuture.onComplete(
                             rsUrl -> {
@@ -255,6 +258,7 @@ public final class CrudApis {
                                 .withType(TYPE_ITEM_NOT_FOUND)
                                 .withTitle(TITLE_ITEM_NOT_FOUND)
                                 .getResponse());
+                return;
               }
               if (valhandler.cause().getMessage().contains("validation failed. Incorrect id")) {
                 response.setStatusCode(400)
@@ -263,6 +267,7 @@ public final class CrudApis {
                                 .withTitle(TITLE_INVALID_UUID)
                                 .withDetail("Syntax of the UUID is incorrect")
                                 .getResponse());
+                return;
               }
               if (valhandler.cause().getMessage().contains("Fail: Provider or Resource Group does not exist")) {
                 response.setStatusCode(400)
@@ -271,6 +276,7 @@ public final class CrudApis {
                                 .withTitle(TITLE_OPERATION_NOT_ALLOWED)
                                 .withDetail("Fail: Provider or ResourceGroup does not exist")
                                 .getResponse());
+                return;
               }
               if (valhandler.cause().getMessage().contains("Fail: Provider does not exist")) {
                 response.setStatusCode(400)
@@ -279,6 +285,7 @@ public final class CrudApis {
                                 .withTitle(TITLE_OPERATION_NOT_ALLOWED)
                                 .withDetail("Fail: Provider does not exist")
                                 .getResponse());
+                return;
               }
               if (valhandler.cause().getMessage().contains("Fail: Provider or Resource Server "
                       + "does not exist")) {
@@ -288,11 +295,22 @@ public final class CrudApis {
                                 .withTitle(TITLE_OPERATION_NOT_ALLOWED)
                                 .withDetail("Fail: Provider or Resource Server does not exist")
                                 .getResponse());
+                return;
+              }
+              if (valhandler.cause().getMessage().contains("mandatory id field not present")) {
+                response.setStatusCode(400)
+                    .end(new RespBuilder()
+                        .withType(TYPE_OPERATION_NOT_ALLOWED)
+                        .withTitle(TITLE_OPERATION_NOT_ALLOWED)
+                        .withDetail(valhandler.cause().getMessage())
+                        .getResponse());
+                return;
               }
               response.setStatusCode(400)
                   .end(new RespBuilder()
                         .withType(TYPE_LINK_VALIDATION_FAILED)
                         .withTitle(TITLE_LINK_VALIDATION_FAILED)
+                        .withDetail(valhandler.cause().getMessage())
                         .getResponse());
             }
             if (valhandler.succeeded()) {
@@ -433,7 +451,7 @@ public final class CrudApis {
               .put(TOKEN, request.getHeader(HEADER_TOKEN))
               .put(METHOD, REQUEST_POST)
               .put(API_ENDPOINT, api.getRouteItems());
-    if (!validateId(itemId)) {
+    if (validateId(itemId)) {
       Future<JsonObject> itemTypeFuture  = getItemType(itemId,"getItemType", "");
       itemTypeFuture.onComplete(itemTypeHandler -> {
         if(itemTypeHandler.succeeded()) {
@@ -444,7 +462,9 @@ public final class CrudApis {
                       .getJsonArray(TYPE)
                       .getList());
           types.retainAll(ITEM_TYPES);
+          LOGGER.debug(types);
           String itemType = types.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+          LOGGER.debug(itemType);
           String providerkcId = itemTypeHandler.result().getString(PROVIDER_KC_ID);
           jwtAuthenticationInfo
               .put(TOKEN, request.getHeader(HEADER_TOKEN))
@@ -453,6 +473,7 @@ public final class CrudApis {
               .put(PROVIDER_KC_ID, providerkcId != null ? providerkcId : "")
               .put(ITEM_TYPE, itemType);
 
+          LOGGER.debug(itemTypeHandler.result());
           if(isUAC) {
             if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
               if(itemType.equalsIgnoreCase(PROVIDER) || itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
@@ -466,7 +487,7 @@ public final class CrudApis {
                   getItemType(
                       resourceServer,
                       "getRsUrl",
-                      requestBody.getString(ITEM_TYPE));
+                      itemType);
 
               rsUrlFuture.onComplete(
                   rsUrl -> {
@@ -483,16 +504,17 @@ public final class CrudApis {
                   getItemType(
                       itemTypeHandler.result().getString(RESOURCE_GRP),
                       "getRsUrl",
-                      requestBody.getString(ITEM_TYPE));
+                      ITEM_TYPE_RESOURCE_GROUP);
 
               rgFuture.onComplete(
                   rg -> {
                     if (rg.succeeded()) {
+                      LOGGER.debug(rg.result());
                       Future<JsonObject> rsUrlFuture =
                           getItemType(
                               rg.result().getString(RESOURCE_SVR),
                               "getRsUrl",
-                              requestBody.getString(ITEM_TYPE));
+                              itemType);
 
                       rsUrlFuture.onComplete(
                           rsUrl -> {
@@ -512,7 +534,7 @@ public final class CrudApis {
                   getItemType(
                       itemId,
                       "getRsUrl",
-                      requestBody.getString(ITEM_TYPE));
+                      itemType);
 
               rsUrlFuture.onComplete(
                   rsUrl -> {
@@ -594,6 +616,7 @@ public final class CrudApis {
     Promise<JsonObject> promise = Promise.promise();
     JsonObject req = new JsonObject().put(ID, itemId).put(SEARCH_TYPE, searchType).put(ITEM_TYPE, itemType);
 
+    LOGGER.debug(req);
     dbService.searchQuery(
         req,
         handler -> {
