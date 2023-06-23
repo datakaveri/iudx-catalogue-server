@@ -1,5 +1,6 @@
 package iudx.catalogue.server.validator;
 
+import static iudx.catalogue.server.apiserver.util.Constants.UAC_DEPLOYMENT;
 import static iudx.catalogue.server.util.Constants.*;
 
 import io.vertx.core.AbstractVerticle;
@@ -48,7 +49,7 @@ public class ValidatorVerticle extends AbstractVerticle {
     databaseUser = config().getString(DATABASE_UNAME);
     databasePassword = config().getString(DATABASE_PASSWD);
     docIndex = config().getString(DOC_INDEX);
-    isUacInstance = config().getBoolean("isUACinstance");
+    isUacInstance = config().getBoolean(UAC_DEPLOYMENT);
     /* Create a reference to HazelcastClusterManager. */
 
     client = new ElasticClient(databaseIp, databasePort, docIndex, databaseUser, databasePassword);

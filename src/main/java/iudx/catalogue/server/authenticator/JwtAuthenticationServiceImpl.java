@@ -44,13 +44,11 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   final JWTAuth jwtAuth;
   final String audience;
   private Api api;
-  private String copAdmin;
 
   JwtAuthenticationServiceImpl(
       Vertx vertx, final JWTAuth jwtAuth, final JsonObject config, final Api api) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("host");
-    this.copAdmin = config.getString(COP_ADMIN);
     this.api = api;
   }
 
@@ -185,6 +183,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         method.equalsIgnoreCase(Method.DELETE.toString())
             ? authenticationInfo.getString(ITEM_TYPE)
             : "";
+    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
 
     Future<JwtData> jwtDecodeFuture = decodeJwt(token);
 
@@ -215,9 +214,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         .compose(
             validEndpointHandler -> {
               // verify admin if Resource Server item is to be deleted
-              if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)
-                  || itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
-                return Util.isValidAdmin(copAdmin, result.jwtData);
+              if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+                return Util.isValidAdmin(resourceServerUrl, result.jwtData);
               } else {
                 return Future.succeededFuture(true);
               }

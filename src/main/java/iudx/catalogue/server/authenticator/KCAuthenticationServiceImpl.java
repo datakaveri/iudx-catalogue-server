@@ -1,6 +1,8 @@
 package iudx.catalogue.server.authenticator;
 
 import static iudx.catalogue.server.authenticator.Constants.*;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE_PROVIDER;
 
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -64,6 +66,8 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
 //        String id = authenticationInfo.getString(ID);
     Method method = Method.valueOf(authenticationInfo.getString(METHOD));
     String token = authenticationInfo.getString(TOKEN);
+    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
+    String itemType = authenticationInfo.getString(ITEM_TYPE);
     Future<JwtData> decodeTokenFuture = decodeKCToken(token);
 
     ResultContainer result = new ResultContainer();
@@ -76,12 +80,20 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
             })
         .compose(
             isValidHandler -> {
-              if (endpoint.equalsIgnoreCase(api.getRouteItems()) && method.equals(Method.DELETE)) {
-                return Util.isValidAdmin(uacAdmin, result.jwtData);
-              } else {
+              // if the token is of UAC admin, bypass ownership, else verify ownership
+              if(uacAdmin.equalsIgnoreCase(result.jwtData.getSub())) {
                 return Future.succeededFuture(true);
+              } else {
+                if(itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+                  return Future.succeededFuture(true);
+                }
+                return Util.isValidAdmin(resourceServerUrl, result.jwtData);
               }
             })
+        .compose(isValidAdmin -> {
+
+          return Future.succeededFuture(true);
+        })
         .onComplete(
             completeHandler -> {
               if (completeHandler.succeeded()) {
