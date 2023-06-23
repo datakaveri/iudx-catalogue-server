@@ -24,6 +24,11 @@ public class RespBuilder {
     return this;
   }
 
+  public RespBuilder withMethod(String method) {
+    response.put(METHOD, method);
+    return this;
+  }
+
   /**
    * Adds a result to the response with the given id, method, and status.
    * @param id The id of the result to be added
@@ -102,4 +107,5 @@ public class RespBuilder {
   public String getResponse() {
     return response.toString();
   }
+
 }

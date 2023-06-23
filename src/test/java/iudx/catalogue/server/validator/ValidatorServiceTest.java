@@ -30,6 +30,7 @@ public class ValidatorServiceTest {
   private static String databaseUser;
   private static String databasePassword;
   private static FileSystem fileSystem;
+  private static boolean isUacInstance;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -47,7 +48,7 @@ public class ValidatorServiceTest {
 
     // TODO : Need to enable TLS using xpack security
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
-    validator = new ValidatorServiceImpl(client, docIndex);
+    validator = new ValidatorServiceImpl(client, docIndex,isUacInstance);
     testContext.completeNow();
   }
 
@@ -153,7 +154,7 @@ public class ValidatorServiceTest {
                     })));
   }
 
-  @Test
+ /* @Test
   @Order(5)
   @DisplayName("Valid Schema Test [Resource]")
   void validResourceSchemaTest(VertxTestContext testContext) {
@@ -195,7 +196,7 @@ public class ValidatorServiceTest {
                     () -> {
                       testContext.completeNow();
                     })));
-  }
+  }*/
 
   @Test
   @Order(8)

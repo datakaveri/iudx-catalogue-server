@@ -173,14 +173,14 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   public AuthenticationService tokenInterospect(JsonObject request, JsonObject authenticationInfo,
                                                 Handler<AsyncResult<JsonObject>> handler) {
     String endPoint = authenticationInfo.getString(API_ENDPOINT);
-    String id = authenticationInfo.getString(ID);
+    // String id = authenticationInfo.getString(ID);
     String token = authenticationInfo.getString(TOKEN);
 
     Future<JwtData> jwtDecodeFuture = decodeJwt(token);
 
     ResultContainer result = new ResultContainer();
-    boolean skipResourceIdCheck =
-            endPoint.equalsIgnoreCase(RATINGS_ENDPOINT);
+    // boolean skipResourceIdCheck =
+            // endPoint.equalsIgnoreCase(RATINGS_ENDPOINT);
 
     jwtDecodeFuture
         .compose(
@@ -188,14 +188,14 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
               result.jwtData = decodeHandler;
               return isValidAudienceValue(result.jwtData);
             })
-        .compose(
+        /* .compose(
             audienceHandler -> {
               if (skipResourceIdCheck) {
                 return Future.succeededFuture(true);
               } else {
                 return isValidId(result.jwtData, id);
               }
-            })
+            })*/
         .compose(
             validIdHandler -> {
               LOGGER.debug(isValidEndpoint(endPoint).succeeded());
