@@ -1,7 +1,8 @@
 package iudx.catalogue.server.authenticator;
 
-import static iudx.catalogue.server.authenticator.Constants.API_ENDPOINT;
-import static iudx.catalogue.server.authenticator.Constants.METHOD;
+import static iudx.catalogue.server.authenticator.Constants.*;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE_PROVIDER;
 import static org.mockito.Mockito.*;
 
 import com.nimbusds.jose.JOSEException;
@@ -24,12 +25,9 @@ import java.text.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
@@ -58,22 +56,24 @@ public class KCAuthServiceImplTest {
   @Test
   @DisplayName("Success: Test token introspect")
   public void TestTokenIntrospect(Vertx vertx, VertxTestContext testContext) {
-    JsonObject authInfo = mock(JsonObject.class);
+    JsonObject authInfo =
+        new JsonObject()
+            .put(API_ENDPOINT, api.getRouteItems())
+            .put(METHOD, Method.POST.toString())
+            .put(TOKEN, "")
+            .put(ITEM_TYPE, ITEM_TYPE_PROVIDER)
+            .put(RESOURCE_SERVER_URL, "cop.iudx.io");
     doAnswer(Answer -> Future.succeededFuture(new JwtData(new JsonObject())))
         .when(kcAuthenticationServiceSpy)
         .decodeKCToken(anyString());
 
-    when(authInfo.getString(anyString())).thenReturn(api.getRouteItems());
-    when(authInfo.getString(METHOD)).thenReturn(Method.POST.toString());
-
-////    try (MockedStatic<Util> utilities = Mockito.mockStatic(Util.class)) {
-////      utilities
-////          .when(() -> Util.isValidAdmin(anyString(), new JwtData(new JsonObject())))
-////          .thenReturn(Future.succeededFuture());
-//    }
-//    doAnswer(Answer -> Future.succeededFuture())
-//      when(Util).isValidAdmin(anyString(),new JwtData(new JsonObject()));
-
+    ////    try (MockedStatic<Util> utilities = Mockito.mockStatic(Util.class)) {
+    ////      utilities
+    ////          .when(() -> Util.isValidAdmin(anyString(), new JwtData(new JsonObject())))
+    ////          .thenReturn(Future.succeededFuture());
+    //    }
+    //    doAnswer(Answer -> Future.succeededFuture())
+    //      when(Util).isValidAdmin(anyString(),new JwtData(new JsonObject()));
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),
@@ -178,8 +178,7 @@ public class KCAuthServiceImplTest {
 
     JWTClaimsSet jwtClaimsSet = jwtClaimsSetBuilder();
     JwtData jwtData = new JwtData(new JsonObject(jwtClaimsSet.toString()));
-    Util
-        .isValidAdmin(admin, jwtData, true)
+    Util.isValidAdmin("cop.iudx.io", jwtData, true)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {

@@ -60,7 +60,8 @@
         "name",
         "description",
         "tags",
-        "resourceServerOrg"
+        "resourceServerOrg",
+        "resourceServerHTTPAccessURL"
     ],
     "properties": {
         "@context": {
@@ -204,7 +205,8 @@
             "default": "",
             "examples": [
                 "rs.iudx.org.in"
-            ]
+            ],
+            "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,})(\\.[a-zA-Z0-9]{2,})$"
         },
         "resourceServerStreamingAccessURL": {
             "$id": "#/properties/resourceServerStreamingAccessURL",

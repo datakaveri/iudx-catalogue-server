@@ -4,7 +4,6 @@ import static iudx.catalogue.server.auditing.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.METHOD;
 import static iudx.catalogue.server.util.Constants.ITEM_TYPE;
-import static iudx.catalogue.server.util.Constants.ITEM_TYPE_INSTANCE;
 import static iudx.catalogue.server.util.Constants.ITEM_TYPE_RESOURCE_SERVER;
 import static iudx.catalogue.server.util.Constants.PROVIDER;
 import static iudx.catalogue.server.util.Constants.PROVIDER_KC_ID;
@@ -181,6 +180,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     String method = authenticationInfo.getString(METHOD);
     String itemType =
         method.equalsIgnoreCase(Method.DELETE.toString())
+                && !endPoint.equalsIgnoreCase(RATINGS_ENDPOINT)
             ? authenticationInfo.getString(ITEM_TYPE)
             : "";
     String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);

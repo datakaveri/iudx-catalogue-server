@@ -226,6 +226,13 @@ public final class CrudApis {
                         requestBody.put(PROVIDER_KC_ID, kcId);
                         handleItemCreation(
                             routingContext, requestBody, response, jwtAuthenticationInfo);
+                      } else {
+                        response.setStatusCode(400)
+                            .end(new RespBuilder()
+                                .withType(TYPE_ITEM_NOT_FOUND)
+                                .withTitle(TITLE_ITEM_NOT_FOUND)
+                                .withDetail("Provider not found")
+                                .getResponse());
                       }
                     });
               }
@@ -387,7 +394,7 @@ public final class CrudApis {
     JsonObject requestBody = new JsonObject().put(ID, itemId);
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    if (validateId(itemId) == true) {
+    if (validateId(itemId)) {
 //    if (validateId(itemId) == false) {
       dbService.getItem(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
@@ -413,9 +420,9 @@ public final class CrudApis {
       LOGGER.error("Fail: Invalid request payload");
       response.setStatusCode(400)
               .end(new RespBuilder()
-                        .withType(TYPE_INVALID_SYNTAX)
-                        .withTitle(TITLE_INVALID_SYNTAX)
-                        .withDetail("The syntax is invalid")
+                        .withType(TYPE_INVALID_UUID)
+                        .withTitle(TITLE_INVALID_UUID)
+                        .withDetail("The id is invalid")
                         .getResponse());
     }
   }
@@ -667,6 +674,7 @@ public final class CrudApis {
                             request.getHeader(HEADER_TOKEN))
                             .put(METHOD, REQUEST_POST)
                             .put(API_ENDPOINT, api.getRouteInstance())
+                            .put(ITEM_TYPE, ITEM_TYPE_INSTANCE)
                             .put(ID, host);
     // Introspect token and authorize operation
     authService.tokenInterospect(new JsonObject(), authenticationInfo, authhandler -> {
@@ -728,6 +736,7 @@ public final class CrudApis {
     authenticationInfo.put(TOKEN, request.getHeader(HEADER_TOKEN))
                       .put(METHOD, REQUEST_DELETE)
                       .put(API_ENDPOINT, api.getRouteInstance())
+                      .put(ITEM_TYPE, ITEM_TYPE_INSTANCE)
                       .put(ID, host);
     // Introspect token and authorize operation
     authService.tokenInterospect(new JsonObject(), authenticationInfo, authhandler -> {

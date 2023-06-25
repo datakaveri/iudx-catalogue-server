@@ -39,7 +39,7 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
   public KCAuthenticationServiceImpl(
       final JWTProcessor<SecurityContext> jwtProcessor, final JsonObject config, final Api api) {
     this.jwtProcessor = jwtProcessor;
-    this.uacAdmin = config.getString(UAC_ADMIN);
+    this.uacAdmin = config.getString(UAC_ADMIN) != null ? config.getString(UAC_ADMIN) : "";
     this.api = api;
   }
 
