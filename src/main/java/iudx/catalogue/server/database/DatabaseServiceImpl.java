@@ -1847,6 +1847,25 @@ public class DatabaseServiceImpl implements DatabaseService {
                     }
                 });
     }
+    private Comparator<JsonObject> comapratorForLatestDataset () {
+    Comparator<JsonObject> jsonComparator =
+        new Comparator<JsonObject>() {
+
+          @Override
+          public int compare(JsonObject record1, JsonObject record2) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+
+              LocalDateTime dateTime1 =
+                  LocalDateTime.parse(record1.getString("itemCreatedAt"), formatter);
+              LocalDateTime dateTime2 =
+                  LocalDateTime.parse(record2.getString("itemCreatedAt"), formatter);
+              return dateTime2.compareTo(dateTime1);
+
+          }
+        };
+        return jsonComparator;
+
+    }
 
     private void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
         client.searchAsync(
@@ -1872,7 +1891,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                 }
                             }
                             // getting all resource group datasets in an arrayList
-                            if (record.getJsonArray(TYPE).getString(0).equals("iudx:ResourceGroup")) {
+                            if (record.getJsonArray(TYPE).getString(0).equals("iudx:ResourceGroup") && record.containsKey("itemCreatedAt")) {
                                 resourceGroupArray.add(record);
                             }
                             // getting count of resource,resourceGroup and provider
@@ -1890,21 +1909,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                             }
                         }
                         // sorting resource group based on the time of creation.
-                        Comparator<JsonObject> jsonComparator =
-                                new Comparator<JsonObject>() {
+                        Collections.sort(resourceGroupArray, comapratorForLatestDataset());
 
-                                    @Override
-                                    public int compare(JsonObject o1, JsonObject o2) {
-                                        DateTimeFormatter formatter =
-                                                DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-                                        LocalDateTime dateTime1 =
-                                                LocalDateTime.parse(o1.getString("itemCreatedAt"), formatter);
-                                        LocalDateTime dateTime2 =
-                                                LocalDateTime.parse(o2.getString("itemCreatedAt"), formatter);
-                                        return dateTime2.compareTo(dateTime1);
-                                    }
-                                };
-                        resourceGroupArray.sort(jsonComparator);
                         ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
                         int resourceGroupSize = 0;
                         if (resourceGroupArray.size() < 6) {
