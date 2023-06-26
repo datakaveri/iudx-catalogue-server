@@ -151,7 +151,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
     if (jwtAuthStrategy.isAuthorized(authRequest, jwtData)) {
       // Don't allow access to delete resource server item for anyone except Admin
-      if (itemType.equals(ITEM_TYPE_RESOURCE_SERVER)
+      if (ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)
           && method.equals(Method.DELETE)
           && !authStrategy.getClass().getSimpleName().equalsIgnoreCase("AdminAuthStrategy")) {
         JsonObject result = new JsonObject().put("401", "no access provided to endpoint");
@@ -180,18 +180,19 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     String method = authenticationInfo.getString(METHOD);
     String itemType =
         method.equalsIgnoreCase(Method.DELETE.toString())
-                && !endPoint.equalsIgnoreCase(RATINGS_ENDPOINT)
+//                && !endPoint.equalsIgnoreCase(RATINGS_ENDPOINT)
             ? authenticationInfo.getString(ITEM_TYPE)
             : "";
     String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
 
+    LOGGER.debug("endpoint : " + endPoint);
     Future<JwtData> jwtDecodeFuture = decodeJwt(token);
 
     ResultContainer result = new ResultContainer();
     boolean skipProviderIdCheck =
-        endPoint.equalsIgnoreCase(api.getRouteInstance())
-            || endPoint.equalsIgnoreCase(RATINGS_ENDPOINT)
-            || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER);
+        (api != null && api.getRouteInstance().equalsIgnoreCase(endPoint))
+            || RATINGS_ENDPOINT.equalsIgnoreCase(endPoint)
+            || ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType) || endPoint.contains("/internal/ui");
 
     jwtDecodeFuture
         .compose(
@@ -214,18 +215,23 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         .compose(
             validEndpointHandler -> {
               // verify admin if Resource Server item is to be deleted
-              if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+              LOGGER.debug(ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType));
+              LOGGER.debug(itemType);
+              if (ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)) {
                 return Util.isValidAdmin(resourceServerUrl, result.jwtData, false);
               } else {
+                LOGGER.debug("here1");
                 return Future.succeededFuture(true);
               }
             })
         .compose(
             validAdmin -> {
+                LOGGER.debug("here2");
               return validateAccess(result.jwtData, authenticationInfo, itemType);
             })
         .onComplete(
             completeHandler -> {
+                LOGGER.debug("here3");
               if (completeHandler.succeeded()) {
                 handler.handle(Future.succeededFuture(completeHandler.result()));
               } else {

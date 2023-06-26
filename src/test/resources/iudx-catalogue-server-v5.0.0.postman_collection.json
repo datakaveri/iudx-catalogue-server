@@ -10980,13 +10980,11 @@
 									}
 								},
 								"url": {
-									"protocol": "http",
+									"raw": "{{host}}consumer/ratings?id=b58da193-23d9-43eb-b98a-a103d4b6103e",
 									"host": [
-										"localhost"
+										"{{host}}consumer"
 									],
-									"port": "8080",
 									"path": [
-										"consumer",
 										"ratings"
 									],
 									"query": [
