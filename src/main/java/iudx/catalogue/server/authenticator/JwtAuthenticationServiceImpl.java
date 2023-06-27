@@ -220,18 +220,15 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
               if (ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)) {
                 return Util.isValidAdmin(resourceServerUrl, result.jwtData, false);
               } else {
-                LOGGER.debug("here1");
                 return Future.succeededFuture(true);
               }
             })
         .compose(
             validAdmin -> {
-                LOGGER.debug("here2");
               return validateAccess(result.jwtData, authenticationInfo, itemType);
             })
         .onComplete(
             completeHandler -> {
-                LOGGER.debug("here3");
               if (completeHandler.succeeded()) {
                 handler.handle(Future.succeededFuture(completeHandler.result()));
               } else {

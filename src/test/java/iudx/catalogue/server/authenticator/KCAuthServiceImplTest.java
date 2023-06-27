@@ -67,14 +67,6 @@ public class KCAuthServiceImplTest {
         .when(kcAuthenticationServiceSpy)
         .decodeKCToken(anyString());
 
-    ////    try (MockedStatic<Util> utilities = Mockito.mockStatic(Util.class)) {
-    ////      utilities
-    ////          .when(() -> Util.isValidAdmin(anyString(), new JwtData(new JsonObject())))
-    ////          .thenReturn(Future.succeededFuture());
-    //    }
-    //    doAnswer(Answer -> Future.succeededFuture())
-    //      when(Util).isValidAdmin(anyString(),new JwtData(new JsonObject()));
-
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),
         authInfo,

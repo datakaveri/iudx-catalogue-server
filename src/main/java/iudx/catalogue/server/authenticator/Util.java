@@ -12,19 +12,14 @@ public class Util {
   static Future<Boolean> isValidAdmin(String resourceServerUrl, JwtData jwtData, boolean isUAC) {
     Promise<Boolean> promise = Promise.promise();
 
-    if (isUAC) {
-      if (resourceServerUrl.equalsIgnoreCase(jwtData.getClientId())) {
-        promise.complete(true);
-      } else {
-        promise.fail("Invalid Token : Admin Token of " + resourceServerUrl + " is required");
-      }
+    if (isUAC && resourceServerUrl.equalsIgnoreCase(jwtData.getClientId())) {
+      promise.complete(true);
+    } else if (jwtData.getRole().equalsIgnoreCase("admin")) {
+      promise.complete(true);
     } else {
-      if (jwtData.getRole().equalsIgnoreCase("admin")) {
-        promise.complete(true);
-      } else {
-        promise.fail("Invalid Token: Admin token required");
-      }
+      promise.fail("Invalid Token: Admin token required");
     }
+
     return promise.future();
   }
 }

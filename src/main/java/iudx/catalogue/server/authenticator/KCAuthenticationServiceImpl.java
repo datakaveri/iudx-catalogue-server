@@ -90,10 +90,6 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
                 return Util.isValidAdmin(resourceServerUrl, result.jwtData, true);
               }
             })
-        .compose(isValidAdmin -> {
-
-          return Future.succeededFuture(true);
-        })
         .onComplete(
             completeHandler -> {
               if (completeHandler.succeeded()) {
