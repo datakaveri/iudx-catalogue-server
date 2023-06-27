@@ -275,7 +275,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         return;
       }
     } else if (isUacInstance && !request.containsKey("id")) {
-      handler.handle(Future.failedFuture("id not found"));
+      handler.handle(Future.failedFuture("mandatory id field not present in request body"));
       return;
     }
   }

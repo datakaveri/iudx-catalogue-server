@@ -591,8 +591,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         client.searchAsync(typeQuery.toString(), docIndex, qeryhandler -> {
             if (qeryhandler.succeeded()) {
-                JsonObject relType = qeryhandler.result().getJsonArray("results").getJsonObject(0);
-                if(relType.isEmpty()) {
+                if(qeryhandler.result().getInteger(TOTAL_HITS) == 0) {
                     handler.handle(Future.failedFuture(
                         respBuilder.withType(TYPE_ITEM_NOT_FOUND)
                             .withTitle(TITLE_ITEM_NOT_FOUND)
@@ -600,6 +599,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                             .getResponse()));
                     return;
                 }
+                JsonObject relType = qeryhandler.result().getJsonArray("results").getJsonObject(0);
 
                 Set<String> type = new HashSet<String>(relType.getJsonArray(TYPE).getList());
                 type.retainAll(ITEM_TYPES);
@@ -626,6 +626,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                     LOGGER.debug("Info: Query constructed;" + elasticQuery);
                     handleClientSearchAsync(handler, respBuilder, elasticQuery);
                 }
+            } else {
+              LOGGER.error(qeryhandler.cause().getMessage());
             }
         });
         return this;

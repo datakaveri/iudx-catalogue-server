@@ -101,6 +101,7 @@ public class JwtAuthServiceImplTest {
             .put("token", JwtTokenHelper.providerToken)
             .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86")
             .put("apiEndpoint", "/iudx/cat/v1/item")
+            .put("providerKcId", "844e251b-574b-46e6-9247-f76f1f70a637")
             .put("method", Method.POST);
     return jsonObject;
   }
@@ -113,6 +114,7 @@ public class JwtAuthServiceImplTest {
     jwtData.setIat(1627408865L);
     jwtData.setIid("ri:iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/catalogue.iudx.io/catalogue/crud");
     jwtData.setRole("provider");
+    jwtData.setSub("844e251b-574b-46e6-9247-f76f1f70a637");
     jwtData.setCons(new JsonObject());
 
     return jwtData;
@@ -240,7 +242,7 @@ public class JwtAuthServiceImplTest {
   @DisplayName("successful valid id check")
   public void validIdCheckForJwtToken(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
-    String id = "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86";
+    String id = "844e251b-574b-46e6-9247-f76f1f70a637";
     jwtAuthenticationService.isValidId(jwtData, id).onComplete(handler -> {
       if (handler.failed()) {
         vertxTestContext.failNow("fail");
@@ -304,7 +306,7 @@ public class JwtAuthServiceImplTest {
     JwtData jwtData = jwtDataObject();
     JsonObject authInfo = authJson();
 
-    jwtAuthenticationService.validateAccess(jwtData,authInfo)
+    jwtAuthenticationService.validateAccess(jwtData,authInfo,"")
             .onComplete(handler -> {
               if(handler.succeeded()){
                 vertxTestContext.completeNow();
@@ -321,7 +323,7 @@ public class JwtAuthServiceImplTest {
     JsonObject authInfo = authJson();
     authInfo.put("apiEndpoint","/iudx/cat/v1/itemzzz");
 
-    jwtAuthenticationService.validateAccess(jwtData,authInfo)
+    jwtAuthenticationService.validateAccess(jwtData,authInfo, "")
             .onComplete(handler -> {
               if(handler.succeeded()){
                 vertxTestContext.failNow(handler.cause());

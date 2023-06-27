@@ -15,6 +15,16 @@ public final class JwtData {
   private String iid;
   private String role;
   private JsonObject cons;
+  private String clientId;
+
+  public JwtData() {
+    super();
+  }
+
+  public JwtData(JsonObject json) {
+    JwtDataConverter.fromJson(json, this);
+    setAccessToken(json.getString("access_token"));
+  }
 
   /**
    * Returns a JSON representation of the JwtData object.
@@ -24,15 +34,6 @@ public final class JwtData {
     JsonObject json = new JsonObject();
     JwtDataConverter.toJson(this, json);
     return json;
-  }
-
-  public JwtData() {
-    super();
-  }
-
-  public JwtData(JsonObject json) {
-    JwtDataConverter.fromJson(json, this);
-    setAccessToken(json.getString("access_token"));
   }
 
   public String getAccessToken() {
@@ -107,10 +108,18 @@ public final class JwtData {
     this.iat = iat;
   }
 
+  public String getClientId() {
+    return clientId;
+  }
+
+  public void setClientId(String clientId) {
+    this.clientId = clientId;
+  }
+
   @Override
   public String toString() {
     return "JwtData [access_token=" + accessToken + ", sub=" + sub
             + ", iss=" + iss + ", aud=" + aud + ", iid=" + iid
-            + ", role=" + role + ", cons=" + cons + "]";
+            + ", role=" + role + ", cons=" + cons + ", clientId=" + clientId + "]";
   }
 }

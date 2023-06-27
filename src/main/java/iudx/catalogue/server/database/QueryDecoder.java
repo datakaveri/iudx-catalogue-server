@@ -32,6 +32,23 @@ public final class QueryDecoder {
     JsonArray mustQuery = new JsonArray();
     Boolean match = false;
 
+    if (searchType.equalsIgnoreCase("getItemType")) {
+      elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1",request.getString(ID))
+          .replace("$2","\"type\",\"providerKcId\",\"resourceGroup\",\"resourceServer\""));
+      return elasticQuery;
+    }
+    if(searchType.equalsIgnoreCase("getRsUrl")) {
+      if(!request.getString(ITEM_TYPE).equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+        LOGGER.debug(request);
+      elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1", request.getString(ID))
+          .replace("$2", "\"resourceServerHTTPAccessURL\""));
+      } else {
+        LOGGER.debug(request);
+        elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1", request.getString(ID))
+            .replace("$2", "\"resourceServer\""));
+      }
+      return elasticQuery;
+    }
     /* TODO: Pagination for large result set */
     if (request.getBoolean(SEARCH)) {
       Integer limit =
