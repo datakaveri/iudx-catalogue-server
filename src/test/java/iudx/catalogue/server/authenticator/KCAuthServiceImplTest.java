@@ -65,7 +65,7 @@ public class KCAuthServiceImplTest {
             .put(RESOURCE_SERVER_URL, "cop.iudx.io");
     doAnswer(Answer -> Future.succeededFuture(new JwtData(new JsonObject())))
         .when(kcAuthenticationServiceSpy)
-        .decodeKCToken(anyString());
+        .decodeKcToken(anyString());
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),
@@ -89,7 +89,7 @@ public class KCAuthServiceImplTest {
     JsonObject authInfo = mock(JsonObject.class);
     doAnswer(Answer -> Future.succeededFuture(new JwtData(new JsonObject())))
         .when(kcAuthenticationServiceSpy)
-        .decodeKCToken(anyString());
+        .decodeKcToken(anyString());
 
     when(authInfo.getString(API_ENDPOINT)).thenReturn(api.getRouteRelationship());
     when(authInfo.getString(METHOD)).thenReturn(Method.DELETE.toString());
@@ -113,7 +113,7 @@ public class KCAuthServiceImplTest {
     JsonObject authInfo = mock(JsonObject.class);
     doAnswer(Answer -> Future.failedFuture("decode failed"))
         .when(kcAuthenticationServiceSpy)
-        .decodeKCToken(anyString());
+        .decodeKcToken(anyString());
 
     when(authInfo.getString(API_ENDPOINT)).thenReturn(api.getRouteRelationship());
     when(authInfo.getString(METHOD)).thenReturn(Method.DELETE.toString());
@@ -153,7 +153,7 @@ public class KCAuthServiceImplTest {
     JWTClaimsSet jwtClaimsSet = jwtClaimsSetBuilder();
     when(jwtProcessor.process(anyString(), any())).thenReturn(jwtClaimsSet);
     kcAuthenticationService
-        .decodeKCToken("token")
+        .decodeKcToken("token")
         .onComplete(
             handler -> {
               if (handler.succeeded()) {

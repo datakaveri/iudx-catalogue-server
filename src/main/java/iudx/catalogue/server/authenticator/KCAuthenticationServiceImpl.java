@@ -50,7 +50,7 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
     this.api = api;
   }
 
-  Future<JwtData> decodeKCToken(String token) {
+  Future<JwtData> decodeKcToken(String token) {
     Promise<JwtData> promise = Promise.promise();
     try {
       JWTClaimsSet claimsSet = jwtProcessor.process(token, null);
@@ -75,7 +75,7 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
     String token = authenticationInfo.getString(TOKEN);
     String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
     String itemType = authenticationInfo.getString(ITEM_TYPE);
-    Future<JwtData> decodeTokenFuture = decodeKCToken(token);
+    Future<JwtData> decodeTokenFuture = decodeKcToken(token);
 
     ResultContainer result = new ResultContainer();
 
