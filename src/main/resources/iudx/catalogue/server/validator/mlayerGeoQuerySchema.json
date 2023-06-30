@@ -7,7 +7,7 @@
   "default": {},
   "examples": [
     {
-      "id":["datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app"],
+      "id":["5b7556b5-0779-4c47-9cf2-3f209779aa22"],
       "instance":"pune"
     }
   ],
@@ -23,8 +23,10 @@
       "description": "Id of the datasets in the instance",
       "default": "",
       "examples": [
-        ["datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app"]
-      ]
+        ["5b7556b5-0779-4c47-9cf2-3f209779aa22"]
+      ],
+      "maxLength": 36,
+      "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
     },
     "instance": {
       "$id": "#/properties/instance",

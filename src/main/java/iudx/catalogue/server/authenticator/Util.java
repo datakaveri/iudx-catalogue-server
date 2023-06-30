@@ -7,12 +7,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Util {
-  private static Logger LOGGER = LogManager.getLogger(Util.class);
 
-  static Future<Boolean> isValidAdmin(String resourceServerUrl, JwtData jwtData, boolean isUAC) {
+  static Future<Boolean> isValidAdmin(String resourceServerUrl, JwtData jwtData, boolean isUac) {
     Promise<Boolean> promise = Promise.promise();
 
-    if (isUAC && resourceServerUrl.equalsIgnoreCase(jwtData.getClientId())) {
+    if (isUac && resourceServerUrl.equalsIgnoreCase(jwtData.getClientId())) {
       promise.complete(true);
     } else if (jwtData.getRole().equalsIgnoreCase("admin")) {
       promise.complete(true);

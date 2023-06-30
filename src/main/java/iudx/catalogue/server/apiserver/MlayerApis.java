@@ -163,7 +163,11 @@ public class MlayerApis {
                       LOGGER.debug(dbHandler.result().toString());
                       response.setStatusCode(200).end(dbHandler.result().toString());
                     } else {
-                      response.setStatusCode(400).end(dbHandler.cause().getMessage());
+                      if (dbHandler.cause().getMessage().contains("urn:dx:cat:ItemNotFound")) {
+                        response.setStatusCode(404).end(dbHandler.cause().getMessage());
+                      } else {
+                        response.setStatusCode(400).end(dbHandler.cause().getMessage());
+                      }
                     }
                   });
             })
@@ -431,7 +435,11 @@ public class MlayerApis {
                       LOGGER.debug(dbHandler.result().toString());
                       response.setStatusCode(200).end(dbHandler.result().toString());
                     } else {
-                      response.setStatusCode(400).end(dbHandler.cause().getMessage());
+                      if (dbHandler.cause().getMessage().contains("urn:dx:cat:ItemNotFound")) {
+                        response.setStatusCode(404).end(dbHandler.cause().getMessage());
+                      } else {
+                        response.setStatusCode(400).end(dbHandler.cause().getMessage());
+                      }
                     }
                   });
             })
@@ -528,14 +536,34 @@ public class MlayerApis {
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    mlayerService.getMlayerDataset(
+    validatorService.validateMlayerDatasetId(
         datasetId,
-        handler -> {
-          if (handler.succeeded()) {
-            response.setStatusCode(200).end(handler.result().toString());
+        validationHandler -> {
+          if (validationHandler.failed()) {
+            response
+                    .setStatusCode(400)
+                    .end(
+                            new RespBuilder()
+                                    .withType(TYPE_INVALID_SCHEMA)
+                                    .withTitle(TITLE_INVALID_SCHEMA)
+                                    .withDetail("The Schema of requested body is invalid.")
+                                    .getResponse());
           } else {
-            response.setStatusCode(400).end(handler.cause().getMessage());
-          }
+            LOGGER.debug("Validation of dataset Id Successful");
+            mlayerService.getMlayerDataset(
+                    datasetId,
+                    handler -> {
+                      if (handler.succeeded()) {
+                        response.setStatusCode(200).end(handler.result().toString());
+                      } else {
+                        if (handler.cause().getMessage().contains("urn:dx:cat:ItemNotFound")) {
+                          response.setStatusCode(404).end(handler.cause().getMessage());
+                        } else {
+                          response.setStatusCode(400).end(handler.cause().getMessage());
+                        }
+                      }
+                    });
+            }
         });
   }
 

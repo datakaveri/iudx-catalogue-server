@@ -73,6 +73,10 @@ public interface ValidatorService {
   @Fluent
   ValidatorService validateMlayerGeoQuery(JsonObject request,
                                            Handler<AsyncResult<JsonObject>> handler);
+
+  @Fluent
+  ValidatorService validateMlayerDatasetId(String datasetId,
+                                           Handler<AsyncResult<JsonObject>> handler);
   /**
    * The createProxy helps the code generation blocks to generate proxy code.
    *

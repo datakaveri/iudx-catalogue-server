@@ -53,7 +53,7 @@ public final class CrudApis {
   private static final Pattern UUID_PATTERN =
           Pattern.compile(
                   "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
-  private boolean isUAC;
+  private boolean isUac;
 
 
 
@@ -63,9 +63,9 @@ public final class CrudApis {
    * @param api endpoint for base path
    * @TODO Throw error if load failed
    */
-  public CrudApis(Api api, boolean isUAC) {
+  public CrudApis(Api api, boolean isUac) {
     this.api = api;
-    this.isUAC = isUAC;
+    this.isUac = isUac;
   }
 
   public void setDbService(DatabaseService dbService) {
@@ -153,9 +153,9 @@ public final class CrudApis {
                 .put(API_ENDPOINT, api.getRouteItems())
                 .put(ITEM_TYPE, itemType);
 
-            if (isUAC) {
+            if (isUac) {
               if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-                if(!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+                if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
                   handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
                 } else {
                   String resourceServer = requestBody.getString(RESOURCE_SVR);
@@ -242,7 +242,10 @@ public final class CrudApis {
   }
 
 
-  private void handleItemCreation(RoutingContext routingContext, JsonObject requestBody, HttpServerResponse response, JsonObject jwtAuthenticationInfo) {
+  private void handleItemCreation(RoutingContext routingContext,
+                                  JsonObject requestBody,
+                                  HttpServerResponse response,
+                                  JsonObject jwtAuthenticationInfo) {
     authService.tokenInterospect(new JsonObject(),
         jwtAuthenticationInfo, authHandler -> {
         if (authHandler.failed()) {
@@ -276,7 +279,9 @@ public final class CrudApis {
                                 .getResponse());
                 return;
               }
-              if (valhandler.cause().getMessage().contains("Fail: Provider or Resource Group does not exist")) {
+              if (valhandler.cause()
+                      .getMessage()
+                      .contains("Fail: Provider or Resource Group does not exist")) {
                 response.setStatusCode(400)
                         .end(new RespBuilder()
                                 .withType(TYPE_OPERATION_NOT_ALLOWED)
@@ -337,7 +342,7 @@ public final class CrudApis {
                     LOGGER.info("Success: Item created;");
                     response.setStatusCode(201)
                           .end(dbhandler.result().toString());
-                    if (hasAuditService && !isUAC) {
+                    if (hasAuditService && !isUac) {
                       updateAuditTable(
                               authHandler.result(),
                               new String[]{valhandler.result().getString(ID),
@@ -395,7 +400,7 @@ public final class CrudApis {
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     if (validateId(itemId)) {
-//    if (validateId(itemId) == false) {
+      // if (validateId(itemId) == false) {
       dbService.getItem(requestBody, dbhandler -> {
         if (dbhandler.succeeded()) {
           if (dbhandler.result().getInteger(TOTAL_HITS) == 0) {
@@ -438,7 +443,6 @@ public final class CrudApis {
   public void deleteItemHandler(RoutingContext routingContext) {
 
     /* Id in path param */
-    HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
@@ -451,17 +455,18 @@ public final class CrudApis {
 
     LOGGER.debug("Info: Deleting item; id=" + itemId);
 
-//    if (validateId(itemId) == true) {
+    //    if (validateId(itemId) == true) {
 
-      // populating JWT authentication info ->
-      jwtAuthenticationInfo
+    //  populating JWT authentication info ->
+    HttpServerRequest request = routingContext.request();
+    jwtAuthenticationInfo
               .put(TOKEN, request.getHeader(HEADER_TOKEN))
               .put(METHOD, REQUEST_POST)
               .put(API_ENDPOINT, api.getRouteItems());
     if (validateId(itemId)) {
-      Future<JsonObject> itemTypeFuture  = getItemType(itemId,"getItemType", "");
+      Future<JsonObject> itemTypeFuture  = getItemType(itemId, "getItemType",  "");
       itemTypeFuture.onComplete(itemTypeHandler -> {
-        if(itemTypeHandler.succeeded()) {
+        if (itemTypeHandler.succeeded()) {
 
           Set<String> types =
               new HashSet<String>(
@@ -481,13 +486,14 @@ public final class CrudApis {
               .put(ITEM_TYPE, itemType);
 
           LOGGER.debug(itemTypeHandler.result());
-          if(isUAC) {
+          if (isUac) {
             if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-              if(itemType.equalsIgnoreCase(PROVIDER) || itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
+              if (itemType.equalsIgnoreCase(PROVIDER)
+                      || itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
                 handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
               }
-              String resourceServer =itemId;
-              if(itemType.equalsIgnoreCase(RESOURCE_GRP)) {
+              String resourceServer = itemId;
+              if (itemType.equalsIgnoreCase(RESOURCE_GRP)) {
                 resourceServer = itemTypeHandler.result().getString(RESOURCE_SVR);
               }
               Future<JsonObject> rsUrlFuture =
@@ -529,14 +535,15 @@ public final class CrudApis {
                               jwtAuthenticationInfo.put(
                                   "resourceServerHTTPAccessURL",
                                   rsUrl.result().getString("resourceServerHTTPAccessURL"));
-                              handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                              handleItemDeletion(response, jwtAuthenticationInfo,
+                                      requestBody, itemId);
                             }
                           });
                     }
                   });
             }
           } else {
-            if(itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+            if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
               Future<JsonObject> rsUrlFuture =
                   getItemType(
                       itemId,
@@ -577,7 +584,9 @@ public final class CrudApis {
     }
   }
 
-  private void handleItemDeletion(HttpServerResponse response, JsonObject jwtAuthenticationInfo, JsonObject requestBody, String itemId) {
+  private void handleItemDeletion(HttpServerResponse response,
+                                  JsonObject jwtAuthenticationInfo,
+                                  JsonObject requestBody, String itemId) {
     authService.tokenInterospect(new JsonObject(),
         jwtAuthenticationInfo, authHandler -> {
           if (authHandler.failed()) {
@@ -597,7 +606,7 @@ public final class CrudApis {
                 LOGGER.debug(dbHandler.result().toString());
                 if (dbHandler.result().getString(STATUS).equals(TITLE_SUCCESS)) {
                   response.setStatusCode(200).end(dbHandler.result().toString());
-                  if (hasAuditService && !isUAC) {
+                  if (hasAuditService && !isUac) {
                     updateAuditTable(authHandler.result(),
                         new String[]{itemId, api.getRouteItems(), REQUEST_DELETE});
                   }
@@ -621,7 +630,9 @@ public final class CrudApis {
 
   Future<JsonObject> getItemType(String itemId, String searchType, String itemType) {
     Promise<JsonObject> promise = Promise.promise();
-    JsonObject req = new JsonObject().put(ID, itemId).put(SEARCH_TYPE, searchType).put(ITEM_TYPE, itemType);
+    JsonObject req = new JsonObject().put(ID, itemId)
+            .put(SEARCH_TYPE, searchType)
+            .put(ITEM_TYPE, itemType);
 
     LOGGER.debug(req);
     dbService.searchQuery(
