@@ -44,12 +44,13 @@ public class AuthenticationVerticle extends AbstractVerticle {
 
   private static final Logger LOGGER = LogManager.getLogger(AuthenticationVerticle.class);
   private static WebClient webClient;
-  private AuthenticationService jwtAuthenticationService, kcAuthenticationService;
+  private AuthenticationService jwtAuthenticationService;
+  private AuthenticationService kcAuthenticationService;
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
   private Api api;
   private String dxApiBasePath;
-  private boolean isUAC;
+  private boolean isUac;
 
   static WebClient createWebClient(Vertx vertx, JsonObject config) {
     return createWebClient(vertx, config, false);
@@ -96,20 +97,20 @@ public class AuthenticationVerticle extends AbstractVerticle {
    */
   @Override
   public void start() throws Exception {
-    isUAC = config().getBoolean(UAC_DEPLOYMENT);
+    isUac = config().getBoolean(UAC_DEPLOYMENT);
     binder = new ServiceBinder(vertx);
     binder.setAddress(AUTH_SERVICE_ADDRESS);
-    if (isUAC) {
+    if (isUac) {
       String keyCloakHost = config().getString(KEYCLOACK_HOST);
       String certsEndpoint = config().getString(CERTS_ENDPOINT);
       String audience = config().getString("host");
 
-      URL jwksURL = new URL(keyCloakHost.concat(certsEndpoint));
-      JWKSet publicKeys = JWKSet.load(jwksURL);
+      URL jwksUrl = new URL(keyCloakHost.concat(certsEndpoint));
+      JWKSet publicKeys = JWKSet.load(jwksUrl);
       JWKSource<SecurityContext> keySource = new ImmutableJWKSet<>(publicKeys);
-      JWSAlgorithm expectedJWSAlgo = JWSAlgorithm.RS256;
+      JWSAlgorithm expectedJwsAlgo = JWSAlgorithm.RS256;
       JWSKeySelector<SecurityContext> keySelector =
-          new JWSVerificationKeySelector<>(expectedJWSAlgo, keySource);
+          new JWSVerificationKeySelector<>(expectedJwsAlgo, keySource);
       ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
       jwtProcessor.setJWSTypeVerifier(
           new DefaultJOSEObjectTypeVerifier<>(new JOSEObjectType("jwt")));
@@ -138,7 +139,8 @@ public class AuthenticationVerticle extends AbstractVerticle {
                 JWTAuthOptions jwtAuthOptions = new JWTAuthOptions();
                 jwtAuthOptions.addPubSecKey(
                     new PubSecKeyOptions().setAlgorithm("ES256").setBuffer(cert));
-                /* Default jwtIgnoreExpiry is false. If set through config, then that value is taken */
+                /* Default jwtIgnoreExpiry is false.
+                   If set through config, then that value is taken */
                 boolean jwtIgnoreExpiry =
                     config().getBoolean("jwtIgnoreExpiry") != null
                         && config().getBoolean("jwtIgnoreExpiry");

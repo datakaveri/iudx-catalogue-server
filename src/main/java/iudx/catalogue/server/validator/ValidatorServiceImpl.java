@@ -47,7 +47,7 @@ public class ValidatorServiceImpl implements ValidatorService {
 
   private static final Pattern UUID_PATTERN =
       Pattern.compile(
-          ("^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"));
+          "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
 
   /** ES client. */
   static ElasticClient client;
@@ -184,7 +184,9 @@ public class ValidatorServiceImpl implements ValidatorService {
               handler.handle(Future.succeededFuture(request));
             } else {
               LOGGER.debug("Fail: Provider or Resource Group does not exist");
-              handler.handle(Future.failedFuture("Fail: Provider or Resource Group does not exist"));
+              handler
+                      .handle(Future
+                              .failedFuture("Fail: Provider or Resource Group does not exist"));
             }
           });
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
@@ -335,8 +337,18 @@ public class ValidatorServiceImpl implements ValidatorService {
   public ValidatorService validateMlayerGeoQuery(JsonObject request,
                                                  Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema = mlayerGeoQueryValidator.validate(request.toString());
+    boolean isValidUuid = false;
+    for (int i = 0; i < request.getJsonArray("id").size(); i++) {
+      if (isValidUuid(request.getJsonArray("id").getString(i))) {
+        isValidUuid = true;
+      } else {
+        isValidUuid = false;
+        break;
+      }
 
-    if (isValidSchema) {
+    }
+
+    if (isValidSchema && isValidUuid) {
       handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
       LOGGER.error("Fail: Invalid Schema");
@@ -351,5 +363,18 @@ public class ValidatorServiceImpl implements ValidatorService {
     df.setTimeZone(TimeZone.getTimeZone("IST"));
     final String utcTime = df.format(new Date());
     return utcTime;
+  }
+
+  @Override
+  public ValidatorService validateMlayerDatasetId(String datasetId,
+                                                  Handler<AsyncResult<JsonObject>> handler) {
+
+    if (isValidUuid(datasetId)) {
+      handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
+    } else {
+      LOGGER.error("Fail: Invalid Schema");
+      handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
+    }
+    return this;
   }
 }

@@ -36,6 +36,13 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
   private Api api;
   private String uacAdmin;
 
+  /**
+   * Constructs a new instance of KCAuthenticationServiceImpl.
+   *
+   * @param jwtProcessor The JWTProcessor used for JWT token processing and validation.
+   * @param config The JsonObject configuration object containing various settings.
+   * @param api The Api object used for communication with external services.
+   */
   public KCAuthenticationServiceImpl(
       final JWTProcessor<SecurityContext> jwtProcessor, final JsonObject config, final Api api) {
     this.jwtProcessor = jwtProcessor;
@@ -63,7 +70,7 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
   public AuthenticationService tokenInterospect(
       JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     String endpoint = authenticationInfo.getString(API_ENDPOINT);
-//        String id = authenticationInfo.getString(ID);
+    // String id = authenticationInfo.getString(ID);
     Method method = Method.valueOf(authenticationInfo.getString(METHOD));
     String token = authenticationInfo.getString(TOKEN);
     String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
@@ -81,10 +88,10 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
         .compose(
             isValidHandler -> {
               // if the token is of UAC admin, bypass ownership, else verify ownership
-              if(uacAdmin.equalsIgnoreCase(result.jwtData.getSub())) {
+              if (uacAdmin.equalsIgnoreCase(result.jwtData.getSub())) {
                 return Future.succeededFuture(true);
               } else {
-                if(itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+                if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
                   return Future.succeededFuture(true);
                 }
                 return Util.isValidAdmin(resourceServerUrl, result.jwtData, true);

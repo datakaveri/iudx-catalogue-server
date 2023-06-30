@@ -5,12 +5,12 @@ import static iudx.catalogue.server.util.Constants.*;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 public final class QueryDecoder {
@@ -33,14 +33,14 @@ public final class QueryDecoder {
     Boolean match = false;
 
     if (searchType.equalsIgnoreCase("getItemType")) {
-      elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1",request.getString(ID))
-          .replace("$2","\"type\",\"providerKcId\",\"resourceGroup\",\"resourceServer\""));
+      elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1", request.getString(ID))
+          .replace("$2", "\"type\",\"providerKcId\",\"resourceGroup\",\"resourceServer\""));
       return elasticQuery;
     }
-    if(searchType.equalsIgnoreCase("getRsUrl")) {
-      if(!request.getString(ITEM_TYPE).equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+    if (searchType.equalsIgnoreCase("getRsUrl")) {
+      if (!request.getString(ITEM_TYPE).equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
         LOGGER.debug(request);
-      elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1", request.getString(ID))
+        elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1", request.getString(ID))
           .replace("$2", "\"resourceServerHTTPAccessURL\""));
       } else {
         LOGGER.debug(request);
@@ -271,14 +271,16 @@ public final class QueryDecoder {
     String subQuery = "";
 
     /* Validating the request */
-    if (request.containsKey(ID) && RESOURCE.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+    if (request.containsKey(ID) && RESOURCE.equals(relationshipType)
+            && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
       String providerId = request.getString(ID);
       subQuery = TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY)
               .replace("$2", providerId)
               + ","
               + TERM_QUERY.replace("$1", TYPE_KEYWORD)
               .replace("$2", ITEM_TYPE_RESOURCE);
-    } else if (request.containsKey(ID) && RESOURCE.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+    } else if (request.containsKey(ID) && RESOURCE.equals(relationshipType)
+            && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
       String resourceGroupId = request.getString(ID);
 
       subQuery = TERM_QUERY.replace("$1", RESOURCE_GRP + KEYWORD_KEY)
@@ -286,16 +288,21 @@ public final class QueryDecoder {
               + ","
               + TERM_QUERY.replace("$1", TYPE_KEYWORD)
               .replace("$2", ITEM_TYPE_RESOURCE);
-    } else if (request.containsKey(ID) && RESOURCE.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+    } else if (request.containsKey(ID) && RESOURCE.equals(relationshipType)
+            && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       JsonArray groupIds = request.getJsonArray("grpIds");
       StringBuilder first = new StringBuilder(GET_RS1);
-      List<String> ids = groupIds.stream().map(JsonObject.class::cast).map(grpId -> grpId.getString(ID)).collect(Collectors.toList());
+      List<String> ids = groupIds.stream().map(JsonObject.class::cast)
+              .map(grpId -> grpId.getString(ID))
+              .collect(Collectors.toList());
       ids.forEach(id -> first.append(GET_RS2.replace("$1", id)));
       first.deleteCharAt(first.lastIndexOf(","));
       first.append(GET_RS3);
       return first.toString();
 
-    } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
+    } else if (request.containsKey(ID)
+            && RESOURCE_GRP.equals(relationshipType)
+            && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
       String resourceGroupId = request.getString("resourceGroup");
       subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
               .replace("$2", resourceGroupId)
@@ -303,7 +310,9 @@ public final class QueryDecoder {
               + TERM_QUERY.replace("$1", TYPE_KEYWORD)
               .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
 
-    } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+    } else if (request.containsKey(ID) && RESOURCE_GRP
+            .equals(relationshipType)
+            && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
       String providerId = request.getString(ID);
       subQuery = TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY)
               .replace("$2", providerId)
@@ -311,7 +320,8 @@ public final class QueryDecoder {
               + TERM_QUERY.replace("$1", TYPE_KEYWORD)
               .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
 
-    } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType) && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+    } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType)
+            && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       String rsServer = request.getString(ID);
       subQuery = TERM_QUERY.replace("$1", RESOURCE_SVR + KEYWORD_KEY)
               .replace("$2", rsServer)
@@ -320,7 +330,7 @@ public final class QueryDecoder {
               .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
 
     } else if (request.containsKey(ID) && PROVIDER.equals(relationshipType)) {
-      String id = request.getString(ID);
+      //String id = request.getString(ID);
       String providerId = request.getString(PROVIDER);
 
       subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)

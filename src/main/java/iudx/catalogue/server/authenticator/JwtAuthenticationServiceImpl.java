@@ -174,13 +174,13 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   public AuthenticationService tokenInterospect(
       JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     String endPoint = authenticationInfo.getString(API_ENDPOINT);
-    String id = authenticationInfo.getString(ID);
+    // String id = authenticationInfo.getString(ID);
     String provider = authenticationInfo.getString(PROVIDER_KC_ID);
     String token = authenticationInfo.getString(TOKEN);
     String method = authenticationInfo.getString(METHOD);
     String itemType =
         method.equalsIgnoreCase(Method.DELETE.toString())
-//                && !endPoint.equalsIgnoreCase(RATINGS_ENDPOINT)
+            // && !endPoint.equalsIgnoreCase(RATINGS_ENDPOINT)
             ? authenticationInfo.getString(ITEM_TYPE)
             : "";
     String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
@@ -190,9 +190,10 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
     ResultContainer result = new ResultContainer();
     boolean skipProviderIdCheck =
-        (api != null && api.getRouteInstance().equalsIgnoreCase(endPoint))
+        api != null && api.getRouteInstance().equalsIgnoreCase(endPoint)
             || RATINGS_ENDPOINT.equalsIgnoreCase(endPoint)
-            || ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType) || endPoint.contains("/internal/ui");
+            || ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)
+                || endPoint.contains("/internal/ui");
 
     jwtDecodeFuture
         .compose(

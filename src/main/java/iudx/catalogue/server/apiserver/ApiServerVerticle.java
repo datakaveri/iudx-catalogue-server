@@ -127,9 +127,9 @@ public class ApiServerVerticle extends AbstractVerticle {
     // Instantiate this server
     server = vertx.createHttpServer(serverOptions);
 
-    boolean isUAC = config().getBoolean(UAC_DEPLOYMENT);
+    boolean isUac = config().getBoolean(UAC_DEPLOYMENT);
     // API Callback managers
-    crudApis = new CrudApis(api, isUAC);
+    crudApis = new CrudApis(api, isUac);
     searchApis = new SearchApis(api);
     listApis = new ListApis();
     relApis = new RelationshipApis();

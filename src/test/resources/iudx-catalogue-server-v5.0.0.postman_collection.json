@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "61e0068b-a672-4ae6-b962-12e5e6b32520",
+		"_postman_id": "f6865e7a-62c9-4ff4-b020-676946f6d370",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17194681"
+		"_exporter_id": "27217689"
 	},
 	"item": [
 		{
@@ -509,63 +509,6 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceGroup\",\r\n            \"iudx:IssueReporting\"\r\n          ],\r\n          \"name\": \"agra-swachhata-app\",\r\n          \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n          \"tags\": [\r\n            \"swachhata\",\r\n            \"complaints\",\r\n            \"reporting\",\r\n            \"issue\",\r\n            \"garbage dump\",\r\n            \"debris removal\",\r\n            \"open defecation\",\r\n            \"construction material\",\r\n            \"requests\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceServer\":  \"e0760835-6066-301b-b224-\"\r\n        }",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/item/",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item",
-										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "400 (invalid UUID) - Create an DX Entity",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidUUID\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "token",
-										"type": "text",
-										"value": "{{token}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Provider\"\r\n        ],\r\n        \"name\": \"uuid-test\",\r\n        \"description\": \"provider id for uuid test\",\r\n        \"providerOrg\": {\r\n            \"name\": \"Datakaveri\",\r\n            \"additionalInfoURL\": \"https://datakaveri.org\",\r\n            \"location\": {\r\n                \"type\": \"Place\",\r\n                \"address\": \"IIsc\",\r\n                \"geometry\": {\r\n                    \"type\": \"Point\",\r\n                    \"coordinates\": [\r\n                        75.92,\r\n                        14.5\r\n                    ]\r\n                }\r\n            }\r\n        },\r\n        \"_summary\": \"uuid-test provider id for uuid test \",\r\n        \"id\": \"2ed6f05f-2f35-3f70-a472-79763fc81\",\r\n        \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\"\r\n    }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -12583,7 +12526,7 @@
 					]
 				},
 				{
-					"name": "Mlayer GeoQuery",
+					"name": "Mlayer Geo-Query",
 					"item": [
 						{
 							"name": "200 (Success) - Post GeoQuery",
@@ -12617,7 +12560,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"id\":[\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/faridabad-camera-feeds\",\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app\",\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/chennai-bike-docking-locations\"],\r\n    \"instance\":\"pune\"\r\n}",
+									"raw": "{\r\n    \"id\":[\"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\"83c2e5c2-3574-4e11-9530-2b1fbdfce832\"],\r\n    \"instance\":\"surat\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -12672,7 +12615,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"iddd\":[\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/faridabad-camera-feeds\",\"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app\"],\r\n    \"instance\":\"pune\"\r\n}",
+									"raw": "{\r\n    \"id\":[\"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\"8b95ab80-2aaf-4636-a65e0d371\"],\r\n    \"instance\":\"surat\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -12773,7 +12716,7 @@
 									}
 								],
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/dataset?id=datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm",
+									"raw": "{{host}}{{base}}/internal/ui/dataset?id=8b95ab80-2aaf-4636-a65e-7f2563d0d371",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -12785,7 +12728,107 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/pune-env-aqm"
+											"value": "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "404 (Item not found) - Post Dataset",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:ItemNotFound\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/dataset?id=8b95ab80-2aaq-4636-a65e-7f2563d0d371",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"dataset"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "8b95ab80-2aaq-4636-a65e-7f2563d0d371"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Schema) - Post Dataset",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/dataset?id=8b95ab80-2aaf-4636-a6e",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"dataset"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "8b95ab80-2aaf-4636-a6e"
 										}
 									]
 								}
