@@ -202,4 +202,26 @@ public class ElasticClientTest {
     assertNotNull(elasticClient.searchAsyncDataset(query,docIndex, handler));
     vertxTestContext.completeNow();
   }
+  @Test
+  @Description("test docPostAsync method")
+  public void testDocPostAsync(VertxTestContext vertxTestContext) {
+    String query="dummy";
+    assertNotNull(elasticClient.docPostAsync(query,docIndex, handler));
+    vertxTestContext.completeNow();
+  }
+  @Test
+  @Description("test docPutAsync method")
+  public void testDocPutAsync(VertxTestContext vertxTestContext) {
+    String query="dummy";
+    String doc = "dummy";
+    assertNotNull(elasticClient.docPutAsync(query,docIndex,doc, handler));
+    vertxTestContext.completeNow();
+  }
+  @Test
+  @Description("test docDelAsync method")
+  public void testDocDelAsync(VertxTestContext vertxTestContext) {
+    String query="dummy";
+    assertNotNull(elasticClient.docDelAsync(query,docIndex, handler));
+    vertxTestContext.completeNow();
+  }
 }
