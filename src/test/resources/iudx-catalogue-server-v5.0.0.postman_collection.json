@@ -108,6 +108,7 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"itemId\": \"cat-test.iudx.io\", \n  \"itemType\": \"resource_server\",\n  \"role\": \"delegate\"\n}",
+
 							"options": {
 								"raw": {
 									"language": "json"

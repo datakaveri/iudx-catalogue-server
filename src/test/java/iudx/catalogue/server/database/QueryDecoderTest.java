@@ -470,13 +470,13 @@ public class QueryDecoderTest {
     vertxTestContext.completeNow();
   }
   @Test
-  @Disabled
   @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
   public void testListRelationshipQueryID(VertxTestContext vertxTestContext) {
     queryDecoder=new QueryDecoder();
     JsonObject request=new JsonObject();
     request.put(RELATIONSHIP,RESOURCE)
-            .put(ID,"dummy");
+            .put(ID,"dummy")
+            .put(ITEM_TYPE,"iudx:ResourceGroup");
     String subQuery = TERM_QUERY.replace("$1", RESOURCE_GRP + KEYWORD_KEY)
             .replace("$2", request.getString(ID))
             + "," +
@@ -492,13 +492,13 @@ public class QueryDecoderTest {
     vertxTestContext.completeNow();
   }
   @Test
-  @Disabled
   @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
   public void testListRelationshipQueryProvider(VertxTestContext vertxTestContext) {
     queryDecoder=new QueryDecoder();
     JsonObject request=new JsonObject();
     request.put(RELATIONSHIP,PROVIDER)
-            .put(ID,"abcd/abcd");
+            .put(ID,"abcd/abcd")
+            .put(PROVIDER,"abcd/abc");
     String id=request.getString(ID);
     String providerId = StringUtils.substring(id, 0, id.indexOf("/", id.indexOf("/") + 1));
     String subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
@@ -515,5 +515,153 @@ public class QueryDecoderTest {
     assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
     vertxTestContext.completeNow();
   }
+  @Test
+  @Description("testing listRelationshipQuery method when realtionshipType is resource and itemType is provider")
+  public void testListRelationshipResource(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    request.put(RELATIONSHIP,RESOURCE)
+            .put(ID,"dummy")
+            .put(ITEM_TYPE,"iudx:Provider");
+    String subQuery = TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY)
+            .replace("$2", request.getString(ID))
+            + "," +
+            TERM_QUERY.replace("$1", TYPE_KEYWORD)
+                    .replace("$2", ITEM_TYPE_RESOURCE);
+    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+    assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method when realtionshipType is resource group and itemType is resource")
+  public void testListRelationshipResourceGroup(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    request.put(RELATIONSHIP,RESOURCE_GRP)
+            .put(ID,"dummy")
+            .put(ITEM_TYPE,"iudx:Resource")
+            .put("resourceGroup","dummy id");
+    String  subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
+            .replace("$2", request.getString("resourceGroup"))
+            + ","
+            + TERM_QUERY.replace("$1", TYPE_KEYWORD)
+            .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+    assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+  @Test
+  @Description("testing listRelationshipQuery method when realtionshipType is resource group and itemType is provider")
+  public void testListRelationshipItemProvider(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    request.put(RELATIONSHIP,RESOURCE_GRP)
+            .put(ID,"dummy")
+            .put(ITEM_TYPE,"iudx:Provider")
+            .put("resourceGroup","dummy id");
+    String   subQuery = TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY)
+            .replace("$2", request.getString(ID))
+            + ","
+            + TERM_QUERY.replace("$1", TYPE_KEYWORD)
+            .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+    assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+  @Test
+  @Description("testing listRelationshipQuery method when realtionshipType is resourceGrp and itemType is rescource server")
+  public void testListRelationshipItemResourceServer(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    request.put(RELATIONSHIP,RESOURCE_GRP)
+            .put(ID,"dummy")
+            .put(ITEM_TYPE,"iudx:ResourceServer");
+    String subQuery = TERM_QUERY.replace("$1", RESOURCE_SVR + KEYWORD_KEY)
+            .replace("$2",  request.getString(ID))
+            + ","
+            + TERM_QUERY.replace("$1", TYPE_KEYWORD)
+            .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+    assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+  @Test
+  @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
+  public void testsearchQueryGetItemType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(SEARCH_TYPE,"getItemType")
+            .put(ID,"id");
+    JsonObject elasticQuery =
+        new JsonObject(
+            GET_DOC_QUERY
+                .replace("$1", request.getString(ID))
+                .replace("$2", "\"type\",\"providerKcId\",\"resourceGroup\",\"resourceServer\""));
+    assertEquals(elasticQuery,queryDecoder.searchQuery(request));
+
+    vertxTestContext.completeNow();
+  }
+  @Test
+  @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
+  public void testsearchQueryGetUrl(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(SEARCH_TYPE,"getRsUrl")
+            .put(ID,"id")
+            .put(ITEM_TYPE,"iudx:Provider");
+    JsonObject elasticQuery =
+        new JsonObject(
+            GET_DOC_QUERY
+                .replace("$1", request.getString(ID))
+                .replace("$2", "\"resourceServerHTTPAccessURL\""));
+    assertEquals(elasticQuery,queryDecoder.searchQuery(request));
+
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
+  public void testsearchQueryResourceGrp(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(SEARCH_TYPE,"getRsUrl")
+            .put(ID,"id")
+            .put(ITEM_TYPE, "iudx:ResourceGroup");
+    JsonObject elasticQuery =
+        new JsonObject(
+            GET_DOC_QUERY.replace("$1", request.getString(ID)).replace("$2", "\"resourceServer\""));
+    assertEquals(elasticQuery,queryDecoder.searchQuery(request));
+
+    vertxTestContext.completeNow();
+  }
+
+
 
 }
