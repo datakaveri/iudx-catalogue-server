@@ -7,14 +7,11 @@ import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 
 public class AdminAuthStrategy implements AuthorizationStratergy {
-  private Api api;
-  private static volatile AdminAuthStrategy instance;
   static List<AuthorizationRequest> accessList = new ArrayList<>();
+  private static volatile AdminAuthStrategy instance;
+  private Api api;
 
   private  AdminAuthStrategy(Api api) {
     this.api = api;
@@ -40,6 +37,7 @@ public class AdminAuthStrategy implements AuthorizationStratergy {
 
   private void buildPermissions(Api api) {
     // /item access list
+    accessList.add(new AuthorizationRequest(POST, api.getRouteItems())); 
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems()));
     accessList.add(new AuthorizationRequest(POST, api.getRouteInstance()));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteInstance()));

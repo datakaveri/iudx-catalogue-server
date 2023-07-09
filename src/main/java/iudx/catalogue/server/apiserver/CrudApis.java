@@ -19,40 +19,36 @@ import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
-import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.authenticator.AuthenticationService;
-import iudx.catalogue.server.authenticator.Constants;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.util.Api;
 import iudx.catalogue.server.validator.ValidatorService;
 import java.time.ZonedDateTime;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 public final class CrudApis {
 
 
+  private static final Logger LOGGER = LogManager.getLogger(CrudApis.class);
+  private static final Pattern UUID_PATTERN =
+          Pattern.compile(
+                  "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
   private DatabaseService dbService;
   private AuthenticationService authService;
   private ValidatorService validatorService;
   private AuditingService auditingService;
-  private static final Logger LOGGER = LogManager.getLogger(CrudApis.class);
   private boolean hasAuditService = false;
   private String host;
   private Api api;
-  private static final Pattern UUID_PATTERN =
-          Pattern.compile(
-                  "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
   private boolean isUac;
 
 
@@ -111,8 +107,12 @@ public final class CrudApis {
       type = new HashSet<String>(requestBody.getJsonArray(TYPE).getList());
     } catch (Exception e) {
       LOGGER.error("Fail: Invalid type");
+      RespBuilder respBuilder = new RespBuilder()
+          .withTitle(TYPE_INVALID_SCHEMA)
+          .withTitle(TITLE_INVALID_SCHEMA)
+          .withDetail("Invalid type for item/type not present");
       response.setStatusCode(400)
-              .end("Fail: Invalid type");
+              .end(respBuilder.getResponse());
     }
     type.retainAll(ITEM_TYPES);
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
@@ -155,7 +155,7 @@ public final class CrudApis {
 
             if (isUac) {
               if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-                if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+                if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
                   handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
                 } else {
                   String resourceServer = requestBody.getString(RESOURCE_SVR);
@@ -169,8 +169,8 @@ public final class CrudApis {
                       rsUrl -> {
                         if (rsUrl.succeeded()) {
                           requestBody.put(
-                              "resourceServerHTTPAccessURL",
-                              rsUrl.result().getString("resourceServerHTTPAccessURL"));
+                              RESOURCE_SERVER_URL,
+                              rsUrl.result().getString(RESOURCE_SERVER_URL));
                           handleItemCreation(
                               routingContext, requestBody, response, jwtAuthenticationInfo);
                         }
@@ -198,8 +198,8 @@ public final class CrudApis {
                             rsUrl -> {
                               if (rsUrl.succeeded()) {
                                 requestBody.put(
-                                    "resourceServerHTTPAccessURL",
-                                    rsUrl.result().getString("resourceServerHTTPAccessURL"));
+                                    RESOURCE_SERVER_URL,
+                                    rsUrl.result().getString(RESOURCE_SERVER_URL));
                                 handleItemCreation(
                                     routingContext, requestBody, response, jwtAuthenticationInfo);
                               }
@@ -212,6 +212,10 @@ public final class CrudApis {
                 jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
                 // get provider keycloack id for auth
                 jwtAuthenticationInfo.put(PROVIDER_KC_ID, requestBody.getString(PROVIDER_KC_ID));
+                handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
+              } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+                jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
+//                jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, requestBody.getString(RESOURCE_SERVER_URL));
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else {
                 jwtAuthenticationInfo.put(ID, requestBody.getString(PROVIDER));
@@ -277,45 +281,6 @@ public final class CrudApis {
                                 .withTitle(TITLE_INVALID_UUID)
                                 .withDetail("Syntax of the UUID is incorrect")
                                 .getResponse());
-                return;
-              }
-              if (valhandler.cause()
-                      .getMessage()
-                      .contains("Fail: Provider or Resource Group does not exist")) {
-                response.setStatusCode(400)
-                        .end(new RespBuilder()
-                                .withType(TYPE_OPERATION_NOT_ALLOWED)
-                                .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-                                .withDetail("Fail: Provider or ResourceGroup does not exist")
-                                .getResponse());
-                return;
-              }
-              if (valhandler.cause().getMessage().contains("Fail: Provider does not exist")) {
-                response.setStatusCode(400)
-                        .end(new RespBuilder()
-                                .withType(TYPE_OPERATION_NOT_ALLOWED)
-                                .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-                                .withDetail("Fail: Provider does not exist")
-                                .getResponse());
-                return;
-              }
-              if (valhandler.cause().getMessage().contains("Fail: Provider or Resource Server "
-                      + "does not exist")) {
-                response.setStatusCode(400)
-                        .end(new RespBuilder()
-                                .withType(TYPE_OPERATION_NOT_ALLOWED)
-                                .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-                                .withDetail("Fail: Provider or Resource Server does not exist")
-                                .getResponse());
-                return;
-              }
-              if (valhandler.cause().getMessage().contains("mandatory id field not present")) {
-                response.setStatusCode(400)
-                    .end(new RespBuilder()
-                        .withType(TYPE_OPERATION_NOT_ALLOWED)
-                        .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-                        .withDetail(valhandler.cause().getMessage())
-                        .getResponse());
                 return;
               }
               response.setStatusCode(400)
@@ -474,9 +439,8 @@ public final class CrudApis {
                       .getJsonArray(TYPE)
                       .getList());
           types.retainAll(ITEM_TYPES);
-          LOGGER.debug(types);
           String itemType = types.toString().replaceAll("\\[", "").replaceAll("\\]", "");
-          LOGGER.debug(itemType);
+          LOGGER.debug("itemType : {} ", itemType);
           String providerkcId = itemTypeHandler.result().getString(PROVIDER_KC_ID);
           jwtAuthenticationInfo
               .put(TOKEN, request.getHeader(HEADER_TOKEN))
@@ -488,8 +452,7 @@ public final class CrudApis {
           LOGGER.debug(itemTypeHandler.result());
           if (isUac) {
             if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-              if (itemType.equalsIgnoreCase(PROVIDER)
-                      || itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
+              if (itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
                 handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
               }
               String resourceServer = itemId;
@@ -506,8 +469,8 @@ public final class CrudApis {
                   rsUrl -> {
                     if (rsUrl.succeeded()) {
                       jwtAuthenticationInfo.put(
-                          "resourceServerHTTPAccessURL",
-                          rsUrl.result().getString("resourceServerHTTPAccessURL"));
+                          RESOURCE_SERVER_URL,
+                          rsUrl.result().getString(RESOURCE_SERVER_URL));
                       handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
                     }
                   });
@@ -533,8 +496,8 @@ public final class CrudApis {
                           rsUrl -> {
                             if (rsUrl.succeeded()) {
                               jwtAuthenticationInfo.put(
-                                  "resourceServerHTTPAccessURL",
-                                  rsUrl.result().getString("resourceServerHTTPAccessURL"));
+                                  RESOURCE_SERVER_URL,
+                                  rsUrl.result().getString(RESOURCE_SERVER_URL));
                               handleItemDeletion(response, jwtAuthenticationInfo,
                                       requestBody, itemId);
                             }
@@ -554,8 +517,8 @@ public final class CrudApis {
                   rsUrl -> {
                     if (rsUrl.succeeded()) {
                       requestBody.put(
-                          "resourceServerHTTPAccessURL",
-                          rsUrl.result().getString("resourceServerHTTPAccessURL"));
+                          RESOURCE_SERVER_URL,
+                          rsUrl.result().getString(RESOURCE_SERVER_URL));
                       handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
                     }
                   });

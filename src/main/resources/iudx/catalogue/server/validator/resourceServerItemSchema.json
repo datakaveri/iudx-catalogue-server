@@ -56,7 +56,7 @@
     "required": [
         "@context",
         "type",
-        "provider",
+        "owner",
         "name",
         "description",
         "tags",
@@ -114,11 +114,11 @@
             "maxLength": 36,
             "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
         },
-        "provider": {
+        "owner": {
             "$id": "#/properties/provider",
             "type": "string",
-            "title": "The provider schema",
-            "description": "An explanation about the purpose of this instance.",
+            "title": "The owner schema",
+            "description": "id of the owner (cop admin) of a resource server",
             "default": "",
             "examples": [
                 "8b95ab80-2aaf-4636-a65e-7f2563d0d371"

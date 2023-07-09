@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "f6865e7a-62c9-4ff4-b020-676946f6d370",
+		"_postman_id": "61e0068b-a672-4ae6-b962-12e5e6b32520",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27217689"
+		"_exporter_id": "17194681"
 	},
 	"item": [
 		{
@@ -107,7 +107,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"itemId\": \"datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/cat-test.iudx.io/catalogue/crud\", \n  \"itemType\": \"resource\",\n  \"role\": \"provider\"\n}",
+							"raw": "{\n  \"itemId\": \"cat-test.iudx.io\", \n  \"itemType\": \"resource_server\",\n  \"role\": \"delegate\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -204,6 +204,76 @@
 					"name": "Create Item",
 					"item": [
 						{
+							"name": "201 (success) - Create an DX Resource Server Item Entity",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"    pm.expect(body.results).to.have.property(\"id\");\r",
+											"    const ID = body.results.id;\r",
+											"    pm.globals.set(\"resource_server_id\", ID);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"type": "text",
+										"value": "{{adminToken}}"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
+									},
+									{
+										"key": "options",
+										"value": "central",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceServer\"\r\n          ],\r\n          \"name\": \"rs.iudx.io\",\r\n          \"description\": \"dummy  IUDX resource server\",\r\n          \"tags\": [\r\n            \"IUDX\",\r\n            \"Resource\",\r\n            \"Server\",\r\n            \"Platform\"\r\n          ],\r\n          \"owner\": \"fd47486b-3497-4248-ac1e-082e4d37a66c\",\r\n          \"resourceServerHTTPAccessURL\": \"cop.iudx.io\",\r\n          \"resourceServerOrg\":  {\r\n                    \"name\": \"iudx\",\r\n                    \"additionalInfoURL\": \"https://iudx.org.in\",\r\n                    \"location\": {\r\n                        \"type\": \"Place\",\r\n                        \"address\": \"IISc, Bangalore\",\r\n                        \"geometry\": {\r\n                            \"type\": \"Point\",\r\n                            \"coordinates\": [\r\n                                77.570423,\r\n                                13.013945\r\n                            ]\r\n                        }\r\n                    }\r\n                }\r\n        }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/item/",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "201 (success) - Create an DX Provider Item",
 							"event": [
 								{
@@ -247,77 +317,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Provider\"\r\n          ],\r\n          \"name\": \"uuid-test\",\r\n          \"description\": \"provider id for uuid test\",\r\n          \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\",\r\n          \"providerOrg\": {\r\n            \"name\": \"Datakaveri\",\r\n            \"additionalInfoURL\": \"https://datakaveri.org\",\r\n            \"location\": {\r\n              \"type\": \"Place\",\r\n              \"address\": \"IIsc\",\r\n              \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                  75.92,\r\n                  14.5\r\n                ]\r\n              }\r\n            }\r\n          },\r\n          \"_summary\": \"uuid test provider id\"\r\n        }",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/item/",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item",
-										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "201 (success) - Create an DX Resource Server Item Entity",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(201);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"    pm.expect(body.results).to.have.property(\"id\");\r",
-											"    const ID = body.results.id;\r",
-											"    pm.globals.set(\"resource_server_id\", ID);\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "token",
-										"type": "text",
-										"value": "{{token}}"
-									},
-									{
-										"key": "instanc",
-										"value": "pune",
-										"type": "text",
-										"disabled": true
-									},
-									{
-										"key": "options",
-										"value": "central",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceServer\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"name\": \"rs.iudx.io\",\r\n          \"description\": \"dummy  IUDX resource server\",\r\n          \"tags\": [\r\n            \"IUDX\",\r\n            \"Resource\",\r\n            \"Server\",\r\n            \"Platform\"\r\n          ],\r\n          \"resourceServerHTTPAccessURL\": \"cop.iudx.io\",\r\n          \"resourceServerOrg\":  {\r\n                    \"name\": \"iudx\",\r\n                    \"additionalInfoURL\": \"https://iudx.org.in\",\r\n                    \"location\": {\r\n                        \"type\": \"Place\",\r\n                        \"address\": \"IISc, Bangalore\",\r\n                        \"geometry\": {\r\n                            \"type\": \"Point\",\r\n                            \"coordinates\": [\r\n                                77.570423,\r\n                                13.013945\r\n                            ]\r\n                        }\r\n                    }\r\n                }\r\n        }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"uuid-test\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"description\": \"provider id for uuid test\",\r\n    \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"_summary\": \"uuid test provider id\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -381,7 +381,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceGroup\",\r\n            \"iudx:IssueReporting\"\r\n          ],\r\n          \"name\": \"agra-swachhata-app\",\r\n          \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n          \"tags\": [\r\n            \"swachhata\",\r\n            \"complaints\",\r\n            \"reporting\",\r\n            \"issue\",\r\n            \"garbage dump\",\r\n            \"debris removal\",\r\n            \"open defecation\",\r\n            \"construction material\",\r\n            \"requests\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceServer\":  \"{{resource_server_id}}\"\r\n        }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"agra-swachhata-app\",\r\n    \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"reporting\",\r\n        \"issue\",\r\n        \"garbage dump\",\r\n        \"debris removal\",\r\n        \"open defecation\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceServer\": \"{{resource_server_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -445,7 +445,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": " {\r\n         \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:PointOfInterest\"\r\n          ],\r\n          \"name\": \"wifi-locations\",\r\n          \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n          \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n          \"tags\": [\r\n            \"Wi-Fi\",\r\n            \"Wi-Fi zone\",\r\n            \"hotspot\",\r\n            \"internet\",\r\n            \"Wi-Fi access\",\r\n            \"Wi-Fi location\",\r\n            \"wireless internet\",\r\n            \"internet access\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceGroup\": \"{{resource_group_id}}\"\r\n        }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wifi-locations\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -529,6 +529,63 @@
 							"response": []
 						},
 						{
+							"name": "400 (invalid UUID) - Create an DX Entity",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidSchema\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Provider\"\r\n        ],\r\n        \"name\": \"uuid-test\",\r\n        \"description\": \"provider id for uuid test\",\r\n        \"providerOrg\": {\r\n            \"name\": \"Datakaveri\",\r\n            \"additionalInfoURL\": \"https://datakaveri.org\",\r\n            \"location\": {\r\n                \"type\": \"Place\",\r\n                \"address\": \"IIsc\",\r\n                \"geometry\": {\r\n                    \"type\": \"Point\",\r\n                    \"coordinates\": [\r\n                        75.92,\r\n                        14.5\r\n                    ]\r\n                }\r\n            }\r\n        },\r\n        \"_summary\": \"uuid-test provider id for uuid test \",\r\n        \"id\": \"2ed6f05f-2f35-3f70-a472-79763fc81\",\r\n        \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\"\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/item/",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "401 (invalid jwt credentials) - Create an DX Entity (JWT Token)",
 							"event": [
 								{
@@ -571,7 +628,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n        \"@context\": \"https://voc.iudx.org.in/\",\r\n        \"type\": [\r\n            \"iudx:Provider\"\r\n        ],\r\n        \"name\": \"uuid-test\",\r\n        \"description\": \"provider id for uuid test\",\r\n        \"providerOrg\": {\r\n            \"name\": \"Datakaveri\",\r\n            \"additionalInfoURL\": \"https://datakaveri.org\",\r\n            \"location\": {\r\n                \"type\": \"Place\",\r\n                \"address\": \"IIsc\",\r\n                \"geometry\": {\r\n                    \"type\": \"Point\",\r\n                    \"coordinates\": [\r\n                        75.92,\r\n                        14.5\r\n                    ]\r\n                }\r\n            }\r\n        },\r\n        \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\",\r\n        \"_summary\": \"uuid-test provider id for uuid test \"\r\n    }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"uuid-test\",\r\n    \"description\": \"provider id for uuid test\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\",\r\n    \"_summary\": \"uuid-test provider id for uuid test \"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -846,6 +903,63 @@
 					"name": "Update Item",
 					"item": [
 						{
+							"name": "200 (success) - Update an Resource Server DX Entity",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "token",
+										"type": "text",
+										"value": "{{adminToken}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceServer\"\r\n          ],\r\n          \"id\":\"{{resource_server_id}}\",\r\n          \"owner\": \"fd47486b-3497-4248-ac1e-082e4d37a66c\",\r\n          \"name\": \"rs.iudx.io\",\r\n          \"description\": \"updated dummy  IUDX resource server\",\r\n          \"tags\": [\r\n            \"IUDX\",\r\n            \"Resource\",\r\n            \"Server\",\r\n            \"Platform\"\r\n          ],\r\n          \"resourceServerHTTPAccessURL\": \"cop.iudx.io\",\r\n          \"resourceServerOrg\":  {\r\n                    \"name\": \"iudx\",\r\n                    \"additionalInfoURL\": \"https://iudx.org.in\",\r\n                    \"location\": {\r\n                        \"type\": \"Place\",\r\n                        \"address\": \"IISc, Bangalore\",\r\n                        \"geometry\": {\r\n                            \"type\": \"Point\",\r\n                            \"coordinates\": [\r\n                                77.570423,\r\n                                13.013945\r\n                            ]\r\n                        }\r\n                    }\r\n                }\r\n        }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/item/",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "200 (success) - Update an Provider DX Entity",
 							"event": [
 								{
@@ -882,64 +996,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Provider\"\r\n          ],\r\n          \"name\": \"uuid-test\",\r\n          \"description\": \"provider id for uuid test\",\r\n          \"providerOrg\": {\r\n            \"name\": \"Datakaveri\",\r\n            \"additionalInfoURL\": \"https://datakaveri.org\",\r\n            \"location\": {\r\n              \"type\": \"Place\",\r\n              \"address\": \"IIsc\",\r\n              \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                  75.92,\r\n                  14.5\r\n                ]\r\n              }\r\n            }\r\n          },\r\n          \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\",\r\n          \"_summary\": \"uuid test provider id\"\r\n        }",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/item/",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item",
-										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "200 (success) - Update an Resource Server DX Entity",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "token",
-										"type": "text",
-										"value": "{{token}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceServer\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"id\":\"{{resource_server_id}}\",\r\n          \"name\": \"rs.iudx.io\",\r\n          \"description\": \"updated dummy  IUDX resource server\",\r\n          \"tags\": [\r\n            \"IUDX\",\r\n            \"Resource\",\r\n            \"Server\",\r\n            \"Platform\"\r\n          ],\r\n          \"resourceServerHTTPAccessURL\": \"cop.iudx.io\",\r\n          \"resourceServerOrg\":  {\r\n                    \"name\": \"iudx\",\r\n                    \"additionalInfoURL\": \"https://iudx.org.in\",\r\n                    \"location\": {\r\n                        \"type\": \"Place\",\r\n                        \"address\": \"IISc, Bangalore\",\r\n                        \"geometry\": {\r\n                            \"type\": \"Point\",\r\n                            \"coordinates\": [\r\n                                77.570423,\r\n                                13.013945\r\n                            ]\r\n                        }\r\n                    }\r\n                }\r\n        }",
+									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Provider\"\r\n          ],\r\n          \"name\": \"uuid-test\",\r\n          \"description\": \"provider id for uuid test\",\r\n          \"id\": \"{{provider_id}}\",\r\n          \"resourceServer\": \"{{resource_server_id}}\",\r\n          \"providerOrg\": {\r\n            \"name\": \"Datakaveri\",\r\n            \"additionalInfoURL\": \"https://datakaveri.org\",\r\n            \"location\": {\r\n              \"type\": \"Place\",\r\n              \"address\": \"IIsc\",\r\n              \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                  75.92,\r\n                  14.5\r\n                ]\r\n              }\r\n            }\r\n          },\r\n          \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\",\r\n          \"_summary\": \"uuid test provider id\"\r\n        }",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1206,7 +1263,7 @@
 											"\r",
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:OperationNotAllowed\");\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:LinkValidationFailed\");\r",
 											"});\r",
 											"\r",
 											""
@@ -1432,65 +1489,6 @@
 							"response": []
 						},
 						{
-							"name": "200 (success) - Delete an Resource Server DX Entity Copy",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "DELETE",
-								"header": [
-									{
-										"key": "token",
-										"value": "{{adminToken}}",
-										"type": "text"
-									},
-									{
-										"key": "instance",
-										"value": "pune",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"url": {
-									"raw": "{{host}}{{base}}/item?id={{resource_server_id}}",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item"
-									],
-									"query": [
-										{
-											"key": "id",
-											"value": "{{resource_server_id}}"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "200 (success) - Delete an Provider DX Entity",
 							"event": [
 								{
@@ -1543,6 +1541,65 @@
 										{
 											"key": "id",
 											"value": "{{provider_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Delete an Resource Server DX Entity Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{adminToken}}",
+										"type": "text"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/item?id={{resource_server_id}}",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "{{resource_server_id}}"
 										}
 									]
 								}

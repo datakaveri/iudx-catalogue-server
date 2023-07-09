@@ -30,8 +30,10 @@ public class Constants {
   public static final String API_ENDPOINT = "apiEndpoint";
   public static final String METHOD = "method";
   public static final String RATINGS_ENDPOINT = "/consumer/ratings";
-  public static final String MLAYER_INSTANCE_ENDPOINT = "/internal/ui/instance";
-  public static final String MLAYER_DOMAIN_ENDPOINT = "/internal/ui/domain";
-  public static final String MLAYER_PROVIDERS_ENDPOINT = "/internal/ui/providers";
+
+  public static final String MLAYER_BASE_PATH = "/internal/ui";
+  public static final String MLAYER_INSTANCE_ENDPOINT = MLAYER_BASE_PATH + "/instance";
+  public static final String MLAYER_DOMAIN_ENDPOINT = MLAYER_BASE_PATH + "/domain";
+  public static final String MLAYER_PROVIDERS_ENDPOINT = MLAYER_BASE_PATH + "/providers";
 
 }

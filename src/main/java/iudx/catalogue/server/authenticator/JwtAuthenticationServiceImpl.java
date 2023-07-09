@@ -93,9 +93,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       jwtId = jwtData.getSub();
     } else if (jwtData.getRole().equalsIgnoreCase("delegate")) {
       // TODO: add logic for delegate once delegate token is updated
+      jwtId = jwtData.getSub();
     }
-    LOGGER.debug(provider);
-    LOGGER.debug(jwtId);
 
     if (provider.equalsIgnoreCase(jwtId)) {
       promise.complete(true);
@@ -152,7 +151,6 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     if (jwtAuthStrategy.isAuthorized(authRequest, jwtData)) {
       // Don't allow access to delete resource server item for anyone except Admin
       if (ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)
-          && method.equals(Method.DELETE)
           && !authStrategy.getClass().getSimpleName().equalsIgnoreCase("AdminAuthStrategy")) {
         JsonObject result = new JsonObject().put("401", "no access provided to endpoint");
         promise.fail(result.toString());
@@ -174,26 +172,22 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   public AuthenticationService tokenInterospect(
       JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     String endPoint = authenticationInfo.getString(API_ENDPOINT);
-    // String id = authenticationInfo.getString(ID);
     String provider = authenticationInfo.getString(PROVIDER_KC_ID);
     String token = authenticationInfo.getString(TOKEN);
     String method = authenticationInfo.getString(METHOD);
-    String itemType =
-        method.equalsIgnoreCase(Method.DELETE.toString())
-            // && !endPoint.equalsIgnoreCase(RATINGS_ENDPOINT)
-            ? authenticationInfo.getString(ITEM_TYPE)
-            : "";
+    String itemType = authenticationInfo.getString(ITEM_TYPE);
     String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
 
     LOGGER.debug("endpoint : " + endPoint);
     Future<JwtData> jwtDecodeFuture = decodeJwt(token);
 
     ResultContainer result = new ResultContainer();
+    // skip provider id check for non-provider operations
     boolean skipProviderIdCheck =
         api != null && api.getRouteInstance().equalsIgnoreCase(endPoint)
             || RATINGS_ENDPOINT.equalsIgnoreCase(endPoint)
             || ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)
-                || endPoint.contains("/internal/ui");
+            || endPoint.contains(MLAYER_BASE_PATH);
 
     jwtDecodeFuture
         .compose(
@@ -215,9 +209,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
             })
         .compose(
             validEndpointHandler -> {
-              // verify admin if Resource Server item is to be deleted
-              LOGGER.debug(ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType));
-              LOGGER.debug(itemType);
+              // verify admin if itemType is RS
               if (ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)) {
                 return Util.isValidAdmin(resourceServerUrl, result.jwtData, false);
               } else {
