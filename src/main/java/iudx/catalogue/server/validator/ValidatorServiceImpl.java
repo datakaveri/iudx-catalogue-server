@@ -85,7 +85,9 @@ public class ValidatorServiceImpl implements ValidatorService {
     return utcTime;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   public ValidatorService validateSchema(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -129,7 +131,9 @@ public class ValidatorServiceImpl implements ValidatorService {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public ValidatorService validateItem(
@@ -202,8 +206,8 @@ public class ValidatorServiceImpl implements ValidatorService {
     // Validate if Provider
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
-      String nameUUID = request.getString(NAME) + request.getString(RESOURCE_SVR);
-      byte[] inputBytes = nameUUID.getBytes(StandardCharsets.UTF_8);
+      String uuidInputString = request.getString(NAME) + request.getString(RESOURCE_SVR);
+      byte[] inputBytes = uuidInputString.getBytes(StandardCharsets.UTF_8);
       UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
       request.put(ID, uuid.toString());
     }
@@ -290,17 +294,6 @@ public class ValidatorServiceImpl implements ValidatorService {
     } else if (isUacInstance && !request.containsKey("id")) {
       handler.handle(Future.failedFuture("mandatory id field not present in request body"));
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @return null, as this method is not implemented in this class
-   */
-  @Override
-  public ValidatorService validateProvider(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    return null;
   }
 
   @Override

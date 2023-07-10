@@ -215,7 +215,8 @@ public final class CrudApis {
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
                 jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
-//                jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, requestBody.getString(RESOURCE_SERVER_URL));
+                jwtAuthenticationInfo.put(RESOURCE_SERVER_URL,
+                    requestBody.getString(RESOURCE_SERVER_URL));
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else {
                 jwtAuthenticationInfo.put(ID, requestBody.getString(PROVIDER));
@@ -455,10 +456,7 @@ public final class CrudApis {
               if (itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
                 handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
               }
-              String resourceServer = itemId;
-              if (itemType.equalsIgnoreCase(RESOURCE_GRP)) {
-                resourceServer = itemTypeHandler.result().getString(RESOURCE_SVR);
-              }
+              String resourceServer = itemTypeHandler.result().getString(RESOURCE_SVR);
               Future<JsonObject> rsUrlFuture =
                   getItemType(
                       resourceServer,
