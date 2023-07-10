@@ -357,15 +357,6 @@ public class ValidatorServiceImplTest {
   }
 
   @Test
-  @Description("testing the method validateProvider ")
-  public void testValidateProvider(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
-    JsonObject request = new JsonObject();
-    assertNull(validatorService.validateProvider(request, handler));
-    vertxTestContext.completeNow();
-  }
-
-  @Test
   @Description("testing the method validateItem when handler failed")
   public void testValidateItemFailure(VertxTestContext vertxTestContext) {
     validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
