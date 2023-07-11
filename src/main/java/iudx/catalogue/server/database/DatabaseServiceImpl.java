@@ -564,7 +564,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                       if (checkRes.succeeded()) {
                         LOGGER.debug("Success: Check index for doc");
                         if (checkRes.result().getInteger(TOTAL_HITS) > 1) {
-                          LOGGER.error("Fail: Can't delete, parent doc has associated item;");
+                          LOGGER.error("Fail: Can't delete, doc has associated item;");
                           handler.handle(
                               Future.failedFuture(
                                   respBuilder
@@ -572,12 +572,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                                       .withTitle(TITLE_OPERATION_NOT_ALLOWED)
                                       .withResult(
                                           id,
-                                          DELETE,
-                                          FAILED,
-                                          "Fail: Can't delete, resourceGroup has associated item")
+                                          "Fail: Can't delete, doc has associated item")
                                       .getResponse()));
                           return;
-                        } else if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
+                        } else if (checkRes.result().getInteger(TOTAL_HITS) < 1) {
                           LOGGER.error("Fail: Doc doesn't exist, can't delete;");
                           handler.handle(
                               Future.failedFuture(
@@ -586,8 +584,6 @@ public class DatabaseServiceImpl implements DatabaseService {
                                       .withTitle(TITLE_ITEM_NOT_FOUND)
                                       .withResult(
                                           id,
-                                          DELETE,
-                                          FAILED,
                                           "Fail: Doc doesn't exist, can't delete")
                                       .getResponse()));
                           return;
@@ -605,7 +601,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                       respBuilder
                                           .withType(TYPE_SUCCESS)
                                           .withTitle(TITLE_SUCCESS)
-                                          .withResult(id, DELETE)
+                                          .withResult(id)
                                           .getJsonResponse()));
                             } else {
                               handler.handle(Future.failedFuture(internalErrorResp));

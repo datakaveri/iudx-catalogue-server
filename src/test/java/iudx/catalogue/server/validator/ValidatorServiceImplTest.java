@@ -1,5 +1,10 @@
 package iudx.catalogue.server.validator;
 
+import static iudx.catalogue.server.util.Constants.*;
+import static junit.framework.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -9,10 +14,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.Configuration;
-import iudx.catalogue.server.apiserver.RelationshipApis;
 import iudx.catalogue.server.database.ElasticClient;
 import jdk.jfr.Description;
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,14 +24,6 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import static iudx.catalogue.server.util.Constants.*;
-import static junit.framework.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
@@ -116,10 +111,45 @@ public class ValidatorServiceImplTest {
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(ITEM_TYPE_PROVIDER);
-    request.put(TYPE, jsonArray).put("name", "provider name");
+    ValidatorServiceImpl.client = mock(ElasticClient.class);
+    request
+        .put(TYPE, jsonArray)
+        .put("name", "provider name")
+        .put(RESOURCE_SVR, "0fdeb952-398c-4020-af20-0843b616f415");
 
-    assertNotNull(validatorService.validateItem(request, handler));
-    vertxTestContext.completeNow();
+    when(asyncResult.result()).thenReturn(new JsonObject().put(TOTAL_HITS, 1));
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(ValidatorServiceImpl.client)
+        .searchGetId(any(), any(), any());
+
+    validatorService.validateItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(ValidatorServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow("Fail");
+          }
+        });
+    validatorService.validateItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(ValidatorServiceImpl.client, times(2)).searchGetId(anyString(), any(), any());
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow("Fail");
+          }
+        });
   }
 
   @Test
@@ -133,7 +163,8 @@ public class ValidatorServiceImplTest {
     request
         .put(TYPE, jsonArray)
         .put("name", "provider name")
-        .put("id", "40bbe849-9f35-32b9-8f64-00d5e62db47");
+        .put("id", "40bbe849-9f35-32b9-8f64-00d5e62db47")
+        .put(RESOURCE_SVR, "0fdeb952-398c-4020-af20-0843b616f415");
 
     assertNotNull(validatorService.validateItem(request, handler));
     vertxTestContext.completeNow();
@@ -153,28 +184,9 @@ public class ValidatorServiceImplTest {
     request.put(PROVIDER, "dummy");
     request.put(NAME, "dummy").put("id", "40bbe849-9f35-32b9-8f64-00d5e62db470");
     ValidatorServiceImpl.client = mock(ElasticClient.class);
-    when(asyncResult.result()).thenReturn(json);
 
-    doAnswer(
-            new Answer<AsyncResult<JsonObject>>() {
-              @Override
-              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                return null;
-              }
-            })
-        .when(ValidatorServiceImpl.client)
-        .searchGetId(any(), any(), any());
-    validatorService.validateItem(
-        request,
-        handler -> {
-          if (handler.succeeded()) {
-            verify(ValidatorServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
-            vertxTestContext.completeNow();
-          } else {
-            vertxTestContext.failNow("Fail");
-          }
-        });
+    assertNotNull(validatorService.validateItem(request, handler));
+    vertxTestContext.completeNow();
   }
 
   @Test
@@ -341,15 +353,6 @@ public class ValidatorServiceImplTest {
     validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     assertNotNull(validatorService.validateItem(request, handler));
-    vertxTestContext.completeNow();
-  }
-
-  @Test
-  @Description("testing the method validateProvider ")
-  public void testValidateProvider(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
-    JsonObject request = new JsonObject();
-    assertNull(validatorService.validateProvider(request, handler));
     vertxTestContext.completeNow();
   }
 

@@ -41,7 +41,8 @@
         "name",
         "description",
         "providerOrg",
-        "providerKcId"
+        "providerKcId",
+        "resourceServer"
     ],
     "properties": {
         "@context": {
