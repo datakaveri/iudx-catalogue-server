@@ -2862,7 +2862,8 @@ public class DatabaseServiceImplTest {
     dataset_record
         .put(INSTANCE, "dummy instance")
         .put(PROVIDER, "dummy provider")
-        .put(TYPE, provider);
+        .put(TYPE, provider)
+            .put("name","dummy name");
     jsonArray.add(dataset_record);
     request.put(RESULTS, jsonArray);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -2905,7 +2906,8 @@ public class DatabaseServiceImplTest {
     dataset_record
         .put(INSTANCE, "dummy instance")
         .put(PROVIDER, "dummy provider")
-        .put(TYPE, resource);
+        .put(TYPE, resource)
+            .put("name", "dummy");
     jsonArray.add(dataset_record);
     request.put(RESULTS, jsonArray);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -2996,7 +2998,8 @@ public class DatabaseServiceImplTest {
             .put(TYPE, typeArray)
             .put("id", "abcd/abcd/abcd/abcd")
             .put("rgid", "abcd/abcd/abcd/abcd")
-            .put("instance", "instance");
+            .put("instance", "instance")
+                .put("name", "agra");
 
     JsonObject instance =
         new JsonObject()
