@@ -206,8 +206,8 @@ public class Constants {
                   + "\"type\",\"resourceGroup\",\"accessPolicy\",\"provider\",\"itemCreatedAt\","
                   + "\"instance\",\"label\"]},\"size\":10000}";
   public static final String GET_SORTED_MLAYER_INSTANCES =
-          "{\"query\": {\"match_all\":{}},\"sort\":[{\"name\":\"asc\"}],\"_source\": "
-                  + "{\"includes\": [\"name\",\"cover\",\"icon\"]}}";
+      "{\"query\": {\"match_all\":{}},\"sort\":[{\"name\":\"asc\"}],\"_source\": "
+          + "{\"includes\": [\"name\",\"cover\",\"icon\"]},\"size\":10000}";
   public static final String GET_PROVIDER_ID =
           "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"type.keyword\": \"iudx:ResourceGroup\"}},"
                   + "{\"match\":{\"id.keyword\":\"$1\"}}]}},\"_source\": [\"provider\"]}";
