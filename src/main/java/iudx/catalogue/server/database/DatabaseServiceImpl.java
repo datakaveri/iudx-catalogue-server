@@ -1856,7 +1856,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                     String instanceName = record.getJsonObject("dataset").getString(INSTANCE);
                     String instanceCapitalizeName =  instanceName.substring(0, 1).toUpperCase()
                             + instanceName.substring(1);
-                    String getIconQuery = GET_MLAYER_INSTANCE_ICON.replace("$1", instanceCapitalizeName);
+                    String getIconQuery = GET_MLAYER_INSTANCE_ICON
+                            .replace("$1", instanceCapitalizeName);
                     client.searchAsync(
                         getIconQuery,
                         mlayerInstanceIndex,
@@ -1912,17 +1913,17 @@ public class DatabaseServiceImpl implements DatabaseService {
                 JsonArray domainList = ar.result().resultAt(1);
                 JsonObject datasetJson = ar.result().resultAt(2);
                 for (int i = 0; i < datasetJson.getJsonArray("latestDataset").size(); i++) {
-                  if ( datasetJson
+                  if (datasetJson
                           .getJsonArray("latestDataset")
                           .getJsonObject(i)
                           .containsKey("instance")) {
                       LOGGER.debug("given dataset has associated instance");
                       datasetJson
-                      .getJsonArray("latestDataset")
-                      .getJsonObject(i)
-                      .put(
-                          "icon",
-                          instanceList
+                          .getJsonArray("latestDataset")
+                          .getJsonObject(i)
+                          .put(
+                            "icon",
+                            instanceList
                               .getJsonObject("instanceIconPath")
                               .getString(
                                   datasetJson
@@ -1935,7 +1936,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                               .getJsonArray("latestDataset")
                               .getJsonObject(i)
                               .put("icon", null);
-                      }
+                  }
                 }
                 for (int i = 0; i < datasetJson.getJsonArray("featuredDataset").size(); i++) {
                     if (datasetJson
@@ -1955,10 +1956,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                                       .getJsonObject(i)
                                       .getString("instance")));
                   } else {
-                        datasetJson
-                                .getJsonArray("featuredDataset")
-                                .getJsonObject(i)
-                                .put("icon", null);
+                      datasetJson
+                              .getJsonArray("featuredDataset")
+                              .getJsonObject(i)
+                              .put("icon", null);
 
                     }
                 }
@@ -2001,7 +2002,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             JsonArray instanceList = new JsonArray();
             for (int i = 0; i < resultHandler.result().getJsonArray(RESULTS).size(); i++) {
               JsonObject instance = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              instanceIconPath.put(instance.getString("name").toLowerCase(), instance.getString("icon"));
+              instanceIconPath.put(instance.getString("name").toLowerCase(),
+                      instance.getString("icon"));
               if (i < 4) {
                 instanceList.add(i, instance);
               }
