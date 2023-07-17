@@ -1689,7 +1689,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             // The lists contains unique values, no duplicate values
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              String instance = record.getString(INSTANCE);
+              String instance = record.getString(INSTANCE).toLowerCase()
+                      .substring(0, 1).toUpperCase()
+                      + record.getString(INSTANCE).toLowerCase().substring(1);
               String providerId = record.getString(PROVIDER);
               if (!instanceList.contains(instance) && !instanceList.equals(null)) {
                 instanceList.add(instance);
@@ -1732,7 +1734,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                     for (int i = 0; i < iconResSize; i++) {
                       JsonObject iconResRecord =
                           iconRes.result().getJsonArray(RESULTS).getJsonObject(i);
-                      String instanceName = iconResRecord.getString("name");
+                      String instanceName = iconResRecord.getString("name").toLowerCase();
                       String icon = iconResRecord.getString("icon");
                       iconPath.put(instanceName, icon);
                     }
@@ -1852,7 +1854,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                     resultHandler.result().remove(TOTAL_HITS);
 
                     String instanceName = record.getJsonObject("dataset").getString(INSTANCE);
-                    String getIconQuery = GET_MLAYER_INSTANCE_ICON.replace("$1", instanceName);
+                    String instanceCapitalizeName =  instanceName.substring(0, 1).toUpperCase()
+                            + instanceName.substring(1);
+                    String getIconQuery = GET_MLAYER_INSTANCE_ICON
+                            .replace("$1", instanceCapitalizeName);
                     client.searchAsync(
                         getIconQuery,
                         mlayerInstanceIndex,
@@ -1863,7 +1868,6 @@ public class DatabaseServiceImpl implements DatabaseService {
                               LOGGER.debug("The icon path for the instance is not present.");
                               record.getJsonObject("dataset").put("instance_icon", "");
                             } else {
-                                LOGGER.debug("here");
                               JsonObject resource =
                                   iconResultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
                               String instancePath = resource.getString("icon");
@@ -1909,20 +1913,36 @@ public class DatabaseServiceImpl implements DatabaseService {
                 JsonArray domainList = ar.result().resultAt(1);
                 JsonObject datasetJson = ar.result().resultAt(2);
                 for (int i = 0; i < datasetJson.getJsonArray("latestDataset").size(); i++) {
-                  datasetJson
-                      .getJsonArray("latestDataset")
-                      .getJsonObject(i)
-                      .put(
-                          "icon",
-                          instanceList
+                  if (datasetJson
+                          .getJsonArray("latestDataset")
+                          .getJsonObject(i)
+                          .containsKey("instance")) {
+                      LOGGER.debug("given dataset has associated instance");
+                      datasetJson
+                          .getJsonArray("latestDataset")
+                          .getJsonObject(i)
+                          .put(
+                            "icon",
+                            instanceList
                               .getJsonObject("instanceIconPath")
                               .getString(
                                   datasetJson
                                       .getJsonArray("latestDataset")
                                       .getJsonObject(i)
-                                      .getString("instance")));
+                                      .getString("instance").toLowerCase()));
+                    } else {
+                      LOGGER.debug("given dataset does not have associated instance");
+                      datasetJson
+                              .getJsonArray("latestDataset")
+                              .getJsonObject(i)
+                              .put("icon", null);
+                  }
                 }
                 for (int i = 0; i < datasetJson.getJsonArray("featuredDataset").size(); i++) {
+                    if (datasetJson
+                            .getJsonArray("featuredDataset")
+                            .getJsonObject(i)
+                            .containsKey("instance")) {
                   datasetJson
                       .getJsonArray("featuredDataset")
                       .getJsonObject(i)
@@ -1935,6 +1955,13 @@ public class DatabaseServiceImpl implements DatabaseService {
                                       .getJsonArray("featuredDataset")
                                       .getJsonObject(i)
                                       .getString("instance")));
+                  } else {
+                      datasetJson
+                              .getJsonArray("featuredDataset")
+                              .getJsonObject(i)
+                              .put("icon", null);
+
+                    }
                 }
                 JsonObject result =
                     new JsonObject()
@@ -1975,7 +2002,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             JsonArray instanceList = new JsonArray();
             for (int i = 0; i < resultHandler.result().getJsonArray(RESULTS).size(); i++) {
               JsonObject instance = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              instanceIconPath.put(instance.getString("name"), instance.getString("icon"));
+              instanceIconPath.put(instance.getString("name").toLowerCase(),
+                      instance.getString("icon"));
               if (i < 4) {
                 instanceList.add(i, instance);
               }
