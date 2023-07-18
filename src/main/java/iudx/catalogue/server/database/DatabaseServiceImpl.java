@@ -1822,11 +1822,11 @@ public class DatabaseServiceImpl implements DatabaseService {
       String datasetId, Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.debug("dataset Id" + datasetId);
     client.searchAsync(
-        GET_PROVIDER_ID.replace("$1", datasetId),
+            GET_PROVIDER_AND_RS_ID.replace("$1", datasetId),
         docIndex,
-        providerRes -> {
-          if (providerRes.succeeded()) {
-            if (providerRes.result().getInteger(TOTAL_HITS) == 0) {
+        handlerRes -> {
+          if (handlerRes.succeeded()) {
+            if (handlerRes.result().getInteger(TOTAL_HITS) == 0) {
               LOGGER.debug("The dataset is not available.");
               handler.handle(
                   Future.failedFuture(
@@ -1837,9 +1837,14 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .getResponse()));
             }
             String providerId =
-                providerRes.result().getJsonArray(RESULTS).getJsonObject(0).getString("provider");
+                handlerRes.result().getJsonArray(RESULTS).getJsonObject(0).getString("provider");
+            String resourceServerId = handlerRes.result().getJsonArray(RESULTS).getJsonObject(0)
+                    .getString("resourceServer");
+            LOGGER.debug("resourceServer id {}", resourceServerId);
             LOGGER.debug("provider id " + providerId);
-            String query = GET_MLAYER_DATASET.replace("$1", datasetId).replace("$2", providerId);
+            String query = GET_MLAYER_DATASET.replace("$1", datasetId)
+                    .replace("$2", providerId)
+                    .replace("$3", resourceServerId);
             LOGGER.debug("Query " + query);
             client.searchAsyncDataset(
                 query,

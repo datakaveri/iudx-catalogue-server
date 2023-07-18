@@ -2792,7 +2792,8 @@ public class DatabaseServiceImplTest {
         new JsonObject()
             .put("provider", "provider id")
             .put("dataset", datasetJson)
-            .put("icon", "icon-path");
+            .put("icon", "icon-path")
+                    .put("resourceServer","resourceServer uid");
     JsonArray jsonArray = new JsonArray().add(0, json);
     JsonObject request = new JsonObject().put(TOTAL_HITS, 0).put(RESULTS, jsonArray);
     when(asyncResult.succeeded()).thenReturn(true);
