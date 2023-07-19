@@ -182,7 +182,14 @@ public final class ElasticClient {
                           .put("dataSampleFile", record.getJsonArray("dataSampleFile"))
                           .put("dataQualityFile", record.getJsonArray("dataQualityFile"))
                           .put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR))
-                          .put("schema", schema);
+                          .put("schema", schema)
+                          .put(RESOURCE_SVR, record.getString("resourceServer"));
+                }
+                if (type.equals("iudx:ResourceServer")) {
+                  dataset
+                          .put("resourceServerHTTPAccessURL",
+                                  record.getString("resourceServerHTTPAccessURL"));
+
                 }
               }
               datasetDetail.put("dataset", dataset);
