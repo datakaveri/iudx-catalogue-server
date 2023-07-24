@@ -1,5 +1,10 @@
 package iudx.catalogue.server.validator;
 
+import static iudx.catalogue.server.util.Constants.*;
+import static junit.framework.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
@@ -9,10 +14,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.Configuration;
-import iudx.catalogue.server.apiserver.RelationshipApis;
 import iudx.catalogue.server.database.ElasticClient;
 import jdk.jfr.Description;
-import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,14 +24,6 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
-
-import java.util.HashSet;
-import java.util.Set;
-
-import static iudx.catalogue.server.util.Constants.*;
-import static junit.framework.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
@@ -42,6 +37,7 @@ public class ValidatorServiceImplTest {
   private static String databaseUser;
   private static String databasePassword;
   private static FileSystem fileSystem;
+  private static boolean isUacInstance;
   ValidatorServiceImpl validatorService;
   @Mock Handler<AsyncResult<JsonObject>> handler;
   @Mock AsyncResult<JsonObject> asyncResult;
@@ -64,14 +60,14 @@ public class ValidatorServiceImplTest {
 
     // TODO : Need to enable TLS using xpack security
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
-    validator = new ValidatorServiceImpl(client, docIndex);
+    validator = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     testContext.completeNow();
   }
 
   @Test
   @Description("testing the method validateSchema when itemType equals ITEM_TYPE_RESOURCE_SERVER")
   public void testValidateSchema(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(ITEM_TYPE_RESOURCE_SERVER);
@@ -83,7 +79,7 @@ public class ValidatorServiceImplTest {
   @Test
   @Description("testing the method validateSchema when itemType equals ITEM_TYPE_PROVIDER")
   public void testValidateSchemaProvider(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(ITEM_TYPE_PROVIDER);
@@ -95,7 +91,7 @@ public class ValidatorServiceImplTest {
   @Test
   @Description("testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE_SERVER")
   public void testValidateItemRESOURCE_SERVER(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(ITEM_TYPE_RESOURCE_SERVER);
@@ -108,13 +104,86 @@ public class ValidatorServiceImplTest {
   }
 
   @Test
-  @Description("testing the method validateItem when itemType equals ITEM_TYPE_PROVIDER")
+  @Description(
+      "testing the method validateItem when itemType equals ITEM_TYPE_PROVIDER and id is generated")
   public void testValidateItemPROVIDER(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(ITEM_TYPE_PROVIDER);
+    ValidatorServiceImpl.client = mock(ElasticClient.class);
+    request
+        .put(TYPE, jsonArray)
+        .put("name", "provider name")
+        .put(RESOURCE_SVR, "0fdeb952-398c-4020-af20-0843b616f415");
+
+    when(asyncResult.result()).thenReturn(new JsonObject().put(TOTAL_HITS, 1));
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(ValidatorServiceImpl.client)
+        .searchGetId(any(), any(), any());
+
+    validatorService.validateItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(ValidatorServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow("Fail");
+          }
+        });
+    validatorService.validateItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(ValidatorServiceImpl.client, times(2)).searchGetId(anyString(), any(), any());
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow("Fail");
+          }
+        });
+  }
+
+  @Test
+  @Description(
+      "testing the method validateItem when itemType equals ITEM_TYPE_PROVIDER and id is validated")
+  public void testValidateItemProviderId(VertxTestContext vertxTestContext) {
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
+    JsonObject request = new JsonObject();
+    JsonArray jsonArray = new JsonArray();
+    jsonArray.add(ITEM_TYPE_PROVIDER);
+    request
+        .put(TYPE, jsonArray)
+        .put("name", "provider name")
+        .put("id", "40bbe849-9f35-32b9-8f64-00d5e62db47")
+        .put(RESOURCE_SVR, "0fdeb952-398c-4020-af20-0843b616f415");
+
+    assertNotNull(validatorService.validateItem(request, handler));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing the method validateItem when itemType equals resource server and hits is 1")
+  public void testValidateItemResourceServer(VertxTestContext vertxTestContext) {
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
+    JsonObject request = new JsonObject();
+    JsonArray jsonArray = new JsonArray();
+    JsonObject json = new JsonObject();
+    json.put(TOTAL_HITS, 1);
+    jsonArray.add(ITEM_TYPE_RESOURCE_SERVER);
     request.put(TYPE, jsonArray);
+    request.put(RESOURCE_SVR, "abcd/abcd/abcd");
+    request.put(PROVIDER, "dummy");
+    request.put(NAME, "dummy").put("id", "40bbe849-9f35-32b9-8f64-00d5e62db470");
+    ValidatorServiceImpl.client = mock(ElasticClient.class);
 
     assertNotNull(validatorService.validateItem(request, handler));
     vertxTestContext.completeNow();
@@ -124,11 +193,11 @@ public class ValidatorServiceImplTest {
   @Description(
       "testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE_GROUP and hits is 1")
   public void testValidateItemRESOURCE_GROUP(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 1);
+    json.put(TOTAL_HITS, 2);
     jsonArray.add(ITEM_TYPE_RESOURCE_GROUP);
     request.put(TYPE, jsonArray);
     request.put(RESOURCE_SVR, "abcd/abcd/abcd");
@@ -151,7 +220,7 @@ public class ValidatorServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(ValidatorServiceImpl.client, times(2)).searchGetId(anyString(), any(), any());
+            verify(ValidatorServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -163,7 +232,7 @@ public class ValidatorServiceImplTest {
   @Description(
       "testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE_GROUP and hits is not 1")
   public void testValidateItemRESOURCE_GROUP2(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
@@ -202,11 +271,11 @@ public class ValidatorServiceImplTest {
   @Description(
       "testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE and hits=1 ")
   public void testValidateItem(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 1);
+    json.put(TOTAL_HITS, 2);
     jsonArray.add(ITEM_TYPE_RESOURCE);
     request.put(TYPE, jsonArray);
     request.put(NAME, "name");
@@ -242,7 +311,7 @@ public class ValidatorServiceImplTest {
   @Description(
       "testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE and hits !=1 ")
   public void testValidateItemITEM_TYPE_RESOURCE(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
@@ -281,25 +350,16 @@ public class ValidatorServiceImplTest {
   @Test
   @Description("testing the method validateItem when item type mismatch")
   public void testValidateItemCatch(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     assertNotNull(validatorService.validateItem(request, handler));
     vertxTestContext.completeNow();
   }
 
   @Test
-  @Description("testing the method validateProvider ")
-  public void testValidateProvider(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
-    JsonObject request = new JsonObject();
-    assertNull(validatorService.validateProvider(request, handler));
-    vertxTestContext.completeNow();
-  }
-
-  @Test
   @Description("testing the method validateItem when handler failed")
   public void testValidateItemFailure(VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
@@ -312,8 +372,6 @@ public class ValidatorServiceImplTest {
     request.put(NAME, "dummy");
     ValidatorServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.failed()).thenReturn(true);
-    when(asyncResult.cause()).thenReturn(throwable);
-    when(throwable.getMessage()).thenReturn("dummy");
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @Override

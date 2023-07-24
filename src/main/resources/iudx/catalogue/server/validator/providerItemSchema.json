@@ -38,10 +38,11 @@
     "required": [
         "@context",
         "type",
-        "id",
         "name",
         "description",
-        "providerOrg"
+        "providerOrg",
+        "providerKcId",
+        "resourceServer"
     ],
     "properties": {
         "@context": {
@@ -89,9 +90,11 @@
             "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
-                "<provider-id>"
+                "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
             ],
-            "maxLength": 512
+            "maxLength": 36,
+            "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
+
         },
         "name": {
             "$id": "#/properties/name",

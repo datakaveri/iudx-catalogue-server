@@ -150,17 +150,17 @@ public class Constants {
           "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": "
                   + "{\"instanceId.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MLAYER_INSTANCE_QUERY =
-          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
-                  + "[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\"]}}";
+      "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
+          + "[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\"]},\"size\": 10000}";
   public static final String GET_MLAYER_DOMAIN_QUERY =
-          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
-                  + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]}}";
+      "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
+          + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},\"size\": 10000}";
   public static final String CHECK_MDOC_QUERY_DOMAIN =
           "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": "
                   + "{\"domainId.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MLAYER_PROVIDERS_QUERY =
-          "{\"query\": {\"match\": {\"type.keyword\": \"iudx:Provider\"}},\"_source\": "
-                  + "{\"includes\": [\"id\",\"description\"]}}";
+      "{\"query\": {\"match\": {\"type.keyword\": \"iudx:Provider\"}},\"_source\": "
+          + "{\"includes\": [\"id\",\"description\"]},\"size\": 10000}";
   public static final String GET_MLAYER_GEOQUERY =
       "{ \"query\": { \"bool\": { \"minimum_should_match\": 1, \"should\": [$1]}},\"_source\": "
               + "{\"includes\": [\"id\",\"location\",\"instance\",\"label\"] }}";
@@ -177,25 +177,27 @@ public class Constants {
   public static final String GET_MLAYER_PROVIDER_RESOURCE =
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":"
               + "\"iudx:Resource\"}}]}},$1]}},\"_source\": {\"includes\": [\"id\",\"description\","
-              + "\"type\",\"resourceGroup\"]},\"size\": 1200}";
+              + "\"type\",\"resourceGroup\"]},\"size\": 10000}";
   public static final String GET_MLAYER_BOOL_PROVIDER =
       "{\"bool\": {\"must\": [{\"match\": {\"id.keyword\":\"$2\"}},{\"match\":{\"type.keyword\""
               + ":\"iudx:Provider\"}}]}}";
   public static final String GET_MLAYER_ALL_DATASETS =
       "{\"query\":{\"bool\":{\"must\":{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}}},"
               + "\"_source\":{\"includes\": [\"id\",\"label\",\"accessPolicy\",\"tags\","
-              + "\"instance\",\"provider\"]},\"size\": 1200}";
+              + "\"instance\",\"provider\"]},\"size\": 10000}";
 
   public static final String GET_MLAYER_DATASET =
-      "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\": {\"id.keyword\":"
-              + " \"$1\"}},{\"match\": {\"type.keyword\":\"iudx:ResourceGroup\"}}]}},{\"bool\":"
-              + "{\"must\":[{\"match\": {\"id.keyword\": \"$2\"}},{\"match\":{\"type.keyword\":"
-              + " \"iudx:Provider\"}}]}},{\"bool\":{\"must\":[{\"match\":"
-              + "{\"resourceGroup.keyword\": \"$1\"}},{\"match\":{\"type.keyword\":"
-              + " \"iudx:Resource\"}}]}}]}},\"_source\": {\"includes\": [\"id\",\"type\","
-              + "\"label\",\"description\",\"instance\",\"accessPolicy\",\"dataSample\","
-              + "\"dataDescriptor\",\"@context\",\"dataQualityFile\",\"dataSampleFile\","
-              + "\"resourceType\"]},\"size\": 1200}";
+      "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"id.keyword\": "
+              + "\"$1\"}},{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}]}},{\"bool\":"
+              + "{\"must\":[{\"match\":{\"id.keyword\": \"2$\"}},{\"match\":{\"type.keyword\": "
+              + "\"iudx:Provider\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"resourceGroup.keyword\":"
+              + " \"$1\"}},{\"match\":{\"type.keyword\": \"iudx:Resource\"}}]}},{\"bool\":{\"must\""
+              + ":[{\"match\":{\"id.keyword\": \"$3\"}},{\"match\":{\"type.keyword\": "
+              + "\"iudx:ResourceServer\"}}]}}]}},\"_source\":{\"includes\":[\"resourceServer\","
+              + "\"id\",\"type\",\"label\",\"description\",\"instance\",\"accessPolicy\","
+              + "\"dataSample\", \"dataDescriptor\",\"@context\",\"dataQualityFile\","
+              + "\"dataSampleFile\",\"resourceType\",\"resourceServerHTTPAccessURL\"]},"
+              + "\"size\": 10000}";
   public static final String GET_MLAYER_INSTANCE_ICON =
       "{\"query\":{\"match\":{\"name\":\"$1\"}},\"_source\": {\"includes\": [\"icon\"]}}";
   public static final String GET_PROVIDER_AND_RESOURCES =
@@ -204,10 +206,14 @@ public class Constants {
                   + "\"iudx:Resource\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":"
                   + " \"iudx:Provider\"}}]}}]}},\"_source\":{\"includes\": [\"id\",\"description\","
                   + "\"type\",\"resourceGroup\",\"accessPolicy\",\"provider\",\"itemCreatedAt\","
-                  + "\"instance\",\"label\"]},\"size\":1200}";
+                  + "\"instance\",\"label\"]},\"size\":10000}";
   public static final String GET_SORTED_MLAYER_INSTANCES =
-          "{\"query\": {\"match_all\":{}},\"sort\":[{\"name\":\"asc\"}],\"_source\": "
-                  + "{\"includes\": [\"name\",\"cover\",\"icon\"]}}";
+      "{\"query\": {\"match_all\":{}},\"sort\":[{\"name\":\"asc\"}],\"_source\": "
+          + "{\"includes\": [\"name\",\"cover\",\"icon\"]},\"size\":10000}";
+  public static final String GET_PROVIDER_AND_RS_ID =
+      "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"type.keyword\": \"iudx:ResourceGroup\"}},"
+          + "{\"match\":{\"id.keyword\":\"$1\"}}]}},\"_source\": [\"provider\","
+              + "\"resourceServer\"]}";
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
   public static final String SHOULD_QUERY = "{\"bool\":{\"should\":$1}}";
@@ -233,8 +239,10 @@ public class Constants {
           "],\"minimum_should_match\":1,\"must\":[{\"match\":{\"status\":\"approved\"}}]}}}";
 
   public static final String QUERY_RESOURCE_GRP =
-      "{ \"query\": { \"bool\": { \"should\": [ { \"term\": { \"id.keyword\": \"$1\" } }, "
-          + "{ \"term\": { \"resourceGroup.keyword\": \"$2\" } } ] } } }";
+          "{\"query\":{\"bool\":{\"should\":[{\"term\":{\"id.keyword\":\"$1\"}},{\"term\":"
+                  + "{\"resourceGroup.keyword\": \"$1\"}},{\"term\":{\"provider.keyword\":\"$1\"}},"
+                  + "{\"term\":{\"resourceServer.keyword\": \"$1\"}}]}}}";
+
 
   public static final String NLP_SEARCH = "{\"query\": {\"script_score\": {\"query\": "
           + "{\"match_all\": {}},\"script\":\"source\": \"cosineSimilarity(params.query_vector,"
@@ -252,7 +260,12 @@ public class Constants {
       + "\"_source\": [\"id\"],\"size\": \"10000\"}";
 
   public static final String GET_RS1 = "{\"query\": {\"bool\": {\"should\": [";
-  public static final String GET_RS2 ="{\"match\": {\"resourceGroup.keyword\": \"$1\"}},";
-  public static final String GET_RS3 ="],\"minimum_should_match\": 1}}}";
+  public static final String GET_RS2 = "{\"match\": {\"resourceGroup.keyword\": \"$1\"}},";
+  public static final String GET_RS3 = "],\"minimum_should_match\": 1}}}";
+  public static final String GET_DOC_QUERY_WITH_TYPE =
+          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": "
+                  + "[{\"term\": {\"id.keyword\": \"$1\"}},"
+                  + "{\"match\":{ \"type.keyword\": \"$3\"}}]}}}";
+
 
 }

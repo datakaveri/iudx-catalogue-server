@@ -3,6 +3,10 @@ package iudx.catalogue.server.authenticator;
 import static iudx.catalogue.server.auditing.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.METHOD;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE_RESOURCE_SERVER;
+import static iudx.catalogue.server.util.Constants.PROVIDER;
+import static iudx.catalogue.server.util.Constants.PROVIDER_KC_ID;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -22,20 +26,17 @@ import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 /**
  * The JWT Authentication Service Implementation.
+ *
  * <h1>JWT Authentication Service Implementation</h1>
- * <p>
- * The JWT Authentication Service implementation in the
- * IUDX Catalogue Server implements the definitions
- * of the {@link iudx.catalogue.server.authenticator.AuthenticationService}.
- * </p>
+ *
+ * <p>The JWT Authentication Service implementation in the IUDX Catalogue Server implements the
+ * definitions of the {@link iudx.catalogue.server.authenticator.AuthenticationService}.
  *
  * @version 1.0
  * @since 2021-09-23
  */
-
 public class JwtAuthenticationServiceImpl implements AuthenticationService {
   private static final Logger LOGGER = LogManager.getLogger(JwtAuthenticationServiceImpl.class);
 
@@ -43,8 +44,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   final String audience;
   private Api api;
 
-  JwtAuthenticationServiceImpl(Vertx vertx, final JWTAuth jwtAuth, final JsonObject config,
-                               final Api api) {
+  JwtAuthenticationServiceImpl(
+      Vertx vertx, final JWTAuth jwtAuth, final JsonObject config, final Api api) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("host");
     this.api = api;
@@ -53,22 +54,21 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   Future<JwtData> decodeJwt(String jwtToken) {
     Promise<JwtData> promise = Promise.promise();
 
-    TokenCredentials credentials =  new TokenCredentials(jwtToken);
+    TokenCredentials credentials = new TokenCredentials(jwtToken);
 
-    jwtAuth.authenticate(credentials)
-            .onSuccess(user -> {
+    jwtAuth
+        .authenticate(credentials)
+        .onSuccess(
+            user -> {
               JwtData jwtData = new JwtData(user.principal());
               promise.complete(jwtData);
-            }).onFailure(err -> {
+            })
+        .onFailure(
+            err -> {
               LOGGER.error("failed to decode/validate jwt token : " + err.getMessage());
               promise.fail("failed");
             });
     return promise.future();
-  }
-
-  // class to contain intermediate data for token introspection
-  final class ResultContainer {
-    JwtData jwtData;
   }
 
   Future<Boolean> isValidAudienceValue(JwtData jwtData) {
@@ -84,23 +84,23 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     return promise.future();
   }
 
-  Future<Boolean> isValidId(JwtData jwtData, String id) {
+  Future<Boolean> isValidId(JwtData jwtData, String provider) {
     Promise<Boolean> promise = Promise.promise();
 
-    // id is the (substring [1] of Iid with delimiter as ':' )'s substring [1] with delimiter as '/'
     String jwtId = "";
-    if (jwtData.getIid().contains("/")) {
-      jwtId = (jwtData.getIid().split(":")[1]).split("/")[0] + "/" + (jwtData.getIid()
-              .split(":")[1]).split("/")[1];
-    } else {
-      jwtId = jwtData.getIid().split(":")[1];
+    if (jwtData.getRole().equalsIgnoreCase(PROVIDER)) {
+
+      jwtId = jwtData.getSub();
+    } else if (jwtData.getRole().equalsIgnoreCase("delegate")) {
+      // TODO: add logic for delegate once delegate token is updated
+      jwtId = jwtData.getSub();
     }
 
-    if (id.equalsIgnoreCase(jwtId)) {
+    if (provider.equalsIgnoreCase(jwtId)) {
       promise.complete(true);
     } else {
-      LOGGER.error("Incorrect id value in jwt");
-      promise.fail("Incorrect id value in jwt");
+      LOGGER.error("Incorrect sub value in jwt");
+      promise.fail("Incorrect sub value in jwt");
     }
     return promise.future();
   }
@@ -123,14 +123,16 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   }
 
   /**
-   * Validates the user's access to the given API endpoint based
-   * on the user's role and the HTTP method used.
+   * Validates the user's access to the given API endpoint based on the user's role and the HTTP
+   * method used.
+   *
    * @param jwtData the user's JWT data
    * @param authenticationInfo a JsonObject containing the HTTP method
-   * @return a Future containing a JsonObject with user information if the access is allowed,
-   *         or a failure if the access is denied
+   * @return a Future containing a JsonObject with user information if the access is allowed, or a
+   *     failure if the access is denied
    */
-  public Future<JsonObject> validateAccess(JwtData jwtData, JsonObject authenticationInfo) {
+  public Future<JsonObject> validateAccess(
+      JwtData jwtData, JsonObject authenticationInfo, String itemType) {
     LOGGER.trace("validateAccess() started");
     Promise<JsonObject> promise = Promise.promise();
 
@@ -139,26 +141,24 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
     AuthorizationRequest authRequest = new AuthorizationRequest(method, api);
 
-    AuthorizationStratergy authStrategy = AuthorizationContextFactory.create(jwtData.getRole(),
-            this.api);
+    AuthorizationStratergy authStrategy =
+        AuthorizationContextFactory.create(jwtData.getRole(), this.api);
     LOGGER.debug("strategy: " + authStrategy.getClass().getSimpleName());
 
     JwtAuthorization jwtAuthStrategy = new JwtAuthorization(authStrategy);
     LOGGER.debug("endpoint: " + authenticationInfo.getString(API_ENDPOINT));
 
     if (jwtAuthStrategy.isAuthorized(authRequest, jwtData)) {
+      // Don't allow access to delete resource server item for anyone except Admin
+      if (ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)
+          && !authStrategy.getClass().getSimpleName().equalsIgnoreCase("AdminAuthStrategy")) {
+        JsonObject result = new JsonObject().put("401", "no access provided to endpoint");
+        promise.fail(result.toString());
+      }
       LOGGER.debug("User access is allowed");
       JsonObject response = new JsonObject();
       // adding user id, user role and iid to response for auditing purpose
-      response
-              .put(USER_ROLE, jwtData.getRole())
-              .put(USER_ID, jwtData.getSub());
-      if (jwtData.getIid().contains("/")) {
-        response.put(IID, (jwtData.getIid().split(":")[1]).split("/")[0]
-            + "/" + (jwtData.getIid().split(":")[1]).split("/")[1]);
-      } else {
-        response.put(IID, jwtData.getIid().split(":")[1]);
-      }
+      response.put(USER_ROLE, jwtData.getRole()).put(USER_ID, jwtData.getSub());
       promise.complete(response);
     } else {
       LOGGER.error("user access denied");
@@ -168,19 +168,26 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     return promise.future();
   }
 
-
   @Override
-  public AuthenticationService tokenInterospect(JsonObject request, JsonObject authenticationInfo,
-                                                Handler<AsyncResult<JsonObject>> handler) {
+  public AuthenticationService tokenInterospect(
+      JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     String endPoint = authenticationInfo.getString(API_ENDPOINT);
-    String id = authenticationInfo.getString(ID);
+    String provider = authenticationInfo.getString(PROVIDER_KC_ID);
     String token = authenticationInfo.getString(TOKEN);
+    String method = authenticationInfo.getString(METHOD);
+    String itemType = authenticationInfo.getString(ITEM_TYPE);
+    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
 
+    LOGGER.debug("endpoint : " + endPoint);
     Future<JwtData> jwtDecodeFuture = decodeJwt(token);
 
     ResultContainer result = new ResultContainer();
-    boolean skipResourceIdCheck =
-            endPoint.equalsIgnoreCase(RATINGS_ENDPOINT);
+    // skip provider id check for non-provider operations
+    boolean skipProviderIdCheck =
+        api != null && api.getRouteInstance().equalsIgnoreCase(endPoint)
+            || RATINGS_ENDPOINT.equalsIgnoreCase(endPoint)
+            || ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)
+            || endPoint.contains(MLAYER_BASE_PATH);
 
     jwtDecodeFuture
         .compose(
@@ -190,21 +197,28 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
             })
         .compose(
             audienceHandler -> {
-              if (skipResourceIdCheck) {
+              if (skipProviderIdCheck) {
                 return Future.succeededFuture(true);
               } else {
-                return isValidId(result.jwtData, id);
+                return isValidId(result.jwtData, provider);
               }
             })
         .compose(
             validIdHandler -> {
-              LOGGER.debug(isValidEndpoint(endPoint).succeeded());
               return isValidEndpoint(endPoint);
             })
         .compose(
             validEndpointHandler -> {
-              LOGGER.debug(validateAccess(result.jwtData, authenticationInfo).succeeded());
-              return validateAccess(result.jwtData, authenticationInfo);
+              // verify admin if itemType is RS
+              if (ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)) {
+                return Util.isValidAdmin(resourceServerUrl, result.jwtData, false);
+              } else {
+                return Future.succeededFuture(true);
+              }
+            })
+        .compose(
+            validAdmin -> {
+              return validateAccess(result.jwtData, authenticationInfo, itemType);
             })
         .onComplete(
             completeHandler -> {
@@ -215,5 +229,10 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
               }
             });
     return this;
+  }
+
+  // class to contain intermediate data for token introspection
+  final class ResultContainer {
+    JwtData jwtData;
   }
 }

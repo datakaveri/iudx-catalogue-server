@@ -12,7 +12,6 @@ import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +55,7 @@ public class DatabaseServiceImplTest {
   @Mock GeocodingService geoService;
 
   @Mock Throwable throwable;
-  @Mock Promise<JsonObject> instanceResult;
+  @Mock AsyncResult<Boolean> instanceHandler;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -454,35 +453,6 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
-  @Disabled
-  @Description("test updateItem method")
-  public void testListRelationship(VertxTestContext vertxTestContext) {
-    JsonObject json = new JsonObject();
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
-    when(asyncResult.succeeded()).thenReturn(false);
-    doAnswer(
-            new Answer<AsyncResult<JsonObject>>() {
-              @Override
-              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                return null;
-              }
-            })
-        .when(DatabaseServiceImpl.client)
-        .searchAsync(any(), any(), any());
-    dbService.listRelationship(
-        json,
-        handler -> {
-          if (handler.failed()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
-            vertxTestContext.completeNow();
-          } else {
-            vertxTestContext.failNow("Fail");
-          }
-        });
-  }
-
-  @Test
   @Description("test updateItem method")
   public void testRelSearch(VertxTestContext vertxTestContext) {
     JsonObject json = new JsonObject();
@@ -584,18 +554,25 @@ public class DatabaseServiceImplTest {
     when(jsonObjectMock.getJsonArray(RESULTS)).thenReturn(jsonArrayMock);
     when(jsonArrayMock.stream()).thenReturn(streamMock);
     when(streamMock.map(any())).thenReturn(streamMock);
-    when(streamMock.collect(any())).thenReturn(List.of("b58da193-23d9-43eb-b98a-a103d4b6103c", "5b7556b5-0779-4c47-9cf2-3f209779aa22"));
+    when(streamMock.collect(any()))
+        .thenReturn(
+            List.of(
+                "b58da193-23d9-43eb-b98a-a103d4b6103c", "5b7556b5-0779-4c47-9cf2-3f209779aa22"));
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(jsonObjectMock);
-    doAnswer(new Answer<AsyncResult<JsonObject>>() {
-      @Override
-      public AsyncResult<JsonObject> answer(InvocationOnMock invocationOnMock) throws Throwable {
-        ((Handler<AsyncResult<JsonObject>>) invocationOnMock.getArgument(2)).handle(asyncResult);
-        return null;
-      }
-    }).when(DatabaseServiceImpl.client)
-            .searchAsync(anyString(), anyString(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock invocationOnMock)
+                  throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) invocationOnMock.getArgument(2))
+                    .handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(anyString(), anyString(), any());
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @Override
@@ -1022,14 +999,22 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
-  @Disabled
   @Description("test listRelationship method when handler succeeded")
   public void testListRealtionship(VertxTestContext vertxTestContext) {
 
-    JsonObject json = new JsonObject();
+    JsonArray typeArray = new JsonArray();
+    JsonObject jsonObject = new JsonObject().put(TYPE, typeArray);
+    JsonArray resultArray = new JsonArray().add(jsonObject);
+    JsonObject json =
+        new JsonObject()
+            .put("id", "dummy id")
+            .put(TOTAL_HITS, 1)
+            .put("results", resultArray)
+            .put(RELATIONSHIP, "resources");
     json.put(SEARCH, false);
     json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.result()).thenReturn(json);
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -1045,7 +1030,298 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
+            vertxTestContext.completeNow();
+
+          } else {
+            vertxTestContext.failNow("Fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test listRelationship method when item is not present")
+  public void testListRealtionshipHits0(VertxTestContext vertxTestContext) {
+
+    JsonArray typeArray = new JsonArray();
+    JsonObject jsonObject = new JsonObject().put(TYPE, typeArray);
+    JsonArray resultArray = new JsonArray().add(jsonObject);
+    JsonObject json =
+        new JsonObject()
+            .put("id", "dummy id")
+            .put(TOTAL_HITS, 0)
+            .put("results", resultArray)
+            .put(RELATIONSHIP, "resources");
+    json.put(SEARCH, false);
+    json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    dbService.listRelationship(
+        json,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
+            vertxTestContext.failNow("Fail");
+
+          } else {
+            vertxTestContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @Description("test listRelationship method when item is type resource")
+  public void testListRelationshipResource(VertxTestContext vertxTestContext) {
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+
+    JsonArray typeArray = new JsonArray();
+    typeArray.add("iudx:Resource");
+    JsonObject jsonObject = new JsonObject().put(TYPE, typeArray);
+    JsonArray resultArray = new JsonArray().add(jsonObject);
+    JsonObject json =
+        new JsonObject()
+            .put("id", "dummy id")
+            .put(TOTAL_HITS, 1)
+            .put("results", resultArray)
+            .put(RELATIONSHIP, "resource");
+    json.put(SEARCH, false);
+    json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    dbService.listRelationship(
+        json,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
+            vertxTestContext.failNow("Fail");
+
+          } else {
+            vertxTestContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @Description("test listRelationship method when item is resource Group")
+  public void testListRelationResourceGroup(VertxTestContext vertxTestContext) {
+    JsonArray typeArray = new JsonArray().add("iudx:ResourceGroup");
+    JsonObject jsonObject = new JsonObject().put(TYPE, typeArray);
+    JsonArray resultArray = new JsonArray().add(jsonObject);
+    JsonObject json =
+        new JsonObject()
+            .put("id", "dummy id")
+            .put(TOTAL_HITS, 1)
+            .put("results", resultArray)
+            .put(RELATIONSHIP, "resourceGroup");
+    json.put(SEARCH, false);
+    json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    dbService.listRelationship(
+        json,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
+            vertxTestContext.failNow("Fail");
+
+          } else {
+            vertxTestContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @Description("test listRelationship method when item is resource server")
+  public void testListRelationshipResourceServer(VertxTestContext vertxTestContext) {
+    JsonArray typeArray = new JsonArray().add("iudx:ResourceServer");
+    JsonObject jsonObject = new JsonObject().put(TYPE, typeArray);
+    JsonArray resultArray = new JsonArray().add(jsonObject);
+    JsonObject json =
+        new JsonObject()
+            .put("id", "dummy id")
+            .put(TOTAL_HITS, 1)
+            .put("results", resultArray)
+            .put(RELATIONSHIP, "resourceServer");
+    json.put(SEARCH, false);
+    json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    dbService.listRelationship(
+        json,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
+            vertxTestContext.failNow("Fail");
+
+          } else {
+            vertxTestContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @Description("test listRelationship method when item is resource server")
+  public void testListRelationshipItemRS(VertxTestContext vertxTestContext) {
+    JsonArray typeArray = new JsonArray().add("iudx:ResourceServer");
+    JsonObject jsonObject = new JsonObject().put(TYPE, typeArray);
+    JsonArray resultArray = new JsonArray().add(jsonObject);
+    JsonObject json =
+        new JsonObject()
+            .put("id", "dummy id")
+            .put(TOTAL_HITS, 1)
+            .put("results", resultArray)
+            .put(RELATIONSHIP, "provider");
+    json.put(SEARCH, false);
+    json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    dbService.listRelationship(
+        json,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
+            vertxTestContext.failNow("Fail");
+
+          } else {
+            vertxTestContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @Description("test listRelationship method when item is resource")
+  public void testListRelationshipItem2(VertxTestContext vertxTestContext) {
+    JsonArray typeArray = new JsonArray().add("iudx:Resource");
+    JsonObject jsonObject = new JsonObject().put(TYPE, typeArray).put("resourceGroup", "dummy id");
+    JsonArray resultArray = new JsonArray().add(jsonObject);
+    JsonObject json =
+        new JsonObject()
+            .put("id", "dummy id")
+            .put(TOTAL_HITS, 1)
+            .put("results", resultArray)
+            .put(RELATIONSHIP, "resourceServer")
+            .put("resourceServer", "dummy id")
+            .put(ITEM_TYPE, "abc");
+    json.put(SEARCH, false);
+    json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    dbService.listRelationship(
+        json,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+            vertxTestContext.completeNow();
+
+          } else {
+            vertxTestContext.failNow("Fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test listRelationship method when item and item type is resource server")
+  public void testListRelationshipItem(VertxTestContext vertxTestContext) {
+    JsonArray typeArray = new JsonArray().add("iudx:ResourceServer");
+    JsonObject jsonObject =
+        new JsonObject()
+            .put(TYPE, typeArray)
+            .put("resourceServer", "dummy id")
+            .put("id", "dummy id");
+    JsonArray resultArray = new JsonArray().add(jsonObject);
+    JsonObject json =
+        new JsonObject()
+            .put("id", "dummy id")
+            .put(TOTAL_HITS, 1)
+            .put("results", resultArray)
+            .put(RELATIONSHIP, "resource")
+            .put("resourceServer", "dummy id")
+            .put(ITEM_TYPE, "iudx:ResourceServer");
+    json.put(SEARCH, false);
+    json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    dbService.listRelationship(
+        json,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1070,16 +1346,23 @@ public class DatabaseServiceImplTest {
     when(jsonObjectMock.getJsonArray(RESULTS)).thenReturn(jsonArrayMock);
     when(jsonArrayMock.stream()).thenReturn(streamMock);
     when(streamMock.map(any())).thenReturn(streamMock);
-    when(streamMock.collect(any())).thenReturn(List.of("b58da193-23d9-43eb-b98a-a103d4b6103c", "5b7556b5-0779-4c47-9cf2-3f209779aa22"));
+    when(streamMock.collect(any()))
+        .thenReturn(
+            List.of(
+                "b58da193-23d9-43eb-b98a-a103d4b6103c", "5b7556b5-0779-4c47-9cf2-3f209779aa22"));
     when(asyncResult1.succeeded()).thenReturn(true);
     when(asyncResult1.result()).thenReturn(jsonObjectMock);
-    doAnswer(new Answer<AsyncResult<JsonObject>>() {
-      @Override
-      public AsyncResult<JsonObject> answer(InvocationOnMock invocationOnMock) throws Throwable {
-        ((Handler<AsyncResult<JsonObject>>) invocationOnMock.getArgument(2)).handle(asyncResult1);
-        return null;
-      }
-    }).when(DatabaseServiceImpl.client)
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock invocationOnMock)
+                  throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) invocationOnMock.getArgument(2))
+                    .handle(asyncResult1);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
         .searchAsync(anyString(), anyString(), any());
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -2503,15 +2786,16 @@ public class DatabaseServiceImplTest {
   @Description("test getMlayerDataset method when DB Request is successful")
   public void testGetMlayerDataset(VertxTestContext testContext) {
     DatabaseServiceImpl.client = mock(ElasticClient.class);
-    String dataset_id = "abc/abc/abc";
-    JsonObject request = new JsonObject();
-    JsonArray jsonArray = new JsonArray();
-    JsonObject dataset_record = new JsonObject();
-    JsonObject dataset = new JsonObject();
-    dataset.put(INSTANCE, "dummy instance");
-    dataset_record.put("dataset", dataset);
-    jsonArray.add(dataset_record);
-    request.put("id", "abc/abc/abc").put(TOTAL_HITS, 3).put(RESULTS, jsonArray);
+    String datasetId = "query";
+    JsonObject datasetJson = new JsonObject().put(INSTANCE, "dummy instance");
+    JsonObject json =
+        new JsonObject()
+            .put("provider", "provider id")
+            .put("dataset", datasetJson)
+            .put("icon", "icon-path")
+                    .put("resourceServer","resourceServer uid");
+    JsonArray jsonArray = new JsonArray().add(0, json);
+    JsonObject request = new JsonObject().put(TOTAL_HITS, 0).put(RESULTS, jsonArray);
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(request);
     doAnswer(
@@ -2523,7 +2807,26 @@ public class DatabaseServiceImplTest {
               }
             })
         .when(DatabaseServiceImpl.client)
-        .searchAsyncDataset(any(), any(), any());
+        .searchAsync(any(), any(), any());
+    dbService.getMlayerDataset(
+        datasetId,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+            testContext.failNow("fail");
+
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @Description("test getMlayerDataset method when DB Request fails")
+  public void testGetMlayerDatasetFailure(VertxTestContext testContext) {
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    String dataset_id = "dataset id";
+    when(asyncResult.succeeded()).thenReturn(false);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @Override
@@ -2537,41 +2840,8 @@ public class DatabaseServiceImplTest {
     dbService.getMlayerDataset(
         dataset_id,
         handler -> {
-          if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
-            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
-
-            testContext.completeNow();
-
-          } else {
-            testContext.failNow("fail");
-          }
-        });
-  }
-
-  @Test
-  @Description("test getMlayerDataset method when DB Request fails")
-  public void testGetMlayerDatasetFailure(VertxTestContext testContext) {
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
-    String dataset_id = "abc/abc/abc";
-    JsonObject request = new JsonObject();
-    request.put("id", "abc/abc/abc");
-    when(asyncResult.succeeded()).thenReturn(false);
-    doAnswer(
-            new Answer<AsyncResult<JsonObject>>() {
-              @Override
-              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                return null;
-              }
-            })
-        .when(DatabaseServiceImpl.client)
-        .searchAsyncDataset(any(), any(), any());
-    dbService.getMlayerDataset(
-        dataset_id,
-        handler -> {
           if (handler.failed()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2593,7 +2863,8 @@ public class DatabaseServiceImplTest {
     dataset_record
         .put(INSTANCE, "dummy instance")
         .put(PROVIDER, "dummy provider")
-        .put(TYPE, provider);
+        .put(TYPE, provider)
+            .put("name","dummy name");
     jsonArray.add(dataset_record);
     request.put(RESULTS, jsonArray);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -2636,7 +2907,8 @@ public class DatabaseServiceImplTest {
     dataset_record
         .put(INSTANCE, "dummy instance")
         .put(PROVIDER, "dummy provider")
-        .put(TYPE, resource);
+        .put(TYPE, resource)
+            .put("name", "dummy");
     jsonArray.add(dataset_record);
     request.put(RESULTS, jsonArray);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -2699,235 +2971,297 @@ public class DatabaseServiceImplTest {
         });
   }
 
-    @Test
-    @Description("test getMlayerPopularDatasets method when DB Request is successful")
-    public void testGetMlayerPopularDatasetsSuccess(VertxTestContext testContext) {
-        DatabaseServiceImpl databaseService =
-                new DatabaseServiceImpl(
-                        client,
-                        docIndex,
-                        ratingIndex,
-                        mlayerInstanceIndex,
-                        mlayerDomainIndex,
-                        nlpService,
-                        geoService);
-        JsonObject json =
-                new JsonObject().put("rgid", "abcd/abcd/abcd/abcd").put("instance", "instance");
-        JsonObject json2 =
-                new JsonObject().put("rgid", "abcd/abcd/abcd/abcd").put("instance", "instance");
+  @Test
+  @Description("test getMlayerPopularDatasets method when DB Request is successful")
+  public void testGetMlayerPopularDatasetsSuccess(VertxTestContext testContext) {
+    DatabaseServiceImpl databaseService =
+        new DatabaseServiceImpl(
+            client,
+            docIndex,
+            ratingIndex,
+            mlayerInstanceIndex,
+            mlayerDomainIndex,
+            nlpService,
+            geoService);
+    JsonObject json =
+        new JsonObject().put("rgid", "abcd/abcd/abcd/abcd").put("instance", "instance");
+    JsonObject json2 =
+        new JsonObject().put("rgid", "abcd/abcd/abcd/abcd").put("instance", "instance");
 
-        JsonArray highestCountResource = new JsonArray().add(json).add(json2);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonArray highestCountResource = new JsonArray().add(json).add(json2);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
 
-        JsonArray resourceArray = new JsonArray();
-        JsonArray typeArray = new JsonArray().add(0, "iudx:ResourceGroup");
-        JsonObject jsonObject2 =
-                new JsonObject()
-                        .put("itemCreatedAt", "2022-12-15T04:23:38+0530")
-                        .put(TYPE, typeArray)
-                        .put("id", "abcd/abcd/abcd/abcd")
-                        .put("rgid", "abcd/abcd/abcd/abcd")
-                        .put("instance", "instance");
+    JsonArray resourceArray = new JsonArray();
+    JsonArray typeArray = new JsonArray().add(0, "iudx:ResourceGroup");
+    JsonObject jsonObject2 =
+        new JsonObject()
+            .put("itemCreatedAt", "2022-12-15T04:23:38+0530")
+            .put(TYPE, typeArray)
+            .put("id", "abcd/abcd/abcd/abcd")
+            .put("rgid", "abcd/abcd/abcd/abcd")
+            .put("instance", "instance")
+                .put("name", "agra");
 
-        JsonObject instance =
-                new JsonObject()
-                        .put("name", "agra")
-                        .put("icon", "path_of_agra-icon.jpg")
-                        .put(TYPE, typeArray)
-                        .put("itemCreatedAt", "2022-12-15T04:23:28+0530")
-                        .put("id", "abcd/abcd/abcd/abcd")
-                        .put("rgid", "abcd/abcd/abcd/abcd")
-                        .put("instance", "instance");
-        resourceArray.add(instance).add(jsonObject2);
-        JsonArray latestDataset = new JsonArray().add(json);
+    JsonObject instance =
+        new JsonObject()
+            .put("name", "agra")
+            .put("icon", "path_of_agra-icon.jpg")
+            .put(TYPE, typeArray)
+            .put("itemCreatedAt", "2022-12-15T04:23:28+0530")
+            .put("id", "abcd/abcd/abcd/abcd")
+            .put("rgid", "abcd/abcd/abcd/abcd")
+            .put("instance", "instance");
+    resourceArray.add(instance).add(jsonObject2);
+    JsonArray latestDataset = new JsonArray().add(json);
 
-        JsonObject result =
-                new JsonObject()
-                        .put(TOTAL_HITS, 1)
-                        .put(RESULTS, resourceArray)
-                        .put("latestDataset", latestDataset); // .put("instanceIconPath",json4);
-        when(asyncResult.result()).thenReturn(result);
-        when(asyncResult.succeeded()).thenReturn(true);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchAsync(any(), any(), any());
-        databaseService.getMlayerPopularDatasets(
-                highestCountResource,
-                handler -> {
-                    if (handler.succeeded()) {
-                        verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
-                        testContext.completeNow();
+    JsonObject result =
+        new JsonObject()
+            .put(TOTAL_HITS, 1)
+            .put(RESULTS, resourceArray)
+            .put("latestDataset", latestDataset); // .put("instanceIconPath",json4);
+    when(asyncResult.result()).thenReturn(result);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    databaseService.getMlayerPopularDatasets(
+        highestCountResource,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+            testContext.completeNow();
 
-                    } else {
-                        testContext.failNow("fail");
-                    }
-                });
-    }
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
 
-    @Test
-    @Description("test getMlayerPopularDatasets method when DB Request fails")
-    public void testGetMlayerPopularDatasetsFailed(VertxTestContext testContext) {
-        DatabaseServiceImpl databaseService =
-                new DatabaseServiceImpl(
-                        client,
-                        docIndex,
-                        ratingIndex,
-                        mlayerInstanceIndex,
-                        mlayerDomainIndex,
-                        nlpService,
-                        geoService);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
-        JsonArray highestCountResource = new JsonArray();
+  @Test
+  @Description("test getMlayerPopularDatasets method when DB Request fails")
+  public void testGetMlayerPopularDatasetsFailed(VertxTestContext testContext) {
+    DatabaseServiceImpl databaseService =
+        new DatabaseServiceImpl(
+            client,
+            docIndex,
+            ratingIndex,
+            mlayerInstanceIndex,
+            mlayerDomainIndex,
+            nlpService,
+            geoService);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonArray highestCountResource = new JsonArray();
 
-        when(asyncResult.succeeded()).thenReturn(false);
+    when(asyncResult.succeeded()).thenReturn(false);
 
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchAsync(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
 
-        databaseService.getMlayerPopularDatasets(
-                highestCountResource,
-                handler -> {
-                    if (handler.failed()) {
-                        // verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
-                        verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+    databaseService.getMlayerPopularDatasets(
+        highestCountResource,
+        handler -> {
+          if (handler.failed()) {
+            // verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
 
-                        testContext.completeNow();
+            testContext.completeNow();
 
-                    } else {
-                        testContext.failNow("fail");
-                    }
-                });
-        //  testContext.completeNow();
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+    //  testContext.completeNow();
 
-    }
+  }
 
-    @Test
-    @Description(
-            "test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Provider")
-    public void testGetMlayerPopularDatasetsProviderSuccess(VertxTestContext testContext) {
-        DatabaseServiceImpl databaseService =
-                new DatabaseServiceImpl(
-                        client,
-                        docIndex,
-                        ratingIndex,
-                        mlayerInstanceIndex,
-                        mlayerDomainIndex,
-                        nlpService,
-                        geoService);
-        JsonObject json = new JsonObject().put("rgid", "duumy-id");
-        JsonObject json2 = new JsonObject().put("rgid", "duumy-id");
+  @Test
+  @Description(
+      "test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Provider")
+  public void testGetMlayerPopularDatasetsProviderSuccess(VertxTestContext testContext) {
+    DatabaseServiceImpl databaseService =
+        new DatabaseServiceImpl(
+            client,
+            docIndex,
+            ratingIndex,
+            mlayerInstanceIndex,
+            mlayerDomainIndex,
+            nlpService,
+            geoService);
+    JsonObject json = new JsonObject().put("rgid", "duumy-id");
+    JsonObject json2 = new JsonObject().put("rgid", "duumy-id");
 
-        JsonArray highestCountResource = new JsonArray().add(json).add(json2);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonArray highestCountResource = new JsonArray().add(json).add(json2);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
 
-        JsonArray resourceArray = new JsonArray();
-        JsonArray typeArray = new JsonArray().add(0, "iudx:Provider");
+    JsonArray resourceArray = new JsonArray();
+    JsonArray typeArray = new JsonArray().add(0, "iudx:Provider");
 
-        JsonObject instance =
-                new JsonObject()
-                        .put("name", "agra")
-                        .put("icon", "path_of_agra-icon.jpg")
-                        .put(TYPE, typeArray)
-                        .put("resourceGroup", "abc");
-        resourceArray.add(instance);
+    JsonObject instance =
+        new JsonObject()
+            .put("name", "agra")
+            .put("icon", "path_of_agra-icon.jpg")
+            .put(TYPE, typeArray)
+            .put("resourceGroup", "abc");
+    resourceArray.add(instance);
 
-        JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resourceArray);
-        when(asyncResult.result()).thenReturn(result);
-        when(asyncResult.succeeded()).thenReturn(true);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchAsync(any(), any(), any());
-        databaseService.getMlayerPopularDatasets(
-                highestCountResource,
-                handler -> {
-                    if (handler.succeeded()) {
-                        verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+    JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resourceArray);
+    when(asyncResult.result()).thenReturn(result);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    databaseService.getMlayerPopularDatasets(
+        highestCountResource,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
 
-                        testContext.completeNow();
+            testContext.completeNow();
 
-                    } else {
-                        testContext.failNow("fail");
-                    }
-                });
-    }
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
 
-    @Test
-    @Description(
-            "test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Resource")
-    public void testGetMlayerPopularDatasetsResourceSuccess(VertxTestContext testContext) {
-        DatabaseServiceImpl databaseService =
-                new DatabaseServiceImpl(
-                        client,
-                        docIndex,
-                        ratingIndex,
-                        mlayerInstanceIndex,
-                        mlayerDomainIndex,
-                        nlpService,
-                        geoService);
-        JsonObject json = new JsonObject().put("rgid", "duumy-id");
-        JsonObject json2 = new JsonObject().put("rgid", "duumy-id");
+  @Test
+  @Description("test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Resource")
+  public void testGetMlayerPopularDatasetsResourceSuccess(VertxTestContext testContext) {
+    DatabaseServiceImpl databaseService =
+        new DatabaseServiceImpl(
+            client,
+            docIndex,
+            ratingIndex,
+            mlayerInstanceIndex,
+            mlayerDomainIndex,
+            nlpService,
+            geoService);
+    JsonObject json = new JsonObject().put("rgid", "duumy-id");
+    JsonObject json2 = new JsonObject().put("rgid", "duumy-id");
 
-        JsonArray highestCountResource = new JsonArray().add(json).add(json2);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonArray highestCountResource = new JsonArray().add(json).add(json2);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
 
-        JsonArray resourceArray = new JsonArray();
-        JsonArray typeArray = new JsonArray().add(0, "iudx:Resource");
+    JsonArray resourceArray = new JsonArray();
+    JsonArray typeArray = new JsonArray().add(0, "iudx:Resource");
 
-        JsonObject instance =
-                new JsonObject()
-                        .put("name", "agra")
-                        .put("icon", "path_of_agra-icon.jpg")
-                        .put(TYPE, typeArray)
-                        .put("resourceGroup", "abc");
-        resourceArray.add(instance);
+    JsonObject instance =
+        new JsonObject()
+            .put("name", "agra")
+            .put("icon", "path_of_agra-icon.jpg")
+            .put(TYPE, typeArray)
+            .put("resourceGroup", "abc");
+    resourceArray.add(instance);
 
-        JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resourceArray);
-        when(asyncResult.result()).thenReturn(result);
-        when(asyncResult.succeeded()).thenReturn(true);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchAsync(any(), any(), any());
-        databaseService.getMlayerPopularDatasets(
-                highestCountResource,
-                handler -> {
-                    if (handler.succeeded()) {
-                        verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+    JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resourceArray);
+    when(asyncResult.result()).thenReturn(result);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    databaseService.getMlayerPopularDatasets(
+        highestCountResource,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
 
-                        testContext.completeNow();
+            testContext.completeNow();
 
-                    } else {
-                        testContext.failNow("fail");
-                    }
-                });
-    }
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("testing method delete item when item does not exist")
+  public void testDeleteItemNotExists(VertxTestContext vertxTestContext) {
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonArray jsonArray = new JsonArray().add("docId");
+    JsonObject request =
+        new JsonObject().put("id", "item id").put(TOTAL_HITS, 0).put(RESULTS, jsonArray);
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    dbService.deleteItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            vertxTestContext.failNow("Fail");
+
+          } else {
+            vertxTestContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @Description("testing method delete item when other items are associated with it")
+  public void testDeleteItemFailure(VertxTestContext vertxTestContext) {
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonArray jsonArray = new JsonArray().add("docId");
+    JsonObject request =
+        new JsonObject().put("id", "item id").put(TOTAL_HITS, 3).put(RESULTS, jsonArray);
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    dbService.deleteItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            vertxTestContext.failNow("Fail");
+
+          } else {
+            vertxTestContext.completeNow();
+          }
+        });
+  }
 
 }

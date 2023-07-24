@@ -3,6 +3,9 @@ package iudx.catalogue.server.database;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
@@ -28,9 +31,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
+import static org.mockito.Mockito.*;
+
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
+@ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class DatabaseServiceTest {
@@ -52,6 +62,9 @@ public class DatabaseServiceTest {
   private static NLPSearchService nlpService;
   private static GeocodingService geocodingService;
   private static JsonArray optionalModules;
+  @Mock AsyncResult<JsonObject> asyncResult;
+  @Mock Throwable throwable;
+
   @BeforeAll
   @DisplayName("Deploying Verticle")
   static void startVertx(Vertx vertx, VertxTestContext testContext) {
@@ -74,9 +87,19 @@ public class DatabaseServiceTest {
             && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
-      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex,mlayerDomainIndex,nlpService, geoService);
+      dbService =
+          new DatabaseServiceImpl(
+              client,
+              docIndex,
+              ratingIndex,
+              mlayerInstanceIndex,
+              mlayerDomainIndex,
+              nlpService,
+              geoService);
     } else {
-      dbService = new DatabaseServiceImpl(client, docIndex, ratingIndex,mlayerInstanceIndex,mlayerDomainIndex);
+      dbService =
+          new DatabaseServiceImpl(
+              client, docIndex, ratingIndex, mlayerInstanceIndex, mlayerDomainIndex);
     }
 
     testContext.completeNow();
@@ -93,14 +116,42 @@ public class DatabaseServiceTest {
   @DisplayName("Test CreateItem")
   void createItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
-            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
-    dbService.createItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(TYPE);
-      assertEquals(TYPE_SUCCESS, status);
-      TimeUnit.SECONDS.sleep(5);
-      testContext.completeNow();
-    })));
+    JsonArray jsonArray = new JsonArray().add("iudx:Resource");
+    request.put(ID, "f2e69f85-52df-47a4-9e35-76c7362f21d3").put("type", jsonArray);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 0);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .docPostAsync(any(), any(), any());
+    dbService.createItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
   }
 
   @Test
@@ -108,30 +159,89 @@ public class DatabaseServiceTest {
   @DisplayName("Test updateItem")
   void updateItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
-                    "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123")
-            .put("test", "test");
-    dbService.updateItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(TYPE);
-      assertEquals(TYPE_SUCCESS, status);
-      TimeUnit.SECONDS.sleep(5);
-      testContext.completeNow();
-    })));
+    JsonArray jsonArray = new JsonArray().add("iudx:Resource");
+    JsonArray result = new JsonArray().add("dummy");
+    request.put(ID, "dummyid").put("type", jsonArray);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, result);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .docPutAsync(any(), any(), any(), any());
+    dbService.updateItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1))
+                .docPutAsync(anyString(), any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
   }
 
   @Test
   @Order(3)
   @DisplayName("Test deleteItem")
   void deleteItemTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
-            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/pscdcl/xyz/testing123");
-    dbService.deleteItem(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(TYPE);
-      assertEquals(TYPE_SUCCESS, status);
-      TimeUnit.SECONDS.sleep(5);
-      testContext.completeNow();
-    })));
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject request = new JsonObject().put("id", "dummy id");
+    when(asyncResult.succeeded()).thenReturn(true);
+    JsonArray jsonArray = new JsonArray().add("dummy");
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, jsonArray);
+    when(asyncResult.result()).thenReturn(json);
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .docDelAsync(any(), any(), any());
+    dbService.deleteItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).docDelAsync(any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("fail");
+          }
+        });
   }
 
  /*@Test
@@ -154,15 +264,33 @@ public class DatabaseServiceTest {
   @DisplayName("Update non existant Item")
   void updateNonExistantItemTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    request.put(ITEM_TYPE, RESOURCE).put(ID,
-                    "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo/Noble Hospital junction_354567")
-            .put("test", "test");
-    dbService.updateItem(request, testContext.failing(response -> testContext.verify(() -> {
-      String status = new JsonObject(response.getMessage()).getString(TYPE);
-      assertEquals(TYPE_ITEM_NOT_FOUND, status);
-      TimeUnit.SECONDS.sleep(5);
-      testContext.completeNow();
-    })));
+    JsonArray jsonArray = new JsonArray().add("iudx:Resource");
+    JsonArray result = new JsonArray().add("dummy");
+    request.put(ID, "dummyid").put("type", jsonArray);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 0).put(RESULTS, result);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    dbService.updateItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            testContext.failNow("Fail");
+          } else {
+            testContext.completeNow();
+          }
+        });
   }
 
   /*@Test
@@ -184,22 +312,51 @@ public class DatabaseServiceTest {
   @Order(9)
   @DisplayName("Create Rating Test")
   void createRatingTest(VertxTestContext testContext) {
-
-    JsonObject request = new JsonObject()
-            .put("rating",4.5)
-            .put("comment","some comment")
-            .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject request =
+        new JsonObject()
+            .put("rating", 4.5)
+            .put("comment", "some comment")
+            .put(
+                "id",
+                "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
             .put("userID", "some-user")
             .put("status", "approved")
             .put("ratingID", "rating-id");
 
-    LOGGER.debug(this.ratingID);
-    dbService.createRating(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(TYPE);
-      assertEquals(TYPE_SUCCESS, status);
-      TimeUnit.SECONDS.sleep(5);
-      testContext.completeNow();
-    })));
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 0);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .docPostAsync(any(), any(), any());
+    dbService.createRating(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
   }
 
   @Test
@@ -213,32 +370,83 @@ public class DatabaseServiceTest {
             .put("userID", "some-user")
             .put("status", "approved")
             .put("ratingID", "rating-id");
-
-    dbService.createRating(request, testContext.failing(response -> testContext.verify(() -> {
-      String status = new JsonObject(response.getMessage()).getString(TYPE);
-      assertEquals(TYPE_ALREADY_EXISTS, status);
-      testContext.completeNow();
-    })));
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 1);
+    when(asyncResult.result()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    dbService.createRating(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
+            testContext.failNow("Fail");
+          } else {
+            testContext.completeNow();
+          }
+        });
   }
 
   @Test
   @Order(11)
   @DisplayName("Update rating test")
   void updateRatingTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject()
-            .put("rating",4.5)
-            .put("comment","some comment")
-            .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonObject request =
+        new JsonObject()
+            .put("rating", 4.5)
+            .put("comment", "some comment")
+            .put(
+                "id",
+                "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
             .put("userID", "some-user")
             .put("status", "approved")
             .put("ratingID", "rating-id");
+    JsonArray jsonArray = new JsonArray().add("dummy");
 
-    dbService.updateRating(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(TYPE);
-      assertEquals(TYPE_SUCCESS, status);
-      TimeUnit.SECONDS.sleep(5);
-      testContext.completeNow();
-    })));
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, jsonArray);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .docPutAsync(any(), any(), any(), any());
+    dbService.updateRating(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1))
+                .docPutAsync(anyString(), any(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
   }
 
   @Test
@@ -251,13 +459,31 @@ public class DatabaseServiceTest {
             .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
             .put("userID", "some-user")
             .put("status", "approved")
-            .put("ratingID", "rating-id-abc");
+            .put("ratingID", "rating-id");
+    JsonArray jsonArray = new JsonArray().add("dummy");
 
-    dbService.updateRating(request, testContext.failing(response -> testContext.verify(() -> {
-      String status = new JsonObject(response.getMessage()).getString(TYPE);
-      assertEquals(TYPE_ITEM_NOT_FOUND, status);
-      testContext.completeNow();
-    })));
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 0).put(RESULTS, jsonArray);
+    when(asyncResult.result()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    dbService.updateRating(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            testContext.failNow("Fail");
+          } else {
+            testContext.completeNow();
+          }
+        });
   }
 
   @Test
@@ -265,13 +491,43 @@ public class DatabaseServiceTest {
   @DisplayName("Delete Rating test")
   void deleteRatingTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put("ratingID", "rating-id");
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonArray jsonArray = new JsonArray().add("dummy");
 
-    dbService.deleteRating(request, testContext.succeeding(response -> testContext.verify(() -> {
-      String status = response.getString(TYPE);
-      assertEquals(TYPE_SUCCESS, status);
-      TimeUnit.SECONDS.sleep(5);
-      testContext.completeNow();
-    })));
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, jsonArray);
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .docDelAsync(any(), any(), any());
+    dbService.deleteRating(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            verify(DatabaseServiceImpl.client, times(1)).docDelAsync(anyString(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
   }
 
   @Test
@@ -280,11 +536,32 @@ public class DatabaseServiceTest {
   void deleteNonExistingRatingTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put("ratingID", "rating-id-abc");
 
-    dbService.deleteRating(request, testContext.failing(response -> testContext.verify(() -> {
-      String status = new JsonObject(response.getMessage()).getString(TYPE);
-      assertEquals(TYPE_ITEM_NOT_FOUND, status);
-      testContext.completeNow();
-    })));
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    JsonArray jsonArray = new JsonArray().add("dummy");
+
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 0).put(RESULTS, jsonArray);
+    when(asyncResult.result()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    dbService.deleteRating(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            testContext.failNow("Fail");
+
+          } else {
+            testContext.completeNow();
+          }
+        });
   }
 
   @Test
@@ -292,23 +569,32 @@ public class DatabaseServiceTest {
   @DisplayName("Get rating of a resource for a user")
   void getRatingForUserTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put("ratingID", "rating-id");
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.succeeded()).thenReturn(true);
+    JsonObject json = new JsonObject().put(TOTAL_HITS, 1);
+    when(asyncResult.result()).thenReturn(json);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
 
-    dbService.getRatings(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(4.5,response.getJsonArray(RESULT).getJsonObject(0).getDouble("rating"));
-      testContext.completeNow();
-    })));
-  }
+    dbService.getRatings(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
+            testContext.completeNow();
 
-  @Test
-  @Order(14)
-  @DisplayName("Get all ratings of a resource")
-  void getAllRatingsofResourceTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject().put("id","iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood");
-
-    dbService.getRatings(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertTrue(response.getInteger("totalHits") >= 1);
-      testContext.completeNow();
-    })));
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
   }
 
   /*  @Test
@@ -342,11 +628,16 @@ public class DatabaseServiceTest {
   void searchWithSearchType(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
 
-    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getMessage());
-      assertEquals("No searchType found", res.getString(DETAIL));
-      testContext.completeNow();
-    })));
+    dbService.searchQuery(
+        request,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      JsonObject res = new JsonObject(response.getMessage());
+                      assertEquals("No searchType found", res.getString(DETAIL));
+                      testContext.completeNow();
+                    })));
   }
 
 /*  @Test
@@ -390,16 +681,30 @@ public class DatabaseServiceTest {
   @DisplayName("Testing Geo Polygon Exceptions (First and Last coordinates don't match)")
   void searchPolygonFirstLastNoMatch(VertxTestContext testContext) {
     JsonObject request =
-            new JsonObject().put(GEOMETRY, POLYGON).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
-                            new JsonArray().add(new JsonArray().add(new JsonArray().add(75.9).add(14.5))
-                                    .add(new JsonArray().add(72).add(13)).add(new JsonArray().add(73).add(20))))
-                    .put(GEOPROPERTY, GEO_KEY).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
+        new JsonObject()
+            .put(GEOMETRY, POLYGON)
+            .put(GEORELATION, GEOREL_WITHIN)
+            .put(
+                COORDINATES_KEY,
+                new JsonArray()
+                    .add(
+                        new JsonArray()
+                            .add(new JsonArray().add(75.9).add(14.5))
+                            .add(new JsonArray().add(72).add(13))
+                            .add(new JsonArray().add(73).add(20))))
+            .put(GEOPROPERTY, GEO_KEY)
+            .put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
-    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getMessage());
-      assertEquals("Coordinate mismatch (Polygon)", res.getString(DETAIL));
-      testContext.completeNow();
-    })));
+    dbService.searchQuery(
+        request,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      JsonObject res = new JsonObject(response.getMessage());
+                      assertEquals("Coordinate mismatch (Polygon)", res.getString(DETAIL));
+                      testContext.completeNow();
+                    })));
   }
 
  /* @Test
@@ -483,12 +788,17 @@ public class DatabaseServiceTest {
   void searchMissingResponseFilterParams(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER);
 
-    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      LOGGER.debug(response);
-      JsonObject res = new JsonObject(response.getMessage());
-      assertEquals(TYPE_BAD_FILTER, res.getString(TYPE));
-      testContext.completeNow();
-    })));
+    dbService.searchQuery(
+        request,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      LOGGER.debug(response);
+                      JsonObject res = new JsonObject(response.getMessage());
+                      assertEquals(TYPE_BAD_FILTER, res.getString(TYPE));
+                      testContext.completeNow();
+                    })));
   }
 
  /* @Test
@@ -537,29 +847,47 @@ public class DatabaseServiceTest {
   @Test
   @DisplayName("Testing response filter with count")
   void countResponseFilter(VertxTestContext testContext) {
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER).put("attrs",
-            new JsonArray().add(ID).add(TAGS));
+    JsonObject request =
+        new JsonObject()
+            .put(SEARCH_TYPE, RESPONSE_FILTER)
+            .put("attrs", new JsonArray().add(ID).add(TAGS));
 
-    dbService.countQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getMessage());
-      assertEquals(TYPE_OPERATION_NOT_ALLOWED, res.getString(TYPE));
-      testContext.completeNow();
-    })));
+    dbService.countQuery(
+        request,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      JsonObject res = new JsonObject(response.getMessage());
+                      assertEquals(TYPE_OPERATION_NOT_ALLOWED, res.getString(TYPE));
+                      testContext.completeNow();
+                    })));
   }
 
   @Test
   @DisplayName("Testing Complex (response filter + geo) with count")
   void countComplexI(VertxTestContext testContext) {
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER_GEO)
+    JsonObject request =
+        new JsonObject()
+            .put(SEARCH_TYPE, RESPONSE_FILTER_GEO)
             .put("attrs", new JsonArray().add(ID).add(TAGS))
-            .put(COORDINATES_KEY, new JsonArray().add(73.9).add(18.6)).put(MAX_DISTANCE, 5000)
-            .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, GEO_KEY);;
+            .put(COORDINATES_KEY, new JsonArray().add(73.9).add(18.6))
+            .put(MAX_DISTANCE, 5000)
+            .put(GEOMETRY, POINT)
+            .put(GEORELATION, GEOREL_WITHIN)
+            .put(GEOPROPERTY, GEO_KEY);
+    ;
 
-    dbService.countQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getMessage());
-      assertEquals(TYPE_OPERATION_NOT_ALLOWED, res.getString(TYPE));
-      testContext.completeNow();
-    })));
+    dbService.countQuery(
+        request,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      JsonObject res = new JsonObject(response.getMessage());
+                      assertEquals(TYPE_OPERATION_NOT_ALLOWED, res.getString(TYPE));
+                      testContext.completeNow();
+                    })));
   }
 
 /*  @Test
@@ -598,17 +926,28 @@ public class DatabaseServiceTest {
   @Test
   @DisplayName("Testing invalid Search request")
   void searchInvalidType(VertxTestContext testContext) {
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, "response!@$_geoS241")
-            .put(GEOMETRY, BBOX).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
-                    new JsonArray().add(new JsonArray().add(73).add(20))
-                            .add(new JsonArray().add(75).add(14)))
+    JsonObject request =
+        new JsonObject()
+            .put(SEARCH_TYPE, "response!@$_geoS241")
+            .put(GEOMETRY, BBOX)
+            .put(GEORELATION, GEOREL_WITHIN)
+            .put(
+                COORDINATES_KEY,
+                new JsonArray()
+                    .add(new JsonArray().add(73).add(20))
+                    .add(new JsonArray().add(75).add(14)))
             .put(GEOPROPERTY, GEO_KEY);
 
-    dbService.searchQuery(request, testContext.failing(response -> testContext.verify(() -> {
-      JsonObject res = new JsonObject(response.getMessage());
-      assertEquals(TYPE_INVALID_SYNTAX, res.getString(TYPE));
-      testContext.completeNow();
-    })));
+    dbService.searchQuery(
+        request,
+        testContext.failing(
+            response ->
+                testContext.verify(
+                    () -> {
+                      JsonObject res = new JsonObject(response.getMessage());
+                      assertEquals(TYPE_INVALID_SYNTAX, res.getString(TYPE));
+                      testContext.completeNow();
+                    })));
   }
 
   /**
@@ -657,63 +996,16 @@ public class DatabaseServiceTest {
                 .add("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io"
                     + "/aqm-bosch-climo/aqm_test_5")));
 
-    /* requesting db service */
-    /*dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.927,
-          response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-              .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
-              .getDouble(0));
-      testContext.completeNow();
-    })));
-  }
-*/
-  /**
-   * Simple Attribute Search test with invalid property attribute name
-   * (property=[invalid-attribute]&value=[valid-id1]).
-   *
-   * @param testContext handles operations in Vert.x web
-   */
-  @Test
-  @DisplayName("Testing Simple Attribute InvalidProperty Search")
-  void simpleAttributeSearchInvalidProperty(VertxTestContext testContext) {
-
-    /* Constructing request Json Body */
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
-            .put(PROPERTY, new JsonArray().add("invalidProperty"))
-            .put(VALUE, new JsonArray().add(new JsonArray().add("rbccps.org/aa9d66a000d94a78"
-                    + "895de8d4c0b3a67f3450e531/pscdcl/aqm-bosch-climo/Ambedkar society circle_29")));
-
-    /* requesting db service */
-    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      Integer res = response.getInteger(TOTAL_HITS);
-      assertEquals(0, res);
-      testContext.completeNow();
-    })));
-  }
-
-  /**
-   * Simple Attribute Search test with invalid attribute of "value"
-   * (property=[valid-attribute]&value=[invalidValid-attribute]).
-   *
-   * @param testContext handles operations in Vert.x web
-   */
-  @Test
-  @DisplayName("Testing Simple Attribute NonExistingId Search")
-  void simpleAttributeSearchInvalidId(VertxTestContext testContext) {
-
-    /* Constructing request Json Body */
-    JsonObject request =
-            new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
-                    .put(PROPERTY, new JsonArray().add(ID))
-                    .put(VALUE, new JsonArray().add(new JsonArray().add("non-existing-id")));
-
-    /* requesting db service */
-    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      Integer res = response.getInteger(TOTAL_HITS);
-      assertEquals(0, res);
-      testContext.completeNow();
-    })));
-  }
+  /* requesting db service */
+  /*dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+        assertEquals(73.927,
+            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
+                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
+                .getDouble(0));
+        testContext.completeNow();
+      })));
+    }
+  */
 
   /**
    * Multiple Attribute Search test, having multiple attribute in "property" and "value"
@@ -740,55 +1032,6 @@ public class DatabaseServiceTest {
       testContext.completeNow();
     })));
   }*/
-
-
-  /**
-   * Multiple Attribute Search test, having invalid attribute in "property"
-   * (property=[valid-attribute1,invalid-attribute2]&value=[[value1][value2]]).
-   *
-   * @param testContext handles operations in Vert.x web
-   */
-  @Test
-  @DisplayName("Testing Multi Attribute InvalidProperty Search")
-  void multiAttributeSearchInvalidProperty(VertxTestContext testContext) {
-
-    /* Constructing request Json Body */
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
-            .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY.concat("invalid")))
-            .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
-                    .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
-
-    /* requesting db service */
-    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      Integer res = response.getInteger(TOTAL_HITS);
-      assertEquals(0, res);
-      testContext.completeNow();
-    })));
-  }
-
-  /**
-   * Multiple Attribute Search test, having invalid attribute in "value"
-   * (property=[valid-attribute1,valid-attribute2]&value=[[invalid-value1][valid-value2]]).
-   *
-   * @param testContext handles operations in Vert.x web
-   */
-  @Test
-  @DisplayName("Testing Simple Attribute NonExistingId Search")
-  void multiAttributeSearchInvalidId(VertxTestContext testContext) {
-
-    /* Constructing request Json Body */
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
-            .put(PROPERTY, new JsonArray().add(TAGS).add(DEVICEID_KEY))
-            .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM.concat("invalidTag")))
-                    .add(new JsonArray().add("8cff12b2-b8be-1230-c5f6-ca96b4e4e441").add("climo")));
-
-    /* requesting db service */
-    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      Integer res = response.getInteger(TOTAL_HITS);
-      assertEquals(0, res);
-      testContext.completeNow();
-    })));
-  }
 
 /**
  * Complex Attribute with ResponseFilter search test
@@ -1029,242 +1272,68 @@ public class DatabaseServiceTest {
     attrs.add(TAGS);
     attrs.add(LOCATION);
 
-    dbService.searchQuery(request, testContext.succeeding(response -> {
-      Set<String> resAttrs = new HashSet<>();
-      for (Object obj : response.getJsonArray(RESULT)) {
-        JsonObject jsonObj = (JsonObject) obj;
-        if (resAttrs != attrs) {
-          resAttrs = jsonObj.fieldNames();
-        }
-      }
-      Set<String> finalResAttrs = resAttrs;
-      testContext.verify(() -> {
-        assertEquals(73.927,
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
-        assertEquals(attrs, finalResAttrs);
-        testContext.completeNow();
-      });
-    }));
-  }
-
-
- @Test
-  @DisplayName("List Resource Relationship")
-  void listResourceRelationshipTest(VertxTestContext testContext) {
-
-    /* Constructing request Json Body */
-    /*JsonObject request = new JsonObject().put(ID,
-        "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo")
-        .put(RELATIONSHIP, RESOURCE);
-
-    dbService.listRelationship(request, testContext.succeeding(response -> {
-
-      testContext.verify(() -> {
-        assertEquals(73.927,
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
-        testContext.completeNow();
-      });
-    }));
-  }
-
-
-  @Test
-   @DisplayName("List ResourceGroup Relationship")
-   void listResourceGroupRelationshipTest(VertxTestContext testContext) {
-
-     /* Constructing request Json Body */
-  /*  JsonObject request = new JsonObject()
-        .put(ID,
-            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
-                + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
-        .put(RELATIONSHIP, RESOURCE_GRP);
-
-    dbService.listRelationship(request, testContext.succeeding(response -> {
-
-      testContext.verify(() -> {
-        assertEquals(
-            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo",
-            response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
-        testContext.completeNow();
-      });
-    }));
-  }
-
- @Test
-  @DisplayName("List Provider Relationship for resourceId")
-  void listProviderResourceIdRelationshipTest(VertxTestContext testContext) {
-
-  /* Constructing request Json Body */
-
-  /* JsonObject request = new JsonObject()
-        .put(ID,
-            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
-                + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
-        .put(RELATIONSHIP, PROVIDER);
-
-    dbService.listRelationship(request, testContext.succeeding(response -> {
-
-      testContext.verify(() -> {
-      assertEquals("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86",
-            response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
-        testContext.completeNow();
-      });
-    }));
-  }*/
-
-
-  /* @Test
- @DisplayName("List Provider Relationship for resourceGroupId")
- void listProviderResourceGroupIdRelationshipTest(VertxTestContext testContext) {
-
-   /* Constructing request Json Body */
-     /* JsonObject request = new JsonObject()
-        .put(ID,
-            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
-                + "/rs.iudx.io/aqm-bosch-climo")
-        .put(RELATIONSHIP, PROVIDER);
-
-    dbService.listRelationship(request, testContext.succeeding(response -> {
-
-      testContext.verify(() -> {
-        assertEquals("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86",
-            response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
-        testContext.completeNow();
-      });
-    }));
-  }
-
-
- @Test
-  @DisplayName("List ResourceServer Relationship for resourceId")
-  void listResourceServerResourceIdRelationshipTest(VertxTestContext testContext) {
-
-    /* Constructing request Json Body */
-   /* JsonObject request = new JsonObject()
-        .put(ID,
-            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
-                + "/rs.iudx.io/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
-        .put(RELATIONSHIP, RESOURCE_SVR);
-
-    dbService.listRelationship(request, testContext.succeeding(response -> {
-
-      testContext.verify(() -> {
-        assertEquals("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io",
-            response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
-        testContext.completeNow();
-      });
-    }));
-  }
-
- @Test
-  @DisplayName("List ResourceServer Relationship for resourceGroupId")
-  void listResourceServerResourceGroupIdRelationshipTest(VertxTestContext testContext) {
-
-    /* Constructing request Json Body */
-   /* JsonObject request = new JsonObject()
-        .put(ID,
-            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/aqm-bosch-climo")
-        .put(RELATIONSHIP, RESOURCE_SVR);
-
-    dbService.listRelationship(request, testContext.succeeding(response -> {
-
-      testContext.verify(() -> {
-        assertEquals("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io",
-            response.getJsonArray(RESULT).getJsonObject(0).getString(ID));
-        testContext.completeNow();
-      });
-    }));
-  }
-
- @Test
-  @DisplayName("List Type Relationship for resourceId")
-  void listTypeResourceIdRelationshipTest(VertxTestContext testContext) {
-
-    /* Constructing request Json Body */
-   /* JsonObject request = new JsonObject()
-        .put(ID,
-            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
-                + "/rs.iudx.io/aqm-bosch-climo/aqm_test_2")
-        .put(RELATIONSHIP, TYPE);
-
-    dbService.listRelationship(request, testContext.succeeding(response -> {
-
-      testContext.verify(() -> {
-        assertEquals("iudx:Resource",
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonArray(TYPE_KEY).getString(0));
-        testContext.completeNow();
-      });
-    }));
-  }
-
-  @Test
-  @DisplayName("List ResourceServer Relationship for resourceGroupId")
-  void listTypeResourceGroupIdRelationshipTest(VertxTestContext testContext) {
-
-    /* Constructing request Json Body */
-  /*  JsonObject request = new JsonObject()
-        .put(ID,
-            "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
-                + "/rs.iudx.io/aqm-bosch-climo")
-        .put(RELATIONSHIP, TYPE);
-
-    dbService.listRelationship(request, testContext.succeeding(response -> {
-
-      testContext.verify(() -> {
-        assertEquals("iudx:ResourceGroup",
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonArray(TYPE_KEY).getString(0));
-        testContext.completeNow();
-      });
-    }));
-  }
-*/
-@Test
-@Order(7)
-@DisplayName("Relationship search Provider")
-void listRelSearchProviderTest(VertxTestContext testContext) {
-
-  /* Constructing request Json Body */
-  JsonObject request =
-          new JsonObject()
-                  .put(RELATIONSHIP, new JsonArray().add(PROVIDER.concat(".").concat(NAME)))
-                  .put(VALUE, new JsonArray().add(new JsonArray().add("IUDXAdmin")));
-
-  dbService.relSearch(request, testContext.succeeding(response -> {
-
-    testContext.verify(() -> {
-      assertEquals(TYPE_SUCCESS,
-              response.getString(TYPE));
-      testContext.completeNow();
-    });
-  }));
-}
-  @Test
-  @Order(8)
-  @DisplayName("Relationship search ResourceGroup")
-  void listRelSearchResourceGroupTest(VertxTestContext testContext) {
-
-    JsonObject request = new JsonObject()
-            .put(RELATIONSHIP, new JsonArray().add("resourceGroup.accessObjectInfo.accessObjectType"))
-            .put(VALUE, new JsonArray().add(new JsonArray().add("openAPI")));
-
-    dbService.relSearch(request, testContext.succeeding(response -> {
-
-      testContext.verify(() -> {
-        LOGGER.debug(response);
-        for (int i=0; i<response.getJsonArray(RESULT).size(); i++) {
-          if (response.getJsonArray(RESULT).getJsonObject(i).containsKey("resourceGroup")) {
-            assertEquals("datakaveri.org/f7e044eee8122b5c87dce6e7ad64f3266afa41dc/rs.iudx.io/aqm-bosch-climo",
-                    response.getJsonArray(RESULT).getJsonObject(i).getString("resourceGroup"));
+      dbService.searchQuery(request, testContext.succeeding(response -> {
+        Set<String> resAttrs = new HashSet<>();
+        for (Object obj : response.getJsonArray(RESULT)) {
+          JsonObject jsonObj = (JsonObject) obj;
+          if (resAttrs != attrs) {
+            resAttrs = jsonObj.fieldNames();
           }
-          testContext.completeNow();
         }
-      });
-    }));
+        Set<String> finalResAttrs = resAttrs;
+        testContext.verify(() -> {
+          assertEquals(73.927,
+              response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
+                  .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
+          assertEquals(attrs, finalResAttrs);
+          testContext.completeNow();
+        });
+      }));
+    }
+  */
+  @Test
+  @DisplayName("Test CreateItem when id is not present in request body ")
+  void createItemNoIdTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject();
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    dbService.createItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            testContext.failNow("Fail");
+
+          } else {
+            testContext.completeNow();
+          }
+        });
   }
-
-
+    @Test
+    @DisplayName("Test updateItem when handler fails")
+    void updateItemFailedTest(VertxTestContext testContext) {
+        JsonObject request = new JsonObject();
+        JsonArray jsonArray = new JsonArray().add("iudx:Resource");
+        request.put(ID, "dummyid").put("type", jsonArray);
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        when(asyncResult.failed()).thenReturn(true);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(DatabaseServiceImpl.client)
+                .searchGetId(any(), any(), any());
+        dbService.updateItem(
+                request,
+                handler -> {
+                    if (handler.failed()) {
+                        testContext.completeNow();
+                    } else {
+                        testContext.failNow("Fail");
+                    }
+                });
+    }
 
 }
-

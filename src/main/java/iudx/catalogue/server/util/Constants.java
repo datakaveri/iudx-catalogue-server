@@ -51,6 +51,8 @@ public class Constants {
   public static final String RESOURCE_GRP = "resourceGroup";
   public static final String RESOURCE_SVR = "resourceServer";
   public static final String PROVIDER = "provider";
+  public static final String PROVIDER_KC_ID = "providerKcId";
+  public static final String RESOURCE_SERVER_URL = "resourceServerHTTPAccessURL";
   public static final String RESOURCETYPE = "resourceType";
 
 
@@ -70,6 +72,8 @@ public class Constants {
   public static final String INSTANCE = "instance";
   public static final String BUCKETS = "buckets";
   public static final String ID = "id";
+  public static final String ITEM = "item";
+
   public static final String RESOURCE_ID = "resourceId";
 
   public static final String ITEM_TYPE = "itemType";
@@ -214,6 +218,8 @@ public class Constants {
 
   public static final String TYPE_INVALID_GEO_VALUE = "urn:dx:cat:InvalidGeoValue";
   public static final String TITLE_INVALID_GEO_VALUE = "Geoquery value error";
+  public static final String TITLE_INVALID_UUID = "Invalid syntax of uuid";
+
 
 
   public static final String DETAIL_INVALID_COORDINATE_POLYGON = "Coordinate mismatch (Polygon)";
@@ -230,6 +236,8 @@ public class Constants {
   public static final String TITLE_INVALID_PROPERTY_VALUE = "Invalid Property Values";
 
   public static final String TYPE_INVALID_QUERY_PARAM_VALUE = "urn:dx:cat:InvalidParamValue";
+  public static final String TYPE_INVALID_UUID = "urn:dx:cat:InvalidUUID";
+
   public static final String TITLE_INVALID_QUERY_PARAM_VALUE = "Invalid value for a query param";
   public static final String TYPE_BAD_TEXT_QUERY = "urn:dx:cat:BadTextQuery";
   public static final String TITLE_BAD_TEXT_QUERY = "Bad text query values";

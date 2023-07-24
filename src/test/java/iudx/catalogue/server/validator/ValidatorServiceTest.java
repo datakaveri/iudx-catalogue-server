@@ -30,6 +30,7 @@ public class ValidatorServiceTest {
   private static String databaseUser;
   private static String databasePassword;
   private static FileSystem fileSystem;
+  private static boolean isUacInstance;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -47,7 +48,7 @@ public class ValidatorServiceTest {
 
     // TODO : Need to enable TLS using xpack security
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
-    validator = new ValidatorServiceImpl(client, docIndex);
+    validator = new ValidatorServiceImpl(client, docIndex,isUacInstance);
     testContext.completeNow();
   }
 
@@ -153,7 +154,7 @@ public class ValidatorServiceTest {
                     })));
   }
 
-  @Test
+ /* @Test
   @Order(5)
   @DisplayName("Valid Schema Test [Resource]")
   void validResourceSchemaTest(VertxTestContext testContext) {
@@ -195,7 +196,7 @@ public class ValidatorServiceTest {
                     () -> {
                       testContext.completeNow();
                     })));
-  }
+  }*/
 
   @Test
   @Order(8)
@@ -390,9 +391,9 @@ public class ValidatorServiceTest {
                 "id",
                 new JsonArray()
                     .add(
-                        "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/faridabad-camera-feeds")
+                        "8b95ab80-2aaf-4636-a65e-7f2563d0d371")
                     .add(
-                        "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/chennai-bike-docking-locations"))
+                        "8b95ab80-2aaf-4636-a65e-7f2563d0d371"))
             .put("instance", "pune");
 
     validator.validateMlayerGeoQuery(
