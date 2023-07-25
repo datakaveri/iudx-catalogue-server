@@ -29,21 +29,21 @@ import org.apache.logging.log4j.Logger;
  * @version 1.0
  * @since 2023-06-14 }
  */
-public class KCAuthenticationServiceImpl implements AuthenticationService {
-  private static final Logger LOGGER = LogManager.getLogger(KCAuthenticationServiceImpl.class);
+public class KcAuthenticationServiceImpl implements AuthenticationService {
+  private static final Logger LOGGER = LogManager.getLogger(KcAuthenticationServiceImpl.class);
 
   final JWTProcessor<SecurityContext> jwtProcessor;
   private Api api;
   private String uacAdmin;
 
   /**
-   * Constructs a new instance of KCAuthenticationServiceImpl.
+   * Constructs a new instance of KcAuthenticationServiceImpl.
    *
    * @param jwtProcessor The JWTProcessor used for JWT token processing and validation.
    * @param config The JsonObject configuration object containing various settings.
    * @param api The Api object used for communication with external services.
    */
-  public KCAuthenticationServiceImpl(
+  public KcAuthenticationServiceImpl(
       final JWTProcessor<SecurityContext> jwtProcessor, final JsonObject config, final Api api) {
     this.jwtProcessor = jwtProcessor;
     this.uacAdmin = config.getString(UAC_ADMIN) != null ? config.getString(UAC_ADMIN) : "";

@@ -1256,6 +1256,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @return the DatabaseService instance
    */
   @Override
+
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
