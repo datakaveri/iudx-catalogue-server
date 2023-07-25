@@ -376,8 +376,6 @@ public final class QueryDecoder {
         return null;
       }
 
-      LOGGER.debug(subQuery);
-      LOGGER.debug(BOOL_SHOULD_QUERY.replace("$1", subQuery));
       return BOOL_SHOULD_QUERY.replace("$1", subQuery);
     } else {
       return null;

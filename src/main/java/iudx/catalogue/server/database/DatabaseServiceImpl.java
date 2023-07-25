@@ -747,7 +747,6 @@ public class DatabaseServiceImpl implements DatabaseService {
               handleResourceItemFetchForRs(request, handler, respBuilder, relType);
             } else {
               request.mergeIn(relType);
-              LOGGER.debug(request);
               String elasticQuery = queryDecoder.listRelationshipQuery(request);
               LOGGER.debug("Info: Query constructed;" + elasticQuery);
               if (elasticQuery != null) {
