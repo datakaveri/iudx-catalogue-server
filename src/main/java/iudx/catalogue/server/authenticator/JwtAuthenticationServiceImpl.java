@@ -92,8 +92,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
       jwtId = jwtData.getSub();
     } else if (jwtData.getRole().equalsIgnoreCase("delegate")) {
-      // TODO: add logic for delegate once delegate token is updated
-      jwtId = jwtData.getSub();
+      jwtId = jwtData.getDid();
     }
 
     if (provider.equalsIgnoreCase(jwtId)) {

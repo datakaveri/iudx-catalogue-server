@@ -456,7 +456,10 @@ public final class CrudApis {
               if (itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
                 handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
               }
-              String resourceServer = itemTypeHandler.result().getString(RESOURCE_SVR);
+
+              String resourceServer = itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)
+                  ? itemId
+                  : itemTypeHandler.result().getString(RESOURCE_SVR);
               Future<JsonObject> rsUrlFuture =
                   getItemType(
                       resourceServer,
