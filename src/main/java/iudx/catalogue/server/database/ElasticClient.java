@@ -65,7 +65,7 @@ public final class ElasticClient {
   private Future<JsonObject> searchAsync(Request request, String options) {
     Promise<JsonObject> promise = Promise.promise();
 
-    DBRespMsgBuilder responseMsg = new DBRespMsgBuilder();
+    DbResponseMessageBuilder responseMsg = new DbResponseMessageBuilder();
 
     client.performRequestAsync(request, new ResponseListener() {
       @Override
@@ -434,7 +434,7 @@ public final class ElasticClient {
   private Future<JsonObject> countAsync(Request request) {
     Promise<JsonObject> promise = Promise.promise();
 
-    DBRespMsgBuilder responseMsg = new DBRespMsgBuilder();
+    DbResponseMessageBuilder responseMsg = new DbResponseMessageBuilder();
 
     client.performRequestAsync(request, new ResponseListener() {
       @Override
@@ -544,39 +544,39 @@ public final class ElasticClient {
   }
 
   /**
-   * DBRespMsgBuilder} Message builder for search APIs.
+   * DbResponseMessageBuilder} Message builder for search APIs.
    */
-  private class DBRespMsgBuilder {
+  private class DbResponseMessageBuilder {
     private JsonObject response = new JsonObject();
     private JsonArray results = new JsonArray();
 
-    DBRespMsgBuilder() {
+    DbResponseMessageBuilder() {
     }
 
-    DBRespMsgBuilder statusSuccess() {
+    DbResponseMessageBuilder statusSuccess() {
       response.put(TYPE, TYPE_SUCCESS);
       response.put(TITLE, TITLE_SUCCESS);
       return this;
     }
 
-    DBRespMsgBuilder setTotalHits(int hits) {
+    DbResponseMessageBuilder setTotalHits(int hits) {
       response.put(TOTAL_HITS, hits);
       return this;
     }
 
     /** Overloaded for source only request. */
-    DBRespMsgBuilder addResult(JsonObject obj) {
+    DbResponseMessageBuilder addResult(JsonObject obj) {
       response.put(RESULTS, results.add(obj));
       return this;
     }
 
     /** Overloaded for doc-ids request. */
-    DBRespMsgBuilder addResult(String value) {
+    DbResponseMessageBuilder addResult(String value) {
       response.put(RESULTS, results.add(value));
       return this;
     }
 
-    DBRespMsgBuilder addResult() {
+    DbResponseMessageBuilder addResult() {
       response.put(RESULTS, results);
       return this;
     }
@@ -590,55 +590,50 @@ public final class ElasticClient {
    * docAsync - private function which perform performRequestAsync for doc apis.
    *
    * @param request Elastic Request
-   * @param method SOURCE - Source only
-   *                DOCIDS - DOCIDs only
-   *                IDS - IDs only
-   * @TODO XPack Security
-   * @TODO Can combine countAsync and searchAsync
+   * @param method SOURCE - Source only DOCIDS - DOCIDs only IDS - IDs only @TODO XPack
+   *     Security @TODO Can combine countAsync and searchAsync
    */
   private Future<JsonObject> docAsync(String method, Request request) {
     Promise<JsonObject> promise = Promise.promise();
 
-    client.performRequestAsync(request, new ResponseListener() {
-      @Override
-      public void onSuccess(Response response) {
-        try {
-          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-          int statusCode = response.getStatusLine().getStatusCode();
-          switch (method) {
-            case REQUEST_POST:
-              if (statusCode == 201) {
-                promise.complete(responseJson);
-                return;
+    client.performRequestAsync(
+        request,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
+            try {
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              int statusCode = response.getStatusLine().getStatusCode();
+              switch (method) {
+                case REQUEST_POST:
+                  if (statusCode == 201) {
+                    promise.complete(responseJson);
+                    return;
+                  }
+                  break;
+                case REQUEST_DELETE:
+                case REQUEST_PUT:
+                  if (statusCode == 200) {
+                    promise.complete(responseJson);
+                    return;
+                  }
+                  break;
+                default:
+                  promise.fail(DATABASE_BAD_QUERY);
               }
-              case REQUEST_DELETE:
-              if (statusCode == 200) {
-                promise.complete(responseJson);
-                return;
-              }
-              case REQUEST_PUT:
-              if (statusCode == 200) {
-                promise.complete(responseJson);
-                return;
-              }
-              default:
-              promise.fail(DATABASE_BAD_QUERY);
+              promise.fail("Failed request");
+            } catch (IOException e) {
+              promise.fail(e);
+            } finally {
+              EntityUtils.consumeQuietly(response.getEntity());
+            }
           }
-          promise.fail("Failed request");
-        } catch (IOException e) {
-            promise.fail(e);
-        } finally {
-          EntityUtils.consumeQuietly(response.getEntity());
-        }
-      }
 
-      @Override
-      public void onFailure(Exception e) {
-        promise.fail(e);
-      }
-    });
+          @Override
+          public void onFailure(Exception e) {
+            promise.fail(e);
+          }
+        });
     return promise.future();
   }
-
-
 }

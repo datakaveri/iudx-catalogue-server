@@ -1002,7 +1002,7 @@ public class DatabaseServiceImplTest {
   @Description("test listRelationship method when handler succeeded")
   public void testListRealtionship(VertxTestContext vertxTestContext) {
 
-    JsonArray typeArray = new JsonArray();
+    JsonArray typeArray = new JsonArray().add(ITEM_TYPE_RESOURCE_GROUP);
     JsonObject jsonObject = new JsonObject().put(TYPE, typeArray);
     JsonArray resultArray = new JsonArray().add(jsonObject);
     JsonObject json =
@@ -1010,9 +1010,7 @@ public class DatabaseServiceImplTest {
             .put("id", "dummy id")
             .put(TOTAL_HITS, 1)
             .put("results", resultArray)
-            .put(RELATIONSHIP, "resources");
-    json.put(SEARCH, false);
-    json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
+            .put(RELATIONSHIP, RESOURCE);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.result()).thenReturn(json);
     when(asyncResult.succeeded()).thenReturn(true);

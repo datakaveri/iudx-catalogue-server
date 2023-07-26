@@ -33,7 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
 public class KCAuthServiceImplTest {
   private static final Logger LOGGER = LogManager.getLogger(KCAuthServiceImplTest.class);
-  private static KCAuthenticationServiceImpl kcAuthenticationService, kcAuthenticationServiceSpy;
+  private static KcAuthenticationServiceImpl kcAuthenticationService, kcAuthenticationServiceSpy;
   private static ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
   private static Api api;
   private static String admin;
@@ -47,7 +47,7 @@ public class KCAuthServiceImplTest {
     admin = config.getString("admin");
     api = Api.getInstance("/iudx/cat/v1");
     jwtProcessor = mock(DefaultJWTProcessor.class);
-    kcAuthenticationService = new KCAuthenticationServiceImpl(jwtProcessor, config, api);
+    kcAuthenticationService = new KcAuthenticationServiceImpl(jwtProcessor, config, api);
     kcAuthenticationServiceSpy = spy(kcAuthenticationService);
     asyncResult = mock(AsyncResult.class);
     testContext.completeNow();
