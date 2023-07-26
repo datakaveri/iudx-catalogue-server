@@ -65,7 +65,7 @@ public final class ElasticClient {
   private Future<JsonObject> searchAsync(Request request, String options) {
     Promise<JsonObject> promise = Promise.promise();
 
-    DbRespMsgBuilder responseMsg = new DbRespMsgBuilder();
+    DbResponseMessageBuilder responseMsg = new DbResponseMessageBuilder();
 
     client.performRequestAsync(request, new ResponseListener() {
       @Override
@@ -427,7 +427,7 @@ public final class ElasticClient {
   private Future<JsonObject> countAsync(Request request) {
     Promise<JsonObject> promise = Promise.promise();
 
-    DbRespMsgBuilder responseMsg = new DbRespMsgBuilder();
+    DbResponseMessageBuilder responseMsg = new DbResponseMessageBuilder();
 
     client.performRequestAsync(request, new ResponseListener() {
       @Override
@@ -537,39 +537,39 @@ public final class ElasticClient {
   }
 
   /**
-   * DbRespMsgBuilder} Message builder for search APIs.
+   * DbResponseMessageBuilder} Message builder for search APIs.
    */
-  private class DbRespMsgBuilder {
+  private class DbResponseMessageBuilder {
     private JsonObject response = new JsonObject();
     private JsonArray results = new JsonArray();
 
-    DbRespMsgBuilder() {
+    DbResponseMessageBuilder() {
     }
 
-    DbRespMsgBuilder statusSuccess() {
+    DbResponseMessageBuilder statusSuccess() {
       response.put(TYPE, TYPE_SUCCESS);
       response.put(TITLE, TITLE_SUCCESS);
       return this;
     }
 
-    DbRespMsgBuilder setTotalHits(int hits) {
+    DbResponseMessageBuilder setTotalHits(int hits) {
       response.put(TOTAL_HITS, hits);
       return this;
     }
 
     /** Overloaded for source only request. */
-    DbRespMsgBuilder addResult(JsonObject obj) {
+    DbResponseMessageBuilder addResult(JsonObject obj) {
       response.put(RESULTS, results.add(obj));
       return this;
     }
 
     /** Overloaded for doc-ids request. */
-    DbRespMsgBuilder addResult(String value) {
+    DbResponseMessageBuilder addResult(String value) {
       response.put(RESULTS, results.add(value));
       return this;
     }
 
-    DbRespMsgBuilder addResult() {
+    DbResponseMessageBuilder addResult() {
       response.put(RESULTS, results);
       return this;
     }
