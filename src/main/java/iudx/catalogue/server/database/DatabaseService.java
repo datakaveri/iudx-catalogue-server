@@ -297,7 +297,7 @@ public interface DatabaseService {
   DatabaseService getMlayerDataset(String datasetId, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  DatabaseService getMlayerPopularDatasets(JsonArray highestCountResource,
+  DatabaseService getMlayerPopularDatasets(String instance, JsonArray highestCountResource,
                                            Handler<AsyncResult<JsonObject>> handler);
 
   /* create db service with nlp and geocoding */

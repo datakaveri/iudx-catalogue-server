@@ -821,6 +821,7 @@ public class MlayerServiceTest {
         JsonObject json = new JsonObject();
         json.put("results", jsonArray);
         jsonArray.add("dataset");
+        String instance ="";
         when(asyncResult.result()).thenReturn(json);
 
         when(asyncResult.succeeded()).thenReturn(true);
@@ -834,7 +835,7 @@ public class MlayerServiceTest {
                     }
                 })
                 .when(databaseService)
-                .getMlayerPopularDatasets(any(), any());
+                .getMlayerPopularDatasets(any(), any(),any());
         doAnswer(
                 new Answer<AsyncResult<JsonObject>>() {
                     @SuppressWarnings("unchecked")
@@ -847,10 +848,10 @@ public class MlayerServiceTest {
                 .when(postgresService)
                 .executeQuery(any(), any());
 
-        mlayerService.getMlayerPopularDatasets(
+        mlayerService.getMlayerPopularDatasets(instance,
                 handler -> {
                     if (handler.succeeded()) {
-                        verify(databaseService, times(1)).getMlayerPopularDatasets(any(), any());
+                        verify(databaseService, times(1)).getMlayerPopularDatasets(any(),any(), any());
                         verify(postgresService, times(1)).executeQuery(any(), any());
 
                         testContext.completeNow();
@@ -883,7 +884,7 @@ public class MlayerServiceTest {
                 .when(postgresService)
                 .executeQuery(any(), any());
 
-        mlayerService.getMlayerPopularDatasets(
+        mlayerService.getMlayerPopularDatasets(any(),
                 handler -> {
                     if (handler.failed()) {
                         verify(postgresService, times(1)).executeQuery(any(), any());

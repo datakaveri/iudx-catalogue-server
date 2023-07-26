@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f13b0e8f-2e73-4d0f-b9c3-3ba858ba8b95",
+		"_postman_id": "17ffa0ab-2bb6-4aa7-a68c-393f68f437c4",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "27217689"
@@ -108,7 +108,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n  \"itemId\": \"cat-test.iudx.io\", \n  \"itemType\": \"resource_server\",\n  \"role\": \"delegate\"\n}",
-
 							"options": {
 								"raw": {
 									"language": "json"
@@ -12900,6 +12899,56 @@
 					"item": [
 						{
 							"name": "200 (Success) - Get landing page details",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/popularDatasets?instance=surat",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"popularDatasets"
+									],
+									"query": [
+										{
+											"key": "instance",
+											"value": "surat"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (Success) - Get landing page details Copy",
 							"event": [
 								{
 									"listen": "test",

@@ -247,7 +247,8 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerPopularDatasets(Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerPopularDatasets(String instance,
+                                                Handler<AsyncResult<JsonObject>> handler) {
 
     String query = GET_HIGH_COUNT_DATASET.replace("$1", databaseTable);
     LOGGER.debug("postgres query" + query);
@@ -257,6 +258,7 @@ public class MlayerServiceImpl implements MlayerService {
           if (dbHandler.succeeded()) {
             JsonArray popularDataset = dbHandler.result().getJsonArray("results");
             databaseService.getMlayerPopularDatasets(
+                    instance,
                 popularDataset,
                 getPopularDatasetsHandler -> {
                   if (getPopularDatasetsHandler.succeeded()) {

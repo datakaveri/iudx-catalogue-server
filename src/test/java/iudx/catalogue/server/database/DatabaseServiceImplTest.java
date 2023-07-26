@@ -2983,6 +2983,7 @@ public class DatabaseServiceImplTest {
             mlayerDomainIndex,
             nlpService,
             geoService);
+    String instanceName ="";
     JsonObject json =
         new JsonObject().put("rgid", "abcd/abcd/abcd/abcd").put("instance", "instance");
     JsonObject json2 =
@@ -3032,6 +3033,7 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .searchAsync(any(), any(), any());
     databaseService.getMlayerPopularDatasets(
+            instanceName,
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
@@ -3047,6 +3049,7 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getMlayerPopularDatasets method when DB Request fails")
   public void testGetMlayerPopularDatasetsFailed(VertxTestContext testContext) {
+      String instance ="";
     DatabaseServiceImpl databaseService =
         new DatabaseServiceImpl(
             client,
@@ -3073,6 +3076,7 @@ public class DatabaseServiceImplTest {
         .searchAsync(any(), any(), any());
 
     databaseService.getMlayerPopularDatasets(
+            instance,
         highestCountResource,
         handler -> {
           if (handler.failed()) {
@@ -3093,6 +3097,7 @@ public class DatabaseServiceImplTest {
   @Description(
       "test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Provider")
   public void testGetMlayerPopularDatasetsProviderSuccess(VertxTestContext testContext) {
+      String instanceName ="";
     DatabaseServiceImpl databaseService =
         new DatabaseServiceImpl(
             client,
@@ -3133,6 +3138,7 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .searchAsync(any(), any(), any());
     databaseService.getMlayerPopularDatasets(
+            instanceName,
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
@@ -3158,6 +3164,7 @@ public class DatabaseServiceImplTest {
             mlayerDomainIndex,
             nlpService,
             geoService);
+    String instanceName ="dummy";
     JsonObject json = new JsonObject().put("rgid", "duumy-id");
     JsonObject json2 = new JsonObject().put("rgid", "duumy-id");
 
@@ -3189,6 +3196,7 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .searchAsync(any(), any(), any());
     databaseService.getMlayerPopularDatasets(
+            instanceName,
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {

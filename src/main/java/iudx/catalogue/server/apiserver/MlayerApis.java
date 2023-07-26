@@ -574,9 +574,14 @@ public class MlayerApis {
    */
   public void getMlayerPopularDatasetsHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching the data for the landing Page");
+    String instance = "";
+    if (routingContext.request().getParam(INSTANCE) != null) {
+      instance = routingContext.request().getParam(INSTANCE);
+    }
+    LOGGER.debug("Instance {}", instance);
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    mlayerService.getMlayerPopularDatasets(
+    mlayerService.getMlayerPopularDatasets(instance,
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
