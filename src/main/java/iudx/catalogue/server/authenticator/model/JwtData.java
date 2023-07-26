@@ -16,6 +16,8 @@ public final class JwtData {
   private String role;
   private JsonObject cons;
   private String clientId;
+  private String did;
+  private String drl;
 
   public JwtData() {
     super();
@@ -28,6 +30,7 @@ public final class JwtData {
 
   /**
    * Returns a JSON representation of the JwtData object.
+   *
    * @return the JSON representation of the JwtData object.
    */
   public JsonObject toJson() {
@@ -85,7 +88,7 @@ public final class JwtData {
   }
 
   public JsonObject getCons() {
-    return  cons;
+    return cons;
   }
 
   public void setCons(JsonObject cons) {
@@ -116,10 +119,44 @@ public final class JwtData {
     this.clientId = clientId;
   }
 
+  public String getDid() {
+    return did;
+  }
+
+  public void setDid(String did) {
+    this.did = did;
+  }
+
+  public String getDrl() {
+    return drl;
+  }
+
+  public void setDrl(String drl) {
+    this.drl = drl;
+  }
+
   @Override
   public String toString() {
-    return "JwtData [access_token=" + accessToken + ", sub=" + sub
-            + ", iss=" + iss + ", aud=" + aud + ", iid=" + iid
-            + ", role=" + role + ", cons=" + cons + ", clientId=" + clientId + "]";
+    return "JwtData [access_token="
+        + accessToken
+        + ", sub="
+        + sub
+        + ", iss="
+        + iss
+        + ", aud="
+        + aud
+        + ", iid="
+        + iid
+        + ", role="
+        + role
+        + ", cons="
+        + cons
+        + ", clientId="
+        + clientId
+        + ", did="
+        + did
+        + ", drl="
+        + drl
+        + "]";
   }
 }

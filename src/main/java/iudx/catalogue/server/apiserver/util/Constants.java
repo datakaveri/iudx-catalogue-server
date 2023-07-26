@@ -12,10 +12,12 @@ public class Constants {
 
   /** General purpose. */
   public static final String CAT_ADMIN = "catAdmin";
+
   public static final String HOST = "host";
 
   /** Accept Headers and CORS. */
   public static final String HEADER_ACCEPT = "Accept";
+
   public static final String HEADER_TOKEN = "token";
   public static final String HEADER_CONTENT_LENGTH = "Content-Length";
   public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -24,36 +26,40 @@ public class Constants {
   public static final String HEADER_ORIGIN = "Origin";
   public static final String HEADER_REFERER = "Referer";
   public static final String HEADER_CORS = "Access-Control-Allow-Origin";
-  public static final Set<String> ALLOWED_HEADERS
-      = new HashSet<String>(Arrays.asList(HEADER_ACCEPT, HEADER_TOKEN, HEADER_CONTENT_LENGTH,
-          HEADER_CONTENT_TYPE, HEADER_HOST, HEADER_INSTANCE, HEADER_ORIGIN,
-                                    HEADER_REFERER, HEADER_CORS));
+  public static final Set<String> ALLOWED_HEADERS =
+      new HashSet<String>(
+          Arrays.asList(
+              HEADER_ACCEPT,
+              HEADER_TOKEN,
+              HEADER_CONTENT_LENGTH,
+              HEADER_CONTENT_TYPE,
+              HEADER_HOST,
+              HEADER_INSTANCE,
+              HEADER_ORIGIN,
+              HEADER_REFERER,
+              HEADER_CORS));
 
-  public static final Set<HttpMethod> ALLOWED_METHODS = new HashSet<HttpMethod>(
-      Arrays.asList(HttpMethod.GET, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PUT));
-
+  public static final Set<HttpMethod> ALLOWED_METHODS =
+      new HashSet<HttpMethod>(
+          Arrays.asList(HttpMethod.GET, HttpMethod.POST, HttpMethod.DELETE, HttpMethod.PUT));
 
   public static final String MIME_APPLICATION_JSON = "application/json";
   public static final String MIME_TEXT_HTML = "text/html";
 
-  /**
-   *Routes.
-   */
-
-
+  /** Routes. */
   public static final String ROUTE_STATIC_SPEC = "/apis/spec";
+
   public static final String ROUTE_DOC = "/apis";
-  public static final String ROUTE_ITEMS =  "/item";
-  public static final String ROUTE_UPDATE_ITEMS =  "/item";
+  public static final String ROUTE_ITEMS = "/item";
+  public static final String ROUTE_UPDATE_ITEMS = "/item";
   public static final String ROUTE_DELETE_ITEMS = "/item";
   public static final String ROUTE_INSTANCE = "/instance";
-  public static final String ROUTE_LIST_RESOURCE_GROUP_REL =
-       "\\/(?<id>.*)\\/resourceGroup";
+  public static final String ROUTE_LIST_RESOURCE_GROUP_REL = "\\/(?<id>.*)\\/resourceGroup";
 
-  public static final String ROUTE_RELATIONSHIP =  "/relationship";
-  public static final String ROUTE_SEARCH =  "/search";
-  public static final String ROUTE_NLP_SEARCH =  "/nlpsearch";
-  public static final String ROUTE_LIST_ITEMS =  "/list/:itemType";
+  public static final String ROUTE_RELATIONSHIP = "/relationship";
+  public static final String ROUTE_SEARCH = "/search";
+  public static final String ROUTE_NLP_SEARCH = "/nlpsearch";
+  public static final String ROUTE_LIST_ITEMS = "/list/:itemType";
 
   public static final String ROUTE_RATING = "/consumer/ratings";
 
@@ -65,12 +71,12 @@ public class Constants {
   public static final String DATA_DES_ITEM = "dataDesItem";
   public static final String USERID = "userid";
 
-  public static final String ROUTE_GET_ITEM =  "/items";
-  public static final String ROUTE_COUNT =  "/count";
-  public static final String ROUTE_REL_SEARCH =  "/relsearch";
+  public static final String ROUTE_GET_ITEM = "/items";
+  public static final String ROUTE_COUNT = "/count";
+  public static final String ROUTE_REL_SEARCH = "/relsearch";
 
-  public static final String ROUTE_GEO_COORDINATES =  "/geo";
-  public static final String ROUTE_GEO_REVERSE =  "/reversegeo";
+  public static final String ROUTE_GEO_COORDINATES = "/geo";
+  public static final String ROUTE_GEO_REVERSE = "/reversegeo";
 
   public static final String PROVIDER_NAME = "provider.name";
   public static final String PARTIAL_CONTENT = "partial-content";
@@ -80,10 +86,15 @@ public class Constants {
 
   public static final String TEXT = "text";
 
-  public static final ArrayList<String> GEORELS
-      = new ArrayList<String>(Arrays.asList(GEOREL_WITHIN, GEOREL_NEAR,
-                                          GEOREL_COVERED_BY, GEOREL_INTERSECTS,
-                                          GEOREL_EQUALS, GEOREL_DISJOINT));
+  public static final ArrayList<String> GEORELS =
+      new ArrayList<String>(
+          Arrays.asList(
+              GEOREL_WITHIN,
+              GEOREL_NEAR,
+              GEOREL_COVERED_BY,
+              GEOREL_INTERSECTS,
+              GEOREL_EQUALS,
+              GEOREL_DISJOINT));
   public static final String ROUTE_MLAYER_INSTANCE = "/internal/ui/instance";
   public static final String ROUTE_MLAYER_DOMAIN = "/internal/ui/domain";
   public static final String ROUTE_MLAYER_PROVIDER = "/internal/ui/providers";
@@ -92,24 +103,26 @@ public class Constants {
   public static final String ROUTE_MLAYER_POPULAR_DATASETS = "/internal/ui/popularDatasets";
 
   /** Geometries. */
-  public static final ArrayList<String> GEOMETRIES
-      = new ArrayList<String>(Arrays.asList(BBOX, POLYGON,
-                                          LINESTRING, POINT));
+  public static final ArrayList<String> GEOMETRIES =
+      new ArrayList<String>(Arrays.asList(BBOX, POLYGON, LINESTRING, POINT));
 
   public static final String OPERATION = "operation";
   public static final String ATTRIBUTE_FILTER = "attribute-filter";
 
   /** Errors. */
   public static final String INVALID_SYNTAX = "invalidSyntax";
+
   public static final String INVALID_VALUE = "invalidValue";
   public static final String BAD_REQUEST = "Bad Request";
   public static final String LOCATION_NOT_FOUND = "location not found";
 
   /** Query Pattern. */
   public static final String PATTERN_TEXT = "^[\\*]{0,1}[A-Za-z ]+[\\*]{0,1}";
+
   public static final String PATTERN_ARRAY = "^\\[.*\\]$";
 
   public static final String REL_KEY = "rel";
   public static final ArrayList<String> ITEMS_KEY =
-      new ArrayList<String>(Arrays.asList(RESOURCE, RESOURCE_GRP, RESOURCE_SVR, PROVIDER, TYPE));
+      new ArrayList<String>(
+          Arrays.asList(RESOURCE, RESOURCE_GRP, RESOURCE_SVR, PROVIDER, TYPE, ALL));
 }
