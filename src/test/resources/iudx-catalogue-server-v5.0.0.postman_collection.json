@@ -12898,7 +12898,7 @@
 					"name": "Mlayer Popular Datasets",
 					"item": [
 						{
-							"name": "200 (Success) - Get landing page details",
+							"name": "200 (Success) - Get landing page details through instance",
 							"event": [
 								{
 									"listen": "test",
@@ -12948,7 +12948,7 @@
 							"response": []
 						},
 						{
-							"name": "200 (Success) - Get landing page details Copy",
+							"name": "200 (Success) - Get landing page details",
 							"event": [
 								{
 									"listen": "test",
