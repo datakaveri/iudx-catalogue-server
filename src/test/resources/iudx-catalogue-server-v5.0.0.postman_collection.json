@@ -3,7 +3,7 @@
 		"_postman_id": "17ffa0ab-2bb6-4aa7-a68c-393f68f437c4",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27217689"
+		"_exporter_id": "17194681"
 	},
 	"item": [
 		{
@@ -107,7 +107,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"itemId\": \"cat-test.iudx.io\", \n  \"itemType\": \"resource_server\",\n  \"role\": \"delegate\"\n}",
+							"raw": "{\n  \"itemId\": \"cat-test.iudx.io\", \n  \"itemType\": \"resource_server\",\n  \"role\": \"provider\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -2827,7 +2827,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=5b7556b5-0779-4c47-9cf2-3f209779aa22&rel=resource",
+							"raw": "{{host}}{{base}}/relationship?id=8b95ab80-2aaf-4636-a65e-7f2563d0d371&rel=resource",
 							"host": [
 								"{{host}}{{base}}"
 							],
@@ -2837,7 +2837,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "5b7556b5-0779-4c47-9cf2-3f209779aa22"
+									"value": "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
 								},
 								{
 									"key": "rel",
@@ -3042,6 +3042,202 @@
 								{
 									"key": "rel",
 									"value": "resourceServer"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 (success) - Total Inverse Relationship [Resource]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{base}}/relationship?id=a347c5b6-5281-4749-9eab-89784d8f8f9a&rel=all",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "a347c5b6-5281-4749-9eab-89784d8f8f9a"
+								},
+								{
+									"key": "rel",
+									"value": "all"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 (success) - Total Inverse Relationship [ResourceGroup]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{base}}/relationship?id=5b7556b5-0779-4c47-9cf2-3f209779aa22&rel=all",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "5b7556b5-0779-4c47-9cf2-3f209779aa22"
+								},
+								{
+									"key": "rel",
+									"value": "all"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 (success) - Total Inverse Relationship [Provider]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{base}}/relationship?id=b2c27f3f-2524-4a84-816e-91f9ab23f837&rel=all",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+								},
+								{
+									"key": "rel",
+									"value": "all"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 (success) - Total Inverse Relationship [ResourceServer]",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidRelationSearch\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{base}}/relationship?id=49cf5c76-09de-11ee-be56-0242ac120002&rel=all",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"relationship"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "49cf5c76-09de-11ee-be56-0242ac120002"
+								},
+								{
+									"key": "rel",
+									"value": "all"
 								}
 							]
 						}

@@ -51,6 +51,7 @@ public class Constants {
   public static final String RESOURCE_GRP = "resourceGroup";
   public static final String RESOURCE_SVR = "resourceServer";
   public static final String PROVIDER = "provider";
+  public static final String ALL = "all";
   public static final String PROVIDER_KC_ID = "providerKcId";
   public static final String RESOURCE_SERVER_URL = "resourceServerHTTPAccessURL";
   public static final String RESOURCETYPE = "resourceType";
