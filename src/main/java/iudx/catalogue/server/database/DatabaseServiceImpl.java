@@ -2154,17 +2154,13 @@ public class DatabaseServiceImpl implements DatabaseService {
                 if (resourceGroupArray
                     .get(i)
                     .getString("id")
-                    .equals(highestCountResource.getJsonObject(j).getString("rgid"))) {
-                  String datasetId = highestCountResource.getJsonObject(j).getString("rgid");
-                  int index = datasetId.indexOf("/", datasetId.indexOf("/") + 1);
-                  String providerId = datasetId.substring(0, index);
+                    .equals(highestCountResource.getJsonObject(j)
+                            .getString("resourcegroup"))) {
                   JsonObject resource = resourceGroupArray.get(i);
                   resource
                       .put(
                           "totalResources",
-                          resourceGroupCount.get(resourceGroupArray.get(i).getString("id")))
-                      .put("providerDescription", providerDescription.get(providerId));
-
+                          resourceGroupCount.get(resourceGroupArray.get(i).getString("id")));
                   featuredResourceGroup.add(resource);
                   resource = new JsonObject();
                 }

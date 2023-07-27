@@ -2985,9 +2985,9 @@ public class DatabaseServiceImplTest {
             geoService);
     String instanceName ="";
     JsonObject json =
-        new JsonObject().put("rgid", "abcd/abcd/abcd/abcd").put("instance", "instance");
+        new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance");
     JsonObject json2 =
-        new JsonObject().put("rgid", "abcd/abcd/abcd/abcd").put("instance", "instance");
+        new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance");
 
     JsonArray highestCountResource = new JsonArray().add(json).add(json2);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -3045,6 +3045,7 @@ public class DatabaseServiceImplTest {
           }
         });
   }
+
 
   @Test
   @Description("test getMlayerPopularDatasets method when DB Request fails")
