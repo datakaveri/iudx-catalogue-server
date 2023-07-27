@@ -1925,7 +1925,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerPopularDatasets(
+  public DatabaseService getMlayerPopularDatasets(String instance,
       JsonArray highestCountResource, Handler<AsyncResult<JsonObject>> handler) {
     Promise<JsonObject> instanceResult = Promise.promise();
 
@@ -1935,7 +1935,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     searchSortedMlayerInstances(instanceResult);
 
     allMlayerDomains(domainResult);
-    datasets(datasetResult, highestCountResource);
+    datasets(instance, datasetResult, highestCountResource);
     CompositeFuture.all(instanceResult.future(), domainResult.future(), datasetResult.future())
         .onComplete(
             ar -> {
@@ -2081,9 +2081,16 @@ public class DatabaseServiceImpl implements DatabaseService {
     return jsonComparator;
   }
 
-  private void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
+  private void datasets(String instance, Promise<JsonObject> datasetResult,
+                        JsonArray highestCountResource) {
+    String providerAndResources = "";
+    if (instance.isBlank()) {
+      providerAndResources = GET_PROVIDER_AND_RESOURCES;
+    } else {
+      providerAndResources = GET_DATASET_BY_INSTANCE.replace("$1", instance);
+    }
     client.searchAsync(
-        GET_PROVIDER_AND_RESOURCES,
+        providerAndResources,
         docIndex,
         getCatRecords -> {
           if (getCatRecords.succeeded()) {
@@ -2125,6 +2132,22 @@ public class DatabaseServiceImpl implements DatabaseService {
             // sorting resource group based on the time of creation.
             Collections.sort(resourceGroupArray, comapratorForLatestDataset());
 
+              // getting count of providers of a particular instance
+              ArrayList<String> providerList = new ArrayList<String>();
+              if (!instance.isBlank()) {
+                for (int i = 0; i < getCatRecords.result().getJsonArray(RESULTS).size(); i++) {
+                  JsonObject record = getCatRecords.result().getJsonArray(RESULTS).getJsonObject(i);
+                  if (record.getJsonArray(TYPE).getString(0).equals("iudx:ResourceGroup")
+                          && !providerList.contains(record.getString("provider"))
+                          && !(record.getString("provider")).equals(null)) {
+                    providerList.add(record.getString("provider"));
+
+                  }
+
+                }
+                typeCount.put("iudx:Provider", providerList.size());
+              }
+
             ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
             int resourceGroupSize = 0;
             if (resourceGroupArray.size() < 6) {
@@ -2151,17 +2174,13 @@ public class DatabaseServiceImpl implements DatabaseService {
                 if (resourceGroupArray
                     .get(i)
                     .getString("id")
-                    .equals(highestCountResource.getJsonObject(j).getString("rgid"))) {
-                  String datasetId = highestCountResource.getJsonObject(j).getString("rgid");
-                  int index = datasetId.indexOf("/", datasetId.indexOf("/") + 1);
-                  String providerId = datasetId.substring(0, index);
+                    .equals(highestCountResource.getJsonObject(j)
+                            .getString("resourcegroup"))) {
                   JsonObject resource = resourceGroupArray.get(i);
                   resource
                       .put(
                           "totalResources",
-                          resourceGroupCount.get(resourceGroupArray.get(i).getString("id")))
-                      .put("providerDescription", providerDescription.get(providerId));
-
+                          resourceGroupCount.get(resourceGroupArray.get(i).getString("id")));
                   featuredResourceGroup.add(resource);
                   resource = new JsonObject();
                 }

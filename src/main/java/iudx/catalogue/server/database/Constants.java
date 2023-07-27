@@ -207,6 +207,16 @@ public class Constants {
                   + " \"iudx:Provider\"}}]}}]}},\"_source\":{\"includes\": [\"id\",\"description\","
                   + "\"type\",\"resourceGroup\",\"accessPolicy\",\"provider\",\"itemCreatedAt\","
                   + "\"instance\",\"label\"]},\"size\":10000}";
+
+  public static final String GET_DATASET_BY_INSTANCE =
+          "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":"
+                  + "\"iudx:ResourceGroup\"}},{\"match\": {\"instance.keyword\": \"$1\"}}]}},"
+                  + "{\"bool\":"
+                  + "{\"must\":[{\"match\":{\"type.keyword\":\"iudx:Resource\"}},{\"match\":"
+                  + " {\"instance.keyword\": \"$1\"}}]}},{\"bool\":{\"must\":[{\"match\":"
+                  + "{\"type.keyword\": \"iudx:Provider\"}}]}}]}},\"_source\":{\"includes\": "
+                  + "[\"id\",\"description\",\"type\",\"resourceGroup\",\"accessPolicy\","
+                  + "\"provider\",\"itemCreatedAt\",\"instance\",\"label\"]},\"size\":10000}\n";
   public static final String GET_SORTED_MLAYER_INSTANCES =
       "{\"query\": {\"match_all\":{}},\"sort\":[{\"name\":\"asc\"}],\"_source\": "
           + "{\"includes\": [\"name\",\"cover\",\"icon\"]},\"size\":10000}";

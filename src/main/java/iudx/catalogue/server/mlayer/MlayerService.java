@@ -54,6 +54,6 @@ public interface MlayerService {
   MlayerService getMlayerDataset(String datasetId, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService getMlayerPopularDatasets(Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getMlayerPopularDatasets(String instance, Handler<AsyncResult<JsonObject>> handler);
 }
 
