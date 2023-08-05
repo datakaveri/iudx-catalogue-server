@@ -225,7 +225,10 @@ public class ApiServerVerticle extends AbstractVerticle {
       .produces(MIME_APPLICATION_JSON)
       .handler( routingContext -> {
         HttpServerResponse response = routingContext.response();
-        response.sendFile("docs/openapi.yaml");
+          if (dxApiBasePath.equals("/adex/cat/v1"))
+            response.sendFile("docs/adex-openapi.yaml");
+          else
+            response.sendFile("docs/openapi.yaml");
       });
     /* Get redoc */
     router.get(ROUTE_DOC)
