@@ -44,6 +44,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator resourceGroupValidator;
   private Validator providerValidator;
   private Validator resourceServerValidator;
+  private Validator cosItemValidator;
   private Validator ratingValidator;
   private Validator mlayerInstanceValidator;
   private Validator mlayerDomainValidator;
@@ -67,6 +68,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       resourceGroupValidator = new Validator("/resourceGroupItemSchema.json");
       resourceServerValidator = new Validator("/resourceServerItemSchema.json");
       providerValidator = new Validator("/providerItemSchema.json");
+      cosItemValidator = new Validator("/cosItemSchema.json");
       ratingValidator = new Validator("/ratingSchema.json");
       mlayerInstanceValidator = new Validator("/mlayerInstanceSchema.json");
       mlayerDomainValidator = new Validator("/mlayerDomainSchema.json");
@@ -85,23 +87,27 @@ public class ValidatorServiceImpl implements ValidatorService {
     return utcTime;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  private static String getItemType(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    Set<String> type = new HashSet<String>(new JsonArray().getList());
+    try {
+      type = new HashSet<String>(request.getJsonArray(TYPE).getList());
+    } catch (Exception e) {
+      LOGGER.error("Item type mismatch");
+      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+    }
+    type.retainAll(ITEM_TYPES);
+    String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+    return itemType;
+  }
+
+  /** {@inheritDoc} */
   @SuppressWarnings("unchecked")
   public ValidatorService validateSchema(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Info: Reached Validator service validate schema");
-    Set<String> type = new HashSet<String>(new JsonArray().getList());
 
-    try {
-      type = new HashSet<String>(request.getJsonArray(TYPE).getList());
-    } catch (Exception e) {
-      LOGGER.error("Item type mismatch");
-    }
-    type.retainAll(ITEM_TYPES);
-    String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+    String itemType = getItemType(request, handler);
     LOGGER.debug("Info: itemType: " + itemType);
 
     switch (itemType) {
@@ -117,6 +123,9 @@ public class ValidatorServiceImpl implements ValidatorService {
       case ITEM_TYPE_PROVIDER:
         isValidSchema = providerValidator.validate(request.toString());
         break;
+      case ITEM_TYPE_COS:
+        isValidSchema = cosItemValidator.validate(request.toString());
+        break;
       default:
         isValidSchema = false;
         break;
@@ -131,23 +140,13 @@ public class ValidatorServiceImpl implements ValidatorService {
     return this;
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @SuppressWarnings("unchecked")
   @Override
   public ValidatorService validateItem(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    Set<String> type = new HashSet<String>(new JsonArray().getList());
-    try {
-      type = new HashSet<String>(request.getJsonArray(TYPE).getList());
-    } catch (Exception e) {
-      LOGGER.error("Item type mismatch");
-      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-    }
-    type.retainAll(ITEM_TYPES);
-    String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+    String itemType = getItemType(request, handler);
     LOGGER.debug("Info: itemType: " + itemType);
 
     String checkQuery =
@@ -163,6 +162,8 @@ public class ValidatorServiceImpl implements ValidatorService {
       validateProvider(request, handler, checkQuery);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
       validateResourceGroup(request, handler);
+    } else if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+      validateCosItem(request, handler);
     }
     return this;
   }
@@ -278,6 +279,19 @@ public class ValidatorServiceImpl implements ValidatorService {
         });
   }
 
+  private void validateCosItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    validateId(request, handler, isUacInstance);
+    if (!isUacInstance && !request.containsKey(ID)) {
+      String cosId = request.getString(NAME);
+      byte[] inputBytes = cosId.getBytes(StandardCharsets.UTF_8);
+      UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
+      request.put(ID, uuid.toString());
+    }
+    request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
+
+    handler.handle(Future.succeededFuture(request));
+  }
+
   private boolean isValidUuid(String uuidString) {
     return UUID_PATTERN.matcher(uuidString).matches();
   }
@@ -342,17 +356,8 @@ public class ValidatorServiceImpl implements ValidatorService {
   public ValidatorService validateMlayerGeoQuery(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema = mlayerGeoQueryValidator.validate(request.toString());
-    boolean isValidUuid = false;
-    for (int i = 0; i < request.getJsonArray("id").size(); i++) {
-      if (isValidUuid(request.getJsonArray("id").getString(i))) {
-        isValidUuid = true;
-      } else {
-        isValidUuid = false;
-        break;
-      }
-    }
 
-    if (isValidSchema && isValidUuid) {
+    if (isValidSchema) {
       handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
       LOGGER.error("Fail: Invalid Schema");

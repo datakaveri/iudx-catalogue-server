@@ -2,6 +2,9 @@ package iudx.catalogue.server.authenticator.authorization;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE_RESOURCE_SERVER;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE_PROVIDER;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE_INSTANCE;
 
 import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
@@ -37,20 +40,22 @@ public class AdminAuthStrategy implements AuthorizationStratergy {
 
   private void buildPermissions(Api api) {
     // /item access list
-    accessList.add(new AuthorizationRequest(POST, api.getRouteItems())); 
-    accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems()));
-    accessList.add(new AuthorizationRequest(POST, api.getRouteInstance()));
-    accessList.add(new AuthorizationRequest(DELETE, api.getRouteInstance()));
-    accessList.add(new AuthorizationRequest(POST, ROUTE_MLAYER_INSTANCE));
-    accessList.add(new AuthorizationRequest(DELETE, ROUTE_MLAYER_INSTANCE));
-    accessList.add(new AuthorizationRequest(PUT, ROUTE_MLAYER_INSTANCE));
-    accessList.add(new AuthorizationRequest(POST, ROUTE_MLAYER_DOMAIN));
-    accessList.add(new AuthorizationRequest(PUT, ROUTE_MLAYER_DOMAIN));
-    accessList.add(new AuthorizationRequest(DELETE, ROUTE_MLAYER_DOMAIN));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_RESOURCE_SERVER));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_PROVIDER));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_RESOURCE_SERVER));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_PROVIDER));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
+    accessList.add(new AuthorizationRequest(POST, ROUTE_MLAYER_INSTANCE, ""));
+    accessList.add(new AuthorizationRequest(DELETE, ROUTE_MLAYER_INSTANCE, ""));
+    accessList.add(new AuthorizationRequest(PUT, ROUTE_MLAYER_INSTANCE, ""));
+    accessList.add(new AuthorizationRequest(POST, ROUTE_MLAYER_DOMAIN, ""));
+    accessList.add(new AuthorizationRequest(PUT, ROUTE_MLAYER_DOMAIN, ""));
+    accessList.add(new AuthorizationRequest(DELETE, ROUTE_MLAYER_DOMAIN, ""));
   }
 
   @Override
-  public boolean isAuthorized(AuthorizationRequest authRequest, JwtData jwtData) {
+  public boolean isAuthorized(AuthorizationRequest authRequest) {
     return accessList.contains(authRequest);
   }
 }

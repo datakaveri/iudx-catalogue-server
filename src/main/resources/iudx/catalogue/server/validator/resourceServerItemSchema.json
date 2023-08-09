@@ -23,8 +23,6 @@
             ],
             "itemStatus": "ACTIVE",
             "itemCreatedAt": "2020-07-01T10:03:26+0000",
-            "resourceServerHTTPAccessURL": "rs.iudx.org.in",
-            "resourceServerStreamingAccessURL": "databroker.iudx.org.in",
             "resourceServerOrg": {
                 "name": "iudx",
                 "additionalInfoURL": "https://iudx.org.in",
@@ -40,6 +38,22 @@
                     }
                 }
             },
+            "resourceServers": [
+                {
+                    "name": "iudx-rs",
+                    "resourceServerURLs": {
+                        "resourceServerHTTPAccessURL": "rs.iudx.io",
+                        "resourceServerStreamingAccessURL": "databroker.iudx.org.in",
+                        "resourceServerFileAccessURL": "file.iudx.org.in"
+                    }
+                },
+                {
+                    "name": "iudx-rs-proxy",
+                    "resourceServerURLs": {
+                        "resourceServerHTTPAccessURL": "rs.iudx.io.xyz.xsnjsn"
+                    }
+                }
+            ],
             "location": {
                 "type": "Place",
                 "address": "IISc, Bangalore",
@@ -61,7 +75,7 @@
         "description",
         "tags",
         "resourceServerOrg",
-        "resourceServerHTTPAccessURL"
+        "resourceServers"
     ],
     "properties": {
         "@context": {
@@ -115,10 +129,10 @@
             "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
         },
         "owner": {
-            "$id": "#/properties/provider",
+            "$id": "#/properties/owner",
             "type": "string",
             "title": "The owner schema",
-            "description": "id of the owner (cop admin) of a resource server",
+            "description": "id of the owner (cos admin) of a resource server",
             "default": "",
             "examples": [
                 "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
@@ -141,7 +155,7 @@
             "$id": "#/properties/description",
             "type": "string",
             "title": "The description schema",
-            "description": "An explanation about the purpose of this instance.",
+            "description": "An explanation about the purpose of this resource server.",
             "default": "",
             "examples": [
                 "Multi tenanted IUDX resource server"
@@ -195,27 +209,6 @@
             "default": "",
             "examples": [
                 "2020-07-01T10:03:26+0000"
-            ]
-        },
-        "resourceServerHTTPAccessURL": {
-            "$id": "#/properties/resourceServerHTTPAccessURL",
-            "type": "string",
-            "title": "The resourceServerHTTPAccessURL schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "rs.iudx.org.in"
-            ],
-            "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,})(\\.[a-zA-Z0-9]{2,})$"
-        },
-        "resourceServerStreamingAccessURL": {
-            "$id": "#/properties/resourceServerStreamingAccessURL",
-            "type": "string",
-            "title": "The resourceServerStreamingAccessURL schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "databroker.iudx.org.in"
             ]
         },
         "resourceServerOrg": {
@@ -491,6 +484,102 @@
                 }
             },
             "additionalProperties": true
+        },
+        "resourceServers": {
+            "$id": "#/properties/resourceServers",
+            "type": "array",
+            "title": "The resourceServers schema",
+            "description": "An array of resourceServers containing each of their access URLs",
+            "default": [],
+            "examples": [
+                {
+                    "name": "iudx-rs",
+                    "resourceServerURLs": {
+                        "resourceServerHTTPAccessURL": "rs.iudx.io",
+                        "resourceServerStreamingAccessURL": "databroker.iudx.org.in",
+                        "resourceServerFileAccessURL": "file.iudx.org.in"
+                    }
+                },
+                {
+                    "name": "iudx-rs-proxy",
+                    "resourceServerURLs": {
+                        "resourceServerHTTPAccessURL": "rs.iudx.io"
+                    }
+                }
+            ],
+            "items": {
+                "$id": "#/properties/resourceServers/items",
+                "anyOf": [
+                    {
+                        "$id": "#/properties/resourceServers/items/anyOf/0",
+                        "type": "object",
+                        "title": "The resourceServers.items schema",
+                        "description": "An object with a resource server name and urls",
+                        "required": [
+                            "name",
+                            "resourceServerURLs"
+                        ],
+                        "properties": {
+                            "name": {
+                                "$id": "#/properties/resourceServers/items/properties/name",
+                                "type": "string",
+                                "title": "The name schema",
+                                "description": "The name of the resource server",
+                                "pattern": "^[a-zA-Z0-9]([\\w-.]*[a-zA-Z0-9])?$"
+                            },
+                            "resourceServerURLs": {
+                                "$id": "#/properties/resourceServers/items/properties/resourceServerURLs",
+                                "type": "object",
+                                "title": "The resourceServerURLs schema",
+                                "description": "Contains all the access urls for the resources hosted on this resource server",
+                                "default": {},
+                                "examples": [
+                                    {
+                                        "resourceServerHTTPAccessURL": "rs.iudx.org.in",
+                                        "resourceServerStreamingAccessURL": "databroker.iudx.org.in",
+                                        "resourceServerFileAccessURL": "file.iudx.org.in"
+                                    }
+                                ],
+                                "properties": {
+                                    "resourceServerHTTPAccessURL": {
+                                        "$id": "#/properties/resourceServers/items/properties/resourceServerURLs/properties/resourceServerHTTPAccessURL",
+                                        "type": "string",
+                                        "title": "The resourceServerHTTPAccessURL schema",
+                                        "description": "An explanation about the purpose of this instance.",
+                                        "default": "",
+                                        "examples": [
+                                            "rs.iudx.org.in"
+                                        ],
+                                        "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,}){1,5}$"
+                                    },
+                                    "resourceServerStreamingAccessURL": {
+                                        "$id": "#/properties/resourceServers/items/properties/resourceServerURLs/properties/resourceServerStreamingAccessURL",
+                                        "type": "string",
+                                        "title": "The resourceServerStreamingAccessURL schema",
+                                        "description": "An explanation about the purpose of this instance.",
+                                        "default": "",
+                                        "examples": [
+                                            "databroker.iudx.org.in"
+                                        ],
+                                        "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,}){1,5}$"
+                                    },
+                                    "resourceServerFileAccessURL": {
+                                        "$id": "#/properties/resourceServers/items/properties/resourceServerURLs/properties/resourceServerFileAccessURL",
+                                        "type": "string",
+                                        "title": "The resourceServerFileAccessURL schema",
+                                        "description": "An explanation about the purpose of this instance.",
+                                        "default": "",
+                                        "examples": [
+                                            "file.iudx.org.in"
+                                        ],
+                                        "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,}){1,5}$"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
         }
     },
     "additionalProperties": true

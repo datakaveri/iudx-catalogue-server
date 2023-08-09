@@ -24,7 +24,7 @@ public class AuthorizationRequestTest {
     @DisplayName("Test getMethod method")
     public void test_toJson(VertxTestContext vertxTestContext)
     {
-        authorizationRequest=new AuthorizationRequest(method,"api");
+        authorizationRequest=new AuthorizationRequest(method,"api", "iudx:Resource");
         String actual= String.valueOf(authorizationRequest.getMethod());
         assertNotNull(actual);
         vertxTestContext.completeNow();
@@ -33,22 +33,22 @@ public class AuthorizationRequestTest {
     @DisplayName("Test getApi method")
     public void testGetApi(VertxTestContext vertxTestContext)
     {
-        authorizationRequest=new AuthorizationRequest(method,"api");
+        authorizationRequest=new AuthorizationRequest(method,"api", "iudx:Resource");
         assertNotNull(authorizationRequest.getApi());
         vertxTestContext.completeNow();
     }
     @Test
     @DisplayName("Test hashCode() method")
     public void testHashCode(VertxTestContext vertxTestContext){
-        int result = Objects.hash(method, "api");
-        authorizationRequest=new AuthorizationRequest(method,"api");
+        int result = Objects.hash(method, "api", "iudx:Resource");
+        authorizationRequest=new AuthorizationRequest(method,"api", "iudx:Resource");
         assertEquals(result,authorizationRequest.hashCode());
         vertxTestContext.completeNow();
     }
     @Test
     @DisplayName("Test equals method")
     public void testEquals(VertxTestContext vertxTestContext){
-        authorizationRequest=new AuthorizationRequest(method,"api");
+        authorizationRequest=new AuthorizationRequest(method,"api", "iudx:Resource");
         Object obj = new Object();
         authorizationRequest.equals(obj);
         obj=null;

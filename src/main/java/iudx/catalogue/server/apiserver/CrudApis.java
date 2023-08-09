@@ -208,18 +208,20 @@ public final class CrudApis {
                     });
               }
             } else {
-              if (itemType.equals(ITEM_TYPE_PROVIDER)) {
-                jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
+              if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+                handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
+              }
+               else if (itemType.equals(ITEM_TYPE_PROVIDER)) {
                 // get provider keycloack id for auth
+                // TODO: get rs admin info not provider kc id
                 jwtAuthenticationInfo.put(PROVIDER_KC_ID, requestBody.getString(PROVIDER_KC_ID));
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-                jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
-                jwtAuthenticationInfo.put(RESOURCE_SERVER_URL,
-                    requestBody.getString(RESOURCE_SERVER_URL));
+//                jwtAuthenticationInfo.put(RESOURCE_SERVER_URL,
+//                    requestBody.getString(RESOURCE_SERVER_URL));
+                // TODO: get cos admin info
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else {
-                jwtAuthenticationInfo.put(ID, requestBody.getString(PROVIDER));
                 Future<JsonObject> providerKcIdFuture =
                     getItemType(requestBody.getString(PROVIDER), "getItemType", "");
                 // add provider kc id to requestBody

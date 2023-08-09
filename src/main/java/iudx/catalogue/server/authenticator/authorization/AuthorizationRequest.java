@@ -6,10 +6,12 @@ public class AuthorizationRequest {
 
   private final Method method;
   private final String api;
+  private final String itemType;
 
-  public AuthorizationRequest(final Method method, final String api) {
+  public AuthorizationRequest(final Method method, final String api, String itemType) {
     this.method = method;
     this.api = api;
+    this.itemType = itemType;
   }
 
   @Override
@@ -17,6 +19,7 @@ public class AuthorizationRequest {
     return "AuthorizationRequest{"
             + "method=" + method
             + ", api='" + api + '\''
+            + ", itemType='" + itemType + '\''
             + '}';
   }
 
@@ -28,6 +31,10 @@ public class AuthorizationRequest {
     return api;
   }
 
+  public String getItemType() {
+    return itemType;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -37,11 +44,11 @@ public class AuthorizationRequest {
       return false;
     }
     AuthorizationRequest that = (AuthorizationRequest) o;
-    return getMethod() == that.getMethod() && getApi().equals(that.getApi());
+    return getMethod() == that.getMethod() && getApi().equals(that.getApi()) && getItemType().equals(that.getItemType());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getMethod(), getApi());
+    return Objects.hash(getMethod(), getApi(), getItemType());
   }
 }

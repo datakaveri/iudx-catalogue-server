@@ -334,7 +334,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                       docIndex,
                       checkRes -> {
                         if (checkRes.failed()) {
-                          LOGGER.error("Fail: Isertion failed;" + checkRes.cause());
+                          LOGGER.error("Fail: Insertion failed;" + checkRes.cause());
                           handler.handle(Future.failedFuture(errorJson));
                         }
                         if (checkRes.succeeded()) {
@@ -411,32 +411,13 @@ public class DatabaseServiceImpl implements DatabaseService {
                                             doc.toString(),
                                             postRes -> {
                                               if (postRes.succeeded()) {
-                                                if (doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:Provider")
-                                                    || doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:Resource")
-                                                    || doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:ResourceGroup")
-                                                    || doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:ResourceServer")) {
-                                                  handler.handle(
-                                                      Future.succeededFuture(
-                                                          respBuilder
-                                                              .withType(TYPE_SUCCESS)
-                                                              .withTitle(TITLE_SUCCESS)
-                                                              .withMethod(INSERT)
-                                                              .withResult(doc)
-                                                              .getJsonResponse()));
-                                                }
                                                 handler.handle(
                                                     Future.succeededFuture(
                                                         respBuilder
                                                             .withType(TYPE_SUCCESS)
-                                                            .withResult(id, INSERT, TYPE_SUCCESS)
+                                                            .withTitle(TITLE_SUCCESS)
+//                                                            .withMethod(INSERT)
+                                                            .withResult(doc)
                                                             .getJsonResponse()));
                                               } else {
                                                 handler.handle(Future.failedFuture(errorJson));
@@ -488,7 +469,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         GET_DOC_QUERY_WITH_TYPE
             .replace("$1", id)
             .replace("$3", type)
-            .replace("$2", "\"" + id + "\"");
+            .replace("$2","id");
 
     new Timer()
         .schedule(

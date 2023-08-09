@@ -1,6 +1,8 @@
 package iudx.catalogue.server.authenticator.authorization;
 
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE_RESOURCE;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE_RESOURCE_GROUP;
 
 import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
@@ -36,13 +38,16 @@ public class ProviderAuthStrategy implements AuthorizationStratergy {
 
   private void buildPermissions(Api api) {
     // /item access list
-    accessList.add(new AuthorizationRequest(POST, api.getRouteItems()));
-    accessList.add(new AuthorizationRequest(PUT, api.getRouteItems()));
-    accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems()));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_RESOURCE_GROUP));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_RESOURCE));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteItems(), ITEM_TYPE_RESOURCE_GROUP));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteItems(), ITEM_TYPE_RESOURCE));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_RESOURCE_GROUP));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_RESOURCE));
   }
 
   @Override
-  public boolean isAuthorized(AuthorizationRequest authRequest, JwtData jwtData) {
+  public boolean isAuthorized(AuthorizationRequest authRequest) {
     return accessList.contains(authRequest);
   }
 }

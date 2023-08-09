@@ -44,7 +44,7 @@ public class AuthorizationContextFactoryTest {
         authorizationContextFactory=new AuthorizationContextFactory();
         String role="consumer";
         consumerAuthStrategy= ConsumerAuthStrategy.getInstance(this.api);
-        assertFalse(consumerAuthStrategy.isAuthorized(authRequest,jwtData));
+        assertFalse(consumerAuthStrategy.isAuthorized(authRequest));
         assertNotNull(AuthorizationContextFactory.create(role,this.api));
         vertxTestContext.completeNow();
     }
@@ -54,7 +54,7 @@ public class AuthorizationContextFactoryTest {
         authorizationContextFactory=new AuthorizationContextFactory();
         String role="delegate";
         delegateAuthStrategy= DelegateAuthStrategy.getInstance(this.api);
-        assertFalse(delegateAuthStrategy.isAuthorized(authRequest,jwtData));
+        assertFalse(delegateAuthStrategy.isAuthorized(authRequest));
         assertNotNull(AuthorizationContextFactory.create(role,this.api));
         vertxTestContext.completeNow();
     }

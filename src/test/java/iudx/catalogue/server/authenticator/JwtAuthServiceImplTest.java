@@ -1,7 +1,6 @@
 package iudx.catalogue.server.authenticator;
 
 import static iudx.catalogue.server.authenticator.Constants.*;
-import static iudx.catalogue.server.util.Constants.ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.vertx.ext.web.client.WebClient;
@@ -243,7 +242,7 @@ public class JwtAuthServiceImplTest {
   public void validIdCheckForJwtToken(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
     String id = "844e251b-574b-46e6-9247-f76f1f70a637";
-    jwtAuthenticationService.isValidId(jwtData, id).onComplete(handler -> {
+    jwtAuthenticationService.isValidProvider(jwtData, id).onComplete(handler -> {
       if (handler.failed()) {
         vertxTestContext.failNow("fail");
       } else {
@@ -260,7 +259,7 @@ public class JwtAuthServiceImplTest {
     JwtData jwtData = jwtDataObject();
     String id = "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547fab";
 
-    jwtAuthenticationService.isValidId(jwtData, id).onComplete(handler -> {
+    jwtAuthenticationService.isValidProvider(jwtData, id).onComplete(handler -> {
       if (handler.failed()) {
         vertxTestContext.completeNow();
       } else {
