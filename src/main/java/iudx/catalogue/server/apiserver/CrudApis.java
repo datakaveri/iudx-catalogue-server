@@ -154,6 +154,10 @@ public final class CrudApis {
                 .put(ITEM_TYPE, itemType);
 
             if (isUac) {
+              if(itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+                handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
+                return;
+              }
               if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
                 if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
                   handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
@@ -429,7 +433,7 @@ public final class CrudApis {
     HttpServerRequest request = routingContext.request();
     jwtAuthenticationInfo
               .put(TOKEN, request.getHeader(HEADER_TOKEN))
-              .put(METHOD, REQUEST_POST)
+              .put(METHOD, REQUEST_DELETE)
               .put(API_ENDPOINT, api.getRouteItems());
     if (validateId(itemId)) {
       Future<JsonObject> itemTypeFuture  = getItemType(itemId, "getItemType",  "");
@@ -444,15 +448,14 @@ public final class CrudApis {
           types.retainAll(ITEM_TYPES);
           String itemType = types.toString().replaceAll("\\[", "").replaceAll("\\]", "");
           LOGGER.debug("itemType : {} ", itemType);
-          String providerkcId = itemTypeHandler.result().getString(PROVIDER_KC_ID);
           jwtAuthenticationInfo
-              .put(TOKEN, request.getHeader(HEADER_TOKEN))
-              .put(METHOD, REQUEST_DELETE)
-              .put(API_ENDPOINT, api.getRouteItems())
-              .put(PROVIDER_KC_ID, providerkcId != null ? providerkcId : "")
               .put(ITEM_TYPE, itemType);
+//          String providerkcId = itemTypeHandler.result().getString(PROVIDER_KC_ID);
+//          jwtAuthenticationInfo
+//              .put(PROVIDER_KC_ID, providerkcId != null ? providerkcId : "")
+//              .put(ITEM_TYPE, itemType);
 
-          LOGGER.debug(itemTypeHandler.result());
+//          LOGGER.debug(itemTypeHandler.result());
           if (isUac) {
             if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
               if (itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {

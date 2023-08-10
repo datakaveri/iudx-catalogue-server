@@ -387,7 +387,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                                                           respBuilder
                                                               .withType(TYPE_SUCCESS)
                                                               .withTitle(TITLE_SUCCESS)
-                                                              .withResult(id, INSERT, TYPE_SUCCESS)
+                                                              .withResult(doc)
+//                                                              .withResult(id, INSERT, TYPE_SUCCESS)
                                                               .getJsonResponse()));
                                                 } else {
                                                   handler.handle(Future.failedFuture(errorJson));
@@ -512,7 +513,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                                         respBuilder
                                             .withType(TYPE_SUCCESS)
                                             .withTitle(TYPE_SUCCESS)
-                                            .withResult(id, UPDATE)
+                                            .withResult(doc)
+//                                            .withResult(id, UPDATE)
                                             .getJsonResponse()));
                               } else {
                                 handler.handle(Future.failedFuture(internalErrorResp));

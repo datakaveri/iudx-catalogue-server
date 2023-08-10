@@ -73,7 +73,7 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
     // String id = authenticationInfo.getString(ID);
     Method method = Method.valueOf(authenticationInfo.getString(METHOD));
     String token = authenticationInfo.getString(TOKEN);
-    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
+//    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
     String itemType = authenticationInfo.getString(ITEM_TYPE);
     Future<JwtData> decodeTokenFuture = decodeKcToken(token);
 
@@ -86,15 +86,12 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
               return isValidEndpoint(endpoint);
             })
         .compose(
-            isValidHandler -> {
+            isValidEndpointHandler -> {
               // if the token is of UAC admin, bypass ownership, else verify ownership
               if (uacAdmin.equalsIgnoreCase(result.jwtData.getSub())) {
                 return Future.succeededFuture(true);
               } else {
-                if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
-                  return Future.succeededFuture(true);
-                }
-                return Util.isValidAdmin(resourceServerUrl, result.jwtData, true);
+                return isValidAdmin(result.jwtData);
               }
             })
         .onComplete(
@@ -118,6 +115,15 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
       promise.fail("Unauthorized access to endpoint " + endpoint);
     }
     return promise.future();
+  }
+
+  private Future<Boolean> isValidAdmin(JwtData jwtData) {
+    if (jwtData.getRole().equalsIgnoreCase("cop_admin")) {
+      // TODO: verify ownership using the sub field of token and owner field in the request body
+      return Future.succeededFuture(true);
+    } else {
+      return Future.failedFuture("Invalid user role");
+    }
   }
 
   final class ResultContainer {
