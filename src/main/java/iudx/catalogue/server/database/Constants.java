@@ -150,8 +150,12 @@ public class Constants {
           "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": "
                   + "{\"instanceId.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MLAYER_INSTANCE_QUERY =
-      "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
-          + "[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\"]},\"size\": 10000}";
+          "{\"query\":{\"match\":{\"instanceId.keyword\": \"$1\"}},\"_source\":"
+                  + "{\"includes\": [\"instanceId\",\"name\",\"cover\",\"icon\","
+                  + "\"logo\"]}}";
+  public static final String GET_ALL_MLAYER_INSTANCE_QUERY =
+          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
+                  + "[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\"]},\"size\": 10000}";
   public static final String GET_MLAYER_DOMAIN_QUERY =
       "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
           + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},\"size\": 10000}";

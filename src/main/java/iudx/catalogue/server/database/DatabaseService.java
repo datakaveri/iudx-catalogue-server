@@ -196,7 +196,7 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerInstance(String instance, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The deleteMlayerInstance implements deleting instance from the database.

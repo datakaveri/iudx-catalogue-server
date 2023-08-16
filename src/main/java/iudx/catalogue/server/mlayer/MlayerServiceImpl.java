@@ -34,7 +34,10 @@ public class MlayerServiceImpl implements MlayerService {
     String name = request.getString(NAME).toLowerCase();
     String id = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
     String instanceId = UUID.randomUUID().toString();
-    request.put(MLAYER_ID, id).put(INSTANCE_ID, instanceId);
+    if (!request.containsKey("instanceId")) {
+      request.put(INSTANCE_ID, instanceId);
+    }
+    request.put(MLAYER_ID, id);
 
     databaseService.createMlayerInstance(
         request,
@@ -51,10 +54,11 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerInstance(String instanceId,
+                                         Handler<AsyncResult<JsonObject>> handler) {
 
     databaseService.getMlayerInstance(
-        getMlayerInstancehandler -> {
+        instanceId, getMlayerInstancehandler -> {
           if (getMlayerInstancehandler.succeeded()) {
             LOGGER.info("Success: Getting all Instance Values");
             handler.handle(Future.succeededFuture(getMlayerInstancehandler.result()));

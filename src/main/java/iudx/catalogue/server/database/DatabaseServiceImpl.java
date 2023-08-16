@@ -1238,8 +1238,8 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @param handler the asynchronous result handler
    * @return the DatabaseService instance
    */
-  @Override
 
+  @Override
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
@@ -1248,7 +1248,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     String checkForExistingRecord = CHECK_MDOC_QUERY.replace("$1", id).replace("$2", "");
     client.searchAsync(
         checkForExistingRecord,
-        mlayerInstanceIndex,
+        docIndex,
         res -> {
           if (res.failed()) {
             LOGGER.error("Fail: Insertion of mlayer Instance failed: " + res.cause());
@@ -1271,7 +1271,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               return;
             }
             client.docPostAsync(
-                mlayerInstanceIndex,
+                docIndex,
                 instanceDoc.toString(),
                 result -> {
                   if (result.succeeded()) {
@@ -1297,11 +1297,16 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler) {
-    String query = GET_MLAYER_INSTANCE_QUERY;
+  public DatabaseService getMlayerInstance(String id, Handler<AsyncResult<JsonObject>> handler) {
+    String query = "";
+    if (id.isBlank()) {
+      query = GET_ALL_MLAYER_INSTANCE_QUERY;
+    } else {
+      query = GET_MLAYER_INSTANCE_QUERY.replace("$1", id);
+    }
     client.searchAsync(
         query,
-        mlayerInstanceIndex,
+        docIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {
             LOGGER.debug("Success: Successful DB Request");
@@ -1325,7 +1330,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     client.searchGetId(
         checkForExistingRecord,
-        mlayerInstanceIndex,
+        docIndex,
         checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
@@ -1346,7 +1351,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             client.docDelAsync(
                 docId,
-                mlayerInstanceIndex,
+                docIndex,
                 delRes -> {
                   if (delRes.succeeded()) {
                     handler.handle(
@@ -1375,7 +1380,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
     client.searchAsyncGetId(
         checkForExistingRecord,
-        mlayerInstanceIndex,
+        docIndex,
         checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
@@ -1402,7 +1407,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               String docId = result.getString(DOC_ID);
               client.docPutAsync(
                   docId,
-                  mlayerInstanceIndex,
+                  docIndex,
                   request.toString(),
                   putRes -> {
                     if (putRes.succeeded()) {
@@ -1735,7 +1740,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             // Elastic client call to get instance icon paths.
             client.searchAsync(
                 getIconQuery,
-                mlayerInstanceIndex,
+                docIndex,
                 iconRes -> {
                   if (iconRes.succeeded()) {
                     Map<String, String> iconPath = new HashMap<String, String>();
@@ -1874,7 +1879,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                         GET_MLAYER_INSTANCE_ICON.replace("$1", instanceCapitalizeName);
                     client.searchAsync(
                         getIconQuery,
-                        mlayerInstanceIndex,
+                        docIndex,
                         iconResultHandler -> {
                           if (iconResultHandler.succeeded()) {
                             LOGGER.debug("Success: Successful DB Request");
@@ -2002,7 +2007,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   private void searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
     client.searchAsync(
         GET_SORTED_MLAYER_INSTANCES,
-        mlayerInstanceIndex,
+        docIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {
             int totalInstance = resultHandler.result().getInteger(TOTAL_HITS);

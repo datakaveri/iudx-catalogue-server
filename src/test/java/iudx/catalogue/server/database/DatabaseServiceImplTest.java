@@ -1691,7 +1691,7 @@ public class DatabaseServiceImplTest {
             })
         .when(DatabaseServiceImpl.client)
         .searchAsync(any(), any(), any());
-    dbService.getMlayerInstance(
+    dbService.getMlayerInstance("id",
         handler -> {
           if (handler.succeeded()) {
             verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
@@ -1717,7 +1717,7 @@ public class DatabaseServiceImplTest {
             })
         .when(DatabaseServiceImpl.client)
         .searchAsync(any(), any(), any());
-    dbService.getMlayerInstance(
+    dbService.getMlayerInstance("id",
         handler -> {
           if (handler.failed()) {
             verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
