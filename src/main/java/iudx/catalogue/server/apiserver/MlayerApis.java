@@ -27,6 +27,10 @@ public class MlayerApis {
   private AuthenticationService authService;
   private ValidatorService validatorService;
   private String host;
+  private Api api;
+  public MlayerApis(Api api) {
+    this.api = api;
+  }
   private static final Logger LOGGER = LogManager.getLogger(MlayerApis.class);
 
   public void setMlayerService(MlayerService mlayerService) {
@@ -65,7 +69,7 @@ public class MlayerApis {
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_POST)
-        .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
+        .put(API_ENDPOINT, api.getRouteMlayerInstance())
         .put(ID, host);
 
     Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
@@ -151,7 +155,7 @@ public class MlayerApis {
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_DELETE)
-        .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
+        .put(API_ENDPOINT, api.getRouteMlayerInstance())
         .put(ID, host);
 
     Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
@@ -199,7 +203,7 @@ public class MlayerApis {
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_PUT)
-        .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
+        .put(API_ENDPOINT, api.getRouteMlayerInstance())
         .put(ID, host);
 
     Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
