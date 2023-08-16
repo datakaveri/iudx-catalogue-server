@@ -116,11 +116,15 @@ public class MlayerApis {
    * @param routingContext {@link RoutingContext}
    */
   public void getMlayerInstanceHandler(RoutingContext routingContext) {
-    LOGGER.debug("Info : fetching mlayer Instances");
+    LOGGER.debug("Info : fetching mlayer Instance");
+    String id = "abc";
+    if (routingContext.request().getParam("id") != null) {
+      id = routingContext.request().getParam("id");
+    }
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerInstance(
-        handler -> {
+        id, handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {

@@ -21,7 +21,7 @@ public interface MlayerService {
   MlayerService createMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getMlayerInstance(String instance, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
   MlayerService deleteMlayerInstance(String request, Handler<AsyncResult<JsonObject>> handler);
