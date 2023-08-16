@@ -117,7 +117,7 @@ public class MlayerApis {
    */
   public void getMlayerInstanceHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching mlayer Instance");
-    String id = "abc";
+    String id = "";
     if (routingContext.request().getParam("id") != null) {
       id = routingContext.request().getParam("id");
     }

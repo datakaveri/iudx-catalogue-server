@@ -1255,8 +1255,8 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @param handler the asynchronous result handler
    * @return the DatabaseService instance
    */
-
   @Override
+
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
@@ -1265,7 +1265,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     String checkForExistingRecord = CHECK_MDOC_QUERY.replace("$1", id).replace("$2", "");
     client.searchAsync(
         checkForExistingRecord,
-        docIndex,
+        mlayerInstanceIndex,
         res -> {
           if (res.failed()) {
             LOGGER.error("Fail: Insertion of mlayer Instance failed: " + res.cause());
@@ -1288,7 +1288,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               return;
             }
             client.docPostAsync(
-                docIndex,
+                mlayerInstanceIndex,
                 instanceDoc.toString(),
                 result -> {
                   if (result.succeeded()) {
@@ -1323,7 +1323,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
     client.searchAsync(
         query,
-        docIndex,
+        mlayerInstanceIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {
             LOGGER.debug("Success: Successful DB Request");
@@ -1347,7 +1347,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     client.searchGetId(
         checkForExistingRecord,
-        docIndex,
+        mlayerInstanceIndex,
         checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
@@ -1368,7 +1368,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             client.docDelAsync(
                 docId,
-                docIndex,
+                mlayerInstanceIndex,
                 delRes -> {
                   if (delRes.succeeded()) {
                     handler.handle(
@@ -1397,7 +1397,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
     client.searchAsyncGetId(
         checkForExistingRecord,
-        docIndex,
+        mlayerInstanceIndex,
         checkRes -> {
           if (checkRes.failed()) {
             LOGGER.error("Fail: Check query fail;" + checkRes.cause());
@@ -1424,7 +1424,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               String docId = result.getString(DOC_ID);
               client.docPutAsync(
                   docId,
-                  docIndex,
+                  mlayerInstanceIndex,
                   request.toString(),
                   putRes -> {
                     if (putRes.succeeded()) {
@@ -1757,7 +1757,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             // Elastic client call to get instance icon paths.
             client.searchAsync(
                 getIconQuery,
-                docIndex,
+                mlayerInstanceIndex,
                 iconRes -> {
                   if (iconRes.succeeded()) {
                     Map<String, String> iconPath = new HashMap<String, String>();
@@ -1896,7 +1896,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                         GET_MLAYER_INSTANCE_ICON.replace("$1", instanceCapitalizeName);
                     client.searchAsync(
                         getIconQuery,
-                        docIndex,
+                        mlayerInstanceIndex,
                         iconResultHandler -> {
                           if (iconResultHandler.succeeded()) {
                             LOGGER.debug("Success: Successful DB Request");
@@ -2024,7 +2024,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   private void searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
     client.searchAsync(
         GET_SORTED_MLAYER_INSTANCES,
-        docIndex,
+        mlayerInstanceIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {
             int totalInstance = resultHandler.result().getInteger(TOTAL_HITS);
