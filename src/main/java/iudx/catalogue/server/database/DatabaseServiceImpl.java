@@ -1255,6 +1255,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @param handler the asynchronous result handler
    * @return the DatabaseService instance
    */
+
   @Override
 
   public DatabaseService createMlayerInstance(
@@ -1316,7 +1317,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService getMlayerInstance(String id, Handler<AsyncResult<JsonObject>> handler) {
     String query = "";
-    if (id.isBlank()) {
+    if (id == null || id.isBlank()) {
       query = GET_ALL_MLAYER_INSTANCE_QUERY;
     } else {
       query = GET_MLAYER_INSTANCE_QUERY.replace("$1", id);

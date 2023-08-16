@@ -28,9 +28,11 @@ public class MlayerApis {
   private ValidatorService validatorService;
   private String host;
   private Api api;
+
   public MlayerApis(Api api) {
     this.api = api;
   }
+
   private static final Logger LOGGER = LogManager.getLogger(MlayerApis.class);
 
   public void setMlayerService(MlayerService mlayerService) {
