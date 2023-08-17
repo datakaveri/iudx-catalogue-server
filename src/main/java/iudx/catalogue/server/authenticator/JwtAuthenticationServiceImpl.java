@@ -108,7 +108,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     if (endPoint.equals(api.getRouteItems())
         || endPoint.equals(api.getRouteInstance())
         || endPoint.equals(RATINGS_ENDPOINT)
-        || endPoint.equals(MLAYER_INSTANCE_ENDPOINT)
+        || endPoint.equals(api.getRouteMlayerInstance())
         || endPoint.equals(MLAYER_DOMAIN_ENDPOINT)) {
       promise.complete(true);
     } else {
