@@ -3,6 +3,7 @@ package iudx.catalogue.server.authenticator.authorization;
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
 import static iudx.catalogue.server.authenticator.authorization.Method.DELETE;
 import static iudx.catalogue.server.util.Constants.ITEM_TYPE_COS;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE_RESOURCE_SERVER;
 
 import iudx.catalogue.server.util.Api;
 import java.util.ArrayList;
@@ -41,6 +42,9 @@ public class CosAdminAuthStrategy implements AuthorizationStratergy {
     accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_COS));
     accessList.add(new AuthorizationRequest(PUT, api.getRouteItems(), ITEM_TYPE_COS));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_COS));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_RESOURCE_SERVER));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteItems(), ITEM_TYPE_RESOURCE_SERVER));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_RESOURCE_SERVER));
   }
 
   @Override

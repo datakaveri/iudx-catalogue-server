@@ -87,7 +87,7 @@
             "examples": [
                 "cos-kdmc.cop-nec.iudx.org.in"
             ],
-            "pattern": "^[a-zA-Z0-9]([\\w-.]*[a-zA-Z0-9])?$"
+            "pattern": "^[a-zA-Z0-9-]([\\w-.]*[a-zA-Z0-9-])?$"
         },
         "description": {
             "$id": "#/properties/description",
@@ -121,7 +121,7 @@
                         "examples": [
                             "kdmc.cop-nec.iudx.org.in"
                         ],
-                        "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9-\/]{2,}){1,5}$"
+                        "pattern": "^[a-zA-Z0-9-]{2,}(\\.[a-zA-Z0-9-\/]{2,}){1,5}$"
                     }
                 ]
             }
@@ -135,7 +135,7 @@
             "examples": [
                 "https://catalogue.kdmc.cop-nec.iudx.org.in/"
             ],
-            "pattern": "^https://[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9-\/]{2,}){1,5}$"
+            "pattern": "^https://[a-zA-Z0-9-]{2,}(\\.[a-zA-Z0-9-\/]{2,}){1,5}$"
         }
     }
 }

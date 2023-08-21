@@ -154,7 +154,7 @@ public final class CrudApis {
                 .put(ITEM_TYPE, itemType);
 
             if (isUac) {
-              if(itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+              if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
                 return;
               }
@@ -164,17 +164,13 @@ public final class CrudApis {
                 } else {
                   String resourceServer = requestBody.getString(RESOURCE_SVR);
                   Future<JsonObject> rsUrlFuture =
-                      getItemType(
-                          resourceServer,
-                          "getRsUrl",
-                          itemType);
+                      getParentObjectInfo(resourceServer, "getRsUrl", itemType);
 
                   rsUrlFuture.onComplete(
                       rsUrl -> {
                         if (rsUrl.succeeded()) {
                           requestBody.put(
-                              RESOURCE_SERVER_URL,
-                              rsUrl.result().getString(RESOURCE_SERVER_URL));
+                              RESOURCE_SERVER_URL, rsUrl.result().getString(RESOURCE_SERVER_URL));
                           handleItemCreation(
                               routingContext, requestBody, response, jwtAuthenticationInfo);
                         }
@@ -183,20 +179,15 @@ public final class CrudApis {
               } else {
 
                 Future<JsonObject> rgFuture =
-                    getItemType(
-                        requestBody.getString(RESOURCE_GRP),
-                        "getRsUrl",
-                        ITEM_TYPE_RESOURCE_GROUP);
+                    getParentObjectInfo(
+                        requestBody.getString(RESOURCE_GRP), "getRsUrl", ITEM_TYPE_RESOURCE_GROUP);
 
                 rgFuture.onComplete(
                     rg -> {
                       if (rg.succeeded()) {
                         LOGGER.debug(rg.result());
                         Future<JsonObject> rsUrlFuture =
-                            getItemType(
-                                rg.result().getString(RESOURCE_SVR),
-                                "getRsUrl",
-                                itemType);
+                            getParentObjectInfo(rg.result().getString(RESOURCE_SVR), "getRsUrl", itemType);
 
                         rsUrlFuture.onComplete(
                             rsUrl -> {
@@ -214,36 +205,62 @@ public final class CrudApis {
             } else {
               if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
-              }
-               else if (itemType.equals(ITEM_TYPE_PROVIDER)) {
-                // get provider keycloack id for auth
-                // TODO: get rs admin info not provider kc id
-                jwtAuthenticationInfo.put(PROVIDER_KC_ID, requestBody.getString(PROVIDER_KC_ID));
-                handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-//                jwtAuthenticationInfo.put(RESOURCE_SERVER_URL,
-//                    requestBody.getString(RESOURCE_SERVER_URL));
-                // TODO: get cos admin info
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
+              } else if (itemType.equals(ITEM_TYPE_PROVIDER)) {
+                Future<JsonObject> resourceServerUrlFuture =
+                    getParentObjectInfo(requestBody.getString(RESOURCE_SVR), "getRsUrl", "");
+                // add resource server url to provider body
+                resourceServerUrlFuture.onComplete(
+                    resourceServerUrl -> {
+                      if (resourceServerUrl.succeeded()) {
+                        String rsUrl = resourceServerUrl.result().getJsonObject("resourceServers").getString(RESOURCE_SERVER_URL);
+                        String cosId = resourceServerUrl.result().getString(OWNER);
+                        LOGGER.debug(rsUrl);
+                        LOGGER.debug(cosId);
+                        jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+                        requestBody.put(RESOURCE_SERVER_URL, rsUrl);
+                        requestBody.put(OWNER, cosId);
+                        handleItemCreation(
+                            routingContext, requestBody, response, jwtAuthenticationInfo);
+                      } else {
+                        response
+                            .setStatusCode(400)
+                            .end(
+                                new RespBuilder()
+                                    .withType(TYPE_ITEM_NOT_FOUND)
+                                    .withTitle(TITLE_ITEM_NOT_FOUND)
+                                    .withDetail("Resource Server not found")
+                                    .getResponse());
+                      }
+                    });
               } else {
                 Future<JsonObject> providerKcIdFuture =
-                    getItemType(requestBody.getString(PROVIDER), "getItemType", "");
+                    getParentObjectInfo(requestBody.getString(PROVIDER), "getItemType", "");
                 // add provider kc id to requestBody
                 providerKcIdFuture.onComplete(
                     providerKcId -> {
                       if (providerKcId.succeeded()) {
                         String kcId = providerKcId.result().getString(PROVIDER_KC_ID);
+                        String rsUrl = providerKcId.result().getJsonObject("resourceServers").getString(RESOURCE_SERVER_URL);
+                        String cosId = providerKcId.result().getString(OWNER);
+
                         jwtAuthenticationInfo.put(PROVIDER_KC_ID, kcId);
+                        jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+
                         requestBody.put(PROVIDER_KC_ID, kcId);
+                        requestBody.put(OWNER, cosId);
                         handleItemCreation(
                             routingContext, requestBody, response, jwtAuthenticationInfo);
                       } else {
-                        response.setStatusCode(400)
-                            .end(new RespBuilder()
-                                .withType(TYPE_ITEM_NOT_FOUND)
-                                .withTitle(TITLE_ITEM_NOT_FOUND)
-                                .withDetail("Provider not found")
-                                .getResponse());
+                        response
+                            .setStatusCode(400)
+                            .end(
+                                new RespBuilder()
+                                    .withType(TYPE_ITEM_NOT_FOUND)
+                                    .withTitle(TITLE_ITEM_NOT_FOUND)
+                                    .withDetail("Provider not found")
+                                    .getResponse());
                       }
                     });
               }
@@ -265,7 +282,7 @@ public final class CrudApis {
               .end(new RespBuilder()
                       .withType(TYPE_TOKEN_INVALID)
                       .withTitle(TITLE_TOKEN_INVALID)
-                      .withDetail(DETAIL_INVALID_TOKEN)
+                      .withDetail(authHandler.cause().getMessage())
                       .getResponse());
         } else {
           LOGGER.debug("Success: JWT Auth successful");
@@ -436,7 +453,7 @@ public final class CrudApis {
               .put(METHOD, REQUEST_DELETE)
               .put(API_ENDPOINT, api.getRouteItems());
     if (validateId(itemId)) {
-      Future<JsonObject> itemTypeFuture  = getItemType(itemId, "getItemType",  "");
+      Future<JsonObject> itemTypeFuture  = getParentObjectInfo(itemId, "getItemType",  "");
       itemTypeFuture.onComplete(itemTypeHandler -> {
         if (itemTypeHandler.succeeded()) {
 
@@ -450,12 +467,6 @@ public final class CrudApis {
           LOGGER.debug("itemType : {} ", itemType);
           jwtAuthenticationInfo
               .put(ITEM_TYPE, itemType);
-//          String providerkcId = itemTypeHandler.result().getString(PROVIDER_KC_ID);
-//          jwtAuthenticationInfo
-//              .put(PROVIDER_KC_ID, providerkcId != null ? providerkcId : "")
-//              .put(ITEM_TYPE, itemType);
-
-//          LOGGER.debug(itemTypeHandler.result());
           if (isUac) {
             if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
               if (itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
@@ -466,7 +477,7 @@ public final class CrudApis {
                   ? itemId
                   : itemTypeHandler.result().getString(RESOURCE_SVR);
               Future<JsonObject> rsUrlFuture =
-                  getItemType(
+                  getParentObjectInfo(
                       resourceServer,
                       "getRsUrl",
                       itemType);
@@ -476,14 +487,14 @@ public final class CrudApis {
                     if (rsUrl.succeeded()) {
                       jwtAuthenticationInfo.put(
                           RESOURCE_SERVER_URL,
-                          rsUrl.result().getString(RESOURCE_SERVER_URL));
+                          rsUrl.result().getJsonObject("resourceServers").getString(RESOURCE_SERVER_URL));
                       handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
                     }
                   });
             } else {
 
               Future<JsonObject> rgFuture =
-                  getItemType(
+                  getParentObjectInfo(
                       itemTypeHandler.result().getString(RESOURCE_GRP),
                       "getRsUrl",
                       ITEM_TYPE_RESOURCE_GROUP);
@@ -493,7 +504,7 @@ public final class CrudApis {
                     if (rg.succeeded()) {
                       LOGGER.debug(rg.result());
                       Future<JsonObject> rsUrlFuture =
-                          getItemType(
+                          getParentObjectInfo(
                               rg.result().getString(RESOURCE_SVR),
                               "getRsUrl",
                               itemType);
@@ -503,7 +514,7 @@ public final class CrudApis {
                             if (rsUrl.succeeded()) {
                               jwtAuthenticationInfo.put(
                                   RESOURCE_SERVER_URL,
-                                  rsUrl.result().getString(RESOURCE_SERVER_URL));
+                                  rsUrl.result().getJsonObject("resourceServers").getString(RESOURCE_SERVER_URL));
                               handleItemDeletion(response, jwtAuthenticationInfo,
                                       requestBody, itemId);
                             }
@@ -512,23 +523,19 @@ public final class CrudApis {
                   });
             }
           } else {
-            if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-              Future<JsonObject> rsUrlFuture =
-                  getItemType(
-                      itemId,
-                      "getRsUrl",
-                      itemType);
-
-              rsUrlFuture.onComplete(
-                  rsUrl -> {
-                    if (rsUrl.succeeded()) {
-                      requestBody.put(
-                          RESOURCE_SERVER_URL,
-                          rsUrl.result().getString(RESOURCE_SERVER_URL));
+            if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
                       handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
-                    }
-                  });
+            } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+                      handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+            } else if (itemType.equalsIgnoreCase(PROVIDER)){
+              String rsUrl = itemTypeHandler.result().getString(RESOURCE_SERVER_URL, "");
+              jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+              handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
             } else {
+              String rsUrl = itemTypeHandler.result().getString(RESOURCE_SERVER_URL, "");
+              String providerKcId = itemTypeHandler.result().getString(PROVIDER_KC_ID, "");
+              jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+              jwtAuthenticationInfo.put(PROVIDER_KC_ID, providerKcId);
               handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
             }
           }
@@ -564,7 +571,7 @@ public final class CrudApis {
                 .end(new RespBuilder()
                     .withType(TYPE_TOKEN_INVALID)
                     .withTitle(TITLE_TOKEN_INVALID)
-                    .withDetail(DETAIL_INVALID_TOKEN)
+                    .withDetail(authHandler.cause().getMessage())
                     .getResponse());
           } else {
             LOGGER.debug("Success: JWT Auth successful");
@@ -597,7 +604,7 @@ public final class CrudApis {
         });
   }
 
-  Future<JsonObject> getItemType(String itemId, String searchType, String itemType) {
+  Future<JsonObject> getParentObjectInfo(String itemId, String searchType, String itemType) {
     Promise<JsonObject> promise = Promise.promise();
     JsonObject req = new JsonObject().put(ID, itemId)
             .put(SEARCH_TYPE, searchType)
@@ -663,7 +670,7 @@ public final class CrudApis {
                 .end(new RespBuilder()
                           .withType(TYPE_TOKEN_INVALID)
                           .withTitle(TITLE_TOKEN_INVALID)
-                          .withDetail(DETAIL_INVALID_TOKEN)
+                          .withDetail(authhandler.cause().getMessage())
                           .getResponse());
         return;
       } else {
@@ -725,7 +732,7 @@ public final class CrudApis {
             .end(new RespBuilder()
                         .withType(TYPE_TOKEN_INVALID)
                         .withTitle(TITLE_TOKEN_INVALID)
-                        .withDetail(DETAIL_INVALID_TOKEN)
+                        .withDetail(authhandler.cause().getMessage())
                         .getResponse());
         return;
       } else {

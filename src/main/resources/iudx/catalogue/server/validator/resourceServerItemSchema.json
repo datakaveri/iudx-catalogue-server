@@ -38,22 +38,27 @@
                     }
                 }
             },
-            "resourceServers": [
-                {
-                    "name": "iudx-rs",
-                    "resourceServerURLs": {
-                        "resourceServerHTTPAccessURL": "rs.iudx.io",
-                        "resourceServerStreamingAccessURL": "databroker.iudx.org.in",
-                        "resourceServerFileAccessURL": "file.iudx.org.in"
+            "resourceServers": {
+                "name": "iudx-rs",
+                "resourceServerURL": "iudx.org.in",
+                "subdomains": [
+                    {
+                        "protocol": "http",
+                        "accessURL": "rs",
+                        "port": 8080
+                    },
+                    {
+                        "protocol": "amqps",
+                        "accessURL": "databroker",
+                        "port": 5672
+                    },
+                    {
+                        "protocol": "ftp",
+                        "accessURL": "file",
+                        "port": 8090
                     }
-                },
-                {
-                    "name": "iudx-rs-proxy",
-                    "resourceServerURLs": {
-                        "resourceServerHTTPAccessURL": "rs.iudx.io.xyz.xsnjsn"
-                    }
-                }
-            ],
+                ]
+            },
             "location": {
                 "type": "Place",
                 "address": "IISc, Bangalore",
@@ -487,98 +492,113 @@
         },
         "resourceServers": {
             "$id": "#/properties/resourceServers",
-            "type": "array",
+            "type": "object",
             "title": "The resourceServers schema",
-            "description": "An array of resourceServers containing each of their access URLs",
-            "default": [],
+            "description": "An object defining resourceServer containing each of its access URLs",
+            "default": {},
             "examples": [
                 {
                     "name": "iudx-rs",
-                    "resourceServerURLs": {
-                        "resourceServerHTTPAccessURL": "rs.iudx.io",
-                        "resourceServerStreamingAccessURL": "databroker.iudx.org.in",
-                        "resourceServerFileAccessURL": "file.iudx.org.in"
-                    }
-                },
-                {
-                    "name": "iudx-rs-proxy",
-                    "resourceServerURLs": {
-                        "resourceServerHTTPAccessURL": "rs.iudx.io"
-                    }
+                    "resourceServerURL": "iudx.org.in",
+                    "subdomains": [
+                        {
+                            "protocol": "http",
+                            "AccessURL": "rs",
+                            "port": 8080
+                        },
+                        {
+                            "protocol": "amqps",
+                            "AccessURL": "databroker",
+                            "port": 5672
+                        },
+                        {
+                            "protocol": "ftp",
+                            "FileAccessURL": "file",
+                            "port": 8090
+                        }
+                    ]
                 }
             ],
-            "items": {
-                "$id": "#/properties/resourceServers/items",
-                "anyOf": [
-                    {
-                        "$id": "#/properties/resourceServers/items/anyOf/0",
-                        "type": "object",
-                        "title": "The resourceServers.items schema",
-                        "description": "An object with a resource server name and urls",
-                        "required": [
-                            "name",
-                            "resourceServerURLs"
-                        ],
-                        "properties": {
-                            "name": {
-                                "$id": "#/properties/resourceServers/items/properties/name",
-                                "type": "string",
-                                "title": "The name schema",
-                                "description": "The name of the resource server",
-                                "pattern": "^[a-zA-Z0-9]([\\w-.]*[a-zA-Z0-9])?$"
-                            },
-                            "resourceServerURLs": {
-                                "$id": "#/properties/resourceServers/items/properties/resourceServerURLs",
+            "required": [
+                "name",
+                "resourceServerURL",
+                "subdomains"
+            ],
+            "properties": {
+                "name": {
+                    "$id": "#/properties/resourceServers/properties/name",
+                    "type": "string",
+                    "title": "The name schema",
+                    "description": "The name of the resource server",
+                    "pattern": "^[a-zA-Z0-9-]([\\w-.]*[a-zA-Z0-9-])?$"
+                },
+                "resourceServerURL": {
+                    "$id": "#/properties/resourceServers/properties/resourceServerURL",
+                    "type": "string",
+                    "title": "The resourceServerURL schema",
+                    "default": "",
+                    "examples": [
+                        "iudx.org.in"
+                    ],
+                    "pattern": "^[a-zA-Z0-9-]{2,}(\\.[a-zA-Z0-9-]{2,}){1,10}$"
+                },
+                "subdomains": {
+                    "type": "array",
+                    "title": "The resourceServerURLs schema",
+                    "description": "Contains all the access urls for the resources hosted on this resource server",
+                    "default": [],
+                    "examples": [
+                        {
+                            "protocol": "http",
+                            "accessURL": "rs",
+                            "port": 8080
+                        },
+                        {
+                            "protocol": "amqps",
+                            "accessURL": "databroker",
+                            "port": 5672
+                        }
+                    ],
+                    "items": {
+                        "$id": "#/properties/resourceServers/properties/subdomains/items",
+                        "anyOf": [
+                            {
+                                "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0",
                                 "type": "object",
-                                "title": "The resourceServerURLs schema",
-                                "description": "Contains all the access urls for the resources hosted on this resource server",
+                                "title": "The subdomains schema",
                                 "default": {},
-                                "examples": [
-                                    {
-                                        "resourceServerHTTPAccessURL": "rs.iudx.org.in",
-                                        "resourceServerStreamingAccessURL": "databroker.iudx.org.in",
-                                        "resourceServerFileAccessURL": "file.iudx.org.in"
-                                    }
+                                "required": [
+                                    "protocol",
+                                    "accessURL"
                                 ],
                                 "properties": {
-                                    "resourceServerHTTPAccessURL": {
-                                        "$id": "#/properties/resourceServers/items/properties/resourceServerURLs/properties/resourceServerHTTPAccessURL",
+                                    "protocol": {
+                                        "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/protocol",
                                         "type": "string",
-                                        "title": "The resourceServerHTTPAccessURL schema",
-                                        "description": "An explanation about the purpose of this instance.",
+                                        "title": "the protocol schema",
                                         "default": "",
-                                        "examples": [
-                                            "rs.iudx.org.in"
-                                        ],
-                                        "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,}){1,5}$"
+                                        "pattern": "^[a-zA-Z]{3,10}$"
                                     },
-                                    "resourceServerStreamingAccessURL": {
-                                        "$id": "#/properties/resourceServers/items/properties/resourceServerURLs/properties/resourceServerStreamingAccessURL",
+                                    "accessURL": {
+                                        "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/accessURL",
                                         "type": "string",
-                                        "title": "The resourceServerStreamingAccessURL schema",
-                                        "description": "An explanation about the purpose of this instance.",
+                                        "title": "the accessURL schema",
                                         "default": "",
-                                        "examples": [
-                                            "databroker.iudx.org.in"
-                                        ],
-                                        "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,}){1,5}$"
+                                        "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,}){0,10}$"
                                     },
-                                    "resourceServerFileAccessURL": {
-                                        "$id": "#/properties/resourceServers/items/properties/resourceServerURLs/properties/resourceServerFileAccessURL",
-                                        "type": "string",
-                                        "title": "The resourceServerFileAccessURL schema",
-                                        "description": "An explanation about the purpose of this instance.",
+                                    "port": {
+                                        "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/port",
+                                        "type": "integer",
+                                        "title": "the port schema",
                                         "default": "",
-                                        "examples": [
-                                            "file.iudx.org.in"
-                                        ],
-                                        "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,}){1,5}$"
+                                        "minimum": 1,
+                                        "maximum": 65535
                                     }
                                 }
                             }
-                        }
+                        ]
                     }
-                ]
+                }
             }
         }
     },

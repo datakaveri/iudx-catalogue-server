@@ -203,7 +203,7 @@ public class Constants {
               + "\"iudx:ResourceServer\"}}]}}]}},\"_source\":{\"includes\":[\"resourceServer\","
               + "\"id\",\"type\",\"label\",\"description\",\"instance\",\"accessPolicy\","
               + "\"dataSample\", \"dataDescriptor\",\"@context\",\"dataQualityFile\","
-              + "\"dataSampleFile\",\"resourceType\",\"resourceServerHTTPAccessURL\"]},"
+              + "\"dataSampleFile\",\"resourceType\",\"resourceServerURL\"]},"
               + "\"size\": 10000}";
   public static final String GET_MLAYER_INSTANCE_ICON =
       "{\"query\":{\"match\":{\"name\":\"$1\"}},\"_source\": {\"includes\": [\"icon\"]}}";

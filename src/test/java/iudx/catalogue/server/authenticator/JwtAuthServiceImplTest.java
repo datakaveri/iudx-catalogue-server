@@ -273,7 +273,7 @@ public class JwtAuthServiceImplTest {
   @DisplayName("successful valid audience check")
   public void validAudienceCheck(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
-    jwtAuthenticationService.isValidAudienceValue(jwtData).onComplete(handler -> {
+    jwtAuthenticationService.isValidAudienceValue(jwtData, resourceServerUrl, resourceServerUrl).onComplete(handler -> {
           if (handler.failed()) {
             vertxTestContext.failNow("fail");
           } else {
@@ -289,7 +289,7 @@ public class JwtAuthServiceImplTest {
     JwtData jwtData = jwtDataObject();
     jwtData.setAud("rs.iudx.io");
 
-    jwtAuthenticationService.isValidAudienceValue(jwtData).onComplete(handler -> {
+    jwtAuthenticationService.isValidAudienceValue(jwtData, resourceServerUrl, resourceServerUrl).onComplete(handler -> {
           if (handler.failed()) {
             vertxTestContext.completeNow();
           } else {

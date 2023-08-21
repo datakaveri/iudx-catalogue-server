@@ -120,6 +120,7 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
   }
 
   private Future<Boolean> isValidAdmin(JwtData jwtData) {
+    // TODO: can't verify role for KC token
     if (jwtData.getRole().equalsIgnoreCase("cop_admin")) {
       // TODO: verify ownership using the sub field of token and owner field in the request body
       return Future.succeededFuture(true);

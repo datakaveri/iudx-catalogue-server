@@ -3,6 +3,7 @@ package iudx.catalogue.server.authenticator;
 import static iudx.catalogue.server.auditing.util.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.authenticator.Constants.METHOD;
+import static iudx.catalogue.server.authenticator.Constants.RESOURCE_SERVER_URL;
 import static iudx.catalogue.server.util.Constants.*;
 
 import io.vertx.core.AsyncResult;
@@ -39,12 +40,14 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
   final JWTAuth jwtAuth;
   final String audience;
+  final String issuer;
   private Api api;
 
   JwtAuthenticationServiceImpl(
       Vertx vertx, final JWTAuth jwtAuth, final JsonObject config, final Api api) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("host");
+    this.issuer = config.getString("issuer");
     this.api = api;
   }
 
@@ -68,11 +71,23 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     return promise.future();
   }
 
-  Future<Boolean> isValidAudienceValue(JwtData jwtData) {
+  Future<Boolean> isValidAudienceValue(JwtData jwtData, String itemType, String serverUrl) {
     Promise<Boolean> promise = Promise.promise();
 
     LOGGER.debug("Audience in jwt is: " + jwtData.getAud());
-    if (audience != null && audience.equalsIgnoreCase(jwtData.getAud())) {
+    LOGGER.debug(serverUrl);
+    boolean isValidAudience;
+    switch (itemType) {
+      case ITEM_TYPE_PROVIDER:
+      case ITEM_TYPE_RESOURCE_GROUP:
+      case ITEM_TYPE_RESOURCE:
+        isValidAudience = serverUrl != null && serverUrl.equalsIgnoreCase(jwtData.getAud());
+        break;
+      default:
+        isValidAudience = audience != null && audience.equalsIgnoreCase(jwtData.getAud());
+    }
+
+    if (isValidAudience) {
       promise.complete(true);
     } else {
       LOGGER.error("Incorrect audience value in jwt");
@@ -88,7 +103,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     if (jwtData.getRole().equalsIgnoreCase(PROVIDER)) {
 
       jwtId = jwtData.getSub();
-    } else if (jwtData.getRole().equalsIgnoreCase("delegate")) {
+    } else if (jwtData.getRole().equalsIgnoreCase("delegate")
+        && jwtData.getDrl().equalsIgnoreCase(PROVIDER)) {
       jwtId = jwtData.getDid();
     }
 
@@ -145,12 +161,6 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     LOGGER.debug("endpoint: " + authenticationInfo.getString(API_ENDPOINT));
 
     if (jwtAuthStrategy.isAuthorized(authRequest)) {
-      // Don't allow access to resource server and provider items for anyone except Admin
-//      if (ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)
-//          && !authStrategy.getClass().getSimpleName().equalsIgnoreCase("AdminAuthStrategy")) {
-//        JsonObject result = new JsonObject().put("401", "no access provided to endpoint");
-//        promise.fail(result.toString());
-//      }
       LOGGER.debug("User access is allowed");
       JsonObject response = new JsonObject();
       // adding user id, user role and iid to response for auditing purpose
@@ -170,9 +180,10 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     String endPoint = authenticationInfo.getString(API_ENDPOINT);
     String provider = authenticationInfo.getString(PROVIDER_KC_ID, "");
     String token = authenticationInfo.getString(TOKEN);
-    String itemType = authenticationInfo.getString(ITEM_TYPE,"");
+    String itemType = authenticationInfo.getString(ITEM_TYPE, "");
     // TODO: remove rsUrl check
-//    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL, "");
+    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL, "");
+    LOGGER.debug(resourceServerUrl);
 
     LOGGER.debug("endpoint : " + endPoint);
     Future<JwtData> jwtDecodeFuture = decodeJwt(token);
@@ -180,21 +191,23 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     ResultContainer result = new ResultContainer();
     // skip provider id check for non-provider operations
     boolean skipProviderIdCheck = provider.equalsIgnoreCase("");
-    boolean skipAdminCheck = itemType.equalsIgnoreCase("") ||
-        itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP) || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE);
-    //        api != null && api.getRouteInstance().equalsIgnoreCase(endPoint)
-    //            || RATINGS_ENDPOINT.equalsIgnoreCase(endPoint)
-    //            || ITEM_TYPE_RESOURCE_SERVER.equalsIgnoreCase(itemType)
-    //            || endPoint.contains(MLAYER_BASE_PATH);
+    boolean skipAdminCheck =
+        itemType.equalsIgnoreCase("")
+            || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)
+            || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE);
 
     jwtDecodeFuture
         .compose(
             decodeHandler -> {
               result.jwtData = decodeHandler;
-              return isValidAudienceValue(result.jwtData);
+              return isValidAudienceValue(result.jwtData, itemType, resourceServerUrl);
             })
         .compose(
             audienceHandler -> {
+              return isValidIssuer(result.jwtData, issuer);
+            })
+        .compose(
+            issuerHandler -> {
               if (skipProviderIdCheck) {
                 return Future.succeededFuture(true);
               } else {
@@ -216,6 +229,10 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
             })
         .compose(
             validAdmin -> {
+              return isValidItemId(result.jwtData, itemType, resourceServerUrl);
+            })
+        .compose(
+            validIid -> {
               return validateAccess(result.jwtData, authenticationInfo, itemType);
             })
         .onComplete(
@@ -229,16 +246,60 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     return this;
   }
 
+  /**
+   * This method validates the iid of the token for the respective operation
+   *
+   * @param jwtData which is result of decoded jwt token
+   * @param itemType which is a String
+   * @param resourceServerUrl which is a String
+   * @return Vertx Future which is of the type boolean
+   */
+  private Future<Boolean> isValidItemId(
+      JwtData jwtData, String itemType, String resourceServerUrl) {
+    String iid = jwtData.getIid();
+    String type = iid.substring(0, iid.indexOf(":") + 1);
+    String server = iid.substring(iid.indexOf(":") + 1);
+    boolean isValidIid;
+
+    switch (itemType) {
+      case ITEM_TYPE_COS:
+      case ITEM_TYPE_RESOURCE_SERVER:
+        // TODO: change type validation to cos
+        isValidIid = type.equalsIgnoreCase("cop") && server.equalsIgnoreCase(issuer);
+        break;
+      case ITEM_TYPE_PROVIDER:
+      case ITEM_TYPE_RESOURCE_GROUP:
+      case ITEM_TYPE_RESOURCE:
+        isValidIid = type.equalsIgnoreCase("rs") && server.equalsIgnoreCase(resourceServerUrl);
+        break;
+      default:
+        isValidIid = true;
+    }
+
+    if (isValidIid) {
+      return Future.succeededFuture(true);
+    } else {
+      return Future.failedFuture("Token used is not issued for this item");
+    }
+  }
+
+  private Future<Boolean> isValidIssuer(JwtData jwtData, String issuer) {
+    if (jwtData.getIss().equalsIgnoreCase(issuer)) {
+      return Future.succeededFuture(true);
+    } else {
+      return Future.failedFuture("Token not issued for this server");
+    }
+  }
+
   private Future<Boolean> isValidAdmin(JwtData jwtData) {
     // TODO: cop_admin or cos_admin???
     if (jwtData.getRole().equalsIgnoreCase("cop_admin")) {
       return Future.succeededFuture(true);
-    } else if(jwtData.getRole().equalsIgnoreCase("admin")) {
-      // TODO: write logic for rs admin check
+    } else if (jwtData.getRole().equalsIgnoreCase("admin")) {
+      return Future.succeededFuture(true);
     } else {
       return Future.failedFuture("admin token required for this operation");
     }
-    return null;
   }
 
   // class to contain intermediate data for token introspection

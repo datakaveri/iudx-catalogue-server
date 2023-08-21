@@ -53,7 +53,8 @@ public class Constants {
   public static final String PROVIDER = "provider";
   public static final String ALL = "all";
   public static final String PROVIDER_KC_ID = "providerKcId";
-  public static final String RESOURCE_SERVER_URL = "resourceServerHTTPAccessURL";
+  public static final String RESOURCE_SERVER_URL = "resourceServerURL";
+  public static final String OWNER = "owner";
   public static final String RESOURCETYPE = "resourceType";
 
 

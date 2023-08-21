@@ -40,9 +40,7 @@ public class AdminAuthStrategy implements AuthorizationStratergy {
 
   private void buildPermissions(Api api) {
     // /item access list
-    accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_RESOURCE_SERVER));
     accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_PROVIDER));
-    accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_RESOURCE_SERVER));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_PROVIDER));
     accessList.add(new AuthorizationRequest(POST, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
