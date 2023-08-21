@@ -41,9 +41,9 @@ public class AdminAuthStrategy implements AuthorizationStratergy {
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems()));
     accessList.add(new AuthorizationRequest(POST, api.getRouteInstance()));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteInstance()));
-    accessList.add(new AuthorizationRequest(POST, ROUTE_MLAYER_INSTANCE));
-    accessList.add(new AuthorizationRequest(DELETE, ROUTE_MLAYER_INSTANCE));
-    accessList.add(new AuthorizationRequest(PUT, ROUTE_MLAYER_INSTANCE));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteMlayerInstance()));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteMlayerInstance()));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteMlayerInstance()));
     accessList.add(new AuthorizationRequest(POST, ROUTE_MLAYER_DOMAIN));
     accessList.add(new AuthorizationRequest(PUT, ROUTE_MLAYER_DOMAIN));
     accessList.add(new AuthorizationRequest(DELETE, ROUTE_MLAYER_DOMAIN));

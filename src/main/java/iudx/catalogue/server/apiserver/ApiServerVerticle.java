@@ -135,7 +135,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     relApis = new RelationshipApis();
     geoApis = new GeocodingApis();
     ratingApis = new RatingApis();
-    mlayerApis = new MlayerApis();
+    mlayerApis = new MlayerApis(api);
 
 
     // Todo - Set service proxies based on availability?

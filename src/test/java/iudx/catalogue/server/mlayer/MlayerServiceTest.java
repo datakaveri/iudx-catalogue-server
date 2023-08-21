@@ -124,22 +124,23 @@ public class MlayerServiceTest {
     @DisplayName("Success: test get all mlayer instance")
     void successfulMlayerInstanceGetTest(VertxTestContext testContext) {
         mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+        String id ="abc";
         when(asyncResult.succeeded()).thenReturn(true);
         doAnswer(
                 new Answer<AsyncResult<JsonObject>>() {
                     @SuppressWarnings("unchecked")
                     @Override
                     public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
                         return null;
                     }
                 })
                 .when(databaseService)
-                .getMlayerInstance(any());
-        mlayerService.getMlayerInstance(
+                .getMlayerInstance(any(),any());
+        mlayerService.getMlayerInstance(id,
                 handler -> {
                     if (handler.succeeded()) {
-                        verify(databaseService, times(1)).getMlayerInstance(any());
+                        verify(databaseService, times(1)).getMlayerInstance(any(), any());
                         testContext.completeNow();
                     } else {
                         LOGGER.debug("Fail");
@@ -158,17 +159,17 @@ public class MlayerServiceTest {
                             @SuppressWarnings("unchecked")
                             @Override
                             public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
                                 return null;
                             }
                         })
                 .when(databaseService)
-                .getMlayerInstance(any());
+                .getMlayerInstance(any(), any());
 
-        mlayerService.getMlayerInstance(
+        mlayerService.getMlayerInstance("id",
                 handler -> {
                     if (handler.succeeded()) {
-                        verify(databaseService, times(1)).createMlayerInstance(any(), any());
+                        verify(databaseService, times(1)).getMlayerInstance(any(), any());
                         LOGGER.debug("Fail");
                         testContext.failNow(handler.cause());
                     } else {
