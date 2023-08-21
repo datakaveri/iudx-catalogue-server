@@ -11,9 +11,8 @@
             "type": [
                 "iudx:ResourceServer"
             ],
-            "id": "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a/rs.iudx.org.in",
-            "provider": "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a",
             "name": "IudxResourceServer",
+            "owner": "e56e84c5-5f07-4feb-b6fd-dfa4d589b374",
             "description": "Multi tenanted IUDX resource server",
             "tags": [
                 "IUDX",

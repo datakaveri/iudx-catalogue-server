@@ -68,6 +68,26 @@
             "description": "An explanation about the purpose of this instance.",
             "default": ""
         },
+        "apd_url": {
+            "$id": "#/properties/apd_url",
+            "type": "string",
+            "title": "The apd url schema",
+            "default": "",
+            "examples": [
+                "rs.apd.iudx.org.in"
+            ]
+        },
+        "accessPolicy": {
+            "$id": "#/properties/accessPolicy",
+            "type": "string",
+            "title": "The access policy schema",
+            "default": "",
+            "examples": [
+                "SECURE",
+                "ppi"
+            ],
+            "pattern": "^(SECURE|OPEN|PPI|secure|open|ppi)$"
+        },
         "instance": {
             "$id": "#/properties/instance",
             "type": "string",

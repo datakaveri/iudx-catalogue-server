@@ -512,9 +512,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                                     Future.succeededFuture(
                                         respBuilder
                                             .withType(TYPE_SUCCESS)
-                                            .withTitle(TYPE_SUCCESS)
+                                            .withTitle(TITLE_SUCCESS)
                                             .withResult(doc)
-//                                            .withResult(id, UPDATE)
                                             .getJsonResponse()));
                               } else {
                                 handler.handle(Future.failedFuture(internalErrorResp));

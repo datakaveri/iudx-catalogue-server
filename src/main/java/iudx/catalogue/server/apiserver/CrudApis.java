@@ -108,7 +108,7 @@ public final class CrudApis {
     } catch (Exception e) {
       LOGGER.error("Fail: Invalid type");
       RespBuilder respBuilder = new RespBuilder()
-          .withTitle(TYPE_INVALID_SCHEMA)
+          .withType(TYPE_INVALID_SCHEMA)
           .withTitle(TITLE_INVALID_SCHEMA)
           .withDetail("Invalid type for item/type not present");
       response.setStatusCode(400)
@@ -241,8 +241,9 @@ public final class CrudApis {
                 providerKcIdFuture.onComplete(
                     providerKcId -> {
                       if (providerKcId.succeeded()) {
+                        LOGGER.debug(providerKcId.result());
                         String kcId = providerKcId.result().getString(PROVIDER_KC_ID);
-                        String rsUrl = providerKcId.result().getJsonObject("resourceServers").getString(RESOURCE_SERVER_URL);
+                        String rsUrl = providerKcId.result().getString(RESOURCE_SERVER_URL);
                         String cosId = providerKcId.result().getString(OWNER);
 
                         jwtAuthenticationInfo.put(PROVIDER_KC_ID, kcId);
@@ -509,46 +510,66 @@ public final class CrudApis {
                               "getRsUrl",
                               itemType);
 
-                      rsUrlFuture.onComplete(
-                          rsUrl -> {
-                            if (rsUrl.succeeded()) {
-                              jwtAuthenticationInfo.put(
-                                  RESOURCE_SERVER_URL,
-                                  rsUrl.result().getJsonObject("resourceServers").getString(RESOURCE_SERVER_URL));
-                              handleItemDeletion(response, jwtAuthenticationInfo,
-                                      requestBody, itemId);
-                            }
-                          });
-                    }
-                  });
-            }
-          } else {
-            if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
-                      handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
-            } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-                      handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
-            } else if (itemType.equalsIgnoreCase(PROVIDER)){
-              String rsUrl = itemTypeHandler.result().getString(RESOURCE_SERVER_URL, "");
-              jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
-              handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                          rsUrlFuture.onComplete(
+                              rsUrl -> {
+                                if (rsUrl.succeeded()) {
+                                  jwtAuthenticationInfo.put(
+                                      RESOURCE_SERVER_URL,
+                                      rsUrl
+                                          .result()
+                                          .getJsonObject("resourceServers")
+                                          .getString(RESOURCE_SERVER_URL));
+                                  handleItemDeletion(
+                                      response, jwtAuthenticationInfo, requestBody, itemId);
+                                }
+                              });
+                        }
+                      });
+                }
+              } else {
+                if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+                  handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+                  handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+                  LOGGER.debug(itemTypeHandler.result());
+                  String rsUrl = itemTypeHandler.result().getString(RESOURCE_SERVER_URL, "");
+                  jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+                  handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                } else {
+                  LOGGER.debug(itemTypeHandler.result());
+                  Future<JsonObject> providerInfoFuture =
+                      getParentObjectInfo(itemTypeHandler.result().getString(PROVIDER), "getItemType", itemType);
+                  providerInfoFuture.onComplete(
+                      providerInfo -> {
+                        if (providerInfo.succeeded()) {
+                          LOGGER.debug(providerInfo.result());
+                          String rsUrl = providerInfo.result().getString(RESOURCE_SERVER_URL, "");
+                          String providerKcId = providerInfo.result().getString(PROVIDER_KC_ID, "");
+                          jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+                          jwtAuthenticationInfo.put(PROVIDER_KC_ID, providerKcId);
+                          handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                        } else {
+                          response
+                              .setStatusCode(400)
+                              .end(
+                                  new RespBuilder()
+                                      .withType(TYPE_ITEM_NOT_FOUND)
+                                      .withTitle(TITLE_ITEM_NOT_FOUND)
+                                      .withDetail("item is not found")
+                                      .getResponse());
+                        }
+                      });
+                }
+              }
             } else {
-              String rsUrl = itemTypeHandler.result().getString(RESOURCE_SERVER_URL, "");
-              String providerKcId = itemTypeHandler.result().getString(PROVIDER_KC_ID, "");
-              jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
-              jwtAuthenticationInfo.put(PROVIDER_KC_ID, providerKcId);
-              handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+              if (itemTypeHandler.cause().getMessage().contains(TYPE_ITEM_NOT_FOUND)) {
+                response.setStatusCode(404).end(itemTypeHandler.cause().getMessage());
+              } else {
+                response.setStatusCode(400).end(itemTypeHandler.cause().getMessage());
+              }
             }
-          }
-        } else {
-          if (itemTypeHandler.cause().getMessage().contains(TYPE_ITEM_NOT_FOUND)) {
-            response.setStatusCode(404)
-                .end(itemTypeHandler.cause().getMessage());
-          } else {
-            response.setStatusCode(400)
-                .end(itemTypeHandler.cause().getMessage());
-          }
-        }
-      });
+          });
     } else {
       LOGGER.error("Fail: Invalid request payload");
       response.setStatusCode(400)

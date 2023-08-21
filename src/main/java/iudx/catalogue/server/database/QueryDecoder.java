@@ -39,7 +39,7 @@ public final class QueryDecoder {
                   .replace("$1", request.getString(ID))
                   .replace(
                       "$2",
-                      "\"type\",\"providerKcId\",\"resourceGroup\",\"resourceServer\",\"resourceServers.resourceServerURL\", \"owner\""));
+                      "\"type\",\"provider\",\"providerKcId\",\"resourceGroup\",\"resourceServer\",\"resourceServerURL\", \"owner\""));
       return elasticQuery;
     }
     if (searchType.equalsIgnoreCase("getRsUrl")) {

@@ -189,7 +189,7 @@ public class ValidatorServiceImpl implements ValidatorService {
             handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
             return;
           }
-          if (providerRes.result().getInteger(TOTAL_HITS) == 2) {
+          if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
             handler.handle(Future.succeededFuture(request));
           } else {
             LOGGER.debug("Fail: Provider doesn't exist");

@@ -281,7 +281,7 @@ public class Constants {
   public static final String GET_RS2 = "{\"match\": {\"resourceGroup.keyword\": \"$1\"}},";
   public static final String GET_RS3 = "],\"minimum_should_match\": 1}}}";
   public static final String GET_DOC_QUERY_WITH_TYPE =
-          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": "
+          "{\"_source\":[\"$2\"],\"query\":{\"bool\": {\"must\": "
                   + "[{\"term\": {\"id.keyword\": \"$1\"}},"
                   + "{\"match\":{ \"type.keyword\": \"$3\"}}]}}}";
 

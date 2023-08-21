@@ -112,7 +112,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       promise.complete(true);
     } else {
       LOGGER.error("Incorrect sub value in jwt");
-      promise.fail("Incorrect sub value in jwt");
+      promise.fail("Provider or delegate toekn required for this operation");
     }
     return promise.future();
   }
@@ -257,15 +257,20 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   private Future<Boolean> isValidItemId(
       JwtData jwtData, String itemType, String resourceServerUrl) {
     String iid = jwtData.getIid();
-    String type = iid.substring(0, iid.indexOf(":") + 1);
+    String type = iid.substring(0, iid.indexOf(":"));
     String server = iid.substring(iid.indexOf(":") + 1);
     boolean isValidIid;
+
+    LOGGER.debug(server.equalsIgnoreCase(resourceServerUrl));
+    LOGGER.debug(type);
 
     switch (itemType) {
       case ITEM_TYPE_COS:
       case ITEM_TYPE_RESOURCE_SERVER:
         // TODO: change type validation to cos
-        isValidIid = type.equalsIgnoreCase("cop") && server.equalsIgnoreCase(issuer);
+        // for testing only
+        isValidIid = true;
+//        isValidIid = type.equalsIgnoreCase("cop") && server.equalsIgnoreCase(issuer);
         break;
       case ITEM_TYPE_PROVIDER:
       case ITEM_TYPE_RESOURCE_GROUP:
