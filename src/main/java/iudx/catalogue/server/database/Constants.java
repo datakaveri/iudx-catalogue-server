@@ -271,14 +271,14 @@ public class Constants {
           + " {\"bool\": {\"should\": [";
   public static final String GET_TYPE_SEARCH = "{\"query\": {\"bool\": {\"filter\": [{\"terms\": "
       + "{\"id.keyword\": [\"$1\"],\"boost\": 1}}]}},"
-      + "\"_source\": [\"resourceServer\",\"type\",\"provider\",\"resourceGroup\",\"id\"]}";
+      + "\"_source\": [\"owner\",\"resourceServer\",\"type\",\"provider\",\"resourceGroup\",\"id\"]}";
   public static final String GET_RSGROUP = "{\"query\": {\"bool\": {\"must\": [{\"match\": "
       + "{\"resourceServer.keyword\": \"$1\"}},"
-      + "{\"term\": {\"type.keyword\": \"iudx:ResourceGroup\"}}]}},"
+      + "{\"term\": {\"type.keyword\": \"iudx:Provider\"}}]}},"
       + "\"_source\": [\"id\"],\"size\": \"10000\"}";
 
   public static final String GET_RS1 = "{\"query\": {\"bool\": {\"should\": [";
-  public static final String GET_RS2 = "{\"match\": {\"resourceGroup.keyword\": \"$1\"}},";
+  public static final String GET_RS2 = "{\"match\": {\"provider.keyword\": \"$1\"}},";
   public static final String GET_RS3 = "],\"minimum_should_match\": 1}}}";
   public static final String GET_DOC_QUERY_WITH_TYPE =
           "{\"_source\":[\"$2\"],\"query\":{\"bool\": {\"must\": "

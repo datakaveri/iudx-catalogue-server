@@ -291,11 +291,12 @@ public final class CrudApis {
           validatorService.validateItem(requestBody, valhandler -> {
             if (valhandler.failed()) {
               LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
-              if (valhandler.cause().getMessage().contains("id not found")) {
+              if (valhandler.cause().getMessage().contains("does not exist")) {
                 response.setStatusCode(404)
                         .end(new RespBuilder()
                                 .withType(TYPE_ITEM_NOT_FOUND)
                                 .withTitle(TITLE_ITEM_NOT_FOUND)
+                                .withDetail(valhandler.cause().getMessage())
                                 .getResponse());
                 return;
               }

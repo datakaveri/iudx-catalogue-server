@@ -124,5 +124,5 @@ public class Constants {
   public static final String REL_KEY = "rel";
   public static final ArrayList<String> ITEMS_KEY =
       new ArrayList<String>(
-          Arrays.asList(RESOURCE, RESOURCE_GRP, RESOURCE_SVR, PROVIDER, TYPE, ALL));
+          Arrays.asList(RESOURCE, RESOURCE_GRP, RESOURCE_SVR, PROVIDER, COS, TYPE, ALL));
 }
