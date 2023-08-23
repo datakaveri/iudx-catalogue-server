@@ -2261,7 +2261,7 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .searchAsync(any(), any(), any());
     dbService.getMlayerDomain(
-        handler -> {
+       "abc", handler -> {
           if (handler.succeeded()) {
             verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
             testContext.completeNow();
@@ -2287,7 +2287,7 @@ public class DatabaseServiceImplTest {
         .when(DatabaseServiceImpl.client)
         .searchAsync(any(), any(), any());
     dbService.getMlayerDomain(
-        handler -> {
+       "abc", handler -> {
           if (handler.failed()) {
             verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
             testContext.completeNow();

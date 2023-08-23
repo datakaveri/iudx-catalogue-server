@@ -1509,8 +1509,13 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler) {
-    String query = GET_MLAYER_DOMAIN_QUERY;
+  public DatabaseService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
+    String query = "";
+    if (id == null || id.isBlank()) {
+      query = GET_ALL_MLAYER_DOMAIN_QUERY;
+    } else {
+      query = GET_MLAYER_DOMAIN_QUERY.replace("$1", id);
+    }
     client.searchAsync(
         query,
         mlayerDomainIndex,
@@ -1721,9 +1726,12 @@ public class DatabaseServiceImpl implements DatabaseService {
             // The lists contains unique values, no duplicate values
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              String instance =
+              String instance = "";
+              if (record.containsKey(INSTANCE)) {
+                instance =
                   record.getString(INSTANCE).toLowerCase().substring(0, 1).toUpperCase()
                       + record.getString(INSTANCE).toLowerCase().substring(1);
+              }
               String providerId = record.getString(PROVIDER);
               if (!instanceList.contains(instance) && !instanceList.equals(null)) {
                 instanceList.add(instance);

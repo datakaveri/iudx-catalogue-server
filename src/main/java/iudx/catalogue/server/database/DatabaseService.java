@@ -236,7 +236,7 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The updateMlayerDomain implements updating all domain from database.
