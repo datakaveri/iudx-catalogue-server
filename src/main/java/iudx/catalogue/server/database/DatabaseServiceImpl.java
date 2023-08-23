@@ -1492,8 +1492,13 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler) {
-    String query = GET_MLAYER_DOMAIN_QUERY;
+  public DatabaseService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
+    String query = "";
+    if (id == null || id.isBlank()) {
+      query = GET_ALL_MLAYER_DOMAIN_QUERY;
+    } else {
+      query = GET_MLAYER_DOMAIN_QUERY.replace("$1", id);
+    }
     client.searchAsync(
         query,
         mlayerDomainIndex,

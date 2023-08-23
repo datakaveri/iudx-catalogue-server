@@ -33,7 +33,7 @@ public interface MlayerService {
   MlayerService createMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
   MlayerService deleteMlayerDomain(String request, Handler<AsyncResult<JsonObject>> handler);

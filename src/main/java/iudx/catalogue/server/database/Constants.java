@@ -157,8 +157,11 @@ public class Constants {
           "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
                   + "[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\"]},\"size\": 10000}";
   public static final String GET_MLAYER_DOMAIN_QUERY =
-      "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
+      "{\"query\": {\"match\":{\"domainId.keyword\": \"$1\"}},\"_source\":{\"includes\": "
           + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},\"size\": 10000}";
+  public static final String GET_ALL_MLAYER_DOMAIN_QUERY =
+          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
+                  + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},\"size\": 10000}";
   public static final String CHECK_MDOC_QUERY_DOMAIN =
           "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": "
                   + "{\"domainId.keyword\":\"$1\"} } ] } } }";

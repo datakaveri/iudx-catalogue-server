@@ -109,7 +109,8 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
     Promise<Boolean> promise = Promise.promise();
 
     if (endpoint.equals(api.getRouteItems()) || endpoint.equals(api.getRouteInstance())
-            || endpoint.equals(api.getRouteMlayerInstance())) {
+            || endpoint.equals(api.getRouteMlayerInstance())
+            || endpoint.equals(api.getRouteMlayerDomains())) {
       promise.complete(true);
     } else {
       LOGGER.error("Unauthorized access to endpoint {}", endpoint);

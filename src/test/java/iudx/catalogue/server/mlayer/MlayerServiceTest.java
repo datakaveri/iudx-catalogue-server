@@ -520,16 +520,16 @@ public class MlayerServiceTest {
                     @SuppressWarnings("unchecked")
                     @Override
                     public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
                         return null;
                     }
                 })
                 .when(databaseService)
-                .getMlayerDomain(any());
+                .getMlayerDomain(any(),any());
         mlayerService.getMlayerDomain(
-                handler -> {
+                "abc",handler -> {
                     if (handler.succeeded()) {
-                        verify(databaseService, times(1)).getMlayerDomain(any());
+                        verify(databaseService, times(1)).getMlayerDomain(any(), any());
                         testContext.completeNow();
                     } else {
                         LOGGER.debug("Fail");
@@ -549,17 +549,17 @@ public class MlayerServiceTest {
                             @SuppressWarnings("unchecked")
                             @Override
                             public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
                                 return null;
                             }
                         })
                 .when(databaseService)
-                .getMlayerDomain(any());
+                .getMlayerDomain(any(), any());
 
         mlayerService.getMlayerDomain(
-                handler -> {
+               "abc", handler -> {
                     if (handler.succeeded()) {
-                        verify(databaseService, times(1)).getMlayerDomain(any());
+                        verify(databaseService, times(1)).getMlayerDomain(any(), any());
                         LOGGER.debug("Fail");
                         testContext.failNow(handler.cause());
                     } else {

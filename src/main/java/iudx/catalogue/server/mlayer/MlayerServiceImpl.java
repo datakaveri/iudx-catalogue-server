@@ -115,7 +115,10 @@ public class MlayerServiceImpl implements MlayerService {
     String name = request.getString(NAME).toLowerCase();
     String id = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
     String domainId = UUID.randomUUID().toString();
-    request.put(MLAYER_ID, id).put(DOMAIN_ID, domainId);
+    if (!request.containsKey("domainId")) {
+      request.put(DOMAIN_ID, domainId);
+    }
+    request.put(MLAYER_ID, id);
 
     databaseService.createMlayerDomain(
         request,
@@ -132,9 +135,9 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerDomain(
-        getMlayerDomainHandler -> {
+        id, getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
             LOGGER.info("Success: Getting all domain values");
             handler.handle(Future.succeededFuture(getMlayerDomainHandler.result()));
