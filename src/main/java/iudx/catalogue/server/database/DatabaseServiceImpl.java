@@ -1709,9 +1709,12 @@ public class DatabaseServiceImpl implements DatabaseService {
             // The lists contains unique values, no duplicate values
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              String instance =
+              String instance = null;
+              if (record.containsKey(INSTANCE)) {
+                instance =
                   record.getString(INSTANCE).toLowerCase().substring(0, 1).toUpperCase()
                       + record.getString(INSTANCE).toLowerCase().substring(1);
+              }
               String providerId = record.getString(PROVIDER);
               if (!instanceList.contains(instance) && !instanceList.equals(null)) {
                 instanceList.add(instance);
