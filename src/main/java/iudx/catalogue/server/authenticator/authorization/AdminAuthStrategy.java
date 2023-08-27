@@ -1,32 +1,26 @@
 package iudx.catalogue.server.authenticator.authorization;
 
-import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
-import static iudx.catalogue.server.util.Constants.ITEM_TYPE_RESOURCE_SERVER;
-import static iudx.catalogue.server.util.Constants.ITEM_TYPE_PROVIDER;
 import static iudx.catalogue.server.util.Constants.ITEM_TYPE_INSTANCE;
+import static iudx.catalogue.server.util.Constants.ITEM_TYPE_PROVIDER;
 
-import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class AdminAuthStrategy implements AuthorizationStratergy {
-  private static Logger LOGGER = LogManager.getLogger(AdminAuthStrategy.class);
   static List<AuthorizationRequest> accessList = new ArrayList<>();
   private static volatile AdminAuthStrategy instance;
   private Api api;
 
-  private  AdminAuthStrategy(Api api) {
+  private AdminAuthStrategy(Api api) {
     this.api = api;
     buildPermissions(api);
   }
 
   /**
    * Returns a singleton instance of the AdminAuthStrategy class for the specified API.
+   *
    * @param api the API to create an AdminAuthStrategy instance for
    * @return a singleton instance of the AdminAuthStrategy class
    */
@@ -40,7 +34,6 @@ public class AdminAuthStrategy implements AuthorizationStratergy {
     }
     return instance;
   }
-
 
   private void buildPermissions(Api api) {
     // /item access list

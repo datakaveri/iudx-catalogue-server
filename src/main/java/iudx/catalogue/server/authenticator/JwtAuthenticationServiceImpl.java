@@ -46,7 +46,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   private Api api;
 
   JwtAuthenticationServiceImpl(
-      Vertx vertx, final JWTAuth jwtAuth, final JsonObject config, final Api api) {
+      final JWTAuth jwtAuth, final JsonObject config, final Api api) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("host");
     this.issuer = config.getString("issuer");
@@ -90,7 +90,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         break;
       case ITEM_TYPE_COS:
       case ITEM_TYPE_RESOURCE_SERVER:
-        isValidAudience = tempCopAudience !=null && tempCopAudience.equalsIgnoreCase(jwtData.getAud());
+        isValidAudience =
+            tempCopAudience != null && tempCopAudience.equalsIgnoreCase(jwtData.getAud());
         break;
       default:
         isValidAudience = audience != null && audience.equalsIgnoreCase(jwtData.getAud());
@@ -256,7 +257,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   }
 
   /**
-   * This method validates the iid of the token for the respective operation
+   * This method validates the iid of the token for the respective operation.
    *
    * @param jwtData which is result of decoded jwt token
    * @param itemType which is a String

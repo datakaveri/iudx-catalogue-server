@@ -136,10 +136,10 @@ public class DatabaseServiceImpl implements DatabaseService {
     } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceServer")
         && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       return true;
-    } else if(request.getString(RELATIONSHIP).equalsIgnoreCase("cos")
+    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("cos")
         && itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
       return true;
-    } else if(request.getString(RELATIONSHIP).equalsIgnoreCase("all")
+    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("all")
         && itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
       return true;
     }
@@ -472,7 +472,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         GET_DOC_QUERY_WITH_TYPE
             .replace("$1", id)
             .replace("$3", type)
-            .replace("$2","id");
+            .replace("$2", "id");
 
     new Timer()
         .schedule(

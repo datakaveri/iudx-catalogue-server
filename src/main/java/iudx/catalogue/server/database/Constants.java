@@ -269,9 +269,11 @@ public class Constants {
 
   public static final String NLP_LOCATION_SEARCH = "{\"query\": {\"script_score\": {\"query\":"
           + " {\"bool\": {\"should\": [";
-  public static final String GET_TYPE_SEARCH = "{\"query\": {\"bool\": {\"filter\": [{\"terms\": "
-      + "{\"id.keyword\": [\"$1\"],\"boost\": 1}}]}},"
-      + "\"_source\": [\"owner\",\"resourceServer\",\"type\",\"provider\",\"resourceGroup\",\"id\"]}";
+  public static final String GET_TYPE_SEARCH =
+      "{\"query\": {\"bool\": {\"filter\": [{\"terms\": "
+          + "{\"id.keyword\": [\"$1\"],\"boost\": 1}}]}},"
+          + "\"_source\": [\"owner\",\"resourceServer\",\"type\","
+          + "\"provider\",\"resourceGroup\",\"id\"]}";
   public static final String GET_RSGROUP = "{\"query\": {\"bool\": {\"must\": [{\"match\": "
       + "{\"resourceServer.keyword\": \"$1\"}},"
       + "{\"term\": {\"type.keyword\": \"iudx:Provider\"}}]}},"

@@ -71,7 +71,6 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
       JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     String endpoint = authenticationInfo.getString(API_ENDPOINT);
     // String id = authenticationInfo.getString(ID);
-    Method method = Method.valueOf(authenticationInfo.getString(METHOD));
     String token = authenticationInfo.getString(TOKEN);
     //    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
     String cosAdmin = authenticationInfo.getString("cos_admin", "");

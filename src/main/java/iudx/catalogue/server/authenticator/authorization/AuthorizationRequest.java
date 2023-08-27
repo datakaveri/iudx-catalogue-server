@@ -44,7 +44,9 @@ public class AuthorizationRequest {
       return false;
     }
     AuthorizationRequest that = (AuthorizationRequest) o;
-    return getMethod() == that.getMethod() && getApi().equals(that.getApi()) && getItemType().equals(that.getItemType());
+    return getMethod() == that.getMethod()
+        && getApi().equals(that.getApi())
+        && getItemType().equals(that.getItemType());
   }
 
   @Override

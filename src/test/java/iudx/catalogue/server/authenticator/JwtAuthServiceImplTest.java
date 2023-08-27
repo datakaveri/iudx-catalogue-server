@@ -24,7 +24,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
@@ -62,7 +61,7 @@ public class JwtAuthServiceImplTest {
     JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
     dxApiBasePath = authConfig.getString("dxApiBasePath");
     api = Api.getInstance(dxApiBasePath);
-    jwtAuthenticationService = new JwtAuthenticationServiceImpl(vertx,  jwtAuth, authConfig, api);
+    jwtAuthenticationService = new JwtAuthenticationServiceImpl(jwtAuth, authConfig, api);
 
     LOGGER.info("Auth tests setup complete");
     testContext.completeNow();

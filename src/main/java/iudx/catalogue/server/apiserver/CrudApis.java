@@ -154,7 +154,8 @@ public final class CrudApis {
                 .put(ITEM_TYPE, itemType);
 
             if (isUac) {
-              jwtAuthenticationInfo.put("cos_admin", requestBody.getString("cos_admin"));
+              //              jwtAuthenticationInfo.put("cos_admin",
+              // requestBody.getString("cos_admin"));
               handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
             } else {
               if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
@@ -168,16 +169,18 @@ public final class CrudApis {
                 resourceServerUrlFuture.onComplete(
                     resourceServerUrl -> {
                       if (resourceServerUrl.succeeded()) {
-                        String rsUrl = resourceServerUrl.result().getJsonObject("resourceServers").getString(RESOURCE_SERVER_URL);
+                        String rsUrl =
+                            resourceServerUrl
+                                .result()
+                                .getJsonObject("resourceServers")
+                                .getString(RESOURCE_SERVER_URL);
                         // used for relationship apis
                         String cosId = resourceServerUrl.result().getString(OWNER);
                         // used at uac authorization
-                        String cosAdmin = resourceServerUrl.result().getString("cos_admin");
 
                         jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
                         requestBody.put(RESOURCE_SERVER_URL, rsUrl);
                         requestBody.put(OWNER, cosId);
-                        requestBody.put("cos_admin", cosAdmin);
                         handleItemCreation(
                             routingContext, requestBody, response, jwtAuthenticationInfo);
                       } else {
@@ -202,16 +205,13 @@ public final class CrudApis {
                         String kcId = providerKcId.result().getString(PROVIDER_KC_ID);
                         String rsUrl = providerKcId.result().getString(RESOURCE_SERVER_URL);
                         // cosId is used for relationship apis
-                        String cosId = providerKcId.result().getString(OWNER);
-                        // cosAdmin is used for authorization at the uac
-                        String cosAdmin = providerKcId.result().getString("cos_admin");
 
                         jwtAuthenticationInfo.put(PROVIDER_KC_ID, kcId);
                         jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
-
                         requestBody.put(PROVIDER_KC_ID, kcId);
+
+                        String cosId = providerKcId.result().getString(OWNER);
                         requestBody.put(OWNER, cosId);
-                        requestBody.put("cos_admin", cosAdmin);
                         handleItemCreation(
                             routingContext, requestBody, response, jwtAuthenticationInfo);
                       } else {
@@ -375,12 +375,10 @@ public final class CrudApis {
     }
   }
 
-
   /**
    * Delete Item.
    *
-   * @param routingContext {@link RoutingContext}
-   * @TODO Throw error if load failed
+   * @param routingContext {@link RoutingContext} @TODO Throw error if load failed
    */
   // tag::db-service-calls[]
   public void deleteItemHandler(RoutingContext routingContext) {
@@ -403,65 +401,61 @@ public final class CrudApis {
     //  populating JWT authentication info ->
     HttpServerRequest request = routingContext.request();
     jwtAuthenticationInfo
-              .put(TOKEN, request.getHeader(HEADER_TOKEN))
-              .put(METHOD, REQUEST_DELETE)
-              .put(API_ENDPOINT, api.getRouteItems());
+        .put(TOKEN, request.getHeader(HEADER_TOKEN))
+        .put(METHOD, REQUEST_DELETE)
+        .put(API_ENDPOINT, api.getRouteItems());
     if (validateId(itemId)) {
-      Future<JsonObject> itemTypeFuture  = getParentObjectInfo(itemId, "getItemType",  "");
-      itemTypeFuture.onComplete(itemTypeHandler -> {
-        if (itemTypeHandler.succeeded()) {
+      Future<JsonObject> itemTypeFuture = getParentObjectInfo(itemId, "getItemType", "");
+      itemTypeFuture.onComplete(
+          itemTypeHandler -> {
+            if (itemTypeHandler.succeeded()) {
 
-          Set<String> types =
-              new HashSet<String>(
-                  itemTypeHandler.result()
-                      .getJsonArray(TYPE)
-                      .getList());
-          types.retainAll(ITEM_TYPES);
-          String itemType = types.toString().replaceAll("\\[", "").replaceAll("\\]", "");
-          LOGGER.debug("itemType : {} ", itemType);
-          jwtAuthenticationInfo
-              .put(ITEM_TYPE, itemType);
-          if (isUac) {
-            if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-              if (itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
-                handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
-              }
+              Set<String> types =
+                  new HashSet<String>(itemTypeHandler.result().getJsonArray(TYPE).getList());
+              types.retainAll(ITEM_TYPES);
+              String itemType = types.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+              LOGGER.debug("itemType : {} ", itemType);
+              jwtAuthenticationInfo.put(ITEM_TYPE, itemType);
+              if (isUac) {
+                if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
+                  if (itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
+                    handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                  }
 
-              String resourceServer = itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)
-                  ? itemId
-                  : itemTypeHandler.result().getString(RESOURCE_SVR);
-              Future<JsonObject> rsUrlFuture =
-                  getParentObjectInfo(
-                      resourceServer,
-                      "getRsUrl",
-                      itemType);
+                  String resourceServer =
+                      itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)
+                          ? itemId
+                          : itemTypeHandler.result().getString(RESOURCE_SVR);
+                  Future<JsonObject> rsUrlFuture =
+                      getParentObjectInfo(resourceServer, "getRsUrl", itemType);
 
-              rsUrlFuture.onComplete(
-                  rsUrl -> {
-                    if (rsUrl.succeeded()) {
-                      jwtAuthenticationInfo.put(
-                          RESOURCE_SERVER_URL,
-                          rsUrl.result().getJsonObject("resourceServers").getString(RESOURCE_SERVER_URL));
-                      handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
-                    }
-                  });
-            } else {
+                  rsUrlFuture.onComplete(
+                      rsUrl -> {
+                        if (rsUrl.succeeded()) {
+                          jwtAuthenticationInfo.put(
+                              RESOURCE_SERVER_URL,
+                              rsUrl
+                                  .result()
+                                  .getJsonObject("resourceServers")
+                                  .getString(RESOURCE_SERVER_URL));
+                          handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                        }
+                      });
+                } else {
 
-              Future<JsonObject> rgFuture =
-                  getParentObjectInfo(
-                      itemTypeHandler.result().getString(RESOURCE_GRP),
-                      "getRsUrl",
-                      ITEM_TYPE_RESOURCE_GROUP);
+                  Future<JsonObject> rgFuture =
+                      getParentObjectInfo(
+                          itemTypeHandler.result().getString(RESOURCE_GRP),
+                          "getRsUrl",
+                          ITEM_TYPE_RESOURCE_GROUP);
 
-              rgFuture.onComplete(
-                  rg -> {
-                    if (rg.succeeded()) {
-                      LOGGER.debug(rg.result());
-                      Future<JsonObject> rsUrlFuture =
-                          getParentObjectInfo(
-                              rg.result().getString(RESOURCE_SVR),
-                              "getRsUrl",
-                              itemType);
+                  rgFuture.onComplete(
+                      rg -> {
+                        if (rg.succeeded()) {
+                          LOGGER.debug(rg.result());
+                          Future<JsonObject> rsUrlFuture =
+                              getParentObjectInfo(
+                                  rg.result().getString(RESOURCE_SVR), "getRsUrl", itemType);
 
                           rsUrlFuture.onComplete(
                               rsUrl -> {
@@ -492,7 +486,8 @@ public final class CrudApis {
                 } else {
                   LOGGER.debug(itemTypeHandler.result());
                   Future<JsonObject> providerInfoFuture =
-                      getParentObjectInfo(itemTypeHandler.result().getString(PROVIDER), "getItemType", itemType);
+                      getParentObjectInfo(
+                          itemTypeHandler.result().getString(PROVIDER), "getItemType", itemType);
                   providerInfoFuture.onComplete(
                       providerInfo -> {
                         if (providerInfo.succeeded()) {
@@ -525,12 +520,14 @@ public final class CrudApis {
           });
     } else {
       LOGGER.error("Fail: Invalid request payload");
-      response.setStatusCode(400)
-              .end(new RespBuilder()
-                        .withType(TYPE_INVALID_SYNTAX)
-                        .withTitle(TITLE_INVALID_SYNTAX)
-                        .withDetail("Fail: The syntax of the id is incorrect")
-                        .getResponse());
+      response
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_SYNTAX)
+                  .withTitle(TITLE_INVALID_SYNTAX)
+                  .withDetail("Fail: The syntax of the id is incorrect")
+                  .getResponse());
     }
   }
 

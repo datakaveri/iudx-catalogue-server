@@ -97,7 +97,9 @@ public class ValidatorServiceImpl implements ValidatorService {
     return itemType;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   public ValidatorService validateSchema(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -137,7 +139,9 @@ public class ValidatorServiceImpl implements ValidatorService {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public ValidatorService validateItem(

@@ -155,7 +155,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
                 dxApiBasePath = config().getString("dxApiBasePath");
                 api = Api.getInstance(dxApiBasePath);
                 jwtAuthenticationService =
-                    new JwtAuthenticationServiceImpl(vertx, jwtAuth, config(), api);
+                    new JwtAuthenticationServiceImpl(jwtAuth, config(), api);
 
                 /* Publish the Authentication service with the Event Bus against an address. */
                 consumer = binder.register(AuthenticationService.class, jwtAuthenticationService);

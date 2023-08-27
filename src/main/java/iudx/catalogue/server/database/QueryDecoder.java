@@ -38,7 +38,8 @@ public final class QueryDecoder {
                   .replace("$1", request.getString(ID))
                   .replace(
                       "$2",
-                      "\"type\",\"provider\",\"providerKcId\",\"resourceGroup\",\"resourceServer\",\"resourceServerURL\", \"owner\", \"cos_admin\""));
+                      "\"type\",\"provider\",\"providerKcId\",\"resourceGroup\",\"resourceServer\","
+                          + "\"resourceServerURL\", \"owner\", \"cos_admin\""));
       return elasticQuery;
     }
     if (searchType.equalsIgnoreCase("getRsUrl")) {
@@ -47,7 +48,8 @@ public final class QueryDecoder {
           new JsonObject(
               GET_DOC_QUERY
                   .replace("$1", request.getString(ID))
-                  .replace("$2", "\"resourceServers.resourceServerURL\", \"owner\", \"cos_admin\""));
+                  .replace(
+                      "$2", "\"resourceServers.resourceServerURL\", \"owner\", \"cos_admin\""));
 
       return elasticQuery;
     }
@@ -413,7 +415,9 @@ public final class QueryDecoder {
 
         subQuery =
             subQuery
-                + MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", request.getString(RESOURCE_SVR))
+                + MATCH_QUERY
+                    .replace("$1", ID_KEYWORD)
+                    .replace("$2", request.getString(RESOURCE_SVR))
                 + ",";
       }
       if (request.containsKey(OWNER)) {
@@ -440,7 +444,8 @@ public final class QueryDecoder {
     return tempQuery.toString();
   }
 
-  private static JsonObject handleResponseFiltering(JsonObject request, String relationshipType, String elasticQuery) {
+  private static JsonObject handleResponseFiltering(
+      JsonObject request, String relationshipType, String elasticQuery) {
     Integer limit =
         request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
     JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());

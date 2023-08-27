@@ -48,47 +48,18 @@ public class ExceptionHandler implements Handler<RoutingContext> {
     LOGGER.error("Error: Invalid Json payload; " + routingContext.failure().getLocalizedMessage());
     String response = "";
 
-//    if (routingContext.request().uri().startsWith(ROUTE_ITEMS)) {
-//      response = new RespBuilder()
-//           .withType(TYPE_FAIL)
-//           .withResult()
-//           .getResponse();
-//    } else if (routingContext.request().uri().startsWith(ROUTE_SEARCH)) {
-//      response = new JsonObject().put(STATUS, FAILED)
-//                                 .put(DESC, "Invalid Json Format")
-//                                 .encode();
-//    } else if (routingContext.request().uri().startsWith(ROUTE_RATING)) {
-      response = new RespBuilder()
-          .withType(TYPE_INVALID_SCHEMA)
-          .withTitle(TITLE_INVALID_SCHEMA)
-          .withDetail("Invalid Json payload")
-          .getResponse();
+    response =
+        new RespBuilder()
+            .withType(TYPE_INVALID_SCHEMA)
+            .withTitle(TITLE_INVALID_SCHEMA)
+            .withDetail("Invalid Json payload")
+            .getResponse();
 
-      routingContext.response()
-          .setStatusCode(400)
-          .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-          .end(response);
-
-//      routingContext.next();
-//    } else {
-//      response = new RespBuilder()
-//                            .withType(TYPE_INVALID_SYNTAX)
-//                            .withTitle(TITLE_INVALID_SYNTAX)
-//                            .getResponse();
-//    }
-
-//    String internalErrorResp = new RespBuilder()
-//                                          .withType(TYPE_INTERNAL_SERVER_ERROR)
-//                                          .withTitle(TITLE_INTERNAL_SERVER_ERROR)
-//                                          .getResponse();
-//
-//    routingContext.response()
-//                  .setStatusCode(500)
-//                  .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
-//                  .end(internalErrorResp);
-    
-//    routingContext.next();
-
+    routingContext
+        .response()
+        .setStatusCode(400)
+        .putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
+        .end(response);
   }
 
   /**
