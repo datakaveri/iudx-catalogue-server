@@ -4,7 +4,6 @@ import static iudx.catalogue.server.authenticator.authorization.Method.*;
 import static iudx.catalogue.server.util.Constants.ITEM_TYPE_RESOURCE;
 import static iudx.catalogue.server.util.Constants.ITEM_TYPE_RESOURCE_GROUP;
 
-import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
 import java.util.ArrayList;
 import java.util.List;

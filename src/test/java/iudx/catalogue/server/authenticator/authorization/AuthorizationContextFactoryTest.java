@@ -58,6 +58,18 @@ public class AuthorizationContextFactoryTest {
         assertNotNull(AuthorizationContextFactory.create(role,this.api));
         vertxTestContext.completeNow();
     }
+
+    @Test
+    @Description("test create for cop admin")
+    public void testCreateCopAdmin(VertxTestContext testContext) {
+        authorizationContextFactory=new AuthorizationContextFactory();
+        String role="cop_admin";
+        delegateAuthStrategy= DelegateAuthStrategy.getInstance(this.api);
+        assertFalse(delegateAuthStrategy.isAuthorized(authRequest));
+        assertNotNull(AuthorizationContextFactory.create(role,this.api));
+        testContext.completeNow();
+    }
+
     @Test
     @Description("testing the method create with IllegalArgumentException")
     public void testCreateDefault(VertxTestContext vertxTestContext) {

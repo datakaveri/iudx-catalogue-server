@@ -2,6 +2,7 @@ package iudx.catalogue.server.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class Constants {
 
@@ -42,6 +43,11 @@ public class Constants {
   public static final String PUBLIC_KEY = "publicKey";
   public static final String DATABASE_PASSWD = "databasePassword";
   public static final String SOURCE = "_source";
+
+  public static final Pattern UUID_PATTERN =
+      Pattern.compile(
+          "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
+
 
 
 

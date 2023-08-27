@@ -38,7 +38,7 @@ public final class QueryDecoder {
                   .replace("$1", request.getString(ID))
                   .replace(
                       "$2",
-                      "\"type\",\"provider\",\"providerKcId\",\"resourceGroup\",\"resourceServer\",\"resourceServerURL\", \"owner\""));
+                      "\"type\",\"provider\",\"providerKcId\",\"resourceGroup\",\"resourceServer\",\"resourceServerURL\", \"owner\", \"cos_admin\""));
       return elasticQuery;
     }
     if (searchType.equalsIgnoreCase("getRsUrl")) {
@@ -47,7 +47,7 @@ public final class QueryDecoder {
           new JsonObject(
               GET_DOC_QUERY
                   .replace("$1", request.getString(ID))
-                  .replace("$2", "\"resourceServers.resourceServerURL\", \"owner\""));
+                  .replace("$2", "\"resourceServers.resourceServerURL\", \"owner\", \"cos_admin\""));
 
       return elasticQuery;
     }
@@ -270,7 +270,7 @@ public final class QueryDecoder {
     LOGGER.debug("request: " + request);
 
     String relationshipType = request.getString(RELATIONSHIP, "");
-    String itemType = request.getString(ITEM_TYPE);
+    String itemType = request.getString(ITEM_TYPE, "");
     String subQuery = "";
 
     /* Validating the request */

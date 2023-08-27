@@ -1,8 +1,6 @@
 package iudx.catalogue.server.authenticator;
 
 import static iudx.catalogue.server.authenticator.Constants.*;
-import static iudx.catalogue.server.util.Constants.ITEM_TYPE;
-import static iudx.catalogue.server.util.Constants.ITEM_TYPE_PROVIDER;
 
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -35,6 +33,7 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
   final JWTProcessor<SecurityContext> jwtProcessor;
   private Api api;
   private String uacAdmin;
+  private String issuer;
 
   /**
    * Constructs a new instance of KcAuthenticationServiceImpl.
@@ -47,6 +46,7 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
       final JWTProcessor<SecurityContext> jwtProcessor, final JsonObject config, final Api api) {
     this.jwtProcessor = jwtProcessor;
     this.uacAdmin = config.getString(UAC_ADMIN) != null ? config.getString(UAC_ADMIN) : "";
+    this.issuer = config.getString("issuer");
     this.api = api;
   }
 
@@ -73,8 +73,8 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
     // String id = authenticationInfo.getString(ID);
     Method method = Method.valueOf(authenticationInfo.getString(METHOD));
     String token = authenticationInfo.getString(TOKEN);
-//    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
-    String itemType = authenticationInfo.getString(ITEM_TYPE);
+    //    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
+    String cosAdmin = authenticationInfo.getString("cos_admin", "");
     Future<JwtData> decodeTokenFuture = decodeKcToken(token);
 
     ResultContainer result = new ResultContainer();
@@ -83,6 +83,10 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
         .compose(
             decodeHandler -> {
               result.jwtData = decodeHandler;
+              return isValidIssuer(result.jwtData, issuer);
+            })
+        .compose(
+            validIssuer -> {
               return isValidEndpoint(endpoint);
             })
         .compose(
@@ -91,7 +95,7 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
               if (uacAdmin.equalsIgnoreCase(result.jwtData.getSub())) {
                 return Future.succeededFuture(true);
               } else {
-                return isValidAdmin(result.jwtData);
+                return isValidAdmin(result.jwtData, cosAdmin);
               }
             })
         .onComplete(
@@ -99,10 +103,19 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
               if (completeHandler.succeeded()) {
                 handler.handle(Future.succeededFuture());
               } else {
+                LOGGER.debug(completeHandler.cause().getMessage());
                 handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
               }
             });
     return this;
+  }
+
+  private Future<Boolean> isValidIssuer(JwtData jwtData, String issuer) {
+    if (jwtData.getIss().equalsIgnoreCase(issuer)) {
+      return Future.succeededFuture(true);
+    } else {
+      return Future.failedFuture("Token not issued for this server");
+    }
   }
 
   Future<Boolean> isValidEndpoint(String endpoint) {
@@ -119,14 +132,9 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
     return promise.future();
   }
 
-  private Future<Boolean> isValidAdmin(JwtData jwtData) {
-    // TODO: can't verify role for KC token
-    if (jwtData.getRole().equalsIgnoreCase("cop_admin")) {
-      // TODO: verify ownership using the sub field of token and owner field in the request body
-      return Future.succeededFuture(true);
-    } else {
-      return Future.failedFuture("Invalid user role");
-    }
+  private Future<Boolean> isValidAdmin(JwtData jwtData, String cosAdmin) {
+    // TODO: implement logic
+    return Future.succeededFuture(true);
   }
 
   final class ResultContainer {

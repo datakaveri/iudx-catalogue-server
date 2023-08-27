@@ -154,54 +154,8 @@ public final class CrudApis {
                 .put(ITEM_TYPE, itemType);
 
             if (isUac) {
-              if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
-                handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
-                return;
-              }
-              if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-                if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-                  handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
-                } else {
-                  String resourceServer = requestBody.getString(RESOURCE_SVR);
-                  Future<JsonObject> rsUrlFuture =
-                      getParentObjectInfo(resourceServer, "getRsUrl", itemType);
-
-                  rsUrlFuture.onComplete(
-                      rsUrl -> {
-                        if (rsUrl.succeeded()) {
-                          requestBody.put(
-                              RESOURCE_SERVER_URL, rsUrl.result().getString(RESOURCE_SERVER_URL));
-                          handleItemCreation(
-                              routingContext, requestBody, response, jwtAuthenticationInfo);
-                        }
-                      });
-                }
-              } else {
-
-                Future<JsonObject> rgFuture =
-                    getParentObjectInfo(
-                        requestBody.getString(RESOURCE_GRP), "getRsUrl", ITEM_TYPE_RESOURCE_GROUP);
-
-                rgFuture.onComplete(
-                    rg -> {
-                      if (rg.succeeded()) {
-                        LOGGER.debug(rg.result());
-                        Future<JsonObject> rsUrlFuture =
-                            getParentObjectInfo(rg.result().getString(RESOURCE_SVR), "getRsUrl", itemType);
-
-                        rsUrlFuture.onComplete(
-                            rsUrl -> {
-                              if (rsUrl.succeeded()) {
-                                requestBody.put(
-                                    RESOURCE_SERVER_URL,
-                                    rsUrl.result().getString(RESOURCE_SERVER_URL));
-                                handleItemCreation(
-                                    routingContext, requestBody, response, jwtAuthenticationInfo);
-                              }
-                            });
-                      }
-                    });
-              }
+              jwtAuthenticationInfo.put("cos_admin", requestBody.getString("cos_admin"));
+              handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
             } else {
               if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
@@ -215,12 +169,15 @@ public final class CrudApis {
                     resourceServerUrl -> {
                       if (resourceServerUrl.succeeded()) {
                         String rsUrl = resourceServerUrl.result().getJsonObject("resourceServers").getString(RESOURCE_SERVER_URL);
+                        // used for relationship apis
                         String cosId = resourceServerUrl.result().getString(OWNER);
-                        LOGGER.debug(rsUrl);
-                        LOGGER.debug(cosId);
+                        // used at uac authorization
+                        String cosAdmin = resourceServerUrl.result().getString("cos_admin");
+
                         jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
                         requestBody.put(RESOURCE_SERVER_URL, rsUrl);
                         requestBody.put(OWNER, cosId);
+                        requestBody.put("cos_admin", cosAdmin);
                         handleItemCreation(
                             routingContext, requestBody, response, jwtAuthenticationInfo);
                       } else {
@@ -228,8 +185,8 @@ public final class CrudApis {
                             .setStatusCode(400)
                             .end(
                                 new RespBuilder()
-                                    .withType(TYPE_ITEM_NOT_FOUND)
-                                    .withTitle(TITLE_ITEM_NOT_FOUND)
+                                    .withType(TYPE_LINK_VALIDATION_FAILED)
+                                    .withTitle(TITLE_LINK_VALIDATION_FAILED)
                                     .withDetail("Resource Server not found")
                                     .getResponse());
                       }
@@ -244,13 +201,17 @@ public final class CrudApis {
                         LOGGER.debug(providerKcId.result());
                         String kcId = providerKcId.result().getString(PROVIDER_KC_ID);
                         String rsUrl = providerKcId.result().getString(RESOURCE_SERVER_URL);
+                        // cosId is used for relationship apis
                         String cosId = providerKcId.result().getString(OWNER);
+                        // cosAdmin is used for authorization at the uac
+                        String cosAdmin = providerKcId.result().getString("cos_admin");
 
                         jwtAuthenticationInfo.put(PROVIDER_KC_ID, kcId);
                         jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
 
                         requestBody.put(PROVIDER_KC_ID, kcId);
                         requestBody.put(OWNER, cosId);
+                        requestBody.put("cos_admin", cosAdmin);
                         handleItemCreation(
                             routingContext, requestBody, response, jwtAuthenticationInfo);
                       } else {
@@ -258,8 +219,8 @@ public final class CrudApis {
                             .setStatusCode(400)
                             .end(
                                 new RespBuilder()
-                                    .withType(TYPE_ITEM_NOT_FOUND)
-                                    .withTitle(TITLE_ITEM_NOT_FOUND)
+                                    .withType(TYPE_LINK_VALIDATION_FAILED)
+                                    .withTitle(TITLE_LINK_VALIDATION_FAILED)
                                     .withDetail("Provider not found")
                                     .getResponse());
                       }
@@ -291,15 +252,6 @@ public final class CrudApis {
           validatorService.validateItem(requestBody, valhandler -> {
             if (valhandler.failed()) {
               LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
-              if (valhandler.cause().getMessage().contains("does not exist")) {
-                response.setStatusCode(404)
-                        .end(new RespBuilder()
-                                .withType(TYPE_ITEM_NOT_FOUND)
-                                .withTitle(TITLE_ITEM_NOT_FOUND)
-                                .withDetail(valhandler.cause().getMessage())
-                                .getResponse());
-                return;
-              }
               if (valhandler.cause().getMessage().contains("validation failed. Incorrect id")) {
                 response.setStatusCode(400)
                         .end(new RespBuilder()

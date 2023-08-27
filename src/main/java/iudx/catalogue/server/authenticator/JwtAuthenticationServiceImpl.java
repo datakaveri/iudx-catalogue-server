@@ -41,6 +41,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   final JWTAuth jwtAuth;
   final String audience;
   final String issuer;
+  String tempCopAudience;
+  String tempCopIssuer;
   private Api api;
 
   JwtAuthenticationServiceImpl(
@@ -48,6 +50,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("host");
     this.issuer = config.getString("issuer");
+    this.tempCopAudience = config.getString("tempCopAudience");
+    this.tempCopIssuer = config.getString("tempCopIssuer");
     this.api = api;
   }
 
@@ -65,8 +69,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
             })
         .onFailure(
             err -> {
-              LOGGER.error("failed to decode/validate jwt token : " + err.getMessage());
-              promise.fail("failed");
+              LOGGER.error("failed to decode/validate jwt token : {}", err.getMessage());
+              promise.fail("failed to decode/validate jwt token : " + err.getMessage());
             });
     return promise.future();
   }
@@ -76,12 +80,17 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
     LOGGER.debug("Audience in jwt is: " + jwtData.getAud());
     LOGGER.debug(serverUrl);
+    LOGGER.debug(audience);
     boolean isValidAudience;
     switch (itemType) {
       case ITEM_TYPE_PROVIDER:
       case ITEM_TYPE_RESOURCE_GROUP:
       case ITEM_TYPE_RESOURCE:
         isValidAudience = serverUrl != null && serverUrl.equalsIgnoreCase(jwtData.getAud());
+        break;
+      case ITEM_TYPE_COS:
+      case ITEM_TYPE_RESOURCE_SERVER:
+        isValidAudience = tempCopAudience !=null && tempCopAudience.equalsIgnoreCase(jwtData.getAud());
         break;
       default:
         isValidAudience = audience != null && audience.equalsIgnoreCase(jwtData.getAud());
@@ -112,7 +121,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       promise.complete(true);
     } else {
       LOGGER.error("Incorrect sub value in jwt");
-      promise.fail("Provider or delegate toekn required for this operation");
+      promise.fail("Provider or delegate token required for this operation");
     }
     return promise.future();
   }
@@ -254,7 +263,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
    * @param resourceServerUrl which is a String
    * @return Vertx Future which is of the type boolean
    */
-  private Future<Boolean> isValidItemId(
+  Future<Boolean> isValidItemId(
       JwtData jwtData, String itemType, String resourceServerUrl) {
     String iid = jwtData.getIid();
     String type = iid.substring(0, iid.indexOf(":"));
@@ -268,9 +277,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       case ITEM_TYPE_COS:
       case ITEM_TYPE_RESOURCE_SERVER:
         // TODO: change type validation to cos
-        // for testing only
-        isValidIid = true;
-//        isValidIid = type.equalsIgnoreCase("cop") && server.equalsIgnoreCase(issuer);
+        isValidIid = type.equalsIgnoreCase("cop") && server.equalsIgnoreCase(tempCopIssuer);
         break;
       case ITEM_TYPE_PROVIDER:
       case ITEM_TYPE_RESOURCE_GROUP:
@@ -288,7 +295,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     }
   }
 
-  private Future<Boolean> isValidIssuer(JwtData jwtData, String issuer) {
+  Future<Boolean> isValidIssuer(JwtData jwtData, String issuer) {
     if (jwtData.getIss().equalsIgnoreCase(issuer)) {
       return Future.succeededFuture(true);
     } else {
@@ -296,7 +303,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     }
   }
 
-  private Future<Boolean> isValidAdmin(JwtData jwtData) {
+  Future<Boolean> isValidAdmin(JwtData jwtData) {
     // TODO: cop_admin or cos_admin???
     if (jwtData.getRole().equalsIgnoreCase("cop_admin")) {
       return Future.succeededFuture(true);

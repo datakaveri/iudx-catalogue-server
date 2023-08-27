@@ -33,9 +33,6 @@ import org.apache.logging.log4j.Logger;
 public class ValidatorServiceImpl implements ValidatorService {
 
   private static final Logger LOGGER = LogManager.getLogger(ValidatorServiceImpl.class);
-  private static final Pattern UUID_PATTERN =
-      Pattern.compile(
-          "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
   /** ES client. */
   static ElasticClient client;
 
@@ -274,7 +271,6 @@ public class ValidatorServiceImpl implements ValidatorService {
     String resourceGroup = request.getString(RESOURCE_GRP);
     String resourceServer = request.getString(RESOURCE_SVR);
 
-    LOGGER.debug("Info: Verifying resourceGroup and provider " + resourceGroup + provider);
     client.searchGetId(
         RESOURCE_CHECK_QUERY
             .replace("$1", resourceServer)
