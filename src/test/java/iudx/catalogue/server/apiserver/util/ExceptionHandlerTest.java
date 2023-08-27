@@ -50,6 +50,7 @@ public class ExceptionHandlerTest {
         exceptionHandler.handle(routingContext);
         vertxTestContext.completeNow();
     }
+
     @Test
     @DisplayName("Test handleDecodeException method with string ROUTE_ITEM ")
     public void testHandleDecodeExceptionRouteItem(VertxTestContext vertxTestContext) {
@@ -67,6 +68,7 @@ public class ExceptionHandlerTest {
         exceptionHandler.handleDecodeException(routingContext);
         vertxTestContext.completeNow();
     }
+
     @Test
     @DisplayName("Test handle method with string ROUTE_SEARCH")
     public void testHandleDecodeExceptionRouteSearch(VertxTestContext vertxTestContext) {
@@ -77,7 +79,7 @@ public class ExceptionHandlerTest {
         when(routingContext.request()).thenReturn(httpServerRequest);
         when(httpServerRequest.uri()).thenReturn(ROUTE_SEARCH);
         when(routingContext.response()).thenReturn(httpServerResponse);
-        when(httpServerResponse.setStatusCode(500)).thenReturn(httpServerResponse);
+        when(httpServerResponse.setStatusCode(400)).thenReturn(httpServerResponse);
         when(httpServerResponse.putHeader(anyString(),anyString())).thenReturn(httpServerResponse);
         when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
         ExceptionHandler exceptionHandler=new ExceptionHandler();
@@ -85,6 +87,7 @@ public class ExceptionHandlerTest {
         exceptionHandler.handleDecodeException(routingContext);
         vertxTestContext.completeNow();
     }
+
     @Test
     @DisplayName("Test handleDecodeException method with random string")
     public void testHandleDecodeExceptionRandom(VertxTestContext vertxTestContext) {
@@ -95,7 +98,7 @@ public class ExceptionHandlerTest {
         when(routingContext.request()).thenReturn(httpServerRequest);
         when(httpServerRequest.uri()).thenReturn(ROUTE_SEARCH);
         when(routingContext.response()).thenReturn(httpServerResponse);
-        when(httpServerResponse.setStatusCode(500)).thenReturn(httpServerResponse);
+        when(httpServerResponse.setStatusCode(400)).thenReturn(httpServerResponse);
         when(httpServerResponse.putHeader(anyString(),anyString())).thenReturn(httpServerResponse);
         when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
         ExceptionHandler exceptionHandler=new ExceptionHandler();
@@ -118,6 +121,7 @@ public class ExceptionHandlerTest {
         exceptionHandler.handleClassCastException(routingContext);
         vertxTestContext.completeNow();
     }
+
     @Test
     @DisplayName("Test handleClassCastException method")
     public void testHandleClassCastException2(VertxTestContext vertxTestContext) {
@@ -127,7 +131,6 @@ public class ExceptionHandlerTest {
         when(httpServerRequest.uri()).thenReturn(ROUTE_RATING);
         when(routingContext.response()).thenReturn(httpServerResponse);
         when(httpServerResponse.setStatusCode(400)).thenReturn(httpServerResponse);
-        when(httpServerResponse.setStatusCode(500)).thenReturn(httpServerResponse);
         when(httpServerResponse.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)).thenReturn(httpServerResponse);
         when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
         ExceptionHandler exceptionHandler=new ExceptionHandler();
@@ -135,20 +138,20 @@ public class ExceptionHandlerTest {
         exceptionHandler.handleDecodeException(routingContext);
         vertxTestContext.completeNow();
     }
+
     @Test
     @DisplayName("Test handleClassCastException method")
     public void testHandleDecodeException(VertxTestContext vertxTestContext) {
         ExceptionHandler exceptionHandler=new ExceptionHandler();
         when(routingContext.failure()).thenReturn(decodeException);
-        when(routingContext.request()).thenReturn(httpServerRequest);
-        when(httpServerRequest.uri()).thenReturn(ROUTE_ITEMS);
         when(routingContext.response()).thenReturn(httpServerResponse);
-        when(httpServerResponse.setStatusCode(500)).thenReturn(httpServerResponse);
+        when(httpServerResponse.setStatusCode(400)).thenReturn(httpServerResponse);
         when(httpServerResponse.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)).thenReturn(httpServerResponse);
         when(httpServerResponse.end(anyString())).thenReturn(voidFuture);
        exceptionHandler.handle(routingContext);
         vertxTestContext.completeNow();
     }
+
     @Test
     @DisplayName("Test handleClassCastException method")
     public void testClassCastException(VertxTestContext vertxTestContext) {

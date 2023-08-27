@@ -8,10 +8,14 @@ import static iudx.catalogue.server.util.Constants.ITEM_TYPE_INSTANCE;
 
 import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class AdminAuthStrategy implements AuthorizationStratergy {
+  private static Logger LOGGER = LogManager.getLogger(AdminAuthStrategy.class);
   static List<AuthorizationRequest> accessList = new ArrayList<>();
   private static volatile AdminAuthStrategy instance;
   private Api api;
@@ -44,12 +48,12 @@ public class AdminAuthStrategy implements AuthorizationStratergy {
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_PROVIDER));
     accessList.add(new AuthorizationRequest(POST, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
-    accessList.add(new AuthorizationRequest(POST, ROUTE_MLAYER_INSTANCE, ""));
-    accessList.add(new AuthorizationRequest(DELETE, ROUTE_MLAYER_INSTANCE, ""));
-    accessList.add(new AuthorizationRequest(PUT, ROUTE_MLAYER_INSTANCE, ""));
-    accessList.add(new AuthorizationRequest(POST, ROUTE_MLAYER_DOMAIN, ""));
-    accessList.add(new AuthorizationRequest(PUT, ROUTE_MLAYER_DOMAIN, ""));
-    accessList.add(new AuthorizationRequest(DELETE, ROUTE_MLAYER_DOMAIN, ""));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteMlayerInstance(), ""));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteMlayerInstance(), ""));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteMlayerInstance(), ""));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteMlayerDomains(), ""));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteMlayerDomains(), ""));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteMlayerDomains(), ""));
   }
 
   @Override
