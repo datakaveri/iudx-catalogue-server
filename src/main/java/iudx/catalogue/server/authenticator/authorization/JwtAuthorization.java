@@ -11,7 +11,7 @@ public class JwtAuthorization {
     this.authStrategy = authStrategy;
   }
 
-  public boolean isAuthorized(AuthorizationRequest authRequest, JwtData jwtData) {
-    return authStrategy.isAuthorized(authRequest, jwtData);
+  public boolean isAuthorized(AuthorizationRequest authRequest) {
+    return authStrategy.isAuthorized(authRequest);
   }
 }

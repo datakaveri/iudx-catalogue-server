@@ -26,6 +26,10 @@ public class AuthorizationContextFactory {
       case "admin": {
         return AdminAuthStrategy.getInstance(api);
       }
+      // TODO: cop_admin or cos_admin???
+      case "cop_admin": {
+        return CosAdminAuthStrategy.getInstance(api);
+      }
       default:
         throw new IllegalArgumentException(role + "role is not defined in IUDX");
     }

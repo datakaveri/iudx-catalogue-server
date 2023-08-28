@@ -108,7 +108,7 @@ public final class CrudApis {
     } catch (Exception e) {
       LOGGER.error("Fail: Invalid type");
       RespBuilder respBuilder = new RespBuilder()
-          .withTitle(TYPE_INVALID_SCHEMA)
+          .withType(TYPE_INVALID_SCHEMA)
           .withTitle(TITLE_INVALID_SCHEMA)
           .withDetail("Invalid type for item/type not present");
       response.setStatusCode(400)
@@ -154,90 +154,75 @@ public final class CrudApis {
                 .put(ITEM_TYPE, itemType);
 
             if (isUac) {
-              if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-                if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-                  handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
-                } else {
-                  String resourceServer = requestBody.getString(RESOURCE_SVR);
-                  Future<JsonObject> rsUrlFuture =
-                      getItemType(
-                          resourceServer,
-                          "getRsUrl",
-                          itemType);
-
-                  rsUrlFuture.onComplete(
-                      rsUrl -> {
-                        if (rsUrl.succeeded()) {
-                          requestBody.put(
-                              RESOURCE_SERVER_URL,
-                              rsUrl.result().getString(RESOURCE_SERVER_URL));
-                          handleItemCreation(
-                              routingContext, requestBody, response, jwtAuthenticationInfo);
-                        }
-                      });
-                }
-              } else {
-
-                Future<JsonObject> rgFuture =
-                    getItemType(
-                        requestBody.getString(RESOURCE_GRP),
-                        "getRsUrl",
-                        ITEM_TYPE_RESOURCE_GROUP);
-
-                rgFuture.onComplete(
-                    rg -> {
-                      if (rg.succeeded()) {
-                        LOGGER.debug(rg.result());
-                        Future<JsonObject> rsUrlFuture =
-                            getItemType(
-                                rg.result().getString(RESOURCE_SVR),
-                                "getRsUrl",
-                                itemType);
-
-                        rsUrlFuture.onComplete(
-                            rsUrl -> {
-                              if (rsUrl.succeeded()) {
-                                requestBody.put(
-                                    RESOURCE_SERVER_URL,
-                                    rsUrl.result().getString(RESOURCE_SERVER_URL));
-                                handleItemCreation(
-                                    routingContext, requestBody, response, jwtAuthenticationInfo);
-                              }
-                            });
-                      }
-                    });
-              }
+              //              jwtAuthenticationInfo.put("cos_admin",
+              // requestBody.getString("cos_admin"));
+              handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
             } else {
-              if (itemType.equals(ITEM_TYPE_PROVIDER)) {
-                jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
-                // get provider keycloack id for auth
-                jwtAuthenticationInfo.put(PROVIDER_KC_ID, requestBody.getString(PROVIDER_KC_ID));
+              if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-                jwtAuthenticationInfo.put(ID, requestBody.getString(ID));
-                jwtAuthenticationInfo.put(RESOURCE_SERVER_URL,
-                    requestBody.getString(RESOURCE_SERVER_URL));
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
+              } else if (itemType.equals(ITEM_TYPE_PROVIDER)) {
+                Future<JsonObject> resourceServerUrlFuture =
+                    getParentObjectInfo(requestBody.getString(RESOURCE_SVR), "getRsUrl", "");
+                // add resource server url to provider body
+                resourceServerUrlFuture.onComplete(
+                    resourceServerUrl -> {
+                      if (resourceServerUrl.succeeded()) {
+                        String rsUrl =
+                            resourceServerUrl
+                                .result()
+                                .getJsonObject("resourceServers")
+                                .getString(RESOURCE_SERVER_URL);
+                        // used for relationship apis
+                        String cosId = resourceServerUrl.result().getString(OWNER);
+                        // used at uac authorization
+
+                        jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+                        requestBody.put(RESOURCE_SERVER_URL, rsUrl);
+                        requestBody.put(OWNER, cosId);
+                        handleItemCreation(
+                            routingContext, requestBody, response, jwtAuthenticationInfo);
+                      } else {
+                        response
+                            .setStatusCode(400)
+                            .end(
+                                new RespBuilder()
+                                    .withType(TYPE_LINK_VALIDATION_FAILED)
+                                    .withTitle(TITLE_LINK_VALIDATION_FAILED)
+                                    .withDetail("Resource Server not found")
+                                    .getResponse());
+                      }
+                    });
               } else {
-                jwtAuthenticationInfo.put(ID, requestBody.getString(PROVIDER));
                 Future<JsonObject> providerKcIdFuture =
-                    getItemType(requestBody.getString(PROVIDER), "getItemType", "");
+                    getParentObjectInfo(requestBody.getString(PROVIDER), "getItemType", "");
                 // add provider kc id to requestBody
                 providerKcIdFuture.onComplete(
                     providerKcId -> {
                       if (providerKcId.succeeded()) {
+                        LOGGER.debug(providerKcId.result());
                         String kcId = providerKcId.result().getString(PROVIDER_KC_ID);
+                        String rsUrl = providerKcId.result().getString(RESOURCE_SERVER_URL);
+                        // cosId is used for relationship apis
+
                         jwtAuthenticationInfo.put(PROVIDER_KC_ID, kcId);
+                        jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
                         requestBody.put(PROVIDER_KC_ID, kcId);
+
+                        String cosId = providerKcId.result().getString(OWNER);
+                        requestBody.put(OWNER, cosId);
                         handleItemCreation(
                             routingContext, requestBody, response, jwtAuthenticationInfo);
                       } else {
-                        response.setStatusCode(400)
-                            .end(new RespBuilder()
-                                .withType(TYPE_ITEM_NOT_FOUND)
-                                .withTitle(TITLE_ITEM_NOT_FOUND)
-                                .withDetail("Provider not found")
-                                .getResponse());
+                        response
+                            .setStatusCode(400)
+                            .end(
+                                new RespBuilder()
+                                    .withType(TYPE_LINK_VALIDATION_FAILED)
+                                    .withTitle(TITLE_LINK_VALIDATION_FAILED)
+                                    .withDetail("Provider not found")
+                                    .getResponse());
                       }
                     });
               }
@@ -259,7 +244,7 @@ public final class CrudApis {
               .end(new RespBuilder()
                       .withType(TYPE_TOKEN_INVALID)
                       .withTitle(TITLE_TOKEN_INVALID)
-                      .withDetail(DETAIL_INVALID_TOKEN)
+                      .withDetail(authHandler.cause().getMessage())
                       .getResponse());
         } else {
           LOGGER.debug("Success: JWT Auth successful");
@@ -267,14 +252,6 @@ public final class CrudApis {
           validatorService.validateItem(requestBody, valhandler -> {
             if (valhandler.failed()) {
               LOGGER.error("Fail: Item validation failed;" + valhandler.cause().getMessage());
-              if (valhandler.cause().getMessage().contains("id not found")) {
-                response.setStatusCode(404)
-                        .end(new RespBuilder()
-                                .withType(TYPE_ITEM_NOT_FOUND)
-                                .withTitle(TITLE_ITEM_NOT_FOUND)
-                                .getResponse());
-                return;
-              }
               if (valhandler.cause().getMessage().contains("validation failed. Incorrect id")) {
                 response.setStatusCode(400)
                         .end(new RespBuilder()
@@ -398,12 +375,10 @@ public final class CrudApis {
     }
   }
 
-
   /**
    * Delete Item.
    *
-   * @param routingContext {@link RoutingContext}
-   * @TODO Throw error if load failed
+   * @param routingContext {@link RoutingContext} @TODO Throw error if load failed
    */
   // tag::db-service-calls[]
   public void deleteItemHandler(RoutingContext routingContext) {
@@ -426,125 +401,133 @@ public final class CrudApis {
     //  populating JWT authentication info ->
     HttpServerRequest request = routingContext.request();
     jwtAuthenticationInfo
-              .put(TOKEN, request.getHeader(HEADER_TOKEN))
-              .put(METHOD, REQUEST_POST)
-              .put(API_ENDPOINT, api.getRouteItems());
+        .put(TOKEN, request.getHeader(HEADER_TOKEN))
+        .put(METHOD, REQUEST_DELETE)
+        .put(API_ENDPOINT, api.getRouteItems());
     if (validateId(itemId)) {
-      Future<JsonObject> itemTypeFuture  = getItemType(itemId, "getItemType",  "");
-      itemTypeFuture.onComplete(itemTypeHandler -> {
-        if (itemTypeHandler.succeeded()) {
+      Future<JsonObject> itemTypeFuture = getParentObjectInfo(itemId, "getItemType", "");
+      itemTypeFuture.onComplete(
+          itemTypeHandler -> {
+            if (itemTypeHandler.succeeded()) {
 
-          Set<String> types =
-              new HashSet<String>(
-                  itemTypeHandler.result()
-                      .getJsonArray(TYPE)
-                      .getList());
-          types.retainAll(ITEM_TYPES);
-          String itemType = types.toString().replaceAll("\\[", "").replaceAll("\\]", "");
-          LOGGER.debug("itemType : {} ", itemType);
-          String providerkcId = itemTypeHandler.result().getString(PROVIDER_KC_ID);
-          jwtAuthenticationInfo
-              .put(TOKEN, request.getHeader(HEADER_TOKEN))
-              .put(METHOD, REQUEST_DELETE)
-              .put(API_ENDPOINT, api.getRouteItems())
-              .put(PROVIDER_KC_ID, providerkcId != null ? providerkcId : "")
-              .put(ITEM_TYPE, itemType);
+              Set<String> types =
+                  new HashSet<String>(itemTypeHandler.result().getJsonArray(TYPE).getList());
+              types.retainAll(ITEM_TYPES);
+              String itemType = types.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+              LOGGER.debug("itemType : {} ", itemType);
+              jwtAuthenticationInfo.put(ITEM_TYPE, itemType);
+              if (isUac) {
+                if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
+                  if (itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
+                    handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                  }
 
-          LOGGER.debug(itemTypeHandler.result());
-          if (isUac) {
-            if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-              if (itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
-                handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                  String resourceServer =
+                      itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)
+                          ? itemId
+                          : itemTypeHandler.result().getString(RESOURCE_SVR);
+                  Future<JsonObject> rsUrlFuture =
+                      getParentObjectInfo(resourceServer, "getRsUrl", itemType);
+
+                  rsUrlFuture.onComplete(
+                      rsUrl -> {
+                        if (rsUrl.succeeded()) {
+                          jwtAuthenticationInfo.put(
+                              RESOURCE_SERVER_URL,
+                              rsUrl
+                                  .result()
+                                  .getJsonObject("resourceServers")
+                                  .getString(RESOURCE_SERVER_URL));
+                          handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                        }
+                      });
+                } else {
+
+                  Future<JsonObject> rgFuture =
+                      getParentObjectInfo(
+                          itemTypeHandler.result().getString(RESOURCE_GRP),
+                          "getRsUrl",
+                          ITEM_TYPE_RESOURCE_GROUP);
+
+                  rgFuture.onComplete(
+                      rg -> {
+                        if (rg.succeeded()) {
+                          LOGGER.debug(rg.result());
+                          Future<JsonObject> rsUrlFuture =
+                              getParentObjectInfo(
+                                  rg.result().getString(RESOURCE_SVR), "getRsUrl", itemType);
+
+                          rsUrlFuture.onComplete(
+                              rsUrl -> {
+                                if (rsUrl.succeeded()) {
+                                  jwtAuthenticationInfo.put(
+                                      RESOURCE_SERVER_URL,
+                                      rsUrl
+                                          .result()
+                                          .getJsonObject("resourceServers")
+                                          .getString(RESOURCE_SERVER_URL));
+                                  handleItemDeletion(
+                                      response, jwtAuthenticationInfo, requestBody, itemId);
+                                }
+                              });
+                        }
+                      });
+                }
+              } else {
+                if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+                  handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+                  handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+                  LOGGER.debug(itemTypeHandler.result());
+                  String rsUrl = itemTypeHandler.result().getString(RESOURCE_SERVER_URL, "");
+                  jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+                  handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                } else {
+                  LOGGER.debug(itemTypeHandler.result());
+                  Future<JsonObject> providerInfoFuture =
+                      getParentObjectInfo(
+                          itemTypeHandler.result().getString(PROVIDER), "getItemType", itemType);
+                  providerInfoFuture.onComplete(
+                      providerInfo -> {
+                        if (providerInfo.succeeded()) {
+                          LOGGER.debug(providerInfo.result());
+                          String rsUrl = providerInfo.result().getString(RESOURCE_SERVER_URL, "");
+                          String providerKcId = providerInfo.result().getString(PROVIDER_KC_ID, "");
+                          jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+                          jwtAuthenticationInfo.put(PROVIDER_KC_ID, providerKcId);
+                          handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
+                        } else {
+                          response
+                              .setStatusCode(400)
+                              .end(
+                                  new RespBuilder()
+                                      .withType(TYPE_ITEM_NOT_FOUND)
+                                      .withTitle(TITLE_ITEM_NOT_FOUND)
+                                      .withDetail("item is not found")
+                                      .getResponse());
+                        }
+                      });
+                }
               }
-
-              String resourceServer = itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)
-                  ? itemId
-                  : itemTypeHandler.result().getString(RESOURCE_SVR);
-              Future<JsonObject> rsUrlFuture =
-                  getItemType(
-                      resourceServer,
-                      "getRsUrl",
-                      itemType);
-
-              rsUrlFuture.onComplete(
-                  rsUrl -> {
-                    if (rsUrl.succeeded()) {
-                      jwtAuthenticationInfo.put(
-                          RESOURCE_SERVER_URL,
-                          rsUrl.result().getString(RESOURCE_SERVER_URL));
-                      handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
-                    }
-                  });
             } else {
-
-              Future<JsonObject> rgFuture =
-                  getItemType(
-                      itemTypeHandler.result().getString(RESOURCE_GRP),
-                      "getRsUrl",
-                      ITEM_TYPE_RESOURCE_GROUP);
-
-              rgFuture.onComplete(
-                  rg -> {
-                    if (rg.succeeded()) {
-                      LOGGER.debug(rg.result());
-                      Future<JsonObject> rsUrlFuture =
-                          getItemType(
-                              rg.result().getString(RESOURCE_SVR),
-                              "getRsUrl",
-                              itemType);
-
-                      rsUrlFuture.onComplete(
-                          rsUrl -> {
-                            if (rsUrl.succeeded()) {
-                              jwtAuthenticationInfo.put(
-                                  RESOURCE_SERVER_URL,
-                                  rsUrl.result().getString(RESOURCE_SERVER_URL));
-                              handleItemDeletion(response, jwtAuthenticationInfo,
-                                      requestBody, itemId);
-                            }
-                          });
-                    }
-                  });
+              if (itemTypeHandler.cause().getMessage().contains(TYPE_ITEM_NOT_FOUND)) {
+                response.setStatusCode(404).end(itemTypeHandler.cause().getMessage());
+              } else {
+                response.setStatusCode(400).end(itemTypeHandler.cause().getMessage());
+              }
             }
-          } else {
-            if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-              Future<JsonObject> rsUrlFuture =
-                  getItemType(
-                      itemId,
-                      "getRsUrl",
-                      itemType);
-
-              rsUrlFuture.onComplete(
-                  rsUrl -> {
-                    if (rsUrl.succeeded()) {
-                      requestBody.put(
-                          RESOURCE_SERVER_URL,
-                          rsUrl.result().getString(RESOURCE_SERVER_URL));
-                      handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
-                    }
-                  });
-            } else {
-              handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
-            }
-          }
-        } else {
-          if (itemTypeHandler.cause().getMessage().contains(TYPE_ITEM_NOT_FOUND)) {
-            response.setStatusCode(404)
-                .end(itemTypeHandler.cause().getMessage());
-          } else {
-            response.setStatusCode(400)
-                .end(itemTypeHandler.cause().getMessage());
-          }
-        }
-      });
+          });
     } else {
       LOGGER.error("Fail: Invalid request payload");
-      response.setStatusCode(400)
-              .end(new RespBuilder()
-                        .withType(TYPE_INVALID_SYNTAX)
-                        .withTitle(TITLE_INVALID_SYNTAX)
-                        .withDetail("Fail: The syntax of the id is incorrect")
-                        .getResponse());
+      response
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_SYNTAX)
+                  .withTitle(TITLE_INVALID_SYNTAX)
+                  .withDetail("Fail: The syntax of the id is incorrect")
+                  .getResponse());
     }
   }
 
@@ -559,7 +542,7 @@ public final class CrudApis {
                 .end(new RespBuilder()
                     .withType(TYPE_TOKEN_INVALID)
                     .withTitle(TITLE_TOKEN_INVALID)
-                    .withDetail(DETAIL_INVALID_TOKEN)
+                    .withDetail(authHandler.cause().getMessage())
                     .getResponse());
           } else {
             LOGGER.debug("Success: JWT Auth successful");
@@ -592,7 +575,7 @@ public final class CrudApis {
         });
   }
 
-  Future<JsonObject> getItemType(String itemId, String searchType, String itemType) {
+  Future<JsonObject> getParentObjectInfo(String itemId, String searchType, String itemType) {
     Promise<JsonObject> promise = Promise.promise();
     JsonObject req = new JsonObject().put(ID, itemId)
             .put(SEARCH_TYPE, searchType)
@@ -658,7 +641,7 @@ public final class CrudApis {
                 .end(new RespBuilder()
                           .withType(TYPE_TOKEN_INVALID)
                           .withTitle(TITLE_TOKEN_INVALID)
-                          .withDetail(DETAIL_INVALID_TOKEN)
+                          .withDetail(authhandler.cause().getMessage())
                           .getResponse());
         return;
       } else {
@@ -720,7 +703,7 @@ public final class CrudApis {
             .end(new RespBuilder()
                         .withType(TYPE_TOKEN_INVALID)
                         .withTitle(TITLE_TOKEN_INVALID)
-                        .withDetail(DETAIL_INVALID_TOKEN)
+                        .withDetail(authhandler.cause().getMessage())
                         .getResponse());
         return;
       } else {

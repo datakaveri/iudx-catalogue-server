@@ -52,6 +52,7 @@
       "examples": [
         "<item-id>"
       ],
+      "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$",
       "maxLength": 512
     },
     "userID" : {

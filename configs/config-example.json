@@ -6,7 +6,7 @@
   "commonConfig": {
     "dxApiBasePath": "",
     "dxAuthBasePath": "",
-    "isUACInstance": true
+    "isUACInstance": false
   },
   "clusterId": "iudx-catalogue-cluster",
   "host": "server",
@@ -31,12 +31,11 @@
     {
       "id": "iudx.catalogue.server.authenticator.AuthenticationVerticle",
       "host": "",
+      "tempCopAudience": "",
       "verticleInstances": 1,
       "authServerHost": "",
-      "uacAdmin": "",
-      "copAdmin" : "",
-      "keycloakServerHost": "",
-      "certsEndpoint": "",
+      "issuer": "",
+      "tempCopIssuer": "",
       "jwtIgnoreExpiry": true
     },
     {

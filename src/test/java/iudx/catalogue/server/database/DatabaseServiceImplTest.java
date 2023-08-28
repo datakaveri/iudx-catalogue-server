@@ -1232,10 +1232,10 @@ public class DatabaseServiceImplTest {
         handler -> {
           if (handler.succeeded()) {
             verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
-            vertxTestContext.failNow("Fail");
 
-          } else {
             vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow("Fail");
           }
         });
   }
@@ -1273,7 +1273,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1319,7 +1319,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {

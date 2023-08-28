@@ -4,5 +4,5 @@ import iudx.catalogue.server.authenticator.model.JwtData;
 
 public interface AuthorizationStratergy {
 
-  boolean isAuthorized(AuthorizationRequest authRequest, JwtData jwtData);
+  boolean isAuthorized(AuthorizationRequest authRequest);
 }

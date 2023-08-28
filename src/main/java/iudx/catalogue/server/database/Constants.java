@@ -203,7 +203,7 @@ public class Constants {
               + "\"iudx:ResourceServer\"}}]}}]}},\"_source\":{\"includes\":[\"resourceServer\","
               + "\"id\",\"type\",\"label\",\"description\",\"instance\",\"accessPolicy\","
               + "\"dataSample\", \"dataDescriptor\",\"@context\",\"dataQualityFile\","
-              + "\"dataSampleFile\",\"resourceType\",\"resourceServerHTTPAccessURL\"]},"
+              + "\"dataSampleFile\",\"resourceType\",\"resourceServerURL\"]},"
               + "\"size\": 10000}";
   public static final String GET_MLAYER_INSTANCE_ICON =
       "{\"query\":{\"match\":{\"name\":\"$1\"}},\"_source\": {\"includes\": [\"icon\"]}}";
@@ -257,10 +257,10 @@ public class Constants {
           "],\"minimum_should_match\":1,\"must\":[{\"match\":{\"status\":\"approved\"}}]}}}";
 
   public static final String QUERY_RESOURCE_GRP =
-          "{\"query\":{\"bool\":{\"should\":[{\"term\":{\"id.keyword\":\"$1\"}},{\"term\":"
-                  + "{\"resourceGroup.keyword\": \"$1\"}},{\"term\":{\"provider.keyword\":\"$1\"}},"
-                  + "{\"term\":{\"resourceServer.keyword\": \"$1\"}}]}}}";
-
+      "{\"query\":{\"bool\":{\"should\":[{\"term\":{\"id.keyword\":\"$1\"}},{\"term\":"
+          + "{\"resourceGroup.keyword\": \"$1\"}},{\"term\":{\"provider.keyword\":\"$1\"}},"
+          + "{\"term\":{\"resourceServer.keyword\": \"$1\"}},{\"term\":"
+          + "{\"owner.keyword\": \"$1\"}}]}}}";
 
   public static final String NLP_SEARCH = "{\"query\": {\"script_score\": {\"query\": "
           + "{\"match_all\": {}},\"script\":\"source\": \"cosineSimilarity(params.query_vector,"
@@ -269,19 +269,21 @@ public class Constants {
 
   public static final String NLP_LOCATION_SEARCH = "{\"query\": {\"script_score\": {\"query\":"
           + " {\"bool\": {\"should\": [";
-  public static final String GET_TYPE_SEARCH = "{\"query\": {\"bool\": {\"filter\": [{\"terms\": "
-      + "{\"id.keyword\": [\"$1\"],\"boost\": 1}}]}},"
-      + "\"_source\": [\"resourceServer\",\"type\",\"provider\",\"resourceGroup\",\"id\"]}";
+  public static final String GET_TYPE_SEARCH =
+      "{\"query\": {\"bool\": {\"filter\": [{\"terms\": "
+          + "{\"id.keyword\": [\"$1\"],\"boost\": 1}}]}},"
+          + "\"_source\": [\"owner\",\"resourceServer\",\"type\","
+          + "\"provider\",\"resourceGroup\",\"id\"]}";
   public static final String GET_RSGROUP = "{\"query\": {\"bool\": {\"must\": [{\"match\": "
       + "{\"resourceServer.keyword\": \"$1\"}},"
-      + "{\"term\": {\"type.keyword\": \"iudx:ResourceGroup\"}}]}},"
+      + "{\"term\": {\"type.keyword\": \"iudx:Provider\"}}]}},"
       + "\"_source\": [\"id\"],\"size\": \"10000\"}";
 
   public static final String GET_RS1 = "{\"query\": {\"bool\": {\"should\": [";
-  public static final String GET_RS2 = "{\"match\": {\"resourceGroup.keyword\": \"$1\"}},";
+  public static final String GET_RS2 = "{\"match\": {\"provider.keyword\": \"$1\"}},";
   public static final String GET_RS3 = "],\"minimum_should_match\": 1}}}";
   public static final String GET_DOC_QUERY_WITH_TYPE =
-          "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": "
+          "{\"_source\":[\"$2\"],\"query\":{\"bool\": {\"must\": "
                   + "[{\"term\": {\"id.keyword\": \"$1\"}},"
                   + "{\"match\":{ \"type.keyword\": \"$3\"}}]}}}";
 

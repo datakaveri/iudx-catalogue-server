@@ -19,11 +19,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 /**
  * QueryMapper class to convert NGSILD query into json object for the purpose of debugrmation
  * exchange among different verticals.
- *
  */
 public class QueryMapper {
 
@@ -63,8 +61,7 @@ public class QueryMapper {
           jsonBody.put(paramKey, paramValue);
         } else if (excepAttribute.contains(paramKey) && !paramKey.equals("q")) {
           jsonBody.put(paramKey, Double.valueOf(paramValue).intValue());
-        } else if (paramKey.equals(Q_VALUE)
-            && !regPatternText.matcher(paramValue).matches()) {
+        } else if (paramKey.equals(Q_VALUE) && !regPatternText.matcher(paramValue).matches()) {
           LOGGER.error("Error: Invalid text string");
           return null;
         } else {
@@ -117,7 +114,6 @@ public class QueryMapper {
     return jsonBody;
   }
 
-
   /**
    * Validates the request parameters, headers to compliance with default values.
    *
@@ -149,8 +145,9 @@ public class QueryMapper {
             Double tempValue = Double.parseDouble(value);
             if (Double.isFinite(tempValue)) {
 
-              boolean isPrecise = BigDecimal.valueOf(tempValue).scale() >= 0
-                  && BigDecimal.valueOf(tempValue).scale() <= COORDINATES_PRECISION;
+              boolean isPrecise =
+                  BigDecimal.valueOf(tempValue).scale() >= 0
+                      && BigDecimal.valueOf(tempValue).scale() <= COORDINATES_PRECISION;
 
               if (isPrecise == Boolean.FALSE) {
                 LOGGER.error("Error: Overflow coordinate precision");
@@ -177,9 +174,9 @@ public class QueryMapper {
         String geometry = requestBody.getString(GEOMETRY, "");
         int countStr = StringUtils.countMatches(coordinateStr.substring(0, 5), "[");
         if (!(geometry.equalsIgnoreCase(POLYGON) && countStr == 3)
-                && !(geometry.equalsIgnoreCase(POINT) && countStr == 1)
-                && !((geometry.equalsIgnoreCase(LINESTRING)
-            || geometry.equals(BBOX)) && countStr == 2)) {
+            && !(geometry.equalsIgnoreCase(POINT) && countStr == 1)
+            && !((geometry.equalsIgnoreCase(LINESTRING) || geometry.equals(BBOX))
+                && countStr == 2)) {
           LOGGER.error("Error: Invalid coordinate format");
           return errResponse
               .put(TYPE, TYPE_INVALID_PROPERTY_VALUE)
@@ -198,9 +195,9 @@ public class QueryMapper {
           }
         } else {
           return new RespBuilder()
-                  .withType(TYPE_INVALID_SYNTAX)
-                  .withTitle(TITLE_INVALID_SYNTAX)
-                  .getJsonResponse();
+              .withType(TYPE_INVALID_SYNTAX)
+              .withTitle(TITLE_INVALID_SYNTAX)
+              .getJsonResponse();
         }
       }
     }
@@ -262,14 +259,13 @@ public class QueryMapper {
     }
 
     /* Validating ResponseFilter limits */
-    if (searchType.contains(RESPONSE_FILTER) && requestBody.getJsonArray(FILTER,
-            new JsonArray()).size() > FILTER_VALUE_SIZE) {
+    if (searchType.contains(RESPONSE_FILTER)
+        && requestBody.getJsonArray(FILTER, new JsonArray()).size() > FILTER_VALUE_SIZE) {
 
       LOGGER.error("Error: The filter in query param has exceeded the limit");
       return errResponse
-            .put(TYPE, TYPE_BAD_FILTER)
-            .put(DESC, "The max number of 'filter' should be " + FILTER_VALUE_SIZE);
-
+          .put(TYPE, TYPE_BAD_FILTER)
+          .put(DESC, "The max number of 'filter' should be " + FILTER_VALUE_SIZE);
     }
 
     /* Validating length of instance header */

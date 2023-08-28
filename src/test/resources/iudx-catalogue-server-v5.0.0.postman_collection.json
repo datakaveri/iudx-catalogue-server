@@ -204,6 +204,63 @@
 					"name": "Create Item",
 					"item": [
 						{
+							"name": "201 (success) - Create COS item",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"pm.test(\"Check response header\", function () {",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"    pm.expect(body.results).to.have.property(\"id\");",
+											"    const ID = body.results.id;",
+											"    pm.globals.set(\"cos_id\", ID);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{cosAdminToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:COS\"\n    ],\n    \"name\": \"cos.cop.iudx.org.in\",\n    \"description\": \"COS Smart Kalyan-Dombivli Development Corporation Limited\",\n    \"COS_URL\": [\n        \"kdmc.cop-nec.iudx.org.in\"\n    ],\n    \"COS_UI\": \"https://catalogue.kdmc.cop-nec.iudx.org.in/\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/item",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "201 (success) - Create an DX Resource Server Item Entity",
 							"event": [
 								{
@@ -236,7 +293,7 @@
 									{
 										"key": "token",
 										"type": "text",
-										"value": "{{adminToken}}"
+										"value": "{{cosAdminToken}}"
 									},
 									{
 										"key": "options",
@@ -247,7 +304,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceServer\"\r\n          ],\r\n          \"name\": \"fs.iudx.io\",\r\n          \"description\": \"dummy  IUDX resource server\",\r\n          \"tags\": [\r\n            \"IUDX\",\r\n            \"Resource\",\r\n            \"Server\",\r\n            \"Platform\"\r\n          ],\r\n          \"owner\": \"fd47486b-3497-4248-ac1e-082e4d37a66c\",\r\n          \"resourceServerHTTPAccessURL\": \"cop.iudx.io\",\r\n          \"resourceServerOrg\":  {\r\n                    \"name\": \"iudx\",\r\n                    \"additionalInfoURL\": \"https://iudx.org.in\",\r\n                    \"location\": {\r\n                        \"type\": \"Place\",\r\n                        \"address\": \"IISc, Bangalore\",\r\n                        \"geometry\": {\r\n                            \"type\": \"Point\",\r\n                            \"coordinates\": [\r\n                                77.570423,\r\n                                13.013945\r\n                            ]\r\n                        }\r\n                    }\r\n                }\r\n        }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServer\",\r\n    \"description\": \"Multi tenanted IUDX resource server\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"owner\": \"{{cos_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServers\": {\r\n        \"name\": \"iudx-rs\",\r\n        \"resourceServerURL\": \"cat-test.iudx.io\",\r\n        \"subdomains\": [\r\n            {\r\n                \"protocol\": \"http\",\r\n                \"accessURL\": \"rs\",\r\n                \"port\": 8080\r\n            },\r\n            {\r\n                \"protocol\": \"amqps\",\r\n                \"accessURL\": \"databroker\",\r\n                \"port\": 5672\r\n            },\r\n            {\r\n                \"protocol\": \"ftp\",\r\n                \"accessURL\": \"file\",\r\n                \"port\": 8090\r\n            }\r\n        ]\r\n    },\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -300,7 +357,7 @@
 									{
 										"key": "token",
 										"type": "text",
-										"value": "{{token}}"
+										"value": "{{adminToken}}"
 									},
 									{
 										"key": "instance",
@@ -311,7 +368,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"uuid-test\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"description\": \"provider id for uuid test\",\r\n    \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"_summary\": \"uuid test provider id\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"IudxProvider\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"description\": \"provider id for uuid test\",\r\n    \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"_summary\": \"uuid test provider id\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -375,7 +432,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"agra-swachhata-app\",\r\n    \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"reporting\",\r\n        \"issue\",\r\n        \"garbage dump\",\r\n        \"debris removal\",\r\n        \"open defecation\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceServer\": \"{{resource_server_id}}\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"agra-swachhata-apps\",\r\n    \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"reporting\",\r\n        \"issue\",\r\n        \"garbage dump\",\r\n        \"debris removal\",\r\n        \"open defecation\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -439,7 +496,68 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wifi-locations\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wifi-location\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"apd_url\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/item/",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Links) - Create an DX Resource Item",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:LinkValidationFailed\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"type": "text",
+										"value": "{{token}}"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wifi-location\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"apd_url\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"83995e8c-fa80-4241-93c0-e86a66154eb6\",\r\n    \"provider\": \"83995e8c-fa80-4241-93c0-e86a66154eb6\",\r\n    \"resourceGroup\": \"83995e8c-fa80-4241-93c0-e86a66154eb6\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -502,7 +620,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceGroup\",\r\n            \"iudx:IssueReporting\"\r\n          ],\r\n          \"name\": \"agra-swachhata-app\",\r\n          \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n          \"tags\": [\r\n            \"swachhata\",\r\n            \"complaints\",\r\n            \"reporting\",\r\n            \"issue\",\r\n            \"garbage dump\",\r\n            \"debris removal\",\r\n            \"open defecation\",\r\n            \"construction material\",\r\n            \"requests\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceServer\":  \"e0760835-6066-301b-b224-\"\r\n        }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"agra-swachhata-app\",\r\n    \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"reporting\",\r\n        \"issue\",\r\n        \"garbage dump\",\r\n        \"debris removal\",\r\n        \"open defecation\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ]\r\n    \"provider\": \"83995e8c-fa80-4241-93c0\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -580,7 +698,7 @@
 							"response": []
 						},
 						{
-							"name": "401 (invalid jwt credentials) - Create an DX Entity (JWT Token)",
+							"name": "401 (invalid credentials) - Create an DX Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -897,6 +1015,38 @@
 					"name": "Update Item",
 					"item": [
 						{
+							"name": "200 (success) - Update COS item",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "token",
+										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJmZDQ3NDg2Yi0zNDk3LTQyNDgtYWMxZS0wODJlNGQzN2E2NmMiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNvcC5pdWR4LmlvIiwiZXhwIjoxODg2MTM1NTEyLCJpYXQiOjE2ODYxMzU1MTIsImlpZCI6ImNvcDpjb3AuaXVkeC5pbyIsInJvbGUiOiJjb3BfYWRtaW4iLCJjb25zIjp7fX0.NUAk8Ie5kUfyWo6zPay2cJPd9ZXs75pLtsa_nXeuXnJJ6ww51DPRFaS4hJe0Qj7_IV__2QxufnTUsltFYv2SDQ",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:COS\"\n    ],\n    \"name\": \"cos.cop.iudx.org.in\",\n    \"description\": \"COS Smart Kalyan-Dombivli Development Corporation Limited\",\n    \"COS_URL\": [\n        \"kdmc.cop-nec.iudx.org.in\"\n    ],\n    \"COS_UI\": \"https://catalogue.kdmc.cop-nec.iudx.org.in/\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/item",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "200 (success) - Update an Resource Server DX Entity",
 							"event": [
 								{
@@ -928,12 +1078,12 @@
 									{
 										"key": "token",
 										"type": "text",
-										"value": "{{adminToken}}"
+										"value": "{{cosAdminToken}}"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceServer\"\r\n          ],\r\n          \"id\":\"{{resource_server_id}}\",\r\n          \"owner\": \"fd47486b-3497-4248-ac1e-082e4d37a66c\",\r\n          \"name\": \"rs.iudx.io\",\r\n          \"description\": \"updated dummy  IUDX resource server\",\r\n          \"tags\": [\r\n            \"IUDX\",\r\n            \"Resource\",\r\n            \"Server\",\r\n            \"Platform\"\r\n          ],\r\n          \"resourceServerHTTPAccessURL\": \"cop.iudx.io\",\r\n          \"resourceServerOrg\":  {\r\n                    \"name\": \"iudx\",\r\n                    \"additionalInfoURL\": \"https://iudx.org.in\",\r\n                    \"location\": {\r\n                        \"type\": \"Place\",\r\n                        \"address\": \"IISc, Bangalore\",\r\n                        \"geometry\": {\r\n                            \"type\": \"Point\",\r\n                            \"coordinates\": [\r\n                                77.570423,\r\n                                13.013945\r\n                            ]\r\n                        }\r\n                    }\r\n                }\r\n        }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServer\",\r\n    \"description\": \"Multi tenanted IUDX resource server\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"owner\": \"{{cos_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServers\": {\r\n        \"name\": \"iudx-rs\",\r\n        \"resourceServerURL\": \"cat-test.iudx.io\",\r\n        \"subdomains\": [\r\n            {\r\n                \"protocol\": \"http\",\r\n                \"accessURL\": \"rs\",\r\n                \"port\": 8080\r\n            },\r\n            {\r\n                \"protocol\": \"amqps\",\r\n                \"accessURL\": \"databroker\",\r\n                \"port\": 5672\r\n            },\r\n            {\r\n                \"protocol\": \"ftp\",\r\n                \"accessURL\": \"file\",\r\n                \"port\": 8090\r\n            }\r\n        ]\r\n    },\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -985,12 +1135,12 @@
 									{
 										"key": "token",
 										"type": "text",
-										"value": "{{token}}"
+										"value": "{{adminToken}}"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Provider\"\r\n          ],\r\n          \"name\": \"uuid-test\",\r\n          \"description\": \"provider id for uuid test\",\r\n          \"id\": \"{{provider_id}}\",\r\n          \"resourceServer\": \"{{resource_server_id}}\",\r\n          \"providerOrg\": {\r\n            \"name\": \"Datakaveri\",\r\n            \"additionalInfoURL\": \"https://datakaveri.org\",\r\n            \"location\": {\r\n              \"type\": \"Place\",\r\n              \"address\": \"IIsc\",\r\n              \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                  75.92,\r\n                  14.5\r\n                ]\r\n              }\r\n            }\r\n          },\r\n          \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\",\r\n          \"_summary\": \"uuid test provider id\"\r\n        }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"IudxProvider\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"description\": \"provider id for uuid test\",\r\n    \"providerKcId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"_summary\": \"uuid test provider id\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1047,7 +1197,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceGroup\",\r\n            \"iudx:IssueReporting\"\r\n          ],\r\n          \"name\": \"agra-swachhata-app\",\r\n          \"description\": \"updated Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n          \"tags\": [\r\n            \"swachhata\",\r\n            \"complaints\",\r\n            \"reporting\",\r\n            \"issue\",\r\n            \"garbage dump\",\r\n            \"debris removal\",\r\n            \"open defecation\",\r\n            \"construction material\",\r\n            \"requests\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceServer\":  \"{{resource_server_id}}\",\r\n          \"id\":\"{{resource_group_id}}\"\r\n        }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"agra-swachhata-apps\",\r\n    \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"reporting\",\r\n        \"issue\",\r\n        \"garbage dump\",\r\n        \"debris removal\",\r\n        \"open defecation\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1104,64 +1254,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": " {\r\n         \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:PointOfInterest\"\r\n          ],\r\n          \"name\": \"wifi-locations\",\r\n          \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n          \"description\": \"updated The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n          \"tags\": [\r\n            \"Wi-Fi\",\r\n            \"Wi-Fi zone\",\r\n            \"hotspot\",\r\n            \"internet\",\r\n            \"Wi-Fi access\",\r\n            \"Wi-Fi location\",\r\n            \"wireless internet\",\r\n            \"internet access\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceGroup\": \"{{resource_group_id}}\",\r\n          \"id\":\"{{resource_item_id}}\"\r\n        }",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{host}}{{base}}/item/",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"item",
-										""
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "404 (Not Found) - Update an DX Entity",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response header\", function () {\r",
-											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:ItemNotFound\");\r",
-											"});\r",
-											"\r",
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "PUT",
-								"header": [
-									{
-										"key": "token",
-										"type": "text",
-										"value": "{{token}}"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n  \"@context\": \"https://voc.iudx.org.in/\",\r\n  \"type\": [\r\n    \"iudx:Resource\",\r\n    \"iudx:EnvAQM\"\r\n  ],\r\n  \"id\": \"0ed6f05f-2f35-3f70-a472-79763fc81679\",\r\n  \"name\": \"abcde\",\r\n  \"description\": \"Description for Bosch-Climo AQM resource 28\",\r\n  \"tags\": [\r\n    \"New Tag, aqm,flood.test\"\r\n  ],\r\n  \"provider\": \"{{provider_id}}\",\r\n  \"itemStatus\": \"ACTIVE\",\r\n  \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n  \"resourceGroup\": \"{{resource_group_id}}\",\r\n  \"location\": {\r\n    \"type\": \"Place\",\r\n    \"address\": \"ABD area, Pune\",\r\n    \"geometry\": {\r\n      \"coordinates\": [\r\n        73.874537,\r\n        18.528311\r\n      ],\r\n      \"type\": \"Point\"\r\n    }\r\n  },\r\n  \"deviceModel\": {\r\n    \"brandName\": \"Climo\",\r\n    \"modelName\": \"Bosch-Climo\",\r\n    \"modelURL\": \"http://boschclimo.com\"\r\n  }\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wifi-location\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"apd_url\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1219,7 +1312,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n          \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:ResourceGroup\",\r\n            \"iudx:IssueReporting\"\r\n          ],\r\n          \"name\": \"agra-swachhata-app\",\r\n          \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n          \"tags\": [\r\n            \"swachhata\",\r\n            \"complaints\",\r\n            \"reporting\",\r\n            \"issue\",\r\n            \"garbage dump\",\r\n            \"debris removal\",\r\n            \"open defecation\",\r\n            \"construction material\",\r\n            \"requests\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceServer\":  \"e0760835-6066-301b-b224-\"\r\n        }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"agra-swachhata-app\",\r\n    \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"reporting\",\r\n        \"issue\",\r\n        \"garbage dump\",\r\n        \"debris removal\",\r\n        \"open defecation\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"e0760835-6066-301b-b224-\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1277,7 +1370,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:EnvAQM\"\r\n    ],\r\n    \"id\": \"{{resource_item_id}}\",\r\n    \"label\": \"some-label\",\r\n    \"description\": \"Description for Bosch-Climo AQM resource\",\r\n    \"tags\": [\r\n        \"environment\",\r\n        \" air quality\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"itemStatus\": \"ACTIVE\",\r\n    \"deviceId\": \"b3ec32ff-fa7d-64fa-c0af-272e25d314e9\",\r\n    \"resourceGroup\": \"f9a85963-f6da-38d4-9313-0c7c83cdcfca\",\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"ABD area, Pune\",\r\n        \"geometry\": {\r\n            \"coordinates\": [\r\n                73.874537,\r\n                18.528311\r\n            ],\r\n            \"type\": \"Point\"\r\n        }\r\n    },\r\n    \"name\": \"PuneRailwayStation28\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wifi-location\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"apd_url\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"83995e8c-fa80-4241-93c0-e86a66154eb6\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1298,7 +1391,7 @@
 							"response": []
 						},
 						{
-							"name": "401 (invalid jwt credentials) - Update an DX Entity (JWT Token)",
+							"name": "401 (invalid credentials) - Update an DX Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -1340,7 +1433,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": " {\r\n         \"@context\": \"https://voc.iudx.org.in/\",\r\n          \"type\": [\r\n            \"iudx:Resource\",\r\n            \"iudx:PointOfInterest\"\r\n          ],\r\n          \"name\": \"wifi-locations\",\r\n          \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n          \"description\": \"updated The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n          \"tags\": [\r\n            \"Wi-Fi\",\r\n            \"Wi-Fi zone\",\r\n            \"hotspot\",\r\n            \"internet\",\r\n            \"Wi-Fi access\",\r\n            \"Wi-Fi location\",\r\n            \"wireless internet\",\r\n            \"internet access\"\r\n          ],\r\n          \"provider\": \"{{provider_id}}\",\r\n          \"resourceGroup\": \"{{resource_group_id}}\",\r\n          \"id\":\"{{resource_item_id}}\"\r\n        }",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:COS\"\r\n    ],\r\n    \"name\": \"cos.cop.iudx.org.in\",\r\n    \"description\": \"COS Smart Kalyan-Dombivli Development Corporation Limited\",\r\n    \"COS_URL\": [\r\n        \"kdmc.cop-nec.iudx.org.in\"\r\n    ],\r\n    \"COS_UI\": \"https://catalogue.kdmc.cop-nec.iudx.org.in/\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1354,6 +1447,63 @@
 									],
 									"path": [
 										"item"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "404 (Not Found) - Update an DX Entity",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:ItemNotFound\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "token",
+										"type": "text",
+										"value": "{{token}}"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wyfy-location\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"apd_url\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/item/",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item",
+										""
 									]
 								}
 							},
@@ -1513,7 +1663,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "{{token}}",
+										"value": "{{adminToken}}",
 										"type": "text"
 									},
 									{
@@ -1572,7 +1722,7 @@
 								"header": [
 									{
 										"key": "token",
-										"value": "{{adminToken}}",
+										"value": "{{cosAdminToken}}",
 										"type": "text"
 									},
 									{
@@ -1594,6 +1744,65 @@
 										{
 											"key": "id",
 											"value": "{{resource_server_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Delete a COS item DX entity",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{cosAdminToken}}",
+										"type": "text"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/item?id={{cos_id}}",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "{{cos_id}}"
 										}
 									]
 								}
@@ -1720,7 +1929,7 @@
 							"response": []
 						},
 						{
-							"name": "401 (invalid jtw credentials) - Delete an DX Entity (JWT TOKEN)",
+							"name": "401 (invalid credentials) - Delete an DX Entity",
 							"event": [
 								{
 									"listen": "test",
@@ -1803,7 +2012,7 @@
 									"pm.test(\"Check response body\", function () {    \r",
 									"    const body = pm.response.json();\r",
 									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-									"    const resultsjsonData = body.results[0];\r",
+									"    const resultsjsonData = body.results;\r",
 									"    pm.expect(resultsjsonData).to.have.property(\"id\");\r",
 									"    const ID = resultsjsonData.id;\r",
 									"    pm.globals.set(\"instance_id\",ID);\r",
@@ -2741,502 +2950,1285 @@
 			"name": "Relationship APIs",
 			"item": [
 				{
-					"name": "200 (success) - Relationship ResourceGroup",
-					"event": [
+					"name": "Forward relationships",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response header\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
-									"});\r",
-									"\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=83c2e5c2-3574-4e11-9530-2b1fbdfce832&rel=resourceGroup",
-							"host": [
-								"{{host}}{{base}}"
-							],
-							"path": [
-								"relationship"
-							],
-							"query": [
+							"name": "200 (success) - Get Cos item for resource",
+							"event": [
 								{
-									"key": "id",
-									"value": "83c2e5c2-3574-4e11-9530-2b1fbdfce832"
-								},
-								{
-									"key": "rel",
-									"value": "resourceGroup"
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
 								}
-							]
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=3897a41c-83f7-37e7-9194-374d5278dff5&rel=cos",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "3897a41c-83f7-37e7-9194-374d5278dff5"
+										},
+										{
+											"key": "rel",
+											"value": "cos"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get RS item for resource",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=3897a41c-83f7-37e7-9194-374d5278dff5&rel=resourceServer",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "3897a41c-83f7-37e7-9194-374d5278dff5"
+										},
+										{
+											"key": "rel",
+											"value": "resourceServer"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get provider item for resource",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=3897a41c-83f7-37e7-9194-374d5278dff5&rel=provider",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "3897a41c-83f7-37e7-9194-374d5278dff5"
+										},
+										{
+											"key": "rel",
+											"value": "provider"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get RG item for resource",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=3897a41c-83f7-37e7-9194-374d5278dff5&rel=resourceGroup",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "3897a41c-83f7-37e7-9194-374d5278dff5"
+										},
+										{
+											"key": "rel",
+											"value": "resourceGroup"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get Cos item for resource group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=e63b756a-1c26-3a0c-8bbf-aeed53e423db&rel=cos",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "e63b756a-1c26-3a0c-8bbf-aeed53e423db"
+										},
+										{
+											"key": "rel",
+											"value": "cos"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get RS item for resource group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=e63b756a-1c26-3a0c-8bbf-aeed53e423db&rel=resourceServer",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "e63b756a-1c26-3a0c-8bbf-aeed53e423db"
+										},
+										{
+											"key": "rel",
+											"value": "resourceServer"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get provider item for resource group",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=e63b756a-1c26-3a0c-8bbf-aeed53e423db&rel=provider",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "e63b756a-1c26-3a0c-8bbf-aeed53e423db"
+										},
+										{
+											"key": "rel",
+											"value": "provider"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get Cos item for provider",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=dec308e5-bc50-3671-af18-7f89ec33564b&rel=cos",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "dec308e5-bc50-3671-af18-7f89ec33564b"
+										},
+										{
+											"key": "rel",
+											"value": "cos"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get RS item for provider",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=dec308e5-bc50-3671-af18-7f89ec33564b&rel=resourceServer",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "dec308e5-bc50-3671-af18-7f89ec33564b"
+										},
+										{
+											"key": "rel",
+											"value": "resourceServer"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get Cos item for resource server",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=f3061e6c-9639-321d-a532-829c7bb870aa&rel=cos",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "f3061e6c-9639-321d-a532-829c7bb870aa"
+										},
+										{
+											"key": "rel",
+											"value": "cos"
+										}
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
 				},
 				{
-					"name": "200 (success) - Relationship Resource",
-					"event": [
+					"name": "Inverse relationships",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response header\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-									"});\r",
-									"\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=8b95ab80-2aaf-4636-a65e-7f2563d0d371&rel=resource",
-							"host": [
-								"{{host}}{{base}}"
-							],
-							"path": [
-								"relationship"
-							],
-							"query": [
+							"name": "200 (success) - Get Resources for resourceGroup",
+							"event": [
 								{
-									"key": "id",
-									"value": "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
-								},
-								{
-									"key": "rel",
-									"value": "resource"
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
 								}
-							]
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=e63b756a-1c26-3a0c-8bbf-aeed53e423db&rel=resource",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "e63b756a-1c26-3a0c-8bbf-aeed53e423db"
+										},
+										{
+											"key": "rel",
+											"value": "resource"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get Resources for provider",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=dec308e5-bc50-3671-af18-7f89ec33564b&rel=resource",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "dec308e5-bc50-3671-af18-7f89ec33564b"
+										},
+										{
+											"key": "rel",
+											"value": "resource"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get RGs for provider",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=dec308e5-bc50-3671-af18-7f89ec33564b&rel=resourceGroup",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "dec308e5-bc50-3671-af18-7f89ec33564b"
+										},
+										{
+											"key": "rel",
+											"value": "resourceGroup"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get Resources for resource server",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=f3061e6c-9639-321d-a532-829c7bb870aa&rel=resource",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "f3061e6c-9639-321d-a532-829c7bb870aa"
+										},
+										{
+											"key": "rel",
+											"value": "resource"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get RGs for resource server",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=f3061e6c-9639-321d-a532-829c7bb870aa&rel=resourceGroup",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "f3061e6c-9639-321d-a532-829c7bb870aa"
+										},
+										{
+											"key": "rel",
+											"value": "resourceGroup"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get Providers for resource server",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=f3061e6c-9639-321d-a532-829c7bb870aa&rel=provider",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "f3061e6c-9639-321d-a532-829c7bb870aa"
+										},
+										{
+											"key": "rel",
+											"value": "provider"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get Resources for cos",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=13bf961b-b1f4-3f7f-a651-b1b1965a4067&rel=resource",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+										},
+										{
+											"key": "rel",
+											"value": "resource"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get RGs for cos",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=13bf961b-b1f4-3f7f-a651-b1b1965a4067&rel=resourceGroup",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+										},
+										{
+											"key": "rel",
+											"value": "resourceGroup"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get Providers for cos",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=13bf961b-b1f4-3f7f-a651-b1b1965a4067&rel=provider",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+										},
+										{
+											"key": "rel",
+											"value": "provider"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Get RSs for cos",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=13bf961b-b1f4-3f7f-a651-b1b1965a4067&rel=resourceServer",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+										},
+										{
+											"key": "rel",
+											"value": "resourceServer"
+										}
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
 				},
 				{
-					"name": "200 (success) - Relationship Provider [ResourceID]",
-					"event": [
+					"name": "Total Inverse Relationships",
+					"item": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response header\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-									"});\r",
-									"\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=b58da193-23d9-43eb-b98a-a103d4b6103c&rel=provider",
-							"host": [
-								"{{host}}{{base}}"
-							],
-							"path": [
-								"relationship"
-							],
-							"query": [
+							"name": "200 (success) - Total Inverse Relationship [Resource]",
+							"event": [
 								{
-									"key": "id",
-									"value": "b58da193-23d9-43eb-b98a-a103d4b6103c"
-								},
-								{
-									"key": "rel",
-									"value": "provider"
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "200 (success) - Relationship Provider [ResourceGroup]",
-					"event": [
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=3897a41c-83f7-37e7-9194-374d5278dff5&rel=all",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "3897a41c-83f7-37e7-9194-374d5278dff5"
+										},
+										{
+											"key": "rel",
+											"value": "all"
+										}
+									]
+								}
+							},
+							"response": []
+						},
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response header\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\",\"urn:dx:cat:Success\");\r",
-									"});\r",
-									"\r",
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=5b7556b5-0779-4c47-9cf2-3f209779aa22&rel=provider",
-							"host": [
-								"{{host}}{{base}}"
-							],
-							"path": [
-								"relationship"
-							],
-							"query": [
+							"name": "200 (success) - Total Inverse Relationship [ResourceGroup]",
+							"event": [
 								{
-									"key": "id",
-									"value": "5b7556b5-0779-4c47-9cf2-3f209779aa22"
-								},
-								{
-									"key": "rel",
-									"value": "provider"
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "200 (success) - Relationship ResourceServer [ResourceId]",
-					"event": [
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=e63b756a-1c26-3a0c-8bbf-aeed53e423db&rel=all",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "e63b756a-1c26-3a0c-8bbf-aeed53e423db"
+										},
+										{
+											"key": "rel",
+											"value": "all"
+										}
+									]
+								}
+							},
+							"response": []
+						},
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response header\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=b58da193-23d9-43eb-b98a-a103d4b6103c&rel=resourceServer",
-							"host": [
-								"{{host}}{{base}}"
-							],
-							"path": [
-								"relationship"
-							],
-							"query": [
+							"name": "200 (success) - Total Inverse Relationship [Provider]",
+							"event": [
 								{
-									"key": "id",
-									"value": "b58da193-23d9-43eb-b98a-a103d4b6103c"
-								},
-								{
-									"key": "rel",
-									"value": "resourceServer"
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "200 (success) - Relationship ResourceServer [ResourceGroup]",
-					"event": [
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=dec308e5-bc50-3671-af18-7f89ec33564b&rel=all",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "dec308e5-bc50-3671-af18-7f89ec33564b"
+										},
+										{
+											"key": "rel",
+											"value": "all"
+										}
+									]
+								}
+							},
+							"response": []
+						},
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response header\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=5b7556b5-0779-4c47-9cf2-3f209779aa22&rel=resourceServer",
-							"host": [
-								"{{host}}{{base}}"
-							],
-							"path": [
-								"relationship"
-							],
-							"query": [
+							"name": "200 (success) - Total Inverse Relationship [ResourceServer]",
+							"event": [
 								{
-									"key": "id",
-									"value": "5b7556b5-0779-4c47-9cf2-3f209779aa22"
-								},
-								{
-									"key": "rel",
-									"value": "resourceServer"
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "200 (success) - Total Inverse Relationship [Resource]",
-					"event": [
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=f3061e6c-9639-321d-a532-829c7bb870aa&rel=all",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "f3061e6c-9639-321d-a532-829c7bb870aa"
+										},
+										{
+											"key": "rel",
+											"value": "all"
+										}
+									]
+
+								}
+							},
+							"response": []
+						},
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response header\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=a347c5b6-5281-4749-9eab-89784d8f8f9a&rel=all",
-							"host": [
-								"{{host}}{{base}}"
-							],
-							"path": [
-								"relationship"
-							],
-							"query": [
+							"name": "400 (Invalid item type) - Total Inverse Relationship [Cos]",
+							"event": [
 								{
-									"key": "id",
-									"value": "a347c5b6-5281-4749-9eab-89784d8f8f9a"
-								},
-								{
-									"key": "rel",
-									"value": "all"
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(400);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidRelationSearch\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "200 (success) - Total Inverse Relationship [ResourceGroup]",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response header\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=5b7556b5-0779-4c47-9cf2-3f209779aa22&rel=all",
-							"host": [
-								"{{host}}{{base}}"
 							],
-							"path": [
-								"relationship"
-							],
-							"query": [
-								{
-									"key": "id",
-									"value": "5b7556b5-0779-4c47-9cf2-3f209779aa22"
-								},
-								{
-									"key": "rel",
-									"value": "all"
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/relationship?id=13bf961b-b1f4-3f7f-a651-b1b1965a4067&rel=all",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"relationship"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+										},
+										{
+											"key": "rel",
+											"value": "all"
+										}
+									]
 								}
-							]
+							},
+							"response": []
 						}
-					},
-					"response": []
-				},
-				{
-					"name": "200 (success) - Total Inverse Relationship [Provider]",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response header\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=bbeacb12-5e54-339d-92e0-d8e063b551a8&rel=all",
-							"host": [
-								"{{host}}{{base}}"
-							],
-							"path": [
-								"relationship"
-							],
-							"query": [
-								{
-									"key": "id",
-									"value": "bbeacb12-5e54-339d-92e0-d8e063b551a8"
-								},
-								{
-									"key": "rel",
-									"value": "all"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "200 (success) - Total Inverse Relationship [ResourceServer]",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Response status\", function () {\r",
-									"    pm.response.to.have.status(400);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response header\", function () {\r",
-									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Check response body\", function () {    \r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidRelationSearch\");\r",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{host}}{{base}}/relationship?id=49cf5c76-09de-11ee-be56-0242ac120002&rel=all",
-							"host": [
-								"{{host}}{{base}}"
-							],
-							"path": [
-								"relationship"
-							],
-							"query": [
-								{
-									"key": "id",
-									"value": "49cf5c76-09de-11ee-be56-0242ac120002"
-								},
-								{
-									"key": "rel",
-									"value": "all"
-								}
-							]
-						}
-					},
-					"response": []
+					]
 				},
 				{
 					"name": "400 (invalid ResourceGroup) - Relationship ResourceServer",
@@ -8909,6 +9901,35 @@
 						}
 					]
 				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var statusCode = pm.response.code;",
+							"",
+							"if(statusCode == 200) {",
+							"",
+							"    pm.test(\"Check response body\", function () {    ",
+							"        const body = pm.response.json();",
+							"    pm.expect(pm.response.json().results.length).to.be.above(0);",
+							"    });",
+							"}",
+							""
+						]
+					}
+				}
 			]
 		},
 		{
@@ -10544,6 +11565,10 @@
 											"pm.test(\"Check response body\", function () {    ",
 											"    const body = pm.response.json();",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"    const resultsjsonData = body.results[0];",
+											"    pm.expect(resultsjsonData).to.have.property(\"id\");",
+											"    const ID = resultsjsonData.id;",
+											"    pm.globals.set(\"rating_id\",ID);",
 											"});",
 											""
 										],
@@ -11175,6 +12200,64 @@
 							"response": []
 						},
 						{
+							"name": "400 (Invalid id) - Get Average Rating",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidParamValue\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}consumer/ratings?id=5b7556b5-0779-4c47-9cf2-3f209779aa22\\&type=average",
+									"host": [
+										"{{host}}consumer"
+									],
+									"path": [
+										"ratings"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "5b7556b5-0779-4c47-9cf2-3f209779aa22\\"
+										},
+										{
+											"key": "type",
+											"value": "average"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "401 (Invalid Token) - Get Rating",
 							"event": [
 								{
@@ -11254,6 +12337,7 @@
 											"pm.test(\"Check response body\", function () {    ",
 											"    const body = pm.response.json();",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"    ",
 											"});",
 											""
 										],
@@ -11473,8 +12557,6 @@
 											"listen": "test",
 											"script": {
 												"exec": [
-													"var data = JSON.parse(responseBody);",
-													"pm.environment.set(\"instanceId\",data.results[0].id);",
 													"pm.test(\"Response status\", function () {",
 													"    pm.response.to.have.status(201);",
 													"});",
@@ -11482,6 +12564,8 @@
 													"pm.test(\"Check response body\", function () {    ",
 													"    const body = pm.response.json();",
 													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"    var data = JSON.parse(responseBody);",
+													"    pm.environment.set(\"instanceId\",data.results[0].id);",
 													"});",
 													""
 												],

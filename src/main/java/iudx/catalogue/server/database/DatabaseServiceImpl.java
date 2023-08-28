@@ -130,13 +130,17 @@ public class DatabaseServiceImpl implements DatabaseService {
     } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceGroup")
         && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
       return true;
-    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceServer")
-        && (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)
-            || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER))) {
-      return true;
     } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("provider")
-        && (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)
-            || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER))) {
+        && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+      return true;
+    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceServer")
+        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      return true;
+    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("cos")
+        && itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+      return true;
+    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("all")
+        && itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
       return true;
     }
     return false;
@@ -334,7 +338,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                       docIndex,
                       checkRes -> {
                         if (checkRes.failed()) {
-                          LOGGER.error("Fail: Isertion failed;" + checkRes.cause());
+                          LOGGER.error("Fail: Insertion failed;" + checkRes.cause());
                           handler.handle(Future.failedFuture(errorJson));
                         }
                         if (checkRes.succeeded()) {
@@ -387,7 +391,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                                           respBuilder
                                                               .withType(TYPE_SUCCESS)
                                                               .withTitle(TITLE_SUCCESS)
-                                                              .withResult(id, INSERT, TYPE_SUCCESS)
+                                                              .withResult(doc)
                                                               .getJsonResponse()));
                                                 } else {
                                                   handler.handle(Future.failedFuture(errorJson));
@@ -411,32 +415,12 @@ public class DatabaseServiceImpl implements DatabaseService {
                                             doc.toString(),
                                             postRes -> {
                                               if (postRes.succeeded()) {
-                                                if (doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:Provider")
-                                                    || doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:Resource")
-                                                    || doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:ResourceGroup")
-                                                    || doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:ResourceServer")) {
-                                                  handler.handle(
-                                                      Future.succeededFuture(
-                                                          respBuilder
-                                                              .withType(TYPE_SUCCESS)
-                                                              .withTitle(TITLE_SUCCESS)
-                                                              .withMethod(INSERT)
-                                                              .withResult(doc)
-                                                              .getJsonResponse()));
-                                                }
                                                 handler.handle(
                                                     Future.succeededFuture(
                                                         respBuilder
                                                             .withType(TYPE_SUCCESS)
-                                                            .withResult(id, INSERT, TYPE_SUCCESS)
+                                                            .withTitle(TITLE_SUCCESS)
+                                                            .withResult(doc)
                                                             .getJsonResponse()));
                                               } else {
                                                 handler.handle(Future.failedFuture(errorJson));
@@ -488,7 +472,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         GET_DOC_QUERY_WITH_TYPE
             .replace("$1", id)
             .replace("$3", type)
-            .replace("$2", "\"" + id + "\"");
+            .replace("$2", "id");
 
     new Timer()
         .schedule(
@@ -530,8 +514,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                                     Future.succeededFuture(
                                         respBuilder
                                             .withType(TYPE_SUCCESS)
-                                            .withTitle(TYPE_SUCCESS)
-                                            .withResult(id, UPDATE)
+                                            .withTitle(TITLE_SUCCESS)
+                                            .withResult(doc)
                                             .getJsonResponse()));
                               } else {
                                 handler.handle(Future.failedFuture(internalErrorResp));
@@ -740,11 +724,11 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             if ((request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE_SVR)
                     || request.getString(RELATIONSHIP).equalsIgnoreCase(ALL))
-                && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-              handleRsFetchForResourceItem(request, handler, respBuilder, relType);
-            } else if (request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE)
+                && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+              handleRsFetchForResourceGroup(request, handler, respBuilder, relType);
+            } else if (request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE_GRP)
                 && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-              handleResourceItemFetchForRs(request, handler, respBuilder, relType);
+              handleResourceGroupFetchForRs(request, handler, respBuilder, relType);
             } else {
               request.mergeIn(relType);
               String elasticQuery = queryDecoder.listRelationshipQuery(request);
@@ -790,7 +774,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
   }
 
-  private void handleResourceItemFetchForRs(
+  private void handleResourceGroupFetchForRs(
       JsonObject request,
       Handler<AsyncResult<JsonObject>> handler,
       RespBuilder respBuilder,
@@ -806,7 +790,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (serverSearch.succeeded()) {
             JsonArray serverResult = serverSearch.result().getJsonArray("results");
             LOGGER.debug("serverResult: " + serverResult);
-            request.put("grpIds", serverResult);
+            request.put("providerIds", serverResult);
             request.mergeIn(relType);
             String elasticQuery = queryDecoder.listRelationshipQuery(request);
 
@@ -817,13 +801,13 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
   }
 
-  private void handleRsFetchForResourceItem(
+  private void handleRsFetchForResourceGroup(
       JsonObject request,
       Handler<AsyncResult<JsonObject>> handler,
       RespBuilder respBuilder,
       JsonObject relType) {
     StringBuilder typeQuery4Rserver =
-        new StringBuilder(GET_TYPE_SEARCH.replace("$1", relType.getString("resourceGroup")));
+        new StringBuilder(GET_TYPE_SEARCH.replace("$1", relType.getString(PROVIDER)));
     LOGGER.debug("typeQuery4Rserver: " + typeQuery4Rserver);
 
     client.searchAsync(

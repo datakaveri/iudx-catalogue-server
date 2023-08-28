@@ -53,7 +53,7 @@ public final class RelationshipApis {
       String id = request.getParam(ID);
       String itemType = request.getParam(REL_KEY);
 
-      if (!id.isBlank() && ITEMS_KEY.contains(itemType)) {
+      if (!id.isBlank() && isValidId(id) && ITEMS_KEY.contains(itemType)) {
         requestBody = QueryMapper.map2Json(queryParameters);
 
         if (requestBody != null) {
@@ -108,6 +108,10 @@ public final class RelationshipApis {
                         .withDetail("Mandatory field(s) not provided")
                         .getResponse());
     }
+  }
+
+  private boolean isValidId(String id) {
+    return UUID_PATTERN.matcher(id).matches();
   }
 
 

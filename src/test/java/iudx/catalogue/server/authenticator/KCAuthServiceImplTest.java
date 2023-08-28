@@ -63,7 +63,10 @@ public class KCAuthServiceImplTest {
             .put(TOKEN, "")
             .put(ITEM_TYPE, ITEM_TYPE_PROVIDER)
             .put(RESOURCE_SERVER_URL, "cop.iudx.io");
-    doAnswer(Answer -> Future.succeededFuture(new JwtData(new JsonObject())))
+
+    JwtData jwtData = new JwtData();
+    jwtData.setIss("authvertx.iudx.io");
+    doAnswer(Answer -> Future.succeededFuture(jwtData))
         .when(kcAuthenticationServiceSpy)
         .decodeKcToken(anyString());
 
@@ -72,7 +75,6 @@ public class KCAuthServiceImplTest {
         authInfo,
         handler -> {
           if (handler.succeeded()) {
-            //        verify(authInfo, times(1));
             LOGGER.debug("success");
             testContext.completeNow();
           } else {
@@ -92,7 +94,6 @@ public class KCAuthServiceImplTest {
         .decodeKcToken(anyString());
 
     when(authInfo.getString(API_ENDPOINT)).thenReturn(api.getRouteRelationship());
-    when(authInfo.getString(METHOD)).thenReturn(Method.DELETE.toString());
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),
@@ -116,7 +117,6 @@ public class KCAuthServiceImplTest {
         .decodeKcToken(anyString());
 
     when(authInfo.getString(API_ENDPOINT)).thenReturn(api.getRouteRelationship());
-    when(authInfo.getString(METHOD)).thenReturn(Method.DELETE.toString());
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),

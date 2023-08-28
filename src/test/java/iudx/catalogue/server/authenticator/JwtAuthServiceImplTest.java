@@ -1,11 +1,19 @@
 package iudx.catalogue.server.authenticator;
 
 import static iudx.catalogue.server.authenticator.Constants.*;
-import static iudx.catalogue.server.util.Constants.ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.PubSecKeyOptions;
+import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.auth.jwt.JWTAuthOptions;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.authenticator.authorization.Method;
+import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,23 +21,18 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.auth.PubSecKeyOptions;
-import io.vertx.ext.auth.jwt.JWTAuth;
-import io.vertx.ext.auth.jwt.JWTAuthOptions;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import iudx.catalogue.server.authenticator.model.JwtData;
-import iudx.catalogue.server.Configuration;
+import java.util.stream.Stream;
 
 @ExtendWith(VertxExtension.class)
 public class JwtAuthServiceImplTest {
 
   private static final Logger LOGGER = LogManager.getLogger(JwtAuthServiceImplTest.class);
-  private static JsonObject authConfig;
   private static final String AUTH_CERTINFO_PATH = "/auth/v1/certificate-info";
+  private static JsonObject authConfig;
   private static JwtAuthenticationServiceImpl jwtAuthenticationService;
   private static AuthenticationService authenticationService;
   private static Vertx vertxObj;
@@ -47,6 +50,7 @@ public class JwtAuthServiceImplTest {
     authConfig = Configuration.getConfiguration("./configs/config-test.json",1);
     String cert = authConfig.getString("cert");
     authConfig.put("dxApiBasePath", "/iudx/cat/v1");
+    authConfig.put("tempCopIssuer", "cop.iudx.io");
     JWTAuthOptions jwtAuthOptions = new JWTAuthOptions();
     jwtAuthOptions.addPubSecKey(
             new PubSecKeyOptions()
@@ -58,7 +62,7 @@ public class JwtAuthServiceImplTest {
     JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
     dxApiBasePath = authConfig.getString("dxApiBasePath");
     api = Api.getInstance(dxApiBasePath);
-    jwtAuthenticationService = new JwtAuthenticationServiceImpl(vertx,  jwtAuth, authConfig, api);
+    jwtAuthenticationService = new JwtAuthenticationServiceImpl(jwtAuth, authConfig, api);
 
     LOGGER.info("Auth tests setup complete");
     testContext.completeNow();
@@ -98,21 +102,23 @@ public class JwtAuthServiceImplTest {
   private JsonObject authJson() {
     JsonObject jsonObject = new JsonObject();
     jsonObject
-            .put("token", JwtTokenHelper.providerToken)
-            .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86")
-            .put("apiEndpoint", "/iudx/cat/v1/item")
-            .put("providerKcId", "844e251b-574b-46e6-9247-f76f1f70a637")
-            .put("method", Method.POST);
+        .put("token", JwtTokenHelper.providerToken)
+        .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86")
+        .put("apiEndpoint", "/iudx/cat/v1/item")
+        .put("itemType", "iudx:Resource")
+        .put("resourceServerURL", "cat-test.iudx.io")
+        .put("providerKcId", "d8e46706-b9db-44e1-a9aa-e40839396b01")
+        .put("method", Method.POST);
     return jsonObject;
   }
 
   private JwtData jwtDataObject() {
     JwtData jwtData = new JwtData();
     jwtData.setIss("authvertx.iudx.io");
-    jwtData.setAud("catalogue.iudx.io");
+    jwtData.setAud("cat-test.iudx.io");
     jwtData.setExp(1627408865L);
     jwtData.setIat(1627408865L);
-    jwtData.setIid("ri:iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/catalogue.iudx.io/catalogue/crud");
+    jwtData.setIid("rs:cat-test.iudx.io");
     jwtData.setRole("provider");
     jwtData.setSub("844e251b-574b-46e6-9247-f76f1f70a637");
     jwtData.setCons(new JsonObject());
@@ -195,6 +201,20 @@ public class JwtAuthServiceImplTest {
   }
 
   @Test
+  @DisplayName("Decode valid cos admin JWT")
+  public void decodeJwtCosAdminSuccess(VertxTestContext testContext) {
+    jwtAuthenticationService.decodeJwt(JwtTokenHelper.cosAdminToken)
+        .onComplete(handler -> {
+          if(handler.succeeded()) {
+            assertEquals("cop_admin", handler.result().getRole());
+            testContext.completeNow();
+          } else {
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
   @DisplayName("Decode invalid JWT")
   public void decodeInvalidJwt(VertxTestContext vertxTestContext) {
     jwtAuthenticationService.decodeJwt("eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiI4NDRlMjUxYi01NzRiLTQ2ZTYtOTI0Ny1mNzZmMWY3MGE2MzciLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNhdGFsb2d1ZS5pdWR4LmlvIiwiZXhwIjoxNjMyMjYxMjkxLCJpYXQiOjE2MzIyMTgwOTEsImlpZCI6InJpOmlpc2MuYWMuaW4vODlhMzYyNzNkNzdkYWM0Y2YzODExNGZjYTFiYmU2NDM5MjU0N2Y4Ni9jYXRhbG9ndWUuaXVkeC5pby9jYXRhbG9ndWUvY3J1ZCIsInJvbGUiOiJwcm92aWRlciIsImNvbnMiOnt9fQ.BTNDXRQ90C9wTWGtcYzIgjZgbhoV_ELX6smaJxjbvceKFHbVaHMaxYMMyyTrQUGe3b7BpGgODu4vR6JA123456")
@@ -243,7 +263,7 @@ public class JwtAuthServiceImplTest {
   public void validIdCheckForJwtToken(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
     String id = "844e251b-574b-46e6-9247-f76f1f70a637";
-    jwtAuthenticationService.isValidId(jwtData, id).onComplete(handler -> {
+    jwtAuthenticationService.isValidProvider(jwtData, id).onComplete(handler -> {
       if (handler.failed()) {
         vertxTestContext.failNow("fail");
       } else {
@@ -260,7 +280,7 @@ public class JwtAuthServiceImplTest {
     JwtData jwtData = jwtDataObject();
     String id = "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547fab";
 
-    jwtAuthenticationService.isValidId(jwtData, id).onComplete(handler -> {
+    jwtAuthenticationService.isValidProvider(jwtData, id).onComplete(handler -> {
       if (handler.failed()) {
         vertxTestContext.completeNow();
       } else {
@@ -274,7 +294,7 @@ public class JwtAuthServiceImplTest {
   @DisplayName("successful valid audience check")
   public void validAudienceCheck(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
-    jwtAuthenticationService.isValidAudienceValue(jwtData).onComplete(handler -> {
+    jwtAuthenticationService.isValidAudienceValue(jwtData, "iudx:Resource", "cat-test.iudx.io").onComplete(handler -> {
           if (handler.failed()) {
             vertxTestContext.failNow("fail");
           } else {
@@ -288,9 +308,9 @@ public class JwtAuthServiceImplTest {
   @DisplayName("invalid audience check")
   public void invalidAudienceCheck(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
-    jwtData.setAud("rs.iudx.io");
+    jwtData.setAud("invalid.audience");
 
-    jwtAuthenticationService.isValidAudienceValue(jwtData).onComplete(handler -> {
+    jwtAuthenticationService.isValidAudienceValue(jwtData, "iudx:Resource", "rs.iudx.io").onComplete(handler -> {
           if (handler.failed()) {
             vertxTestContext.completeNow();
           } else {
@@ -300,13 +320,139 @@ public class JwtAuthServiceImplTest {
       });
   }
 
+  private static Stream<Arguments> itemTypes1() {
+    return Stream.of(
+        Arguments.of("iudx:Resource"),
+        Arguments.of("iudx:ResourceGroup"),
+        Arguments.of("iudx:Provider")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("itemTypes1")
+  @DisplayName("successful valid iid check - against resource server")
+  public void validIidCheckAgainstRs(String itemType, VertxTestContext testContext) {
+    JwtData jwtData = jwtDataObject();
+
+    jwtAuthenticationService.isValidItemId(jwtData, itemType, "cat-test.iudx.io")
+        .onComplete(handler -> {
+          if(handler.succeeded()) {
+            testContext.completeNow();
+          } else {
+            testContext.failNow("unxepected behaviour");
+          }
+        });
+  }
+
+  private static Stream<Arguments> itemTypes2() {
+    return Stream.of(
+        Arguments.of("iudx:ResourceServer"),
+        Arguments.of("iudx:COS")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("itemTypes2")
+  @DisplayName("successful valid iid check - against cos")
+  public void validIidCheckAgainstCos(String itemType, VertxTestContext testContext) {
+    JwtData jwtData = jwtDataObject();
+    jwtData.setIid("cop:cop.iudx.io");
+
+    jwtAuthenticationService.isValidItemId(jwtData, itemType, "")
+        .onComplete(handler -> {
+          if(handler.succeeded()) {
+            testContext.completeNow();
+          } else {
+            testContext.failNow("unxepected behaviour");
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("invalid idd check")
+  public void invalidIidCheck(VertxTestContext testContext) {
+    JwtData jwtData = jwtDataObject();
+    jwtData.setIid("abc:xyz.def.io");
+
+    jwtAuthenticationService.isValidItemId(jwtData, "iudx:Resource", "")
+        .onComplete(handler -> {
+          if(handler.succeeded()) {
+            testContext.failNow("unxepected behaviour");
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("successful valid issuer check")
+  public void validIssuerCheck(VertxTestContext testContext) {
+    JwtData jwtData = jwtDataObject();
+
+    jwtAuthenticationService.isValidIssuer(jwtData, "authvertx.iudx.io")
+        .onComplete(handler -> {
+          if(handler.succeeded()) {
+            testContext.completeNow();
+          } else {
+            testContext.failNow("unxepected behaviour");
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("invalid issuer check")
+  public void invalidIssuerCheck(VertxTestContext testContext) {
+    JwtData jwtData = jwtDataObject();
+
+    jwtAuthenticationService.isValidIssuer(jwtData, "abc.xyz.io")
+        .onComplete(handler -> {
+          if(handler.succeeded()) {
+            testContext.failNow("unxepected behaviour");
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("successful valid admin check")
+  public void validAdminCheck(VertxTestContext testContext) {
+    JwtData jwtData = jwtDataObject();
+    jwtData.setRole("cop_admin");
+
+    jwtAuthenticationService.isValidAdmin(jwtData)
+        .onComplete(handler -> {
+          if(handler.succeeded()) {
+            testContext.completeNow();
+          } else {
+            testContext.failNow("unxepected behaviour");
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("invalid admin check")
+  public void invalidAdminCheck(VertxTestContext testContext) {
+    JwtData jwtData = jwtDataObject();
+    jwtData.setRole("not_admin");
+
+    jwtAuthenticationService.isValidAdmin(jwtData)
+        .onComplete(handler -> {
+          if(handler.succeeded()) {
+            testContext.failNow("unxepected behaviour");
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
+
   @Test
   @DisplayName("successful validate access test")
   public void validvValidateAccessTest(VertxTestContext vertxTestContext) {
     JwtData jwtData = jwtDataObject();
     JsonObject authInfo = authJson();
 
-    jwtAuthenticationService.validateAccess(jwtData,authInfo,"")
+    jwtAuthenticationService.validateAccess(jwtData,authInfo,"iudx:Resource")
             .onComplete(handler -> {
               if(handler.succeeded()){
                 vertxTestContext.completeNow();
@@ -340,10 +486,11 @@ public class JwtAuthServiceImplTest {
 
     JsonObject authInfo = new JsonObject();
     authInfo
-            .put("token", JwtTokenHelper.adminToken)
-            .put("id", "catalogue.iudx.io")
-            .put("apiEndpoint", "/iudx/cat/v1/instance")
-            .put("method", Method.POST);
+        .put("token", JwtTokenHelper.adminToken)
+        .put("id", "catalogue.iudx.io")
+        .put("apiEndpoint", "/iudx/cat/v1/instance")
+        .put("itemType", "iudx:Instance")
+        .put("method", Method.POST);
 
     jwtAuthenticationService
             .tokenInterospect(new JsonObject(), authInfo, handler -> {
