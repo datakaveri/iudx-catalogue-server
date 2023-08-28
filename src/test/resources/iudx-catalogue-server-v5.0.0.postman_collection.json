@@ -12199,6 +12199,64 @@
 							"response": []
 						},
 						{
+							"name": "400 (Invalid id) - Get Average Rating",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(400);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:InvalidParamValue\");",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}consumer/ratings?id=5b7556b5-0779-4c47-9cf2-3f209779aa22\\&type=average",
+									"host": [
+										"{{host}}consumer"
+									],
+									"path": [
+										"ratings"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "5b7556b5-0779-4c47-9cf2-3f209779aa22\\"
+										},
+										{
+											"key": "type",
+											"value": "average"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "401 (Invalid Token) - Get Rating",
 							"event": [
 								{
