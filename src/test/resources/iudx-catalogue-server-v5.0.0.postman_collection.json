@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "f6073aac-49ba-431f-8d3a-69c5ca08e137",
+		"_postman_id": "8c237a3f-4eb3-4493-ad58-e466725f897c",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17194681"
+		"_exporter_id": "27217689"
 	},
 	"item": [
 		{
@@ -4174,6 +4174,7 @@
 											"value": "all"
 										}
 									]
+
 								}
 							},
 							"response": []
@@ -12583,7 +12584,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"name\": \"lucknow\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpg\"\n}",
+											"raw": "{\n   \"name\": \"punay\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpg\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -12637,7 +12638,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"name\": \"lucknow\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknoe.jpg\"\n}",
+											"raw": "{\n   \"name\": \"punay\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpg\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -12691,7 +12692,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"name\": \"lucknow\",\n   \"cooover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpg\"\n}",
+											"raw": "{\n   \"namee\": \"punay\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpg\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -12748,7 +12749,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.jpeg\",\r\n    \"name\": \"lucknow\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg\"\r\n}",
+											"raw": "{\r\n   \"name\": \"punay\",\r\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpeg\",\r\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpeg\",\r\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpeg\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -12808,7 +12809,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.JPEG\",\r\n    \"name\": \"lucknow\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg\"\r\n}",
+											"raw": "{\r\n   \"name\": \"punay\",\r\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpeg\",\r\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpeg\",\r\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpeg\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -12868,7 +12869,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/lucknow.JPEG\",\r\n    \"nameee\": \"lucknow\",\r\n    \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/lucknow.jpeg\",\r\n    \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/lucknow.jpeg\"\r\n}",
+											"raw": "{\r\n   \"name\": \"punay\",\r\n   \"coveeer\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpeg\",\r\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpeg\",\r\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpeg\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -12951,6 +12952,68 @@
 												"internal",
 												"ui",
 												"instance"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "200 (Success) - Get Instance By Id",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "",
+												"value": "",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?id={{instanceId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "id",
+													"value": "{{instanceId}}"
+												}
 											]
 										}
 									},
@@ -13494,6 +13557,68 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "200 (Success) - Get Domain by Id",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "",
+												"value": "",
+												"type": "text",
+												"disabled": true
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain?id={{domainId}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											],
+											"query": [
+												{
+													"key": "id",
+													"value": "{{domainId}}"
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						},
@@ -13987,6 +14112,56 @@
 				{
 					"name": "Mlayer Popular Datasets",
 					"item": [
+						{
+							"name": "200 (Success) - Get landing page details through instance",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/popularDatasets?instance=surat",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"popularDatasets"
+									],
+									"query": [
+										{
+											"key": "instance",
+											"value": "surat"
+										}
+									]
+								}
+							},
+							"response": []
+						},
 						{
 							"name": "200 (Success) - Get landing page details",
 							"event": [
