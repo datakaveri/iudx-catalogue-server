@@ -94,7 +94,6 @@ public class KCAuthServiceImplTest {
         .decodeKcToken(anyString());
 
     when(authInfo.getString(API_ENDPOINT)).thenReturn(api.getRouteRelationship());
-    when(authInfo.getString(METHOD)).thenReturn(Method.DELETE.toString());
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),
@@ -118,7 +117,6 @@ public class KCAuthServiceImplTest {
         .decodeKcToken(anyString());
 
     when(authInfo.getString(API_ENDPOINT)).thenReturn(api.getRouteRelationship());
-    when(authInfo.getString(METHOD)).thenReturn(Method.DELETE.toString());
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),

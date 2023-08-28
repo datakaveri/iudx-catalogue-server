@@ -50,6 +50,7 @@ public class JwtAuthServiceImplTest {
     authConfig = Configuration.getConfiguration("./configs/config-test.json",1);
     String cert = authConfig.getString("cert");
     authConfig.put("dxApiBasePath", "/iudx/cat/v1");
+    authConfig.put("tempCopIssuer", "cop.iudx.io");
     JWTAuthOptions jwtAuthOptions = new JWTAuthOptions();
     jwtAuthOptions.addPubSecKey(
             new PubSecKeyOptions()
@@ -355,7 +356,7 @@ public class JwtAuthServiceImplTest {
   @DisplayName("successful valid iid check - against cos")
   public void validIidCheckAgainstCos(String itemType, VertxTestContext testContext) {
     JwtData jwtData = jwtDataObject();
-    jwtData.setIid("cop:authvertx.iudx.io");
+    jwtData.setIid("cop:cop.iudx.io");
 
     jwtAuthenticationService.isValidItemId(jwtData, itemType, "")
         .onComplete(handler -> {
