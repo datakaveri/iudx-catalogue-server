@@ -1668,6 +1668,13 @@ paths:
         get:
             tags:
                 - Mlayer Instance
+            parameters:
+                - name: id
+                  description: |
+                      `id` of the instance to be fetched
+                  schema:
+                      type: string
+                  in: query
             responses:
                 '200':
                     content:
@@ -1845,6 +1852,13 @@ paths:
         get:
             tags:
                 - Mlayer Domain
+            parameters:
+                - name: id
+                  description: |
+                      `id` of the data model domain, to be fetched
+                  schema:
+                      type: string
+                  in: query
             responses:
                 '200':
                     content:
@@ -1972,7 +1986,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/successResponseForGettingDatasets'
-                    description: Successfully inserted
+                    description: Successfully fetched
             operationId: get datasets
             description: >
                 Fetches details of all the datasets.
@@ -1999,7 +2013,19 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/successResponseForGettingDatasetResources'
-                    description: Successfully inserted
+                    description: Successfully fetched
+                '400':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseForCreatingInstance'
+                    description: Invalid Document
+                '404':
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/errorResponseForObjectNotFound'
+                    description: dataset not found
             description: Fetches the dataset details of a particular dataset using dataset_id.
             x-codeSamples:
                 - lang: cURL
@@ -2011,6 +2037,13 @@ paths:
         get:
             tags:
                 - MLayer
+            parameters:
+                - name: instance
+                  description: |
+                      `name` of the instance from where the dataset information has to be fetched
+                  schema:
+                      type: string
+                  in: query
             responses:
                 '200':
                     content:
@@ -2294,7 +2327,7 @@ components:
                 totalHits: 10
                 results:
                     - description: UI Test Provider-other
-                      id: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f
+                      id: 9760a820-85b0-40df-b6b0-73d3d1848109
 
         listTypesSuccessResponse:
             title: Response for list with instance type
@@ -2393,7 +2426,7 @@ components:
                 title: Success
                 results:
                     - id: 191e35e3-99c2-43a5-ba8d-811a756b08de
-                      detail: Instance created Sucesssfully
+                      detail: Instance created Successfully
 
         successResponseForGetInstance:
             title: Response for getting instance
@@ -2928,9 +2961,9 @@ components:
                 totalHits: 191
                 results:
                     - instance: pune
-                      provider: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f
+                      provider: 7b8ecc32-650f-485a-a0c8-64e340bb084f
                       label: Civic Issues Reported from Swachhata App in Agra city
-                      id: datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app
+                      id: b268d727-187d-4c78-a4c1-acde99b97ebb
                       accessPolicy: SECURE
                       tags:
                           - swachhata
@@ -3230,6 +3263,26 @@ components:
                       method: delete
                       title: failed
                       detail: 'Fail: Doc doesn''t exist, can''t delete'
+
+        errorResponseForObjectNotFound:
+            title: Response for bad request
+            description: Object with the given id is not found
+            required:
+                - type
+            type: object
+            properties:
+                type:
+                    description: |
+                        Indicates that the object belonging to the given id is not found.
+                    type: string
+                title:
+                    description: A human readable title to the message response
+                detail:
+                    description: A human readable title to the message response saying the object is not present.
+            example:
+                type: urn:dx:cat:ItemNotFound
+                title: Item is not found
+                detail: object belonging to Id requested is not present
 
 
         errorResponseForRelationship:
@@ -3534,10 +3587,9 @@ components:
                     description: name of the city/town from where the dataset belongs to
             example:
                 id:
-                    - datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/faridabad-camera-feeds
-                    - datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app
-                    - datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/chennai-bike-docking-locations
-                instance: pune
+                    - 8b95ab80-2aaf-4636-a65e-7f2563d0d371
+                    - 83c2e5c2-3574-4e11-9530-2b1fbdfce832
+                instance: surat
 
 
 
