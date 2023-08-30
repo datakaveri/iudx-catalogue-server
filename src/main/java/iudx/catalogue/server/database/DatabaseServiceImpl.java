@@ -1692,13 +1692,14 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerAllDatasets(String datasetInstance, Handler<AsyncResult<JsonObject>> handler) {
-  String query = "";
-  if (datasetInstance == null || datasetInstance.isBlank()) {
-    query = GET_MLAYER_ALL_DATASETS;
-  } else {
-    query = GET_INSTANCE_BASED_MLAYER_DATASETS.replace("$1", datasetInstance);
-  }
+  public DatabaseService getMlayerAllDatasets(String datasetInstance,
+                                              Handler<AsyncResult<JsonObject>> handler) {
+    String query = "";
+    if (datasetInstance == null || datasetInstance.isBlank()) {
+      query = GET_MLAYER_ALL_DATASETS;
+    } else {
+      query = GET_INSTANCE_BASED_MLAYER_DATASETS.replace("$1", datasetInstance);
+    }
     // Elastic client call to get all datasets.
     client.searchAsync(
         query,
