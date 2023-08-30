@@ -154,17 +154,17 @@ public final class CrudApis {
                 .put(ITEM_TYPE, itemType);
 
             if (isUac) {
-              //              jwtAuthenticationInfo.put("cos_admin",
-              // requestBody.getString("cos_admin"));
               handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
             } else {
               if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+                // this duplication is used for ease of querying
+                requestBody.put(OWNER, requestBody.getString(PROVIDER));
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else if (itemType.equals(ITEM_TYPE_PROVIDER)) {
                 Future<JsonObject> resourceServerUrlFuture =
-                    getParentObjectInfo(requestBody.getString(RESOURCE_SVR), "getRsUrl", "");
+                    getParentObjectInfo(requestBody.getString(RESOURCE_SVR));
                 // add resource server url to provider body
                 resourceServerUrlFuture.onComplete(
                     resourceServerUrl -> {
@@ -172,11 +172,9 @@ public final class CrudApis {
                         String rsUrl =
                             resourceServerUrl
                                 .result()
-                                .getJsonObject("resourceServers")
                                 .getString(RESOURCE_SERVER_URL);
                         // used for relationship apis
                         String cosId = resourceServerUrl.result().getString(OWNER);
-                        // used at uac authorization
 
                         jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
                         requestBody.put(RESOURCE_SERVER_URL, rsUrl);
@@ -195,22 +193,22 @@ public final class CrudApis {
                       }
                     });
               } else {
-                Future<JsonObject> providerKcIdFuture =
-                    getParentObjectInfo(requestBody.getString(PROVIDER), "getItemType", "");
+                Future<JsonObject> providerUserIdFuture =
+                    getParentObjectInfo(requestBody.getString(PROVIDER));
                 // add provider kc id to requestBody
-                providerKcIdFuture.onComplete(
-                    providerKcId -> {
-                      if (providerKcId.succeeded()) {
-                        LOGGER.debug(providerKcId.result());
-                        String kcId = providerKcId.result().getString(PROVIDER_KC_ID);
-                        String rsUrl = providerKcId.result().getString(RESOURCE_SERVER_URL);
+                providerUserIdFuture.onComplete(
+                    providerUserId -> {
+                      if (providerUserId.succeeded()) {
+                        LOGGER.debug(providerUserId.result());
+                        String kcId = providerUserId.result().getString(PROVIDER_USER_ID);
+                        String rsUrl = providerUserId.result().getString(RESOURCE_SERVER_URL);
                         // cosId is used for relationship apis
 
-                        jwtAuthenticationInfo.put(PROVIDER_KC_ID, kcId);
+                        jwtAuthenticationInfo.put(PROVIDER_USER_ID, kcId);
                         jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
-                        requestBody.put(PROVIDER_KC_ID, kcId);
+                        requestBody.put(PROVIDER_USER_ID, kcId);
 
-                        String cosId = providerKcId.result().getString(OWNER);
+                        String cosId = providerUserId.result().getString(OWNER);
                         requestBody.put(OWNER, cosId);
                         handleItemCreation(
                             routingContext, requestBody, response, jwtAuthenticationInfo);
@@ -405,7 +403,7 @@ public final class CrudApis {
         .put(METHOD, REQUEST_DELETE)
         .put(API_ENDPOINT, api.getRouteItems());
     if (validateId(itemId)) {
-      Future<JsonObject> itemTypeFuture = getParentObjectInfo(itemId, "getItemType", "");
+      Future<JsonObject> itemTypeFuture = getParentObjectInfo(itemId);
       itemTypeFuture.onComplete(
           itemTypeHandler -> {
             if (itemTypeHandler.succeeded()) {
@@ -417,62 +415,7 @@ public final class CrudApis {
               LOGGER.debug("itemType : {} ", itemType);
               jwtAuthenticationInfo.put(ITEM_TYPE, itemType);
               if (isUac) {
-                if (!itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-                  if (itemType.equalsIgnoreCase(ITEM_TYPE_INSTANCE)) {
-                    handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
-                  }
-
-                  String resourceServer =
-                      itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)
-                          ? itemId
-                          : itemTypeHandler.result().getString(RESOURCE_SVR);
-                  Future<JsonObject> rsUrlFuture =
-                      getParentObjectInfo(resourceServer, "getRsUrl", itemType);
-
-                  rsUrlFuture.onComplete(
-                      rsUrl -> {
-                        if (rsUrl.succeeded()) {
-                          jwtAuthenticationInfo.put(
-                              RESOURCE_SERVER_URL,
-                              rsUrl
-                                  .result()
-                                  .getJsonObject("resourceServers")
-                                  .getString(RESOURCE_SERVER_URL));
-                          handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
-                        }
-                      });
-                } else {
-
-                  Future<JsonObject> rgFuture =
-                      getParentObjectInfo(
-                          itemTypeHandler.result().getString(RESOURCE_GRP),
-                          "getRsUrl",
-                          ITEM_TYPE_RESOURCE_GROUP);
-
-                  rgFuture.onComplete(
-                      rg -> {
-                        if (rg.succeeded()) {
-                          LOGGER.debug(rg.result());
-                          Future<JsonObject> rsUrlFuture =
-                              getParentObjectInfo(
-                                  rg.result().getString(RESOURCE_SVR), "getRsUrl", itemType);
-
-                          rsUrlFuture.onComplete(
-                              rsUrl -> {
-                                if (rsUrl.succeeded()) {
-                                  jwtAuthenticationInfo.put(
-                                      RESOURCE_SERVER_URL,
-                                      rsUrl
-                                          .result()
-                                          .getJsonObject("resourceServers")
-                                          .getString(RESOURCE_SERVER_URL));
-                                  handleItemDeletion(
-                                      response, jwtAuthenticationInfo, requestBody, itemId);
-                                }
-                              });
-                        }
-                      });
-                }
+                handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
               } else {
                 if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
                   handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
@@ -487,15 +430,16 @@ public final class CrudApis {
                   LOGGER.debug(itemTypeHandler.result());
                   Future<JsonObject> providerInfoFuture =
                       getParentObjectInfo(
-                          itemTypeHandler.result().getString(PROVIDER), "getItemType", itemType);
+                          itemTypeHandler.result().getString(PROVIDER));
                   providerInfoFuture.onComplete(
                       providerInfo -> {
                         if (providerInfo.succeeded()) {
                           LOGGER.debug(providerInfo.result());
                           String rsUrl = providerInfo.result().getString(RESOURCE_SERVER_URL, "");
-                          String providerKcId = providerInfo.result().getString(PROVIDER_KC_ID, "");
+                          String providerUserId =
+                              providerInfo.result().getString(PROVIDER_USER_ID, "");
                           jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
-                          jwtAuthenticationInfo.put(PROVIDER_KC_ID, providerKcId);
+                          jwtAuthenticationInfo.put(PROVIDER_USER_ID, providerUserId);
                           handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
                         } else {
                           response
@@ -575,11 +519,10 @@ public final class CrudApis {
         });
   }
 
-  Future<JsonObject> getParentObjectInfo(String itemId, String searchType, String itemType) {
+  Future<JsonObject> getParentObjectInfo(String itemId) {
     Promise<JsonObject> promise = Promise.promise();
     JsonObject req = new JsonObject().put(ID, itemId)
-            .put(SEARCH_TYPE, searchType)
-            .put(ITEM_TYPE, itemType);
+            .put(SEARCH_TYPE, "getParentObjectInfo");
 
     LOGGER.debug(req);
     dbService.searchQuery(
@@ -590,7 +533,7 @@ public final class CrudApis {
               RespBuilder respBuilder = new RespBuilder()
                   .withType(TYPE_ITEM_NOT_FOUND)
                   .withTitle(TITLE_ITEM_NOT_FOUND)
-                  .withDetail("Fail: Doc doesn't exist, can't delete");
+                  .withDetail("Fail: Doc doesn't exist, can't perform operation");
               promise.fail(respBuilder.getResponse());
             } else {
               promise.complete(handler.result().getJsonArray("results").getJsonObject(0));

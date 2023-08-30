@@ -609,55 +609,15 @@ public class QueryDecoderTest {
     JsonObject request=new JsonObject();
     JsonArray jsonArray=new JsonArray();
     jsonArray.add("dummy");
-    request.put(SEARCH_TYPE,"getItemType")
+    request.put(SEARCH_TYPE,"getParentObjectInfo")
             .put(ID,"id");
     JsonObject elasticQuery =
         new JsonObject(
             GET_DOC_QUERY
                 .replace("$1", request.getString(ID))
-                .replace("$2", "\"type\",\"provider\",\"providerKcId\",\"resourceGroup\",\"resourceServer\", \"resourceServerURL\", \"owner\", \"cos_admin\""));
+                .replace("$2", "\"type\",\"provider\",\"providerUserId\",\"resourceGroup\",\"resourceServer\", \"resourceServerURL\", \"owner\", \"cos_admin\""));
     assertEquals(elasticQuery,queryDecoder.searchQuery(request));
 
     vertxTestContext.completeNow();
   }
-  @Test
-  @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
-  public void testsearchQueryGetUrl(VertxTestContext vertxTestContext) {
-    queryDecoder=new QueryDecoder();
-    JsonObject request=new JsonObject();
-    JsonArray jsonArray=new JsonArray();
-    jsonArray.add("dummy");
-    request.put(SEARCH_TYPE,"getRsUrl")
-            .put(ID,"id")
-            .put(ITEM_TYPE,"iudx:Provider");
-    JsonObject elasticQuery =
-        new JsonObject(
-            GET_DOC_QUERY
-                .replace("$1", request.getString(ID))
-                .replace("$2", "\"resourceServers.resourceServerURL\", \"owner\", \"cos_admin\""));
-    assertEquals(elasticQuery,queryDecoder.searchQuery(request));
-
-    vertxTestContext.completeNow();
-  }
-
-  @Test
-  @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
-  public void testsearchQueryResourceGrp(VertxTestContext vertxTestContext) {
-    queryDecoder=new QueryDecoder();
-    JsonObject request=new JsonObject();
-    JsonArray jsonArray=new JsonArray();
-    jsonArray.add("dummy");
-    request.put(SEARCH_TYPE,"getRsUrl")
-            .put(ID,"id")
-            .put(ITEM_TYPE, "iudx:ResourceGroup");
-    JsonObject elasticQuery =
-        new JsonObject(
-            GET_DOC_QUERY.replace("$1", request.getString(ID)).replace("$2", "\"resourceServers.resourceServerURL\", \"owner\", \"cos_admin\""));
-    assertEquals(elasticQuery,queryDecoder.searchQuery(request));
-
-    vertxTestContext.completeNow();
-  }
-
-
-
 }

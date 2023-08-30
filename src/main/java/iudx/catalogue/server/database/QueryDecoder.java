@@ -10,11 +10,38 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
-
 public final class QueryDecoder {
 
   private static final Logger LOGGER = LogManager.getLogger(QueryDecoder.class);
+
+  private static JsonObject handleResponseFiltering(
+      JsonObject request, String relationshipType, String elasticQuery) {
+    Integer limit =
+        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+    if (TYPE_KEY.equals(relationshipType)) {
+      tempQuery.put(SOURCE, TYPE_KEY);
+    }
+
+    /* checking the requests for limit attribute */
+    if (request.containsKey(LIMIT)) {
+      Integer sizeFilter = request.getInteger(LIMIT);
+      tempQuery.put(SIZE_KEY, sizeFilter);
+    }
+
+    /* checking the requests for offset attribute */
+    if (request.containsKey(OFFSET)) {
+      Integer offsetFilter = request.getInteger(OFFSET);
+      tempQuery.put(FROM, offsetFilter);
+    }
+
+    if (request.containsKey(FILTER)) {
+      JsonArray sourceFilter = request.getJsonArray(FILTER, new JsonArray());
+      tempQuery.put(SOURCE, sourceFilter);
+    }
+    return tempQuery;
+  }
 
   /**
    * Decodes and constructs ElasticSearch Search/Count query based on the parameters passed in the
@@ -31,26 +58,16 @@ public final class QueryDecoder {
     JsonArray mustQuery = new JsonArray();
     Boolean match = false;
 
-    if (searchType.equalsIgnoreCase("getItemType")) {
+    if (searchType.equalsIgnoreCase("getParentObjectInfo")) {
       elasticQuery =
           new JsonObject(
               GET_DOC_QUERY
                   .replace("$1", request.getString(ID))
                   .replace(
                       "$2",
-                      "\"type\",\"provider\",\"providerKcId\",\"resourceGroup\",\"resourceServer\","
+                      "\"type\",\"provider\",\"providerUserId\","
+                          + "\"resourceGroup\",\"resourceServer\","
                           + "\"resourceServerURL\", \"owner\", \"cos_admin\""));
-      return elasticQuery;
-    }
-    if (searchType.equalsIgnoreCase("getRsUrl")) {
-      LOGGER.debug(request);
-      elasticQuery =
-          new JsonObject(
-              GET_DOC_QUERY
-                  .replace("$1", request.getString(ID))
-                  .replace(
-                      "$2", "\"resourceServers.resourceServerURL\", \"owner\", \"cos_admin\""));
-
       return elasticQuery;
     }
 
@@ -429,7 +446,7 @@ public final class QueryDecoder {
                 .replace("$2", request.getString(OWNER));
 
       } else {
-        return null;
+        subQuery = subQuery.substring(0, subQuery.length() - 1);
       }
 
       String elasticQuery = BOOL_SHOULD_QUERY.replace("$1", subQuery);
@@ -442,35 +459,6 @@ public final class QueryDecoder {
     String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
     JsonObject tempQuery = handleResponseFiltering(request, relationshipType, elasticQuery);
     return tempQuery.toString();
-  }
-
-  private static JsonObject handleResponseFiltering(
-      JsonObject request, String relationshipType, String elasticQuery) {
-    Integer limit =
-        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
-    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
-
-    if (TYPE_KEY.equals(relationshipType)) {
-      tempQuery.put(SOURCE, TYPE_KEY);
-    }
-
-    /* checking the requests for limit attribute */
-    if (request.containsKey(LIMIT)) {
-      Integer sizeFilter = request.getInteger(LIMIT);
-      tempQuery.put(SIZE_KEY, sizeFilter);
-    }
-
-    /* checking the requests for offset attribute */
-    if (request.containsKey(OFFSET)) {
-      Integer offsetFilter = request.getInteger(OFFSET);
-      tempQuery.put(FROM, offsetFilter);
-    }
-
-    if (request.containsKey(FILTER)) {
-      JsonArray sourceFilter = request.getJsonArray(FILTER, new JsonArray());
-      tempQuery.put(SOURCE, sourceFilter);
-    }
-    return tempQuery;
   }
 
   /**

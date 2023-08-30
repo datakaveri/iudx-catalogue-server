@@ -10,7 +10,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.authentication.TokenCredentials;
 import io.vertx.ext.auth.jwt.JWTAuth;
@@ -90,6 +89,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         break;
       case ITEM_TYPE_COS:
       case ITEM_TYPE_RESOURCE_SERVER:
+      case ITEM_TYPE_INSTANCE:
         isValidAudience =
             tempCopAudience != null && tempCopAudience.equalsIgnoreCase(jwtData.getAud());
         break;
@@ -118,6 +118,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       jwtId = jwtData.getDid();
     }
 
+    LOGGER.debug(provider);
+    LOGGER.debug(jwtId);
     if (provider.equalsIgnoreCase(jwtId)) {
       promise.complete(true);
     } else {
@@ -188,7 +190,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   public AuthenticationService tokenInterospect(
       JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     String endPoint = authenticationInfo.getString(API_ENDPOINT);
-    String provider = authenticationInfo.getString(PROVIDER_KC_ID, "");
+    String provider = authenticationInfo.getString(PROVIDER_USER_ID, "");
     String token = authenticationInfo.getString(TOKEN);
     String itemType = authenticationInfo.getString(ITEM_TYPE, "");
     // TODO: remove rsUrl check

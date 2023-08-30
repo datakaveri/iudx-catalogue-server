@@ -242,7 +242,7 @@ public class ValidatorServiceImpl implements ValidatorService {
     }
 
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
-    String owner = request.getString(OWNER);
+    String owner = request.getString(PROVIDER);
     client.searchGetId(
         checkQuery.replace("$1", owner),
         docIndex,

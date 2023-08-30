@@ -107,7 +107,7 @@ public class JwtAuthServiceImplTest {
         .put("apiEndpoint", "/iudx/cat/v1/item")
         .put("itemType", "iudx:Resource")
         .put("resourceServerURL", "cat-test.iudx.io")
-        .put("providerKcId", "d8e46706-b9db-44e1-a9aa-e40839396b01")
+        .put("providerUserId", "d8e46706-b9db-44e1-a9aa-e40839396b01")
         .put("method", Method.POST);
     return jsonObject;
   }

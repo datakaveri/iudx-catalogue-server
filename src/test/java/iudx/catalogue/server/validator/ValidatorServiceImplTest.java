@@ -121,7 +121,7 @@ public class ValidatorServiceImplTest {
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(ITEM_TYPE_RESOURCE_SERVER);
     request.put(TYPE, jsonArray);
-    request.put(OWNER, "owner-id");
+    request.put(PROVIDER, "owner-id");
     request.put(NAME, "dummy");
 
     assertNotNull(validatorService.validateItem(request, handler));
@@ -174,6 +174,7 @@ public class ValidatorServiceImplTest {
   @Description("testing the method validateItem when itemType equals resource server and hits is 1")
   public void testValidateItemResourceServer(VertxTestContext vertxTestContext) {
     JsonObject request = requestBody();
+    request.put(PROVIDER, "owner-id");
     JsonObject json = new JsonObject();
     json.put(TOTAL_HITS, 1);
 
