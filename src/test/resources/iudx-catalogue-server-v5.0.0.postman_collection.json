@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "4d4a864a-b4ed-40bb-9058-57a3fab08809",
+		"_postman_id": "f6073aac-49ba-431f-8d3a-69c5ca08e137",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27217689"
+		"_exporter_id": "17194681"
 	},
 	"item": [
 		{
@@ -305,7 +305,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServer\",\r\n    \"description\": \"Multi tenanted IUDX resource server\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"owner\": \"{{cos_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServers\": {\r\n        \"name\": \"iudx-rs\",\r\n        \"resourceServerURL\": \"cat-test.iudx.io\",\r\n        \"subdomains\": [\r\n            {\r\n                \"protocol\": \"http\",\r\n                \"accessURL\": \"rs\",\r\n                \"port\": 8080\r\n            },\r\n            {\r\n                \"protocol\": \"amqps\",\r\n                \"accessURL\": \"databroker\",\r\n                \"port\": 5672\r\n            },\r\n            {\r\n                \"protocol\": \"ftp\",\r\n                \"accessURL\": \"file\",\r\n                \"port\": 8090\r\n            }\r\n        ]\r\n    },\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServer\",\r\n    \"description\": \"Multi tenanted IUDX resource server\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"provider\": \"{{cos_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServerURL\": \"cat-test.iudx.io\",\r\n    \"resourceServerSubdomains\": [\r\n        {\r\n            \"protocol\": \"http\",\r\n            \"accessURL\": \"rs\",\r\n            \"port\": 8080\r\n        },\r\n        {\r\n            \"protocol\": \"amqps\",\r\n            \"accessURL\": \"databroker\",\r\n            \"port\": 5672\r\n        },\r\n        {\r\n            \"protocol\": \"ftp\",\r\n            \"accessURL\": \"file\",\r\n            \"port\": 8090\r\n        }\r\n    ],\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
