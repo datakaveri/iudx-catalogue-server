@@ -2879,7 +2879,7 @@ public class DatabaseServiceImplTest {
         .searchAsync(any(), any(), any());
 
     dbService.getMlayerAllDatasets(
-        handler -> {
+        "abc", handler -> {
           if (handler.succeeded()) {
             // verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
             verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
@@ -2923,7 +2923,7 @@ public class DatabaseServiceImplTest {
         .searchAsync(any(), any(), any());
 
     dbService.getMlayerAllDatasets(
-        handler -> {
+            "abc", handler -> {
           if (handler.succeeded()) {
             // verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
             verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
@@ -2956,7 +2956,7 @@ public class DatabaseServiceImplTest {
         .searchAsync(any(), any(), any());
 
     dbService.getMlayerAllDatasets(
-        handler -> {
+        "abc" ,handler -> {
           if (handler.failed()) {
             // verify(DatabaseServiceImpl.client, times(1)).searchAsyncDataset(any(), any(), any());
             verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
