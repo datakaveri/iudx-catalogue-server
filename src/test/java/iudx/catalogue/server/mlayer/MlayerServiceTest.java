@@ -702,16 +702,16 @@ public class MlayerServiceTest {
                     @SuppressWarnings("unchecked")
                     @Override
                     public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
                         return null;
                     }
                 })
                 .when(databaseService)
-                .getMlayerAllDatasets(any());
+                .getMlayerAllDatasets(any(), any());
         mlayerService.getMlayerAllDatasets(
-                handler -> {
+               "abc" ,handler -> {
                     if (handler.succeeded()) {
-                        verify(databaseService, times(1)).getMlayerAllDatasets(any());
+                        verify(databaseService, times(1)).getMlayerAllDatasets(any(), any());
                         testContext.completeNow();
                     } else {
                         LOGGER.debug("Fail");
@@ -732,17 +732,17 @@ public class MlayerServiceTest {
                             @SuppressWarnings("unchecked")
                             @Override
                             public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(0)).handle(asyncResult);
+                                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
                                 return null;
                             }
                         })
                 .when(databaseService)
-                .getMlayerAllDatasets(any());
+                .getMlayerAllDatasets(any(), any());
 
         mlayerService.getMlayerAllDatasets(
-                handler -> {
+               "abc" ,handler -> {
                     if (handler.succeeded()) {
-                        verify(databaseService, times(1)).getMlayerAllDatasets(any());
+                        verify(databaseService, times(1)).getMlayerAllDatasets(any(), any());
                         LOGGER.debug("Fail");
                         testContext.failNow(handler.cause());
                     } else {

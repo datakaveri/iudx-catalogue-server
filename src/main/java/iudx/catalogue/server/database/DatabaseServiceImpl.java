@@ -1,7 +1,6 @@
 package iudx.catalogue.server.database;
 
 import static iudx.catalogue.server.database.Constants.*;
-import static iudx.catalogue.server.database.Constants.GET_DOC_QUERY_WITH_TYPE;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
@@ -1693,9 +1692,14 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
-    String query = GET_MLAYER_ALL_DATASETS;
-    LOGGER.debug(query);
+  public DatabaseService getMlayerAllDatasets(String datasetInstance,
+                                              Handler<AsyncResult<JsonObject>> handler) {
+    String query = "";
+    if (datasetInstance == null || datasetInstance.isBlank()) {
+      query = GET_MLAYER_ALL_DATASETS;
+    } else {
+      query = GET_INSTANCE_BASED_MLAYER_DATASETS.replace("$1", datasetInstance);
+    }
     // Elastic client call to get all datasets.
     client.searchAsync(
         query,
@@ -1704,6 +1708,13 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (resultHandler.succeeded()) {
             LOGGER.debug("Success: Successful DB Request");
             int size = resultHandler.result().getJsonArray(RESULTS).size();
+            if (size == 0) {
+              handler.handle(Future.failedFuture(new RespBuilder()
+                          .withType(TYPE_ITEM_NOT_FOUND)
+                          .withTitle(TITLE_ITEM_NOT_FOUND)
+                          .withDetail("no datasets are present")
+                          .getResponse()));
+            }
             ArrayList<String> instanceList = new ArrayList<String>();
             ArrayList<String> providerList = new ArrayList<String>();
             // make a list of instance names and provider_id.
@@ -1733,7 +1744,9 @@ public class DatabaseServiceImpl implements DatabaseService {
               String combinedQuery = GET_MLAYER_BOOL_ICON.replace("$2", instance);
               sb.append(combinedQuery).append(",");
             }
-            sb.deleteCharAt(sb.length() - 1);
+            if (sb.length() > 0) {
+              sb.deleteCharAt(sb.length() - 1);
+            }
             String getIconQuery = GET_MLAYER_INSTANCE_ICON_PATH.replace("$1", sb);
             // query to get provider description and total Resource
             StringBuilder sb1 = new StringBuilder();
@@ -1745,7 +1758,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
               sb1.append(combinedQuery).append(",");
             }
-            sb1.deleteCharAt(sb1.length() - 1);
+            if (sb1.length() > 0) {
+              sb1.deleteCharAt(sb1.length() - 1);
+            }
             String getProviderQuery = GET_MLAYER_PROVIDER_RESOURCE.replace("$1", sb1);
             // Elastic client call to get instance icon paths.
             client.searchAsync(
@@ -2048,7 +2063,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   private void allMlayerDomains(Promise<JsonArray> domainResult) {
     client.searchAsync(
-        GET_MLAYER_DOMAIN_QUERY,
+            GET_ALL_MLAYER_DOMAIN_QUERY,
         mlayerDomainIndex,
         getDomainHandler -> {
           if (getDomainHandler.succeeded()) {
@@ -2096,6 +2111,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             Map<String, Integer> resourceGroupCount = new HashMap<>();
             Map<String, String> providerDescription = new HashMap<>();
             Map<String, Integer> typeCount = new HashMap<>();
+            typeCount.put("iudx:Provider", 0);
+            typeCount.put("iudx:ResourceGroup", 0);
+            typeCount.put("iudx:Resource", 0);
 
             for (int i = 0; i < getCatRecords.result().getJsonArray(RESULTS).size(); i++) {
               JsonObject record = getCatRecords.result().getJsonArray(RESULTS).getJsonObject(i);

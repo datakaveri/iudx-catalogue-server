@@ -527,8 +527,12 @@ public class MlayerApis {
     LOGGER.debug("Info : fetching all datasets that belong to IUDX");
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    String instance = "";
+    if (routingContext.request().getParam(INSTANCE) != null) {
+      instance = routingContext.request().getParam(INSTANCE);
+    }
     mlayerService.getMlayerAllDatasets(
-        handler -> {
+        instance, handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {

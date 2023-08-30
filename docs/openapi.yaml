@@ -1980,6 +1980,13 @@ paths:
         get:
             tags:
                 - Mlayer Dataset
+            parameters:
+                - name: instance
+                  description: |
+                      `name` of the instance from where the datasets belong
+                  schema:
+                      type: string
+                  in: query
             responses:
                 200:
                     content:

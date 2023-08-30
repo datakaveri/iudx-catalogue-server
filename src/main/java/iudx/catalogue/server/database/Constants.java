@@ -193,6 +193,11 @@ public class Constants {
               + "\"_source\":{\"includes\": [\"id\",\"label\",\"accessPolicy\",\"tags\","
               + "\"instance\",\"provider\"]},\"size\": 10000}";
 
+  public static  final String GET_INSTANCE_BASED_MLAYER_DATASETS =
+          "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"type.keyword\": \"iudx:ResourceGroup\"}},"
+                  + "{\"match\":{\"instance.keyword\": \"$1\"}}]}},\"_source\":{\"includes\": "
+                  + "[\"id\", \"label\", \"accessPolicy\", \"tags\", \"instance\", \"provider\"]},"
+                  + "\"size\": 10000}\n";
   public static final String GET_MLAYER_DATASET =
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"id.keyword\": "
               + "\"$1\"}},{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}]}},{\"bool\":"

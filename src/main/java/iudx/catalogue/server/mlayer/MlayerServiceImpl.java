@@ -222,9 +222,10 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerAllDatasets(String instance,
+                                            Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerAllDatasets(
-        getMlayerAllDatasets -> {
+        instance, getMlayerAllDatasets -> {
           if (getMlayerAllDatasets.succeeded()) {
             LOGGER.info("Success: Getting all datasets");
             handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));

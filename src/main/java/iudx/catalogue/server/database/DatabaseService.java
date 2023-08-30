@@ -280,11 +280,12 @@ public interface DatabaseService {
   /**
    * The get Mlayer All Datasets gets all the dataset belonging to IUDX.
    *
+   * @param instance which is a string
    * @param handler which is a request handler
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerAllDatasets(String instance, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The get Mlayer datasset get details of the dataset.

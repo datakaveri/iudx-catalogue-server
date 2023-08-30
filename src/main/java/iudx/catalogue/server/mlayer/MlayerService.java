@@ -48,7 +48,7 @@ public interface MlayerService {
   MlayerService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getMlayerAllDatasets(String instance, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
   MlayerService getMlayerDataset(String datasetId, Handler<AsyncResult<JsonObject>> handler);
