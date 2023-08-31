@@ -12681,7 +12681,7 @@
 										"header": [
 											{
 												"key": "token",
-												"value": "{{adminToken}}",
+												"value": "{{cosAdminToken}}",
 												"type": "text"
 											}
 										],
@@ -12738,7 +12738,7 @@
 										"header": [
 											{
 												"key": "token",
-												"value": "{{adminToken}}",
+												"value": "{{cosAdminToken}}",
 												"type": "text"
 											}
 										],
@@ -12858,7 +12858,7 @@
 										"header": [
 											{
 												"key": "token",
-												"value": "{{adminToken}}",
+												"value": "{{cosAdminToken}}",
 												"type": "text"
 											}
 										],
