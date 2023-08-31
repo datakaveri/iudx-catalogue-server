@@ -68,6 +68,19 @@
 				},
 				{
 					"name": "Get DELEGATE token for uploading items",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.environment.set(\"token\", jsonData.results.accessToken);",
+									"postman.setEnvironmentVariable(\"token\", jsonData.results.accessToken);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "noauth"
