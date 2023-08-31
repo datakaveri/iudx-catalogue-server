@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f6073aac-49ba-431f-8d3a-69c5ca08e137",
+		"_postman_id": "6188c708-5588-4074-9c48-793a5ba8f314",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "17194681"
@@ -35,6 +35,11 @@
 							{
 								"key": "clientSecret",
 								"value": "{{clientSecret}}",
+								"type": "text"
+							},
+							{
+								"key": "Cache-Control",
+								"value": "no-cache, no-store, must-revalidate",
 								"type": "text"
 							}
 						],
@@ -93,10 +98,9 @@
 								"type": "text"
 							},
 							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
+								"key": "Cache-Control",
+								"value": "no-cache, no-store, must-revalidate",
+								"type": "text"
 							},
 							{
 								"key": "",
@@ -160,10 +164,9 @@
 								"type": "text"
 							},
 							{
-								"key": "",
-								"value": "",
-								"type": "text",
-								"disabled": true
+								"key": "Cache-Control",
+								"value": "no-cache, no-store, must-revalidate",
+								"type": "text"
 							},
 							{
 								"key": "",
