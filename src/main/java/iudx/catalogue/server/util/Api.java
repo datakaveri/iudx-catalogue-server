@@ -31,7 +31,7 @@ public class Api {
   private StringBuilder routeMlayerGeoquery;
   private StringBuilder routeMlayerDataset;
   private StringBuilder routeMlayerPopularDatasets;
-
+  private StringBuilder routeRating;
 
 
 
@@ -86,6 +86,7 @@ public class Api {
     routeMlayerDataset = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_DATASET);
     routeMlayerPopularDatasets = new StringBuilder(dxApiBasePath)
             .append(ROUTE_MLAYER_POPULAR_DATASETS);
+    routeRating = new StringBuilder(ROUTE_RATING);
   }
 
   public String getRouteItems() {
@@ -166,6 +167,10 @@ public class Api {
 
   public String getRouteMlayerPopularDatasets() {
     return routeMlayerPopularDatasets.toString();
+  }
+
+  public String getRouteRating() {
+    return routeRating.toString();
   }
 }
 

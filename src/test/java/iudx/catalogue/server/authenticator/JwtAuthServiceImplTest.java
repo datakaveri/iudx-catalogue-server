@@ -51,6 +51,7 @@ public class JwtAuthServiceImplTest {
     String cert = authConfig.getString("cert");
     authConfig.put("dxApiBasePath", "/iudx/cat/v1");
     authConfig.put("tempCopIssuer", "cop.iudx.io");
+    authConfig.put("tempCopAudience", "cop.iudx.io");
     JWTAuthOptions jwtAuthOptions = new JWTAuthOptions();
     jwtAuthOptions.addPubSecKey(
             new PubSecKeyOptions()
@@ -107,7 +108,7 @@ public class JwtAuthServiceImplTest {
         .put("apiEndpoint", "/iudx/cat/v1/item")
         .put("itemType", "iudx:Resource")
         .put("resourceServerURL", "cat-test.iudx.io")
-        .put("providerKcId", "d8e46706-b9db-44e1-a9aa-e40839396b01")
+        .put("providerUserId", "d8e46706-b9db-44e1-a9aa-e40839396b01")
         .put("method", Method.POST);
     return jsonObject;
   }
@@ -485,8 +486,9 @@ public class JwtAuthServiceImplTest {
   public void adminTokenInterospectSuccess(VertxTestContext vertxTestContext) {
 
     JsonObject authInfo = new JsonObject();
+
     authInfo
-        .put("token", JwtTokenHelper.adminToken)
+        .put("token", JwtTokenHelper.cosAdminToken)
         .put("id", "catalogue.iudx.io")
         .put("apiEndpoint", "/iudx/cat/v1/instance")
         .put("itemType", "iudx:Instance")

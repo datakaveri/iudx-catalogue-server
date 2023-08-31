@@ -2,8 +2,7 @@ package iudx.catalogue.server.authenticator.authorization;
 
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
 import static iudx.catalogue.server.authenticator.authorization.Method.DELETE;
-import static iudx.catalogue.server.util.Constants.ITEM_TYPE_COS;
-import static iudx.catalogue.server.util.Constants.ITEM_TYPE_RESOURCE_SERVER;
+import static iudx.catalogue.server.util.Constants.*;
 
 import iudx.catalogue.server.util.Api;
 import java.util.ArrayList;
@@ -46,6 +45,15 @@ public class CosAdminAuthStrategy implements AuthorizationStratergy {
     accessList.add(new AuthorizationRequest(PUT, api.getRouteItems(), ITEM_TYPE_RESOURCE_SERVER));
     accessList.add(
         new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_RESOURCE_SERVER));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteMlayerInstance(), ""));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteMlayerInstance(), ""));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteMlayerInstance(), ""));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteMlayerDomains(), ""));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteMlayerDomains(), ""));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteMlayerDomains(), ""));
+
   }
 
   @Override

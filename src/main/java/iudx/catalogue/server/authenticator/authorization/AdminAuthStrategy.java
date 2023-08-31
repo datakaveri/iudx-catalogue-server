@@ -1,7 +1,6 @@
 package iudx.catalogue.server.authenticator.authorization;
 
 import static iudx.catalogue.server.authenticator.authorization.Method.*;
-import static iudx.catalogue.server.util.Constants.ITEM_TYPE_INSTANCE;
 import static iudx.catalogue.server.util.Constants.ITEM_TYPE_PROVIDER;
 
 import iudx.catalogue.server.util.Api;
@@ -39,15 +38,6 @@ public class AdminAuthStrategy implements AuthorizationStratergy {
     // /item access list
     accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_PROVIDER));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_PROVIDER));
-    accessList.add(new AuthorizationRequest(POST, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
-    accessList.add(new AuthorizationRequest(DELETE, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
-    accessList.add(new AuthorizationRequest(POST, api.getRouteMlayerInstance(), ""));
-    accessList.add(new AuthorizationRequest(DELETE, api.getRouteMlayerInstance(), ""));
-    accessList.add(new AuthorizationRequest(PUT, api.getRouteMlayerInstance(), ""));
-    accessList.add(new AuthorizationRequest(POST, api.getRouteMlayerDomains(), ""));
-    accessList.add(new AuthorizationRequest(PUT, api.getRouteMlayerDomains(), ""));
-    accessList.add(new AuthorizationRequest(DELETE, api.getRouteMlayerDomains(), ""));
-
   }
 
   @Override

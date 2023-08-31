@@ -67,7 +67,6 @@ public class RatingApis {
   public void createRatingHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: Creating Rating");
 
-    JsonObject requestBody = routingContext.body().asJsonObject();
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
 
@@ -96,6 +95,7 @@ public class RatingApis {
         .put(ID, host);
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
+    JsonObject requestBody = routingContext.body().asJsonObject();
 
     authenticationFuture
         .onSuccess(
@@ -259,7 +259,6 @@ public class RatingApis {
   public void updateRatingHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: Updating Rating");
 
-    JsonObject requestBody = routingContext.body().asJsonObject();
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
 
@@ -288,6 +287,7 @@ public class RatingApis {
         .put(Constants.ID, host);
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
+    JsonObject requestBody = routingContext.body().asJsonObject();
 
     authenticationFuture
         .onSuccess(

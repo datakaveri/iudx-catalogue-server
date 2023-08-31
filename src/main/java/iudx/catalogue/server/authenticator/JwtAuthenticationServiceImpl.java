@@ -10,7 +10,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.authentication.TokenCredentials;
 import io.vertx.ext.auth.jwt.JWTAuth;
@@ -45,8 +44,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   String tempCopIssuer;
   private Api api;
 
-  JwtAuthenticationServiceImpl(
-      final JWTAuth jwtAuth, final JsonObject config, final Api api) {
+  JwtAuthenticationServiceImpl(final JWTAuth jwtAuth, final JsonObject config, final Api api) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("host");
     this.issuer = config.getString("issuer");
@@ -88,13 +86,12 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       case ITEM_TYPE_RESOURCE:
         isValidAudience = serverUrl != null && serverUrl.equalsIgnoreCase(jwtData.getAud());
         break;
-      case ITEM_TYPE_COS:
-      case ITEM_TYPE_RESOURCE_SERVER:
+      default:
         isValidAudience =
             tempCopAudience != null && tempCopAudience.equalsIgnoreCase(jwtData.getAud());
         break;
-      default:
-        isValidAudience = audience != null && audience.equalsIgnoreCase(jwtData.getAud());
+        //      default:
+        //        isValidAudience = audience != null && audience.equalsIgnoreCase(jwtData.getAud());
     }
 
     if (isValidAudience) {
@@ -118,6 +115,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       jwtId = jwtData.getDid();
     }
 
+    LOGGER.debug(provider);
+    LOGGER.debug(jwtId);
     if (provider.equalsIgnoreCase(jwtId)) {
       promise.complete(true);
     } else {
@@ -188,7 +187,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   public AuthenticationService tokenInterospect(
       JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     String endPoint = authenticationInfo.getString(API_ENDPOINT);
-    String provider = authenticationInfo.getString(PROVIDER_KC_ID, "");
+    String provider = authenticationInfo.getString(PROVIDER_USER_ID, "");
     String token = authenticationInfo.getString(TOKEN);
     String itemType = authenticationInfo.getString(ITEM_TYPE, "");
     // TODO: remove rsUrl check
@@ -210,6 +209,12 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         .compose(
             decodeHandler -> {
               result.jwtData = decodeHandler;
+
+              // audience for ratings is different from other cos endpoints
+              if (endPoint.equalsIgnoreCase(api.getRouteRating())
+                  && result.jwtData.getAud().equalsIgnoreCase(audience)) {
+                return Future.succeededFuture(true);
+              }
               return isValidAudienceValue(result.jwtData, itemType, resourceServerUrl);
             })
         .compose(
@@ -264,8 +269,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
    * @param resourceServerUrl which is a String
    * @return Vertx Future which is of the type boolean
    */
-  Future<Boolean> isValidItemId(
-      JwtData jwtData, String itemType, String resourceServerUrl) {
+  Future<Boolean> isValidItemId(JwtData jwtData, String itemType, String resourceServerUrl) {
     String iid = jwtData.getIid();
     String type = iid.substring(0, iid.indexOf(":"));
     String server = iid.substring(iid.indexOf(":") + 1);

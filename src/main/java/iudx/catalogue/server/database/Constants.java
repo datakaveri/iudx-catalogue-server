@@ -199,17 +199,18 @@ public class Constants {
                   + "[\"id\", \"label\", \"accessPolicy\", \"tags\", \"instance\", \"provider\"]},"
                   + "\"size\": 10000}\n";
   public static final String GET_MLAYER_DATASET =
-      "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"id.keyword\": "
-              + "\"$1\"}},{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}]}},{\"bool\":"
-              + "{\"must\":[{\"match\":{\"id.keyword\": \"2$\"}},{\"match\":{\"type.keyword\": "
-              + "\"iudx:Provider\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"resourceGroup.keyword\":"
-              + " \"$1\"}},{\"match\":{\"type.keyword\": \"iudx:Resource\"}}]}},{\"bool\":{\"must\""
-              + ":[{\"match\":{\"id.keyword\": \"$3\"}},{\"match\":{\"type.keyword\": "
-              + "\"iudx:ResourceServer\"}}]}}]}},\"_source\":{\"includes\":[\"resourceServer\","
-              + "\"id\",\"type\",\"label\",\"description\",\"instance\",\"accessPolicy\","
-              + "\"dataSample\", \"dataDescriptor\",\"@context\",\"dataQualityFile\","
-              + "\"dataSampleFile\",\"resourceType\",\"resourceServerURL\"]},"
-              + "\"size\": 10000}";
+      "{\"query\":{\"bool\":{\"should\":"
+          + "[{\"bool\":{\"must\":[{\"match\":{\"id.keyword\": \"$1\"}},"
+          + "{\"match\":{\"type.keyword\":\"iudx:ResourceGroup\"}}]}},"
+          + "{\"bool\":{\"must\":[{\"match\":{\"id.keyword\": \"$2\"}},"
+          + "{\"match\":{\"type.keyword\": \"iudx:Provider\"}}]}},"
+          + "{\"bool\":{\"must\":[{\"match\":{\"resourceGroup.keyword\": \"$1\"}},"
+          + "{\"match\":{\"type.keyword\": \"iudx:Resource\"}}]}}]}},"
+          + "\"_source\":{\"includes\":[\"resourceServer\","
+          + "\"id\",\"type\",\"label\",\"description\",\"instance\",\"accessPolicy\","
+          + "\"dataSample\", \"dataDescriptor\",\"@context\",\"dataQualityFile\","
+          + "\"dataSampleFile\",\"resourceType\",\"resourceServerURL\"]},"
+          + "\"size\": 10000}";
   public static final String GET_MLAYER_INSTANCE_ICON =
       "{\"query\":{\"match\":{\"name\":\"$1\"}},\"_source\": {\"includes\": [\"icon\"]}}";
   public static final String GET_PROVIDER_AND_RESOURCES =
@@ -234,8 +235,7 @@ public class Constants {
           + "{\"includes\": [\"name\",\"cover\",\"icon\"]},\"size\":10000}";
   public static final String GET_PROVIDER_AND_RS_ID =
       "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"type.keyword\": \"iudx:ResourceGroup\"}},"
-          + "{\"match\":{\"id.keyword\":\"$1\"}}]}},\"_source\": [\"provider\","
-              + "\"resourceServer\"]}";
+          + "{\"match\":{\"id.keyword\":\"$1\"}}]}},\"_source\": [\"provider\"]}";
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
   public static final String BOOL_SHOULD_QUERY = "{\"query\":{\"bool\":{\"should\":[$1]}}}";

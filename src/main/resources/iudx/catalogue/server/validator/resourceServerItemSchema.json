@@ -12,7 +12,7 @@
                 "iudx:ResourceServer"
             ],
             "name": "IudxResourceServer",
-            "owner": "e56e84c5-5f07-4feb-b6fd-dfa4d589b374",
+            "provider": "e56e84c5-5f07-4feb-b6fd-dfa4d589b374",
             "description": "Multi tenanted IUDX resource server",
             "tags": [
                 "IUDX",
@@ -37,27 +37,24 @@
                     }
                 }
             },
-            "resourceServers": {
-                "name": "iudx-rs",
-                "resourceServerURL": "iudx.org.in",
-                "subdomains": [
-                    {
-                        "protocol": "http",
-                        "accessURL": "rs",
-                        "port": 8080
-                    },
-                    {
-                        "protocol": "amqps",
-                        "accessURL": "databroker",
-                        "port": 5672
-                    },
-                    {
-                        "protocol": "ftp",
-                        "accessURL": "file",
-                        "port": 8090
-                    }
-                ]
-            },
+            "resourceServerURL": "iudx.org.in",
+            "resourceServerSubdomains": [
+                {
+                    "protocol": "http",
+                    "accessURL": "rs",
+                    "port": 8080
+                },
+                {
+                    "protocol": "amqps",
+                    "accessURL": "databroker",
+                    "port": 5672
+                },
+                {
+                    "protocol": "ftp",
+                    "accessURL": "file",
+                    "port": 8090
+                }
+            ],
             "location": {
                 "type": "Place",
                 "address": "IISc, Bangalore",
@@ -74,12 +71,13 @@
     "required": [
         "@context",
         "type",
-        "owner",
+        "provider",
         "name",
         "description",
         "tags",
         "resourceServerOrg",
-        "resourceServers"
+        "resourceServerURL",
+        "resourceServerSubdomains"
     ],
     "properties": {
         "@context": {
@@ -132,11 +130,11 @@
             "maxLength": 36,
             "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
         },
-        "owner": {
-            "$id": "#/properties/owner",
+        "provider": {
+            "$id": "#/properties/provider",
             "type": "string",
-            "title": "The owner schema",
-            "description": "id of the owner (cos admin) of a resource server",
+            "title": "The provider schema",
+            "description": "id of the provider (cos admin) of a resource server",
             "default": "",
             "examples": [
                 "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
@@ -489,115 +487,79 @@
             },
             "additionalProperties": true
         },
-        "resourceServers": {
-            "$id": "#/properties/resourceServers",
-            "type": "object",
+        "resourceServerURL": {
+            "$id": "#/properties/resourceServerURL",
+            "type": "string",
+            "title": "The resourceServerURL schema",
+            "default": "",
+            "examples": [
+                "iudx.org.in"
+            ],
+            "pattern": "^[a-zA-Z0-9-]{2,}(\\.[a-zA-Z0-9-]{2,}){1,10}$"
+        },
+        "resourceServerSubdomains": {
+            "$id": "#/properties/resourceServerSubdomains",
+            "type": "array",
             "title": "The resourceServers schema",
-            "description": "An object defining resourceServer containing each of its access URLs",
+            "description": "An object defining resourceServer subdomains containing each of its access URLs",
             "default": {},
             "examples": [
-                {
-                    "name": "iudx-rs",
-                    "resourceServerURL": "iudx.org.in",
-                    "subdomains": [
-                        {
-                            "protocol": "http",
-                            "AccessURL": "rs",
-                            "port": 8080
-                        },
-                        {
-                            "protocol": "amqps",
-                            "AccessURL": "databroker",
-                            "port": 5672
-                        },
-                        {
-                            "protocol": "ftp",
-                            "FileAccessURL": "file",
-                            "port": 8090
-                        }
-                    ]
-                }
-            ],
-            "required": [
-                "name",
-                "resourceServerURL",
-                "subdomains"
-            ],
-            "properties": {
-                "name": {
-                    "$id": "#/properties/resourceServers/properties/name",
-                    "type": "string",
-                    "title": "The name schema",
-                    "description": "The name of the resource server",
-                    "pattern": "^[a-zA-Z0-9-]([\\w-.]*[a-zA-Z0-9-])?$"
-                },
-                "resourceServerURL": {
-                    "$id": "#/properties/resourceServers/properties/resourceServerURL",
-                    "type": "string",
-                    "title": "The resourceServerURL schema",
-                    "default": "",
-                    "examples": [
-                        "iudx.org.in"
-                    ],
-                    "pattern": "^[a-zA-Z0-9-]{2,}(\\.[a-zA-Z0-9-]{2,}){1,10}$"
-                },
-                "subdomains": {
-                    "type": "array",
-                    "title": "The resourceServerURLs schema",
-                    "description": "Contains all the access urls for the resources hosted on this resource server",
-                    "default": [],
-                    "examples": [
-                        {
-                            "protocol": "http",
-                            "accessURL": "rs",
-                            "port": 8080
-                        },
-                        {
-                            "protocol": "amqps",
-                            "accessURL": "databroker",
-                            "port": 5672
-                        }
-                    ],
-                    "items": {
-                        "$id": "#/properties/resourceServers/properties/subdomains/items",
-                        "anyOf": [
-                            {
-                                "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0",
-                                "type": "object",
-                                "title": "The subdomains schema",
-                                "default": {},
-                                "required": [
-                                    "protocol",
-                                    "accessURL"
-                                ],
-                                "properties": {
-                                    "protocol": {
-                                        "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/protocol",
-                                        "type": "string",
-                                        "title": "the protocol schema",
-                                        "default": "",
-                                        "pattern": "^[a-zA-Z]{3,10}$"
-                                    },
-                                    "accessURL": {
-                                        "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/accessURL",
-                                        "type": "string",
-                                        "title": "the accessURL schema",
-                                        "default": "",
-                                        "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,}){0,10}$"
-                                    },
-                                    "port": {
-                                        "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/port",
-                                        "type": "integer",
-                                        "title": "the port schema",
-                                        "default": "",
-                                        "minimum": 1,
-                                        "maximum": 65535
-                                    }
-                                }
-                            }
-                        ]
+                [
+                    {
+                        "protocol": "http",
+                        "AccessURL": "rs",
+                        "port": 8080
+                    },
+                    {
+                        "protocol": "amqps",
+                        "AccessURL": "databroker",
+                        "port": 5672
+                    },
+                    {
+                        "protocol": "ftp",
+                        "AccessURL": "file",
+                        "port": 8090
                     }
-                }
+                ]
+            ],
+            "items": {
+                "$id": "#/properties/resourceServerSubdomains/items",
+                "anyOf": [
+                    {
+                        "$id": "#/properties/resourceServerSubdomains/items/anyOf/0",
+                        "type": "object",
+                        "title": "The subdomains schema",
+                        "default": {},
+                        "required": [
+                            "protocol",
+                            "accessURL"
+                        ],
+                        "properties": {
+                            "protocol": {
+                                "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/protocol",
+                                "type": "string",
+                                "title": "the protocol schema",
+                                "default": "",
+                                "pattern": "^[a-zA-Z]{3,10}$"
+                            },
+                            "accessURL": {
+                                "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/accessURL",
+                                "type": "string",
+                                "title": "the accessURL schema",
+                                "default": "",
+                                "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,}){0,10}$"
+                            },
+                            "port": {
+                                "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/port",
+                                "type": "integer",
+                                "title": "the port schema",
+                                "default": "",
+                                "minimum": 1,
+                                "maximum": 65535
+                            }
+                        }
+                    }
+                ]
             }
         }
     },
