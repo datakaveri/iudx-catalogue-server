@@ -44,8 +44,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   String tempCopIssuer;
   private Api api;
 
-  JwtAuthenticationServiceImpl(
-      final JWTAuth jwtAuth, final JsonObject config, final Api api) {
+  JwtAuthenticationServiceImpl(final JWTAuth jwtAuth, final JsonObject config, final Api api) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("host");
     this.issuer = config.getString("issuer");
@@ -87,14 +86,12 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       case ITEM_TYPE_RESOURCE:
         isValidAudience = serverUrl != null && serverUrl.equalsIgnoreCase(jwtData.getAud());
         break;
-      case ITEM_TYPE_COS:
-      case ITEM_TYPE_RESOURCE_SERVER:
-      case ITEM_TYPE_INSTANCE:
+      default:
         isValidAudience =
             tempCopAudience != null && tempCopAudience.equalsIgnoreCase(jwtData.getAud());
         break;
-      default:
-        isValidAudience = audience != null && audience.equalsIgnoreCase(jwtData.getAud());
+        //      default:
+        //        isValidAudience = audience != null && audience.equalsIgnoreCase(jwtData.getAud());
     }
 
     if (isValidAudience) {
@@ -212,6 +209,12 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         .compose(
             decodeHandler -> {
               result.jwtData = decodeHandler;
+
+              // audience for ratings is different from other cos endpoints
+              if (endPoint.equalsIgnoreCase(api.getRouteRating())
+                  && result.jwtData.getAud().equalsIgnoreCase(audience)) {
+                return Future.succeededFuture(true);
+              }
               return isValidAudienceValue(result.jwtData, itemType, resourceServerUrl);
             })
         .compose(
@@ -266,8 +269,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
    * @param resourceServerUrl which is a String
    * @return Vertx Future which is of the type boolean
    */
-  Future<Boolean> isValidItemId(
-      JwtData jwtData, String itemType, String resourceServerUrl) {
+  Future<Boolean> isValidItemId(JwtData jwtData, String itemType, String resourceServerUrl) {
     String iid = jwtData.getIid();
     String type = iid.substring(0, iid.indexOf(":"));
     String server = iid.substring(iid.indexOf(":") + 1);

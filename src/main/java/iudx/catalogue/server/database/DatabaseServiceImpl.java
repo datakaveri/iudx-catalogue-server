@@ -1877,13 +1877,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             }
             String providerId =
                 handlerRes.result().getJsonArray(RESULTS).getJsonObject(0).getString("provider");
-            String resourceServerId = handlerRes.result().getJsonArray(RESULTS).getJsonObject(0)
-                    .getString("resourceServer");
-            LOGGER.debug("resourceServer id {}", resourceServerId);
             LOGGER.debug("provider id " + providerId);
             String query = GET_MLAYER_DATASET.replace("$1", datasetId)
-                    .replace("$2", providerId)
-                    .replace("$3", resourceServerId);
+                    .replace("$2", providerId);
             LOGGER.debug("Query " + query);
             client.searchAsyncDataset(
                 query,

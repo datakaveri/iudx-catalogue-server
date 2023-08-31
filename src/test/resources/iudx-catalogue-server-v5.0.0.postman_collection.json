@@ -305,7 +305,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServer\",\r\n    \"description\": \"Multi tenanted IUDX resource server\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"provider\": \"{{cos_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServerURL\": \"cat-test.iudx.io\",\r\n    \"resourceServerSubdomains\": [\r\n        {\r\n            \"protocol\": \"http\",\r\n            \"accessURL\": \"rs\",\r\n            \"port\": 8080\r\n        },\r\n        {\r\n            \"protocol\": \"amqps\",\r\n            \"accessURL\": \"databroker\",\r\n            \"port\": 5672\r\n        },\r\n        {\r\n            \"protocol\": \"ftp\",\r\n            \"accessURL\": \"file\",\r\n            \"port\": 8090\r\n        }\r\n    ],\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServer\",\r\n    \"description\": \"Multi tenanted IUDX resource server\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"provider\": \"{{cos_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServerURL\": \"rs.iudx.io\",\r\n    \"resourceServerSubdomains\": [\r\n        {\r\n            \"protocol\": \"http\",\r\n            \"accessURL\": \"rs\",\r\n            \"port\": 8080\r\n        },\r\n        {\r\n            \"protocol\": \"amqps\",\r\n            \"accessURL\": \"databroker\",\r\n            \"port\": 5672\r\n        },\r\n        {\r\n            \"protocol\": \"ftp\",\r\n            \"accessURL\": \"file\",\r\n            \"port\": 8090\r\n        }\r\n    ],\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1490,7 +1490,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wyfy-location\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"apd_url\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wyfy-location\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"apdURL\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -12573,7 +12573,7 @@
 										"header": [
 											{
 												"key": "token",
-												"value": "{{adminToken}}",
+												"value": "{{cosAdminToken}}",
 												"type": "text"
 											}
 										],
@@ -12921,14 +12921,7 @@
 									},
 									"request": {
 										"method": "GET",
-										"header": [
-											{
-												"key": "",
-												"value": "",
-												"type": "text",
-												"disabled": true
-											}
-										],
+										"header": [],
 										"body": {
 											"mode": "raw",
 											"raw": "",
@@ -12947,68 +12940,6 @@
 												"internal",
 												"ui",
 												"instance"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "200 (Success) - Get Instance By Id",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"pm.test(\"Response status\", function () {",
-													"    pm.response.to.have.status(200);",
-													"});",
-													"",
-													"pm.test(\"Check response body\", function () {    ",
-													"    const body = pm.response.json();",
-													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
-													"});"
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"protocolProfileBehavior": {
-										"disableBodyPruning": true
-									},
-									"request": {
-										"method": "GET",
-										"header": [
-											{
-												"key": "",
-												"value": "",
-												"type": "text",
-												"disabled": true
-											}
-										],
-										"body": {
-											"mode": "raw",
-											"raw": "",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/instance?id={{instanceId}}",
-											"host": [
-												"{{host}}{{base}}"
-											],
-											"path": [
-												"internal",
-												"ui",
-												"instance"
-											],
-											"query": [
-												{
-													"key": "id",
-													"value": "{{instanceId}}"
-												}
 											]
 										}
 									},
@@ -13045,7 +12976,7 @@
 										"header": [
 											{
 												"key": "token",
-												"value": "{{adminToken}}",
+												"value": "{{cosAdminToken}}",
 												"type": "text"
 											}
 										],
@@ -13175,7 +13106,7 @@
 										"header": [
 											{
 												"key": "token",
-												"value": "{{adminToken}}",
+												"value": "{{cosAdminToken}}",
 												"type": "text"
 											}
 										],
@@ -13229,7 +13160,7 @@
 										"header": [
 											{
 												"key": "token",
-												"value": "{{adminToken}}",
+												"value": "{{cosAdminToken}}",
 												"type": "text"
 											}
 										],
@@ -13340,7 +13271,7 @@
 										"header": [
 											{
 												"key": "token",
-												"value": "{{adminToken}}",
+												"value": "{{cosAdminToken}}",
 												"type": "text"
 											}
 										],
@@ -13459,7 +13390,7 @@
 										"header": [
 											{
 												"key": "token",
-												"value": "{{adminToken}}",
+												"value": "{{cosAdminToken}}",
 												"type": "text"
 											}
 										],
@@ -13646,7 +13577,7 @@
 										"header": [
 											{
 												"key": "token",
-												"value": "{{adminToken}}",
+												"value": "{{cosAdminToken}}",
 												"type": "text"
 											}
 										],
@@ -13817,14 +13748,7 @@
 							],
 							"request": {
 								"method": "POST",
-								"header": [
-									{
-										"key": "",
-										"value": "",
-										"type": "text",
-										"disabled": true
-									}
-								],
+								"header": [],
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n    \"id\":[\"8b95ab80-2aaf-4636-a65e-7f2563d0d371\",\"83c2e5c2-3574-4e11-9530-2b1fbdfce832\"],\r\n    \"instance\":\"surat\"\r\n}",

@@ -47,6 +47,13 @@ public class CosAdminAuthStrategy implements AuthorizationStratergy {
         new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_RESOURCE_SERVER));
     accessList.add(new AuthorizationRequest(POST, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteInstance(), ITEM_TYPE_INSTANCE));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteMlayerInstance(), ""));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteMlayerInstance(), ""));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteMlayerInstance(), ""));
+    accessList.add(new AuthorizationRequest(POST, api.getRouteMlayerDomains(), ""));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteMlayerDomains(), ""));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteMlayerDomains(), ""));
+
   }
 
   @Override
