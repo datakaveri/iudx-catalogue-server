@@ -615,7 +615,7 @@ public class QueryDecoderTest {
         new JsonObject(
             GET_DOC_QUERY
                 .replace("$1", request.getString(ID))
-                .replace("$2", "\"type\",\"provider\",\"providerUserId\",\"resourceGroup\",\"resourceServer\", \"resourceServerURL\", \"owner\", \"cos_admin\""));
+                .replace("$2", "\"type\",\"provider\",\"ownerUserId\",\"resourceGroup\",\"resourceServer\", \"resourceServerRegURL\", \"cos\", \"cos_admin\""));
     assertEquals(elasticQuery,queryDecoder.searchQuery(request));
 
     vertxTestContext.completeNow();

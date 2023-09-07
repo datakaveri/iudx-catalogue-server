@@ -238,6 +238,7 @@ public class Constants {
       "{\"size\": 0,\"aggs\":{\"results\":{\"terms\":{\"field\":\"resourceGroup.keyword\","
               + "\"size\":10000},\"aggs\":{\"resource_count\":{\"value_count\":{\"field\":"
               + "\"id.keyword\"}}}}}}\n";
+
   public static final String GET_MLAYER_INSTANCE_ICON =
       "{\"query\":{\"match\":{\"name\":\"$1\"}},\"_source\": {\"includes\": [\"icon\"]}}";
   public static final String GET_PROVIDER_AND_RESOURCES =
@@ -292,7 +293,7 @@ public class Constants {
       "{\"query\":{\"bool\":{\"should\":[{\"term\":{\"id.keyword\":\"$1\"}},{\"term\":"
           + "{\"resourceGroup.keyword\": \"$1\"}},{\"term\":{\"provider.keyword\":\"$1\"}},"
           + "{\"term\":{\"resourceServer.keyword\": \"$1\"}},{\"term\":"
-          + "{\"owner.keyword\": \"$1\"}}]}}}";
+          + "{\"cos.keyword\": \"$1\"}}]}}}";
 
   public static final String NLP_SEARCH = "{\"query\": {\"script_score\": {\"query\": "
           + "{\"match_all\": {}},\"script\":\"source\": \"cosineSimilarity(params.query_vector,"
@@ -304,7 +305,7 @@ public class Constants {
   public static final String GET_TYPE_SEARCH =
       "{\"query\": {\"bool\": {\"filter\": [{\"terms\": "
           + "{\"id.keyword\": [\"$1\"],\"boost\": 1}}]}},"
-          + "\"_source\": [\"owner\",\"resourceServer\",\"type\","
+          + "\"_source\": [\"cos\",\"resourceServer\",\"type\","
           + "\"provider\",\"resourceGroup\",\"id\"]}";
   public static final String GET_RSGROUP = "{\"query\": {\"bool\": {\"must\": [{\"match\": "
       + "{\"resourceServer.keyword\": \"$1\"}},"

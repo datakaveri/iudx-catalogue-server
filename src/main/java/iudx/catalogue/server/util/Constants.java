@@ -59,9 +59,10 @@ public class Constants {
   public static final String PROVIDER = "provider";
   public static final String ALL = "all";
   public static final String COS = "cos";
-  public static final String PROVIDER_USER_ID = "providerUserId";
-  public static final String RESOURCE_SERVER_URL = "resourceServerURL";
   public static final String OWNER = "owner";
+  public static final String PROVIDER_USER_ID = "ownerUserId";
+  public static final String RESOURCE_SERVER_URL = "resourceServerRegURL";
+  public static final String COS_ITEM = "cos";
   public static final String RESOURCETYPE = "resourceType";
 
 
@@ -77,7 +78,7 @@ public class Constants {
 
   public static final ArrayList<String> ITEM_TYPES =
       new ArrayList<String>(Arrays.asList(ITEM_TYPE_RESOURCE, ITEM_TYPE_RESOURCE_GROUP,
-          ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_PROVIDER, ITEM_TYPE_COS));
+          ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_PROVIDER, ITEM_TYPE_COS, ITEM_TYPE_OWNER));
 
   public static final String AGGREGATIONS = "aggregations";
   public static final String INSTANCE = "instance";

@@ -180,4 +180,36 @@ public class KCAuthServiceImplTest {
               }
             });
   }
+
+  @Test
+  @DisplayName("successful valid endpoint check")
+  public void validEndpointCheck(VertxTestContext vertxTestContext) {
+
+    kcAuthenticationService
+        .isValidEndpoint(api.getRouteItems())
+        .onComplete(
+            handler -> {
+              if (handler.failed()) {
+                vertxTestContext.failNow("fail");
+              } else {
+                vertxTestContext.completeNow();
+              }
+            });
+  }
+
+  @Test
+  @DisplayName("Invalid enpoint check")
+  public void invalidEndpointCheck(VertxTestContext testContext) {
+
+    kcAuthenticationService
+        .isValidEndpoint(api.getRouteSearch())
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                testContext.failNow("fail");
+              } else {
+                testContext.completeNow();
+              }
+            });
+  }
 }

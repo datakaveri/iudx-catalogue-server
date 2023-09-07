@@ -65,9 +65,9 @@ public final class QueryDecoder {
                   .replace("$1", request.getString(ID))
                   .replace(
                       "$2",
-                      "\"type\",\"provider\",\"providerUserId\","
+                      "\"type\",\"provider\",\"ownerUserId\","
                           + "\"resourceGroup\",\"resourceServer\","
-                          + "\"resourceServerURL\", \"owner\", \"cos_admin\""));
+                          + "\"resourceServerRegURL\", \"cos\", \"cos_admin\""));
       return elasticQuery;
     }
 
@@ -294,13 +294,13 @@ public final class QueryDecoder {
 
     /* Validating the request */
     if (request.containsKey(ID) && relationshipType.equalsIgnoreCase("cos")) {
-      String ownerId = request.getString(OWNER);
+      String cosId = request.getString(COS_ITEM);
 
-      subQuery = TERM_QUERY.replace("$1", ID + KEYWORD_KEY).replace("$2", ownerId);
+      subQuery = TERM_QUERY.replace("$1", ID + KEYWORD_KEY).replace("$2", cosId);
     } else if (request.containsKey(ID) && itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
-      String ownerId = request.getString(ID);
+      String cosId = request.getString(ID);
 
-      subQuery = TERM_QUERY.replace("$1", OWNER + KEYWORD_KEY).replace("$2", ownerId) + ",";
+      subQuery = TERM_QUERY.replace("$1", COS_ITEM + KEYWORD_KEY).replace("$2", cosId) + ",";
       switch (relationshipType) {
         case RESOURCE:
           subQuery =
@@ -437,13 +437,13 @@ public final class QueryDecoder {
                     .replace("$2", request.getString(RESOURCE_SVR))
                 + ",";
       }
-      if (request.containsKey(OWNER)) {
+      if (request.containsKey(COS_ITEM)) {
 
         subQuery =
             subQuery
             + MATCH_QUERY
                 .replace("$1", ID_KEYWORD)
-                .replace("$2", request.getString(OWNER));
+                .replace("$2", request.getString(COS_ITEM));
 
       } else {
         subQuery = subQuery.substring(0, subQuery.length() - 1);

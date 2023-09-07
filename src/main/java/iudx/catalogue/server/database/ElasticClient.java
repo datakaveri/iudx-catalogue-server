@@ -203,6 +203,7 @@ public final class ElasticClient {
                     dataset.put("resourceType", record.getString("resourceType"));
                   }
                 }
+
                 if (type.equals("iudx:COS")) {
                   dataset.put("cosURL", record.getString("cosURL"));
                 }
