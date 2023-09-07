@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "9a54a650-2277-401f-8b83-22d4eb3f1bd2",
+		"_postman_id": "4b4e793d-a27e-4200-b2fa-66a3f952b2b2",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "27217689"
@@ -207,6 +207,64 @@
 					"name": "Create Item",
 					"item": [
 						{
+							"name": "201 (success) - Create OWNER item",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"pm.test(\"Check response header\", function () {",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"    pm.expect(body.results).to.have.property(\"id\");",
+											"    const ID = body.results.id;",
+											"    pm.globals.set(\"owner_id\", ID);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{cosAdminToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:Owner\"\n    ],\n    \"name\": \"IudxOwnerPM\",\n    \"description\": \"owner item creation for postman collection\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/item/",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "201 (success) - Create COS item",
 							"event": [
 								{
@@ -244,7 +302,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:COS\"\n    ],\n    \"name\": \"cos.cop.iudx.org.in\",\n    \"description\": \"COS Smart Kalyan-Dombivli Development Corporation Limited\",\n    \"cosURL\": \"kdmc.cop-nec.iudx.org.in\",\n    \"cosUI\": \"https://catalogue.kdmc.cop-nec.iudx.org.in/\"\n}",
+									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:COS\"\n    ],\n    \"name\": \"IudxCosPM\",\n    \"owner\": \"{{owner_id}}\",\n    \"description\": \"COS item for postman collection\",\n    \"cosURL\": \"cat-test.iudx.io\",\n    \"cosUI\": \"cat-test.iudx.io\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -308,7 +366,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServer\",\r\n    \"description\": \"Multi tenanted IUDX resource server\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"provider\": \"{{cos_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServerURL\": \"rs.iudx.io\",\r\n    \"resourceServerSubdomains\": [\r\n        {\r\n            \"protocol\": \"http\",\r\n            \"accessURL\": \"rs\",\r\n            \"port\": 8080\r\n        },\r\n        {\r\n            \"protocol\": \"amqps\",\r\n            \"accessURL\": \"databroker\",\r\n            \"port\": 5672\r\n        },\r\n        {\r\n            \"protocol\": \"ftp\",\r\n            \"accessURL\": \"file\",\r\n            \"port\": 8090\r\n        }\r\n    ],\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServerPM\",\r\n    \"description\": \"Multi tenanted IUDX resource server for postman collection\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"cos\": \"{{cos_id}}\",\r\n    \"owner\": \"{{owner_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServerRegURL\": \"rs.iudx.io\",\r\n    \"resourceAccessModalities\": [\r\n        {\r\n            \"type\": [\r\n                \"iudx:HTTPAccess\"\r\n            ],\r\n            \"protocol\": \"http\",\r\n            \"accessURL\": \"rs\",\r\n            \"port\": 8080\r\n        }\r\n    ],\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -372,7 +430,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"IudxProvider\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"description\": \"provider id for uuid test\",\r\n    \"providerUserId\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    }\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"IudxProviderPM\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"description\": \"provider for the postman collection\",\r\n    \"ownerUserId\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -436,7 +494,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"agra-swachhata-apps\",\r\n    \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"reporting\",\r\n        \"issue\",\r\n        \"garbage dump\",\r\n        \"debris removal\",\r\n        \"open defecation\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"iudxResourceGroupPM\",\r\n    \"description\": \"resource group item for the postman collection\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -500,7 +558,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wifi-location\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"apdURL\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"iudxResourceItemPM\",\r\n    \"label\": \"item for tesr only\",\r\n    \"description\": \"resource item for the postman collection\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"apdURL\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -681,7 +739,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"uuid-test\",\r\n    \"description\": \"provider id for uuid test\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"_summary\": \"uuid-test provider id for uuid test \",\r\n    \"id\": \"2ed6f05f-2f35-3f70-a472-79763fc81\",\r\n    \"providerUserId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"uuid-test\",\r\n    \"description\": \"provider id for uuid test\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"_summary\": \"uuid-test provider id for uuid test \",\r\n    \"id\": \"2ed6f05f-2f35-3f70-a472-79763fc81\",\r\n    \"ownerUserId\": \"d8e46706-b9db-44e1-a9aa-e40839396b01\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -744,7 +802,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:COS\"\r\n    ],\r\n    \"name\": \"cos.cop.iudx.org.in\",\r\n    \"description\": \"COS Smart Kalyan-Dombivli Development Corporation Limited\",\r\n    \"cosURL\": \"kdmc.cop-nec.iudx.org.in\",\r\n    \"cosUI\": \"https://catalogue.kdmc.cop-nec.iudx.org.in/\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:COS\"\r\n    ],\r\n    \"name\": \"cos.cop.iudx.org.in\",\r\n    \"owner\": \"{{owner_id}}\",\r\n    \"description\": \"COS Smart Kalyan-Dombivli Development Corporation Limited\",\r\n    \"cosURL\": \"kdmc.cop-nec.iudx.org.in\",\r\n    \"cosUI\": \"https://catalogue.kdmc.cop-nec.iudx.org.in/\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1019,19 +1077,42 @@
 					"name": "Update Item",
 					"item": [
 						{
-							"name": "200 (success) - Update COS item",
+							"name": "200 (success) - Update OWNER item",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response header\", function () {",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"    pm.expect(body.results).to.have.property(\"id\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "PUT",
 								"header": [
 									{
 										"key": "token",
-										"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJmZDQ3NDg2Yi0zNDk3LTQyNDgtYWMxZS0wODJlNGQzN2E2NmMiLCJpc3MiOiJhdXRodmVydHguaXVkeC5pbyIsImF1ZCI6ImNvcC5pdWR4LmlvIiwiZXhwIjoxODg2MTM1NTEyLCJpYXQiOjE2ODYxMzU1MTIsImlpZCI6ImNvcDpjb3AuaXVkeC5pbyIsInJvbGUiOiJjb3BfYWRtaW4iLCJjb25zIjp7fX0.NUAk8Ie5kUfyWo6zPay2cJPd9ZXs75pLtsa_nXeuXnJJ6ww51DPRFaS4hJe0Qj7_IV__2QxufnTUsltFYv2SDQ",
+										"value": "{{cosAdminToken}}",
 										"type": "text"
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:COS\"\n    ],\n    \"name\": \"cos.cop.iudx.org.in\",\n    \"description\": \"COS Smart Kalyan-Dombivli Development Corporation Limited\",\n    \"cosURL\": \"kdmc.cop-nec.iudx.org.in\",\n    \"cosUI\": \"https://catalogue.kdmc.cop-nec.iudx.org.in/\"\n}",
+									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:Owner\"\n    ],\n    \"name\": \"IudxOwnerPM\",\n    \"description\": \"owner item creation for postman collection\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1039,19 +1120,76 @@
 									}
 								},
 								"url": {
-									"raw": "{{host}}{{base}}/item",
+									"raw": "{{host}}{{base}}/item/",
 									"host": [
 										"{{host}}{{base}}"
 									],
 									"path": [
-										"item"
+										"item",
+										""
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "200 (success) - Update an Resource Server DX Entity",
+							"name": "200 (success) - Update Cos item",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response header\", function () {",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"    pm.expect(body.results).to.have.property(\"id\");",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{cosAdminToken}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:COS\"\n    ],\n    \"name\": \"IudxCosPM\",\n    \"owner\": \"{{owner_id}}\",\n    \"description\": \"COS item for postman collection\",\n    \"cosURL\": \"cat-test.iudx.io\",\n    \"cosUI\": \"cat-test.iudx.io\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/item/",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item",
+										""
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Update an DX Resource Server Item",
 							"event": [
 								{
 									"listen": "test",
@@ -1068,9 +1206,8 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
+											"    pm.expect(body.results).to.have.property(\"id\");\r",
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -1083,11 +1220,17 @@
 										"key": "token",
 										"type": "text",
 										"value": "{{cosAdminToken}}"
+									},
+									{
+										"key": "options",
+										"value": "central",
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServer\",\r\n    \"description\": \"Multi tenanted IUDX resource server\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"provider\": \"{{cos_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServerURL\": \"rs.iudx.io\",\r\n    \"resourceServerSubdomains\": [\r\n        {\r\n            \"protocol\": \"http\",\r\n            \"accessURL\": \"rs\",\r\n            \"port\": 8080\r\n        },\r\n        {\r\n            \"protocol\": \"amqps\",\r\n            \"accessURL\": \"databroker\",\r\n            \"port\": 5672\r\n        },\r\n        {\r\n            \"protocol\": \"ftp\",\r\n            \"accessURL\": \"file\",\r\n            \"port\": 8090\r\n        }\r\n    ],\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServerPM\",\r\n    \"description\": \"Multi tenanted IUDX resource server for postman collection\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"cos\": \"{{cos_id}}\",\r\n    \"owner\": \"{{owner_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServerRegURL\": \"rs.iudx.io\",\r\n    \"resourceAccessModalities\": [\r\n        {\r\n            \"type\": [\r\n                \"iudx:HTTPAccess\"\r\n            ],\r\n            \"protocol\": \"http\",\r\n            \"accessURL\": \"rs\",\r\n            \"port\": 8080\r\n        }\r\n    ],\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1108,7 +1251,7 @@
 							"response": []
 						},
 						{
-							"name": "200 (success) - Update an Provider DX Entity",
+							"name": "200 (success) - Update an DX Provider Item",
 							"event": [
 								{
 									"listen": "test",
@@ -1125,9 +1268,8 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
+											"    pm.expect(body.results).to.have.property(\"id\");\r",
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -1140,11 +1282,17 @@
 										"key": "token",
 										"type": "text",
 										"value": "{{adminToken}}"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"IudxProvider\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"description\": \"provider id for uuid test\",\r\n    \"providerUserId\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    }\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"IudxProviderPM\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"description\": \"provider for the postman collection\",\r\n    \"ownerUserId\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1165,7 +1313,7 @@
 							"response": []
 						},
 						{
-							"name": "200 (success) - Update an Resource Group DX Entity Copy",
+							"name": "200 (success) - Update an DX Resource Group Item",
 							"event": [
 								{
 									"listen": "test",
@@ -1182,9 +1330,8 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
+											"    pm.expect(body.results).to.have.property(\"id\");\r",
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -1197,11 +1344,17 @@
 										"key": "token",
 										"type": "text",
 										"value": "{{token}}"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"agra-swachhata-apps\",\r\n    \"description\": \"Civic Issues like open defecation, garbage dumping, etc., reported in Agra city via Swachhata app. Publishes all the complaints/issues lodged on the current day, on a daily basis.\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"reporting\",\r\n        \"issue\",\r\n        \"garbage dump\",\r\n        \"debris removal\",\r\n        \"open defecation\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"iudxResourceGroupPM\",\r\n    \"description\": \"resource group item for the postman collection\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1222,7 +1375,7 @@
 							"response": []
 						},
 						{
-							"name": "200 (success) - Update an Resource Item DX Entity",
+							"name": "200 (success) - Create an DX Resource Item",
 							"event": [
 								{
 									"listen": "test",
@@ -1239,9 +1392,8 @@
 											"pm.test(\"Check response body\", function () {    \r",
 											"    const body = pm.response.json();\r",
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});\r",
-											"\r",
-											""
+											"    pm.expect(body.results).to.have.property(\"id\");\r",
+											"});"
 										],
 										"type": "text/javascript"
 									}
@@ -1254,11 +1406,17 @@
 										"key": "token",
 										"type": "text",
 										"value": "{{token}}"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
 									}
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"wifi-location\",\r\n    \"label\": \"Wi-Fi Locations in Pimpri-Chinchwad City\",\r\n    \"description\": \"The physical coordinates of Wi-Fi system locations in Pimpri-Chinchwad city.\",\r\n    \"tags\": [\r\n        \"Wi-Fi\",\r\n        \"Wi-Fi zone\",\r\n        \"hotspot\",\r\n        \"internet\",\r\n        \"Wi-Fi access\",\r\n        \"Wi-Fi location\",\r\n        \"wireless internet\",\r\n        \"internet access\"\r\n    ],\r\n    \"apdURL\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"iudxResourceItemPM\",\r\n    \"label\": \"item for tesr only\",\r\n    \"description\": \"resource item for the postman collection\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"apdURL\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1437,7 +1595,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:COS\"\r\n    ],\r\n    \"name\": \"cos.cop.iudx.org.in\",\r\n    \"description\": \"COS Smart Kalyan-Dombivli Development Corporation Limited\",\r\n    \"cosURL\": \"kdmc.cop-nec.iudx.org.in\",\r\n    \"cosUI\": \"https://catalogue.kdmc.cop-nec.iudx.org.in/\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:COS\"\r\n    ],\r\n    \"name\": \"cos.cop.iudx.org.in\",\r\n    \"description\": \"COS Smart Kalyan-Dombivli Development Corporation Limited\",\r\n    \"owner\": \"{{owner_id}}\",\r\n    \"cosURL\": \"kdmc.cop-nec.iudx.org.in\",\r\n    \"cosUI\": \"https://catalogue.kdmc.cop-nec.iudx.org.in/\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1807,6 +1965,65 @@
 										{
 											"key": "id",
 											"value": "{{cos_id}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (success) - Delete a Owner item DX",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response header\", function () {\r",
+											"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "token",
+										"value": "{{cosAdminToken}}",
+										"type": "text"
+									},
+									{
+										"key": "instance",
+										"value": "pune",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/item?id={{owner_id}}",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"item"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "{{owner_id}}"
 										}
 									]
 								}
@@ -3801,7 +4018,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{host}}{{base}}/relationship?id=13bf961b-b1f4-3f7f-a651-b1b1965a4067&rel=resource",
+									"raw": "{{host}}{{base}}/relationship?id=637e32b6-9a6c-396f-914c-9db5d1a222b0&rel=resource",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -3811,7 +4028,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+											"value": "637e32b6-9a6c-396f-914c-9db5d1a222b0"
 										},
 										{
 											"key": "rel",
@@ -3852,7 +4069,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{host}}{{base}}/relationship?id=13bf961b-b1f4-3f7f-a651-b1b1965a4067&rel=resourceGroup",
+									"raw": "{{host}}{{base}}/relationship?id=637e32b6-9a6c-396f-914c-9db5d1a222b0&rel=resourceGroup",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -3862,7 +4079,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+											"value": "637e32b6-9a6c-396f-914c-9db5d1a222b0"
 										},
 										{
 											"key": "rel",
@@ -3903,7 +4120,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{host}}{{base}}/relationship?id=13bf961b-b1f4-3f7f-a651-b1b1965a4067&rel=provider",
+									"raw": "{{host}}{{base}}/relationship?id=637e32b6-9a6c-396f-914c-9db5d1a222b0&rel=provider",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -3913,7 +4130,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+											"value": "637e32b6-9a6c-396f-914c-9db5d1a222b0"
 										},
 										{
 											"key": "rel",
@@ -3954,7 +4171,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{host}}{{base}}/relationship?id=13bf961b-b1f4-3f7f-a651-b1b1965a4067&rel=resourceServer",
+									"raw": "{{host}}{{base}}/relationship?id=637e32b6-9a6c-396f-914c-9db5d1a222b0&rel=resourceServer",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -3964,7 +4181,7 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+											"value": "637e32b6-9a6c-396f-914c-9db5d1a222b0"
 										},
 										{
 											"key": "rel",
@@ -4172,7 +4389,6 @@
 											"value": "all"
 										}
 									]
-
 								}
 							},
 							"response": []

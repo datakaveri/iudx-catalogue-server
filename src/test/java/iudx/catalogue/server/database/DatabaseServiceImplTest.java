@@ -187,6 +187,27 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
+  @DisplayName("Test nlpsearch location query empty response")
+  public void testNlpSearchEmptyResponse(VertxTestContext testContext) {
+    JsonArray request = new JsonArray();
+    JsonArray jsonArray = new JsonArray();
+    JsonObject jo = new JsonObject().put(RESULTS, jsonArray);
+    request.add(0, jsonArray);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+
+    dbService.nlpSearchLocationQuery(
+        request,
+        jo,
+        handler -> {
+          if (handler.succeeded()) {
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
+  }
+
+  @Test
   @Description("test getItem when handler failed ")
   public void testGetItemFailed(VertxTestContext vertxTestContext) {
     JsonObject request = new JsonObject();
@@ -1241,10 +1262,50 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
+  @Description("test listRelationship method when item is cos")
+  public void testListRelationshipCos(VertxTestContext vertxTestContext) {
+    JsonArray typeArray = new JsonArray().add("iudx:COS");
+    JsonObject jsonObject = new JsonObject().put(TYPE, typeArray);
+    JsonArray resultArray = new JsonArray().add(jsonObject);
+    JsonObject json =
+        new JsonObject()
+            .put("id", "dummy id")
+            .put(TOTAL_HITS, 1)
+            .put("results", resultArray)
+            .put(RELATIONSHIP, "cos");
+    json.put(SEARCH, false);
+    json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.result()).thenReturn(json);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+        new Answer<AsyncResult<JsonObject>>() {
+          @Override
+          public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+            ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+            return null;
+          }
+        })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+    dbService.listRelationship(
+        json,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
+            vertxTestContext.failNow("Fail");
+
+          } else {
+            vertxTestContext.completeNow();
+          }
+        });
+  }
+
+  @Test
   @Description("test listRelationship method when item is resource")
   public void testListRelationshipItem2(VertxTestContext vertxTestContext) {
-    JsonArray typeArray = new JsonArray().add("iudx:Resource");
-    JsonObject jsonObject = new JsonObject().put(TYPE, typeArray).put("resourceGroup", "dummy id");
+    JsonArray typeArray = new JsonArray().add("iudx:ResourceGroup");
+    JsonObject jsonObject = new JsonObject().put(TYPE, typeArray).put("resourceGroup", "dummy id").put("provider", "provider-id");
     JsonArray resultArray = new JsonArray().add(jsonObject);
     JsonObject json =
         new JsonObject()
@@ -1253,7 +1314,7 @@ public class DatabaseServiceImplTest {
             .put("results", resultArray)
             .put(RELATIONSHIP, "resourceServer")
             .put("resourceServer", "dummy id")
-            .put(ITEM_TYPE, "abc");
+            .put(ITEM_TYPE, "iudx:ResourceGroup");
     json.put(SEARCH, false);
     json.put(SEARCH_TYPE, ATTRIBUTE_SEARCH_REGEX);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -1273,7 +1334,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1297,7 +1358,7 @@ public class DatabaseServiceImplTest {
             .put("id", "dummy id")
             .put(TOTAL_HITS, 1)
             .put("results", resultArray)
-            .put(RELATIONSHIP, "resource")
+            .put(RELATIONSHIP, "resourceGroup")
             .put("resourceServer", "dummy id")
             .put(ITEM_TYPE, "iudx:ResourceServer");
     json.put(SEARCH, false);
@@ -1319,7 +1380,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {

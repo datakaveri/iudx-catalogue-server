@@ -41,7 +41,7 @@
         "name",
         "description",
         "providerOrg",
-        "providerUserId",
+        "ownerUserId",
         "resourceServer"
     ],
     "properties": {
@@ -311,8 +311,8 @@
             "additionalProperties": true
         }
     },
-    "providerUserId": {
-        "$id": "#/properties/providerUserId",
+    "ownerUserId": {
+        "$id": "#/properties/ownerUserId",
         "type": "string",
         "title": "The provider keycloak user id schema",
         "description": "An explanation about the purpose of this instance.",

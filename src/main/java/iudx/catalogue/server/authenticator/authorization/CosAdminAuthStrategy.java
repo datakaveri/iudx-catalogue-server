@@ -38,6 +38,9 @@ public class CosAdminAuthStrategy implements AuthorizationStratergy {
 
   private void buildPermissions(Api api) {
     // /item access list
+    accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_OWNER));
+    accessList.add(new AuthorizationRequest(PUT, api.getRouteItems(), ITEM_TYPE_OWNER));
+    accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_OWNER));
     accessList.add(new AuthorizationRequest(POST, api.getRouteItems(), ITEM_TYPE_COS));
     accessList.add(new AuthorizationRequest(PUT, api.getRouteItems(), ITEM_TYPE_COS));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteItems(), ITEM_TYPE_COS));

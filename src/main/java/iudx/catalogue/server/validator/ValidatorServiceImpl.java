@@ -15,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,6 +41,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator providerValidator;
   private Validator resourceServerValidator;
   private Validator cosItemValidator;
+  private Validator ownerItemSchema;
   private Validator ratingValidator;
   private Validator mlayerInstanceValidator;
   private Validator mlayerDomainValidator;
@@ -67,6 +67,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       resourceServerValidator = new Validator("/resourceServerItemSchema.json");
       providerValidator = new Validator("/providerItemSchema.json");
       cosItemValidator = new Validator("/cosItemSchema.json");
+      ownerItemSchema = new Validator("/ownerItemSchema.json");
       ratingValidator = new Validator("/ratingSchema.json");
       mlayerInstanceValidator = new Validator("/mlayerInstanceSchema.json");
       mlayerDomainValidator = new Validator("/mlayerDomainSchema.json");
@@ -127,6 +128,9 @@ public class ValidatorServiceImpl implements ValidatorService {
       case ITEM_TYPE_COS:
         isValidSchema = cosItemValidator.validate(request.toString());
         break;
+      case ITEM_TYPE_OWNER:
+        isValidSchema = ownerItemSchema.validate(request.toString());
+        break;
       default:
         isValidSchema = false;
         break;
@@ -166,7 +170,9 @@ public class ValidatorServiceImpl implements ValidatorService {
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
       validateResourceGroup(request, handler, checkQuery);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
-      validateCosItem(request, handler);
+      validateCosItem(request, handler, checkQuery);
+    } else if (itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
+      validateOwnerItem(request, handler);
     }
     return this;
   }
@@ -237,16 +243,16 @@ public class ValidatorServiceImpl implements ValidatorService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler, String checkQuery) {
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
-      String ameUuid = request.getString(NAME) + request.getString(OWNER);
+      String ameUuid = request.getString(NAME) + request.getString(COS_ITEM);
       byte[] inputBytes = ameUuid.getBytes(StandardCharsets.UTF_8);
       UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
       request.put(ID, uuid.toString());
     }
 
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
-    String owner = request.getString(PROVIDER);
+    String cos = request.getString(COS_ITEM);
     client.searchGetId(
-        checkQuery.replace("$1", owner),
+        checkQuery.replace("$1", cos),
         docIndex,
         res -> {
           if (res.failed()) {
@@ -300,11 +306,41 @@ public class ValidatorServiceImpl implements ValidatorService {
         });
   }
 
-  private void validateCosItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  private void validateCosItem(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler, String checkQuery) {
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
       String cosId = request.getString(NAME);
       byte[] inputBytes = cosId.getBytes(StandardCharsets.UTF_8);
+      UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
+      request.put(ID, uuid.toString());
+    }
+    request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
+
+    String owner = request.getString(OWNER);
+    client.searchGetId(
+        checkQuery.replace("$1", owner),
+        docIndex,
+        res -> {
+          if (res.failed()) {
+            LOGGER.debug("Fail: DB Error");
+            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            return;
+          }
+          if (res.result().getInteger(TOTAL_HITS) == 1) {
+            handler.handle(Future.succeededFuture(request));
+          } else {
+            LOGGER.debug("Fail: Cos doesn't exist");
+            handler.handle(Future.failedFuture("Fail: Cos does not exist"));
+          }
+        });
+  }
+
+  private void validateOwnerItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    validateId(request, handler, isUacInstance);
+    if (!isUacInstance && !request.containsKey(ID)) {
+      String ownerId = request.getString(NAME);
+      byte[] inputBytes = ownerId.getBytes(StandardCharsets.UTF_8);
       UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
       request.put(ID, uuid.toString());
     }

@@ -724,6 +724,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             if ((request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE_SVR)
                     || request.getString(RELATIONSHIP).equalsIgnoreCase(ALL))
                 && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+              LOGGER.debug(relType);
               handleRsFetchForResourceGroup(request, handler, respBuilder, relType);
             } else if (request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE_GRP)
                 && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
