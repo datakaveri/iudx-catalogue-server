@@ -1,5 +1,6 @@
 package iudx.catalogue.server.mlayer;
 
+import static iudx.catalogue.server.database.Constants.GET_MLAYER_ALL_DATASETS;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
 
 import com.google.common.hash.Hashing;
@@ -222,10 +223,10 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerAllDatasets(String instance,
-                                            Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
+    String query = GET_MLAYER_ALL_DATASETS;
     databaseService.getMlayerAllDatasets(
-        instance, getMlayerAllDatasets -> {
+        query, getMlayerAllDatasets -> {
           if (getMlayerAllDatasets.succeeded()) {
             LOGGER.info("Success: Getting all datasets");
             handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
@@ -239,9 +240,9 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService getMlayerDataset(
-      String datasetId, Handler<AsyncResult<JsonObject>> handler) {
+          JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerDataset(
-        datasetId,
+        requestData,
         getMlayerDatasetHandler -> {
           if (getMlayerDatasetHandler.succeeded()) {
             LOGGER.info("Success: Getting details of dataset");

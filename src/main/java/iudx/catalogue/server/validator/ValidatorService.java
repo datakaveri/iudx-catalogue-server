@@ -78,7 +78,7 @@ public interface ValidatorService {
                                            Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  ValidatorService validateMlayerDatasetId(String datasetId,
+  ValidatorService validateMlayerDatasetId(JsonObject requestData,
                                            Handler<AsyncResult<JsonObject>> handler);
 
 

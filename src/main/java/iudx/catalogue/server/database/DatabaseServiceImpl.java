@@ -1692,15 +1692,108 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerAllDatasets(String datasetInstance,
-                                              Handler<AsyncResult<JsonObject>> handler) {
-    String query = "";
-    if (datasetInstance == null || datasetInstance.isBlank()) {
-      query = GET_MLAYER_ALL_DATASETS;
-    } else {
-      query = GET_INSTANCE_BASED_MLAYER_DATASETS.replace("$1", datasetInstance);
-    }
-    // Elastic client call to get all datasets.
+  public DatabaseService getMlayerAllDatasets(
+      String query, Handler<AsyncResult<JsonObject>> handler) {
+
+    LOGGER.debug("Getting all the resource group items");
+    Promise<JsonObject> datasetResult = Promise.promise();
+    Promise<JsonObject> instanceResult = Promise.promise();
+    Promise<JsonObject> resourceCount = Promise.promise();
+
+    gettingAllDatasets(query, datasetResult);
+    allMlayerInstance(instanceResult);
+    gettingResourceCount(resourceCount);
+
+    CompositeFuture.all(instanceResult.future(), datasetResult.future(), resourceCount.future())
+        .onComplete(
+            ar -> {
+              if (ar.succeeded()) {
+                JsonObject instanceList = ar.result().resultAt(0);
+                JsonObject resourceGroupList = ar.result().resultAt(1);
+                JsonObject resourceCountList = ar.result().resultAt(2);
+                JsonArray resourceGroupArray = new JsonArray();
+                for (int i = 0; i < resourceGroupList.getInteger("resourceGroupCount"); i++) {
+                  JsonObject record =
+                      resourceGroupList.getJsonArray("resourceGroup").getJsonObject(i);
+                  record.put(
+                      "icon",
+                      record.containsKey(INSTANCE)
+                          ? instanceList.getString(record.getString(INSTANCE))
+                          : "");
+                  record.put(
+                      "totalResources",
+                      resourceCountList.containsKey(record.getString(ID))
+                          ? resourceCountList.getInteger(record.getString(ID))
+                          : 0);
+
+                  record.remove(TYPE);
+                  resourceGroupArray.add(record);
+                }
+                RespBuilder respBuilder =
+                    new RespBuilder()
+                        .withType(TYPE_SUCCESS)
+                        .withTitle(SUCCESS)
+                        .withTotalHits(resourceGroupList.getInteger("resourceGroupCount"))
+                        .withResult(resourceGroupArray);
+                handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                handler.handle(Future.failedFuture(internalErrorResp));
+              }
+            });
+    return this;
+  }
+
+  private void gettingResourceCount(Promise<JsonObject> resourceCountResult) {
+    LOGGER.debug("Getting resource item count");
+    String query = GET_RESOURCE_ITEM_COUNT;
+    client.resourceAggregationAsync(
+        query,
+        docIndex,
+        resourceCountRes -> {
+          if (resourceCountRes.succeeded()) {
+            JsonObject resourceItemCount = new JsonObject();
+            int size = resourceCountRes.result().getJsonArray(RESULTS).size();
+            for (int i = 0; i < size; i++) {
+              JsonObject record = resourceCountRes.result().getJsonArray(RESULTS).getJsonObject(i);
+              resourceItemCount.put(record.getString(KEY), record.getInteger("doc_count"));
+            }
+            resourceCountResult.complete(resourceItemCount);
+          } else {
+            LOGGER.error("Fail: query fail;" + resourceCountRes.cause());
+            resourceCountResult.handle(Future.failedFuture(internalErrorResp));
+          }
+        });
+  }
+
+  private void allMlayerInstance(Promise<JsonObject> instanceResult) {
+    LOGGER.debug("Getting all instance name and icons");
+    client.searchAsync(
+        GET_ALL_MLAYER_INSTANCES,
+        mlayerInstanceIndex,
+        instanceRes -> {
+          if (instanceRes.succeeded()) {
+            int instanceSize = instanceRes.result().getJsonArray(RESULTS).size();
+            JsonObject instanceIcon = new JsonObject();
+            for (int i = 0; i < instanceSize; i++) {
+              JsonObject instanceObject =
+                  instanceRes.result().getJsonArray(RESULTS).getJsonObject(i);
+              instanceIcon.put(
+                  instanceObject.getString("name").toLowerCase(), instanceObject.getString("icon"));
+            }
+            instanceResult.complete(instanceIcon);
+          } else {
+
+            LOGGER.error("Fail: query fail;" + instanceRes.cause());
+            instanceResult.handle(Future.failedFuture(internalErrorResp));
+          }
+        });
+  }
+
+  private void gettingAllDatasets(String query, Promise<JsonObject> datasetResult) {
+    LOGGER.debug("Getting all resourceGroup along with provider description, "
+            + "resource server url and cosUrl");
     client.searchAsync(
         query,
         docIndex,
@@ -1709,226 +1802,188 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.debug("Success: Successful DB Request");
             int size = resultHandler.result().getJsonArray(RESULTS).size();
             if (size == 0) {
-              handler.handle(Future.failedFuture(new RespBuilder()
+              datasetResult.handle(
+                  Future.failedFuture(
+                      new RespBuilder()
                           .withType(TYPE_ITEM_NOT_FOUND)
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withDetail("no datasets are present")
                           .getResponse()));
             }
-            ArrayList<String> instanceList = new ArrayList<String>();
-            ArrayList<String> providerList = new ArrayList<String>();
-            // make a list of instance names and provider_id.
-            // The lists contains unique values, no duplicate values
+            JsonObject rsUrl = new JsonObject();
+            JsonObject providerDescription = new JsonObject();
+            JsonObject cosUrl = new JsonObject();
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              String instance = "";
-              if (record.containsKey(INSTANCE)) {
-                instance =
-                  record.getString(INSTANCE).toLowerCase().substring(0, 1).toUpperCase()
-                      + record.getString(INSTANCE).toLowerCase().substring(1);
-              }
-              String providerId = record.getString(PROVIDER);
-              if (!instanceList.contains(instance) && !instanceList.equals(null)) {
-                instanceList.add(instance);
-              }
-              if (!providerList.contains(providerId)) {
-                providerList.add(providerId);
+              if (record.getJsonArray(TYPE).getString(0).equals(ITEM_TYPE_PROVIDER)) {
+                providerDescription.put(record.getString(ID), record.getString(DESCRIPTION_ATTR));
+                rsUrl.put(
+                    record.getString(ID),
+                    record.containsKey("resourceServerURL")
+                        ? record.getString("resourceServerURL")
+                        : "");
+              } else if (record.getJsonArray(TYPE).getString(0).equals("iudx:COS")) {
+                cosUrl.put(record.getString(ID), record.getString("cosURL"));
               }
             }
-            instanceList.remove(null);
-            providerList.remove(null);
-            // Query to get instances icon path
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < instanceList.size(); i++) {
-              String instance = instanceList.get(i);
-              String combinedQuery = GET_MLAYER_BOOL_ICON.replace("$2", instance);
-              sb.append(combinedQuery).append(",");
+            int resourceGroupHits = 0;
+            JsonArray resourceGroup = new JsonArray();
+            for (int i = 0; i < size; i++) {
+              JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
+              if (record.getJsonArray(TYPE).getString(0).equals(ITEM_TYPE_RESOURCE_GROUP)) {
+                resourceGroupHits++;
+                record.put(
+                    "providerDescription",
+                    providerDescription.getString(record.getString(PROVIDER)));
+                record.put("resourceServerURL", rsUrl.getString(record.getString(PROVIDER)));
+                record.put(
+                    "cosURL",
+                    record.containsKey("cos") ? cosUrl.getString(record.getString("cos")) : "");
+
+                record.remove("cos");
+                resourceGroup.add(record);
+              }
             }
-            if (sb.length() > 0) {
-              sb.deleteCharAt(sb.length() - 1);
-            }
-            String getIconQuery = GET_MLAYER_INSTANCE_ICON_PATH.replace("$1", sb);
-            // query to get provider description and total Resource
-            StringBuilder sb1 = new StringBuilder();
-
-            for (int i = 0; i < providerList.size(); i++) {
-              String provider = providerList.get(i);
-
-              String combinedQuery = GET_MLAYER_BOOL_PROVIDER.replace("$2", provider);
-
-              sb1.append(combinedQuery).append(",");
-            }
-            if (sb1.length() > 0) {
-              sb1.deleteCharAt(sb1.length() - 1);
-            }
-            String getProviderQuery = GET_MLAYER_PROVIDER_RESOURCE.replace("$1", sb1);
-            // Elastic client call to get instance icon paths.
-            client.searchAsync(
-                getIconQuery,
-                mlayerInstanceIndex,
-                iconRes -> {
-                  if (iconRes.succeeded()) {
-                    Map<String, String> iconPath = new HashMap<String, String>();
-                    int iconResSize = iconRes.result().getJsonArray(RESULTS).size();
-                    for (int i = 0; i < iconResSize; i++) {
-                      JsonObject iconResRecord =
-                          iconRes.result().getJsonArray(RESULTS).getJsonObject(i);
-                      String instanceName = iconResRecord.getString("name").toLowerCase();
-                      String icon = iconResRecord.getString("icon");
-                      iconPath.put(instanceName, icon);
-                    }
-
-                    // Elastic client call to get provider description and total resource.
-                    client.searchAsync(
-                        getProviderQuery,
-                        docIndex,
-                        providerRes -> {
-                          if (providerRes.succeeded()) {
-                            Map<String, String> providerDescriptionList =
-                                new HashMap<String, String>();
-                            Map<String, Integer> resourceGroupMap = new HashMap<>();
-                            int providerDescriptionSize =
-                                providerRes.result().getJsonArray(RESULTS).size();
-                            for (int i = 0; i < providerDescriptionSize; i++) {
-                              JsonObject providerResRecord =
-                                  providerRes.result().getJsonArray(RESULTS).getJsonObject(i);
-                              if (providerResRecord
-                                  .getJsonArray(TYPE)
-                                  .getString(0)
-                                  .equals("iudx:Provider")) {
-                                String providerId = providerResRecord.getString("id");
-                                String providerDescription =
-                                    providerResRecord.getString("description");
-                                providerDescriptionList.put(providerId, providerDescription);
-                              }
-                              if (providerResRecord
-                                  .getJsonArray(TYPE)
-                                  .getString(0)
-                                  .equals("iudx:Resource")) {
-
-                                String resourceGroup = providerResRecord.getString("resourceGroup");
-                                resourceGroupMap.merge(resourceGroup, 1, Integer::sum);
-                              }
-                            }
-                            for (int i = 0; i < size; i++) {
-                              JsonObject record =
-                                  resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-                              resultHandler
-                                  .result()
-                                  .getJsonArray(RESULTS)
-                                  .getJsonObject(i)
-                                  .put("icon", iconPath.get(record.getString(INSTANCE)));
-                              resultHandler
-                                  .result()
-                                  .getJsonArray(RESULTS)
-                                  .getJsonObject(i)
-                                  .put(
-                                      "providerDescription",
-                                      providerDescriptionList.get(record.getString(PROVIDER)));
-                              resultHandler
-                                  .result()
-                                  .getJsonArray(RESULTS)
-                                  .getJsonObject(i)
-                                  .put(
-                                      "totalResources", resourceGroupMap.get(record.getString(ID)));
-                            }
-                            handler.handle(Future.succeededFuture(resultHandler.result()));
-
-                          } else {
-
-                            LOGGER.error("Fail: query fail;" + providerRes.cause());
-                            handler.handle(Future.failedFuture(internalErrorResp));
-                          }
-                        });
-                  } else {
-
-                    LOGGER.error("Fail: query fail;" + iconRes.cause());
-                    handler.handle(Future.failedFuture(internalErrorResp));
-                  }
-                });
-
+            JsonObject resourceGroupResult =
+                new JsonObject()
+                    .put("resourceGroupCount", resourceGroupHits)
+                    .put("resourceGroup", resourceGroup);
+            datasetResult.complete(resourceGroupResult);
           } else {
-
-            LOGGER.error("Fail: query fail;" + resultHandler.cause());
-            handler.handle(Future.failedFuture(internalErrorResp));
+            LOGGER.error("Fail: failed DB request");
+            datasetResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
-    return this;
   }
 
   @Override
   public DatabaseService getMlayerDataset(
-      String datasetId, Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.debug("dataset Id" + datasetId);
-    client.searchAsync(
-            GET_PROVIDER_AND_RS_ID.replace("$1", datasetId),
-        docIndex,
-        handlerRes -> {
-          if (handlerRes.succeeded()) {
-            if (handlerRes.result().getInteger(TOTAL_HITS) == 0) {
-              LOGGER.debug("The dataset is not available.");
-              handler.handle(
-                  Future.failedFuture(
-                      new RespBuilder()
-                          .withType(TYPE_ITEM_NOT_FOUND)
-                          .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withDetail("dataset belonging to Id requested is not present")
-                          .getResponse()));
-            }
-            String providerId =
-                handlerRes.result().getJsonArray(RESULTS).getJsonObject(0).getString("provider");
-            LOGGER.debug("provider id " + providerId);
-            String query = GET_MLAYER_DATASET.replace("$1", datasetId)
-                    .replace("$2", providerId);
-            LOGGER.debug("Query " + query);
-            client.searchAsyncDataset(
-                query,
-                docIndex,
-                resultHandler -> {
-                  if (resultHandler.succeeded()) {
-                    LOGGER.debug("Success: Successful DB Request");
-                    int resourceCount = resultHandler.result().getInteger(TOTAL_HITS) - 2;
-                    JsonObject record =
-                        resultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
-                    record.getJsonObject("dataset").put("totalResources", resourceCount);
-                    resultHandler.result().remove(TOTAL_HITS);
+      JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
+    if (requestData.containsKey(ID)) {
+      LOGGER.debug("dataset Id" + requestData.getString(ID));
+      client.searchAsync(
+          GET_PROVIDER_AND_RS_ID.replace("$1", requestData.getString(ID)),
+          docIndex,
+          handlerRes -> {
+            if (handlerRes.succeeded()) {
+              if (handlerRes.result().getInteger(TOTAL_HITS) == 0) {
+                LOGGER.debug("The dataset is not available.");
+                handler.handle(
+                    Future.failedFuture(
+                        new RespBuilder()
+                            .withType(TYPE_ITEM_NOT_FOUND)
+                            .withTitle(TITLE_ITEM_NOT_FOUND)
+                            .withDetail("dataset belonging to Id requested is not present")
+                            .getResponse()));
+              }
+              String providerId =
+                  handlerRes.result().getJsonArray(RESULTS).getJsonObject(0).getString("provider");
+              String cosId = "";
+              if (handlerRes.result().getJsonArray(RESULTS).getJsonObject(0).containsKey("cos")) {
+                cosId = handlerRes.result().getJsonArray(RESULTS).getJsonObject(0).getString("cos");
 
-                    String instanceName = record.getJsonObject("dataset").getString(INSTANCE);
-                    String instanceCapitalizeName =
-                        instanceName.substring(0, 1).toUpperCase() + instanceName.substring(1);
-                    String getIconQuery =
-                        GET_MLAYER_INSTANCE_ICON.replace("$1", instanceCapitalizeName);
-                    client.searchAsync(
-                        getIconQuery,
-                        mlayerInstanceIndex,
-                        iconResultHandler -> {
-                          if (iconResultHandler.succeeded()) {
-                            LOGGER.debug("Success: Successful DB Request");
-                            if (iconResultHandler.result().getInteger(TOTAL_HITS) == 0) {
-                              LOGGER.debug("The icon path for the instance is not present.");
-                              record.getJsonObject("dataset").put("instance_icon", "");
-                            } else {
-                              JsonObject resource =
-                                  iconResultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
-                              String instancePath = resource.getString("icon");
-                              record.getJsonObject("dataset").put("instance_icon", instancePath);
-                            }
-                            handler.handle(Future.succeededFuture(resultHandler.result()));
-                          } else {
-                            LOGGER.error("Fail: failed DB request");
-                            handler.handle(Future.failedFuture(internalErrorResp));
-                          }
-                        });
-                  } else {
-                    LOGGER.error("Fail: failed DB request");
-                    handler.handle(Future.failedFuture(internalErrorResp));
-                  }
-                });
-          } else {
-            LOGGER.error("Fail: DB request to get provider failed.");
-            handler.handle(Future.failedFuture(internalErrorResp));
-          }
-        });
+              }
+
+              /*
+              query to fetch resource group, provider of the resource group, resource
+              items associated with the resource group and cos item.
+              */
+              String query =
+                  GET_MLAYER_DATASET
+                      .replace("$1", requestData.getString(ID))
+                      .replace("$2", providerId)
+                      .replace("$3", cosId);
+              LOGGER.debug("Query " + query);
+              client.searchAsyncDataset(
+                  query,
+                  docIndex,
+                  resultHandler -> {
+                    if (resultHandler.succeeded()) {
+                      LOGGER.debug("Success: Successful DB Request");
+                      JsonObject record =
+                          resultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
+                        record.getJsonObject("dataset").put("totalResources",
+                                record.getJsonArray("resource").size());
+                      String instanceName = "";
+                      String instanceCapitalizeName = "";
+                      if (record.getJsonObject("dataset").containsKey(INSTANCE)
+                          && !(record.getJsonObject("dataset").getString(INSTANCE) == null)
+                          && !(record.getJsonObject("dataset").getString(INSTANCE).isBlank())) {
+
+                        instanceName = record.getJsonObject("dataset").getString(INSTANCE);
+                        instanceCapitalizeName =
+                            instanceName.substring(0, 1).toUpperCase() + instanceName.substring(1);
+
+                        // query to get the icon path of the instance in the  resource group
+                        String getIconQuery =
+                            GET_MLAYER_INSTANCE_ICON.replace("$1", instanceCapitalizeName);
+                        client.searchAsync(
+                            getIconQuery,
+                            mlayerInstanceIndex,
+                            iconResultHandler -> {
+                              if (iconResultHandler.succeeded()) {
+                                LOGGER.debug("Success: Successful DB Request");
+                                JsonObject json = iconResultHandler.result();
+                                if (json.getInteger(TOTAL_HITS) == 0) {
+                                  LOGGER.debug("The icon path for the instance is not present.");
+                                  record.getJsonObject("dataset").put("instance_icon", "");
+                                } else {
+                                  JsonObject resource =
+                                      iconResultHandler
+                                          .result()
+                                          .getJsonArray(RESULTS)
+                                          .getJsonObject(0);
+                                  String instancePath = resource.getString("icon");
+                                  record
+                                      .getJsonObject("dataset")
+                                      .put("instance_icon", instancePath);
+                                }
+                                resultHandler.result().remove(TOTAL_HITS);
+                                handler.handle(Future.succeededFuture(resultHandler.result()));
+                              } else {
+                                LOGGER.error("Fail: failed DB request");
+                                handler.handle(Future.failedFuture(internalErrorResp));
+                              }
+                            });
+                      } else {
+                        resultHandler.result().remove(TOTAL_HITS);
+                        record.getJsonObject("dataset").put("instance_icon", "");
+                        handler.handle(Future.succeededFuture(resultHandler.result()));
+                      }
+                    } else {
+                      LOGGER.error("Fail: failed DB request");
+                      handler.handle(Future.failedFuture(internalErrorResp));
+                    }
+                  });
+            } else {
+              LOGGER.error("Fail: DB request to get provider failed.");
+              handler.handle(Future.failedFuture(internalErrorResp));
+            }
+          });
+    } else if (requestData.containsKey("domains") || requestData.containsKey("instance")) {
+
+      String query = "";
+      if (requestData.containsKey("domains") && !requestData.containsKey("instance")) {
+        query = GET_ALL_DATASETS_BY_DOMAIN.replace("$1", requestData.getString("domains"));
+      } else if (!requestData.containsKey("domains") && requestData.containsKey("instance")) {
+        query = GET_ALL_DATASETS_BY_INSTANCE.replace("$1", requestData.getString("instance"));
+      } else if (requestData.containsKey("domains") && requestData.containsKey("instance")) {
+        query =
+            GET_ALL_DATASETS_BY_INSTANCE_AND_DOMAINS
+                .replace("$1", requestData.getString("domains"))
+                .replace("$2", requestData.getString("instance"));
+      }
+      getMlayerAllDatasets(query, handler);
+    } else {
+      LOGGER.error("Invalid field present in request body");
+      handler.handle(
+          Future.failedFuture(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_PROPERTY_VALUE)
+                  .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+                  .withDetail("Invalid field present in request body")
+                  .getResponse()));
+    }
 
     return this;
   }

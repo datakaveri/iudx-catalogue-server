@@ -527,12 +527,8 @@ public class MlayerApis {
     LOGGER.debug("Info : fetching all datasets that belong to IUDX");
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    String instance = "";
-    if (routingContext.request().getParam(INSTANCE) != null) {
-      instance = routingContext.request().getParam(INSTANCE);
-    }
     mlayerService.getMlayerAllDatasets(
-        instance, handler -> {
+         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {
@@ -549,16 +545,15 @@ public class MlayerApis {
   public void getMlayerDatasetHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching details of the dataset");
     HttpServerResponse response = routingContext.response();
-    HttpServerRequest request = routingContext.request();
-    String datasetId = request.getParam(ID);
+    JsonObject requestData = routingContext.body().asJsonObject();
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     validatorService.validateMlayerDatasetId(
-        datasetId,
+        requestData,
         validationHandler -> {
           if (validationHandler.failed()) {
-            response
+              response
                     .setStatusCode(400)
                     .end(
                             new RespBuilder()
@@ -569,7 +564,7 @@ public class MlayerApis {
           } else {
             LOGGER.debug("Validation of dataset Id Successful");
             mlayerService.getMlayerDataset(
-                    datasetId,
+                    requestData,
                     handler -> {
                       if (handler.succeeded()) {
                         response.setStatusCode(200).end(handler.result().toString());
