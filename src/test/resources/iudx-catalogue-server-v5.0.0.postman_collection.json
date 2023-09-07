@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "9a54a650-2277-401f-8b83-22d4eb3f1bd2",
+		"_postman_id": "6d64988c-62ba-4bf5-abf6-584fbb0a2fd4",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27217689"
+		"_exporter_id": "20457128"
 	},
 	"item": [
 		{
@@ -2941,6 +2941,174 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "200 (success) - List COS",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.be.ok;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property( \"type\",  \"urn:dx:cat:Success\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{base}}/list/cos",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"list",
+								"cos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "200 (success) - List Owner",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.be.ok;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property( \"type\",  \"urn:dx:cat:Success\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{base}}/list/owner",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"list",
+								"owner"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400 (Invalid itemType)- List COS",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.be.badRequest;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:InvalidSyntax\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{localhost}}{{base}}/list/coss",
+							"host": [
+								"{{localhost}}{{base}}"
+							],
+							"path": [
+								"list",
+								"coss"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "400 (Invalid itemType)- List Owner",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status\", function () {\r",
+									"    pm.response.to.be.badRequest;\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response header\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\",\"application/json\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check response body\", function () {    \r",
+									"    const body = pm.response.json();\r",
+									"    pm.expect(body).to.have.property(\"type\",  \"urn:dx:cat:InvalidSyntax\");\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}{{base}}/list/rowner",
+							"host": [
+								"{{host}}{{base}}"
+							],
+							"path": [
+								"list",
+								"rowner"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -4172,7 +4340,6 @@
 											"value": "all"
 										}
 									]
-
 								}
 							},
 							"response": []

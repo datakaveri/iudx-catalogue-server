@@ -72,6 +72,7 @@ public class Constants {
   public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
   public static final String ITEM_TYPE_PROVIDER = "iudx:Provider";
   public static final String ITEM_TYPE_COS = "iudx:COS";
+  public static final String ITEM_TYPE_OWNER = "iudx:Owner";
   public static final String ITEM_TYPE_INSTANCE = "iudx:Instance";
 
   public static final ArrayList<String> ITEM_TYPES =

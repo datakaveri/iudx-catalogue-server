@@ -83,6 +83,12 @@ public final class ListApis {
           case TAGS:
             type = itemType;
             break;
+          case OWNER:
+            type = ITEM_TYPE_OWNER;
+            break;
+          case COS:
+            type = ITEM_TYPE_COS;
+            break;
           default:
             LOGGER.error("Fail: Invalid itemType:" + itemType);
             response.setStatusCode(400)
