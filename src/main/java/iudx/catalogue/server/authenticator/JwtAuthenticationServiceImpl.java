@@ -194,8 +194,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
     String token = authenticationInfo.getString(TOKEN);
     String itemType = authenticationInfo.getString(ITEM_TYPE, "");
     // TODO: remove rsUrl check
-    String resourceServerRegURL = authenticationInfo.getString(RESOURCE_SERVER_URL, "");
-    LOGGER.debug(resourceServerRegURL);
+    String resourceServerRegUrl = authenticationInfo.getString(RESOURCE_SERVER_URL, "");
+    LOGGER.debug(resourceServerRegUrl);
 
     LOGGER.debug("endpoint : " + endPoint);
     Future<JwtData> jwtDecodeFuture = decodeJwt(token);
@@ -218,7 +218,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
                   && result.jwtData.getAud().equalsIgnoreCase(audience)) {
                 return Future.succeededFuture(true);
               }
-              return isValidAudienceValue(result.jwtData, itemType, resourceServerRegURL);
+              return isValidAudienceValue(result.jwtData, itemType, resourceServerRegUrl);
             })
         .compose(
             audienceHandler -> {
@@ -247,7 +247,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
             })
         .compose(
             validAdmin -> {
-              return isValidItemId(result.jwtData, itemType, resourceServerRegURL);
+              return isValidItemId(result.jwtData, itemType, resourceServerRegUrl);
             })
         .compose(
             validIid -> {
@@ -269,16 +269,16 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
    *
    * @param jwtData which is result of decoded jwt token
    * @param itemType which is a String
-   * @param resourceServerRegURL which is a String
+   * @param resourceServerRegUrl which is a String
    * @return Vertx Future which is of the type boolean
    */
-  Future<Boolean> isValidItemId(JwtData jwtData, String itemType, String resourceServerRegURL) {
+  Future<Boolean> isValidItemId(JwtData jwtData, String itemType, String resourceServerRegUrl) {
     String iid = jwtData.getIid();
     String type = iid.substring(0, iid.indexOf(":"));
     String server = iid.substring(iid.indexOf(":") + 1);
     boolean isValidIid;
 
-    LOGGER.debug(server.equalsIgnoreCase(resourceServerRegURL));
+    LOGGER.debug(server.equalsIgnoreCase(resourceServerRegUrl));
     LOGGER.debug(type);
 
     switch (itemType) {
@@ -291,7 +291,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       case ITEM_TYPE_PROVIDER:
       case ITEM_TYPE_RESOURCE_GROUP:
       case ITEM_TYPE_RESOURCE:
-        isValidIid = type.equalsIgnoreCase("rs") && server.equalsIgnoreCase(resourceServerRegURL);
+        isValidIid = type.equalsIgnoreCase("rs") && server.equalsIgnoreCase(resourceServerRegUrl);
         break;
       default:
         isValidIid = true;

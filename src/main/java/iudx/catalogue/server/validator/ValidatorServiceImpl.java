@@ -15,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -176,7 +175,6 @@ public class ValidatorServiceImpl implements ValidatorService {
     return this;
   }
 
-
   private void validateResourceGroup(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler, String checkQuery) {
     validateId(request, handler, isUacInstance);
@@ -306,7 +304,8 @@ public class ValidatorServiceImpl implements ValidatorService {
         });
   }
 
-  private void validateCosItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler, String checkQuery) {
+  private void validateCosItem(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler, String checkQuery) {
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
       String cosId = request.getString(NAME);
@@ -337,7 +336,7 @@ public class ValidatorServiceImpl implements ValidatorService {
 
   private void validateOwnerItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     validateId(request, handler, isUacInstance);
-    if(!isUacInstance && !request.containsKey(ID)) {
+    if (!isUacInstance && !request.containsKey(ID)) {
       String ownerId = request.getString(NAME);
       byte[] inputBytes = ownerId.getBytes(StandardCharsets.UTF_8);
       UUID uuid = UUID.nameUUIDFromBytes(inputBytes);

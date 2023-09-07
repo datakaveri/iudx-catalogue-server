@@ -156,7 +156,8 @@ public final class CrudApis {
             if (isUac) {
               handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
             } else {
-              if (itemType.equalsIgnoreCase(ITEM_TYPE_COS) || itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
+              if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)
+                  || itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
@@ -167,10 +168,7 @@ public final class CrudApis {
                 resourceServerUrlFuture.onComplete(
                     resourceServerUrl -> {
                       if (resourceServerUrl.succeeded()) {
-                        String rsUrl =
-                            resourceServerUrl
-                                .result()
-                                .getString(RESOURCE_SERVER_URL);
+                        String rsUrl = resourceServerUrl.result().getString(RESOURCE_SERVER_URL);
                         // used for relationship apis
                         String cosId = resourceServerUrl.result().getString(COS_ITEM);
 
@@ -415,7 +413,8 @@ public final class CrudApis {
               if (isUac) {
                 handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
               } else {
-                if (itemType.equalsIgnoreCase(ITEM_TYPE_COS) || itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
+                if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)
+                    || itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
                   handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
                 } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
                   handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
@@ -427,8 +426,7 @@ public final class CrudApis {
                 } else {
                   LOGGER.debug(itemTypeHandler.result());
                   Future<JsonObject> providerInfoFuture =
-                      getParentObjectInfo(
-                          itemTypeHandler.result().getString(PROVIDER));
+                      getParentObjectInfo(itemTypeHandler.result().getString(PROVIDER));
                   providerInfoFuture.onComplete(
                       providerInfo -> {
                         if (providerInfo.succeeded()) {
