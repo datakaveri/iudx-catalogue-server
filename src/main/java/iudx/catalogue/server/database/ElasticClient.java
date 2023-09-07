@@ -199,6 +199,9 @@ public final class ElasticClient {
                   if (record.containsKey(DATA_DESCRIPTOR)) {
                     dataset.put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR));
                   }
+                  if (record.containsKey("resourceType")) {
+                    dataset.put("resourceType", record.getString("resourceType"));
+                  }
                 }
                 if (type.equals("iudx:COS")) {
                   dataset.put("cosURL", record.getString("cosURL"));

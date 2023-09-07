@@ -184,10 +184,10 @@ public class Constants {
   public static final String GET_MLAYER_ALL_DATASETS =
       "{\"query\":{\"bool\":{\"must\":{\"terms\":{\"type.keyword\": [\"iudx:Provider\", "
           + "\"iudx:COS\", \"iudx:ResourceGroup\", \"iudx:Resource\"]}}}},\"_source\""
-          +  ":{\"includes\": "
+          + ":{\"includes\": "
           + "[\"type\",\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\","
           + "\"provider\", \"resourceServerURL\",\"description\" ,\"cosURL\", "
-          +  "\"cos\", \"resourceGroup\"]},\"size\":"
+          + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\":"
           + " 10000}";
 
   public static final String GET_ALL_DATASETS_BY_DOMAIN =
@@ -222,17 +222,17 @@ public class Constants {
               + "\"cosURL\", \"owner\",\"resourceGroup\"]},\"size\":10000}\n";
   public static final String GET_MLAYER_DATASET =
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"id.keyword\":\"$1\"}}"
-              + ",{\"match\": {\"type.keyword\": \"iudx:ResourceGroup\"}}]}},{\"bool\":{\"must\":"
-              + "[{\"match\":{\"id.keyword\": \"$2\"}},{\"match\":{\"type.keyword\": "
-              + "\"iudx:Provider\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"resourceGroup.keyword\""
-              + ":\"$1\"}},{\"match\":{\"type.keyword\":\"iudx:Resource\"}}]}},{\"bool\":{\"must\":"
-              + "[{\"match\":{\"id.keyword\": \"$3\"}},{\"match\":{\"type.keyword\": \"iudx:COS\""
-              + "}}]}}]}},\"_source\":{\"includes\":[\"resourceServer\", \"id\", \"type\","
-              + " \"apdURL\","
-              + " \"label\", \"description\", \"instance\", \"accessPolicy\",\"cosURL\","
-              + " \"dataSample\","
-              + " \"dataDescriptor\", \"@context\", \"dataQualityFile\", \"dataSampleFile\","
-              + " \"resourceType\", \"resourceServerURL\"]},\"size\": 10000}";
+          + ",{\"match\": {\"type.keyword\": \"iudx:ResourceGroup\"}}]}},{\"bool\":{\"must\":"
+          + "[{\"match\":{\"id.keyword\": \"$2\"}},{\"match\":{\"type.keyword\": "
+          + "\"iudx:Provider\"}}]}},{\"bool\":{\"must\":[{\"match\":{\"resourceGroup.keyword\""
+          + ":\"$1\"}},{\"match\":{\"type.keyword\":\"iudx:Resource\"}}]}},{\"bool\":{\"must\":"
+          + "[{\"match\":{\"id.keyword\": \"$3\"}},{\"match\":{\"type.keyword\": \"iudx:COS\""
+          + "}}]}}]}},\"_source\":{\"includes\":[\"resourceServer\", \"id\", \"type\","
+          + " \"apdURL\","
+          + " \"label\", \"description\", \"instance\", \"accessPolicy\",\"cosURL\","
+          + " \"dataSample\","
+          + " \"dataDescriptor\", \"@context\", \"dataQualityFile\", \"dataSampleFile\","
+          + " \"resourceType\", \"resourceServerURL\",\"resourceType\"]},\"size\": 10000}";
 
   public static final String GET_RESOURCE_ITEM_COUNT =
       "{\"size\": 0,\"aggs\":{\"results\":{\"terms\":{\"field\":\"resourceGroup.keyword\","
