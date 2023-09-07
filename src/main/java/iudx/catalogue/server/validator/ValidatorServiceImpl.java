@@ -46,6 +46,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator mlayerInstanceValidator;
   private Validator mlayerDomainValidator;
   private Validator mlayerGeoQueryValidator;
+  private Validator mlayerDatasetValidator;
   private String docIndex;
   private boolean isUacInstance;
 
@@ -71,6 +72,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       mlayerInstanceValidator = new Validator("/mlayerInstanceSchema.json");
       mlayerDomainValidator = new Validator("/mlayerDomainSchema.json");
       mlayerGeoQueryValidator = new Validator("/mlayerGeoQuerySchema.json");
+      mlayerDatasetValidator = new Validator("/mlayerDatasetSchema.json");
 
     } catch (IOException | ProcessingException e) {
       e.printStackTrace();
@@ -423,9 +425,10 @@ public class ValidatorServiceImpl implements ValidatorService {
 
   @Override
   public ValidatorService validateMlayerDatasetId(
-      String datasetId, Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    isValidSchema = mlayerDatasetValidator.validate(request.toString());
 
-    if (isValidUuid(datasetId)) {
+    if (isValidSchema) {
       handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
       LOGGER.error("Fail: Invalid Schema");

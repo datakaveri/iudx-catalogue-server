@@ -709,7 +709,7 @@ public class MlayerServiceTest {
                 .when(databaseService)
                 .getMlayerAllDatasets(any(), any());
         mlayerService.getMlayerAllDatasets(
-               "abc" ,handler -> {
+                handler -> {
                     if (handler.succeeded()) {
                         verify(databaseService, times(1)).getMlayerAllDatasets(any(), any());
                         testContext.completeNow();
@@ -740,7 +740,7 @@ public class MlayerServiceTest {
                 .getMlayerAllDatasets(any(), any());
 
         mlayerService.getMlayerAllDatasets(
-               "abc" ,handler -> {
+               handler -> {
                     if (handler.succeeded()) {
                         verify(databaseService, times(1)).getMlayerAllDatasets(any(), any());
                         LOGGER.debug("Fail");
@@ -770,7 +770,7 @@ public class MlayerServiceTest {
                 .when(databaseService)
                 .getMlayerDataset(any(), any());
         mlayerService.getMlayerDataset(
-                dataset_id,
+                new JsonObject(),
                 handler -> {
                     if (handler.succeeded()) {
                         verify(databaseService, times(1)).getMlayerDataset(any(), any());
@@ -802,7 +802,7 @@ public class MlayerServiceTest {
                 .getMlayerDataset(any(), any());
 
         mlayerService.getMlayerDataset(
-                dataset_id,
+                new JsonObject(),
                 handler -> {
                     if (handler.succeeded()) {
                         verify(databaseService, times(1)).getMlayerDataset(any(), any());

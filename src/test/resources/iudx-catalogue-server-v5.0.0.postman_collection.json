@@ -3,7 +3,7 @@
 		"_postman_id": "4b4e793d-a27e-4200-b2fa-66a3f952b2b2",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17194681"
+		"_exporter_id": "27217689"
 	},
 	"item": [
 		{
@@ -14096,56 +14096,6 @@
 							"response": []
 						},
 						{
-							"name": "200 (Success) - Get All Datasets Based on Instance param",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Response status\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Check response body\", function () {    \r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [
-									{
-										"key": "",
-										"value": "",
-										"type": "text",
-										"disabled": true
-									}
-								],
-								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/dataset?instance=pune",
-									"host": [
-										"{{host}}{{base}}"
-									],
-									"path": [
-										"internal",
-										"ui",
-										"dataset"
-									],
-									"query": [
-										{
-											"key": "instance",
-											"value": "pune"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "200 (Success) - Post Dataset",
 							"event": [
 								{
@@ -14175,8 +14125,17 @@
 										"disabled": true
 									}
 								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\" : \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/dataset?id=8b95ab80-2aaf-4636-a65e-7f2563d0d371",
+									"raw": "{{host}}{{base}}/internal/ui/dataset",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -14184,12 +14143,6 @@
 										"internal",
 										"ui",
 										"dataset"
-									],
-									"query": [
-										{
-											"key": "id",
-											"value": "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
-										}
 									]
 								}
 							},
@@ -14225,8 +14178,17 @@
 										"disabled": true
 									}
 								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\" : \"8b95ab80-2aaq-4636-a65e-7f2563d0d371\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/dataset?id=8b95ab80-2aaq-4636-a65e-7f2563d0d371",
+									"raw": "{{host}}{{base}}/internal/ui/dataset",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -14234,12 +14196,6 @@
 										"internal",
 										"ui",
 										"dataset"
-									],
-									"query": [
-										{
-											"key": "id",
-											"value": "8b95ab80-2aaq-4636-a65e-7f2563d0d371"
-										}
 									]
 								}
 							},
@@ -14275,8 +14231,17 @@
 										"disabled": true
 									}
 								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\" : \"8b95ab80-2aaf-4636-a6e\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/dataset?id=8b95ab80-2aaf-4636-a6e",
+									"raw": "{{host}}{{base}}/internal/ui/dataset",
 									"host": [
 										"{{host}}{{base}}"
 									],
@@ -14284,12 +14249,6 @@
 										"internal",
 										"ui",
 										"dataset"
-									],
-									"query": [
-										{
-											"key": "id",
-											"value": "8b95ab80-2aaf-4636-a6e"
-										}
 									]
 								}
 							},

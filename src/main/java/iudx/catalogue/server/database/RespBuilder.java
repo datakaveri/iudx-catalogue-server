@@ -24,8 +24,8 @@ public class RespBuilder {
     return this;
   }
 
-  public RespBuilder withMethod(String method) {
-    response.put(METHOD, method);
+  public RespBuilder withTotalHits(Integer count) {
+    response.put(TOTAL_HITS, count);
     return this;
   }
 
