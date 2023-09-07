@@ -187,8 +187,8 @@ public final class ElasticClient {
                 }
                 if (type.equals("iudx:ResourceServer")) {
                   dataset
-                          .put("resourceServerURL",
-                                  record.getString("resourceServerURL"));
+                          .put("resourceServerRegURL",
+                                  record.getString("resourceServerRegURL"));
 
                 }
               }

@@ -156,11 +156,9 @@ public final class CrudApis {
             if (isUac) {
               handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
             } else {
-              if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+              if (itemType.equalsIgnoreCase(ITEM_TYPE_COS) || itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-                // this duplication is used for ease of querying
-                requestBody.put(OWNER, requestBody.getString(PROVIDER));
                 handleItemCreation(routingContext, requestBody, response, jwtAuthenticationInfo);
               } else if (itemType.equals(ITEM_TYPE_PROVIDER)) {
                 Future<JsonObject> resourceServerUrlFuture =
@@ -174,11 +172,11 @@ public final class CrudApis {
                                 .result()
                                 .getString(RESOURCE_SERVER_URL);
                         // used for relationship apis
-                        String cosId = resourceServerUrl.result().getString(OWNER);
+                        String cosId = resourceServerUrl.result().getString(COS_ITEM);
 
                         jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
                         requestBody.put(RESOURCE_SERVER_URL, rsUrl);
-                        requestBody.put(OWNER, cosId);
+                        requestBody.put(COS_ITEM, cosId);
                         handleItemCreation(
                             routingContext, requestBody, response, jwtAuthenticationInfo);
                       } else {
@@ -193,23 +191,23 @@ public final class CrudApis {
                       }
                     });
               } else {
-                Future<JsonObject> providerUserIdFuture =
+                Future<JsonObject> ownerUserIdFuture =
                     getParentObjectInfo(requestBody.getString(PROVIDER));
                 // add provider kc id to requestBody
-                providerUserIdFuture.onComplete(
-                    providerUserId -> {
-                      if (providerUserId.succeeded()) {
-                        LOGGER.debug(providerUserId.result());
-                        String kcId = providerUserId.result().getString(PROVIDER_USER_ID);
-                        String rsUrl = providerUserId.result().getString(RESOURCE_SERVER_URL);
+                ownerUserIdFuture.onComplete(
+                    ownerUserId -> {
+                      if (ownerUserId.succeeded()) {
+                        LOGGER.debug(ownerUserId.result());
+                        String kcId = ownerUserId.result().getString(PROVIDER_USER_ID);
+                        String rsUrl = ownerUserId.result().getString(RESOURCE_SERVER_URL);
                         // cosId is used for relationship apis
 
                         jwtAuthenticationInfo.put(PROVIDER_USER_ID, kcId);
                         jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
                         requestBody.put(PROVIDER_USER_ID, kcId);
 
-                        String cosId = providerUserId.result().getString(OWNER);
-                        requestBody.put(OWNER, cosId);
+                        String cosId = ownerUserId.result().getString(COS_ITEM);
+                        requestBody.put(COS_ITEM, cosId);
                         handleItemCreation(
                             routingContext, requestBody, response, jwtAuthenticationInfo);
                       } else {
@@ -417,7 +415,7 @@ public final class CrudApis {
               if (isUac) {
                 handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
               } else {
-                if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+                if (itemType.equalsIgnoreCase(ITEM_TYPE_COS) || itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
                   handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
                 } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
                   handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
@@ -436,10 +434,10 @@ public final class CrudApis {
                         if (providerInfo.succeeded()) {
                           LOGGER.debug(providerInfo.result());
                           String rsUrl = providerInfo.result().getString(RESOURCE_SERVER_URL, "");
-                          String providerUserId =
+                          String ownerUserId =
                               providerInfo.result().getString(PROVIDER_USER_ID, "");
                           jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
-                          jwtAuthenticationInfo.put(PROVIDER_USER_ID, providerUserId);
+                          jwtAuthenticationInfo.put(PROVIDER_USER_ID, ownerUserId);
                           handleItemDeletion(response, jwtAuthenticationInfo, requestBody, itemId);
                         } else {
                           response

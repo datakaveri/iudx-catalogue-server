@@ -209,7 +209,7 @@ public class Constants {
           + "\"_source\":{\"includes\":[\"resourceServer\","
           + "\"id\",\"type\",\"label\",\"description\",\"instance\",\"accessPolicy\","
           + "\"dataSample\", \"dataDescriptor\",\"@context\",\"dataQualityFile\","
-          + "\"dataSampleFile\",\"resourceType\",\"resourceServerURL\"]},"
+          + "\"dataSampleFile\",\"resourceType\",\"resourceServerRegURL\"]},"
           + "\"size\": 10000}";
   public static final String GET_MLAYER_INSTANCE_ICON =
       "{\"query\":{\"match\":{\"name\":\"$1\"}},\"_source\": {\"includes\": [\"icon\"]}}";
@@ -265,7 +265,7 @@ public class Constants {
       "{\"query\":{\"bool\":{\"should\":[{\"term\":{\"id.keyword\":\"$1\"}},{\"term\":"
           + "{\"resourceGroup.keyword\": \"$1\"}},{\"term\":{\"provider.keyword\":\"$1\"}},"
           + "{\"term\":{\"resourceServer.keyword\": \"$1\"}},{\"term\":"
-          + "{\"owner.keyword\": \"$1\"}}]}}}";
+          + "{\"cos.keyword\": \"$1\"}}]}}}";
 
   public static final String NLP_SEARCH = "{\"query\": {\"script_score\": {\"query\": "
           + "{\"match_all\": {}},\"script\":\"source\": \"cosineSimilarity(params.query_vector,"
@@ -277,7 +277,7 @@ public class Constants {
   public static final String GET_TYPE_SEARCH =
       "{\"query\": {\"bool\": {\"filter\": [{\"terms\": "
           + "{\"id.keyword\": [\"$1\"],\"boost\": 1}}]}},"
-          + "\"_source\": [\"owner\",\"resourceServer\",\"type\","
+          + "\"_source\": [\"cos\",\"resourceServer\",\"type\","
           + "\"provider\",\"resourceGroup\",\"id\"]}";
   public static final String GET_RSGROUP = "{\"query\": {\"bool\": {\"must\": [{\"match\": "
       + "{\"resourceServer.keyword\": \"$1\"}},"
