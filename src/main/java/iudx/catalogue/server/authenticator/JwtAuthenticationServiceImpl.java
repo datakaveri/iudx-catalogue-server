@@ -173,7 +173,10 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       LOGGER.debug("User access is allowed");
       JsonObject response = new JsonObject();
       // adding user id, user role and iid to response for auditing purpose
-      response.put(USER_ROLE, jwtData.getRole()).put(USER_ID, jwtData.getSub());
+      response
+          .put(USER_ROLE, jwtData.getRole())
+          .put(USER_ID, jwtData.getSub())
+          .put(IID, jwtData.getIid());
       promise.complete(response);
     } else {
       LOGGER.error("user access denied");
