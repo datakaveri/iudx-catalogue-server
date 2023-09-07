@@ -94,11 +94,12 @@ public final class ElasticClient {
                 results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
 
             }
-            if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY) {
-              results = responseJson.getJsonObject(AGGREGATIONS)
-                      .getJsonObject(RESULTS)
-                      .getJsonArray(BUCKETS);
-            }
+            if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY
+                        || options == RESOURCE_AGGREGATION_ONLY) {
+                  results = responseJson.getJsonObject(AGGREGATIONS)
+                          .getJsonObject(RESULTS)
+                          .getJsonArray(BUCKETS);
+                }
 
             for (int i = 0; i < results.size(); i++) {
               if (options == SOURCE_ONLY) {
@@ -137,6 +138,9 @@ public final class ElasticClient {
                 result.mergeIn(source);
                 responseMsg.addResult(result);
               }
+              if (options == RESOURCE_AGGREGATION_ONLY) {
+                responseMsg.addResult(results.getJsonObject(i));
+              }
             }
             if (options == DATASET) {
               JsonArray resource = new JsonArray();
@@ -151,18 +155,14 @@ public final class ElasticClient {
                   provider
                           .put(ID, record.getString(ID))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
+                  dataset.put("resourceServerURL", record.getString("resourceServerURL"));
                   dataset.put(PROVIDER, provider);
                 }
                 if (type.equals("iudx:Resource")) {
-                  JsonObject resourceJson = new JsonObject();
-                  resourceJson
-                          .put(RESOURCE_ID, record.getString(ID))
-                          .put(LABEL, record.getString(LABEL))
-                          .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
-                          .put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE))
-                          .put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR))
-                          .put(RESOURCETYPE, record.getString(RESOURCETYPE));
-                  resource.add(resourceJson);
+                  record.remove("type");
+                  record.put("resourceId", record.getString("id"));
+                  record.remove("id");
+                  resource.add(record);
                 }
                 if (type.equals("iudx:ResourceGroup")) {
                   String schema =
@@ -172,24 +172,36 @@ public final class ElasticClient {
                                   .getString(1)
                                   .substring(5, record.getJsonArray(TYPE)
                                           .getString(1).length());
+                  record.put("schema", schema);
+                  record.remove("@context");
                   dataset
                           .put(ID, record.getString(ID))
-                          .put(LABEL, record.getString(LABEL))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
-                          .put(ACCESS_POLICY, record.getString(ACCESS_POLICY))
-                          .put(INSTANCE, record.getString(INSTANCE))
-                          .put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE))
-                          .put("dataSampleFile", record.getJsonArray("dataSampleFile"))
-                          .put("dataQualityFile", record.getJsonArray("dataQualityFile"))
-                          .put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR))
-                          .put("schema", schema)
-                          .put(RESOURCE_SVR, record.getString("resourceServer"));
+                          .put("schema", schema);
+                  if (record.containsKey(LABEL)) {
+                    dataset.put(LABEL, record.getString(LABEL));
+                  }
+                  if (record.containsKey(ACCESS_POLICY)) {
+                    dataset.put(ACCESS_POLICY, record.getString(ACCESS_POLICY));
+                  }
+                  if (record.containsKey(INSTANCE)) {
+                    dataset.put(INSTANCE, record.getString(INSTANCE));
+                  }
+                  if (record.containsKey(DATA_SAMPLE)) {
+                    dataset.put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE));
+                  }
+                  if (record.containsKey("dataSampleFile")) {
+                    dataset.put("dataSampleFile", record.getJsonArray("dataSampleFile"));
+                  }
+                  if (record.containsKey("dataQualityFile")) {
+                    dataset.put("dataQualityFile", record.getJsonArray("dataQualityFile"));
+                  }
+                  if (record.containsKey(DATA_DESCRIPTOR)) {
+                    dataset.put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR));
+                  }
                 }
-                if (type.equals("iudx:ResourceServer")) {
-                  dataset
-                          .put("resourceServerURL",
-                                  record.getString("resourceServerURL"));
-
+                if (type.equals("iudx:COS")) {
+                  dataset.put("cosURL", record.getString("cosURL"));
                 }
               }
               datasetDetail.put("dataset", dataset);
@@ -247,6 +259,25 @@ public final class ElasticClient {
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
     queryRequest.setJsonEntity(query);
     Future<JsonObject> future = searchAsync(queryRequest, DATASET);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
+  /**
+   * Executes a resource aggregation request asynchronously for the given query and index,
+   * and returns the result through the resultHandler.
+   * @param query the aggregation query to execute
+   * @param index the index to search in
+   * @param resultHandler the handler for the result of the aggregation query
+   * @return the ElasticClient object
+   */
+  public ElasticClient resourceAggregationAsync(
+          String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
+    Request queryRequest = new Request(REQUEST_GET, index
+            + "/_search"
+            + FILTER_PATH_AGGREGATION);
+    queryRequest.setJsonEntity(query);
+    Future<JsonObject> future = searchAsync(queryRequest, RESOURCE_AGGREGATION_ONLY);
     future.onComplete(resultHandler);
     return this;
   }
