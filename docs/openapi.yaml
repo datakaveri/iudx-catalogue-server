@@ -470,7 +470,7 @@ paths:
           in: path
           description: |
             If entites, then type must be resource, resourceGroup, resourceServer, provider, cos, owner. If
-            properties then only tags is supported. Additionally all instances can also be mentioned
+            properties then only tags is supported. Additionally all instances can also be listed
             as `instance`.
           required: true
           schema:
@@ -648,6 +648,12 @@ paths:
         5. iudx:Cos
            - id
            - owner
+           - name
+           - type (1st element in array non-modifiable)
+           - itemStatus
+        
+        6. iudx:Owner
+           - id
            - name
            - type (1st element in array non-modifiable)
            - itemStatus
@@ -926,7 +932,7 @@ paths:
         | ResourceServer          | resource, resourceGroup, provider                | Return all resource or resource group items associated with the input resource server. Multiple entities maybe returned.      |
         | ResourceServer          | cos                                              | Return the cos entity. Only single entity is returned.                                                                        |
 
-         > **_NOTE:_** For the item types resource, resourceGroup, provider and resourceServer a special rel="all" returns all the parent documents (the result also includes the item itself)
+         > **_NOTE:_** For the item types resource, resourceGroup, provider and resourceServer a special relationship value `rel=all` returns all the parent documents of the given entity(the result also includes the item itself.)
       operationId: get related entity
       parameters:
         - name: instance
@@ -947,7 +953,10 @@ paths:
               - provider
               - resourceGroup
               - resourceServer
-              - instance
+              - resource
+              - cos
+              - all
+              - type
         - name: id
           in: query
           description: id of the entity
@@ -2644,13 +2653,30 @@ components:
         title: <error title
         detail: <error detail description>
     updateItemNotFound:
-      type: string
-      title: 404 Not Found
+      type: object
+      title: Document not found
+      properties:
+       type:
+        type: string
+        description: |
+          Type of the response indicating if the query was successful or if any errors have been triggered.
+       title:
+        type: string
+        description: A human readable title to the message response.\
+       results:
+        type: array
+        description: Results which matched the query. This is an array of objects.
+        items:
+          type: object
       description: Update Item Not Found
       example:
-        type: 'urn:dx:cat:LinkValidationFailed'
-        title: Link Validation Failed
-        detail: Provider not found
+        type: urn:dx:cat:ItemNotFound
+        title: Item is not found
+        results:
+          - id: eba4c1dc-8713-26d7-87e6-ec4608473bb4
+            method: update
+            title: failed
+            detail: 'Fail: Doc doesn''t exist, can''t update'
     exampleEntityOwner:
       type: object
       title: owner entity
