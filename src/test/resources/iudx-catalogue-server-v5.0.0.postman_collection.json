@@ -3273,9 +3273,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{localhost}}{{base}}/list/coss",
+							"raw": "{{host}}{{base}}/list/coss",
 							"host": [
-								"{{localhost}}{{base}}"
+								"{{host}}{{base}}"
 							],
 							"path": [
 								"list",
