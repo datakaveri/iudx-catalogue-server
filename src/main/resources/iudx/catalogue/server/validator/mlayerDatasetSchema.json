@@ -10,7 +10,7 @@
       "id":
         "5b7556b5-0779-4c47-9cf2-3f209779aa22",
       "instance": "pune",
-      "domains": [
+      "tags": [
         "flood", "env"
       ]
     }
@@ -38,11 +38,11 @@
       ],
       "pattern": "^[a-zA-Z ]*$"
     },
-    "domains": {
-      "$id": "#/properties/domains",
+    "tags": {
+      "$id": "#/properties/tags",
       "type": "array",
-      "title": "Mlayer Dataset Domain Schema",
-      "description": "Domain names are the data models",
+      "title": "Mlayer Dataset Tags Schema",
+      "description": "Tag names are the data models",
       "default": "",
       "examples": [
         ["flood", "flooding"]

@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "4b4e793d-a27e-4200-b2fa-66a3f952b2b2",
+		"_postman_id": "06933711-c80f-4eff-a050-f19a4969881a",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "20457128"
+		"_exporter_id": "27217689"
 	},
 	"item": [
 		{
@@ -14296,6 +14296,59 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n    \"id\" : \"8b95ab80-2aaf-4636-a65e-7f2563d0d371\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/dataset",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"dataset"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (Success) - Post Dataset with tags field",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tags\" : [\"flood\", \"transport\"]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"

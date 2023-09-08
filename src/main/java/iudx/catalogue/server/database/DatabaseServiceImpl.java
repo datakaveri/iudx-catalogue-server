@@ -1961,17 +1961,17 @@ public class DatabaseServiceImpl implements DatabaseService {
               handler.handle(Future.failedFuture(internalErrorResp));
             }
           });
-    } else if (requestData.containsKey("domains") || requestData.containsKey("instance")) {
+    } else if (requestData.containsKey("tags") || requestData.containsKey("instance")) {
 
       String query = "";
-      if (requestData.containsKey("domains") && !requestData.containsKey("instance")) {
-        query = GET_ALL_DATASETS_BY_DOMAIN.replace("$1", requestData.getString("domains"));
-      } else if (!requestData.containsKey("domains") && requestData.containsKey("instance")) {
+      if (requestData.containsKey("tags") && !requestData.containsKey("instance")) {
+        query = GET_ALL_DATASETS_BY_DOMAIN.replace("$1", requestData.getString("tags"));
+      } else if (!requestData.containsKey("tags") && requestData.containsKey("instance")) {
         query = GET_ALL_DATASETS_BY_INSTANCE.replace("$1", requestData.getString("instance"));
-      } else if (requestData.containsKey("domains") && requestData.containsKey("instance")) {
+      } else if (requestData.containsKey("tags") && requestData.containsKey("instance")) {
         query =
             GET_ALL_DATASETS_BY_INSTANCE_AND_DOMAINS
-                .replace("$1", requestData.getString("domains"))
+                .replace("$1", requestData.getString("tags"))
                 .replace("$2", requestData.getString("instance"));
       }
       getMlayerAllDatasets(query, handler);
