@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "06933711-c80f-4eff-a050-f19a4969881a",
+		"_postman_id": "cfa8d802-73cc-4b1c-bdc5-f61fe62e4d9b",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "27217689"
@@ -12966,7 +12966,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"name\": \"punay\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpg\"\n}",
+											"raw": "{\n   \"name\": \"punay\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpg\",\n   \"coordinates\":[]\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -13131,7 +13131,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n   \"name\": \"punay\",\r\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpeg\",\r\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpeg\",\r\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpeg\"\r\n}",
+											"raw": "{\r\n   \"name\": \"punay\",\r\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpeg\",\r\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpeg\",\r\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpeg\",\r\n   \"coordinates\":[]\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"

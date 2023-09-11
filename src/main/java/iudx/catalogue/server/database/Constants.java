@@ -153,10 +153,11 @@ public class Constants {
   public static final String GET_MLAYER_INSTANCE_QUERY =
           "{\"query\":{\"match\":{\"instanceId.keyword\": \"$1\"}},\"_source\":"
                   + "{\"includes\": [\"instanceId\",\"name\",\"cover\",\"icon\","
-                  + "\"logo\"]}}";
+                  + "\"logo\",\"coordinates\"]}}";
   public static final String GET_ALL_MLAYER_INSTANCE_QUERY =
           "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
-                  + "[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\"]},\"size\": 10000}";
+                  + "[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\","
+                  + "\"coordinates\" ]},\"size\": 10000}";
   public static final String GET_MLAYER_DOMAIN_QUERY =
       "{\"query\": {\"match\":{\"domainId.keyword\": \"$1\"}},\"_source\":{\"includes\": "
           + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},\"size\": 10000}";
