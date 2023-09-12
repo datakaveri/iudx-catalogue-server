@@ -519,6 +519,25 @@ public class MlayerApis {
   }
 
   /**
+   * Get mlayer All Datasets Handler.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
+  public void getMlayerAllDatasetsHandler(RoutingContext routingContext) {
+    LOGGER.debug("Info : fetching all datasets that belong to IUDX");
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    mlayerService.getMlayerAllDatasets(
+         handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
+  }
+
+  /**
    * Get mlayer Dataset Handler.
    *
    * @param routingContext {@link RoutingContext}

@@ -12966,7 +12966,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n   \"name\": \"punay\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpg\",\n   \"coordinates\":[]\n}",
+											"raw": "{\n   \"name\": \"punay\",\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpg\",\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpg\",\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpg\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -13131,7 +13131,7 @@
 										],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n   \"name\": \"punay\",\r\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpeg\",\r\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpeg\",\r\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpeg\",\r\n   \"coordinates\":[]\r\n}",
+											"raw": "{\r\n   \"name\": \"punay\",\r\n   \"cover\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/covers/punay.jpeg\",\r\n   \"icon\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/punay.jpeg\",\r\n   \"logo\": \"https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/punay.jpeg\"\r\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -14219,6 +14219,50 @@
 				{
 					"name": "Mlayer Dataset",
 					"item": [
+						{
+							"name": "200 (Success) - Get All datasets",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/dataset",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"dataset"
+									]
+								}
+							},
+							"response": []
+						},
 						{
 							"name": "200 (Success) - Post Dataset",
 							"event": [
