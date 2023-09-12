@@ -223,22 +223,6 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
-    String query = GET_MLAYER_ALL_DATASETS;
-    databaseService.getMlayerAllDatasets(
-        query, getMlayerAllDatasets -> {
-          if (getMlayerAllDatasets.succeeded()) {
-            LOGGER.info("Success: Getting all datasets");
-            handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
-          } else {
-            LOGGER.error("Fail: Getting all datasets failed");
-            handler.handle(Future.failedFuture(getMlayerAllDatasets.cause()));
-          }
-        });
-    return this;
-  }
-
-  @Override
   public MlayerService getMlayerDataset(
           JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerDataset(

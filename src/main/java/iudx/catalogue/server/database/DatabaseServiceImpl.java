@@ -1860,7 +1860,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService getMlayerDataset(
       JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
-    if (requestData.containsKey(ID)) {
+    if (requestData.containsKey(ID) && !requestData.getString(ID).isBlank()) {
       LOGGER.debug("dataset Id" + requestData.getString(ID));
       client.searchAsync(
           GET_PROVIDER_AND_RS_ID.replace("$1", requestData.getString(ID)),
@@ -1961,19 +1961,28 @@ public class DatabaseServiceImpl implements DatabaseService {
               handler.handle(Future.failedFuture(internalErrorResp));
             }
           });
-    } else if (requestData.containsKey("tags") || requestData.containsKey("instance")) {
+    } else if ((requestData.containsKey("tags") || requestData.containsKey("instance")
+            || requestData.containsKey("providers"))
+            && (!requestData.containsKey(ID) || requestData.getString(ID).isBlank())) {
 
-      String query = "";
-      if (requestData.containsKey("tags") && !requestData.containsKey("instance")) {
-        query = GET_ALL_DATASETS_BY_DOMAIN.replace("$1", requestData.getString("tags"));
-      } else if (!requestData.containsKey("tags") && requestData.containsKey("instance")) {
-        query = GET_ALL_DATASETS_BY_INSTANCE.replace("$1", requestData.getString("instance"));
-      } else if (requestData.containsKey("tags") && requestData.containsKey("instance")) {
-        query =
-            GET_ALL_DATASETS_BY_INSTANCE_AND_DOMAINS
-                .replace("$1", requestData.getString("tags"))
-                .replace("$2", requestData.getString("instance"));
+      String tags = "";
+      String instance = "";
+      String providers = "";
+      if (requestData.containsKey(TAGS) && !requestData.getString(TAGS).equals("[]")) {
+        String term =  ",{\"terms\":{\"tags.keyword\":$1}}";
+        tags = term.replace("$1", requestData.getString(TAGS));
       }
+      if (requestData.containsKey(INSTANCE) && !requestData.getString(INSTANCE).isBlank()) {
+        String term =  ",{\"match\":{\"instance.keyword\":\"$1\"}}";
+        instance = term.replace("$1", requestData.getString(INSTANCE));
+      }
+      if (requestData.containsKey(PROVIDERS) && !requestData.getString(PROVIDERS).equals("[]")) {
+        String term = ",{\"terms\":{\"provider.keyword\":$1}}";
+        providers = term.replace("$1", requestData.getString(PROVIDERS));
+      }
+      String query = GET_ALL_DATASETS_BY_FIELDS.replace("$1", tags)
+             .replace("$2", instance)
+             .replace("$3", providers);
       getMlayerAllDatasets(query, handler);
     } else {
       LOGGER.error("Invalid field present in request body");
@@ -1982,7 +1991,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               new RespBuilder()
                   .withType(TYPE_INVALID_PROPERTY_VALUE)
                   .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
-                  .withDetail("Invalid field present in request body")
+                  .withDetail("The schema is Invalid")
                   .getResponse()));
     }
 
