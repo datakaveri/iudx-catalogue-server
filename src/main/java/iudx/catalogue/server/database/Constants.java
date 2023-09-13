@@ -191,15 +191,17 @@ public class Constants {
           + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\":"
           + " 10000}";
 
+
   public static final String GET_ALL_DATASETS_BY_FIELDS =
           "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":"
-                  + "{\"type.keyword\":\"iudx:ResourceGroup\"}}$1 $2 $3]}},"
-                  + "{\"bool\":{\"must\":[{\"terms\":{\"type.keyword\":"
-                  + "[\"iudx:Provider\",\"iudx:COS\"]}}]}}]}},\"_source\":"
-                  + "{\"includes\":[\"type\",\"id\",\"label\",\"accessPolicy\","
-                  + "\"tags\",\"instance\",\"provider\",\"resourceServerURL\","
-                  + "\"description\",\"cosURL\",\"cos\",\"resourceGroup\"]},"
-                  + "\"size\":10000}\n";
+                  + "{\"type.keyword\":\"iudx:ResourceGroup\"}}";
+  public static final String GET_ALL_DATASETS_BY_FIELD_SOURCE = "]}},"
+        + "{\"bool\":{\"must\":[{\"terms\":{\"type.keyword\":"
+        + "[\"iudx:Provider\",\"iudx:COS\"]}}]}}]}},\"_source\":"
+        + "{\"includes\":[\"type\",\"id\",\"label\",\"accessPolicy\","
+        + "\"tags\",\"instance\",\"provider\",\"resourceServerURL\","
+        + "\"description\",\"cosURL\",\"cos\",\"resourceGroup\"]},"
+        + "\"size\":10000}";
   public static final String GET_MLAYER_DATASET =
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"id.keyword\":\"$1\"}}"
           + ",{\"match\": {\"type.keyword\": \"iudx:ResourceGroup\"}}]}},{\"bool\":{\"must\":"
