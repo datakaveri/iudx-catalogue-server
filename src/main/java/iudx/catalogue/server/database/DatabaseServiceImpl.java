@@ -1860,9 +1860,8 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService getMlayerDataset(
       JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
-    if (requestData.containsKey(ID)) {
-      LOGGER.debug("dataset Id" + requestData.getString(ID));
-      client.searchAsync(
+    LOGGER.debug("dataset Id" + requestData.getString(ID));
+    client.searchAsync(
           GET_PROVIDER_AND_RS_ID.replace("$1", requestData.getString(ID)),
           docIndex,
           handlerRes -> {
@@ -1961,31 +1960,6 @@ public class DatabaseServiceImpl implements DatabaseService {
               handler.handle(Future.failedFuture(internalErrorResp));
             }
           });
-    } else if (requestData.containsKey("tags") || requestData.containsKey("instance")) {
-
-      String query = "";
-      if (requestData.containsKey("tags") && !requestData.containsKey("instance")) {
-        query = GET_ALL_DATASETS_BY_DOMAIN.replace("$1", requestData.getString("tags"));
-      } else if (!requestData.containsKey("tags") && requestData.containsKey("instance")) {
-        query = GET_ALL_DATASETS_BY_INSTANCE.replace("$1", requestData.getString("instance"));
-      } else if (requestData.containsKey("tags") && requestData.containsKey("instance")) {
-        query =
-            GET_ALL_DATASETS_BY_INSTANCE_AND_DOMAINS
-                .replace("$1", requestData.getString("tags"))
-                .replace("$2", requestData.getString("instance"));
-      }
-      getMlayerAllDatasets(query, handler);
-    } else {
-      LOGGER.error("Invalid field present in request body");
-      handler.handle(
-          Future.failedFuture(
-              new RespBuilder()
-                  .withType(TYPE_INVALID_PROPERTY_VALUE)
-                  .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
-                  .withDetail("Invalid field present in request body")
-                  .getResponse()));
-    }
-
     return this;
   }
 

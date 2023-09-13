@@ -2895,72 +2895,7 @@ public class DatabaseServiceImplTest {
           }
         });
   }
-    @Test
-    @Description("test getMlayerDataset method when DB Request is successful and request body contains domain/instance")
-    public void testGetMlayerDatasetDomainOrInstance(VertxTestContext testContext) {
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
-        JsonObject datasetJson = new JsonObject().put(INSTANCE, "dummy");
-        JsonArray jsonArray2 = new JsonArray()
-                .add(0, ITEM_TYPE_PROVIDER);
-        JsonObject json =
-                new JsonObject()
-                        .put("provider", "provider id")
-                        .put("dataset", datasetJson)
-                        .put("icon", "icon-path")
-                        .put("resourceServer","resourceServer uid")
-                        .put("cos", "owner-path")
-                        .put(TYPE, jsonArray2)
-                        .put("id", "dummy id")
-                        .put("description", "dummy desc")
-                        .put("resourceServerURL", "value")
-                        .put("name", "dummy")
-                        .put("key", "key value")
-                        .put("doc_count", 12);
-        JsonArray jsonArray = new JsonArray().add(0, json);
-        JsonObject request = new JsonObject()
-                .put(TOTAL_HITS, 5)
-                .put(RESULTS, jsonArray)
-                .put("domian", "domain name")
-        .put("instance", "abc");
-        when(asyncResult.succeeded()).thenReturn(true);
-        request.put(TOTAL_HITS,78);
-        when(asyncResult.result()).thenReturn(request);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchAsync(any(), any(), any());
 
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .resourceAggregationAsync(any(), any(), any());
-        dbService.getMlayerDataset(
-                request,
-                handler -> {
-                    if (handler.succeeded()) {
-                        verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
-                        verify(DatabaseServiceImpl.client, times(1)).resourceAggregationAsync(any(), any(), any());
-
-
-                        testContext.completeNow();
-
-                    } else {
-                        testContext.failNow("fail");
-                    }
-                });
-    }
 
   @Test
   @Description(

@@ -18,14 +18,12 @@
   "properties": {
     "id": {
       "$id": "#/properties/id",
-      "type": "string",
+      "type": ["string", "null"],
       "title": "Mlayer Dataset Id Schema",
       "description": "Id of the datasets in the instance",
       "default": "",
-      "examples": [
-          "5b7556b5-0779-4c47-9cf2-3f209779aa22"
-      ],
-      "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
+      "examples": ["5b7556b5-0779-4c47-9cf2-3f209779aa22"],
+      "pattern": "^(|\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12})$"
     },
     "instance": {
       "$id": "#/properties/instance",
@@ -48,6 +46,29 @@
         ["flood", "flooding"]
       ],
       "pattern": "^[a-zA-Z ]*$"
+    },
+    "providers": {
+      "$id": "#/properties/providers",
+      "type": "array",
+      "title": "Mlayer Dataset Providers Schema",
+      "description": "It consists of names of providers from where the datasets belong to",
+      "default": "",
+      "examples": [
+        ["5b7556b5-0779-4c47-9cf2-3f209779aa22", "5b7556b5-0779-4c47-9cf2-3f209779aa78"]
+      ],
+      "items": {
+        "$id": "#/properties/providers/items",
+        "anyOf": [
+          {
+            "$id": "#/properties/providers/items/anyOf/0",
+            "type": "string",
+            "title": "The first anyOf schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
+          }
+        ]
+      }
     }
   },
   "additionalProperties": false

@@ -1,7 +1,10 @@
 package iudx.catalogue.server.mlayer;
 
-import static iudx.catalogue.server.database.Constants.GET_MLAYER_ALL_DATASETS;
+import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.NAME;
+import static iudx.catalogue.server.util.Constants.PROVIDERS;
 
 import com.google.common.hash.Hashing;
 import io.vertx.core.AsyncResult;
@@ -10,6 +13,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.postgres.PostgresService;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -240,18 +244,66 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService getMlayerDataset(
-          JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
-    databaseService.getMlayerDataset(
-        requestData,
-        getMlayerDatasetHandler -> {
-          if (getMlayerDatasetHandler.succeeded()) {
-            LOGGER.info("Success: Getting details of dataset");
-            handler.handle(Future.succeededFuture(getMlayerDatasetHandler.result()));
-          } else {
-            LOGGER.error("Fail: Getting details of dataset");
-            handler.handle(Future.failedFuture(getMlayerDatasetHandler.cause()));
-          }
-        });
+      JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
+    if (requestData.containsKey(ID) && !requestData.getString(ID).isBlank()) {
+      databaseService.getMlayerDataset(
+          requestData,
+          getMlayerDatasetHandler -> {
+            if (getMlayerDatasetHandler.succeeded()) {
+              LOGGER.info("Success: Getting details of dataset");
+              handler.handle(Future.succeededFuture(getMlayerDatasetHandler.result()));
+            } else {
+              LOGGER.error("Fail: Getting details of dataset");
+              handler.handle(Future.failedFuture(getMlayerDatasetHandler.cause()));
+            }
+          });
+    } else if ((requestData.containsKey("tags")
+            || requestData.containsKey("instance")
+            || requestData.containsKey("providers"))
+        && (!requestData.containsKey(ID) || requestData.getString(ID).isBlank())) {
+
+      String query = GET_ALL_DATASETS_BY_FIELDS;
+
+      if (requestData.containsKey(TAGS) && !requestData.getJsonArray(TAGS).isEmpty()) {
+        query =
+            query.concat(
+                ",{\"terms\":{\"tags.keyword\":$1}}".replace("$1", requestData.getString(TAGS)));
+      }
+      if (requestData.containsKey(INSTANCE) && !requestData.getString(INSTANCE).isBlank()) {
+        query =
+            query.concat(
+                ",{\"match\":{\"instance.keyword\":\"$1\"}}"
+                    .replace("$1", requestData.getString(INSTANCE)));
+      }
+      if (requestData.containsKey(PROVIDERS) && !requestData.getJsonArray(PROVIDERS).isEmpty()) {
+        query =
+            query.concat(
+                ",{\"terms\":{\"provider.keyword\":$1}}"
+                    .replace("$1", requestData.getString(PROVIDERS)));
+      }
+      query = query.concat(GET_ALL_DATASETS_BY_FIELD_SOURCE);
+      databaseService.getMlayerAllDatasets(
+          query,
+          getAllDatasetsHandler -> {
+            if (getAllDatasetsHandler.succeeded()) {
+              LOGGER.info("Success: Getting details of all datasets");
+              handler.handle(Future.succeededFuture(getAllDatasetsHandler.result()));
+            } else {
+              LOGGER.error("Fail: Getting details of all datasets");
+              handler.handle(Future.failedFuture(getAllDatasetsHandler.cause()));
+            }
+          });
+    } else {
+      LOGGER.error("Invalid field present in request body");
+      handler.handle(
+          Future.failedFuture(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_PROPERTY_VALUE)
+                  .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+                  .withDetail("The schema is Invalid")
+                  .getResponse()));
+    }
+
     return this;
   }
 

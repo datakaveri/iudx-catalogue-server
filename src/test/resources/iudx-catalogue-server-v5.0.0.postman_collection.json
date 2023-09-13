@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "cfa8d802-73cc-4b1c-bdc5-f61fe62e4d9b",
+		"_postman_id": "6f91827c-4bf3-4dc6-a278-322ae1ae5ca6",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "27217689"
@@ -14220,7 +14220,7 @@
 					"name": "Mlayer Dataset",
 					"item": [
 						{
-							"name": "200 (Success) - Get All Datasets",
+							"name": "200 (Success) - Get All datasets",
 							"event": [
 								{
 									"listen": "test",
@@ -14349,6 +14349,112 @@
 								"body": {
 									"mode": "raw",
 									"raw": "{\r\n    \"tags\" : [\"flood\", \"transport\"]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/dataset",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"dataset"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (Success) - Post Dataset with tags, instance, provider field",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tags\" : [\"flood\", \"transport\"],\r\n    \"instance\" : \"pune\",\r\n    \"providers\": [\"bbeacb12-5e54-339d-92e0-d8e063b551a8\"]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/dataset",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"dataset"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (Success) - Get All Datasets",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tags\" : [],\r\n    \"instance\" : \"\",\r\n    \"providers\": []\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
