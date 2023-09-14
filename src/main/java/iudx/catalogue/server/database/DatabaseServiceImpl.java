@@ -2036,7 +2036,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                         .toLowerCase()));
                   } else {
                     LOGGER.debug("given dataset does not have associated instance");
-                    datasetJson.getJsonArray("latestDataset").getJsonObject(i).put("icon", null);
+                    datasetJson.getJsonArray("latestDataset").getJsonObject(i).put("icon", "");
                   }
                 }
                 for (int i = 0; i < datasetJson.getJsonArray("featuredDataset").size(); i++) {
@@ -2057,7 +2057,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                         .getJsonObject(i)
                                         .getString("instance")));
                   } else {
-                    datasetJson.getJsonArray("featuredDataset").getJsonObject(i).put("icon", null);
+                    datasetJson.getJsonArray("featuredDataset").getJsonObject(i).put("icon", "");
                   }
                 }
                 JsonObject result =
@@ -2166,7 +2166,8 @@ public class DatabaseServiceImpl implements DatabaseService {
         docIndex,
         getCatRecords -> {
           if (getCatRecords.succeeded()) {
-            ArrayList<JsonObject> resourceGroupArray = new ArrayList<JsonObject>();
+            ArrayList<JsonObject> latestDatasetArray = new ArrayList<JsonObject>();
+            ArrayList<JsonObject> featuredDatasetArray = new ArrayList<JsonObject>();
             Map<String, Integer> resourceGroupCount = new HashMap<>();
             Map<String, String> providerDescription = new HashMap<>();
             Map<String, Integer> typeCount = new HashMap<>();
@@ -2186,9 +2187,12 @@ public class DatabaseServiceImpl implements DatabaseService {
                 }
               }
               // getting all resource group datasets in an arrayList
-              if (record.getJsonArray(TYPE).getString(0).equals("iudx:ResourceGroup")
-                  && record.containsKey("itemCreatedAt")) {
-                resourceGroupArray.add(record);
+              if (record.getJsonArray(TYPE).getString(0).equals("iudx:ResourceGroup")) {
+                if (record.containsKey("itemCreatedAt")) {
+                  latestDatasetArray.add(record);
+
+                }
+                featuredDatasetArray.add(record);
               }
               // getting count of resource,resourceGroup and provider
               String type = record.getJsonArray(TYPE).getString(0);
@@ -2205,7 +2209,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               }
             }
             // sorting resource group based on the time of creation.
-            Collections.sort(resourceGroupArray, comapratorForLatestDataset());
+            Collections.sort(latestDatasetArray, comapratorForLatestDataset());
 
               // getting count of providers of a particular instance
               ArrayList<String> providerList = new ArrayList<String>();
@@ -2225,41 +2229,68 @@ public class DatabaseServiceImpl implements DatabaseService {
 
             ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
             int resourceGroupSize = 0;
-            if (resourceGroupArray.size() < 6) {
-              resourceGroupSize = resourceGroupArray.size();
+            if (latestDatasetArray.size() < 6) {
+              resourceGroupSize = latestDatasetArray.size();
             } else {
               resourceGroupSize = 6;
             }
             for (int i = 0; i < resourceGroupSize; i++) {
-              JsonObject resource = resourceGroupArray.get(i);
-              resource
-                  .put(
-                      "totalResources",
-                      resourceGroupCount.get(resourceGroupArray.get(i).getString("id")))
-                  .put(
-                      "providerDescription",
-                      providerDescription.get(resourceGroupArray.get(i).getString("provider")));
+              JsonObject resource = latestDatasetArray.get(i);
+              String resourceId = latestDatasetArray.get(i).getString("id");
+              int totalResources =
+                  resourceGroupCount.containsKey(resourceId)
+                      ? resourceGroupCount.get(resourceId)
+                      : 0;
+              resource.put("totalResources", totalResources);
+              resource.put(
+                  "providerDescription",
+                  providerDescription.get(latestDatasetArray.get(i).getString("provider")));
               latestResourceGroup.add(resource);
               resource = new JsonObject();
             }
 
             ArrayList<JsonObject> featuredResourceGroup = new ArrayList<>();
             for (int j = 0; j < highestCountResource.size(); j++) {
-              for (int i = 0; i < resourceGroupArray.size(); i++) {
-                if (resourceGroupArray
+              for (int i = 0; i < featuredDatasetArray.size(); i++) {
+                if (featuredDatasetArray
                     .get(i)
                     .getString("id")
-                    .equals(highestCountResource.getJsonObject(j)
-                            .getString("resourcegroup"))) {
-                  JsonObject resource = resourceGroupArray.get(i);
-                  resource
-                      .put(
-                          "totalResources",
-                          resourceGroupCount.get(resourceGroupArray.get(i).getString("id")));
+                    .equals(highestCountResource.getJsonObject(j).getString("resourcegroup"))) {
+                  JsonObject resource = featuredDatasetArray.get(i);
+                  String resourceId = resource.getString("id");
+                  int totalResources = resourceGroupCount.getOrDefault(resourceId, 0);
+                  resource.put("totalResources", totalResources);
+
                   featuredResourceGroup.add(resource);
                   resource = new JsonObject();
+                  featuredDatasetArray.remove(i);
                 }
               }
+            }
+
+            int featuredDatasetCount = 6 - featuredResourceGroup.size();
+            int i = 0;
+
+            if (featuredDatasetArray.size() < (6 - featuredResourceGroup.size())) {
+              featuredDatasetCount = featuredDatasetArray.size();
+            }
+            while (featuredDatasetCount > 0) {
+              JsonObject resource = featuredDatasetArray.get(i);
+              String resourceId = resource.getString("id");
+
+              int totalResources =
+                  resourceGroupCount.containsKey(resourceId)
+                      ? resourceGroupCount.get(resourceId)
+                      : 0;
+
+              resource.put("totalResources", totalResources);
+              featuredResourceGroup.add(resource);
+
+              // Reset resource object
+              resource = new JsonObject();
+
+              featuredDatasetCount--;
+              i++;
             }
             JsonObject jsonDataset =
                 new JsonObject()
