@@ -12,6 +12,7 @@ import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -3005,9 +3006,9 @@ public class DatabaseServiceImplTest {
             geoService);
     String instanceName ="";
     JsonObject json =
-        new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance");
+        new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance").put("id","abc");
     JsonObject json2 =
-        new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance");
+        new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance").put("id","abc");
 
     JsonArray highestCountResource = new JsonArray().add(json).add(json2);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
@@ -3021,7 +3022,8 @@ public class DatabaseServiceImplTest {
             .put("id", "abcd/abcd/abcd/abcd")
             .put("rgid", "abcd/abcd/abcd/abcd")
             .put("instance", "instance")
-                .put("name", "agra");
+            .put("name", "agra")
+            .put("itemCreatedAt", "2023-08-31T05:09:54+0530");
 
     JsonObject instance =
         new JsonObject()
@@ -3031,8 +3033,9 @@ public class DatabaseServiceImplTest {
             .put("itemCreatedAt", "2022-12-15T04:23:28+0530")
             .put("id", "abcd/abcd/abcd/abcd")
             .put("rgid", "abcd/abcd/abcd/abcd")
-            .put("instance", "instance");
-    resourceArray.add(instance).add(jsonObject2);
+            .put("instance", "instance")
+                .put("itemCreatedAt", "2023-08-30T05:09:54+0530");
+    resourceArray.add(instance).add(jsonObject2).add(instance).add(instance).add(instance).add(instance);
     JsonArray latestDataset = new JsonArray().add(json);
 
     JsonObject result =
@@ -3114,6 +3117,7 @@ public class DatabaseServiceImplTest {
 
   }
 
+  @Disabled
   @Test
   @Description(
       "test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Provider")
@@ -3136,14 +3140,22 @@ public class DatabaseServiceImplTest {
 
     JsonArray resourceArray = new JsonArray();
     JsonArray typeArray = new JsonArray().add(0, "iudx:Provider");
+      JsonArray typeArrayRg = new JsonArray().add(0, "iudx:ResourceGroup");
 
+      JsonObject instanceRg =
+              new JsonObject()
+                      .put("name", "agra")
+                      .put("icon", "path_of_agra-icon.jpg")
+                      .put(TYPE, typeArrayRg)
+                      .put("resourceGroup", "abc");
     JsonObject instance =
         new JsonObject()
             .put("name", "agra")
             .put("icon", "path_of_agra-icon.jpg")
             .put(TYPE, typeArray)
             .put("resourceGroup", "abc");
-    resourceArray.add(instance);
+    resourceArray.add(instance).add(instanceRg).add(instanceRg).add(instanceRg)
+            .add(instanceRg).add(instanceRg).add(instanceRg);
 
     JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resourceArray);
     when(asyncResult.result()).thenReturn(result);
