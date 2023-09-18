@@ -1803,6 +1803,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.debug("Success: Successful DB Request");
             int size = resultHandler.result().getJsonArray(RESULTS).size();
             if (size == 0) {
+                LOGGER.debug("1111111111111111");
               datasetResult.handle(
                   Future.failedFuture(
                       new RespBuilder()
@@ -2134,7 +2135,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         getCatRecords -> {
           if (getCatRecords.succeeded()) {
             ArrayList<JsonObject> latestDatasetArray = new ArrayList<JsonObject>();
-            Map<String, JsonObject> featuredDatasetMap = new HashMap<>();
+            Map<String, JsonObject> resourceGroupMap = new HashMap<>();
             Map<String, Integer> resourceGroupCount = new HashMap<>();
             Map<String, String> providerDescription = new HashMap<>();
             Map<String, Integer> typeCount = new HashMap<>();
@@ -2162,7 +2163,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 if (record.containsKey("itemCreatedAt")) {
                   latestDatasetArray.add(record);
                 }
-                featuredDatasetMap.put(record.getString(ID), record);
+                resourceGroupMap.put(record.getString(ID), record);
               } else if ("iudx:Provider".equals(type)) {
                 String description = record.getString("description");
                 String providerId = record.getString("id");
@@ -2198,31 +2199,32 @@ public class DatabaseServiceImpl implements DatabaseService {
                 resourceIndex++) {
               String id =
                   highestCountResource.getJsonObject(resourceIndex).getString("resourcegroup");
-              if (featuredDatasetMap.containsKey(id)) {
-                JsonObject resource = featuredDatasetMap.get(id);
+              if (resourceGroupMap.containsKey(id)) {
+                JsonObject resource = resourceGroupMap.get(id);
                 int totalResources = resourceGroupCount.getOrDefault(id, 0);
                 resource.put("totalResources", totalResources);
                 resource.put(
                     "providerDescription", providerDescription.get(resource.getString("provider")));
                 featuredResourceGroup.add(resource);
                 resource = new JsonObject();
-                featuredDatasetMap.remove(id);
+                // removing the resourceGroup from resourceGroupMap after
+                // resources added to featuredResourceGroup array
+                resourceGroupMap.remove(id);
               }
             }
 
             // Determining the maximum number of resource group that can be added. Max value is 6.
-            int maxResources = 6;
-            int remainingResources = Math.min(maxResources - featuredResourceGroup.size(),
-                    featuredDatasetMap.size());
+            int remainingResources = Math.min(6 - featuredResourceGroup.size(),
+                    resourceGroupMap.size());
 
 
-            /* Iterate through the values of 'featuredDatasetMap' to add resources
+            /* Iterate through the values of 'resourceGroupMap' to add resources
                to 'featuredResourceGroup' array while ensuring we don't exceed the
                'remainingResources' limit. For each resource, we update its
                'totalResources' and 'providerDescription' properties before adding
                it to the group.
              */
-            for (JsonObject resource : featuredDatasetMap.values()) {
+            for (JsonObject resource : resourceGroupMap.values()) {
               if (remainingResources <= 0) {
                 break; // No need to continue if we've added enough resources
               }

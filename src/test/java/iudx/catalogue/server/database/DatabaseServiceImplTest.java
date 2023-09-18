@@ -3226,7 +3226,6 @@ public class DatabaseServiceImplTest {
 
   }
 
-  @Disabled
   @Test
   @Description(
       "test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Provider")
