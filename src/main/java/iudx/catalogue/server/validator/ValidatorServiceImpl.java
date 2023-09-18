@@ -109,9 +109,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         .toString();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  /** {@inheritDoc} */
   @SuppressWarnings("unchecked")
   public ValidatorService validateSchema(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -154,9 +152,7 @@ public class ValidatorServiceImpl implements ValidatorService {
     return this;
   }
 
-  /**
-   * {@inheritDoc}
-   * */
+  /** {@inheritDoc} */
   @SuppressWarnings("unchecked")
   @Override
   public ValidatorService validateItem(
@@ -211,9 +207,6 @@ public class ValidatorServiceImpl implements ValidatorService {
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_PROVIDER)) {
             LOGGER.debug("Provider does not exist");
             handler.handle(Future.failedFuture("Fail: Provider item doesn't exist"));
-          } else if (res.result().getInteger(TOTAL_HITS) > 1) {
-            LOGGER.debug("RG already exists");
-            handler.handle(Future.failedFuture("Fail: Resource Group item already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
@@ -251,9 +244,6 @@ public class ValidatorServiceImpl implements ValidatorService {
               || !returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
             LOGGER.debug("RS does not exist");
             handler.handle(Future.failedFuture("Fail: Resource Server item doesn't exist"));
-          } else if (res.result().getInteger(TOTAL_HITS) > 1) {
-            LOGGER.debug("Provider already exists");
-            handler.handle(Future.failedFuture("Fail: Provider item already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
@@ -291,9 +281,6 @@ public class ValidatorServiceImpl implements ValidatorService {
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_COS)) {
             LOGGER.debug("Cos does not exist");
             handler.handle(Future.failedFuture("Fail: Cos item doesn't exist"));
-          } else if (res.result().getInteger(TOTAL_HITS) > 1) {
-            LOGGER.debug("RS already exists");
-            handler.handle(Future.failedFuture("Fail: Resource Server item already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
@@ -344,8 +331,6 @@ public class ValidatorServiceImpl implements ValidatorService {
               && !returnType.contains(ITEM_TYPE_RESOURCE_GROUP)) {
             LOGGER.debug("RG does not exist");
             handler.handle(Future.failedFuture("Fail: Resource Group item doesn't exist"));
-          } else if (res.result().getInteger(TOTAL_HITS) > 3) {
-            handler.handle(Future.failedFuture("Fail: Resource item already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
@@ -381,9 +366,6 @@ public class ValidatorServiceImpl implements ValidatorService {
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_OWNER)) {
             LOGGER.debug("Owner does not exist");
             handler.handle(Future.failedFuture("Fail: Owner item doesn't exist"));
-          } else if (res.result().getInteger(TOTAL_HITS) > 1) {
-            LOGGER.debug("Cos already exists");
-            handler.handle(Future.failedFuture("Fail: Cos item already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
@@ -408,11 +390,7 @@ public class ValidatorServiceImpl implements ValidatorService {
             handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
             return;
           }
-          if (res.result().getInteger(TOTAL_HITS) != 0) {
-            handler.handle(Future.failedFuture("Fail: Owner item already exists"));
-          } else {
-            handler.handle(Future.succeededFuture(request));
-          }
+          handler.handle(Future.succeededFuture(request));
         });
   }
 
