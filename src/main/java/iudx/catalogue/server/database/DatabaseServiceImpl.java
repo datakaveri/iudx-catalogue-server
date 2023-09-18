@@ -1836,7 +1836,6 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.debug("Success: Successful DB Request");
             int size = resultHandler.result().getJsonArray(RESULTS).size();
             if (size == 0) {
-                LOGGER.debug("1111111111111111");
               datasetResult.handle(
                   Future.failedFuture(
                       new RespBuilder()
