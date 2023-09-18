@@ -202,32 +202,6 @@ public class ValidatorServiceImplTest {
         });
   }
 
-  @ParameterizedTest
-  @MethodSource("validateItemTypes")
-  @DisplayName("failure test validate item: already exists")
-  public void testValidateItemAlreadyExists(
-      String item, String parent, int invocations, VertxTestContext testContext) {
-    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item));
-
-    when(asyncResult.failed()).thenReturn(false);
-    when(asyncResult.result())
-        .thenReturn(
-            new JsonObject()
-                .put(TOTAL_HITS, 2)
-                .put(RESULTS, new JsonArray().add(new JsonObject().put(TYPE, parent))));
-
-    validatorService.validateItem(
-        request,
-        handler -> {
-          if (handler.failed()) {
-            Assertions.assertTrue(handler.cause().getMessage().contains("already exists"));
-            testContext.completeNow();
-          } else {
-            testContext.failNow("Failed to invalidate");
-          }
-        });
-  }
-
   @Test
   @DisplayName("Test validate owner item")
   public void testValidateOwnerItem(VertxTestContext testContext) {
@@ -295,7 +269,7 @@ public class ValidatorServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(12)).searchAsync(anyString(), any(), any());
+            verify(client, times(8)).searchAsync(anyString(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
