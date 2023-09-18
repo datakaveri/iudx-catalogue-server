@@ -11,24 +11,28 @@ public class Constants {
   public static final String ITEM_STATUS = "itemStatus";
   public static final String ACTIVE = "ACTIVE";
   public static final String ITEM_CREATED_AT = "itemCreatedAt";
-
-  static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
-
   /** Error messages. */
   public static final String NON_EXISTING_LINK_MSG = "No such cat item exists: ";
-
   public static final String VALIDATION_FAILURE_MSG = "Validation failed";
   public static final String INVALID_SCHEMA_MSG = "Invalid Schema";
-  public static final String RESOURCE_CHECK_QUERY =
-      "{\"query\":{\"bool\":{\"should\":["
-          + "{\"bool\":{\"must\":[{\"term\":"
-          + "{\"id.keyword\":\"$1\"}},{\"term\":{\"type.keyword\": "
-          + "\"iudx:ResourceServer\"}}]}},"
-          + "{\"bool\":{\"must\":[{\"term\":"
-          + "{\"id.keyword\":\"$2\"}},{\"term\":{\"type.keyword\": "
-          + "\"iudx:Provider\"}}]}},"
-          + "{\"bool\":{\"must\":[{\"term\":"
-          + "{\"id.keyword\":\"$3\"}},{\"term\":{\"type.keyword\": "
-          + "\"iudx:ResourceGroup\"}}]}}]}},"
-          + "  \"_source\": [\"id\"]}";
+  public static final String ITEM_EXISTS_QUERY =
+      "{\"query\":{\"bool\":{\"should\":[{"
+          + "\"bool\":{\"must\":[{"
+          + "\"match\":{\"id.keyword\":\"$1\"}}]}},"
+          + "{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"$2\"}},"
+          + "{\"match\":{\"name.keyword\":\"$3\"}}]}}]}},\"_source\":[\"type\"]}";
+  public static final String RESOURCE_ITEM_EXISTS_QUERY =
+      "{\"query\":{\"bool\":{\"should\":[{"
+          + "\"match\":{\"id.keyword\":\"$1\"}},{"
+          + "\"match\":{\"id.keyword\":\"$2\"}},{"
+          + "\"match\":{\"id.keyword\":\"$3\"}},{"
+          + "\"bool\":{\"must\":[{"
+          + "\"match\":{\"type.keyword\":\"iudx:Resource\"}},{"
+          + "\"match\":{\"name.keyword\":\"$4\"}}]}}]}},"
+          + "\"_source\":[\"type\"]}";
+  public static final String OWNER_ITEM_EXISTS_QUERY =
+      "{\"query\":{\"bool\":{\"must\":[{"
+          + "\"match\":{\"type\":\"iudx:Owner\"}},"
+          + "{\"match\":{\"name.keyword\":\"$1\"}}]}}}";
+  static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
 }

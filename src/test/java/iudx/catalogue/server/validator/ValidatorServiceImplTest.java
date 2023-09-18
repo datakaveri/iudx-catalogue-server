@@ -15,6 +15,9 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.database.ElasticClient;
+
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
@@ -36,6 +39,7 @@ import org.mockito.stubbing.Answer;
 public class ValidatorServiceImplTest {
 
   static ValidatorServiceImpl validatorService;
+  static ValidatorServiceImpl validatorServiceSpy;
   static AsyncResult<JsonObject> asyncResult;
   private static Logger LOGGER = LogManager.getLogger(ValidatorServiceImplTest.class);
   private static Vertx vertxObj;
@@ -48,6 +52,9 @@ public class ValidatorServiceImplTest {
   private static FileSystem fileSystem;
   private static boolean isUacInstance;
   @Mock Handler<AsyncResult<JsonObject>> handler;
+  private static JsonObject jsonMock;
+  private static JsonArray jsonArrayMock;
+  private static Stream<Object> streamMock;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -79,7 +86,7 @@ public class ValidatorServiceImplTest {
               }
             })
         .when(client)
-        .searchGetId(any(), any(), any());
+        .searchAsync(any(), any(), any());
     testContext.completeNow();
   }
 
@@ -129,7 +136,7 @@ public class ValidatorServiceImplTest {
     request.put(COS, "cos-id");
     request.put(NAME, "dummy");
 
-    when(asyncResult.result()).thenReturn(new JsonObject().put(TOTAL_HITS, 1));
+    when(asyncResult.result()).thenReturn(jsonMock);
 
     validatorService.validateItem(
         request,
@@ -155,13 +162,17 @@ public class ValidatorServiceImplTest {
         .put("name", "provider name")
         .put(RESOURCE_SVR, "0fdeb952-398c-4020-af20-0843b616f415");
 
-    when(asyncResult.result()).thenReturn(new JsonObject().put(TOTAL_HITS, 1));
+    when(asyncResult.result())
+        .thenReturn(
+            new JsonObject()
+                .put(TOTAL_HITS, 1)
+                .put(RESULTS, new JsonArray().add(new JsonObject().put(TYPE, ITEM_TYPE_RESOURCE_SERVER))));
 
     validatorService.validateItem(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(2)).searchGetId(anyString(), any(), any());
+            verify(client, times(1)).searchAsync(anyString(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -272,7 +283,7 @@ public class ValidatorServiceImplTest {
     JsonObject request = requestBody();
     request.put(TYPE, new JsonArray().add(ITEM_TYPE_RESOURCE));
     JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 0);
+    json.put(TOTAL_HITS, 4);
     when(asyncResult.result()).thenReturn(json);
 
     validatorService.validateItem(
