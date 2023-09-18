@@ -15,13 +15,11 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.database.ElasticClient;
-
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,7 +37,6 @@ import org.mockito.stubbing.Answer;
 public class ValidatorServiceImplTest {
 
   static ValidatorServiceImpl validatorService;
-  static ValidatorServiceImpl validatorServiceSpy;
   static AsyncResult<JsonObject> asyncResult;
   private static Logger LOGGER = LogManager.getLogger(ValidatorServiceImplTest.class);
   private static Vertx vertxObj;
@@ -51,10 +48,10 @@ public class ValidatorServiceImplTest {
   private static String databasePassword;
   private static FileSystem fileSystem;
   private static boolean isUacInstance;
-  @Mock Handler<AsyncResult<JsonObject>> handler;
   private static JsonObject jsonMock;
   private static JsonArray jsonArrayMock;
   private static Stream<Object> streamMock;
+  @Mock Handler<AsyncResult<JsonObject>> handler;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -103,14 +100,20 @@ public class ValidatorServiceImplTest {
   private static JsonObject requestBody() {
 
     return new JsonObject()
-        .put(TYPE, new JsonArray().add(ITEM_TYPE_RESOURCE_SERVER))
-        .put(COS_ITEM, "cos-id")
-        .put(NAME, "dummy")
-        .put(RESOURCE_SVR, "0fdeb952-398c-4020-af20-0843b616f415")
-        .put(PROVIDER, "provider-id")
-        .put(RESOURCE_GRP, "rg-id")
-//        .put("id", "40bbe849-9f35-32b9-8f64-00d5e62db473")
-        .put(COS_ITEM, "cos-id");
+        .put(NAME, "name")
+        .put(OWNER, "owner")
+        .put(COS, "cos")
+        .put(RESOURCE_SVR, "rs")
+        .put(PROVIDER, "provider")
+        .put(RESOURCE_GRP, "rg");
+  }
+
+  private static Stream<Arguments> validateItemTypes() {
+    return Stream.of(
+        Arguments.of(ITEM_TYPE_COS, ITEM_TYPE_OWNER, 6),
+        Arguments.of(ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_COS, 7),
+        Arguments.of(ITEM_TYPE_PROVIDER, ITEM_TYPE_RESOURCE_SERVER, 8),
+        Arguments.of(ITEM_TYPE_RESOURCE_GROUP, ITEM_TYPE_PROVIDER, 9));
   }
 
   @ParameterizedTest
@@ -122,201 +125,105 @@ public class ValidatorServiceImplTest {
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(itemType);
     request.put(TYPE, jsonArray);
-    assertNotNull(validatorService.validateSchema(request, handler));
+    Assertions.assertNotNull(validatorService.validateSchema(request, handler));
     vertxTestContext.completeNow();
   }
 
-  @Test
-  @Description("testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE_SERVER")
-  public void testValidateItemRESOURCE_SERVER(VertxTestContext vertxTestContext) {
-    JsonObject request = new JsonObject();
-    JsonArray jsonArray = new JsonArray();
-    jsonArray.add(ITEM_TYPE_RESOURCE_SERVER);
-    request.put(TYPE, jsonArray);
-    request.put(COS, "cos-id");
-    request.put(NAME, "dummy");
+  @ParameterizedTest
+  @MethodSource("validateItemTypes")
+  @DisplayName("test validate item")
+  public void testValidateItem(
+      String item, String parent, int invocations, VertxTestContext testContext) {
+    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item));
 
-    when(asyncResult.result()).thenReturn(jsonMock);
-
-    validatorService.validateItem(
-        request,
-        handler -> {
-          if (handler.succeeded()) {
-            verify(client, times(4)).searchGetId(anyString(), any(), any());
-            vertxTestContext.completeNow();
-          } else {
-            vertxTestContext.failNow("Fail");
-          }
-        });
-  }
-
-  @Test
-  @Description(
-      "testing the method validateItem when itemType equals ITEM_TYPE_PROVIDER and id is generated")
-  public void testValidateItemPROVIDER(VertxTestContext vertxTestContext) {
-    JsonObject request = new JsonObject();
-    JsonArray jsonArray = new JsonArray();
-    jsonArray.add(ITEM_TYPE_PROVIDER);
-    request
-        .put(TYPE, jsonArray)
-        .put("name", "provider name")
-        .put(RESOURCE_SVR, "0fdeb952-398c-4020-af20-0843b616f415");
-
+    when(asyncResult.failed()).thenReturn(false);
     when(asyncResult.result())
         .thenReturn(
             new JsonObject()
                 .put(TOTAL_HITS, 1)
-                .put(RESULTS, new JsonArray().add(new JsonObject().put(TYPE, ITEM_TYPE_RESOURCE_SERVER))));
+                .put(RESULTS, new JsonArray().add(new JsonObject().put(TYPE, parent))));
 
     validatorService.validateItem(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(1)).searchAsync(anyString(), any(), any());
-            vertxTestContext.completeNow();
-          } else {
-            vertxTestContext.failNow("Fail");
-          }
-        });
-  }
-
-  @Test
-  @Description(
-      "testing the method validateItem when itemType equals ITEM_TYPE_PROVIDER and id is validated")
-  public void testValidateItemProviderId(VertxTestContext vertxTestContext) {
-    JsonObject request = new JsonObject();
-    JsonArray jsonArray = new JsonArray();
-    jsonArray.add(ITEM_TYPE_PROVIDER);
-    request
-        .put(TYPE, jsonArray)
-        .put("name", "provider name")
-        .put(RESOURCE_SVR, "0fdeb952-398c-4020-af20-0843b616f415");
-
-    assertNotNull(validatorService.validateItem(request, handler));
-    vertxTestContext.completeNow();
-  }
-
-  @Test
-  @Description("testing the method validateItem when itemType equals resource server and hits is 1")
-  public void testValidateItemResourceServer(VertxTestContext vertxTestContext) {
-    JsonObject request = requestBody();
-    request.put(PROVIDER, "cos-id");
-    JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 1);
-
-    assertNotNull(validatorService.validateItem(request, handler));
-    vertxTestContext.completeNow();
-  }
-
-  @Test
-  @Description(
-      "testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE_GROUP and hits is 1")
-  public void testValidateItemRESOURCE_GROUP(VertxTestContext vertxTestContext) {
-    JsonObject request = requestBody();
-    request.put(TYPE, new JsonArray().add(ITEM_TYPE_RESOURCE_GROUP));
-    JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 1);
-    when(asyncResult.failed()).thenReturn(false);
-    when(asyncResult.result()).thenReturn(json);
-
-    validatorService.validateItem(
-        request,
-        handler -> {
-          if (handler.succeeded()) {
-            verify(client, times(8)).searchGetId(anyString(), any(), any());
-            vertxTestContext.completeNow();
-          } else {
-            vertxTestContext.failNow("Fail");
-          }
-        });
-  }
-
-  @Test
-  @Description(
-      "testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE_GROUP and hits is not 1")
-  public void testValidateItemRESOURCE_GROUP2(VertxTestContext vertxTestContext) {
-    JsonObject request = requestBody();
-    request.put(TYPE, new JsonArray().add(ITEM_TYPE_RESOURCE_GROUP));
-    JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 0);
-    when(asyncResult.result()).thenReturn(json);
-
-    validatorService.validateItem(
-        request,
-        handler -> {
-          if (handler.failed()) {
-            verify(client, times(3)).searchGetId(anyString(), any(), any());
-            vertxTestContext.completeNow();
-          } else {
-            vertxTestContext.failNow("Fail");
-          }
-        });
-  }
-
-  @Test
-  @Description(
-      "testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE and hits=3 ")
-  public void testValidateItem(VertxTestContext vertxTestContext) {
-    JsonObject request = requestBody();
-    request.put(TYPE, new JsonArray().add(ITEM_TYPE_RESOURCE));
-    JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 3);
-    when(asyncResult.failed()).thenReturn(false);
-    when(asyncResult.result()).thenReturn(json);
-
-    validatorService.validateItem(
-        request,
-        handler -> {
-          if (handler.succeeded()) {
-            verify(client, times(10)).searchGetId(anyString(), any(), any());
-            vertxTestContext.completeNow();
-          } else {
-            vertxTestContext.failNow("Fail");
-          }
-        });
-  }
-
-  @Test
-  @Description(
-      "testing the method validateItem when itemType equals ITEM_TYPE_RESOURCE and hits !=1 ")
-  public void testValidateItemITEM_TYPE_RESOURCE(VertxTestContext vertxTestContext) {
-    JsonObject request = requestBody();
-    request.put(TYPE, new JsonArray().add(ITEM_TYPE_RESOURCE));
-    JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 4);
-    when(asyncResult.result()).thenReturn(json);
-
-    validatorService.validateItem(
-        request,
-        handler -> {
-          LOGGER.debug(handler.failed());
-          if (handler.failed()) {
-            verify(client, times(1)).searchGetId(anyString(), any(), any());
-            vertxTestContext.completeNow();
-          } else {
-            vertxTestContext.failNow("Fail");
-          }
-        });
-  }
-
-  @Test
-  @DisplayName("Test validate cos item")
-  public void testValidateCosItem(VertxTestContext testContext) {
-    JsonObject request = requestBody();
-    request.put(TYPE, new JsonArray().add(ITEM_TYPE_COS))
-            .put(OWNER, "owner-id");
-
-    when(asyncResult.failed()).thenReturn(false);
-    when(asyncResult.result()).thenReturn(new JsonObject().put(TOTAL_HITS, 1));
-
-    validatorService.validateItem(
-        request,
-        handler -> {
-          if (handler.succeeded()) {
-            verify(client, times(6)).searchGetId(anyString(), any(), any());
+            Assertions.assertTrue(handler.result().containsKey(ID));
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
+          }
+        });
+  }
+
+  @ParameterizedTest
+  @MethodSource("validateItemTypes")
+  @DisplayName("failure test validate item: DB error")
+  public void testValidateItemDbError(
+      String item, String parent, int invocations, VertxTestContext testContext) {
+    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item));
+
+    when(asyncResult.failed()).thenReturn(true);
+
+    validatorService.validateItem(
+        request,
+        handler -> {
+          if (handler.failed()) {
+            Assertions.assertEquals("Validation failed", handler.cause().getMessage());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("failed to invalidate");
+          }
+        });
+  }
+
+  @ParameterizedTest
+  @MethodSource("validateItemTypes")
+  @DisplayName("failure test validate item: parent does not exist")
+  public void testValidateItemParentNotExists(
+      String item, String parent, int invocations, VertxTestContext testContext) {
+    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item));
+
+    when(asyncResult.failed()).thenReturn(false);
+    when(asyncResult.result())
+        .thenReturn(
+            new JsonObject()
+                .put(TOTAL_HITS, 0)
+                .put(RESULTS, new JsonArray().add(new JsonObject().put(TYPE, parent))));
+
+    validatorService.validateItem(
+        request,
+        handler -> {
+          if (handler.failed()) {
+            Assertions.assertTrue(handler.cause().getMessage().contains("doesn't exist"));
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
+  }
+
+  @ParameterizedTest
+  @MethodSource("validateItemTypes")
+  @DisplayName("failure test validate item: already exists")
+  public void testValidateItemAlreadyExists(
+      String item, String parent, int invocations, VertxTestContext testContext) {
+    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item));
+
+    when(asyncResult.failed()).thenReturn(false);
+    when(asyncResult.result())
+        .thenReturn(
+            new JsonObject()
+                .put(TOTAL_HITS, 2)
+                .put(RESULTS, new JsonArray().add(new JsonObject().put(TYPE, parent))));
+
+    validatorService.validateItem(
+        request,
+        handler -> {
+          if (handler.failed()) {
+            Assertions.assertTrue(handler.cause().getMessage().contains("already exists"));
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Failed to invalidate");
           }
         });
   }
@@ -326,37 +233,109 @@ public class ValidatorServiceImplTest {
   public void testValidateOwnerItem(VertxTestContext testContext) {
     JsonObject request = requestBody();
     request.put(TYPE, new JsonArray().add(ITEM_TYPE_OWNER));
-    when(asyncResult.result()).thenReturn(new JsonObject().put(TOTAL_HITS, 1));
 
-    assertNotNull(validatorService.validateItem(request, handler));
-    testContext.completeNow();
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(client)
+        .searchGetId(any(), any(), any());
+
+    when(asyncResult.failed()).thenReturn(false);
+    when(asyncResult.result()).thenReturn(new JsonObject().put(TOTAL_HITS, 0));
+
+    validatorService.validateItem(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(client, times(1)).searchGetId(anyString(), any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Failed to invalidate");
+          }
+        });
   }
 
   @Test
   @Description("testing the method validateItem when item type mismatch")
   public void testValidateItemCatch(VertxTestContext vertxTestContext) {
     JsonObject request = new JsonObject();
-    assertNotNull(validatorService.validateItem(request, handler));
-    vertxTestContext.completeNow();
+    validatorService.validateItem(
+        request,
+        handler -> {
+          if (handler.failed()) {
+            Assertions.assertEquals("Validation failed", handler.cause().getMessage());
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow("failed to invalidate");
+          }
+        });
   }
 
   @Test
   @Description("testing the method validateItem when handler failed")
   public void testValidateItemFailure(VertxTestContext vertxTestContext) {
-    JsonObject request = requestBody();
-    request.put(TYPE, new JsonArray().add(ITEM_TYPE_RESOURCE));
-    JsonObject json = new JsonObject();
-    json.put(TOTAL_HITS, 0);
+    JsonObject request =
+        new JsonObject()
+            .put(NAME, "name")
+            .put(OWNER, "owner")
+            .put(COS, "cos")
+            .put(RESOURCE_SVR, "rs")
+            .put(PROVIDER, "provider")
+            .put(RESOURCE_GRP, "rg")
+            .put(TYPE, new JsonArray().add(ITEM_TYPE_RESOURCE));
+
     when(asyncResult.failed()).thenReturn(true);
 
     validatorService.validateItem(
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(5)).searchGetId(anyString(), any(), any());
+            verify(client, times(12)).searchAsync(anyString(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
+          }
+        });
+  }
+
+  private static Stream<Arguments> parentTypes() {
+    return Stream.of(
+        Arguments.of(ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_PROVIDER),
+        Arguments.of(ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_RESOURCE_GROUP),
+        Arguments.of(ITEM_TYPE_PROVIDER, ITEM_TYPE_RESOURCE_GROUP)
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("parentTypes")
+  @DisplayName("failure test validate item: ri parent not exists")
+  public void testResourceParentNotExists(String parent1,String parent2, VertxTestContext testContext) {
+    JsonObject request = requestBody().put(TYPE, new JsonArray().add(ITEM_TYPE_RESOURCE));
+
+    when(asyncResult.failed()).thenReturn(false);
+    when(asyncResult.result())
+        .thenReturn(
+            new JsonObject()
+                .put(TOTAL_HITS, 0)
+                .put(
+                    RESULTS,
+                    new JsonArray()
+                        .add(new JsonObject().put(TYPE, parent1))
+                        .add(new JsonObject().put(TYPE, parent2))));
+
+    validatorService.validateItem(
+        request,
+        handler -> {
+          if (handler.failed()) {
+            Assertions.assertTrue(handler.cause().getMessage().contains("doesn't exist"));
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Failed to invalidate");
           }
         });
   }

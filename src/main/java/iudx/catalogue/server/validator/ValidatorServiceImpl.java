@@ -161,9 +161,6 @@ public class ValidatorServiceImpl implements ValidatorService {
     String itemType = getItemType(request, handler);
     LOGGER.debug("Info: itemType: " + itemType);
 
-    String checkQuery =
-        "{\"_source\": [\"id\"]," + "\"query\": {\"term\": {\"id.keyword\": \"$1\"}}}";
-
     // Validate if Resource
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
       validateResource(request, handler);
@@ -200,6 +197,11 @@ public class ValidatorServiceImpl implements ValidatorService {
         checkQuery,
         docIndex,
         res -> {
+          if (res.failed()) {
+            LOGGER.debug("Fail: DB Error");
+            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            return;
+          }
           String returnType = getReturnTypeForValidation(res.result());
           LOGGER.debug(returnType);
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_PROVIDER)) {
@@ -274,6 +276,11 @@ public class ValidatorServiceImpl implements ValidatorService {
         checkQuery,
         docIndex,
         res -> {
+          if (res.failed()) {
+            LOGGER.debug("Fail: DB Error");
+            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            return;
+          }
           String returnType = getReturnTypeForValidation(res.result());
           LOGGER.debug(returnType);
 
@@ -309,7 +316,7 @@ public class ValidatorServiceImpl implements ValidatorService {
             .replace("$4", request.getString(NAME));
     LOGGER.debug(checkQuery);
 
-    client.searchGetId(
+    client.searchAsync(
         checkQuery,
         docIndex,
         res -> {
@@ -319,17 +326,18 @@ public class ValidatorServiceImpl implements ValidatorService {
             return;
           }
           String returnType = getReturnTypeForValidation(res.result());
+          LOGGER.debug(returnType);
 
           if (res.result().getInteger(TOTAL_HITS) < 3
-              || !returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
+              && !returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
             LOGGER.debug("RS does not exist");
             handler.handle(Future.failedFuture("Fail: Resource Server item doesn't exist"));
           } else if (res.result().getInteger(TOTAL_HITS) < 3
-              || !returnType.contains(ITEM_TYPE_PROVIDER)) {
+              && !returnType.contains(ITEM_TYPE_PROVIDER)) {
             LOGGER.debug("Provider does not exist");
             handler.handle(Future.failedFuture("Fail: Provider item doesn't exist"));
           } else if (res.result().getInteger(TOTAL_HITS) < 3
-              || !returnType.contains(ITEM_TYPE_RESOURCE_GROUP)) {
+              && !returnType.contains(ITEM_TYPE_RESOURCE_GROUP)) {
             LOGGER.debug("RG does not exist");
             handler.handle(Future.failedFuture("Fail: Resource Group item doesn't exist"));
           } else if (res.result().getInteger(TOTAL_HITS) > 3) {
