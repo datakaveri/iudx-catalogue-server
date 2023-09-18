@@ -405,7 +405,7 @@ public class ValidatorServiceTest {
   }
 
   @Test
-  @DisplayName("invalid mlaery gq schema")
+  @DisplayName("invalid mlayer gq schema")
   void invalidMLGQSchemaTest(VertxTestContext testContext) {
     JsonObject request =
         new JsonObject()
@@ -424,4 +424,40 @@ public class ValidatorServiceTest {
       });
     }));
   }
+
+    @Test
+    @DisplayName("valid mlayer dataset schema")
+    void validMLdataetTest(VertxTestContext testContext) {
+        JsonObject request =
+                new JsonObject()
+                        .put(
+                                "id", "8b95ab80-2aaf-4636-a65e-7f2563d0d371")
+                        .put("instance", "pune");
+
+        validator.validateMlayerDatasetId(
+                request,
+                testContext.succeeding(
+                        response -> {
+                            testContext.verify(
+                                    () -> {
+                                        testContext.completeNow();
+                                    });
+                        }));
+    }
+
+    @Test
+    @DisplayName("invalid mlayer dataset schema")
+    void invalidMLDatasetchemaTest(VertxTestContext testContext) {
+        JsonObject request =
+                new JsonObject()
+                        .put(
+                                "id", "datakaveri.org/b8bd3e3f39615c8ec96722131ae95056b5938f2f/rs.iudx.io/agra-swachhata-app")
+                        .put("eynstance", "pune");
+
+        validator.validateMlayerDatasetId(request, testContext.failing(response -> {
+            testContext.verify(() -> {
+                testContext.completeNow();
+            });
+        }));
+    }
 }

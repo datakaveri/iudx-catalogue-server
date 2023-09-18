@@ -1,6 +1,5 @@
 package iudx.catalogue.server.database;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -16,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(VertxExtension.class)
 @ExtendWith(MockitoExtension.class)
@@ -618,6 +618,158 @@ public class QueryDecoderTest {
                 .replace("$2", "\"type\",\"provider\",\"ownerUserId\",\"resourceGroup\",\"resourceServer\", \"resourceServerRegURL\", \"cos\", \"cos_admin\""));
     assertEquals(elasticQuery,queryDecoder.searchQuery(request));
 
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with searchType equals RESPONSE_FILTER_REGEX")
+  public void testListRelationshipQueryType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(RELATIONSHIP,"cos")
+            .put(ID,"id")
+            .put(COS_ITEM,"value");
+    assertNotNull(queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos")
+  public void testListRelationshipCosQueryType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS);
+    assertNull(queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType resource")
+  public void testListRelationshipCosResourceType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS)
+            .put(RELATIONSHIP, RESOURCE);
+
+    assertNotNull(queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType resourceGrp")
+  public void testListRelationshipCosResourceGrpType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS)
+            .put(RELATIONSHIP, RESOURCE_GRP);
+
+    assertNotNull(queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType resourceSvr")
+  public void testListRelationshipCosResourceSvrType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS)
+            .put(RELATIONSHIP, RESOURCE_SVR);
+
+    assertNotNull(queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType provider")
+  public void testListRelationshipCosProviderType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS)
+            .put(RELATIONSHIP, PROVIDER);
+
+    assertNotNull(queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType all")
+  public void testListRelationshipCosAllType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(RELATIONSHIP, ALL)
+            .put(RESOURCE_GRP, "dummy");
+
+    assertNotNull(queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType all")
+  public void testListRelationshipCosAllProviderType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(RELATIONSHIP, ALL)
+            .put(PROVIDER, "dummy");
+
+    assertNotNull(queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType all")
+  public void testListRelationshipCosAllRSType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(RELATIONSHIP, ALL)
+            .put(RESOURCE_SVR, "dummy");
+
+    assertNotNull(queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType all")
+  public void testListRelationshipCosAllCosItemType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(RELATIONSHIP, ALL)
+            .put(COS_ITEM, "dummy");
+
+    assertNotNull(queryDecoder.listRelationshipQuery(request));
     vertxTestContext.completeNow();
   }
 }
