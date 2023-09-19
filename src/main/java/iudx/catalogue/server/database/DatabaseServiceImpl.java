@@ -679,6 +679,39 @@ public class DatabaseServiceImpl implements DatabaseService {
    * {@inheritDoc}
    * */
   @Override
+  public DatabaseService listOwnerOrCos(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    RespBuilder respBuilder = new RespBuilder();
+    String elasticQuery = queryDecoder.listItemQuery(request);
+
+    LOGGER.debug("Info: Listing items;" + elasticQuery);
+
+    client.searchAsync(
+        elasticQuery,
+        docIndex,
+        clientHandler -> {
+          if (clientHandler.succeeded()) {
+            LOGGER.debug("Success: Successful DB request");
+            JsonObject responseJson = clientHandler.result();
+            handler.handle(Future.succeededFuture(responseJson));
+          } else {
+            LOGGER.error("Fail: DB request has failed;" + clientHandler.cause());
+            /* Handle request error */
+            handler.handle(
+                Future.failedFuture(
+                    respBuilder
+                        .withType(TYPE_INTERNAL_SERVER_ERROR)
+                        .withTitle(TITLE_INTERNAL_SERVER_ERROR)
+                        .getResponse()));
+          }
+        });
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   * */
+  @Override
   public DatabaseService listRelationship(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();

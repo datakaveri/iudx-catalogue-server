@@ -324,6 +324,64 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
+  @Description("successful test listOwnerOrCos")
+  public void testListOwnerOrCos(VertxTestContext vertxTestContext) {
+    JsonObject request = new JsonObject();
+    request.put(ITEM_TYPE, ITEM_TYPE_OWNER).put(TYPE_KEY, OWNER);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+        new Answer<AsyncResult<JsonObject>>() {
+          @Override
+          public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+            ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+            return null;
+          }
+        })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(anyString(), anyString(), any());
+    dbService.listOwnerOrCos(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(),anyString(), any());
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test listOwnerOrCos on failure")
+  public void failureTestListOwnerOrCos(VertxTestContext vertxTestContext) {
+    JsonObject request = new JsonObject();
+    request.put(ITEM_TYPE, ITEM_TYPE_COS).put(TYPE_KEY, COS);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.succeeded()).thenReturn(false);
+    doAnswer(
+        new Answer<AsyncResult<JsonObject>>() {
+          @Override
+          public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+            ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+            return null;
+          }
+        })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(anyString(),anyString(), any());
+    dbService.listOwnerOrCos(
+        request,
+        handler -> {
+          if (handler.failed()) {
+            verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(),anyString(), any());
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow("Fail");
+          }
+        });
+  }
+
+  @Test
   @Description("test countQuery when method returns Null")
   public void testCountQueryHandler(VertxTestContext vertxTestContext) {
     JsonObject request = new JsonObject();

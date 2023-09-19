@@ -1,13 +1,16 @@
 /**
+ *
+ *
  * <h1>SearchApis.java</h1>
+ *
  * Callback handlers for List APIS
  */
-
 package iudx.catalogue.server.apiserver;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -16,18 +19,13 @@ import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.database.DatabaseService;
-import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 public final class ListApis {
 
-
-  private DatabaseService dbService;
-
   private static final Logger LOGGER = LogManager.getLogger(ListApis.class);
-
+  private DatabaseService dbService;
 
   public void setDbService(DatabaseService dbService) {
     this.dbService = dbService;
@@ -91,49 +89,72 @@ public final class ListApis {
             break;
           default:
             LOGGER.error("Fail: Invalid itemType:" + itemType);
-            response.setStatusCode(400)
-                    .end(new RespBuilder()
-                              .withType(TYPE_INVALID_SYNTAX)
-                              .withTitle(TITLE_INVALID_SYNTAX)
-                              .withDetail(DETAIL_WRONG_ITEM_TYPE)
-                              .getResponse());
+            response
+                .setStatusCode(400)
+                .end(
+                    new RespBuilder()
+                        .withType(TYPE_INVALID_SYNTAX)
+                        .withTitle(TITLE_INVALID_SYNTAX)
+                        .withDetail(DETAIL_WRONG_ITEM_TYPE)
+                        .getResponse());
             return;
         }
         requestBody.put(TYPE, type);
 
-        /* Request database service with requestBody for listing items */
-        dbService.listItems(requestBody, dbhandler -> {
-          if (dbhandler.succeeded()) {
-            LOGGER.info("Success: Item listing");
-            response.setStatusCode(200).end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
-            LOGGER.error(
-                "Fail: Issue in listing " + itemType + ": " + dbhandler.cause().getMessage());
-            response.setStatusCode(400)
-                    .end(new RespBuilder()
-                              .withType(TYPE_INVALID_SYNTAX)
-                              .withTitle(TITLE_INVALID_SYNTAX)
-                              .withDetail(DETAIL_WRONG_ITEM_TYPE)
-                              .getResponse());
-          }
-        });
+        if (type.equalsIgnoreCase(ITEM_TYPE_OWNER) || type.equalsIgnoreCase(ITEM_TYPE_COS)) {
+          dbService.listOwnerOrCos(
+              requestBody,
+              dbHandler -> {
+                handleResponseFromDatabase(response, itemType, dbHandler);
+              });
+        } else {
+
+          /* Request database service with requestBody for listing items */
+          dbService.listItems(
+              requestBody,
+              dbhandler -> {
+                handleResponseFromDatabase(response, itemType, dbhandler);
+              });
+        }
       } else {
         LOGGER.error("Fail: Search/Count; Invalid request query parameters");
-        response.setStatusCode(400)
-            .end(new RespBuilder()
-              .withType(TYPE_INVALID_SYNTAX)
-              .withTitle(TITLE_INVALID_SYNTAX)
-              .withDetail(DETAIL_WRONG_ITEM_TYPE)
-              .getResponse());
+        response
+            .setStatusCode(400)
+            .end(
+                new RespBuilder()
+                    .withType(TYPE_INVALID_SYNTAX)
+                    .withTitle(TITLE_INVALID_SYNTAX)
+                    .withDetail(DETAIL_WRONG_ITEM_TYPE)
+                    .getResponse());
       }
     } else {
       LOGGER.error("Fail: Search/Count; Invalid request query parameters");
-      response.setStatusCode(400)
-            .end(new RespBuilder()
-              .withType(TYPE_INVALID_SYNTAX)
-              .withTitle(TITLE_INVALID_SYNTAX)
-              .withDetail(DETAIL_WRONG_ITEM_TYPE)
-              .getResponse());
+      response
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_SYNTAX)
+                  .withTitle(TITLE_INVALID_SYNTAX)
+                  .withDetail(DETAIL_WRONG_ITEM_TYPE)
+                  .getResponse());
+    }
+  }
+
+  void handleResponseFromDatabase(
+      HttpServerResponse response, String itemType, AsyncResult<JsonObject> dbhandler) {
+    if (dbhandler.succeeded()) {
+      LOGGER.info("Success: Item listing");
+      response.setStatusCode(200).end(dbhandler.result().toString());
+    } else if (dbhandler.failed()) {
+      LOGGER.error("Fail: Issue in listing " + itemType + ": " + dbhandler.cause().getMessage());
+      response
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_SYNTAX)
+                  .withTitle(TITLE_INVALID_SYNTAX)
+                  .withDetail(DETAIL_WRONG_ITEM_TYPE)
+                  .getResponse());
     }
   }
 }
