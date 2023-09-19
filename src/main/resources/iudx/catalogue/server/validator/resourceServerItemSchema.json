@@ -11,9 +11,9 @@
             "type": [
                 "iudx:ResourceServer"
             ],
-            "id": "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a/rs.iudx.org.in",
-            "provider": "datakaveri.org/27e503da0bdda6efae3a52b3ef423c1f9005657a",
             "name": "IudxResourceServer",
+            "cos": "e56e84c5-5f07-4feb-b6fd-dfa4d589b374",
+            "owner": "e56e84c5-5f07-4feb-b6fd-dfa4d589b374",
             "description": "Multi tenanted IUDX resource server",
             "tags": [
                 "IUDX",
@@ -23,8 +23,6 @@
             ],
             "itemStatus": "ACTIVE",
             "itemCreatedAt": "2020-07-01T10:03:26+0000",
-            "resourceServerHTTPAccessURL": "rs.iudx.org.in",
-            "resourceServerStreamingAccessURL": "databroker.iudx.org.in",
             "resourceServerOrg": {
                 "name": "iudx",
                 "additionalInfoURL": "https://iudx.org.in",
@@ -40,6 +38,33 @@
                     }
                 }
             },
+            "resourceServerRegURL": "iudx.org.in",
+            "resourceAccessModalities": [
+                {
+                    "type": [
+                        "iudx:HTTPAccess"
+                    ],
+                    "protocol": "http",
+                    "accessURL": "rs",
+                    "port": 8080
+                },
+                {
+                    "type": [
+                        "iudx:StreamingAccess"
+                    ],
+                    "protocol": "amqps",
+                    "accessURL": "databroker",
+                    "port": 5672
+                },
+                {
+                    "type": [
+                        "iudx:FileAccess"
+                    ],
+                    "protocol": "ftp",
+                    "accessURL": "file",
+                    "port": 8090
+                }
+            ],
             "location": {
                 "type": "Place",
                 "address": "IISc, Bangalore",
@@ -56,12 +81,14 @@
     "required": [
         "@context",
         "type",
+        "cos",
         "owner",
         "name",
         "description",
         "tags",
         "resourceServerOrg",
-        "resourceServerHTTPAccessURL"
+        "resourceServerRegURL",
+        "resourceAccessModalities"
     ],
     "properties": {
         "@context": {
@@ -114,11 +141,23 @@
             "maxLength": 36,
             "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
         },
+        "cos": {
+            "$id": "#/properties/cos",
+            "type": "string",
+            "title": "The cos schema",
+            "description": "id of the cos item",
+            "default": "",
+            "examples": [
+                "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
+            ],
+            "maxLength": 36,
+            "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
+        },
         "owner": {
-            "$id": "#/properties/provider",
+            "$id": "#/properties/owner",
             "type": "string",
             "title": "The owner schema",
-            "description": "id of the owner (cop admin) of a resource server",
+            "description": "An explanation about the purpose of this instance.",
             "default": "",
             "examples": [
                 "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
@@ -141,7 +180,7 @@
             "$id": "#/properties/description",
             "type": "string",
             "title": "The description schema",
-            "description": "An explanation about the purpose of this instance.",
+            "description": "An explanation about the purpose of this resource server.",
             "default": "",
             "examples": [
                 "Multi tenanted IUDX resource server"
@@ -195,27 +234,6 @@
             "default": "",
             "examples": [
                 "2020-07-01T10:03:26+0000"
-            ]
-        },
-        "resourceServerHTTPAccessURL": {
-            "$id": "#/properties/resourceServerHTTPAccessURL",
-            "type": "string",
-            "title": "The resourceServerHTTPAccessURL schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "rs.iudx.org.in"
-            ],
-            "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,})(\\.[a-zA-Z0-9]{2,})$"
-        },
-        "resourceServerStreamingAccessURL": {
-            "$id": "#/properties/resourceServerStreamingAccessURL",
-            "type": "string",
-            "title": "The resourceServerStreamingAccessURL schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "databroker.iudx.org.in"
             ]
         },
         "resourceServerOrg": {
@@ -491,6 +509,111 @@
                 }
             },
             "additionalProperties": true
+        },
+        "resourceServerRegURL": {
+            "$id": "#/properties/resourceServerRegURL",
+            "type": "string",
+            "title": "The resourceServerRegURL schema",
+            "default": "",
+            "examples": [
+                "iudx.org.in"
+            ],
+            "pattern": "^[a-zA-Z0-9-]{2,}(\\.[a-zA-Z0-9-]{2,}){1,10}$"
+        },
+        "resourceAccessModalities": {
+            "$id": "#/properties/resourceAccessModalities",
+            "type": "array",
+            "title": "The resourceServers schema",
+            "description": "An object defining resourceServer subdomains containing each of its access URLs",
+            "default": [],
+            "examples": [
+                [
+                    {
+                        "type": [
+                            "iudx:HTTPAccess"
+                        ],
+                        "protocol": "http",
+                        "accessURL": "rs",
+                        "port": 8080
+                    },
+                    {
+                        "type": [
+                            "iudx:StreamingAccess"
+                        ],
+                        "protocol": "amqps",
+                        "accessURL": "databroker",
+                        "port": 5672
+                    },
+                    {
+                        "type": [
+                            "iudx:FileAccess"
+                        ],
+                        "protocol": "ftp",
+                        "accessURL": "file",
+                        "port": 8090
+                    }
+                ]
+            ],
+            "items": {
+                "$id": "#/properties/resourceAccessModalities/items",
+                "anyOf": [
+                    {
+                        "$id": "#/properties/resourceAccessModalities/items/anyOf/0",
+                        "type": "object",
+                        "title": "The subdomains schema",
+                        "default": {},
+                        "required": [
+                            "type",
+                            "protocol",
+                            "accessURL"
+                        ],
+                        "properties": {
+                            "type": {
+                                "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/type",
+                                "type": "array",
+                                "title": "the type of access modality schema",
+                                "default": [],
+                                "items": {
+                                    "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/type/items",
+                                    "anyOf": [
+                                        {
+                                            "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/type/items/anyOf/0",
+                                            "type": "string",
+                                            "title": "the type of access modality schema",
+                                            "default": "",
+                                            "examples": [
+                                                "iudx:HTTPAccess"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            },
+                            "protocol": {
+                                "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/protocol",
+                                "type": "string",
+                                "title": "the protocol schema",
+                                "default": "",
+                                "pattern": "^[a-zA-Z]{3,10}$"
+                            },
+                            "accessURL": {
+                                "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/accessURL",
+                                "type": "string",
+                                "title": "the accessURL schema",
+                                "default": "",
+                                "pattern": "^[a-zA-Z0-9]{2,}(\\.[a-zA-Z0-9]{2,}){0,10}$"
+                            },
+                            "port": {
+                                "$id": "#/properties/resourceServers/properties/subdomains/items/anyOf/0/properties/port",
+                                "type": "integer",
+                                "title": "the port schema",
+                                "default": "",
+                                "minimum": 1,
+                                "maximum": 65535
+                            }
+                        }
+                    }
+                ]
+            }
         }
     },
     "additionalProperties": true

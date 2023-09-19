@@ -7,15 +7,41 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-
 
 public final class QueryDecoder {
 
   private static final Logger LOGGER = LogManager.getLogger(QueryDecoder.class);
+
+  private static JsonObject handleResponseFiltering(
+      JsonObject request, String relationshipType, String elasticQuery) {
+    Integer limit =
+        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+    if (TYPE_KEY.equals(relationshipType)) {
+      tempQuery.put(SOURCE, TYPE_KEY);
+    }
+
+    /* checking the requests for limit attribute */
+    if (request.containsKey(LIMIT)) {
+      Integer sizeFilter = request.getInteger(LIMIT);
+      tempQuery.put(SIZE_KEY, sizeFilter);
+    }
+
+    /* checking the requests for offset attribute */
+    if (request.containsKey(OFFSET)) {
+      Integer offsetFilter = request.getInteger(OFFSET);
+      tempQuery.put(FROM, offsetFilter);
+    }
+
+    if (request.containsKey(FILTER)) {
+      JsonArray sourceFilter = request.getJsonArray(FILTER, new JsonArray());
+      tempQuery.put(SOURCE, sourceFilter);
+    }
+    return tempQuery;
+  }
 
   /**
    * Decodes and constructs ElasticSearch Search/Count query based on the parameters passed in the
@@ -32,23 +58,19 @@ public final class QueryDecoder {
     JsonArray mustQuery = new JsonArray();
     Boolean match = false;
 
-    if (searchType.equalsIgnoreCase("getItemType")) {
-      elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1", request.getString(ID))
-          .replace("$2", "\"type\",\"providerKcId\",\"resourceGroup\",\"resourceServer\""));
+    if (searchType.equalsIgnoreCase("getParentObjectInfo")) {
+      elasticQuery =
+          new JsonObject(
+              GET_DOC_QUERY
+                  .replace("$1", request.getString(ID))
+                  .replace(
+                      "$2",
+                      "\"type\",\"provider\",\"ownerUserId\","
+                          + "\"resourceGroup\",\"resourceServer\","
+                          + "\"resourceServerRegURL\", \"cos\", \"cos_admin\""));
       return elasticQuery;
     }
-    if (searchType.equalsIgnoreCase("getRsUrl")) {
-      if (!request.getString(ITEM_TYPE).equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
-        LOGGER.debug(request);
-        elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1", request.getString(ID))
-          .replace("$2", "\"resourceServerHTTPAccessURL\""));
-      } else {
-        LOGGER.debug(request);
-        elasticQuery = new JsonObject(GET_DOC_QUERY.replace("$1", request.getString(ID))
-            .replace("$2", "\"resourceServer\""));
-      }
-      return elasticQuery;
-    }
+
     /* TODO: Pagination for large result set */
     if (request.getBoolean(SEARCH)) {
       Integer limit =
@@ -205,18 +227,18 @@ public final class QueryDecoder {
     }
 
     if (searchType.matches(RESPONSE_FILTER_REGEX)) {
-     
+
       /* Construct the filter for response */
       LOGGER.debug("Info: Adding responseFilter");
       match = true;
-      
+
       if (!request.getBoolean(SEARCH)) {
         return new JsonObject().put(ERROR, new RespBuilder()
             .withType(TYPE_OPERATION_NOT_ALLOWED)
             .withTitle(TITLE_OPERATION_NOT_ALLOWED)
             .getJsonResponse());
       }
-      
+
       if (request.containsKey(ATTRIBUTE)) {
         JsonArray sourceFilter = request.getJsonArray(ATTRIBUTE);
         elasticQuery.put(SOURCE, sourceFilter);
@@ -266,125 +288,176 @@ public final class QueryDecoder {
   public String listRelationshipQuery(JsonObject request) {
     LOGGER.debug("request: " + request);
 
-    String relationshipType = request.getString(RELATIONSHIP);
-    String itemType = request.getString(ITEM_TYPE);
+    String relationshipType = request.getString(RELATIONSHIP, "");
+    String itemType = request.getString(ITEM_TYPE, "");
     String subQuery = "";
 
     /* Validating the request */
-    if (request.containsKey(ID) && RESOURCE.equals(relationshipType)
-            && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+    if (request.containsKey(ID) && relationshipType.equalsIgnoreCase("cos")) {
+      String cosId = request.getString(COS_ITEM);
+
+      subQuery = TERM_QUERY.replace("$1", ID + KEYWORD_KEY).replace("$2", cosId);
+    } else if (request.containsKey(ID) && itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+      String cosId = request.getString(ID);
+
+      subQuery = TERM_QUERY.replace("$1", COS_ITEM + KEYWORD_KEY).replace("$2", cosId) + ",";
+      switch (relationshipType) {
+        case RESOURCE:
+          subQuery =
+              subQuery + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE);
+          break;
+        case RESOURCE_GRP:
+          subQuery =
+              subQuery
+                  + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+          break;
+        case RESOURCE_SVR:
+          subQuery =
+              subQuery
+                  + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE_SERVER);
+          break;
+        case PROVIDER:
+          subQuery =
+              subQuery + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_PROVIDER);
+          break;
+        default:
+          return null;
+      }
+    } else if (request.containsKey(ID)
+        && RESOURCE.equals(relationshipType)
+        && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
       String providerId = request.getString(ID);
-      subQuery = TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY)
-              .replace("$2", providerId)
+      subQuery =
+          TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY).replace("$2", providerId)
               + ","
-              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-              .replace("$2", ITEM_TYPE_RESOURCE);
-    } else if (request.containsKey(ID) && RESOURCE.equals(relationshipType)
-            && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE);
+    } else if (request.containsKey(ID)
+        && RESOURCE.equals(relationshipType)
+        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
       String resourceGroupId = request.getString(ID);
 
-      subQuery = TERM_QUERY.replace("$1", RESOURCE_GRP + KEYWORD_KEY)
-              .replace("$2", resourceGroupId)
+      subQuery =
+          TERM_QUERY.replace("$1", RESOURCE_GRP + KEYWORD_KEY).replace("$2", resourceGroupId)
               + ","
-              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-              .replace("$2", ITEM_TYPE_RESOURCE);
-    } else if (request.containsKey(ID) && RESOURCE.equals(relationshipType)
-            && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-      JsonArray groupIds = request.getJsonArray("grpIds");
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE);
+    } else if (request.containsKey(ID)
+        && RESOURCE.equals(relationshipType)
+        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      String resourceServerId = request.getString(ID);
+
+      subQuery =
+          TERM_QUERY.replace("$1", RESOURCE_SVR + KEYWORD_KEY).replace("$2", resourceServerId)
+              + ","
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE);
+    } else if (request.containsKey(ID)
+        && RESOURCE_GRP.equals(relationshipType)
+        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
+      String resourceGroupId = request.getString("resourceGroup");
+      subQuery =
+          TERM_QUERY.replace("$1", ID_KEYWORD).replace("$2", resourceGroupId)
+              + ","
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+
+    } else if (request.containsKey(ID)
+        && RESOURCE_GRP.equals(relationshipType)
+        && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+      String providerId = request.getString(ID);
+      subQuery =
+          TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY).replace("$2", providerId)
+              + ","
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+
+    } else if (request.containsKey(ID)
+        && RESOURCE_GRP.equals(relationshipType)
+        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      JsonArray providerIds = request.getJsonArray("providerIds");
       StringBuilder first = new StringBuilder(GET_RS1);
-      List<String> ids = groupIds.stream().map(JsonObject.class::cast)
-              .map(grpId -> grpId.getString(ID))
+      List<String> ids =
+          providerIds.stream()
+              .map(JsonObject.class::cast)
+              .map(providerId -> providerId.getString(ID))
               .collect(Collectors.toList());
       ids.forEach(id -> first.append(GET_RS2.replace("$1", id)));
       first.deleteCharAt(first.lastIndexOf(","));
       first.append(GET_RS3);
       return first.toString();
-
     } else if (request.containsKey(ID)
-            && RESOURCE_GRP.equals(relationshipType)
-            && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-      String resourceGroupId = request.getString("resourceGroup");
-      subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
-              .replace("$2", resourceGroupId)
-              + ","
-              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-              .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+        && PROVIDER.equals(relationshipType)
+        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      String resourceServerId = request.getString(ID);
 
-    } else if (request.containsKey(ID) && RESOURCE_GRP
-            .equals(relationshipType)
-            && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
-      String providerId = request.getString(ID);
-      subQuery = TERM_QUERY.replace("$1", PROVIDER + KEYWORD_KEY)
-              .replace("$2", providerId)
+      subQuery =
+          TERM_QUERY.replace("$1", RESOURCE_SVR + KEYWORD_KEY).replace("$2", resourceServerId)
               + ","
-              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-              .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
-
-    } else if (request.containsKey(ID) && RESOURCE_GRP.equals(relationshipType)
-            && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-      String rsServer = request.getString(ID);
-      subQuery = TERM_QUERY.replace("$1", RESOURCE_SVR + KEYWORD_KEY)
-              .replace("$2", rsServer)
-              + ","
-              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-              .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
-
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_PROVIDER);
     } else if (request.containsKey(ID) && PROVIDER.equals(relationshipType)) {
-      //String id = request.getString(ID);
+      // String id = request.getString(ID);
       String providerId = request.getString(PROVIDER);
 
-      subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
-              .replace("$2", providerId)
+      subQuery =
+          TERM_QUERY.replace("$1", ID_KEYWORD).replace("$2", providerId)
               + ","
-              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-              .replace("$2", ITEM_TYPE_PROVIDER);
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_PROVIDER);
 
     } else if (request.containsKey(ID) && RESOURCE_SVR.equals(relationshipType)) {
       String resourceServer = request.getString(RESOURCE_SVR);
 
-      subQuery = MATCH_QUERY.replace("$1", ID_KEYWORD)
-              .replace("$2", resourceServer)
+      subQuery =
+          MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", resourceServer)
               + ","
-
-              + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-              .replace("$2", ITEM_TYPE_RESOURCE_SERVER);
+              + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE_SERVER);
 
     } else if (request.containsKey(ID) && TYPE_KEY.equals(relationshipType)) {
       /* parsing id from the request */
       String itemId = request.getString(ID);
 
-      subQuery = TERM_QUERY.replace("$1", ID_KEYWORD)
-              .replace("$2", itemId);
+      subQuery = TERM_QUERY.replace("$1", ID_KEYWORD).replace("$2", itemId);
 
+    } else if (request.containsKey(ID) && ALL.equalsIgnoreCase(relationshipType)) {
+      subQuery = MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", request.getString(ID))
+          + ",";
+      if (request.containsKey(RESOURCE_GRP)) {
+        subQuery =
+            subQuery
+            + MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", request.getString(RESOURCE_GRP))
+                + ",";
+      }
+      if (request.containsKey(PROVIDER)) {
+        subQuery =
+            subQuery
+                + MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", request.getString(PROVIDER))
+                + ",";
+      }
+      if (request.containsKey(RESOURCE_SVR)) {
+
+        subQuery =
+            subQuery
+                + MATCH_QUERY
+                    .replace("$1", ID_KEYWORD)
+                    .replace("$2", request.getString(RESOURCE_SVR))
+                + ",";
+      }
+      if (request.containsKey(COS_ITEM)) {
+
+        subQuery =
+            subQuery
+            + MATCH_QUERY
+                .replace("$1", ID_KEYWORD)
+                .replace("$2", request.getString(COS_ITEM));
+
+      } else {
+        subQuery = subQuery.substring(0, subQuery.length() - 1);
+      }
+
+      String elasticQuery = BOOL_SHOULD_QUERY.replace("$1", subQuery);
+      JsonObject tempQuery = handleResponseFiltering(request, relationshipType, elasticQuery);
+      return tempQuery.toString();
     } else {
       return null;
     }
 
     String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
-    Integer limit =
-            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
-    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
-
-    if (TYPE_KEY.equals(relationshipType)) {
-      tempQuery.put(SOURCE, TYPE_KEY);
-    }
-
-    /* checking the requests for limit attribute */
-    if (request.containsKey(LIMIT)) {
-      Integer sizeFilter = request.getInteger(LIMIT);
-      tempQuery.put(SIZE_KEY, sizeFilter);
-    }
-
-    /* checking the requests for offset attribute */
-    if (request.containsKey(OFFSET)) {
-      Integer offsetFilter = request.getInteger(OFFSET);
-      tempQuery.put(FROM, offsetFilter);
-    }
-
-    if (request.containsKey(FILTER)) {
-      JsonArray sourceFilter = request.getJsonArray(FILTER, new JsonArray());
-      tempQuery.put(SOURCE, sourceFilter);
-    }
+    JsonObject tempQuery = handleResponseFiltering(request, relationshipType, elasticQuery);
     return tempQuery.toString();
   }
 
@@ -417,7 +490,7 @@ public final class QueryDecoder {
         tempQuery = LIST_INSTANCE_TYPES_QUERY.replace("$1", type).replace("$2", instanceId);
       }
     }
-    
+
     Integer limit =
         request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
     elasticQuery = tempQuery.replace("$size", limit.toString());

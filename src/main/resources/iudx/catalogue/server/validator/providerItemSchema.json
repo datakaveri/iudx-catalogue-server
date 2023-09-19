@@ -41,7 +41,7 @@
         "name",
         "description",
         "providerOrg",
-        "providerKcId",
+        "ownerUserId",
         "resourceServer"
     ],
     "properties": {
@@ -310,6 +310,30 @@
             },
             "additionalProperties": true
         }
+    },
+    "ownerUserId": {
+        "$id": "#/properties/ownerUserId",
+        "type": "string",
+        "title": "The provider keycloak user id schema",
+        "description": "An explanation about the purpose of this instance.",
+        "default": "",
+        "examples": [
+            "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
+        ],
+        "maxLength": 36,
+        "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
+    },
+    "resourceServer": {
+        "$id": "#/properties/resourceServer",
+        "type": "string",
+        "title": "The resourceServer schema",
+        "description": "An explanation about the purpose of this instance.",
+        "default": "",
+        "examples": [
+            "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
+        ],
+        "maxLength": 36,
+        "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
     },
     "additionalProperties": true
 }

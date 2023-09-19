@@ -22,12 +22,10 @@ import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.rating.RatingService;
 import iudx.catalogue.server.rating.util.Constants;
-import iudx.catalogue.server.util.Api;
 import iudx.catalogue.server.validator.ValidatorService;
 import java.time.ZonedDateTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 
 public class RatingApis {
   private static final Logger LOGGER = LogManager.getLogger(RatingApis.class);
@@ -69,7 +67,6 @@ public class RatingApis {
   public void createRatingHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: Creating Rating");
 
-    JsonObject requestBody = routingContext.body().asJsonObject();
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
 
@@ -79,6 +76,18 @@ public class RatingApis {
 
     String id = request.getParam(ID);
 
+    if (!isValidId(id)) {
+      response
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
+                  .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+                  .withDetail("Invalid value for id")
+                  .getResponse());
+      return;
+    }
+
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_POST)
@@ -86,6 +95,7 @@ public class RatingApis {
         .put(ID, host);
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
+    JsonObject requestBody = routingContext.body().asJsonObject();
 
     authenticationFuture
         .onSuccess(
@@ -144,6 +154,18 @@ public class RatingApis {
 
     String id = request.getParam(Constants.ID);
 
+    if (!isValidId(id)) {
+      response
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
+                  .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+                  .withDetail("Invalid value for id")
+                  .getResponse());
+      return;
+    }
+
     JsonObject requestBody = new JsonObject().put(Constants.ID, id);
 
     if (request.params().contains("type")) {
@@ -165,8 +187,7 @@ public class RatingApis {
           requestBody,
           handler -> {
             if (handler.succeeded()) {
-              if (!handler.result().getJsonArray(RESULTS)
-                      .isEmpty()) {
+              if (!handler.result().getJsonArray(RESULTS).isEmpty()) {
                 response.setStatusCode(200).end(handler.result().toString());
               } else {
                 response.setStatusCode(204).end();
@@ -200,8 +221,7 @@ public class RatingApis {
                     requestBody,
                     handler -> {
                       if (handler.succeeded()) {
-                        if (!handler.result().getJsonArray(
-                                RESULTS).isEmpty()) {
+                        if (!handler.result().getJsonArray(RESULTS).isEmpty()) {
                           response.setStatusCode(200).end(handler.result().toString());
                         } else {
                           response.setStatusCode(204).end();
@@ -227,6 +247,10 @@ public class RatingApis {
     }
   }
 
+  private boolean isValidId(String id) {
+    return UUID_PATTERN.matcher(id).matches();
+  }
+
   /**
    * Update Rating handler.
    *
@@ -235,7 +259,6 @@ public class RatingApis {
   public void updateRatingHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: Updating Rating");
 
-    JsonObject requestBody = routingContext.body().asJsonObject();
     HttpServerRequest request = routingContext.request();
     HttpServerResponse response = routingContext.response();
 
@@ -245,6 +268,18 @@ public class RatingApis {
 
     String id = request.getParam(Constants.ID);
 
+    if (!isValidId(id)) {
+      response
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
+                  .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+                  .withDetail("Invalid value for id")
+                  .getResponse());
+      return;
+    }
+
     jwtAuthenticationInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_PUT)
@@ -252,6 +287,7 @@ public class RatingApis {
         .put(Constants.ID, host);
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthenticationInfo);
+    JsonObject requestBody = routingContext.body().asJsonObject();
 
     authenticationFuture
         .onSuccess(
@@ -331,9 +367,22 @@ public class RatingApis {
             successHandler -> {
               String id = request.getParam(Constants.ID);
 
+              if (!isValidId(id)) {
+                response
+                    .setStatusCode(400)
+                    .end(
+                        new RespBuilder()
+                            .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
+                            .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+                            .withDetail("Invalid value for id")
+                            .getResponse());
+                return;
+              }
+
               JsonObject requestBody =
-                  new JsonObject().put(Constants.USER_ID, successHandler.getString(
-                          Constants.USER_ID)).put(Constants.ID, id);
+                  new JsonObject()
+                      .put(Constants.USER_ID, successHandler.getString(Constants.USER_ID))
+                      .put(Constants.ID, id);
 
               ratingService.deleteRating(
                   requestBody,
@@ -341,8 +390,7 @@ public class RatingApis {
                     if (dbHandler.succeeded()) {
                       LOGGER.info("Success: Item deleted;");
                       LOGGER.debug(dbHandler.result().toString());
-                      if (dbHandler.result().getString(STATUS)
-                              .equals(TITLE_SUCCESS)) {
+                      if (dbHandler.result().getString(STATUS).equals(TITLE_SUCCESS)) {
                         response.setStatusCode(200).end(dbHandler.result().toString());
                         if (hasAuditService) {
                           updateAuditTable(

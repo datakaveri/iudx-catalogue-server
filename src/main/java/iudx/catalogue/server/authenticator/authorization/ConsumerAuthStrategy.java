@@ -39,14 +39,14 @@ public class ConsumerAuthStrategy implements AuthorizationStratergy {
 
 
   private void buildPermissions(Api api) {
-    accessList.add(new AuthorizationRequest(GET, ROUTE_RATING));
-    accessList.add(new AuthorizationRequest(POST, ROUTE_RATING));
-    accessList.add(new AuthorizationRequest(PUT, ROUTE_RATING));
-    accessList.add(new AuthorizationRequest(DELETE, ROUTE_RATING));
+    accessList.add(new AuthorizationRequest(GET, ROUTE_RATING, ""));
+    accessList.add(new AuthorizationRequest(POST, ROUTE_RATING, ""));
+    accessList.add(new AuthorizationRequest(PUT, ROUTE_RATING, ""));
+    accessList.add(new AuthorizationRequest(DELETE, ROUTE_RATING, ""));
   }
 
   @Override
-  public boolean isAuthorized(AuthorizationRequest authorizationRequest, JwtData jwtData) {
+  public boolean isAuthorized(AuthorizationRequest authorizationRequest) {
     return accessList.contains(authorizationRequest);
   }
 }

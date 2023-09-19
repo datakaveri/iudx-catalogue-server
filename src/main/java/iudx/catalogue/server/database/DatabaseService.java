@@ -196,7 +196,7 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerInstance(String instance, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The deleteMlayerInstance implements deleting instance from the database.
@@ -236,7 +236,7 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The updateMlayerDomain implements updating all domain from database.
@@ -280,24 +280,26 @@ public interface DatabaseService {
   /**
    * The get Mlayer All Datasets gets all the dataset belonging to IUDX.
    *
+   * @param query which is a string
    * @param handler which is a request handler
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerAllDatasets(String query,  Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The get Mlayer datasset get details of the dataset.
    *
-   * @param datasetId which is a String.
+   * @param requestData which is a Json Object.
    * @param handler which is a request handler.
    * @return DatabaseService which is a Service.
    */
   @Fluent
-  DatabaseService getMlayerDataset(String datasetId, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerDataset(JsonObject requestData,
+                                   Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  DatabaseService getMlayerPopularDatasets(JsonArray highestCountResource,
+  DatabaseService getMlayerPopularDatasets(String instance, JsonArray highestCountResource,
                                            Handler<AsyncResult<JsonObject>> handler);
 
   /* create db service with nlp and geocoding */

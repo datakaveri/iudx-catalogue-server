@@ -27,6 +27,12 @@ public class MlayerApis {
   private AuthenticationService authService;
   private ValidatorService validatorService;
   private String host;
+  private Api api;
+
+  public MlayerApis(Api api) {
+    this.api = api;
+  }
+
   private static final Logger LOGGER = LogManager.getLogger(MlayerApis.class);
 
   public void setMlayerService(MlayerService mlayerService) {
@@ -65,7 +71,7 @@ public class MlayerApis {
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_POST)
-        .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
+        .put(API_ENDPOINT, api.getRouteMlayerInstance())
         .put(ID, host);
 
     Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
@@ -116,11 +122,15 @@ public class MlayerApis {
    * @param routingContext {@link RoutingContext}
    */
   public void getMlayerInstanceHandler(RoutingContext routingContext) {
-    LOGGER.debug("Info : fetching mlayer Instances");
+    LOGGER.debug("Info : fetching mlayer Instance");
+    String id = "";
+    if (routingContext.request().getParam("id") != null) {
+      id = routingContext.request().getParam("id");
+    }
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerInstance(
-        handler -> {
+        id, handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {
@@ -147,7 +157,7 @@ public class MlayerApis {
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_DELETE)
-        .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
+        .put(API_ENDPOINT, api.getRouteMlayerInstance())
         .put(ID, host);
 
     Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
@@ -195,7 +205,7 @@ public class MlayerApis {
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_PUT)
-        .put(API_ENDPOINT, MLAYER_INSTANCE_ENDPOINT)
+        .put(API_ENDPOINT, api.getRouteMlayerInstance())
         .put(ID, host);
 
     Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
@@ -278,7 +288,7 @@ public class MlayerApis {
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_POST)
-        .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
+        .put(API_ENDPOINT, api.getRouteMlayerDomains())
         .put(ID, host);
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthInfo);
@@ -328,10 +338,14 @@ public class MlayerApis {
    */
   public void getMlayerDomainHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: fetching mlayer domains");
+    String id = "";
+    if (routingContext.request().getParam("id") != null) {
+      id = routingContext.request().getParam("id");
+    }
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerDomain(
-        handler -> {
+        id, handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {
@@ -359,7 +373,7 @@ public class MlayerApis {
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_PUT)
-        .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
+        .put(API_ENDPOINT, api.getRouteMlayerDomains())
         .put(ID, host);
 
     Future<JsonObject> authFuture = inspectToken(jwtAuthInfo);
@@ -419,7 +433,7 @@ public class MlayerApis {
     jwtAuthInfo
         .put(TOKEN, request.getHeader(HEADER_TOKEN))
         .put(METHOD, REQUEST_DELETE)
-        .put(API_ENDPOINT, MLAYER_DOMAIN_ENDPOINT)
+        .put(API_ENDPOINT, api.getRouteMlayerDomains())
         .put(ID, host);
 
     Future<JsonObject> authenticationFuture = inspectToken(jwtAuthInfo);
@@ -514,7 +528,7 @@ public class MlayerApis {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerAllDatasets(
-        handler -> {
+         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {
@@ -531,16 +545,15 @@ public class MlayerApis {
   public void getMlayerDatasetHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching details of the dataset");
     HttpServerResponse response = routingContext.response();
-    HttpServerRequest request = routingContext.request();
-    String datasetId = request.getParam(ID);
+    JsonObject requestData = routingContext.body().asJsonObject();
 
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
     validatorService.validateMlayerDatasetId(
-        datasetId,
+        requestData,
         validationHandler -> {
           if (validationHandler.failed()) {
-            response
+              response
                     .setStatusCode(400)
                     .end(
                             new RespBuilder()
@@ -551,7 +564,7 @@ public class MlayerApis {
           } else {
             LOGGER.debug("Validation of dataset Id Successful");
             mlayerService.getMlayerDataset(
-                    datasetId,
+                    requestData,
                     handler -> {
                       if (handler.succeeded()) {
                         response.setStatusCode(200).end(handler.result().toString());
@@ -574,9 +587,14 @@ public class MlayerApis {
    */
   public void getMlayerPopularDatasetsHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching the data for the landing Page");
+    String instance = "";
+    if (routingContext.request().getParam(INSTANCE) != null) {
+      instance = routingContext.request().getParam(INSTANCE);
+    }
+    LOGGER.debug("Instance {}", instance);
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    mlayerService.getMlayerPopularDatasets(
+    mlayerService.getMlayerPopularDatasets(instance,
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());

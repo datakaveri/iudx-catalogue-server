@@ -113,13 +113,10 @@ public class ValidatorServiceTest {
     JsonObject request = new JsonObject();
     request
         .put("type", new JsonArray().add("iudx:Resource"))
-        .put(
-            "id",
-            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors/sensorA")
-        .put(
-            "resourceGroup",
-            "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors123")
-        .put("provider", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86");
+        .put( "id", "ri-id")
+        .put( "resourceGroup", "rg-id")
+        .put("resourceServer", "rs-id")
+        .put("provider", "provider-id");
     validator.validateItem(
         request,
         testContext.failing(
@@ -253,7 +250,7 @@ public class ValidatorServiceTest {
             .put("comment", "some-comment")
             .put(
                 "id",
-                "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+                "2596264a-ff2a-40f7-90cc-17a57b2adffe")
             .put("userID", "some-user")
             .put("status", "pending");
 

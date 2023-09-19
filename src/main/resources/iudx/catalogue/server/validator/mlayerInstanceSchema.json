@@ -10,7 +10,8 @@
       "name":"Bangalore",
       "cover":"path_of_cover.jpg",
       "icon":"path_of_icon.png",
-      "logo":"path_of_logo.png"
+      "logo":"path_of_logo.png",
+      "coordinates" :[98.56, 78.98]
     }
   ],
   "required": [
@@ -63,6 +64,19 @@
         "path_of_logo.jpg"
       ],
       "pattern": "(http(s?):)([/|.|\\w|\\s|-])*\\.(?:jpg|gif|png|jpeg|JPG|GIF|PNG|JPEG)"
+    },
+    "coordinates": {
+      "$id": "#/properties/coordinates",
+      "type": "array",
+      "title": "Mlayer Instance Coordinates Schema",
+      "description": "Coordinates of the instances",
+      "default": [],
+      "examples": [
+        [23.8315, 91.2868]
+      ],
+      "items": {
+        "type": "number"
+      }
     }
 
   }

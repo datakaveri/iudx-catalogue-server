@@ -69,11 +69,12 @@ public class PostgresServiceTest {
     StringBuilder stringBuilder = new StringBuilder(GET_HIGH_COUNT_DATASET.replace("$1", table));
 
     String expected =
-        "{\"type\":\"urn:dx:cat:Success\",\"title\":\"Success\",\"results\":[{\"rgid\":\"iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information\",\"totalhits\":1}]}";
+        "{\"type\":\"urn:dx:cat:Success\",\"title\":\"Success\",\"results\":[{\"resourcegroup\":\"dummy-rg-id\",\"totalhits\":1}]}";
     pgService.executeQuery(
         stringBuilder.toString(),
         handler -> {
           if (handler.succeeded()) {
+            LOGGER.debug(handler.result().toString());
             assertEquals(expected, handler.result().toString());
             assertTrue(handler.result().containsKey("type"));
             assertTrue(handler.result().containsKey("title"));

@@ -1,6 +1,10 @@
 package iudx.catalogue.server.mlayer;
 
+import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.NAME;
+import static iudx.catalogue.server.util.Constants.PROVIDERS;
 
 import com.google.common.hash.Hashing;
 import io.vertx.core.AsyncResult;
@@ -9,6 +13,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.postgres.PostgresService;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -34,7 +39,10 @@ public class MlayerServiceImpl implements MlayerService {
     String name = request.getString(NAME).toLowerCase();
     String id = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
     String instanceId = UUID.randomUUID().toString();
-    request.put(MLAYER_ID, id).put(INSTANCE_ID, instanceId);
+    if (!request.containsKey("instanceId")) {
+      request.put(INSTANCE_ID, instanceId);
+    }
+    request.put(MLAYER_ID, id);
 
     databaseService.createMlayerInstance(
         request,
@@ -51,10 +59,11 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerInstance(String instanceId,
+                                         Handler<AsyncResult<JsonObject>> handler) {
 
     databaseService.getMlayerInstance(
-        getMlayerInstancehandler -> {
+        instanceId, getMlayerInstancehandler -> {
           if (getMlayerInstancehandler.succeeded()) {
             LOGGER.info("Success: Getting all Instance Values");
             handler.handle(Future.succeededFuture(getMlayerInstancehandler.result()));
@@ -111,7 +120,10 @@ public class MlayerServiceImpl implements MlayerService {
     String name = request.getString(NAME).toLowerCase();
     String id = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
     String domainId = UUID.randomUUID().toString();
-    request.put(MLAYER_ID, id).put(DOMAIN_ID, domainId);
+    if (!request.containsKey("domainId")) {
+      request.put(DOMAIN_ID, domainId);
+    }
+    request.put(MLAYER_ID, id);
 
     databaseService.createMlayerDomain(
         request,
@@ -128,9 +140,9 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerDomain(
-        getMlayerDomainHandler -> {
+        id, getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
             LOGGER.info("Success: Getting all domain values");
             handler.handle(Future.succeededFuture(getMlayerDomainHandler.result()));
@@ -216,8 +228,9 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
+    String query = GET_MLAYER_ALL_DATASETS;
     databaseService.getMlayerAllDatasets(
-        getMlayerAllDatasets -> {
+        query, getMlayerAllDatasets -> {
           if (getMlayerAllDatasets.succeeded()) {
             LOGGER.info("Success: Getting all datasets");
             handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
@@ -231,24 +244,72 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService getMlayerDataset(
-      String datasetId, Handler<AsyncResult<JsonObject>> handler) {
-    databaseService.getMlayerDataset(
-        datasetId,
-        getMlayerDatasetHandler -> {
-          if (getMlayerDatasetHandler.succeeded()) {
-            LOGGER.info("Success: Getting details of dataset");
-            handler.handle(Future.succeededFuture(getMlayerDatasetHandler.result()));
-          } else {
-            LOGGER.error("Fail: Getting details of dataset");
-            handler.handle(Future.failedFuture(getMlayerDatasetHandler.cause()));
-          }
-        });
+      JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
+    if (requestData.containsKey(ID) && !requestData.getString(ID).isBlank()) {
+      databaseService.getMlayerDataset(
+          requestData,
+          getMlayerDatasetHandler -> {
+            if (getMlayerDatasetHandler.succeeded()) {
+              LOGGER.info("Success: Getting details of dataset");
+              handler.handle(Future.succeededFuture(getMlayerDatasetHandler.result()));
+            } else {
+              LOGGER.error("Fail: Getting details of dataset");
+              handler.handle(Future.failedFuture(getMlayerDatasetHandler.cause()));
+            }
+          });
+    } else if ((requestData.containsKey("tags")
+            || requestData.containsKey("instance")
+            || requestData.containsKey("providers"))
+        && (!requestData.containsKey(ID) || requestData.getString(ID).isBlank())) {
+
+      String query = GET_ALL_DATASETS_BY_FIELDS;
+
+      if (requestData.containsKey(TAGS) && !requestData.getJsonArray(TAGS).isEmpty()) {
+        query =
+            query.concat(
+                ",{\"terms\":{\"tags.keyword\":$1}}".replace("$1", requestData.getString(TAGS)));
+      }
+      if (requestData.containsKey(INSTANCE) && !requestData.getString(INSTANCE).isBlank()) {
+        query =
+            query.concat(
+                ",{\"match\":{\"instance.keyword\":\"$1\"}}"
+                    .replace("$1", requestData.getString(INSTANCE)));
+      }
+      if (requestData.containsKey(PROVIDERS) && !requestData.getJsonArray(PROVIDERS).isEmpty()) {
+        query =
+            query.concat(
+                ",{\"terms\":{\"provider.keyword\":$1}}"
+                    .replace("$1", requestData.getString(PROVIDERS)));
+      }
+      query = query.concat(GET_ALL_DATASETS_BY_FIELD_SOURCE);
+      databaseService.getMlayerAllDatasets(
+          query,
+          getAllDatasetsHandler -> {
+            if (getAllDatasetsHandler.succeeded()) {
+              LOGGER.info("Success: Getting details of all datasets");
+              handler.handle(Future.succeededFuture(getAllDatasetsHandler.result()));
+            } else {
+              LOGGER.error("Fail: Getting details of all datasets");
+              handler.handle(Future.failedFuture(getAllDatasetsHandler.cause()));
+            }
+          });
+    } else {
+      LOGGER.error("Invalid field present in request body");
+      handler.handle(
+          Future.failedFuture(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_PROPERTY_VALUE)
+                  .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+                  .withDetail("The schema is Invalid")
+                  .getResponse()));
+    }
+
     return this;
   }
 
   @Override
-  public MlayerService getMlayerPopularDatasets(Handler<AsyncResult<JsonObject>> handler) {
-
+  public MlayerService getMlayerPopularDatasets(String instance,
+                                                Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_HIGH_COUNT_DATASET.replace("$1", databaseTable);
     LOGGER.debug("postgres query" + query);
     postgresService.executeQuery(
@@ -256,7 +317,9 @@ public class MlayerServiceImpl implements MlayerService {
         dbHandler -> {
           if (dbHandler.succeeded()) {
             JsonArray popularDataset = dbHandler.result().getJsonArray("results");
+            LOGGER.debug("popular datasets are {}", popularDataset);
             databaseService.getMlayerPopularDatasets(
+                    instance,
                 popularDataset,
                 getPopularDatasetsHandler -> {
                   if (getPopularDatasetsHandler.succeeded()) {

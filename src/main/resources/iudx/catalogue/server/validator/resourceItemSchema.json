@@ -17,7 +17,10 @@
         "name",
         "provider",
         "resourceGroup",
-        "tags"
+        "resourceServer",
+        "tags",
+        "apdURL",
+        "accessPolicy"
     ],
     "properties": {
         "name": {
@@ -56,6 +59,18 @@
             "maxLength": 36,
             "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
         },
+        "resourceServer": {
+            "$id": "#/properties/resourceServer",
+            "type": "string",
+            "title": "The resourceServer schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "examples": [
+                "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
+            ],
+            "maxLength": 36,
+            "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
+        },
         "tags": {
             "$id": "#/properties/tags",
             "type": "array",
@@ -65,6 +80,26 @@
             "title": "The tags schema",
             "description": "An explanation about the purpose of this instance.",
             "default": ""
+        },
+        "apdURL": {
+            "$id": "#/properties/apdURL",
+            "type": "string",
+            "title": "The apd url schema",
+            "default": "",
+            "examples": [
+                "rs.apd.iudx.org.in"
+            ]
+        },
+        "accessPolicy": {
+            "$id": "#/properties/accessPolicy",
+            "type": "string",
+            "title": "The access policy schema",
+            "default": "",
+            "examples": [
+                "SECURE",
+                "ppi"
+            ],
+            "pattern": "^(SECURE|OPEN|PPI|secure|open|ppi)$"
         },
         "instance": {
             "$id": "#/properties/instance",

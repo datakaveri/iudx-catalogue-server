@@ -15,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,9 +32,6 @@ import org.apache.logging.log4j.Logger;
 public class ValidatorServiceImpl implements ValidatorService {
 
   private static final Logger LOGGER = LogManager.getLogger(ValidatorServiceImpl.class);
-  private static final Pattern UUID_PATTERN =
-      Pattern.compile(
-          "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
   /** ES client. */
   static ElasticClient client;
 
@@ -44,10 +40,13 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator resourceGroupValidator;
   private Validator providerValidator;
   private Validator resourceServerValidator;
+  private Validator cosItemValidator;
+  private Validator ownerItemSchema;
   private Validator ratingValidator;
   private Validator mlayerInstanceValidator;
   private Validator mlayerDomainValidator;
   private Validator mlayerGeoQueryValidator;
+  private Validator mlayerDatasetValidator;
   private String docIndex;
   private boolean isUacInstance;
 
@@ -67,10 +66,13 @@ public class ValidatorServiceImpl implements ValidatorService {
       resourceGroupValidator = new Validator("/resourceGroupItemSchema.json");
       resourceServerValidator = new Validator("/resourceServerItemSchema.json");
       providerValidator = new Validator("/providerItemSchema.json");
+      cosItemValidator = new Validator("/cosItemSchema.json");
+      ownerItemSchema = new Validator("/ownerItemSchema.json");
       ratingValidator = new Validator("/ratingSchema.json");
       mlayerInstanceValidator = new Validator("/mlayerInstanceSchema.json");
       mlayerDomainValidator = new Validator("/mlayerDomainSchema.json");
       mlayerGeoQueryValidator = new Validator("/mlayerGeoQuerySchema.json");
+      mlayerDatasetValidator = new Validator("/mlayerDatasetSchema.json");
 
     } catch (IOException | ProcessingException e) {
       e.printStackTrace();
@@ -85,6 +87,19 @@ public class ValidatorServiceImpl implements ValidatorService {
     return utcTime;
   }
 
+  private static String getItemType(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    Set<String> type = new HashSet<String>(new JsonArray().getList());
+    try {
+      type = new HashSet<String>(request.getJsonArray(TYPE).getList());
+    } catch (Exception e) {
+      LOGGER.error("Item type mismatch");
+      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+    }
+    type.retainAll(ITEM_TYPES);
+    String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+    return itemType;
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -93,15 +108,8 @@ public class ValidatorServiceImpl implements ValidatorService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Info: Reached Validator service validate schema");
-    Set<String> type = new HashSet<String>(new JsonArray().getList());
 
-    try {
-      type = new HashSet<String>(request.getJsonArray(TYPE).getList());
-    } catch (Exception e) {
-      LOGGER.error("Item type mismatch");
-    }
-    type.retainAll(ITEM_TYPES);
-    String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+    String itemType = getItemType(request, handler);
     LOGGER.debug("Info: itemType: " + itemType);
 
     switch (itemType) {
@@ -116,6 +124,12 @@ public class ValidatorServiceImpl implements ValidatorService {
         break;
       case ITEM_TYPE_PROVIDER:
         isValidSchema = providerValidator.validate(request.toString());
+        break;
+      case ITEM_TYPE_COS:
+        isValidSchema = cosItemValidator.validate(request.toString());
+        break;
+      case ITEM_TYPE_OWNER:
+        isValidSchema = ownerItemSchema.validate(request.toString());
         break;
       default:
         isValidSchema = false;
@@ -139,15 +153,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   public ValidatorService validateItem(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    Set<String> type = new HashSet<String>(new JsonArray().getList());
-    try {
-      type = new HashSet<String>(request.getJsonArray(TYPE).getList());
-    } catch (Exception e) {
-      LOGGER.error("Item type mismatch");
-      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-    }
-    type.retainAll(ITEM_TYPES);
-    String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+    String itemType = getItemType(request, handler);
     LOGGER.debug("Info: itemType: " + itemType);
 
     String checkQuery =
@@ -158,31 +164,33 @@ public class ValidatorServiceImpl implements ValidatorService {
       validateResource(request, handler);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       // Validate if Resource Server TODO: More checks and auth rules
-      validateResourceServer(request, handler);
+      validateResourceServer(request, handler, checkQuery);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
       validateProvider(request, handler, checkQuery);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
-      validateResourceGroup(request, handler);
+      validateResourceGroup(request, handler, checkQuery);
+    } else if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+      validateCosItem(request, handler, checkQuery);
+    } else if (itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
+      validateOwnerItem(request, handler);
     }
     return this;
   }
 
-  private void validateResourceGroup(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  private void validateResourceGroup(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler, String checkQuery) {
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
-      String providerResourceServerUuid =
-          request.getString(NAME) + request.getString(PROVIDER) + request.getString(RESOURCE_SVR);
+      String providerResourceServerUuid = request.getString(NAME) + request.getString(PROVIDER);
       byte[] inputBytes = providerResourceServerUuid.getBytes(StandardCharsets.UTF_8);
       UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
       request.put(ID, uuid.toString());
     }
 
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
-    String resourceServer = request.getString(RESOURCE_SVR);
     String provider = request.getString(PROVIDER);
-
     client.searchGetId(
-        RESOURCE_GROUP_CHECK_QUERY.replace("$1", provider).replace("$2", resourceServer),
+        checkQuery.replace("$1", provider),
         docIndex,
         providerRes -> {
           if (providerRes.failed()) {
@@ -190,12 +198,11 @@ public class ValidatorServiceImpl implements ValidatorService {
             handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
             return;
           }
-          if (providerRes.result().getInteger(TOTAL_HITS) == 2) {
+          if (providerRes.result().getInteger(TOTAL_HITS) == 1) {
             handler.handle(Future.succeededFuture(request));
           } else {
             LOGGER.debug("Fail: Provider doesn't exist");
-            handler.handle(
-                Future.failedFuture("Fail: Provider or Resource Server does" + " not exist"));
+            handler.handle(Future.failedFuture("Fail: Provider does not exist"));
           }
         });
   }
@@ -233,17 +240,33 @@ public class ValidatorServiceImpl implements ValidatorService {
   }
 
   private void validateResourceServer(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler, String checkQuery) {
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
-      String ameUuid = request.getString(NAME);
+      String ameUuid = request.getString(NAME) + request.getString(COS_ITEM);
       byte[] inputBytes = ameUuid.getBytes(StandardCharsets.UTF_8);
       UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
       request.put(ID, uuid.toString());
     }
-    request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
-    handler.handle(Future.succeededFuture(request));
+    request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
+    String cos = request.getString(COS_ITEM);
+    client.searchGetId(
+        checkQuery.replace("$1", cos),
+        docIndex,
+        res -> {
+          if (res.failed()) {
+            LOGGER.debug("Fail: DB Error");
+            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            return;
+          }
+          if (res.result().getInteger(TOTAL_HITS) == 1) {
+            handler.handle(Future.succeededFuture(request));
+          } else {
+            LOGGER.debug("Fail: Cos doesn't exist");
+            handler.handle(Future.failedFuture("Fail: Cos does not exist"));
+          }
+        });
   }
 
   private void validateResource(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -258,10 +281,13 @@ public class ValidatorServiceImpl implements ValidatorService {
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
     String provider = request.getString(PROVIDER);
     String resourceGroup = request.getString(RESOURCE_GRP);
+    String resourceServer = request.getString(RESOURCE_SVR);
 
-    LOGGER.debug("Info: Verifying resourceGroup and provider " + resourceGroup + provider);
     client.searchGetId(
-        RESOURCE_CHECK_QUERY.replace("$1", provider).replace("$2", resourceGroup),
+        RESOURCE_CHECK_QUERY
+            .replace("$1", resourceServer)
+            .replace("$2", provider)
+            .replace("$3", resourceGroup),
         docIndex,
         providerRes -> {
           if (providerRes.failed()) {
@@ -269,13 +295,58 @@ public class ValidatorServiceImpl implements ValidatorService {
             handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
             return;
           }
-          if (providerRes.result().getInteger(TOTAL_HITS) == 2) {
+          if (providerRes.result().getInteger(TOTAL_HITS) == 3) {
             handler.handle(Future.succeededFuture(request));
           } else {
-            LOGGER.debug("Fail: Provider or Resource Group does not exist");
-            handler.handle(Future.failedFuture("Fail: Provider or Resource Group does not exist"));
+            LOGGER.debug("Fail: RS or Provider or Resource Group does not exist");
+            handler.handle(
+                Future.failedFuture(
+                    "Fail: Resource Server or Provider or Resource Group does not exist"));
           }
         });
+  }
+
+  private void validateCosItem(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler, String checkQuery) {
+    validateId(request, handler, isUacInstance);
+    if (!isUacInstance && !request.containsKey(ID)) {
+      String cosId = request.getString(NAME);
+      byte[] inputBytes = cosId.getBytes(StandardCharsets.UTF_8);
+      UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
+      request.put(ID, uuid.toString());
+    }
+    request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
+
+    String owner = request.getString(OWNER);
+    client.searchGetId(
+        checkQuery.replace("$1", owner),
+        docIndex,
+        res -> {
+          if (res.failed()) {
+            LOGGER.debug("Fail: DB Error");
+            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            return;
+          }
+          if (res.result().getInteger(TOTAL_HITS) == 1) {
+            handler.handle(Future.succeededFuture(request));
+          } else {
+            LOGGER.debug("Fail: Cos doesn't exist");
+            handler.handle(Future.failedFuture("Fail: Cos does not exist"));
+          }
+        });
+  }
+
+  private void validateOwnerItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    validateId(request, handler, isUacInstance);
+    if (!isUacInstance && !request.containsKey(ID)) {
+      String ownerId = request.getString(NAME);
+      byte[] inputBytes = ownerId.getBytes(StandardCharsets.UTF_8);
+      UUID uuid = UUID.nameUUIDFromBytes(inputBytes);
+      request.put(ID, uuid.toString());
+    }
+    request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
+
+    handler.handle(Future.succeededFuture(request));
   }
 
   private boolean isValidUuid(String uuidString) {
@@ -342,17 +413,8 @@ public class ValidatorServiceImpl implements ValidatorService {
   public ValidatorService validateMlayerGeoQuery(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema = mlayerGeoQueryValidator.validate(request.toString());
-    boolean isValidUuid = false;
-    for (int i = 0; i < request.getJsonArray("id").size(); i++) {
-      if (isValidUuid(request.getJsonArray("id").getString(i))) {
-        isValidUuid = true;
-      } else {
-        isValidUuid = false;
-        break;
-      }
-    }
 
-    if (isValidSchema && isValidUuid) {
+    if (isValidSchema) {
       handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
       LOGGER.error("Fail: Invalid Schema");
@@ -363,9 +425,10 @@ public class ValidatorServiceImpl implements ValidatorService {
 
   @Override
   public ValidatorService validateMlayerDatasetId(
-      String datasetId, Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+    isValidSchema = mlayerDatasetValidator.validate(request.toString());
 
-    if (isValidUuid(datasetId)) {
+    if (isValidSchema) {
       handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
     } else {
       LOGGER.error("Fail: Invalid Schema");

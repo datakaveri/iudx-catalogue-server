@@ -1,8 +1,6 @@
 package iudx.catalogue.server.authenticator;
 
 import static iudx.catalogue.server.authenticator.Constants.*;
-import static iudx.catalogue.server.util.Constants.ITEM_TYPE;
-import static iudx.catalogue.server.util.Constants.ITEM_TYPE_PROVIDER;
 
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -29,24 +27,26 @@ import org.apache.logging.log4j.Logger;
  * @version 1.0
  * @since 2023-06-14 }
  */
-public class KCAuthenticationServiceImpl implements AuthenticationService {
-  private static final Logger LOGGER = LogManager.getLogger(KCAuthenticationServiceImpl.class);
+public class KcAuthenticationServiceImpl implements AuthenticationService {
+  private static final Logger LOGGER = LogManager.getLogger(KcAuthenticationServiceImpl.class);
 
   final JWTProcessor<SecurityContext> jwtProcessor;
   private Api api;
   private String uacAdmin;
+  private String issuer;
 
   /**
-   * Constructs a new instance of KCAuthenticationServiceImpl.
+   * Constructs a new instance of KcAuthenticationServiceImpl.
    *
    * @param jwtProcessor The JWTProcessor used for JWT token processing and validation.
    * @param config The JsonObject configuration object containing various settings.
    * @param api The Api object used for communication with external services.
    */
-  public KCAuthenticationServiceImpl(
+  public KcAuthenticationServiceImpl(
       final JWTProcessor<SecurityContext> jwtProcessor, final JsonObject config, final Api api) {
     this.jwtProcessor = jwtProcessor;
     this.uacAdmin = config.getString(UAC_ADMIN) != null ? config.getString(UAC_ADMIN) : "";
+    this.issuer = config.getString("issuer");
     this.api = api;
   }
 
@@ -71,10 +71,9 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
       JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
     String endpoint = authenticationInfo.getString(API_ENDPOINT);
     // String id = authenticationInfo.getString(ID);
-    Method method = Method.valueOf(authenticationInfo.getString(METHOD));
     String token = authenticationInfo.getString(TOKEN);
-    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
-    String itemType = authenticationInfo.getString(ITEM_TYPE);
+    //    String resourceServerUrl = authenticationInfo.getString(RESOURCE_SERVER_URL);
+    String cosAdmin = authenticationInfo.getString("cos_admin", "");
     Future<JwtData> decodeTokenFuture = decodeKcToken(token);
 
     ResultContainer result = new ResultContainer();
@@ -83,18 +82,19 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
         .compose(
             decodeHandler -> {
               result.jwtData = decodeHandler;
+              return isValidIssuer(result.jwtData, issuer);
+            })
+        .compose(
+            validIssuer -> {
               return isValidEndpoint(endpoint);
             })
         .compose(
-            isValidHandler -> {
+            isValidEndpointHandler -> {
               // if the token is of UAC admin, bypass ownership, else verify ownership
               if (uacAdmin.equalsIgnoreCase(result.jwtData.getSub())) {
                 return Future.succeededFuture(true);
               } else {
-                if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
-                  return Future.succeededFuture(true);
-                }
-                return Util.isValidAdmin(resourceServerUrl, result.jwtData, true);
+                return isValidAdmin(result.jwtData, cosAdmin);
               }
             })
         .onComplete(
@@ -102,22 +102,38 @@ public class KCAuthenticationServiceImpl implements AuthenticationService {
               if (completeHandler.succeeded()) {
                 handler.handle(Future.succeededFuture());
               } else {
+                LOGGER.debug(completeHandler.cause().getMessage());
                 handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
               }
             });
     return this;
   }
 
+  private Future<Boolean> isValidIssuer(JwtData jwtData, String issuer) {
+    if (jwtData.getIss().equalsIgnoreCase(issuer)) {
+      return Future.succeededFuture(true);
+    } else {
+      return Future.failedFuture("Token not issued for this server");
+    }
+  }
+
   Future<Boolean> isValidEndpoint(String endpoint) {
     Promise<Boolean> promise = Promise.promise();
 
-    if (endpoint.equals(api.getRouteItems()) || endpoint.equals(api.getRouteInstance())) {
+    if (endpoint.equals(api.getRouteItems()) || endpoint.equals(api.getRouteInstance())
+            || endpoint.equals(api.getRouteMlayerInstance())
+            || endpoint.equals(api.getRouteMlayerDomains())) {
       promise.complete(true);
     } else {
       LOGGER.error("Unauthorized access to endpoint {}", endpoint);
       promise.fail("Unauthorized access to endpoint " + endpoint);
     }
     return promise.future();
+  }
+
+  private Future<Boolean> isValidAdmin(JwtData jwtData, String cosAdmin) {
+    // TODO: implement logic
+    return Future.succeededFuture(true);
   }
 
   final class ResultContainer {

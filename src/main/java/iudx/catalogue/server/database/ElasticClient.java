@@ -65,7 +65,7 @@ public final class ElasticClient {
   private Future<JsonObject> searchAsync(Request request, String options) {
     Promise<JsonObject> promise = Promise.promise();
 
-    DBRespMsgBuilder responseMsg = new DBRespMsgBuilder();
+    DbResponseMessageBuilder responseMsg = new DbResponseMessageBuilder();
 
     client.performRequestAsync(request, new ResponseListener() {
       @Override
@@ -94,11 +94,12 @@ public final class ElasticClient {
                 results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
 
             }
-            if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY) {
-              results = responseJson.getJsonObject(AGGREGATIONS)
-                      .getJsonObject(RESULTS)
-                      .getJsonArray(BUCKETS);
-            }
+            if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY
+                        || options == RESOURCE_AGGREGATION_ONLY) {
+                  results = responseJson.getJsonObject(AGGREGATIONS)
+                          .getJsonObject(RESULTS)
+                          .getJsonArray(BUCKETS);
+                }
 
             for (int i = 0; i < results.size(); i++) {
               if (options == SOURCE_ONLY) {
@@ -137,6 +138,9 @@ public final class ElasticClient {
                 result.mergeIn(source);
                 responseMsg.addResult(result);
               }
+              if (options == RESOURCE_AGGREGATION_ONLY) {
+                responseMsg.addResult(results.getJsonObject(i));
+              }
             }
             if (options == DATASET) {
               JsonArray resource = new JsonArray();
@@ -151,18 +155,14 @@ public final class ElasticClient {
                   provider
                           .put(ID, record.getString(ID))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
+                  dataset.put("resourceServerURL", record.getString("resourceServerURL"));
                   dataset.put(PROVIDER, provider);
                 }
                 if (type.equals("iudx:Resource")) {
-                  JsonObject resourceJson = new JsonObject();
-                  resourceJson
-                          .put(RESOURCE_ID, record.getString(ID))
-                          .put(LABEL, record.getString(LABEL))
-                          .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
-                          .put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE))
-                          .put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR))
-                          .put(RESOURCETYPE, record.getString(RESOURCETYPE));
-                  resource.add(resourceJson);
+                  record.remove("type");
+                  record.put("resourceId", record.getString("id"));
+                  record.remove("id");
+                  resource.add(record);
                 }
                 if (type.equals("iudx:ResourceGroup")) {
                   String schema =
@@ -172,24 +172,40 @@ public final class ElasticClient {
                                   .getString(1)
                                   .substring(5, record.getJsonArray(TYPE)
                                           .getString(1).length());
+                  record.put("schema", schema);
+                  record.remove("@context");
                   dataset
                           .put(ID, record.getString(ID))
-                          .put(LABEL, record.getString(LABEL))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
-                          .put(ACCESS_POLICY, record.getString(ACCESS_POLICY))
-                          .put(INSTANCE, record.getString(INSTANCE))
-                          .put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE))
-                          .put("dataSampleFile", record.getJsonArray("dataSampleFile"))
-                          .put("dataQualityFile", record.getJsonArray("dataQualityFile"))
-                          .put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR))
-                          .put("schema", schema)
-                          .put(RESOURCE_SVR, record.getString("resourceServer"));
+                          .put("schema", schema);
+                  if (record.containsKey(LABEL)) {
+                    dataset.put(LABEL, record.getString(LABEL));
+                  }
+                  if (record.containsKey(ACCESS_POLICY)) {
+                    dataset.put(ACCESS_POLICY, record.getString(ACCESS_POLICY));
+                  }
+                  if (record.containsKey(INSTANCE)) {
+                    dataset.put(INSTANCE, record.getString(INSTANCE));
+                  }
+                  if (record.containsKey(DATA_SAMPLE)) {
+                    dataset.put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE));
+                  }
+                  if (record.containsKey("dataSampleFile")) {
+                    dataset.put("dataSampleFile", record.getJsonArray("dataSampleFile"));
+                  }
+                  if (record.containsKey("dataQualityFile")) {
+                    dataset.put("dataQualityFile", record.getJsonArray("dataQualityFile"));
+                  }
+                  if (record.containsKey(DATA_DESCRIPTOR)) {
+                    dataset.put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR));
+                  }
+                  if (record.containsKey("resourceType")) {
+                    dataset.put("resourceType", record.getString("resourceType"));
+                  }
                 }
-                if (type.equals("iudx:ResourceServer")) {
-                  dataset
-                          .put("resourceServerHTTPAccessURL",
-                                  record.getString("resourceServerHTTPAccessURL"));
 
+                if (type.equals("iudx:COS")) {
+                  dataset.put("cosURL", record.getString("cosURL"));
                 }
               }
               datasetDetail.put("dataset", dataset);
@@ -247,6 +263,25 @@ public final class ElasticClient {
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
     queryRequest.setJsonEntity(query);
     Future<JsonObject> future = searchAsync(queryRequest, DATASET);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
+  /**
+   * Executes a resource aggregation request asynchronously for the given query and index,
+   * and returns the result through the resultHandler.
+   * @param query the aggregation query to execute
+   * @param index the index to search in
+   * @param resultHandler the handler for the result of the aggregation query
+   * @return the ElasticClient object
+   */
+  public ElasticClient resourceAggregationAsync(
+          String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
+    Request queryRequest = new Request(REQUEST_GET, index
+            + "/_search"
+            + FILTER_PATH_AGGREGATION);
+    queryRequest.setJsonEntity(query);
+    Future<JsonObject> future = searchAsync(queryRequest, RESOURCE_AGGREGATION_ONLY);
     future.onComplete(resultHandler);
     return this;
   }
@@ -434,7 +469,7 @@ public final class ElasticClient {
   private Future<JsonObject> countAsync(Request request) {
     Promise<JsonObject> promise = Promise.promise();
 
-    DBRespMsgBuilder responseMsg = new DBRespMsgBuilder();
+    DbResponseMessageBuilder responseMsg = new DbResponseMessageBuilder();
 
     client.performRequestAsync(request, new ResponseListener() {
       @Override
@@ -544,39 +579,39 @@ public final class ElasticClient {
   }
 
   /**
-   * DBRespMsgBuilder} Message builder for search APIs.
+   * DbResponseMessageBuilder} Message builder for search APIs.
    */
-  private class DBRespMsgBuilder {
+  private class DbResponseMessageBuilder {
     private JsonObject response = new JsonObject();
     private JsonArray results = new JsonArray();
 
-    DBRespMsgBuilder() {
+    DbResponseMessageBuilder() {
     }
 
-    DBRespMsgBuilder statusSuccess() {
+    DbResponseMessageBuilder statusSuccess() {
       response.put(TYPE, TYPE_SUCCESS);
       response.put(TITLE, TITLE_SUCCESS);
       return this;
     }
 
-    DBRespMsgBuilder setTotalHits(int hits) {
+    DbResponseMessageBuilder setTotalHits(int hits) {
       response.put(TOTAL_HITS, hits);
       return this;
     }
 
     /** Overloaded for source only request. */
-    DBRespMsgBuilder addResult(JsonObject obj) {
+    DbResponseMessageBuilder addResult(JsonObject obj) {
       response.put(RESULTS, results.add(obj));
       return this;
     }
 
     /** Overloaded for doc-ids request. */
-    DBRespMsgBuilder addResult(String value) {
+    DbResponseMessageBuilder addResult(String value) {
       response.put(RESULTS, results.add(value));
       return this;
     }
 
-    DBRespMsgBuilder addResult() {
+    DbResponseMessageBuilder addResult() {
       response.put(RESULTS, results);
       return this;
     }
@@ -590,55 +625,50 @@ public final class ElasticClient {
    * docAsync - private function which perform performRequestAsync for doc apis.
    *
    * @param request Elastic Request
-   * @param method SOURCE - Source only
-   *                DOCIDS - DOCIDs only
-   *                IDS - IDs only
-   * @TODO XPack Security
-   * @TODO Can combine countAsync and searchAsync
+   * @param method SOURCE - Source only DOCIDS - DOCIDs only IDS - IDs only @TODO XPack
+   *     Security @TODO Can combine countAsync and searchAsync
    */
   private Future<JsonObject> docAsync(String method, Request request) {
     Promise<JsonObject> promise = Promise.promise();
 
-    client.performRequestAsync(request, new ResponseListener() {
-      @Override
-      public void onSuccess(Response response) {
-        try {
-          JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-          int statusCode = response.getStatusLine().getStatusCode();
-          switch (method) {
-            case REQUEST_POST:
-              if (statusCode == 201) {
-                promise.complete(responseJson);
-                return;
+    client.performRequestAsync(
+        request,
+        new ResponseListener() {
+          @Override
+          public void onSuccess(Response response) {
+            try {
+              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
+              int statusCode = response.getStatusLine().getStatusCode();
+              switch (method) {
+                case REQUEST_POST:
+                  if (statusCode == 201) {
+                    promise.complete(responseJson);
+                    return;
+                  }
+                  break;
+                case REQUEST_DELETE:
+                case REQUEST_PUT:
+                  if (statusCode == 200) {
+                    promise.complete(responseJson);
+                    return;
+                  }
+                  break;
+                default:
+                  promise.fail(DATABASE_BAD_QUERY);
               }
-              case REQUEST_DELETE:
-              if (statusCode == 200) {
-                promise.complete(responseJson);
-                return;
-              }
-              case REQUEST_PUT:
-              if (statusCode == 200) {
-                promise.complete(responseJson);
-                return;
-              }
-              default:
-              promise.fail(DATABASE_BAD_QUERY);
+              promise.fail("Failed request");
+            } catch (IOException e) {
+              promise.fail(e);
+            } finally {
+              EntityUtils.consumeQuietly(response.getEntity());
+            }
           }
-          promise.fail("Failed request");
-        } catch (IOException e) {
-            promise.fail(e);
-        } finally {
-          EntityUtils.consumeQuietly(response.getEntity());
-        }
-      }
 
-      @Override
-      public void onFailure(Exception e) {
-        promise.fail(e);
-      }
-    });
+          @Override
+          public void onFailure(Exception e) {
+            promise.fail(e);
+          }
+        });
     return promise.future();
   }
-
-
 }

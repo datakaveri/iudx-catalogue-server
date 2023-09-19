@@ -33,7 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith({VertxExtension.class, MockitoExtension.class})
 public class KCAuthServiceImplTest {
   private static final Logger LOGGER = LogManager.getLogger(KCAuthServiceImplTest.class);
-  private static KCAuthenticationServiceImpl kcAuthenticationService, kcAuthenticationServiceSpy;
+  private static KcAuthenticationServiceImpl kcAuthenticationService, kcAuthenticationServiceSpy;
   private static ConfigurableJWTProcessor<SecurityContext> jwtProcessor;
   private static Api api;
   private static String admin;
@@ -47,7 +47,7 @@ public class KCAuthServiceImplTest {
     admin = config.getString("admin");
     api = Api.getInstance("/iudx/cat/v1");
     jwtProcessor = mock(DefaultJWTProcessor.class);
-    kcAuthenticationService = new KCAuthenticationServiceImpl(jwtProcessor, config, api);
+    kcAuthenticationService = new KcAuthenticationServiceImpl(jwtProcessor, config, api);
     kcAuthenticationServiceSpy = spy(kcAuthenticationService);
     asyncResult = mock(AsyncResult.class);
     testContext.completeNow();
@@ -63,7 +63,10 @@ public class KCAuthServiceImplTest {
             .put(TOKEN, "")
             .put(ITEM_TYPE, ITEM_TYPE_PROVIDER)
             .put(RESOURCE_SERVER_URL, "cop.iudx.io");
-    doAnswer(Answer -> Future.succeededFuture(new JwtData(new JsonObject())))
+
+    JwtData jwtData = new JwtData();
+    jwtData.setIss("authvertx.iudx.io");
+    doAnswer(Answer -> Future.succeededFuture(jwtData))
         .when(kcAuthenticationServiceSpy)
         .decodeKcToken(anyString());
 
@@ -72,7 +75,6 @@ public class KCAuthServiceImplTest {
         authInfo,
         handler -> {
           if (handler.succeeded()) {
-            //        verify(authInfo, times(1));
             LOGGER.debug("success");
             testContext.completeNow();
           } else {
@@ -92,7 +94,6 @@ public class KCAuthServiceImplTest {
         .decodeKcToken(anyString());
 
     when(authInfo.getString(API_ENDPOINT)).thenReturn(api.getRouteRelationship());
-    when(authInfo.getString(METHOD)).thenReturn(Method.DELETE.toString());
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),
@@ -116,7 +117,6 @@ public class KCAuthServiceImplTest {
         .decodeKcToken(anyString());
 
     when(authInfo.getString(API_ENDPOINT)).thenReturn(api.getRouteRelationship());
-    when(authInfo.getString(METHOD)).thenReturn(Method.DELETE.toString());
 
     kcAuthenticationServiceSpy.tokenInterospect(
         new JsonObject(),
@@ -177,6 +177,38 @@ public class KCAuthServiceImplTest {
                 testContext.completeNow();
               } else {
                 testContext.failNow("valid UAC token failed");
+              }
+            });
+  }
+
+  @Test
+  @DisplayName("successful valid endpoint check")
+  public void validEndpointCheck(VertxTestContext vertxTestContext) {
+
+    kcAuthenticationService
+        .isValidEndpoint(api.getRouteItems())
+        .onComplete(
+            handler -> {
+              if (handler.failed()) {
+                vertxTestContext.failNow("fail");
+              } else {
+                vertxTestContext.completeNow();
+              }
+            });
+  }
+
+  @Test
+  @DisplayName("Invalid enpoint check")
+  public void invalidEndpointCheck(VertxTestContext testContext) {
+
+    kcAuthenticationService
+        .isValidEndpoint(api.getRouteSearch())
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                testContext.failNow("fail");
+              } else {
+                testContext.completeNow();
               }
             });
   }

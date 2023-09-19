@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "id":
+        "5b7556b5-0779-4c47-9cf2-3f209779aa22",
+      "instance": "pune",
+      "tags": [
+        "flood", "env"
+      ]
+    }
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": ["string", "null"],
+      "title": "Mlayer Dataset Id Schema",
+      "description": "Id of the datasets in the instance",
+      "default": "",
+      "examples": ["5b7556b5-0779-4c47-9cf2-3f209779aa22"],
+      "pattern": "^(|\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12})$"
+    },
+    "instance": {
+      "$id": "#/properties/instance",
+      "type": "string",
+      "title": "Mlayer Dataset Instance Schema",
+      "description": "Instance name from where the datasets belong to",
+      "default": "",
+      "examples": [
+        "pune"
+      ],
+      "pattern": "^[a-zA-Z ]*$"
+    },
+    "tags": {
+      "$id": "#/properties/tags",
+      "type": "array",
+      "title": "Mlayer Dataset Tags Schema",
+      "description": "Tag names are the data models",
+      "default": "",
+      "examples": [
+        ["flood", "flooding"]
+      ],
+      "pattern": "^[a-zA-Z ]*$"
+    },
+    "providers": {
+      "$id": "#/properties/providers",
+      "type": "array",
+      "title": "Mlayer Dataset Providers Schema",
+      "description": "It consists of names of providers from where the datasets belong to",
+      "default": "",
+      "examples": [
+        ["5b7556b5-0779-4c47-9cf2-3f209779aa22", "5b7556b5-0779-4c47-9cf2-3f209779aa78"]
+      ],
+      "items": {
+        "$id": "#/properties/providers/items",
+        "anyOf": [
+          {
+            "$id": "#/properties/providers/items/anyOf/0",
+            "type": "string",
+            "title": "The first anyOf schema",
+            "description": "An explanation about the purpose of this instance.",
+            "default": "",
+            "pattern": "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$"
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+
+}

@@ -2,6 +2,7 @@ package iudx.catalogue.server.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class Constants {
 
@@ -43,6 +44,11 @@ public class Constants {
   public static final String DATABASE_PASSWD = "databasePassword";
   public static final String SOURCE = "_source";
 
+  public static final Pattern UUID_PATTERN =
+      Pattern.compile(
+          "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
+
+
 
 
   /** Item type. */
@@ -51,8 +57,13 @@ public class Constants {
   public static final String RESOURCE_GRP = "resourceGroup";
   public static final String RESOURCE_SVR = "resourceServer";
   public static final String PROVIDER = "provider";
-  public static final String PROVIDER_KC_ID = "providerKcId";
-  public static final String RESOURCE_SERVER_URL = "resourceServerHTTPAccessURL";
+  public static final String PROVIDERS = "providers";
+  public static final String ALL = "all";
+  public static final String COS = "cos";
+  public static final String OWNER = "owner";
+  public static final String PROVIDER_USER_ID = "ownerUserId";
+  public static final String RESOURCE_SERVER_URL = "resourceServerRegURL";
+  public static final String COS_ITEM = "cos";
   public static final String RESOURCETYPE = "resourceType";
 
 
@@ -62,11 +73,13 @@ public class Constants {
   public static final String ITEM_TYPE_RESOURCE_GROUP = "iudx:ResourceGroup";
   public static final String ITEM_TYPE_RESOURCE_SERVER = "iudx:ResourceServer";
   public static final String ITEM_TYPE_PROVIDER = "iudx:Provider";
+  public static final String ITEM_TYPE_COS = "iudx:COS";
+  public static final String ITEM_TYPE_OWNER = "iudx:Owner";
   public static final String ITEM_TYPE_INSTANCE = "iudx:Instance";
 
   public static final ArrayList<String> ITEM_TYPES =
       new ArrayList<String>(Arrays.asList(ITEM_TYPE_RESOURCE, ITEM_TYPE_RESOURCE_GROUP,
-          ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_PROVIDER));
+          ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_PROVIDER, ITEM_TYPE_COS, ITEM_TYPE_OWNER));
 
   public static final String AGGREGATIONS = "aggregations";
   public static final String INSTANCE = "instance";

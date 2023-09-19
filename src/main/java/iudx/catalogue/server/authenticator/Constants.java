@@ -17,7 +17,7 @@ public class Constants {
   public static final String OPERATION = "operation";
   public static final String REQUEST = "request";
   public static final String BODY = "body";
-  public static final String RESOURCE_SERVER_URL = "resourceServerUrl";
+  public static final String RESOURCE_SERVER_URL = "resourceServerRegURL";
 
   public static final String AUTH_SERVER_ERROR = "Error calling the Auth Server";
 

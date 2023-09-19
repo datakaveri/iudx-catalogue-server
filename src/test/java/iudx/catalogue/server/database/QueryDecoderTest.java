@@ -224,13 +224,13 @@ public class QueryDecoderTest {
 
   @Test
   @Order(9)
-  @Disabled
   @DisplayName("Relationship search request to DbQuery")
   public void searchRelationshipTest(VertxTestContext testContext) {
 
     JsonObject requests = new JsonObject().put(ID,
-                    "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io"
-                            + "/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+                            "2596264a-ff2a-40f7-90cc-17a57b2adffe")
+        .put(ITEM_TYPE, "iudx:Resource")
+        .put(RESOURCE_GRP, "rg-id")
             .put(RELATIONSHIP, RESOURCE_GRP);
 
     JsonObject json = new JsonObject(queryDecoder.listRelationshipQuery(requests));
@@ -244,19 +244,20 @@ public class QueryDecoderTest {
 
   @Test
   @Order(10)
-  @Disabled
   @DisplayName("Relationship search request to DbQuery")
   public void searchRelationshipTest2(VertxTestContext testContext) {
 
     JsonObject requests = new JsonObject()
-            .put(ID, "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io"
-                    + "/aqm-bosch-climo/Sadhu_Wasvani_Square_24")
+            .put(ID, "2596264a-ff2a-40f7-90cc-17a57b2adffe")
+        .put(ITEM_TYPE, "iudx:Resource")
+        .put(RESOURCE_SVR, "rs-id")
             .put(RELATIONSHIP, RESOURCE_SVR);
 
     JsonObject json = new JsonObject(queryDecoder.listRelationshipQuery(requests));
 
+    System.out.println(json);
     assertEquals(ITEM_TYPE_RESOURCE_SERVER, json.getJsonObject(QUERY_KEY).getJsonObject("bool")
-            .getJsonArray("must").getJsonObject(2).getJsonObject(TERM).getString("type.keyword"));
+            .getJsonArray("must").getJsonObject(1).getJsonObject(TERM).getString("type.keyword"));
     testContext.completeNow();
   }
 
@@ -400,6 +401,7 @@ public class QueryDecoderTest {
     JsonArray jsonArray=new JsonArray();
     request.put(RELATIONSHIP,TYPE_KEY);
     request.put(ID,"dummy")
+//        .put(ITEM_TYPE, "item:Resource")
             .put(LIMIT,100)
             .put(OFFSET,100)
             .put(FILTER,jsonArray)
@@ -589,21 +591,15 @@ public class QueryDecoderTest {
   public void testListRelationshipItemResourceServer(VertxTestContext vertxTestContext) {
     queryDecoder=new QueryDecoder();
     JsonObject request=new JsonObject();
-    request.put(RELATIONSHIP,RESOURCE_GRP)
-            .put(ID,"dummy")
-            .put(ITEM_TYPE,"iudx:ResourceServer");
-    String subQuery = TERM_QUERY.replace("$1", RESOURCE_SVR + KEYWORD_KEY)
-            .replace("$2",  request.getString(ID))
-            + ","
-            + TERM_QUERY.replace("$1", TYPE_KEYWORD)
-            .replace("$2", ITEM_TYPE_RESOURCE_GROUP);
-    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
-    Integer limit =
-            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
-    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+    request
+        .put(RELATIONSHIP, RESOURCE_GRP)
+        .put(ID, "dummy")
+        .put("providerIds", new JsonArray().add(new JsonObject().put("id","provider-id")))
+        .put(ITEM_TYPE, "iudx:ResourceServer");
+    String subQuery = GET_RS1 + GET_RS2.replace("$1", "provider-id").replace(",", "");
+    String elasticQuery = subQuery + GET_RS3;
 
-
-    assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
+    assertEquals(elasticQuery.toString(),queryDecoder.listRelationshipQuery(request));
     vertxTestContext.completeNow();
   }
   @Test
@@ -613,55 +609,15 @@ public class QueryDecoderTest {
     JsonObject request=new JsonObject();
     JsonArray jsonArray=new JsonArray();
     jsonArray.add("dummy");
-    request.put(SEARCH_TYPE,"getItemType")
+    request.put(SEARCH_TYPE,"getParentObjectInfo")
             .put(ID,"id");
     JsonObject elasticQuery =
         new JsonObject(
             GET_DOC_QUERY
                 .replace("$1", request.getString(ID))
-                .replace("$2", "\"type\",\"providerKcId\",\"resourceGroup\",\"resourceServer\""));
+                .replace("$2", "\"type\",\"provider\",\"ownerUserId\",\"resourceGroup\",\"resourceServer\", \"resourceServerRegURL\", \"cos\", \"cos_admin\""));
     assertEquals(elasticQuery,queryDecoder.searchQuery(request));
 
     vertxTestContext.completeNow();
   }
-  @Test
-  @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
-  public void testsearchQueryGetUrl(VertxTestContext vertxTestContext) {
-    queryDecoder=new QueryDecoder();
-    JsonObject request=new JsonObject();
-    JsonArray jsonArray=new JsonArray();
-    jsonArray.add("dummy");
-    request.put(SEARCH_TYPE,"getRsUrl")
-            .put(ID,"id")
-            .put(ITEM_TYPE,"iudx:Provider");
-    JsonObject elasticQuery =
-        new JsonObject(
-            GET_DOC_QUERY
-                .replace("$1", request.getString(ID))
-                .replace("$2", "\"resourceServerHTTPAccessURL\""));
-    assertEquals(elasticQuery,queryDecoder.searchQuery(request));
-
-    vertxTestContext.completeNow();
-  }
-
-  @Test
-  @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
-  public void testsearchQueryResourceGrp(VertxTestContext vertxTestContext) {
-    queryDecoder=new QueryDecoder();
-    JsonObject request=new JsonObject();
-    JsonArray jsonArray=new JsonArray();
-    jsonArray.add("dummy");
-    request.put(SEARCH_TYPE,"getRsUrl")
-            .put(ID,"id")
-            .put(ITEM_TYPE, "iudx:ResourceGroup");
-    JsonObject elasticQuery =
-        new JsonObject(
-            GET_DOC_QUERY.replace("$1", request.getString(ID)).replace("$2", "\"resourceServer\""));
-    assertEquals(elasticQuery,queryDecoder.searchQuery(request));
-
-    vertxTestContext.completeNow();
-  }
-
-
-
 }

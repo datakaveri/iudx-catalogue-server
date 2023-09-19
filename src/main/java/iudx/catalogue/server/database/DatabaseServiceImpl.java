@@ -1,7 +1,6 @@
 package iudx.catalogue.server.database;
 
 import static iudx.catalogue.server.database.Constants.*;
-import static iudx.catalogue.server.database.Constants.GET_DOC_QUERY_WITH_TYPE;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
@@ -10,14 +9,12 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
-import java.nio.file.LinkOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 
 /**
  * The Database Service Implementation.
@@ -34,23 +31,21 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceImpl.class);
   static ElasticClient client;
-  private final QueryDecoder queryDecoder = new QueryDecoder();
-  private NLPSearchService nlpService;
-  private GeocodingService geoService;
-  private boolean nlpPluggedIn;
-  private boolean geoPluggedIn;
-
-  private String docIndex;
-  private String ratingIndex;
-  private String mlayerInstanceIndex;
-  private String mlayerDomainIndex;
-
   private static String internalErrorResp =
       new RespBuilder()
           .withType(TYPE_INTERNAL_SERVER_ERROR)
           .withTitle(TITLE_INTERNAL_SERVER_ERROR)
           .withDetail(DETAIL_INTERNAL_SERVER_ERROR)
           .getResponse();
+  private final QueryDecoder queryDecoder = new QueryDecoder();
+  private NLPSearchService nlpService;
+  private GeocodingService geoService;
+  private boolean nlpPluggedIn;
+  private boolean geoPluggedIn;
+  private String docIndex;
+  private String ratingIndex;
+  private String mlayerInstanceIndex;
+  private String mlayerDomainIndex;
 
   /**
    * Constructs a new DatabaseServiceImpl instance with the given ElasticClient and index names.
@@ -125,6 +120,29 @@ public class DatabaseServiceImpl implements DatabaseService {
     this.geoService = geoService;
     nlpPluggedIn = true;
     geoPluggedIn = true;
+  }
+
+  private static boolean isInvalidRelForGivenItem(JsonObject request, String itemType) {
+    if (request.getString(RELATIONSHIP).equalsIgnoreCase("resource")
+        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
+      return true;
+    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceGroup")
+        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+      return true;
+    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("provider")
+        && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
+      return true;
+    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceServer")
+        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
+      return true;
+    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("cos")
+        && itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+      return true;
+    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("all")
+        && itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
+      return true;
+    }
+    return false;
   }
 
   @Override
@@ -319,7 +337,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                       docIndex,
                       checkRes -> {
                         if (checkRes.failed()) {
-                          LOGGER.error("Fail: Isertion failed;" + checkRes.cause());
+                          LOGGER.error("Fail: Insertion failed;" + checkRes.cause());
                           handler.handle(Future.failedFuture(errorJson));
                         }
                         if (checkRes.succeeded()) {
@@ -372,7 +390,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                                           respBuilder
                                                               .withType(TYPE_SUCCESS)
                                                               .withTitle(TITLE_SUCCESS)
-                                                              .withResult(id, INSERT, TYPE_SUCCESS)
+                                                              .withResult(doc)
                                                               .getJsonResponse()));
                                                 } else {
                                                   handler.handle(Future.failedFuture(errorJson));
@@ -396,32 +414,12 @@ public class DatabaseServiceImpl implements DatabaseService {
                                             doc.toString(),
                                             postRes -> {
                                               if (postRes.succeeded()) {
-                                                if (doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:Provider")
-                                                    || doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:Resource")
-                                                    || doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:ResourceGroup")
-                                                    || doc.getJsonArray("type")
-                                                        .getString(0)
-                                                        .equals("iudx:ResourceServer")) {
-                                                  handler.handle(
-                                                      Future.succeededFuture(
-                                                          respBuilder
-                                                              .withType(TYPE_SUCCESS)
-                                                              .withTitle(TITLE_SUCCESS)
-                                                              .withMethod(INSERT)
-                                                              .withResult(doc)
-                                                              .getJsonResponse()));
-                                                }
                                                 handler.handle(
                                                     Future.succeededFuture(
                                                         respBuilder
                                                             .withType(TYPE_SUCCESS)
-                                                            .withResult(id, INSERT, TYPE_SUCCESS)
+                                                            .withTitle(TITLE_SUCCESS)
+                                                            .withResult(doc)
                                                             .getJsonResponse()));
                                               } else {
                                                 handler.handle(Future.failedFuture(errorJson));
@@ -434,7 +432,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                     STATIC_DELAY_TIME);
                           }
                         }
-                    });
+                      });
                 } else if (instanceHandler.failed()) {
                   handler.handle(
                       Future.failedFuture(
@@ -473,7 +471,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         GET_DOC_QUERY_WITH_TYPE
             .replace("$1", id)
             .replace("$3", type)
-            .replace("$2", "\"" + id + "\"");
+            .replace("$2", "id");
 
     new Timer()
         .schedule(
@@ -515,8 +513,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                                     Future.succeededFuture(
                                         respBuilder
                                             .withType(TYPE_SUCCESS)
-                                            .withTitle(TYPE_SUCCESS)
-                                            .withResult(id, UPDATE)
+                                            .withTitle(TITLE_SUCCESS)
+                                            .withResult(doc)
                                             .getJsonResponse()));
                               } else {
                                 handler.handle(Future.failedFuture(internalErrorResp));
@@ -570,9 +568,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                   respBuilder
                                       .withType(TYPE_OPERATION_NOT_ALLOWED)
                                       .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-                                      .withResult(
-                                          id,
-                                          "Fail: Can't delete, doc has associated item")
+                                      .withResult(id, "Fail: Can't delete, doc has associated item")
                                       .getResponse()));
                           return;
                         } else if (checkRes.result().getInteger(TOTAL_HITS) < 1) {
@@ -582,9 +578,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                   respBuilder
                                       .withType(TYPE_ITEM_NOT_FOUND)
                                       .withTitle(TITLE_ITEM_NOT_FOUND)
-                                      .withResult(
-                                          id,
-                                          "Fail: Doc doesn't exist, can't delete")
+                                      .withResult(id, "Fail: Doc doesn't exist, can't delete")
                                       .getResponse()));
                           return;
                         }
@@ -690,7 +684,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     RespBuilder respBuilder = new RespBuilder();
 
     StringBuilder typeQuery =
-        new StringBuilder(GET_TYPE_SEARCH.replace("$1", request.getString("id")));
+        new StringBuilder(GET_TYPE_SEARCH.replace("$1", request.getString(ID)));
     LOGGER.debug("typeQuery: " + typeQuery);
 
     client.searchAsync(
@@ -708,7 +702,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .getResponse()));
               return;
             }
-            JsonObject relType = qeryhandler.result().getJsonArray("results").getJsonObject(0);
+            JsonObject relType = qeryhandler.result().getJsonArray(RESULTS).getJsonObject(0);
 
             Set<String> type = new HashSet<String>(relType.getJsonArray(TYPE).getList());
             type.retainAll(ITEM_TYPES);
@@ -727,17 +721,29 @@ public class DatabaseServiceImpl implements DatabaseService {
               return;
             }
 
-            if (request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE_SVR)
-                && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-              handleRsFetchForResourceItem(request, handler, respBuilder, relType);
-            } else if (request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE)
+            if ((request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE_SVR)
+                    || request.getString(RELATIONSHIP).equalsIgnoreCase(ALL))
+                && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
+              LOGGER.debug(relType);
+              handleRsFetchForResourceGroup(request, handler, respBuilder, relType);
+            } else if (request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE_GRP)
                 && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-              handleResourceItemFetchForRs(request, handler, respBuilder, relType);
+              handleResourceGroupFetchForRs(request, handler, respBuilder, relType);
             } else {
               request.mergeIn(relType);
               String elasticQuery = queryDecoder.listRelationshipQuery(request);
               LOGGER.debug("Info: Query constructed;" + elasticQuery);
-              handleClientSearchAsync(handler, respBuilder, elasticQuery);
+              if (elasticQuery != null) {
+                handleClientSearchAsync(handler, respBuilder, elasticQuery);
+              } else {
+                handler.handle(
+                    Future.failedFuture(
+                        respBuilder
+                            .withType(TYPE_INVALID_SEARCH_ERROR)
+                            .withTitle(TITLE_INVALID_SEARCH_ERROR)
+                            .withDetail(TITLE_INVALID_SEARCH_ERROR)
+                            .getResponse()));
+              }
             }
           } else {
             LOGGER.error(qeryhandler.cause().getMessage());
@@ -768,7 +774,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
   }
 
-  private void handleResourceItemFetchForRs(
+  private void handleResourceGroupFetchForRs(
       JsonObject request,
       Handler<AsyncResult<JsonObject>> handler,
       RespBuilder respBuilder,
@@ -784,7 +790,7 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (serverSearch.succeeded()) {
             JsonArray serverResult = serverSearch.result().getJsonArray("results");
             LOGGER.debug("serverResult: " + serverResult);
-            request.put("grpIds", serverResult);
+            request.put("providerIds", serverResult);
             request.mergeIn(relType);
             String elasticQuery = queryDecoder.listRelationshipQuery(request);
 
@@ -795,54 +801,52 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
   }
 
-  private void handleRsFetchForResourceItem(
+  private void handleRsFetchForResourceGroup(
       JsonObject request,
       Handler<AsyncResult<JsonObject>> handler,
       RespBuilder respBuilder,
       JsonObject relType) {
     StringBuilder typeQuery4Rserver =
-        new StringBuilder(GET_TYPE_SEARCH.replace("$1", relType.getString("resourceGroup")));
+        new StringBuilder(GET_TYPE_SEARCH.replace("$1", relType.getString(PROVIDER)));
     LOGGER.debug("typeQuery4Rserver: " + typeQuery4Rserver);
 
     client.searchAsync(
         typeQuery4Rserver.toString(),
         docIndex,
         serverSearch -> {
-          if (serverSearch.succeeded()) {
+          if (serverSearch.succeeded() && serverSearch.result().getInteger(TOTAL_HITS) != 0) {
             JsonObject serverResult =
                 serverSearch.result().getJsonArray("results").getJsonObject(0);
             request.mergeIn(serverResult);
+            request.mergeIn(relType);
             String elasticQuery = queryDecoder.listRelationshipQuery(request);
 
             LOGGER.debug("Info: Query constructed;" + elasticQuery);
 
-            handleClientSearchAsync(handler, respBuilder, elasticQuery);
+            if (elasticQuery != null) {
+              handleClientSearchAsync(handler, respBuilder, elasticQuery);
+            } else {
+              handler.handle(
+                  Future.failedFuture(
+                      respBuilder
+                          .withType(TYPE_INVALID_SEARCH_ERROR)
+                          .withTitle(TITLE_INVALID_SEARCH_ERROR)
+                          .withDetail(TITLE_INVALID_SEARCH_ERROR)
+                          .getResponse()));
+            }
+          } else {
+            respBuilder
+                .withType(TYPE_ITEM_NOT_FOUND)
+                .withTitle(TITLE_ITEM_NOT_FOUND)
+                .withDetail("Resource Group for given item not found");
+            handler.handle(Future.failedFuture(respBuilder.getResponse()));
           }
         });
   }
 
-  private static boolean isInvalidRelForGivenItem(JsonObject request, String itemType) {
-    if (request.getString(RELATIONSHIP).equalsIgnoreCase("resource")
-        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-      return true;
-    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceGroup")
-        && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
-      return true;
-    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("resourceServer")
-        && (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)
-            || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER))) {
-      return true;
-    } else if (request.getString(RELATIONSHIP).equalsIgnoreCase("provider")
-        && (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)
-            || itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER))) {
-      return true;
-    }
-    return false;
-  }
-
   /**
    * {@inheritDoc}
-   * */
+   */
   @Override
   public DatabaseService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -1146,29 +1150,35 @@ public class DatabaseServiceImpl implements DatabaseService {
       String id = request.getString(ID);
       if (request.containsKey(TYPE) && request.getString(TYPE).equalsIgnoreCase("average")) {
         Future<List<String>> getAssociatedIdFuture = getAssociatedIDs(id);
-        getAssociatedIdFuture.onComplete(ids -> {
-          StringBuilder avgQuery = new StringBuilder(GET_AVG_RATING_PREFIX);
-          if (ids.succeeded()) {
-            ids.result().stream().forEach(v -> {
-              avgQuery.append(GET_AVG_RATING_MATCH_QUERY.replace("$1", v));
-            });
-            avgQuery.deleteCharAt(avgQuery.lastIndexOf(","));
-            avgQuery.append(GET_AVG_RATING_SUFFIX);
-            LOGGER.debug(avgQuery);
-            client.ratingAggregationAsync(avgQuery.toString(), ratingIndex, getRes -> {
-              if (getRes.succeeded()) {
-                LOGGER.debug("Success: Successful DB request");
-                JsonObject result = getRes.result();
-                handler.handle(Future.succeededFuture(result));
+        getAssociatedIdFuture.onComplete(
+            ids -> {
+              StringBuilder avgQuery = new StringBuilder(GET_AVG_RATING_PREFIX);
+              if (ids.succeeded()) {
+                ids.result().stream()
+                    .forEach(
+                        v -> {
+                          avgQuery.append(GET_AVG_RATING_MATCH_QUERY.replace("$1", v));
+                        });
+                avgQuery.deleteCharAt(avgQuery.lastIndexOf(","));
+                avgQuery.append(GET_AVG_RATING_SUFFIX);
+                LOGGER.debug(avgQuery);
+                client.ratingAggregationAsync(
+                    avgQuery.toString(),
+                    ratingIndex,
+                    getRes -> {
+                      if (getRes.succeeded()) {
+                        LOGGER.debug("Success: Successful DB request");
+                        JsonObject result = getRes.result();
+                        handler.handle(Future.succeededFuture(result));
+                      } else {
+                        LOGGER.error("Fail: failed getting average rating: " + getRes.cause());
+                        handler.handle(Future.failedFuture(internalErrorResp));
+                      }
+                    });
               } else {
-                LOGGER.error("Fail: failed getting average rating: " + getRes.cause());
                 handler.handle(Future.failedFuture(internalErrorResp));
               }
             });
-          } else {
-            handler.handle(Future.failedFuture(internalErrorResp));
-          }
-        });
 
         return this;
       } else {
@@ -1231,6 +1241,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
+
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
@@ -1288,8 +1299,13 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerInstance(Handler<AsyncResult<JsonObject>> handler) {
-    String query = GET_MLAYER_INSTANCE_QUERY;
+  public DatabaseService getMlayerInstance(String id, Handler<AsyncResult<JsonObject>> handler) {
+    String query = "";
+    if (id == null || id.isBlank()) {
+      query = GET_ALL_MLAYER_INSTANCE_QUERY;
+    } else {
+      query = GET_MLAYER_INSTANCE_QUERY.replace("$1", id);
+    }
     client.searchAsync(
         query,
         mlayerInstanceIndex,
@@ -1477,8 +1493,13 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerDomain(Handler<AsyncResult<JsonObject>> handler) {
-    String query = GET_MLAYER_DOMAIN_QUERY;
+  public DatabaseService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
+    String query = "";
+    if (id == null || id.isBlank()) {
+      query = GET_ALL_MLAYER_DOMAIN_QUERY;
+    } else {
+      query = GET_MLAYER_DOMAIN_QUERY.replace("$1", id);
+    }
     client.searchAsync(
         query,
         mlayerDomainIndex,
@@ -1672,10 +1693,108 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
-    String query = GET_MLAYER_ALL_DATASETS;
-    LOGGER.debug(query);
-    // Elastic client call to get all datasets.
+  public DatabaseService getMlayerAllDatasets(
+      String query, Handler<AsyncResult<JsonObject>> handler) {
+
+    LOGGER.debug("Getting all the resource group items");
+    Promise<JsonObject> datasetResult = Promise.promise();
+    Promise<JsonObject> instanceResult = Promise.promise();
+    Promise<JsonObject> resourceCount = Promise.promise();
+
+    gettingAllDatasets(query, datasetResult);
+    allMlayerInstance(instanceResult);
+    gettingResourceCount(resourceCount);
+
+    CompositeFuture.all(instanceResult.future(), datasetResult.future(), resourceCount.future())
+        .onComplete(
+            ar -> {
+              if (ar.succeeded()) {
+                JsonObject instanceList = ar.result().resultAt(0);
+                JsonObject resourceGroupList = ar.result().resultAt(1);
+                JsonObject resourceCountList = ar.result().resultAt(2);
+                JsonArray resourceGroupArray = new JsonArray();
+                for (int i = 0; i < resourceGroupList.getInteger("resourceGroupCount"); i++) {
+                  JsonObject record =
+                      resourceGroupList.getJsonArray("resourceGroup").getJsonObject(i);
+                  record.put(
+                      "icon",
+                      record.containsKey(INSTANCE)
+                          ? instanceList.getString(record.getString(INSTANCE))
+                          : "");
+                  record.put(
+                      "totalResources",
+                      resourceCountList.containsKey(record.getString(ID))
+                          ? resourceCountList.getInteger(record.getString(ID))
+                          : 0);
+
+                  record.remove(TYPE);
+                  resourceGroupArray.add(record);
+                }
+                RespBuilder respBuilder =
+                    new RespBuilder()
+                        .withType(TYPE_SUCCESS)
+                        .withTitle(SUCCESS)
+                        .withTotalHits(resourceGroupList.getInteger("resourceGroupCount"))
+                        .withResult(resourceGroupArray);
+                handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+
+              } else {
+                LOGGER.error("Fail: failed DB request");
+                handler.handle(Future.failedFuture(internalErrorResp));
+              }
+            });
+    return this;
+  }
+
+  private void gettingResourceCount(Promise<JsonObject> resourceCountResult) {
+    LOGGER.debug("Getting resource item count");
+    String query = GET_RESOURCE_ITEM_COUNT;
+    client.resourceAggregationAsync(
+        query,
+        docIndex,
+        resourceCountRes -> {
+          if (resourceCountRes.succeeded()) {
+            JsonObject resourceItemCount = new JsonObject();
+            int size = resourceCountRes.result().getJsonArray(RESULTS).size();
+            for (int i = 0; i < size; i++) {
+              JsonObject record = resourceCountRes.result().getJsonArray(RESULTS).getJsonObject(i);
+              resourceItemCount.put(record.getString(KEY), record.getInteger("doc_count"));
+            }
+            resourceCountResult.complete(resourceItemCount);
+          } else {
+            LOGGER.error("Fail: query fail;" + resourceCountRes.cause());
+            resourceCountResult.handle(Future.failedFuture(internalErrorResp));
+          }
+        });
+  }
+
+  private void allMlayerInstance(Promise<JsonObject> instanceResult) {
+    LOGGER.debug("Getting all instance name and icons");
+    client.searchAsync(
+        GET_ALL_MLAYER_INSTANCES,
+        mlayerInstanceIndex,
+        instanceRes -> {
+          if (instanceRes.succeeded()) {
+            int instanceSize = instanceRes.result().getJsonArray(RESULTS).size();
+            JsonObject instanceIcon = new JsonObject();
+            for (int i = 0; i < instanceSize; i++) {
+              JsonObject instanceObject =
+                  instanceRes.result().getJsonArray(RESULTS).getJsonObject(i);
+              instanceIcon.put(
+                  instanceObject.getString("name").toLowerCase(), instanceObject.getString("icon"));
+            }
+            instanceResult.complete(instanceIcon);
+          } else {
+
+            LOGGER.error("Fail: query fail;" + instanceRes.cause());
+            instanceResult.handle(Future.failedFuture(internalErrorResp));
+          }
+        });
+  }
+
+  private void gettingAllDatasets(String query, Promise<JsonObject> datasetResult) {
+    LOGGER.debug("Getting all resourceGroup along with provider description, "
+            + "resource server url and cosUrl");
     client.searchAsync(
         query,
         docIndex,
@@ -1683,223 +1802,169 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (resultHandler.succeeded()) {
             LOGGER.debug("Success: Successful DB Request");
             int size = resultHandler.result().getJsonArray(RESULTS).size();
-            ArrayList<String> instanceList = new ArrayList<String>();
-            ArrayList<String> providerList = new ArrayList<String>();
-            // make a list of instance names and provider_id.
-            // The lists contains unique values, no duplicate values
-            for (int i = 0; i < size; i++) {
-              JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              String instance = record.getString(INSTANCE).toLowerCase()
-                      .substring(0, 1).toUpperCase()
-                      + record.getString(INSTANCE).toLowerCase().substring(1);
-              String providerId = record.getString(PROVIDER);
-              if (!instanceList.contains(instance) && !instanceList.equals(null)) {
-                instanceList.add(instance);
-              }
-              if (!providerList.contains(providerId)) {
-                providerList.add(providerId);
-              }
-            }
-            instanceList.remove(null);
-            providerList.remove(null);
-            // Query to get instances icon path
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < instanceList.size(); i++) {
-              String instance = instanceList.get(i);
-              String combinedQuery = GET_MLAYER_BOOL_ICON.replace("$2", instance);
-              sb.append(combinedQuery).append(",");
-            }
-            sb.deleteCharAt(sb.length() - 1);
-            String getIconQuery = GET_MLAYER_INSTANCE_ICON_PATH.replace("$1", sb);
-            // query to get provider description and total Resource
-            StringBuilder sb1 = new StringBuilder();
-
-            for (int i = 0; i < providerList.size(); i++) {
-              String provider = providerList.get(i);
-
-              String combinedQuery = GET_MLAYER_BOOL_PROVIDER.replace("$2", provider);
-
-              sb1.append(combinedQuery).append(",");
-            }
-            sb1.deleteCharAt(sb1.length() - 1);
-            String getProviderQuery = GET_MLAYER_PROVIDER_RESOURCE.replace("$1", sb1);
-            // Elastic client call to get instance icon paths.
-            client.searchAsync(
-                getIconQuery,
-                mlayerInstanceIndex,
-                iconRes -> {
-                  if (iconRes.succeeded()) {
-                    Map<String, String> iconPath = new HashMap<String, String>();
-                    int iconResSize = iconRes.result().getJsonArray(RESULTS).size();
-                    for (int i = 0; i < iconResSize; i++) {
-                      JsonObject iconResRecord =
-                          iconRes.result().getJsonArray(RESULTS).getJsonObject(i);
-                      String instanceName = iconResRecord.getString("name").toLowerCase();
-                      String icon = iconResRecord.getString("icon");
-                      iconPath.put(instanceName, icon);
-                    }
-
-                    // Elastic client call to get provider description and total resource.
-                    client.searchAsync(
-                        getProviderQuery,
-                        docIndex,
-                        providerRes -> {
-                          if (providerRes.succeeded()) {
-                            Map<String, String> providerDescriptionList =
-                                new HashMap<String, String>();
-                            Map<String, Integer> resourceGroupMap = new HashMap<>();
-                            int providerDescriptionSize =
-                                providerRes.result().getJsonArray(RESULTS).size();
-                            for (int i = 0; i < providerDescriptionSize; i++) {
-                              JsonObject providerResRecord =
-                                  providerRes.result().getJsonArray(RESULTS).getJsonObject(i);
-                              if (providerResRecord
-                                  .getJsonArray(TYPE)
-                                  .getString(0)
-                                  .equals("iudx:Provider")) {
-                                String providerId = providerResRecord.getString("id");
-                                String providerDescription =
-                                    providerResRecord.getString("description");
-                                providerDescriptionList.put(providerId, providerDescription);
-                              }
-                              if (providerResRecord
-                                  .getJsonArray(TYPE)
-                                  .getString(0)
-                                  .equals("iudx:Resource")) {
-
-                                String resourceGroup = providerResRecord.getString("resourceGroup");
-                                resourceGroupMap.merge(resourceGroup, 1, Integer::sum);
-                              }
-                            }
-                            for (int i = 0; i < size; i++) {
-                              JsonObject record =
-                                  resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-                              resultHandler
-                                  .result()
-                                  .getJsonArray(RESULTS)
-                                  .getJsonObject(i)
-                                  .put("icon", iconPath.get(record.getString(INSTANCE)));
-                              resultHandler
-                                  .result()
-                                  .getJsonArray(RESULTS)
-                                  .getJsonObject(i)
-                                  .put(
-                                      "providerDescription",
-                                      providerDescriptionList.get(record.getString(PROVIDER)));
-                              resultHandler
-                                  .result()
-                                  .getJsonArray(RESULTS)
-                                  .getJsonObject(i)
-                                  .put(
-                                      "totalResources", resourceGroupMap.get(record.getString(ID)));
-                            }
-                            handler.handle(Future.succeededFuture(resultHandler.result()));
-
-                          } else {
-
-                            LOGGER.error("Fail: query fail;" + providerRes.cause());
-                            handler.handle(Future.failedFuture(internalErrorResp));
-                          }
-                        });
-                  } else {
-
-                    LOGGER.error("Fail: query fail;" + iconRes.cause());
-                    handler.handle(Future.failedFuture(internalErrorResp));
-                  }
-                });
-
-          } else {
-
-            LOGGER.error("Fail: query fail;" + resultHandler.cause());
-            handler.handle(Future.failedFuture(internalErrorResp));
-          }
-        });
-    return this;
-  }
-
-  @Override
-  public DatabaseService getMlayerDataset(
-      String datasetId, Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.debug("dataset Id" + datasetId);
-    client.searchAsync(
-            GET_PROVIDER_AND_RS_ID.replace("$1", datasetId),
-        docIndex,
-        handlerRes -> {
-          if (handlerRes.succeeded()) {
-            if (handlerRes.result().getInteger(TOTAL_HITS) == 0) {
-              LOGGER.debug("The dataset is not available.");
-              handler.handle(
+            if (size == 0) {
+              datasetResult.handle(
                   Future.failedFuture(
                       new RespBuilder()
                           .withType(TYPE_ITEM_NOT_FOUND)
                           .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withDetail("dataset belonging to Id requested is not present")
+                          .withDetail("no datasets are present")
                           .getResponse()));
             }
-            String providerId =
-                handlerRes.result().getJsonArray(RESULTS).getJsonObject(0).getString("provider");
-            String resourceServerId = handlerRes.result().getJsonArray(RESULTS).getJsonObject(0)
-                    .getString("resourceServer");
-            LOGGER.debug("resourceServer id {}", resourceServerId);
-            LOGGER.debug("provider id " + providerId);
-            String query = GET_MLAYER_DATASET.replace("$1", datasetId)
-                    .replace("$2", providerId)
-                    .replace("$3", resourceServerId);
-            LOGGER.debug("Query " + query);
-            client.searchAsyncDataset(
-                query,
-                docIndex,
-                resultHandler -> {
-                  if (resultHandler.succeeded()) {
-                    LOGGER.debug("Success: Successful DB Request");
-                    int resourceCount = resultHandler.result().getInteger(TOTAL_HITS) - 2;
-                    JsonObject record =
-                        resultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
-                    record.getJsonObject("dataset").put("totalResources", resourceCount);
-                    resultHandler.result().remove(TOTAL_HITS);
+            JsonObject rsUrl = new JsonObject();
+            JsonObject providerDescription = new JsonObject();
+            JsonObject cosUrl = new JsonObject();
+            for (int i = 0; i < size; i++) {
+              JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
+              if (record.getJsonArray(TYPE).getString(0).equals(ITEM_TYPE_PROVIDER)) {
+                providerDescription.put(record.getString(ID), record.getString(DESCRIPTION_ATTR));
+                rsUrl.put(
+                    record.getString(ID),
+                    record.containsKey("resourceServerURL")
+                        ? record.getString("resourceServerURL")
+                        : "");
+              } else if (record.getJsonArray(TYPE).getString(0).equals("iudx:COS")) {
+                cosUrl.put(record.getString(ID), record.getString("cosURL"));
+              }
+            }
+            int resourceGroupHits = 0;
+            JsonArray resourceGroup = new JsonArray();
+            for (int i = 0; i < size; i++) {
+              JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
+              if (record.getJsonArray(TYPE).getString(0).equals(ITEM_TYPE_RESOURCE_GROUP)) {
+                resourceGroupHits++;
+                record.put(
+                    "providerDescription",
+                    providerDescription.getString(record.getString(PROVIDER)));
+                record.put("resourceServerURL", rsUrl.getString(record.getString(PROVIDER)));
+                record.put(
+                    "cosURL",
+                    record.containsKey("cos") ? cosUrl.getString(record.getString("cos")) : "");
 
-                    String instanceName = record.getJsonObject("dataset").getString(INSTANCE);
-                    String instanceCapitalizeName =  instanceName.substring(0, 1).toUpperCase()
-                            + instanceName.substring(1);
-                    String getIconQuery = GET_MLAYER_INSTANCE_ICON
-                            .replace("$1", instanceCapitalizeName);
-                    client.searchAsync(
-                        getIconQuery,
-                        mlayerInstanceIndex,
-                        iconResultHandler -> {
-                          if (iconResultHandler.succeeded()) {
-                            LOGGER.debug("Success: Successful DB Request");
-                            if (iconResultHandler.result().getInteger(TOTAL_HITS) == 0) {
-                              LOGGER.debug("The icon path for the instance is not present.");
-                              record.getJsonObject("dataset").put("instance_icon", "");
-                            } else {
-                              JsonObject resource =
-                                  iconResultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
-                              String instancePath = resource.getString("icon");
-                              record.getJsonObject("dataset").put("instance_icon", instancePath);
-                            }
-                            handler.handle(Future.succeededFuture(resultHandler.result()));
-                          } else {
-                            LOGGER.error("Fail: failed DB request");
-                            handler.handle(Future.failedFuture(internalErrorResp));
-                          }
-                        });
-                  } else {
-                    LOGGER.error("Fail: failed DB request");
-                    handler.handle(Future.failedFuture(internalErrorResp));
-                  }
-                });
+                record.remove("cos");
+                resourceGroup.add(record);
+              }
+            }
+            JsonObject resourceGroupResult =
+                new JsonObject()
+                    .put("resourceGroupCount", resourceGroupHits)
+                    .put("resourceGroup", resourceGroup);
+            datasetResult.complete(resourceGroupResult);
           } else {
-            LOGGER.error("Fail: DB request to get provider failed.");
-            handler.handle(Future.failedFuture(internalErrorResp));
+            LOGGER.error("Fail: failed DB request");
+            datasetResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
+  }
 
+  @Override
+  public DatabaseService getMlayerDataset(
+      JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.debug("dataset Id" + requestData.getString(ID));
+    client.searchAsync(
+          GET_PROVIDER_AND_RS_ID.replace("$1", requestData.getString(ID)),
+          docIndex,
+          handlerRes -> {
+            if (handlerRes.succeeded()) {
+              if (handlerRes.result().getInteger(TOTAL_HITS) == 0) {
+                LOGGER.debug("The dataset is not available.");
+                handler.handle(
+                    Future.failedFuture(
+                        new RespBuilder()
+                            .withType(TYPE_ITEM_NOT_FOUND)
+                            .withTitle(TITLE_ITEM_NOT_FOUND)
+                            .withDetail("dataset belonging to Id requested is not present")
+                            .getResponse()));
+              }
+              String providerId =
+                  handlerRes.result().getJsonArray(RESULTS).getJsonObject(0).getString("provider");
+              String cosId = "";
+              if (handlerRes.result().getJsonArray(RESULTS).getJsonObject(0).containsKey("cos")) {
+                cosId = handlerRes.result().getJsonArray(RESULTS).getJsonObject(0).getString("cos");
+
+              }
+
+              /*
+              query to fetch resource group, provider of the resource group, resource
+              items associated with the resource group and cos item.
+              */
+              String query =
+                  GET_MLAYER_DATASET
+                      .replace("$1", requestData.getString(ID))
+                      .replace("$2", providerId)
+                      .replace("$3", cosId);
+              LOGGER.debug("Query " + query);
+              client.searchAsyncDataset(
+                  query,
+                  docIndex,
+                  resultHandler -> {
+                    if (resultHandler.succeeded()) {
+                      LOGGER.debug("Success: Successful DB Request");
+                      JsonObject record =
+                          resultHandler.result().getJsonArray(RESULTS).getJsonObject(0);
+                        record.getJsonObject("dataset").put("totalResources",
+                                record.getJsonArray("resource").size());
+                      String instanceName = "";
+                      String instanceCapitalizeName = "";
+                      if (record.getJsonObject("dataset").containsKey(INSTANCE)
+                          && !(record.getJsonObject("dataset").getString(INSTANCE) == null)
+                          && !(record.getJsonObject("dataset").getString(INSTANCE).isBlank())) {
+
+                        instanceName = record.getJsonObject("dataset").getString(INSTANCE);
+                        instanceCapitalizeName =
+                            instanceName.substring(0, 1).toUpperCase() + instanceName.substring(1);
+
+                        // query to get the icon path of the instance in the  resource group
+                        String getIconQuery =
+                            GET_MLAYER_INSTANCE_ICON.replace("$1", instanceCapitalizeName);
+                        client.searchAsync(
+                            getIconQuery,
+                            mlayerInstanceIndex,
+                            iconResultHandler -> {
+                              if (iconResultHandler.succeeded()) {
+                                LOGGER.debug("Success: Successful DB Request");
+                                JsonObject json = iconResultHandler.result();
+                                if (json.getInteger(TOTAL_HITS) == 0) {
+                                  LOGGER.debug("The icon path for the instance is not present.");
+                                  record.getJsonObject("dataset").put("instance_icon", "");
+                                } else {
+                                  JsonObject resource =
+                                      iconResultHandler
+                                          .result()
+                                          .getJsonArray(RESULTS)
+                                          .getJsonObject(0);
+                                  String instancePath = resource.getString("icon");
+                                  record
+                                      .getJsonObject("dataset")
+                                      .put("instance_icon", instancePath);
+                                }
+                                resultHandler.result().remove(TOTAL_HITS);
+                                handler.handle(Future.succeededFuture(resultHandler.result()));
+                              } else {
+                                LOGGER.error("Fail: failed DB request");
+                                handler.handle(Future.failedFuture(internalErrorResp));
+                              }
+                            });
+                      } else {
+                        resultHandler.result().remove(TOTAL_HITS);
+                        record.getJsonObject("dataset").put("instance_icon", "");
+                        handler.handle(Future.succeededFuture(resultHandler.result()));
+                      }
+                    } else {
+                      LOGGER.error("Fail: failed DB request");
+                      handler.handle(Future.failedFuture(internalErrorResp));
+                    }
+                  });
+            } else {
+              LOGGER.error("Fail: DB request to get provider failed.");
+              handler.handle(Future.failedFuture(internalErrorResp));
+            }
+          });
     return this;
   }
 
   @Override
-  public DatabaseService getMlayerPopularDatasets(
+  public DatabaseService getMlayerPopularDatasets(String instance,
       JsonArray highestCountResource, Handler<AsyncResult<JsonObject>> handler) {
     Promise<JsonObject> instanceResult = Promise.promise();
 
@@ -1909,7 +1974,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     searchSortedMlayerInstances(instanceResult);
 
     allMlayerDomains(domainResult);
-    datasets(datasetResult, highestCountResource);
+    datasets(instance, datasetResult, highestCountResource);
     CompositeFuture.all(instanceResult.future(), domainResult.future(), datasetResult.future())
         .onComplete(
             ar -> {
@@ -1919,54 +1984,48 @@ public class DatabaseServiceImpl implements DatabaseService {
                 JsonObject datasetJson = ar.result().resultAt(2);
                 for (int i = 0; i < datasetJson.getJsonArray("latestDataset").size(); i++) {
                   if (datasetJson
-                          .getJsonArray("latestDataset")
-                          .getJsonObject(i)
-                          .containsKey("instance")) {
-                      LOGGER.debug("given dataset has associated instance");
-                      datasetJson
-                          .getJsonArray("latestDataset")
-                          .getJsonObject(i)
-                          .put(
+                      .getJsonArray("latestDataset")
+                      .getJsonObject(i)
+                      .containsKey("instance")) {
+                    LOGGER.debug("given dataset has associated instance");
+                    datasetJson
+                        .getJsonArray("latestDataset")
+                        .getJsonObject(i)
+                        .put(
                             "icon",
                             instanceList
-                              .getJsonObject("instanceIconPath")
-                              .getString(
-                                  datasetJson
-                                      .getJsonArray("latestDataset")
-                                      .getJsonObject(i)
-                                      .getString("instance").toLowerCase()));
-                    } else {
-                      LOGGER.debug("given dataset does not have associated instance");
-                      datasetJson
-                              .getJsonArray("latestDataset")
-                              .getJsonObject(i)
-                              .put("icon", null);
+                                .getJsonObject("instanceIconPath")
+                                .getString(
+                                    datasetJson
+                                        .getJsonArray("latestDataset")
+                                        .getJsonObject(i)
+                                        .getString("instance")
+                                        .toLowerCase()));
+                  } else {
+                    LOGGER.debug("given dataset does not have associated instance");
+                    datasetJson.getJsonArray("latestDataset").getJsonObject(i).put("icon", null);
                   }
                 }
                 for (int i = 0; i < datasetJson.getJsonArray("featuredDataset").size(); i++) {
-                    if (datasetJson
-                            .getJsonArray("featuredDataset")
-                            .getJsonObject(i)
-                            .containsKey("instance")) {
-                  datasetJson
+                  if (datasetJson
                       .getJsonArray("featuredDataset")
                       .getJsonObject(i)
-                      .put(
-                          "icon",
-                          instanceList
-                              .getJsonObject("instanceIconPath")
-                              .getString(
-                                  datasetJson
-                                      .getJsonArray("featuredDataset")
-                                      .getJsonObject(i)
-                                      .getString("instance")));
+                      .containsKey("instance")) {
+                    datasetJson
+                        .getJsonArray("featuredDataset")
+                        .getJsonObject(i)
+                        .put(
+                            "icon",
+                            instanceList
+                                .getJsonObject("instanceIconPath")
+                                .getString(
+                                    datasetJson
+                                        .getJsonArray("featuredDataset")
+                                        .getJsonObject(i)
+                                        .getString("instance")));
                   } else {
-                      datasetJson
-                              .getJsonArray("featuredDataset")
-                              .getJsonObject(i)
-                              .put("icon", null);
-
-                    }
+                    datasetJson.getJsonArray("featuredDataset").getJsonObject(i).put("icon", null);
+                  }
                 }
                 JsonObject result =
                     new JsonObject()
@@ -2007,8 +2066,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             JsonArray instanceList = new JsonArray();
             for (int i = 0; i < resultHandler.result().getJsonArray(RESULTS).size(); i++) {
               JsonObject instance = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              instanceIconPath.put(instance.getString("name").toLowerCase(),
-                      instance.getString("icon"));
+              instanceIconPath.put(
+                  instance.getString("name").toLowerCase(), instance.getString("icon"));
               if (i < 4) {
                 instanceList.add(i, instance);
               }
@@ -2030,7 +2089,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   private void allMlayerDomains(Promise<JsonArray> domainResult) {
     client.searchAsync(
-        GET_MLAYER_DOMAIN_QUERY,
+            GET_ALL_MLAYER_DOMAIN_QUERY,
         mlayerDomainIndex,
         getDomainHandler -> {
           if (getDomainHandler.succeeded()) {
@@ -2061,9 +2120,16 @@ public class DatabaseServiceImpl implements DatabaseService {
     return jsonComparator;
   }
 
-  private void datasets(Promise<JsonObject> datasetResult, JsonArray highestCountResource) {
+  private void datasets(String instance, Promise<JsonObject> datasetResult,
+                        JsonArray highestCountResource) {
+    String providerAndResources = "";
+    if (instance.isBlank()) {
+      providerAndResources = GET_PROVIDER_AND_RESOURCES;
+    } else {
+      providerAndResources = GET_DATASET_BY_INSTANCE.replace("$1", instance);
+    }
     client.searchAsync(
-        GET_PROVIDER_AND_RESOURCES,
+        providerAndResources,
         docIndex,
         getCatRecords -> {
           if (getCatRecords.succeeded()) {
@@ -2071,6 +2137,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             Map<String, Integer> resourceGroupCount = new HashMap<>();
             Map<String, String> providerDescription = new HashMap<>();
             Map<String, Integer> typeCount = new HashMap<>();
+            typeCount.put("iudx:Provider", 0);
+            typeCount.put("iudx:ResourceGroup", 0);
+            typeCount.put("iudx:Resource", 0);
 
             for (int i = 0; i < getCatRecords.result().getJsonArray(RESULTS).size(); i++) {
               JsonObject record = getCatRecords.result().getJsonArray(RESULTS).getJsonObject(i);
@@ -2105,6 +2174,22 @@ public class DatabaseServiceImpl implements DatabaseService {
             // sorting resource group based on the time of creation.
             Collections.sort(resourceGroupArray, comapratorForLatestDataset());
 
+              // getting count of providers of a particular instance
+              ArrayList<String> providerList = new ArrayList<String>();
+              if (!instance.isBlank()) {
+                for (int i = 0; i < getCatRecords.result().getJsonArray(RESULTS).size(); i++) {
+                  JsonObject record = getCatRecords.result().getJsonArray(RESULTS).getJsonObject(i);
+                  if (record.getJsonArray(TYPE).getString(0).equals("iudx:ResourceGroup")
+                          && !providerList.contains(record.getString("provider"))
+                          && !(record.getString("provider")).equals(null)) {
+                    providerList.add(record.getString("provider"));
+
+                  }
+
+                }
+                typeCount.put("iudx:Provider", providerList.size());
+              }
+
             ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
             int resourceGroupSize = 0;
             if (resourceGroupArray.size() < 6) {
@@ -2119,7 +2204,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                       "totalResources",
                       resourceGroupCount.get(resourceGroupArray.get(i).getString("id")))
                   .put(
-                          "providerDescription",
+                      "providerDescription",
                       providerDescription.get(resourceGroupArray.get(i).getString("provider")));
               latestResourceGroup.add(resource);
               resource = new JsonObject();
@@ -2131,17 +2216,13 @@ public class DatabaseServiceImpl implements DatabaseService {
                 if (resourceGroupArray
                     .get(i)
                     .getString("id")
-                    .equals(highestCountResource.getJsonObject(j).getString("rgid"))) {
-                  String datasetId = highestCountResource.getJsonObject(j).getString("rgid");
-                  int index = datasetId.indexOf("/", datasetId.indexOf("/") + 1);
-                  String providerId = datasetId.substring(0, index);
+                    .equals(highestCountResource.getJsonObject(j)
+                            .getString("resourcegroup"))) {
                   JsonObject resource = resourceGroupArray.get(i);
                   resource
                       .put(
                           "totalResources",
-                          resourceGroupCount.get(resourceGroupArray.get(i).getString("id")))
-                      .put("providerDescription", providerDescription.get(providerId));
-
+                          resourceGroupCount.get(resourceGroupArray.get(i).getString("id")));
                   featuredResourceGroup.add(resource);
                   resource = new JsonObject();
                 }
