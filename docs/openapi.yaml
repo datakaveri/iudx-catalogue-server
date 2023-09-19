@@ -490,7 +490,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/listTypesSuccessResponse'
+                oneOf:
+                 - $ref: '#/components/schemas/listTypesSuccessResponse'
+                 - $ref: '#/components/schemas/listTypesOwner'
         '400':
           description: Bad Request
           content:
@@ -2119,6 +2121,45 @@ components:
         type: 'urn:dx:cat:InvalidSyntax'
         title: Invalid Syntax
         detail: Wrong Item Type
+    listTypesOwner:
+      type: object
+      title: Response for list owner
+      description: API response when item type is owner
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human readable title to the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents which matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results which matched the query. This is an array of objects.
+          items:
+            type: object
+      required:
+        - type
+      example:
+        type: urn:dx:cat:Success
+        title: Success
+        totalHits: 1
+        results:
+          - '@context': https://voc.iudx.org.in/
+            type:
+              - iudx:Owner
+            name: IudxOwner
+            description: owner item for IUDX entities
+            id: cc18c925-8990-3a07-9cac-0bb2bd8166f6
+            itemStatus: ACTIVE
+            itemCreatedAt: 2023-09-08T10:00:02+0530
+        
+
+          
     invalidIdErrorResponse:
       type: object
       title: Invalid ID
