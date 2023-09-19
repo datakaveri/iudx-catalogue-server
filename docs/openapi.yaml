@@ -1403,7 +1403,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/unAuthorizedAccess'
       servers:
-        - url: 'https://example-cat.com/'
+        - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
       x-codeSamples:
         - lang: cURL
@@ -1460,7 +1460,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/unAuthorizedAccess'
       servers:
-        - url: 'https://example-cat.com/'
+        - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
       x-codeSamples:
         - lang: cURL
@@ -1491,7 +1491,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/successResponseForGettingInstance'
       servers:
-        - url: 'https://example-cat.com/'
+        - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
       x-codeSamples:
         - lang: cURL
@@ -1533,7 +1533,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/unAuthorizedAccess'
       servers:
-        - url: 'https://example-cat.com/'
+        - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
       x-codeSamples:
         - lang: cURL
