@@ -62,10 +62,10 @@ public class KCAuthServiceImplTest {
             .put(METHOD, Method.POST.toString())
             .put(TOKEN, "")
             .put(ITEM_TYPE, ITEM_TYPE_PROVIDER)
-            .put(RESOURCE_SERVER_URL, "cop.iudx.io");
+            .put(RESOURCE_SERVER_URL, "cos.iudx.io");
 
     JwtData jwtData = new JwtData();
-    jwtData.setIss("authvertx.iudx.io");
+    jwtData.setIss("cos.iudx.io");
     doAnswer(Answer -> Future.succeededFuture(jwtData))
         .when(kcAuthenticationServiceSpy)
         .decodeKcToken(anyString());
@@ -141,7 +141,7 @@ public class KCAuthServiceImplTest {
             + "\t\"aud\": \"account\",\n"
             + "\t\"sub\": \"dummy-admin-id\",\n"
             + "\t\"typ\": \"Bearer\",\n"
-            + "\t\"clientId\": \"cop.iudx.io\"\n"
+            + "\t\"clientId\": \"cos.iudx.io\"\n"
             + "}");
   }
 
@@ -170,7 +170,7 @@ public class KCAuthServiceImplTest {
 
     JWTClaimsSet jwtClaimsSet = jwtClaimsSetBuilder();
     JwtData jwtData = new JwtData(new JsonObject(jwtClaimsSet.toString()));
-    Util.isValidAdmin("cop.iudx.io", jwtData, true)
+    Util.isValidAdmin("cos.iudx.io", jwtData, true)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {

@@ -5,7 +5,6 @@ public class Constants {
   public static final String AUTH_SERVER_HOST = "authServerHost";
   public static final String UAC_DEPLOYMENT = "isUACInstance";
   public static final String UAC_ADMIN = "uacAdmin";
-  public static final String COP_ADMIN = "copAdmin";
   public static final String KEYCLOACK_HOST = "keycloakServerHost";
   public static final String CERTS_ENDPOINT = "certsEndpoint";
   public static final String DUMMY_TOKEN_KEY = "authDummyToken";
@@ -18,6 +17,7 @@ public class Constants {
   public static final String REQUEST = "request";
   public static final String BODY = "body";
   public static final String RESOURCE_SERVER_URL = "resourceServerRegURL";
+  public static final String RATINGS = "ratings";
 
   public static final String AUTH_SERVER_ERROR = "Error calling the Auth Server";
 
