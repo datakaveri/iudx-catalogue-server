@@ -259,9 +259,17 @@ public class MlayerServiceImpl implements MlayerService {
           });
     } else if ((requestData.containsKey("tags")
             || requestData.containsKey("instance")
-            || requestData.containsKey("providers"))
+            || requestData.containsKey("providers")
+            || requestData.containsKey("domains"))
         && (!requestData.containsKey(ID) || requestData.getString(ID).isBlank())) {
+      if (requestData.containsKey("domains") && !requestData.getJsonArray("domains").isEmpty()) {
+        JsonArray domainsArray = requestData.getJsonArray("domains");
+        JsonArray tagsArray = requestData.containsKey("tags")
+                ? requestData.getJsonArray("tags") : new JsonArray();
 
+        tagsArray.addAll(domainsArray);
+        requestData.put("tags", tagsArray);
+      }
       String query = GET_ALL_DATASETS_BY_FIELDS;
 
       if (requestData.containsKey(TAGS) && !requestData.getJsonArray(TAGS).isEmpty()) {

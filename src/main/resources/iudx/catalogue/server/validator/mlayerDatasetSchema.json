@@ -12,6 +12,9 @@
       "instance": "pune",
       "tags": [
         "flood", "env"
+      ],
+      "domains": [
+        "flood", "env"
       ]
     }
   ],
@@ -69,6 +72,17 @@
           }
         ]
       }
+    },
+    "domains": {
+      "$id": "#/properties/domains",
+      "type": "array",
+      "title": "Mlayer Dataset Domains Schema",
+      "description": "Domain names are the data models",
+      "default": "",
+      "examples": [
+        ["flood", "flooding"]
+      ],
+      "pattern": "^[a-zA-Z ]*$"
     }
   },
   "additionalProperties": false
