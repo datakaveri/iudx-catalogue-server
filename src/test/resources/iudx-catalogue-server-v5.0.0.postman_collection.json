@@ -206,7 +206,7 @@
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
-									"pm.environment.set(\"adminToken\", jsonData.results.accessToken);",
+									"pm.environment.set(\"cosAdminToken\", jsonData.results.accessToken);",
 									"postman.setEnvironmentVariable(\"cosAdminToken\", jsonData.results.accessToken);"
 								],
 								"type": "text/javascript"
