@@ -2782,4 +2782,76 @@ public class DatabaseServiceImplTest {
                 });
     }
 
+    @Test
+    @Description("testing method search Query when request is successful")
+    public void testSearchQueryTextSearch(VertxTestContext vertxTestContext) {
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        JsonObject request = new JsonObject().put(SEARCH_TYPE, TEXTSEARCH_REGEX)
+                .put(Q_VALUE, "all")
+                .put(INSTANCE, null);
+        when(asyncResult.succeeded()).thenReturn(true);
+        when(asyncResult.result()).thenReturn(request);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(DatabaseServiceImpl.client)
+                .searchAsync(any(), any(), any());
+        dbService.searchQuery(
+                request,
+                handler -> {
+                    if (handler.succeeded()) {
+                        verify(DatabaseServiceImpl.client, times(1)).searchAsync(any(), any(), any());
+                        vertxTestContext.completeNow();
+
+
+                    } else {
+                        vertxTestContext.failNow("Fail");
+
+                    }
+                });
+    }
+
+
+    @Test
+    @Description("testing method search Query when request is successful")
+    public void testDeleteItem(VertxTestContext vertxTestContext) {
+        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        JsonArray jsonArray = new JsonArray().add(0,"id");
+        JsonObject request = new JsonObject()
+                .put("id", "item id")
+                .put(RESULTS, jsonArray);
+        when(asyncResult.failed()).thenReturn(true);
+        when(asyncResult.cause()).thenReturn(throwable);
+        when(asyncResult.result()).thenReturn(request);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(DatabaseServiceImpl.client)
+                .searchGetId(any(), any(), any());
+        dbService.deleteItem(
+                request,
+                handler -> {
+                    if (handler.succeeded()) {
+                        verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
+                        vertxTestContext.failNow("Fail");
+
+
+                    } else {
+                        vertxTestContext.completeNow();
+
+
+                    }
+                });
+    }
+
 }

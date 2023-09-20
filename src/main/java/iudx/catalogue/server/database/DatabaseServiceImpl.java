@@ -2245,7 +2245,8 @@ public class DatabaseServiceImpl implements DatabaseService {
               }
             }
 
-            // Determining the maximum number of resource group that can be added. Max value is 6.
+            // Determining the number of resource group that can be added if
+            // total featured datasets are not 6. Max value is 6.
             int remainingResources = Math.min(6 - featuredResourceGroup.size(),
                     resourceGroupMap.size());
 
