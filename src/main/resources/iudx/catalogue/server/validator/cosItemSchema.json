@@ -6,7 +6,6 @@
     "description": "The root schema comprises the entire JSON document",
     "examples": [
         {
-            "@context": "https://voc.iudx.org.in/",
             "type": [
                 "iudx:COS"
             ],
@@ -18,7 +17,6 @@
         }
     ],
     "required": [
-        "@context",
         "type",
         "name",
         "description",
@@ -27,16 +25,6 @@
         "cosUI"
     ],
     "properties": {
-        "@context": {
-            "$id": "#/properties/%40context",
-            "type": "string",
-            "title": "The @context schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "https://voc.iudx.org.in/"
-            ]
-        },
         "type": {
             "$id": "#/properties/type",
             "type": "array",

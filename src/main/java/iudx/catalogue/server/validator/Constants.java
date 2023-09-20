@@ -11,6 +11,8 @@ public class Constants {
   public static final String ITEM_STATUS = "itemStatus";
   public static final String ACTIVE = "ACTIVE";
   public static final String ITEM_CREATED_AT = "itemCreatedAt";
+  public static final String CONTEXT = "@context";
+
   /** Error messages. */
   public static final String NON_EXISTING_LINK_MSG = "No such cat item exists: ";
   public static final String VALIDATION_FAILURE_MSG = "Validation failed";
