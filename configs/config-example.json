@@ -29,13 +29,12 @@
       "bypassAuth": true
     },
     {
-      "id": "iudx.catalogue.server.authenticator.AuthenticationVerticle",
+       "id": "iudx.catalogue.server.authenticator.AuthenticationVerticle",
       "host": "",
-      "tempCopAudience": "",
+      "consumerHost": "",
       "verticleInstances": 1,
       "authServerHost": "",
       "issuer": "",
-      "tempCopIssuer": "",
       "jwtIgnoreExpiry": true
     },
     {

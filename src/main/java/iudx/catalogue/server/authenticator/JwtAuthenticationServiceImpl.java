@@ -39,17 +39,15 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
 
   final JWTAuth jwtAuth;
   final String audience;
+  final String consumerAudience;
   final String issuer;
-  String tempCopAudience;
-  String tempCopIssuer;
   private Api api;
 
   JwtAuthenticationServiceImpl(final JWTAuth jwtAuth, final JsonObject config, final Api api) {
     this.jwtAuth = jwtAuth;
     this.audience = config.getString("host");
+    this.consumerAudience = config.getString("consumerHost");
     this.issuer = config.getString("issuer");
-    this.tempCopAudience = config.getString("tempCopAudience");
-    this.tempCopIssuer = config.getString("tempCopIssuer");
     this.api = api;
   }
 
@@ -86,12 +84,13 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       case ITEM_TYPE_RESOURCE:
         isValidAudience = serverUrl != null && serverUrl.equalsIgnoreCase(jwtData.getAud());
         break;
-      default:
+      case RATINGS:
         isValidAudience =
-            tempCopAudience != null && tempCopAudience.equalsIgnoreCase(jwtData.getAud());
+            consumerAudience != null && consumerAudience.equalsIgnoreCase(jwtData.getAud());
         break;
-        //      default:
-        //        isValidAudience = audience != null && audience.equalsIgnoreCase(jwtData.getAud());
+      default:
+        isValidAudience = audience != null && audience.equalsIgnoreCase(jwtData.getAud());
+        break;
     }
 
     if (isValidAudience) {
@@ -214,9 +213,8 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
               result.jwtData = decodeHandler;
 
               // audience for ratings is different from other cos endpoints
-              if (endPoint.equalsIgnoreCase(api.getRouteRating())
-                  && result.jwtData.getAud().equalsIgnoreCase(audience)) {
-                return Future.succeededFuture(true);
+              if (endPoint.equalsIgnoreCase(api.getRouteRating())) {
+                return isValidAudienceValue(result.jwtData, RATINGS, resourceServerRegUrl);
               }
               return isValidAudienceValue(result.jwtData, itemType, resourceServerRegUrl);
             })
@@ -285,8 +283,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       case ITEM_TYPE_OWNER:
       case ITEM_TYPE_COS:
       case ITEM_TYPE_RESOURCE_SERVER:
-        // TODO: change type validation to cos
-        isValidIid = type.equalsIgnoreCase("cop") && server.equalsIgnoreCase(tempCopIssuer);
+        isValidIid = type.equalsIgnoreCase("cos") && server.equalsIgnoreCase(issuer);
         break;
       case ITEM_TYPE_PROVIDER:
       case ITEM_TYPE_RESOURCE_GROUP:
@@ -313,8 +310,7 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   }
 
   Future<Boolean> isValidAdmin(JwtData jwtData) {
-    // TODO: cop_admin or cos_admin???
-    if (jwtData.getRole().equalsIgnoreCase("cop_admin")) {
+    if (jwtData.getRole().equalsIgnoreCase("cos_admin")) {
       return Future.succeededFuture(true);
     } else if (jwtData.getRole().equalsIgnoreCase("admin")) {
       return Future.succeededFuture(true);

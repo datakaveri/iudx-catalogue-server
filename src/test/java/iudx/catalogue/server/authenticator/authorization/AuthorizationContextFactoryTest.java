@@ -63,7 +63,7 @@ public class AuthorizationContextFactoryTest {
     @Description("test create for cop admin")
     public void testCreateCopAdmin(VertxTestContext testContext) {
         authorizationContextFactory=new AuthorizationContextFactory();
-        String role="cop_admin";
+        String role="cos_admin";
         delegateAuthStrategy= DelegateAuthStrategy.getInstance(this.api);
         assertFalse(delegateAuthStrategy.isAuthorized(authRequest));
         assertNotNull(AuthorizationContextFactory.create(role,this.api));

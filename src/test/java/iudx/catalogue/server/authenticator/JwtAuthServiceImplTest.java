@@ -50,8 +50,8 @@ public class JwtAuthServiceImplTest {
     authConfig = Configuration.getConfiguration("./configs/config-test.json",1);
     String cert = authConfig.getString("cert");
     authConfig.put("dxApiBasePath", "/iudx/cat/v1");
-    authConfig.put("tempCopIssuer", "cop.iudx.io");
-    authConfig.put("tempCopAudience", "cop.iudx.io");
+    authConfig.put("tempCopIssuer", "cos.iudx.io");
+    authConfig.put("tempCopAudience", "cos.iudx.io");
     JWTAuthOptions jwtAuthOptions = new JWTAuthOptions();
     jwtAuthOptions.addPubSecKey(
             new PubSecKeyOptions()
@@ -107,8 +107,8 @@ public class JwtAuthServiceImplTest {
         .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86")
         .put("apiEndpoint", "/iudx/cat/v1/item")
         .put("itemType", "iudx:Resource")
-        .put("resourceServerRegURL", "cat-test.iudx.io")
-        .put("ownerUserId", "d8e46706-b9db-44e1-a9aa-e40839396b01")
+        .put("resourceServerRegURL", "rs.iudx.io")
+        .put("ownerUserId", "b2c27f3f-2524-4a84-816e-91f9ab23f837")
         .put("method", Method.POST);
     return jsonObject;
   }
@@ -207,7 +207,7 @@ public class JwtAuthServiceImplTest {
     jwtAuthenticationService.decodeJwt(JwtTokenHelper.cosAdminToken)
         .onComplete(handler -> {
           if(handler.succeeded()) {
-            assertEquals("cop_admin", handler.result().getRole());
+            assertEquals("cos_admin", handler.result().getRole());
             testContext.completeNow();
           } else {
             testContext.failNow(handler.cause());
@@ -357,7 +357,7 @@ public class JwtAuthServiceImplTest {
   @DisplayName("successful valid iid check - against cos")
   public void validIidCheckAgainstCos(String itemType, VertxTestContext testContext) {
     JwtData jwtData = jwtDataObject();
-    jwtData.setIid("cop:cop.iudx.io");
+    jwtData.setIid("cos:cos.iudx.io");
 
     jwtAuthenticationService.isValidItemId(jwtData, itemType, "")
         .onComplete(handler -> {
@@ -419,7 +419,7 @@ public class JwtAuthServiceImplTest {
   @DisplayName("successful valid admin check")
   public void validAdminCheck(VertxTestContext testContext) {
     JwtData jwtData = jwtDataObject();
-    jwtData.setRole("cop_admin");
+    jwtData.setRole("cos_admin");
 
     jwtAuthenticationService.isValidAdmin(jwtData)
         .onComplete(handler -> {
