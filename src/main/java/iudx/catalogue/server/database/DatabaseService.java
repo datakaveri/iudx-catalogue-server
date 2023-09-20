@@ -114,6 +114,16 @@ public interface DatabaseService {
   DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
+   *  The listOwnerOrCos implements the fetch of entire owner or cos item from the database.
+   *
+   * @param request which is a JsonObject
+   * @param handler which is a Request Handler
+   * @return DatabaseService which is a service
+   */
+  @Fluent
+  DatabaseService listOwnerOrCos(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
    * The listRelationship implements the list resource, resourceGroup, provider, resourceServer,
    * type relationships operation with the database.
    *
