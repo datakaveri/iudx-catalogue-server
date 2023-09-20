@@ -1809,7 +1809,7 @@ paths:
     post:
       tags:
         - Mlayer Dataset
-      description: Fetches the dataset details of a particular dataset using dataset_id. Domains, Instance and provider field can be used to filter the datasets.
+      description: Fetches the dataset details of a particular dataset using dataset_id. Domains, Instance, Tags and provider field can be used to filter the datasets.
       operationId: get dataset and its resources
       requestBody:
         description: 'Based on id dataset and its resources are retrieved. If id field blank or not present then, tags, providers and instance can be used to filter from all datasets.'
@@ -4061,6 +4061,11 @@ components:
           description: provider/providers based on which datasets need to be filtered
           items:
             type: string
+        domains:
+          type: array
+          description: data models based on which datasets need to be filtered
+          items:
+            type: string
 
       example:
         id: 8b95ab80-2aaf-4636-a65e-7f2563d0d371
@@ -4071,6 +4076,8 @@ components:
         providers:
           - bbeacb12-5e54-339d-92e0-d8e063b551a8
           - bbeacb12-5e54-339d-92e0-d8e063b551r9
+        domains:
+          - itms
 
     successResponseForGettingDatasetResources:
       type: object
