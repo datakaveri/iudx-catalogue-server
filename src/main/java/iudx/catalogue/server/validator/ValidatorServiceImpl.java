@@ -49,6 +49,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator mlayerDatasetValidator;
   private String docIndex;
   private boolean isUacInstance;
+  private String vocContext;
 
   /**
    * Constructs a new ValidatorServiceImpl object with the specified ElasticClient and docIndex.
@@ -56,11 +57,13 @@ public class ValidatorServiceImpl implements ValidatorService {
    * @param client the ElasticClient object to use for interacting with the Elasticsearch instance
    * @param docIndex the index name to use for storing documents in Elasticsearch
    */
-  public ValidatorServiceImpl(ElasticClient client, String docIndex, boolean isUacInstance) {
+  public ValidatorServiceImpl(
+      ElasticClient client, String docIndex, boolean isUacInstance, String vocContext) {
 
     this.client = client;
     this.docIndex = docIndex;
     this.isUacInstance = isUacInstance;
+    this.vocContext = vocContext;
     try {
       resourceValidator = new Validator("/resourceItemSchema.json");
       resourceGroupValidator = new Validator("/resourceGroupItemSchema.json");
@@ -157,6 +160,8 @@ public class ValidatorServiceImpl implements ValidatorService {
   @Override
   public ValidatorService validateItem(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    request.put(CONTEXT, vocContext);
 
     String itemType = getItemType(request, handler);
     LOGGER.debug("Info: itemType: " + itemType);

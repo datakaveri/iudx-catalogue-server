@@ -45,7 +45,8 @@
       "databasePort": 1234,
       "databasePassword": "",
       "databaseUser": "",
-      "docIndex": ""
+      "docIndex": "",
+      "@context": ""
     },
     {
       "id": "iudx.catalogue.server.apiserver.ApiServerVerticle",

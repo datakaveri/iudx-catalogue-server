@@ -31,6 +31,7 @@ public class ValidatorServiceTest {
   private static String databasePassword;
   private static FileSystem fileSystem;
   private static boolean isUacInstance;
+  private static String vocContext;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -45,10 +46,11 @@ public class ValidatorServiceTest {
     databaseUser = validatorConfig.getString(DATABASE_UNAME);
     databasePassword = validatorConfig.getString(DATABASE_PASSWD);
     docIndex = validatorConfig.getString(DOC_INDEX);
+    vocContext = "xyz";
 
     // TODO : Need to enable TLS using xpack security
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
-    validator = new ValidatorServiceImpl(client, docIndex,isUacInstance);
+    validator = new ValidatorServiceImpl(client, docIndex,isUacInstance, vocContext);
     testContext.completeNow();
   }
 

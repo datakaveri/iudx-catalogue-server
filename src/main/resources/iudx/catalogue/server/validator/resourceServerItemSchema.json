@@ -7,7 +7,6 @@
     "default": {},
     "examples": [
         {
-            "@context": "https://voc.iudx.org.in/",
             "type": [
                 "iudx:ResourceServer"
             ],
@@ -79,7 +78,6 @@
         }
     ],
     "required": [
-        "@context",
         "type",
         "cos",
         "owner",
@@ -91,16 +89,6 @@
         "resourceAccessModalities"
     ],
     "properties": {
-        "@context": {
-            "$id": "#/properties/%40context",
-            "type": "string",
-            "title": "The @context schema",
-            "description": "An explanation about the purpose of this instance.",
-            "default": "",
-            "examples": [
-                "https://voc.iudx.org.in/"
-            ]
-        },
         "type": {
             "$id": "#/properties/type",
             "type": "array",

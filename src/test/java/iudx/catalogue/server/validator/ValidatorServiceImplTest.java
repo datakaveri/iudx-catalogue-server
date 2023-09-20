@@ -51,6 +51,7 @@ public class ValidatorServiceImplTest {
   private static JsonObject jsonMock;
   private static JsonArray jsonArrayMock;
   private static Stream<Object> streamMock;
+  private static String vocContext;
   @Mock Handler<AsyncResult<JsonObject>> handler;
 
   @BeforeAll
@@ -67,11 +68,12 @@ public class ValidatorServiceImplTest {
     databasePassword = validatorConfig.getString(DATABASE_PASSWD);
     docIndex = validatorConfig.getString(DOC_INDEX);
     isUacInstance = false;
+    vocContext = "xyz";
 
     //    client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser,
     // databasePassword);
     client = mock(ElasticClient.class);
-    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance, vocContext);
 
     asyncResult = mock(AsyncResult.class);
     doAnswer(
@@ -120,7 +122,7 @@ public class ValidatorServiceImplTest {
   @MethodSource("itemTypes")
   @Description("testing the method validateSchema when itemType equals ITEM_TYPE_RESOURCE_SERVER")
   public void testValidateSchema(String itemType, VertxTestContext vertxTestContext) {
-    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance);
+    validatorService = new ValidatorServiceImpl(client, docIndex, isUacInstance, vocContext);
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray();
     jsonArray.add(itemType);

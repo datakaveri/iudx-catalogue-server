@@ -2,6 +2,7 @@ package iudx.catalogue.server.validator;
 
 import static iudx.catalogue.server.apiserver.util.Constants.UAC_DEPLOYMENT;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.validator.Constants.CONTEXT;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.MessageConsumer;
@@ -35,6 +36,7 @@ public class ValidatorVerticle extends AbstractVerticle {
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
   private boolean isUacInstance;
+  private String vocContext;
 
   /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
@@ -50,6 +52,7 @@ public class ValidatorVerticle extends AbstractVerticle {
     databasePassword = config().getString(DATABASE_PASSWD);
     docIndex = config().getString(DOC_INDEX);
     isUacInstance = config().getBoolean(UAC_DEPLOYMENT);
+    vocContext = config().getString(CONTEXT);
     /* Create a reference to HazelcastClusterManager. */
 
     client = new ElasticClient(databaseIp, databasePort, docIndex, databaseUser, databasePassword);
@@ -58,7 +61,7 @@ public class ValidatorVerticle extends AbstractVerticle {
 
     /* Publish the Validator service with the Event Bus against an address. */
 
-    validator = new ValidatorServiceImpl(client, docIndex, isUacInstance);
+    validator = new ValidatorServiceImpl(client, docIndex, isUacInstance, vocContext);
     consumer =
         binder.setAddress(VALIDATION_SERVICE_ADDRESS)
       .register(ValidatorService.class, validator);

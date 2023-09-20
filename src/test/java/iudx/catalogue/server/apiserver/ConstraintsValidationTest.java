@@ -37,6 +37,7 @@ public class ConstraintsValidationTest {
   private static String databasePassword;
   private static FileSystem fileSystem;
   private static boolean isUACinstance;
+  private static String vocContext;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -55,10 +56,11 @@ public class ConstraintsValidationTest {
     databaseUser = validationconfig.getString(DATABASE_UNAME);
     databasePassword = validationconfig.getString(DATABASE_PASSWD);
     docIndex = validationconfig.getString(DOC_INDEX);
+    vocContext = "xyz";
 
     fileSystem = vertx.fileSystem();
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
-    validator = new ValidatorServiceImpl(client,docIndex,isUACinstance);
+    validator = new ValidatorServiceImpl(client,docIndex,isUACinstance, vocContext);
 
     testContext.completed();
   }
