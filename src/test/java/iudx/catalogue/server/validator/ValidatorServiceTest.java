@@ -114,6 +114,7 @@ public class ValidatorServiceTest {
     request
         .put("type", new JsonArray().add("iudx:Resource"))
         .put( "id", "ri-id")
+        .put("name", "ri-name")
         .put( "resourceGroup", "rg-id")
         .put("resourceServer", "rs-id")
         .put("provider", "provider-id");
@@ -135,6 +136,7 @@ public class ValidatorServiceTest {
     request
         .put("type", new JsonArray().add("iudx:ResourceGroup"))
         .put("id", "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors")
+        .put("name", "rg-name")
         .put(
             "provider",
             "rbccps.org/aa9d66a000d94a78895de8d4c0b3a67f3450e531/rs.iudx.org.in/sensors")

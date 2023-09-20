@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "6f91827c-4bf3-4dc6-a278-322ae1ae5ca6",
+		"_postman_id": "7dcd7e34-2e9a-4fd3-97fe-4c41e1f86cca",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27217689"
+		"_exporter_id": "17194681"
 	},
 	"item": [
 		{
@@ -1112,7 +1112,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:Owner\"\n    ],\n    \"name\": \"IudxOwnerPM\",\n    \"description\": \"owner item creation for postman collection\"\n}",
+									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:Owner\"\n    ],\n    \"name\": \"IudxOwnerPM\",\n    \"id\": \"{{owner_id}}\",\n    \"description\": \"owner item creation for postman collection\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1168,7 +1168,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:COS\"\n    ],\n    \"name\": \"IudxCosPM\",\n    \"owner\": \"{{owner_id}}\",\n    \"description\": \"COS item for postman collection\",\n    \"cosURL\": \"cat-test.iudx.io\",\n    \"cosUI\": \"cat-test.iudx.io\"\n}",
+									"raw": "{\n    \"@context\": \"https://voc.iudx.org.in/\",\n    \"type\": [\n        \"iudx:COS\"\n    ],\n    \"name\": \"IudxCosPM\",\n    \"owner\": \"{{owner_id}}\",\n    \"id\": \"{{cos_id}}\",\n    \"description\": \"COS item for postman collection\",\n    \"cosURL\": \"cat-test.iudx.io\",\n    \"cosUI\": \"cat-test.iudx.io\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1230,7 +1230,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServerPM\",\r\n    \"description\": \"Multi tenanted IUDX resource server for postman collection\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"cos\": \"{{cos_id}}\",\r\n    \"owner\": \"{{owner_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServerRegURL\": \"rs.iudx.io\",\r\n    \"resourceAccessModalities\": [\r\n        {\r\n            \"type\": [\r\n                \"iudx:HTTPAccess\"\r\n            ],\r\n            \"protocol\": \"http\",\r\n            \"accessURL\": \"rs\",\r\n            \"port\": 8080\r\n        }\r\n    ],\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceServer\"\r\n    ],\r\n    \"name\": \"Iudx ResourceServerPM\",\r\n    \"id\": \"{{resource_server_id}}\",\r\n    \"description\": \"Multi tenanted IUDX resource server for postman collection\",\r\n    \"tags\": [\r\n        \"IUDX\",\r\n        \"Resource\",\r\n        \"Server\",\r\n        \"Platform\"\r\n    ],\r\n    \"cos\": \"{{cos_id}}\",\r\n    \"owner\": \"{{owner_id}}\",\r\n    \"resourceServerOrg\": {\r\n        \"name\": \"iudx\",\r\n        \"additionalInfoURL\": \"https://iudx.org.in\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IISc, Bangalore\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    77.570423,\r\n                    13.013945\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"resourceServerRegURL\": \"rs.iudx.io\",\r\n    \"resourceAccessModalities\": [\r\n        {\r\n            \"type\": [\r\n                \"iudx:HTTPAccess\"\r\n            ],\r\n            \"protocol\": \"http\",\r\n            \"accessURL\": \"rs\",\r\n            \"port\": 8080\r\n        }\r\n    ],\r\n    \"location\": {\r\n        \"type\": \"Place\",\r\n        \"address\": \"IISc, Bangalore\",\r\n        \"geometry\": {\r\n            \"type\": \"Point\",\r\n            \"coordinates\": [\r\n                77.570423,\r\n                13.013945\r\n            ]\r\n        }\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1292,7 +1292,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"IudxProviderPM\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"description\": \"provider for the postman collection\",\r\n    \"ownerUserId\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    }\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Provider\"\r\n    ],\r\n    \"name\": \"IudxProviderPM\",\r\n    \"id\": \"{{provider_id}}\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"description\": \"provider for the postman collection\",\r\n    \"ownerUserId\": \"b2c27f3f-2524-4a84-816e-91f9ab23f837\",\r\n    \"providerOrg\": {\r\n        \"name\": \"Datakaveri\",\r\n        \"additionalInfoURL\": \"https://datakaveri.org\",\r\n        \"location\": {\r\n            \"type\": \"Place\",\r\n            \"address\": \"IIsc\",\r\n            \"geometry\": {\r\n                \"type\": \"Point\",\r\n                \"coordinates\": [\r\n                    75.92,\r\n                    14.5\r\n                ]\r\n            }\r\n        }\r\n    }\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1354,7 +1354,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"iudxResourceGroupPM\",\r\n    \"description\": \"resource group item for the postman collection\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:ResourceGroup\",\r\n        \"iudx:IssueReporting\"\r\n    ],\r\n    \"name\": \"iudxResourceGroupPM\",\r\n    \"id\": \"{{resource_group_id}}\",\r\n    \"description\": \"resource group item for the postman collection\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"provider\": \"{{provider_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -1375,7 +1375,7 @@
 							"response": []
 						},
 						{
-							"name": "200 (success) - Create an DX Resource Item",
+							"name": "200 (success) - Update an DX Resource Item",
 							"event": [
 								{
 									"listen": "test",
@@ -1416,7 +1416,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"iudxResourceItemPM\",\r\n    \"label\": \"item for tesr only\",\r\n    \"description\": \"resource item for the postman collection\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"apdURL\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
+									"raw": "{\r\n    \"@context\": \"https://voc.iudx.org.in/\",\r\n    \"type\": [\r\n        \"iudx:Resource\",\r\n        \"iudx:PointOfInterest\"\r\n    ],\r\n    \"name\": \"iudxResourceItemPM\",\r\n    \"id\": \"{{resource_item_id}}\",\r\n    \"label\": \"item for tesr only\",\r\n    \"description\": \"resource item for the postman collection\",\r\n    \"tags\": [\r\n        \"swachhata\",\r\n        \"complaints\",\r\n        \"construction material\",\r\n        \"requests\"\r\n    ],\r\n    \"apdURL\": \"rs.apd.iudx.org.in\",\r\n    \"accessPolicy\": \"SECURE\",\r\n    \"resourceServer\": \"{{resource_server_id}}\",\r\n    \"provider\": \"{{provider_id}}\",\r\n    \"resourceGroup\": \"{{resource_group_id}}\"\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
