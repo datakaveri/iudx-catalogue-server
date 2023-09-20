@@ -26,8 +26,7 @@ public class AuthorizationContextFactory {
       case "admin": {
         return AdminAuthStrategy.getInstance(api);
       }
-      // TODO: cop_admin or cos_admin???
-      case "cop_admin": {
+      case "cos_admin": {
         return CosAdminAuthStrategy.getInstance(api);
       }
       default:
