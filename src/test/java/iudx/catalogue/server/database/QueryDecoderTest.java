@@ -1,6 +1,5 @@
 package iudx.catalogue.server.database;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -16,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(VertxExtension.class)
 @ExtendWith(MockitoExtension.class)
@@ -620,4 +620,261 @@ public class QueryDecoderTest {
 
     vertxTestContext.completeNow();
   }
+
+  @Test
+  @Description("testing listRelationshipQuery method with searchType equals RESPONSE_FILTER_REGEX")
+  public void testListRelationshipQueryType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(RELATIONSHIP,"cos")
+            .put(ID,"id")
+            .put(COS_ITEM,"value");
+    String cosId = request.getString(COS_ITEM);
+    String  subQuery = TERM_QUERY.replace("$1", ID + KEYWORD_KEY).replace("$2", cosId);
+    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+    assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos")
+  public void testListRelationshipCosQueryType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS);
+    assertEquals(null, queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType resource")
+  public void testListRelationshipCosResourceType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS)
+            .put(RELATIONSHIP, RESOURCE);
+    String cosId = request.getString(ID);
+    String subQuery = TERM_QUERY.replace("$1", COS_ITEM + KEYWORD_KEY).replace("$2", cosId) + ",";
+    subQuery =
+            subQuery + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE);
+    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+    assertEquals(tempQuery.toString(), queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType resourceGrp")
+  public void testListRelationshipCosResourceGrpType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS)
+            .put(RELATIONSHIP, RESOURCE_GRP);
+
+    String cosId = request.getString(ID);
+    String subQuery = TERM_QUERY.replace("$1", COS_ITEM + KEYWORD_KEY).replace("$2", cosId) + ",";
+    subQuery =
+            subQuery + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE_GROUP);
+    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+    assertEquals(tempQuery.toString(), queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType resourceSvr")
+  public void testListRelationshipCosResourceSvrType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS)
+            .put(RELATIONSHIP, RESOURCE_SVR);
+
+    String cosId = request.getString(ID);
+    String subQuery = TERM_QUERY.replace("$1", COS_ITEM + KEYWORD_KEY).replace("$2", cosId) + ",";
+    subQuery =
+            subQuery + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_RESOURCE_SERVER);
+    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+    assertEquals(tempQuery.toString(), queryDecoder.listRelationshipQuery(request));
+
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType provider")
+  public void testListRelationshipCosProviderType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS)
+            .put(RELATIONSHIP, PROVIDER);
+
+    String cosId = request.getString(ID);
+    String subQuery = TERM_QUERY.replace("$1", COS_ITEM + KEYWORD_KEY).replace("$2", cosId) + ",";
+    subQuery =
+            subQuery + TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", ITEM_TYPE_PROVIDER);
+    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+    assertEquals(tempQuery.toString(), queryDecoder.listRelationshipQuery(request));
+
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType all")
+  public void testListRelationshipCosAllType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(RELATIONSHIP, ALL)
+            .put(RESOURCE_GRP, "dummy");
+    String  subQuery = MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", request.getString(ID))
+            + ",";
+    subQuery =
+            subQuery
+                    + MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", request.getString(RESOURCE_GRP))
+                    + ",";
+    subQuery = subQuery.substring(0, subQuery.length() - 1);
+
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    String elasticQuery = BOOL_SHOULD_QUERY.replace("$1", subQuery);
+
+   JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+    assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType all")
+  public void testListRelationshipCosAllProviderType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(RELATIONSHIP, ALL)
+            .put(PROVIDER, "dummy");
+    String subQuery = MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", request.getString(ID))
+            + ",";
+    subQuery =
+            subQuery
+                    + MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", request.getString(PROVIDER))
+                    + ",";
+    subQuery = subQuery.substring(0, subQuery.length() - 1);
+    String elasticQuery = BOOL_SHOULD_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+
+
+
+
+    assertEquals(tempQuery.toString() ,queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType all")
+  public void testListRelationshipCosAllRSType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(RELATIONSHIP, ALL)
+            .put(RESOURCE_SVR, "dummy");
+    String subQuery = MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", request.getString(ID))
+            + ",";
+    subQuery =
+            subQuery
+                    + MATCH_QUERY
+                    .replace("$1", ID_KEYWORD)
+                    .replace("$2", request.getString(RESOURCE_SVR))
+                    + ",";
+    subQuery = subQuery.substring(0, subQuery.length() - 1);
+    String elasticQuery = BOOL_SHOULD_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+
+
+    assertNotNull(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos and relType all")
+  public void testListRelationshipCosAllCosItemType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(RELATIONSHIP, ALL)
+            .put(COS_ITEM, "dummy");
+    String subQuery = MATCH_QUERY.replace("$1", ID_KEYWORD).replace("$2", request.getString(ID))
+            + ",";
+    subQuery =
+            subQuery
+                    + MATCH_QUERY
+                    .replace("$1", ID_KEYWORD)
+                    .replace("$2", request.getString(COS_ITEM));
+    String elasticQuery = BOOL_SHOULD_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+
+
+    assertEquals(tempQuery.toString(), queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
 }
