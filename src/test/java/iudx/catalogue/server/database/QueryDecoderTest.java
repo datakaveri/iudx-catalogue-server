@@ -1,21 +1,25 @@
 package iudx.catalogue.server.database;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import io.vertx.core.Vertx;
 import iudx.catalogue.server.Configuration;
+import java.util.stream.Stream;
 import jdk.jfr.Description;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import static iudx.catalogue.server.database.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
 
 @ExtendWith(VertxExtension.class)
 @ExtendWith(MockitoExtension.class)
@@ -34,6 +38,30 @@ public class QueryDecoderTest {
             DeploymentOptions().setConfig(elasticConfig), testContext.completing());
     queryDecoder = new QueryDecoder();
     testContext.completed();
+  }
+
+  static Stream<Arguments> mustQuery(){
+    return Stream.of(
+        Arguments.of(
+            RESOURCE, ITEM_TYPE_RESOURCE),
+        Arguments.arguments(
+            RESOURCE_GRP, ITEM_TYPE_RESOURCE_GROUP),
+        Arguments.arguments(
+            RESOURCE_SVR, ITEM_TYPE_RESOURCE_SERVER),
+        Arguments.arguments(
+            PROVIDER, ITEM_TYPE_PROVIDER));
+  }
+
+  static Stream<Arguments> shouldQuery(){
+    return Stream.of(
+                        Arguments.arguments(
+                    RESOURCE_GRP),
+            Arguments.arguments(
+                    PROVIDER),
+            Arguments.arguments(
+                    RESOURCE_SVR),
+            Arguments.arguments(
+                    COS_ITEM));
   }
 
   @Test
@@ -159,7 +187,6 @@ public class QueryDecoderTest {
     testContext.completeNow();
   }
 
-
   @Test
   @Order(6)
   @DisplayName("Text search request to DbQuery")
@@ -221,7 +248,6 @@ public class QueryDecoderTest {
     testContext.completeNow();
   }
 
-
   @Test
   @Order(9)
   @DisplayName("Relationship search request to DbQuery")
@@ -240,7 +266,6 @@ public class QueryDecoderTest {
                     .getJsonObject(TERM).getString("type.keyword"));
     testContext.completeNow();
   }
-
 
   @Test
   @Order(10)
@@ -261,7 +286,6 @@ public class QueryDecoderTest {
     testContext.completeNow();
   }
 
-
   @Test
   @Order(11)
   @DisplayName("Relationship search request to DbQuery")
@@ -277,6 +301,7 @@ public class QueryDecoderTest {
             .getJsonObject(TERMS_KEY).getString("field"));
     testContext.completeNow();
   }
+
   @Test
   @Description("test listItemQuery method when itemType equals TAGS")
   public void testListItemQueryTag(VertxTestContext vertxTestContext) {
@@ -288,6 +313,7 @@ public class QueryDecoderTest {
     assertEquals(elasticQuery,queryDecoder.listItemQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("test listItemQuery method when itemType not equals TAGS")
   public void testListItemQuery(VertxTestContext vertxTestContext) {
@@ -300,6 +326,7 @@ public class QueryDecoderTest {
     assertEquals(elasticQuery,queryDecoder.listItemQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("test listItemQuery method when itemType not equals TAGS and instanceID is not null/empty")
   public void testListItemQueryInstance(VertxTestContext vertxTestContext) {
@@ -313,6 +340,7 @@ public class QueryDecoderTest {
     assertEquals(elasticQuery,queryDecoder.listItemQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("test SearchQuery method when searchType equals GEOSEARCH_REGEX")
   public void testSearchQueryGeosearch(VertxTestContext vertxTestContext) {
@@ -325,6 +353,7 @@ public class QueryDecoderTest {
     assertEquals(new JsonObject().put(ERROR,new RespBuilder().withType(TYPE_INVALID_GEO_PARAM).withTitle(TITLE_INVALID_GEO_PARAM).getJsonResponse()),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("test listItemQuery method when itemType not equals TAGS and instanceID is not null/empty")
   public void testSearchQueryTextSearch(VertxTestContext vertxTestContext) {
@@ -335,6 +364,7 @@ public class QueryDecoderTest {
     assertEquals(new JsonObject().put(ERROR,new RespBuilder().withType(TYPE_BAD_TEXT_QUERY).withTitle(TITLE_BAD_TEXT_QUERY).getJsonResponse()),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("test listItemQuery method when itemType not equals TAGS and instanceID is not null/empty")
   public void testSearchQuery(VertxTestContext vertxTestContext) {
@@ -352,6 +382,7 @@ public class QueryDecoderTest {
     assertEquals(new JsonObject().put(ERROR,new RespBuilder().withType(TYPE_INVALID_PROPERTY_VALUE).withTitle(TITLE_INVALID_PROPERTY_VALUE).getJsonResponse()),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("test listItemQuery method when itemType not equals TAGS and instanceID is not null/empty")
   public void testSearchQueryAttributeSearch(VertxTestContext vertxTestContext) {
@@ -378,6 +409,7 @@ public class QueryDecoderTest {
     queryDecoder.searchQuery(request);
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("test searchquery when instanceId is not null")
   public void testSearchInstance(VertxTestContext vertxTestContext) {
@@ -393,6 +425,7 @@ public class QueryDecoderTest {
             .getJsonResponse()),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing listQueryRelationship test")
   public void testListRelationshipQuery(VertxTestContext vertxTestContext) {
@@ -410,6 +443,7 @@ public class QueryDecoderTest {
     queryDecoder.listRelationshipQuery(request);
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing seachquery method with limit set to 100")
   public void testsearchQuery(VertxTestContext vertxTestContext) {
@@ -425,6 +459,7 @@ public class QueryDecoderTest {
             .getJsonResponse()),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
   public void testsearchQueryFilter_Regex(VertxTestContext vertxTestContext) {
@@ -447,6 +482,7 @@ public class QueryDecoderTest {
     assertEquals(elasticQuery.put(QUERY_KEY, boolQuery),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
   public void testsearchQueryFilter_Regex2(VertxTestContext vertxTestContext) {
@@ -471,6 +507,7 @@ public class QueryDecoderTest {
 
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
   public void testListRelationshipQueryID(VertxTestContext vertxTestContext) {
@@ -493,6 +530,7 @@ public class QueryDecoderTest {
     assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
   public void testListRelationshipQueryProvider(VertxTestContext vertxTestContext) {
@@ -517,6 +555,7 @@ public class QueryDecoderTest {
     assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing listRelationshipQuery method when realtionshipType is resource and itemType is provider")
   public void testListRelationshipResource(VertxTestContext vertxTestContext) {
@@ -563,6 +602,7 @@ public class QueryDecoderTest {
     assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing listRelationshipQuery method when realtionshipType is resource group and itemType is provider")
   public void testListRelationshipItemProvider(VertxTestContext vertxTestContext) {
@@ -586,6 +626,7 @@ public class QueryDecoderTest {
     assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing listRelationshipQuery method when realtionshipType is resourceGrp and itemType is rescource server")
   public void testListRelationshipItemResourceServer(VertxTestContext vertxTestContext) {
@@ -602,6 +643,7 @@ public class QueryDecoderTest {
     assertEquals(elasticQuery.toString(),queryDecoder.listRelationshipQuery(request));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing seachQuery method with searchType equals RESPONSE_FILTER_REGEX")
   public void testsearchQueryGetItemType(VertxTestContext vertxTestContext) {
@@ -620,4 +662,73 @@ public class QueryDecoderTest {
 
     vertxTestContext.completeNow();
   }
+
+  @Test
+  @Description("testing listRelationshipQuery method with searchType equals RESPONSE_FILTER_REGEX")
+  public void testListRelationshipQueryType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(RELATIONSHIP,"cos")
+            .put(ID,"id")
+            .put(COS_ITEM,"value");
+    String cosId = request.getString(COS_ITEM);
+    String  subQuery = TERM_QUERY.replace("$1", ID + KEYWORD_KEY).replace("$2", cosId);
+    String elasticQuery = BOOL_MUST_QUERY.replace("$1", subQuery);
+    Integer limit =
+            request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject tempQuery = new JsonObject(elasticQuery).put(SIZE_KEY, limit.toString());
+    assertEquals(tempQuery.toString(),queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("testing listRelationshipQuery method with item type cos")
+  public void testListRelationshipCosQueryType(VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE,ITEM_TYPE_COS);
+    assertEquals(null, queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
+  @ParameterizedTest
+  @MethodSource("mustQuery")
+  @Description("testing listRelationshipQuery method with item type cos and relType resource")
+  public void testListRelationshipCosResourceType(String input, String actualOutput, VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(ITEM_TYPE_COS,"value")
+            .put(ITEM_TYPE,ITEM_TYPE_COS)
+            .put(RELATIONSHIP, input);
+    String expectedQuery =
+        "{\"query\":{\"bool\":{\"must\":[{\"term\":{\"cos.keyword\":\"id\"}},{\"term\":{\"type.keyword\":\"$1\"}}]}},\"size\":\"10000\"}";
+    assertEquals(expectedQuery.replace("$1", actualOutput), queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+  
+  @ParameterizedTest
+  @MethodSource("shouldQuery")
+  @Description("testing listRelationshipQuery method with item type cos and relType all")
+  public void testListRelationshipCosAllType(String input, VertxTestContext vertxTestContext) {
+    queryDecoder=new QueryDecoder();
+    JsonObject request=new JsonObject();
+    JsonArray jsonArray=new JsonArray();
+    jsonArray.add("dummy");
+    request.put(ID,"id")
+            .put(RELATIONSHIP, ALL)
+            .put(input, "dummy");
+    String expectedQuery =
+        "{\"query\":{\"bool\":{\"should\":[{\"match\":{\"id.keyword\":\"id\"}},{\"match\":{\"id.keyword\":\"dummy\"}}]}},\"size\":\"10000\"}";
+    assertEquals(expectedQuery,queryDecoder.listRelationshipQuery(request));
+    vertxTestContext.completeNow();
+  }
+
 }
