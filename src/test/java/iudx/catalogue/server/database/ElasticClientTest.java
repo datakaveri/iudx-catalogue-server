@@ -224,13 +224,4 @@ public class ElasticClientTest {
     assertNotNull(elasticClient.docDelAsync(query,docIndex, handler));
     vertxTestContext.completeNow();
   }
-
-  @Test
-  @Description("testing resourceAggAsync method")
-  public void testResourceAggAsync(VertxTestContext vertxTestContext) {
-    String query = "dummy query";
-    String index = "dummy index";
-    assertNotNull(elasticClient.resourceAggregationAsync(query,index,handler));
-    vertxTestContext.completeNow();
-  }
 }

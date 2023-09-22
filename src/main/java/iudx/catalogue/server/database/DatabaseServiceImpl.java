@@ -1232,6 +1232,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
     return promise.future();
   }
+
   /**
    * Creates a new mlayer instance in the Elasticsearch database with the given instance document.
    *
@@ -1241,7 +1242,6 @@ public class DatabaseServiceImpl implements DatabaseService {
    */
 
   @Override
-
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
@@ -1965,22 +1965,20 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService getMlayerPopularDatasets(String instance,
-      JsonArray highestCountResource, Handler<AsyncResult<JsonObject>> handler) {
+      JsonArray frequentlyUsedResourceGroup, Handler<AsyncResult<JsonObject>> handler) {
     Promise<JsonObject> instanceResult = Promise.promise();
-
     Promise<JsonArray> domainResult = Promise.promise();
     Promise<JsonObject> datasetResult = Promise.promise();
 
     searchSortedMlayerInstances(instanceResult);
-
+    datasets(instance, datasetResult, frequentlyUsedResourceGroup);
     allMlayerDomains(domainResult);
-    datasets(instance, datasetResult, highestCountResource);
     CompositeFuture.all(instanceResult.future(), domainResult.future(), datasetResult.future())
         .onComplete(
             ar -> {
               if (ar.succeeded()) {
-                JsonObject instanceList = ar.result().resultAt(0);
                 JsonArray domainList = ar.result().resultAt(1);
+                JsonObject instanceList = ar.result().resultAt(0);
                 JsonObject datasetJson = ar.result().resultAt(2);
                 for (int i = 0; i < datasetJson.getJsonArray("latestDataset").size(); i++) {
                   if (datasetJson
@@ -2028,22 +2026,15 @@ public class DatabaseServiceImpl implements DatabaseService {
                   }
                 }
                 JsonObject result =
-                    new JsonObject()
-                        .put("totalInstance", instanceList.getInteger("totalInstance"))
+                    new JsonObject();
+                result.mergeIn(datasetJson.getJsonObject("typeCount"));
+                result.put("totalInstance", instanceList.getInteger("totalInstance"))
                         .put("totalDomain", domainList.size())
-                        .put(
-                            "totalPublishers",
-                            datasetJson.getJsonObject("typeCount").getInteger("iudx:Provider"))
-                        .put(
-                            "totalDatasets",
-                            datasetJson.getJsonObject("typeCount").getInteger("iudx:ResourceGroup"))
-                        .put(
-                            "totalResources",
-                            datasetJson.getJsonObject("typeCount").getInteger("iudx:Resource"))
                         .put("domains", domainList)
                         .put("instance", instanceList.getJsonArray("instanceList"))
                         .put("featuredDataset", datasetJson.getJsonArray("featuredDataset"))
                         .put("latestDataset", datasetJson.getJsonArray("latestDataset"));
+
                 RespBuilder respBuilder =
                     new RespBuilder().withType(TYPE_SUCCESS).withTitle(SUCCESS).withResult(result);
                 handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
@@ -2089,7 +2080,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   private void allMlayerDomains(Promise<JsonArray> domainResult) {
     client.searchAsync(
-            GET_ALL_MLAYER_DOMAIN_QUERY,
+        GET_ALL_MLAYER_DOMAIN_QUERY,
         mlayerDomainIndex,
         getDomainHandler -> {
           if (getDomainHandler.succeeded()) {
@@ -2120,11 +2111,11 @@ public class DatabaseServiceImpl implements DatabaseService {
     return jsonComparator;
   }
 
-  private void datasets(String instance, Promise<JsonObject> datasetResult,
-                        JsonArray highestCountResource) {
+  private void datasets(
+      String instance, Promise<JsonObject> datasetResult, JsonArray frequentlyUsedResourceGroup) {
     String providerAndResources = "";
     if (instance.isBlank()) {
-      providerAndResources = GET_PROVIDER_AND_RESOURCES;
+      providerAndResources = GET_PROVIDER_AND_RESOURCEGROUP;
     } else {
       providerAndResources = GET_DATASET_BY_INSTANCE.replace("$1", instance);
     }
@@ -2135,118 +2126,122 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (getCatRecords.succeeded()) {
             ArrayList<JsonObject> latestDatasetArray = new ArrayList<JsonObject>();
             Map<String, JsonObject> resourceGroupMap = new HashMap<>();
-            Map<String, Integer> resourceGroupCount = new HashMap<>();
             Map<String, String> providerDescription = new HashMap<>();
-            Map<String, Integer> typeCount = new HashMap<>();
-            typeCount.put("iudx:Provider", 0);
-            typeCount.put("iudx:ResourceGroup", 0);
-            typeCount.put("iudx:Resource", 0);
 
             JsonArray results = getCatRecords.result().getJsonArray(RESULTS);
             int resultSize = results.size();
 
-            for (int i = 0; i < resultSize; i++) {
-              JsonObject record = results.getJsonObject(i);
+            Promise<JsonObject> resourceCount = Promise.promise();
 
-              // getting count of resource,resourceGroup and provider
-              String type = record.getJsonArray(TYPE).getString(0);
-              typeCount.put(type, typeCount.getOrDefault(type, 0) + 1);
+            // function to get the resource group items count
+            gettingResourceCount(resourceCount);
+            resourceCount
+                .future()
+                .onComplete(
+                    handler -> {
+                      if (handler.succeeded()) {
+                        JsonObject resourceItemCount = resourceCount.future().result();
+                        int totalResourceItem = 0;
 
-              // getting count of all the resources in a resourceGroup,
-              // list of resource groups and provider description of all providers
-              if ("iudx:Resource".equals(type)) {
-                String resourceGroup = record.getString("resourceGroup");
-                resourceGroupCount.put(resourceGroup,
-                        resourceGroupCount.getOrDefault(resourceGroup, 0) + 1);
-              } else if ("iudx:ResourceGroup".equals(type)) {
-                if (record.containsKey("itemCreatedAt")) {
-                  latestDatasetArray.add(record);
-                }
-                resourceGroupMap.put(record.getString(ID), record);
-              } else if ("iudx:Provider".equals(type)) {
-                String description = record.getString("description");
-                String providerId = record.getString("id");
-                providerDescription.put(providerId, description);
-              }
-            }
+                        for (int i = 0; i < resultSize; i++) {
+                          JsonObject record = results.getJsonObject(i);
+                          String type = record.getJsonArray(TYPE).getString(0);
+                          // making a map of all resource group and provider id and its description
+                          if (ITEM_TYPE_RESOURCE_GROUP.equals(type)) {
+                            String id = record.getString(ID);
+                            int resourceItemCountInGroup =
+                                resourceItemCount.containsKey(id)
+                                    ? resourceItemCount.getInteger(id)
+                                    : 0;
+                            record.put("totalResources", resourceItemCountInGroup);
+                            // getting total count of resource items
+                            totalResourceItem = totalResourceItem + resourceItemCountInGroup;
+                            if (record.containsKey("itemCreatedAt")) {
+                              latestDatasetArray.add(record);
+                            }
+                            resourceGroupMap.put(record.getString(ID), record);
+                          } else if (ITEM_TYPE_PROVIDER.equals(type)) {
+                            String description = record.getString("description");
+                            String providerId = record.getString("id");
+                            providerDescription.put(providerId, description);
+                          }
+                        }
+                        // sorting resource group based on the time of creation.
+                        Collections.sort(latestDatasetArray, comapratorForLatestDataset());
 
-            // sorting resource group based on the time of creation.
-            Collections.sort(latestDatasetArray, comapratorForLatestDataset());
+                        JsonObject typeCount =
+                            new JsonObject()
+                                .put("totalPublishers", providerDescription.size())
+                                .put("totalDatasets", resourceGroupMap.size())
+                                .put("totalResources", totalResourceItem);
 
-            // Making an array list of top six latest resource group along
-            // with total resources and provider description.
-            ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
-            int resourceGroupSize = Math.min(latestDatasetArray.size(), 6);
+                        // making an arrayList of top six latest resource group
+                        ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
+                        int resourceGroupSize = Math.min(latestDatasetArray.size(), 6);
+                        for (int i = 0; i < resourceGroupSize; i++) {
+                          JsonObject resourceGroup = latestDatasetArray.get(i);
+                          resourceGroup.put(
+                              "providerDescription",
+                              providerDescription.get(
+                                  latestDatasetArray.get(i).getString("provider")));
+                          latestResourceGroup.add(resourceGroup);
+                        }
 
-            for (int i = 0; i < resourceGroupSize; i++) {
-              JsonObject resource = latestDatasetArray.get(i);
-              String resourceId = latestDatasetArray.get(i).getString("id");
-              int totalResources = resourceGroupCount.getOrDefault(resourceId, 0);
-              resource.put("totalResources", totalResources);
-              resource.put(
-                  "providerDescription",
-                  providerDescription.get(latestDatasetArray.get(i).getString("provider")));
-              latestResourceGroup.add(resource);
-              resource = new JsonObject();
-            }
+                        // making array list of most accessed resource groups
+                        ArrayList<JsonObject> featuredResourceGroup = new ArrayList<>();
+                        for (int resourceIndex = 0;
+                            resourceIndex < frequentlyUsedResourceGroup.size();
+                            resourceIndex++) {
+                          String id =
+                              frequentlyUsedResourceGroup
+                                  .getJsonObject(resourceIndex)
+                                  .getString("resourcegroup");
+                          if (resourceGroupMap.containsKey(id)) {
+                            JsonObject resourceGroup = resourceGroupMap.get(id);
+                            resourceGroup.put(
+                                "providerDescription",
+                                providerDescription.get(resourceGroup.getString("provider")));
+                            featuredResourceGroup.add(resourceGroup);
+                            // removing the resourceGroup from resourceGroupMap after
+                            // resources added to featuredResourceGroup array
+                            resourceGroupMap.remove(id);
+                          }
+                        }
 
-            // making array of featured dataset and adding total resources and provider description
-            // to the datasets
-            ArrayList<JsonObject> featuredResourceGroup = new ArrayList<>();
-            for (int resourceIndex = 0;
-                resourceIndex < highestCountResource.size();
-                resourceIndex++) {
-              String id =
-                  highestCountResource.getJsonObject(resourceIndex).getString("resourcegroup");
-              if (resourceGroupMap.containsKey(id)) {
-                JsonObject resource = resourceGroupMap.get(id);
-                int totalResources = resourceGroupCount.getOrDefault(id, 0);
-                resource.put("totalResources", totalResources);
-                resource.put(
-                    "providerDescription", providerDescription.get(resource.getString("provider")));
-                featuredResourceGroup.add(resource);
-                resource = new JsonObject();
-                // removing the resourceGroup from resourceGroupMap after
-                // resources added to featuredResourceGroup array
-                resourceGroupMap.remove(id);
-              }
-            }
+                        // Determining the number of resource group that can be added if
+                        // total featured datasets are not 6. Max value is 6.
+                        int remainingResources =
+                            Math.min(6 - featuredResourceGroup.size(), resourceGroupMap.size());
 
-            // Determining the number of resource group that can be added if
-            // total featured datasets are not 6. Max value is 6.
-            int remainingResources = Math.min(6 - featuredResourceGroup.size(),
-                    resourceGroupMap.size());
+                        /* Iterate through the values of 'resourceGroupMap' to add resources
+                          to 'featuredResourceGroup' array while ensuring we don't exceed the
+                          'remainingResources' limit. For each resource, we update its
+                          'providerDescription' before adding it to the group.
+                        */
+                        for (JsonObject resourceGroup : resourceGroupMap.values()) {
+                          if (remainingResources <= 0) {
+                            break; // No need to continue if we've added enough resources
+                          }
+                          resourceGroup.put(
+                              "providerDescription",
+                              providerDescription.get(resourceGroup.getString("provider")));
 
+                          featuredResourceGroup.add(resourceGroup);
+                          remainingResources--;
+                        }
 
-            /* Iterate through the values of 'resourceGroupMap' to add resources
-               to 'featuredResourceGroup' array while ensuring we don't exceed the
-               'remainingResources' limit. For each resource, we update its
-               'totalResources' and 'providerDescription' properties before adding
-               it to the group.
-             */
-            for (JsonObject resource : resourceGroupMap.values()) {
-              if (remainingResources <= 0) {
-                break; // No need to continue if we've added enough resources
-              }
+                        JsonObject jsonDataset =
+                            new JsonObject()
+                                .put("latestDataset", latestResourceGroup)
+                                .put("typeCount", typeCount)
+                                .put("featuredDataset", featuredResourceGroup);
+                        datasetResult.complete(jsonDataset);
 
-              String resourceId = resource.getString("id");
-              int totalResources = resourceGroupCount.getOrDefault(resourceId, 0);
-
-              resource.put("totalResources", totalResources);
-              resource.put(
-                  "providerDescription", providerDescription.get(resource.getString("provider")));
-
-              featuredResourceGroup.add(resource);
-              remainingResources--;
-
-            }
-
-            JsonObject jsonDataset =
-                new JsonObject()
-                    .put("latestDataset", latestResourceGroup)
-                    .put("typeCount", typeCount)
-                    .put("featuredDataset", featuredResourceGroup);
-            datasetResult.complete(jsonDataset);
+                      } else {
+                        LOGGER.error("Fail: failed DB request");
+                        datasetResult.handle(Future.failedFuture(internalErrorResp));
+                      }
+                    });
 
           } else {
             LOGGER.error("Fail: failed DB request");
