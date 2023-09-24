@@ -136,7 +136,7 @@ public class ValidatorServiceImplTest {
   @DisplayName("test validate item")
   public void testValidateItem(
       String item, String parent, int invocations, VertxTestContext testContext) {
-    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item));
+    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item)).put(HTTP_METHOD, REQUEST_POST);
 
     when(asyncResult.failed()).thenReturn(false);
     when(asyncResult.result())
@@ -209,6 +209,7 @@ public class ValidatorServiceImplTest {
   public void testValidateOwnerItem(VertxTestContext testContext) {
     JsonObject request = requestBody();
     request.put(TYPE, new JsonArray().add(ITEM_TYPE_OWNER));
+    request.put(HTTP_METHOD, REQUEST_POST);
 
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
