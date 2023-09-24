@@ -112,9 +112,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         .toString();
   }
 
-  /**
-   * {@inheritDoc}
-   * */
+  /** {@inheritDoc} */
   @SuppressWarnings("unchecked")
   public ValidatorService validateSchema(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -157,38 +155,38 @@ public class ValidatorServiceImpl implements ValidatorService {
     return this;
   }
 
-  /**
-   * {@inheritDoc}
-   * */
+  /** {@inheritDoc} */
   @SuppressWarnings("unchecked")
   @Override
   public ValidatorService validateItem(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     request.put(CONTEXT, vocContext);
+    String method = (String) request.remove(HTTP_METHOD);
 
     String itemType = getItemType(request, handler);
     LOGGER.debug("Info: itemType: " + itemType);
 
     // Validate if Resource
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-      validateResource(request, handler);
+      validateResource(request, method, handler);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       // Validate if Resource Server TODO: More checks and auth rules
-      validateResourceServer(request, handler);
+      validateResourceServer(request, method, handler);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
-      validateProvider(request, handler);
+      validateProvider(request, method, handler);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
-      validateResourceGroup(request, handler);
+      validateResourceGroup(request, method, handler);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
-      validateCosItem(request, handler);
+      validateCosItem(request, method, handler);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
-      validateOwnerItem(request, handler);
+      validateOwnerItem(request, method, handler);
     }
     return this;
   }
 
-  private void validateResourceGroup(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  private void validateResourceGroup(
+      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
       UUID uuid = UUID.randomUUID();
@@ -216,13 +214,18 @@ public class ValidatorServiceImpl implements ValidatorService {
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_PROVIDER)) {
             LOGGER.debug("Provider does not exist");
             handler.handle(Future.failedFuture("Fail: Provider item doesn't exist"));
+          } else if (method.equalsIgnoreCase(REQUEST_POST)
+              && returnType.contains(ITEM_TYPE_RESOURCE_GROUP)) {
+            LOGGER.debug("RG already exists");
+            handler.handle(Future.failedFuture("Fail: Resource Group item already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
         });
   }
 
-  private void validateProvider(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  private void validateProvider(
+      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
     // Validate if Provider
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
@@ -253,6 +256,10 @@ public class ValidatorServiceImpl implements ValidatorService {
               || !returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
             LOGGER.debug("RS does not exist");
             handler.handle(Future.failedFuture("Fail: Resource Server item doesn't exist"));
+          } else if (method.equalsIgnoreCase(REQUEST_POST)
+              && returnType.contains(ITEM_TYPE_PROVIDER)) {
+            LOGGER.debug("Provider already exists");
+            handler.handle(Future.failedFuture("Fail: Provider item already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
@@ -260,7 +267,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   }
 
   private void validateResourceServer(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
       UUID uuid = UUID.randomUUID();
@@ -290,13 +297,18 @@ public class ValidatorServiceImpl implements ValidatorService {
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_COS)) {
             LOGGER.debug("Cos does not exist");
             handler.handle(Future.failedFuture("Fail: Cos item doesn't exist"));
+          } else if (method.equalsIgnoreCase(REQUEST_POST)
+              && returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
+            LOGGER.debug("RS already exists");
+            handler.handle(Future.failedFuture("Fail: Resource Server item already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
         });
   }
 
-  private void validateResource(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  private void validateResource(
+      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey("id")) {
       UUID uuid = UUID.randomUUID();
@@ -340,13 +352,18 @@ public class ValidatorServiceImpl implements ValidatorService {
               && !returnType.contains(ITEM_TYPE_RESOURCE_GROUP)) {
             LOGGER.debug("RG does not exist");
             handler.handle(Future.failedFuture("Fail: Resource Group item doesn't exist"));
+          } else if (method.equalsIgnoreCase(REQUEST_POST)
+              && res.result().getInteger(TOTAL_HITS) > 3) {
+            LOGGER.debug("RI already exists");
+            handler.handle(Future.failedFuture("Fail: Resource item already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
         });
   }
 
-  private void validateCosItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  private void validateCosItem(
+      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
       UUID uuid = UUID.randomUUID();
@@ -375,13 +392,18 @@ public class ValidatorServiceImpl implements ValidatorService {
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_OWNER)) {
             LOGGER.debug("Owner does not exist");
             handler.handle(Future.failedFuture("Fail: Owner item doesn't exist"));
+          } else if (method.equalsIgnoreCase(REQUEST_POST)
+              && returnType.contains(ITEM_TYPE_COS)) {
+            LOGGER.debug("COS already exists");
+            handler.handle(Future.failedFuture("Fail: COS item already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
         });
   }
 
-  private void validateOwnerItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  private void validateOwnerItem(
+      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
     validateId(request, handler, isUacInstance);
     if (!isUacInstance && !request.containsKey(ID)) {
       UUID uuid = UUID.randomUUID();
@@ -399,7 +421,13 @@ public class ValidatorServiceImpl implements ValidatorService {
             handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
             return;
           }
-          handler.handle(Future.succeededFuture(request));
+          if (method.equalsIgnoreCase(REQUEST_POST)
+               && res.result().getInteger(TOTAL_HITS) > 0) {
+            LOGGER.debug("Owner item already exists");
+            handler.handle(Future.failedFuture("Fail: Owner item already exists"));
+          } else {
+            handler.handle(Future.succeededFuture(request));
+          }
         });
   }
 

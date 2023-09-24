@@ -242,6 +242,7 @@ public final class CrudApis {
                       .getResponse());
         } else {
           LOGGER.debug("Success: JWT Auth successful");
+          requestBody.put(HTTP_METHOD, routingContext.request().method().toString());
           /* Link Validating the request to ensure item correctness */
           validatorService.validateItem(requestBody, valhandler -> {
             if (valhandler.failed()) {
