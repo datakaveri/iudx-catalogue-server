@@ -26,6 +26,7 @@ public final class JwtData {
   public JwtData(JsonObject json) {
     JwtDataConverter.fromJson(json, this);
     setAccessToken(json.getString("access_token"));
+    setClientId(json.getString("client_id"));
   }
 
   /**
@@ -151,7 +152,7 @@ public final class JwtData {
         + role
         + ", cons="
         + cons
-        + ", clientId="
+        + ", client_id="
         + clientId
         + ", did="
         + did

@@ -70,7 +70,7 @@ public class JwtDataTest {
             + role
             + ", cons="
             + cons
-            + ", clientId="
+            + ", client_id="
             + clientid
             + ", did="
             + did

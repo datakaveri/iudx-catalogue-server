@@ -141,7 +141,7 @@ public class KCAuthServiceImplTest {
             + "\t\"aud\": \"account\",\n"
             + "\t\"sub\": \"dummy-admin-id\",\n"
             + "\t\"typ\": \"Bearer\",\n"
-            + "\t\"clientId\": \"cos.iudx.io\"\n"
+            + "\t\"client_id\": \"cos.iudx.io\"\n"
             + "}");
   }
 
