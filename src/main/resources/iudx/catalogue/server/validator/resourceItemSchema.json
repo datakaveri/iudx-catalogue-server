@@ -97,9 +97,9 @@
             "default": "",
             "examples": [
                 "SECURE",
-                "ppi"
+                "pii"
             ],
-            "pattern": "^(SECURE|OPEN|PPI|secure|open|ppi)$"
+            "pattern": "^(SECURE|OPEN|PII|secure|open|pii)$"
         },
         "instance": {
             "$id": "#/properties/instance",
