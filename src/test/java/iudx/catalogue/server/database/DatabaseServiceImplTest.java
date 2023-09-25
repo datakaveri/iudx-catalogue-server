@@ -21,7 +21,6 @@ import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -285,7 +284,7 @@ public class DatabaseServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(25)).searchAsync(anyString(), any(), any());
+            verify(client, times(24)).searchAsync(anyString(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -421,7 +420,7 @@ public class DatabaseServiceImplTest {
             handler -> {
               if (handler.failed()) {
                 databaseService.verifyInstance(instanceId);
-                verify(client, times(47)).searchAsync(any(), any(), any());
+                verify(client, times(46)).searchAsync(any(), any(), any());
                 assertEquals(TYPE_INTERNAL_SERVER_ERROR, handler.cause().getMessage());
                 vertxTestContext.completeNow();
               } else {
@@ -448,7 +447,7 @@ public class DatabaseServiceImplTest {
             boolHandler -> {
               if (boolHandler.failed()) {
                 assertEquals(json, asyncResult.result());
-                verify(client, times(20)).searchAsync(anyString(), any(), any());
+                verify(client, times(17)).searchAsync(anyString(), any(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -473,7 +472,7 @@ public class DatabaseServiceImplTest {
             boolHandler -> {
               if (boolHandler.succeeded()) {
                 assertEquals(json, asyncResult.result());
-                verify(client, times(28)).searchAsync(anyString(), any(), any());
+                verify(client, times(27)).searchAsync(anyString(), any(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -631,7 +630,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(50)).searchAsync(any(), any(), any());
+            verify(client, times(49)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else vertxTestContext.failNow("Fail");
         });
@@ -847,7 +846,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(66)).searchAsync(any(), any(), any());
+            verify(client, times(65)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -921,7 +920,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(55)).searchAsync(any(), any(), any());
+            verify(client, times(54)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1073,7 +1072,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(24)).searchAsync(any(), any(), any());
+            verify(client, times(23)).searchAsync(any(), any(), any());
 
             vertxTestContext.completeNow();
           } else {
@@ -1135,7 +1134,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(53)).searchAsync(any(), any(), any());
+            verify(client, times(52)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1171,7 +1170,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(35)).searchAsync(any(), any(), any());
+            verify(client, times(34)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1320,11 +1319,9 @@ public class DatabaseServiceImplTest {
         .onComplete(
             handler -> {
               if (handler.failed()) {
-                verify(client, times(45)).searchAsync(any(), any(), any());
+                verify(client, times(44)).searchAsync(any(), any(), any());
                 verify(nlpService, times(0)).getEmbedding(any(), any());
                 verify(geoService, times(0)).geoSummarize(any(), any());
-                verify(client, times(4)).docPostAsync(any(), any(), any());
-
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -1350,7 +1347,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(71)).searchAsync(any(), any(), any());
+            verify(client, times(70)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1382,7 +1379,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(31)).searchAsync(any(), any(), any());
+            verify(client, times(30)).searchAsync(any(), any(), any());
             verify(client, times(4)).docPostAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1403,7 +1400,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(68)).searchAsync(any(), any(), any());
+            verify(client, times(67)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -1435,7 +1432,7 @@ public class DatabaseServiceImplTest {
         handler -> {
           if (handler.failed()) {
             verify(client, times(5)).docPostAsync(any(), any(), any());
-            verify(client, times(60)).searchAsync(any(), any(), any());
+            verify(client, times(59)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -1454,7 +1451,7 @@ public class DatabaseServiceImplTest {
     dbService.getMlayerInstance("id",
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(36)).searchAsync(any(), any(), any());
+            verify(client, times(35)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -1469,7 +1466,7 @@ public class DatabaseServiceImplTest {
     dbService.getMlayerInstance("id",
         handler -> {
           if (handler.failed()) {
-            verify(client, times(69)).searchAsync(any(), any(), any());
+            verify(client, times(68)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -1813,7 +1810,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(21)).searchAsync(any(), any(), any());
+            verify(client, times(20)).searchAsync(any(), any(), any());
             verify(client, times(3)).docPostAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1877,7 +1874,7 @@ public class DatabaseServiceImplTest {
     dbService.getMlayerDomain(
        "abc", handler -> {
           if (handler.succeeded()) {
-            verify(client, times(39)).searchAsync(any(), any(), any());
+            verify(client, times(38)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -1893,7 +1890,7 @@ public class DatabaseServiceImplTest {
     dbService.getMlayerDomain(
        "abc", handler -> {
           if (handler.failed()) {
-            verify(client, times(64)).searchAsync(any(), any(), any());
+            verify(client, times(63)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2186,7 +2183,7 @@ public class DatabaseServiceImplTest {
     dbService.getMlayerProviders(
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(26)).searchAsync(any(), any(), any());
+            verify(client, times(25)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -2202,7 +2199,7 @@ public class DatabaseServiceImplTest {
     dbService.getMlayerProviders(
         handler -> {
           if (handler.failed()) {
-            verify(client, times(48)).searchAsync(any(), any(), any());
+            verify(client, times(47)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2335,7 +2332,7 @@ public class DatabaseServiceImplTest {
                 request,
                 handler -> {
                     if (handler.succeeded()) {
-                        verify(client, times(57)).searchAsync(any(), any(), any());
+                        verify(client, times(56)).searchAsync(any(), any(), any());
                         verify(client, times(2)).searchAsyncDataset(any(), any(), any());
 
                         testContext.completeNow();
@@ -2345,6 +2342,52 @@ public class DatabaseServiceImplTest {
           }
         });
   }
+
+    @Test
+    @Description("test getMlayerDataset method when DB Request is fails")
+    public void testGetMlayerDatasetFailure(VertxTestContext testContext) {
+        JsonArray results = new JsonArray();
+        JsonObject json = new JsonObject()
+                .put("instance", "pune");
+        JsonArray jsonArray = new JsonArray();
+        JsonObject provider = new JsonObject()
+                .put("provider", "dummy id")
+                .put("cos", "cis id")
+                .put("dataset", json)
+                .put("resource", jsonArray);
+        results.add(0, provider);
+        JsonObject request = new JsonObject()
+                .put(TOTAL_HITS, 50)
+                .put(ID, "dummy")
+                .put(RESULTS, results);
+        when(asyncResult.succeeded()).thenReturn(false);
+        when(asyncResult.result()).thenReturn(request);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(client)
+                .searchAsyncDataset(any(), any(), any());
+
+        dbService.getMlayerDataset(
+                request,
+                handler -> {
+                    if (handler.succeeded()) {
+                        testContext.failNow("fail");
+
+
+                    } else {
+                        verify(client, times(71)).searchAsync(any(), any(), any());
+                        verify(client, times(2)).searchAsyncDataset(any(), any(), any());
+
+                        testContext.completeNow();
+                    }
+                });
+    }
 
 
   @Test
@@ -2386,7 +2429,6 @@ public class DatabaseServiceImplTest {
     dbService.getMlayerAllDatasets(
             "abc", handler -> {
           if (handler.succeeded()) {
-            // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
             verify(client, times(6)).searchAsync(any(), any(), any());
             verify(client, times(1)).resourceAggregationAsync(any(), any(), any());
             testContext.completeNow();
@@ -2396,6 +2438,56 @@ public class DatabaseServiceImplTest {
           }
         });
   }
+
+    @Test
+    @Description(
+            "test getMlayerAllDatasets method when hits are 0")
+    public void testGetMlayerAllDatasets0HitsFailure(VertxTestContext testContext) {
+        JsonObject request = new JsonObject();
+        JsonArray jsonArray = new JsonArray();
+        JsonArray provider = new JsonArray();
+        provider.add("iudx:Provider");
+        JsonObject dataset_record = new JsonObject();
+        dataset_record
+                .put(INSTANCE, "dummy instance")
+                .put(PROVIDER, "dummy provider")
+                .put(TYPE, provider)
+                .put("name","dummy name")
+                .put("id", "dataset id")
+                .put("description", "description of dataset")
+                .put("key","rg_id")
+                .put("doc_count",5);
+       // jsonArray.add(dataset_record);
+        request.put(RESULTS, jsonArray)
+                .put("resourceGroupCount",5)
+                .put("resourceGroup", jsonArray);
+        when(asyncResult.succeeded()).thenReturn(true);
+        when(asyncResult.result()).thenReturn(request);
+
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(client)
+                .resourceAggregationAsync(any(), any(), any());
+
+        dbService.getMlayerAllDatasets(
+                "abc", handler -> {
+                    if (handler.succeeded()) {
+                        verify(client, times(6)).searchAsync(any(), any(), any());
+                        verify(client, times(1)).resourceAggregationAsync(any(), any(), any());
+                        testContext.failNow("fail");
+
+                    } else {
+                        testContext.completeNow();
+
+                    }
+                });
+    }
 
     @Test
     @Description(
@@ -2448,8 +2540,8 @@ public class DatabaseServiceImplTest {
                 "abc", handler -> {
                     if (handler.succeeded()) {
                         // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
-                        verify(client, times(59)).searchAsync(any(), any(), any());
-                        verify(client, times(3)).resourceAggregationAsync(any(), any(), any());
+                        verify(client, times(58)).searchAsync(any(), any(), any());
+                        verify(client, times(5)).resourceAggregationAsync(any(), any(), any());
                         testContext.completeNow();
 
                     } else {
@@ -2470,7 +2562,7 @@ public class DatabaseServiceImplTest {
         "abc", handler -> {
           if (handler.failed()) {
             // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
-            verify(client, times(30)).searchAsync(any(), any(), any());
+            verify(client, times(29)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -2480,7 +2572,6 @@ public class DatabaseServiceImplTest {
         });
   }
 
-  @Disabled
   @Test
   @Description("test getMlayerPopularDatasets method when DB Request is successful")
   public void testGetMlayerPopularDatasetsSuccess(VertxTestContext testContext) {
@@ -2511,7 +2602,9 @@ public class DatabaseServiceImplTest {
                         .put("rgid", "abcd/abcd/abcd/abcd")
                         .put("instance", "instance")
                         .put("name", "agra")
-                        .put("itemCreatedAt", "2023-08-31T05:09:54+0530");
+                        .put("itemCreatedAt", "2023-08-31T05:09:54+0530")
+                        .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
+                        .put("doc_count", 2);
 
         JsonObject instance =
                 new JsonObject()
@@ -2522,7 +2615,9 @@ public class DatabaseServiceImplTest {
                         .put("id", "abcd/abcd/abcd/abcd")
                         .put("rgid", "abcd/abcd/abcd/abcd")
                         .put("instance", "instance")
-                        .put("itemCreatedAt", "2023-08-30T05:09:54+0530");
+                        .put("itemCreatedAt", "2023-08-30T05:09:54+0530")
+                        .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
+                        .put("doc_count", 2);
         resourceArray.add(instance).add(jsonObject2).add(instance).add(instance).add(instance).add(instance);
         JsonArray latestDataset = new JsonArray().add(json);
 
@@ -2533,13 +2628,35 @@ public class DatabaseServiceImplTest {
             .put("latestDataset", latestDataset); // .put("instanceIconPath",json4);
     when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
+      doAnswer(
+              new Answer<AsyncResult<JsonObject>>() {
+                  @Override
+                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                      return null;
+                  }
+              })
+              .when(client)
+              .searchAsync(any(), any(), any());
 
-    databaseService.getMlayerPopularDatasets(
+      doAnswer(
+              new Answer<AsyncResult<JsonObject>>() {
+                  @Override
+                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                      return null;
+                  }
+              })
+              .when(client)
+              .resourceAggregationAsync(any(), any(), any());
+
+
+      databaseService.getMlayerPopularDatasets(
             instanceName,
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(63)).searchAsync(any(), any(), any());
+            verify(client, times(62)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2586,7 +2703,6 @@ public class DatabaseServiceImplTest {
 
   }
 
-  @Disabled
   @Test
   @Description(
       "test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Provider")
@@ -2608,82 +2724,60 @@ public class DatabaseServiceImplTest {
 
         JsonArray resourceArray = new JsonArray();
         JsonArray typeArray = new JsonArray().add(0, "iudx:Provider");
-        JsonArray typeArrayRg = new JsonArray().add(0, "iudx:ResourceGroup");
 
         JsonObject instanceRg =
                 new JsonObject()
                         .put("name", "agra")
                         .put("icon", "path_of_agra-icon.jpg")
-                        .put(TYPE, typeArrayRg)
-                        .put("resourceGroup", "abc");
+                        .put(TYPE, typeArray)
+                        .put("resourceGroup", "abc")
+                        .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
+                        .put("doc_count", 2)
+                        .put("id", "719390c5-30c0-4339-b0f2-1be292312104");
         JsonObject instance =
                 new JsonObject()
                         .put("name", "agra")
                         .put("icon", "path_of_agra-icon.jpg")
                         .put(TYPE, typeArray)
-                        .put("resourceGroup", "abc");
+                        .put("resourceGroup", "abc")
+                        .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
+                        .put("doc_count", 2)
+                        .put("id", "719390c5-30c0-4339-b0f2-1be292312104");
         resourceArray.add(instance).add(instanceRg).add(instanceRg).add(instanceRg)
                 .add(instanceRg).add(instanceRg).add(instanceRg);
 
     JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resourceArray);
     when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
+      doAnswer(
+              new Answer<AsyncResult<JsonObject>>() {
+                  @Override
+                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                      return null;
+                  }
+              })
+              .when(client)
+              .searchAsync(any(), any(), any());
 
-    databaseService.getMlayerPopularDatasets(
+      doAnswer(
+              new Answer<AsyncResult<JsonObject>>() {
+                  @Override
+                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                      return null;
+                  }
+              })
+              .when(client)
+              .resourceAggregationAsync(any(), any(), any());
+
+
+      databaseService.getMlayerPopularDatasets(
             instanceName,
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(42)).searchAsync(any(), any(), any());
-
-            testContext.completeNow();
-
-          } else {
-            testContext.failNow("fail");
-          }
-        });
-  }
-
-  @Disabled
-  @Test
-  @Description("test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Resource")
-  public void testGetMlayerPopularDatasetsResourceSuccess(VertxTestContext testContext) {
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
-            client,
-            docIndex,
-            ratingIndex,
-            mlayerInstanceIndex,
-            mlayerDomainIndex,
-            nlpService,
-            geoService);
-    String instanceName ="dummy";
-    JsonObject json = new JsonObject().put("rgid", "duumy-id");
-    JsonObject json2 = new JsonObject().put("rgid", "duumy-id");
-
-    JsonArray highestCountResource = new JsonArray().add(json).add(json2);
-
-    JsonArray resourceArray = new JsonArray();
-    JsonArray typeArray = new JsonArray().add(0, "iudx:Resource");
-
-    JsonObject instance =
-        new JsonObject()
-            .put("name", "agra")
-            .put("icon", "path_of_agra-icon.jpg")
-            .put(TYPE, typeArray)
-            .put("resourceGroup", "abc");
-    resourceArray.add(instance);
-
-    JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resourceArray);
-    when(asyncResult.result()).thenReturn(result);
-    when(asyncResult.succeeded()).thenReturn(true);
-
-    databaseService.getMlayerPopularDatasets(
-            instanceName,
-        highestCountResource,
-        handler -> {
-          if (handler.succeeded()) {
-            verify(client, times(19)).searchAsync(any(), any(), any());
+            verify(client, times(41)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -2747,7 +2841,7 @@ public class DatabaseServiceImplTest {
                 request,
                 handler -> {
                     if (handler.succeeded()) {
-                        verify(client, times(22)).searchAsync(any(), any(), any());
+                        verify(client, times(21)).searchAsync(any(), any(), any());
                         vertxTestContext.completeNow();
 
 

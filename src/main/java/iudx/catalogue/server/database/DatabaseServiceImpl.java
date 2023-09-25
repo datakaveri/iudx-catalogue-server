@@ -1843,6 +1843,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withDetail("no datasets are present")
                           .getResponse()));
+              return;
             }
             JsonObject rsUrl = new JsonObject();
             JsonObject providerDescription = new JsonObject();
@@ -1956,14 +1957,13 @@ public class DatabaseServiceImpl implements DatabaseService {
                             iconResultHandler -> {
                               if (iconResultHandler.succeeded()) {
                                 LOGGER.debug("Success: Successful DB Request");
-                                JsonObject json = iconResultHandler.result();
-                                if (json.getInteger(TOTAL_HITS) == 0) {
+                                JsonObject instances = iconResultHandler.result();
+                                if (instances.getInteger(TOTAL_HITS) == 0) {
                                   LOGGER.debug("The icon path for the instance is not present.");
                                   record.getJsonObject("dataset").put("instance_icon", "");
                                 } else {
                                   JsonObject resource =
-                                      iconResultHandler
-                                          .result()
+                                      instances
                                           .getJsonArray(RESULTS)
                                           .getJsonObject(0);
                                   String instancePath = resource.getString("icon");
@@ -2017,7 +2017,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                   if (datasetJson
                       .getJsonArray("latestDataset")
                       .getJsonObject(i)
-                      .containsKey("instance")) {
+                      .containsKey(INSTANCE)) {
                     LOGGER.debug("given dataset has associated instance");
                     datasetJson
                         .getJsonArray("latestDataset")
@@ -2030,7 +2030,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                     datasetJson
                                         .getJsonArray("latestDataset")
                                         .getJsonObject(i)
-                                        .getString("instance")
+                                        .getString(INSTANCE)
                                         .toLowerCase()));
                   } else {
                     LOGGER.debug("given dataset does not have associated instance");
@@ -2041,7 +2041,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                   if (datasetJson
                       .getJsonArray("featuredDataset")
                       .getJsonObject(i)
-                      .containsKey("instance")) {
+                      .containsKey(INSTANCE)) {
                     datasetJson
                         .getJsonArray("featuredDataset")
                         .getJsonObject(i)
@@ -2053,7 +2053,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                     datasetJson
                                         .getJsonArray("featuredDataset")
                                         .getJsonObject(i)
-                                        .getString("instance")));
+                                        .getString(INSTANCE)));
                   } else {
                     datasetJson.getJsonArray("featuredDataset").getJsonObject(i).put("icon", "");
                   }
@@ -2064,7 +2064,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 result.put("totalInstance", instanceList.getInteger("totalInstance"))
                         .put("totalDomain", domainList.size())
                         .put("domains", domainList)
-                        .put("instance", instanceList.getJsonArray("instanceList"))
+                        .put(INSTANCE, instanceList.getJsonArray("instanceList"))
                         .put("featuredDataset", datasetJson.getJsonArray("featuredDataset"))
                         .put("latestDataset", datasetJson.getJsonArray("latestDataset"));
 
@@ -2194,8 +2194,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                             }
                             resourceGroupMap.put(record.getString(ID), record);
                           } else if (ITEM_TYPE_PROVIDER.equals(type)) {
-                            String description = record.getString("description");
-                            String providerId = record.getString("id");
+                            String description = record.getString(DESCRIPTION_ATTR);
+                            String providerId = record.getString(ID);
                             providerDescription.put(providerId, description);
                           }
                         }
@@ -2216,7 +2216,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           resourceGroup.put(
                               "providerDescription",
                               providerDescription.get(
-                                  latestDatasetArray.get(i).getString("provider")));
+                                  latestDatasetArray.get(i).getString(PROVIDER)));
                           latestResourceGroup.add(resourceGroup);
                         }
 
@@ -2233,7 +2233,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                             JsonObject resourceGroup = resourceGroupMap.get(id);
                             resourceGroup.put(
                                 "providerDescription",
-                                providerDescription.get(resourceGroup.getString("provider")));
+                                providerDescription.get(resourceGroup.getString(PROVIDER)));
                             featuredResourceGroup.add(resourceGroup);
                             // removing the resourceGroup from resourceGroupMap after
                             // resources added to featuredResourceGroup array
