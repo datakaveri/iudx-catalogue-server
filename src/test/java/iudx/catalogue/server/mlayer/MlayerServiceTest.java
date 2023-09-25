@@ -784,6 +784,8 @@ public class MlayerServiceTest {
                 });
     }
 
+
+    @Test
     @DisplayName("Failure: test get dataset and its resources details")
     void failureMlayerDatasetAndResourcesTest(VertxTestContext testContext) {
         mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
@@ -818,11 +820,12 @@ public class MlayerServiceTest {
     void successMlayerDatasetTest(VertxTestContext testContext) {
         mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
         JsonArray tags = new JsonArray().add("flood");
-        JsonArray providers = new JsonArray().add("providerId");
+        JsonArray providers = new JsonArray().add("26005f3b-a6a0-4edb-ae28-70474b4ef90c");
         JsonObject request = new JsonObject()
-                .put("instance", "dummy value")
+                .put("instance", "pune")
                 .put("tags", tags)
-                .put("providers", providers);
+                .put("providers", providers)
+                .put("domains", tags);
         when(asyncResult.succeeded()).thenReturn(true);
         Mockito.doAnswer(
                         new Answer<AsyncResult<JsonObject>>() {
@@ -844,6 +847,25 @@ public class MlayerServiceTest {
                     } else {
                         LOGGER.debug("Fail");
                         testContext.failNow(handler.cause());
+                    }
+                });
+    }
+
+    @Test
+    @DisplayName("Failure: test get dataset details")
+    void failureMlayerDatasetInvalidParamTest(VertxTestContext testContext) {
+        mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+        JsonObject request = new JsonObject()
+                .put("instances", "pune");
+        mlayerService.getMlayerDataset(
+                request,
+                handler -> {
+                    if (handler.succeeded()) {
+                        LOGGER.debug("Fail");
+                        testContext.failNow(handler.cause());
+
+                    } else {
+                        testContext.completeNow();
                     }
                 });
     }
@@ -931,14 +953,13 @@ public class MlayerServiceTest {
     }
 
     @Test
-    @DisplayName("Fail: test get overview detail")
-    void failedGetMlayerOverviewTest(VertxTestContext testContext) {
+    @DisplayName("Fail: test get overview detail when postgres query fails")
+    void failedPostgresQueryTest(VertxTestContext testContext) {
         mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
         JsonArray jsonArray = new JsonArray();
         JsonObject json = new JsonObject();
         json.put("results", jsonArray);
         jsonArray.add("dataset");
-        //        when(asyncResult.result()).thenReturn(json);
         String instance ="";
 
         doAnswer(
