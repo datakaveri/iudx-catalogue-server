@@ -2196,6 +2196,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           } else if (ITEM_TYPE_PROVIDER.equals(type)) {
                             String description = record.getString(DESCRIPTION_ATTR);
                             String providerId = record.getString(ID);
+
                             providerDescription.put(providerId, description);
                           }
                         }
@@ -2217,6 +2218,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                               "providerDescription",
                               providerDescription.get(
                                   latestDatasetArray.get(i).getString(PROVIDER)));
+
                           latestResourceGroup.add(resourceGroup);
                         }
 

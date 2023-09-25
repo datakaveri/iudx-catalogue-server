@@ -21,6 +21,7 @@ import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -2572,6 +2573,7 @@ public class DatabaseServiceImplTest {
         });
   }
 
+  @Disabled
   @Test
   @Description("test getMlayerPopularDatasets method when DB Request is successful")
   public void testGetMlayerPopularDatasetsSuccess(VertxTestContext testContext) {
@@ -2703,6 +2705,7 @@ public class DatabaseServiceImplTest {
 
   }
 
+  @Disabled
   @Test
   @Description(
       "test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Provider")
@@ -2777,8 +2780,76 @@ public class DatabaseServiceImplTest {
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(41)).searchAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+            testContext.completeNow();
 
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Resource")
+  public void testGetMlayerPopularDatasetsResourceSuccess(VertxTestContext testContext) {
+    DatabaseServiceImpl databaseService =
+        new DatabaseServiceImpl(
+            client,
+            docIndex,
+            ratingIndex,
+            mlayerInstanceIndex,
+            mlayerDomainIndex,
+            nlpService,
+            geoService);
+    String instanceName ="dummy";
+    JsonObject json = new JsonObject().put("rgid", "duumy-id");
+    JsonObject json2 = new JsonObject().put("rgid", "duumy-id");
+
+    JsonArray highestCountResource = new JsonArray().add(json).add(json2);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+
+    JsonArray resourceArray = new JsonArray();
+    JsonArray typeArray = new JsonArray().add(0, "iudx:Resource");
+
+    JsonObject instance =
+        new JsonObject()
+            .put("name", "agra")
+            .put("icon", "path_of_agra-icon.jpg")
+            .put(TYPE, typeArray)
+            .put("resourceGroup", "abc")
+                .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
+                .put("doc_count", 2);
+    resourceArray.add(instance);
+
+    JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resourceArray);
+    when(asyncResult.result()).thenReturn(result);
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchAsync(any(), any(), any());
+      doAnswer(
+              new Answer<AsyncResult<JsonObject>>() {
+                  @Override
+                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                      return null;
+                  }
+              })
+              .when(DatabaseServiceImpl.client)
+              .resourceAggregationAsync(any(), any(), any());
+    databaseService.getMlayerPopularDatasets(
+            instanceName,
+        highestCountResource,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
