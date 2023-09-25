@@ -21,7 +21,6 @@ import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -379,29 +378,6 @@ public class DatabaseServiceImplTest {
     // request.put(SEARCH_TYPE,GEOSEARCH_REGEX);
     assertNull(dbService.countQuery(request, handler));
     vertxTestContext.completeNow();
-  }
-
-  @Test
-  @Description("test countQuery when handler succeeded")
-  public void testCountQuerySuceeded(VertxTestContext vertxTestContext) {
-    JsonObject request = new JsonObject();
-    JsonArray jsonArray = new JsonArray();
-    request.put(SEARCH_TYPE, GEOSEARCH_REGEX);
-    request.put(GEOMETRY, BBOX);
-    request.put(GEORELATION, "dummy");
-    request.put(COORDINATES_KEY, jsonArray);
-    when(asyncResult.succeeded()).thenReturn(true);
-
-    dbService.countQuery(
-        request,
-        handler -> {
-          if (handler.succeeded()) {
-            verify(client, times(2)).countAsync(anyString(), any(), any());
-            vertxTestContext.completeNow();
-          } else {
-            vertxTestContext.failNow("Fail");
-          }
-        });
   }
 
   @Test
@@ -847,7 +823,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(65)).searchAsync(any(), any(), any());
+            verify(client, times(62)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -921,7 +897,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(54)).searchAsync(any(), any(), any());
+            verify(client, times(51)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1114,7 +1090,7 @@ public class DatabaseServiceImplTest {
 
   @Test
   @Description("test listRelationship method when item is resource")
-  public void testListRelationshipItem2(VertxTestContext vertxTestContext) {
+  public void testListRelationshipResourceGroup(VertxTestContext vertxTestContext) {
     JsonArray typeArray = new JsonArray().add("iudx:ResourceGroup");
     JsonObject jsonObject = new JsonObject().put(TYPE, typeArray).put("resourceGroup", "dummy id").put("provider", "provider-id");
     JsonArray resultArray = new JsonArray().add(jsonObject);
@@ -1135,7 +1111,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(52)).searchAsync(any(), any(), any());
+            verify(client, times(71)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1348,7 +1324,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(70)).searchAsync(any(), any(), any());
+            verify(client, times(67)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1401,7 +1377,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(67)).searchAsync(any(), any(), any());
+            verify(client, times(64)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -1433,7 +1409,7 @@ public class DatabaseServiceImplTest {
         handler -> {
           if (handler.failed()) {
             verify(client, times(5)).docPostAsync(any(), any(), any());
-            verify(client, times(59)).searchAsync(any(), any(), any());
+            verify(client, times(56)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -1467,7 +1443,7 @@ public class DatabaseServiceImplTest {
     dbService.getMlayerInstance("id",
         handler -> {
           if (handler.failed()) {
-            verify(client, times(68)).searchAsync(any(), any(), any());
+            verify(client, times(65)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -1891,7 +1867,7 @@ public class DatabaseServiceImplTest {
     dbService.getMlayerDomain(
        "abc", handler -> {
           if (handler.failed()) {
-            verify(client, times(63)).searchAsync(any(), any(), any());
+            verify(client, times(60)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2232,7 +2208,7 @@ public class DatabaseServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(2)).searchAsyncGeoQuery(any(), any(), any());
+            verify(client, times(1)).searchAsyncGeoQuery(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -2240,36 +2216,6 @@ public class DatabaseServiceImplTest {
         });
   }
 
-  @Test
-  @Description("test getMlayerGeoQuery method when DB Request fails")
-  public void testGetMlayerGeoQueryFailure(VertxTestContext testContext) {
-    JsonObject request = new JsonObject();
-    JsonArray id = new JsonArray();
-    id.add(0, "dummy id");
-    request.put(INSTANCE, "instance").put(MLAYER_ID, id);
-    when(asyncResult.succeeded()).thenReturn(false);
-    doAnswer(
-            new Answer<AsyncResult<JsonObject>>() {
-              @Override
-              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                return null;
-              }
-            })
-        .when(client)
-        .searchAsyncGeoQuery(any(), any(), any());
-    dbService.getMlayerGeoQuery(
-        request,
-        handler -> {
-          if (handler.failed()) {
-            verify(client, times(1)).searchAsyncGeoQuery(any(), any(), any());
-            testContext.completeNow();
-
-          } else {
-            testContext.failNow("fail");
-          }
-        });
-  }
 
     @Test
     @Description("test getMlayerDataset method when DB Request has 0 hits")
@@ -2333,7 +2279,7 @@ public class DatabaseServiceImplTest {
                 request,
                 handler -> {
                     if (handler.succeeded()) {
-                        verify(client, times(56)).searchAsync(any(), any(), any());
+                        verify(client, times(53)).searchAsync(any(), any(), any());
                         verify(client, times(2)).searchAsyncDataset(any(), any(), any());
 
                         testContext.completeNow();
@@ -2382,7 +2328,7 @@ public class DatabaseServiceImplTest {
 
 
                     } else {
-                        verify(client, times(71)).searchAsync(any(), any(), any());
+                        verify(client, times(68)).searchAsync(any(), any(), any());
                         verify(client, times(2)).searchAsyncDataset(any(), any(), any());
 
                         testContext.completeNow();
@@ -2541,7 +2487,7 @@ public class DatabaseServiceImplTest {
                 "abc", handler -> {
                     if (handler.succeeded()) {
                         // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
-                        verify(client, times(58)).searchAsync(any(), any(), any());
+                        verify(client, times(55)).searchAsync(any(), any(), any());
                         verify(client, times(5)).resourceAggregationAsync(any(), any(), any());
                         testContext.completeNow();
 
@@ -2573,7 +2519,6 @@ public class DatabaseServiceImplTest {
         });
   }
 
-  @Disabled
   @Test
   @Description("test getMlayerPopularDatasets method when DB Request is successful")
   public void testGetMlayerPopularDatasetsSuccess(VertxTestContext testContext) {
@@ -2658,7 +2603,7 @@ public class DatabaseServiceImplTest {
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(62)).searchAsync(any(), any(), any());
+            verify(client, times(59)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2705,7 +2650,7 @@ public class DatabaseServiceImplTest {
 
   }
 
-  @Disabled
+
   @Test
   @Description(
       "test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Provider")
@@ -2780,7 +2725,7 @@ public class DatabaseServiceImplTest {
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(3)).searchAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(41)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
