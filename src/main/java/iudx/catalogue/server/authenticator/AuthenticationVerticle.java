@@ -165,7 +165,7 @@ public class AuthenticationVerticle extends AbstractVerticle {
         new DefaultJWTClaimsVerifier<>(
             new HashSet<>(Arrays.asList(audience)),
             new JWTClaimsSet.Builder().issuer(keyCloakHost).build(),
-            new HashSet<>(Arrays.asList("exp", "sub", "iat", "iss", "aud", "clientId")),
+            new HashSet<>(Arrays.asList("exp", "sub", "iat", "iss", "aud", "client_id")),
             Collections.singleton("nonce"));
 
     jwtProcessor.setJWTClaimsSetVerifier(claimsSetVerifier);
