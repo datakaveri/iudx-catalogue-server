@@ -322,8 +322,9 @@ public class DatabaseServiceImpl implements DatabaseService {
     if (id != null) {
       final String instanceId = doc.getString(INSTANCE);
 
-      String errorJson = respBuilder.withType(FAILED).withResult(id, INSERT, FAILED).getResponse();
-
+        String errorJson = respBuilder.withType(FAILED)
+                .withResult(id, INSERT, FAILED)
+                .withDetail("Insertion Failed").getResponse();
       String checkItem = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
 
       verifyInstance(instanceId)
