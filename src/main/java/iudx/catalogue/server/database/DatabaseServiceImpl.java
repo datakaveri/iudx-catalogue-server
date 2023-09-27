@@ -321,8 +321,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     /* check if the id is present */
     if (id != null) {
       final String instanceId = doc.getString(INSTANCE);
-
-        String errorJson = respBuilder.withType(FAILED)
+      String errorJson = respBuilder.withType(FAILED)
                 .withResult(id, INSERT, FAILED)
                 .withDetail("Insertion Failed").getResponse();
       String checkItem = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
@@ -349,6 +348,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                         .withType(TYPE_ALREADY_EXISTS)
                                         .withTitle(TITLE_ALREADY_EXISTS)
                                         .withResult(id, INSERT, FAILED, "Fail: Doc Exists")
+                                            .withDetail("Fail: Doc Exists")
                                         .getResponse()));
                             return;
                           }
@@ -392,6 +392,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                                               .withType(TYPE_SUCCESS)
                                                               .withTitle(TITLE_SUCCESS)
                                                               .withResult(doc)
+                                                              .withDetail("Success: Item created")
                                                               .getJsonResponse()));
                                                 } else {
                                                   handler.handle(Future.failedFuture(errorJson));
@@ -421,6 +422,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                                                             .withType(TYPE_SUCCESS)
                                                             .withTitle(TITLE_SUCCESS)
                                                             .withResult(doc)
+                                                                .withDetail("Success: Item created")
                                                             .getJsonResponse()));
                                               } else {
                                                 handler.handle(Future.failedFuture(errorJson));
@@ -442,7 +444,9 @@ public class DatabaseServiceImpl implements DatabaseService {
                               .withTitle(TITLE_OPERATION_NOT_ALLOWED)
                               .withResult(
                                   id, INSERT, FAILED, instanceHandler.cause().getLocalizedMessage())
-                              .getResponse()));
+                                  .withDetail(instanceHandler.cause().getLocalizedMessage())
+
+                                  .getResponse()));
                 }
               });
       return this;
@@ -500,7 +504,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                                           UPDATE,
                                           FAILED,
                                           "Fail: Doc doesn't exist, can't update")
-                                      .getResponse()));
+                                          .withDetail("Fail: Doc doesn't exist, can't update")
+                                          .getResponse()));
                           return;
                         }
                         String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
@@ -516,7 +521,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                                             .withType(TYPE_SUCCESS)
                                             .withTitle(TITLE_SUCCESS)
                                             .withResult(doc)
-                                            .getJsonResponse()));
+                                                .withDetail("Success: Item updated successfully")
+                                                .getJsonResponse()));
                               } else {
                                 handler.handle(Future.failedFuture(internalErrorResp));
                                 LOGGER.error("Fail: Updation failed;" + putRes.cause());
@@ -597,7 +603,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                                           .withType(TYPE_SUCCESS)
                                           .withTitle(TITLE_SUCCESS)
                                           .withResult(id)
-                                          .getJsonResponse()));
+                                              .withDetail("Success: Item deleted successfully")
+                                              .getJsonResponse()));
                             } else {
                               handler.handle(Future.failedFuture(internalErrorResp));
                               LOGGER.error("Fail: Deletion failed;" + delRes.cause().getMessage());
@@ -629,7 +636,8 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (clientHandler.succeeded()) {
             LOGGER.debug("Success: Successful DB request");
             JsonObject responseJson = clientHandler.result();
-            handler.handle(Future.succeededFuture(responseJson));
+              responseJson.put(DETAIL, "Success: Item fetched Successfully");
+              handler.handle(Future.succeededFuture(responseJson));
           } else {
             LOGGER.error("Fail: Failed getting item;" + clientHandler.cause());
             /* Handle request error */
@@ -638,7 +646,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                     respBuilder
                         .withType(TYPE_INTERNAL_SERVER_ERROR)
                         .withTitle(TITLE_INTERNAL_SERVER_ERROR)
-                        .getResponse()));
+                            .withDetail(DETAIL_INTERNAL_SERVER_ERROR)
+                            .getResponse()));
           }
         });
     return this;
@@ -1021,7 +1030,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.error("Fail: Insertion of rating failed: " + checkRes.cause());
             handler.handle(
                 Future.failedFuture(
-                    respBuilder.withType(FAILED).withResult(ratingId).getResponse()));
+                        respBuilder.withType(FAILED).withResult(ratingId)
+                                .withDetail("Fail: Insertion of rating failed").getResponse()));
           } else {
             if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
               handler.handle(
@@ -1030,7 +1040,9 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ALREADY_EXISTS)
                           .withTitle(TITLE_ALREADY_EXISTS)
                           .withResult(ratingId, INSERT, FAILED, " Fail: Doc Already Exists")
-                          .getResponse()));
+                              .withDetail(" Fail: Doc Already Exists")
+
+                              .getResponse()));
               return;
             }
 
@@ -1053,6 +1065,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                             respBuilder
                                 .withType(TYPE_FAIL)
                                 .withResult(ratingId, INSERT, FAILED)
+                                    .withDetail("Insertion Failed")
                                 .getResponse()));
                     LOGGER.error("Fail: Insertion failed" + postRes.cause());
                   }
@@ -1090,7 +1103,9 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withResult(
                               ratingId, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
-                          .getResponse()));
+                              .withDetail("Fail: Doc doesn't exist, can't update")
+
+                              .getResponse()));
               return;
             }
 
@@ -1144,7 +1159,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withResult(
                               ratingId, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
-                          .getResponse()));
+                              .withDetail("Fail: Doc doesn't exist, can't delete")
+                              .getResponse()));
               return;
             }
 
@@ -1290,7 +1306,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.error("Fail: Insertion of mlayer Instance failed: " + res.cause());
             handler.handle(
                 Future.failedFuture(
-                    respBuilder.withType(FAILED).withResult(MLAYER_ID).getResponse()));
+                        respBuilder.withType(FAILED)
+                                .withResult(MLAYER_ID)
+                                .withDetail("Fail: Insertion of Instance failed").getResponse()));
+
 
           } else {
             if (res.result().getInteger(TOTAL_HITS) != 0) {
@@ -1303,7 +1322,9 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ALREADY_EXISTS)
                           .withTitle(TITLE_ALREADY_EXISTS)
                           .withResult(instanceIdExists, " Fail: Instance Already Exists")
-                          .getResponse()));
+                              .withDetail(" Fail: Instance Already Exists")
+
+                              .getResponse()));
               return;
             }
             client.docPostAsync(
@@ -1322,8 +1343,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                     handler.handle(
                         Future.failedFuture(
-                            respBuilder.withType(TYPE_FAIL).withResult(FAILED).getResponse()));
-                    LOGGER.error("Fail: Insertion failed" + result.cause());
+                                respBuilder.withType(TYPE_FAIL).withResult(FAILED)
+                                        .withDetail(DETAIL_INTERNAL_SERVER_ERROR).getResponse()));
+
+                      LOGGER.error("Fail: Insertion failed" + result.cause());
                   }
                 });
           }
@@ -1488,7 +1511,10 @@ public class DatabaseServiceImpl implements DatabaseService {
           if (res.failed()) {
             LOGGER.error("Fail: Insertion of mLayer domain failed: " + res.cause());
             handler.handle(
-                Future.failedFuture(respBuilder.withType(FAILED).withResult(id).getResponse()));
+                    Future.failedFuture(respBuilder.withType(FAILED).withResult(id)
+                            .withDetail("Fail: Insertion of mLayer domain failed: ")
+                            .getResponse()));
+
           } else {
             if (res.result().getInteger(TOTAL_HITS) != 0) {
               JsonObject json = new JsonObject(res.result().getJsonArray(RESULTS).getString(0));
@@ -1499,7 +1525,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ALREADY_EXISTS)
                           .withTitle(TITLE_ALREADY_EXISTS)
                           .withResult(domainIdExists, "Fail: Domain Already Exists")
-                          .getResponse()));
+                              .withDetail("Fail: Domain Already Exists")
+                              .getResponse()));
               return;
             }
             client.docPostAsync(
@@ -1517,8 +1544,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                   } else {
                     handler.handle(
                         Future.failedFuture(
-                            respBuilder.withType(TYPE_FAIL).withResult(FAILED).getResponse()));
-                    LOGGER.error("Fail: Insertion failed" + result.cause());
+                                respBuilder.withType(TYPE_FAIL).withResult(FAILED)
+                                        .withDetail(DETAIL_INTERNAL_SERVER_ERROR).getResponse()));
+
+                      LOGGER.error("Fail: Insertion failed" + result.cause());
                   }
                 });
           }
@@ -1574,7 +1603,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ITEM_NOT_FOUND)
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withResult(domainId, "Fail: Domain doesn't exist, can't update")
-                          .getResponse()));
+                              .withDetail("Fail: Domain doesn't exist, can't update")
+                              .getResponse()));
               return;
             }
 
@@ -1643,7 +1673,9 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .withType(TYPE_ITEM_NOT_FOUND)
                           .withTitle(TITLE_ITEM_NOT_FOUND)
                           .withResult(domainId, "Fail: Domain doesn't exist, can't delete")
-                          .getResponse()));
+                              .withDetail("Fail: Domain doesn't exist, can't delete")
+
+                              .getResponse()));
               return;
             }
 

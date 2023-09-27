@@ -88,7 +88,8 @@ public final class RelationshipApis {
                   .end(new RespBuilder()
                         .withType(TYPE_INVALID_SYNTAX)
                         .withTitle(TITLE_INVALID_SYNTAX)
-                        .getResponse());
+                          .withDetail("Invalid Syntax")
+                          .getResponse());
         }
       } else {
         LOGGER.error("Fail: Issue in query parameter");
@@ -164,7 +165,8 @@ public final class RelationshipApis {
                   .end(new RespBuilder()
                         .withType(TYPE_INVALID_SYNTAX)
                         .withTitle(TITLE_INVALID_SYNTAX)
-                        .getResponse());
+                          .withDetail("Invalid Syntax")
+                          .getResponse());
       }
     } else {
       LOGGER.error("Fail: Invalid request query parameters");
@@ -173,7 +175,8 @@ public final class RelationshipApis {
                   .end(new RespBuilder()
                         .withType(TYPE_INVALID_SYNTAX)
                         .withTitle(TITLE_INVALID_SYNTAX)
-                        .getResponse());
+                          .withDetail("Invalid Syntax")
+                          .getResponse());
     }
   }
 }

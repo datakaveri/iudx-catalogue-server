@@ -350,7 +350,7 @@ public class QueryDecoderTest {
             .put(ITEM_TYPE,"dummy")
             .put(SEARCH,false);
 
-    assertEquals(new JsonObject().put(ERROR,new RespBuilder().withType(TYPE_INVALID_GEO_PARAM).withTitle(TITLE_INVALID_GEO_PARAM).getJsonResponse()),queryDecoder.searchQuery(request));
+    assertEquals(new JsonObject().put(ERROR,new RespBuilder().withType(TYPE_INVALID_GEO_PARAM).withTitle(TITLE_INVALID_GEO_PARAM).withDetail("Missing/Invalid geo parameters").getJsonResponse()),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }
 
@@ -361,7 +361,7 @@ public class QueryDecoderTest {
     JsonObject request=new JsonObject();
     request.put(SEARCH_TYPE,TEXTSEARCH_REGEX)
             .put(SEARCH,false);
-    assertEquals(new JsonObject().put(ERROR,new RespBuilder().withType(TYPE_BAD_TEXT_QUERY).withTitle(TITLE_BAD_TEXT_QUERY).getJsonResponse()),queryDecoder.searchQuery(request));
+    assertEquals(new JsonObject().put(ERROR,new RespBuilder().withType(TYPE_BAD_TEXT_QUERY).withTitle(TITLE_BAD_TEXT_QUERY).withDetail("bad text query values").getJsonResponse()),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }
 
@@ -379,7 +379,7 @@ public class QueryDecoderTest {
             .put(SEARCH,false)
             .put(PROPERTY,jsonArray)
             .put(VALUE,jsonArray2);
-    assertEquals(new JsonObject().put(ERROR,new RespBuilder().withType(TYPE_INVALID_PROPERTY_VALUE).withTitle(TITLE_INVALID_PROPERTY_VALUE).getJsonResponse()),queryDecoder.searchQuery(request));
+    assertEquals(new JsonObject().put(ERROR,new RespBuilder().withType(TYPE_INVALID_PROPERTY_VALUE).withTitle(TITLE_INVALID_PROPERTY_VALUE).withDetail("Invalid Property Value").getJsonResponse()),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }
 
@@ -422,6 +422,7 @@ public class QueryDecoderTest {
     assertEquals(new JsonObject().put(ERROR, new RespBuilder()
             .withType(TYPE_INVALID_SYNTAX)
             .withTitle(TITLE_INVALID_SYNTAX)
+            .withDetail(TITLE_INVALID_SYNTAX)
             .getJsonResponse()),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }
@@ -456,6 +457,7 @@ public class QueryDecoderTest {
     assertEquals(new JsonObject().put(ERROR, new RespBuilder()
             .withType(TYPE_INVALID_SYNTAX)
             .withTitle(TITLE_INVALID_SYNTAX)
+            .withDetail(TITLE_INVALID_SYNTAX)
             .getJsonResponse()),queryDecoder.searchQuery(request));
     vertxTestContext.completeNow();
   }

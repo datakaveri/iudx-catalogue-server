@@ -575,6 +575,8 @@ paths:
                       type: [ ]
                       name: wifi-location ...
                     title: 'urn:dx:cat:Success'
+                    detail: 'Success: Item has been created successfully'
+
         '400':
           description: Invalid document
           content:
@@ -747,6 +749,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/successResponseWithObjects'
+              example:
+                type: 'urn:dx:cat:Success'
+                title: Success
+                totalHits: 10
+                results:
+                  - id: uuid
+                    name: wifi-location
+                    type:
+                      - 'iudx:Resource'
+                details: 'Success: Item fetched successfully'
         '400':
           description: Invalid ID.
           content:
@@ -802,6 +814,8 @@ paths:
                     title: Success
                     results:
                       - id: uuid
+                    details: 'Success: Item has been deleted successfully'
+
         '401':
           description: Unauthorized access
           content:
@@ -2157,9 +2171,9 @@ components:
             id: cc18c925-8990-3a07-9cac-0bb2bd8166f6
             itemStatus: ACTIVE
             itemCreatedAt: 2023-09-08T10:00:02+0530
-        
 
-          
+
+
     invalidIdErrorResponse:
       type: object
       title: Invalid ID
@@ -2199,6 +2213,10 @@ components:
           description: Results which matched the query. This is an array of objects.
           items:
             type: object
+        detail:
+          type: string
+          description: Detailed description of the type or response
+
       required:
         - type
       example:
@@ -2206,6 +2224,7 @@ components:
         title: error
         totalHits: 0
         results: [ ]
+        detail: 'doc does not exist'
     exampleEntityWIdOwner:
       type: object
       title: owner entity
@@ -2618,6 +2637,10 @@ components:
           description: Results which matched the query. This is an array of objects.
           items:
             type: object
+        detail:
+          type: string
+          description: Detailed description of the type or response
+
       required:
         - type
       example:
@@ -2627,6 +2650,8 @@ components:
           id: uuid
           type: [ ]
           name: wifi-location
+        details: 'Success: Item has been updated successfully'
+
     errorInvalidSchema:
       type: object
       title: Response - invalid schema
@@ -2716,6 +2741,10 @@ components:
         description: Results which matched the query. This is an array of objects.
         items:
           type: object
+       detail:
+         type: string
+         description: Detailed description of the type or response
+
       description: Update Item Not Found
       example:
         type: urn:dx:cat:ItemNotFound
@@ -2725,6 +2754,8 @@ components:
             method: update
             title: failed
             detail: 'Fail: Doc doesn''t exist, can''t update'
+        detail: 'Fail: Doc doesn''t exist, can''t update'
+
     exampleEntityOwner:
       type: object
       title: owner entity
