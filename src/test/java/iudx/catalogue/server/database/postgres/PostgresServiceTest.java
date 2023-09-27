@@ -69,7 +69,7 @@ public class PostgresServiceTest {
     StringBuilder stringBuilder = new StringBuilder(GET_HIGH_COUNT_DATASET.replace("$1", table));
 
     String expected =
-        "{\"type\":\"urn:dx:cat:Success\",\"title\":\"Success\",\"results\":[{\"resourcegroup\":\"dummy-rg-id\",\"totalhits\":1}]}";
+        "{\"type\":\"urn:dx:cat:Success\",\"title\":\"Success\",\"results\":[{\"resource_group\":\"dummy-rg-id\",\"totalhits\":1}]}";
     pgService.executeQuery(
         stringBuilder.toString(),
         handler -> {
