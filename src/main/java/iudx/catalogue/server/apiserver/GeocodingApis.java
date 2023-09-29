@@ -124,6 +124,7 @@ public final class GeocodingApis {
               new RespBuilder()
                   .withType(TYPE_INVALID_SYNTAX)
                   .withTitle(TITLE_INVALID_SYNTAX)
+                      .withDetail("Invalid Syntax")
                   .getResponse());
       return;
     }

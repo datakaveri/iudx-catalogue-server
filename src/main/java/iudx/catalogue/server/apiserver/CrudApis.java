@@ -346,6 +346,7 @@ public final class CrudApis {
             JsonObject result = dbhandler.result();
             result.put(STATUS, ERROR);
             result.put(TYPE, TYPE_ITEM_NOT_FOUND);
+            dbhandler.result().put("detail", "doc doesn't exist");
             response.setStatusCode(404)
                     .end(dbhandler.result().toString());
           } else {

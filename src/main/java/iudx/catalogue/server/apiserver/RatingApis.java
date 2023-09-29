@@ -115,7 +115,8 @@ public class RatingApis {
                               new RespBuilder()
                                   .withType(TYPE_INVALID_SCHEMA)
                                   .withTitle(TITLE_INVALID_SCHEMA)
-                                  .getResponse());
+                                      .withDetail("The Schema of requested body is invalid.")
+                                      .getResponse());
                     } else {
                       ratingService.createRating(
                           requestBody,
@@ -307,7 +308,8 @@ public class RatingApis {
                               new RespBuilder()
                                   .withType(TYPE_INVALID_SCHEMA)
                                   .withTitle(TITLE_INVALID_SCHEMA)
-                                  .getResponse());
+                                      .withDetail("The Schema of requested body is invalid.")
+                                      .getResponse());
                     } else {
                       ratingService.updateRating(
                           requestBody,

@@ -129,7 +129,8 @@ public final class QueryDecoder {
         return new JsonObject().put(ERROR, new RespBuilder()
                     .withType(TYPE_INVALID_GEO_PARAM)
                     .withTitle(TITLE_INVALID_GEO_PARAM)
-                    .getJsonResponse());
+                .withDetail(DETAIL_INVALID_GEO_PARAMETER)
+                .getJsonResponse());
       }
     }
 
@@ -148,7 +149,8 @@ public final class QueryDecoder {
         return new JsonObject().put(ERROR, new RespBuilder()
                     .withType(TYPE_BAD_TEXT_QUERY)
                     .withTitle(TITLE_BAD_TEXT_QUERY)
-                    .getJsonResponse());
+                .withDetail("bad text query values")
+                .getJsonResponse());
       }
     }
 
@@ -200,7 +202,8 @@ public final class QueryDecoder {
           return new JsonObject().put(ERROR, new RespBuilder()
                       .withType(TYPE_INVALID_PROPERTY_VALUE)
                       .withTitle(TITLE_INVALID_PROPERTY_VALUE)
-                      .getJsonResponse());
+                  .withDetail("Invalid Property Value")
+                  .getJsonResponse());
         }
       }
     }
@@ -236,7 +239,8 @@ public final class QueryDecoder {
         return new JsonObject().put(ERROR, new RespBuilder()
             .withType(TYPE_OPERATION_NOT_ALLOWED)
             .withTitle(TITLE_OPERATION_NOT_ALLOWED)
-            .getJsonResponse());
+                .withDetail("operation not allowed")
+                .getJsonResponse());
       }
 
       if (request.containsKey(ATTRIBUTE)) {
@@ -249,7 +253,8 @@ public final class QueryDecoder {
         return new JsonObject().put(ERROR, new RespBuilder()
             .withType(TYPE_BAD_FILTER)
             .withTitle(TITLE_BAD_FILTER)
-            .getJsonResponse());
+                .withDetail("bad filters applied")
+                .getJsonResponse());
       }
     }
 
@@ -257,7 +262,8 @@ public final class QueryDecoder {
       return new JsonObject().put(ERROR, new RespBuilder()
             .withType(TYPE_INVALID_SYNTAX)
             .withTitle(TITLE_INVALID_SYNTAX)
-            .getJsonResponse());
+              .withDetail("Invalid Syntax")
+              .getJsonResponse());
     } else {
 
       JsonObject boolQuery = new JsonObject(MUST_QUERY.replace("$1", mustQuery.toString()));
