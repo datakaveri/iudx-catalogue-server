@@ -1769,7 +1769,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     gettingAllDatasets(query, datasetResult);
     allMlayerInstance(instanceResult);
-    gettingResourceCount(resourceCount);
+    gettingResourceAccessPolicyCount(resourceCount);
 
     CompositeFuture.all(instanceResult.future(), datasetResult.future(), resourceCount.future())
         .onComplete(
@@ -1777,7 +1777,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               if (ar.succeeded()) {
                 JsonObject instanceList = ar.result().resultAt(0);
                 JsonObject resourceGroupList = ar.result().resultAt(1);
-                JsonObject resourceCountList = ar.result().resultAt(2);
+                JsonObject resourceAndPolicyCount = ar.result().resultAt(2);
                 JsonArray resourceGroupArray = new JsonArray();
                 for (int i = 0; i < resourceGroupList.getInteger("resourceGroupCount"); i++) {
                   JsonObject record =
@@ -1789,10 +1789,11 @@ public class DatabaseServiceImpl implements DatabaseService {
                           : "");
                   record.put(
                       "totalResources",
-                      resourceCountList.containsKey(record.getString(ID))
-                          ? resourceCountList.getInteger(record.getString(ID))
+                      resourceAndPolicyCount.getJsonObject("resourceItemCount").containsKey(record.getString(ID))
+                          ? resourceAndPolicyCount.getJsonObject("resourceItemCount").getInteger(record.getString(ID))
                           : 0);
-
+                  if (resourceAndPolicyCount.getJsonObject("resourceAccessPolicy").containsKey(record.getString(ID)))
+                  record.put("accessPolicy", resourceAndPolicyCount.getJsonObject("resourceAccessPolicy").getJsonObject(record.getString(ID)));
                   record.remove(TYPE);
                   resourceGroupArray.add(record);
                 }
@@ -1812,21 +1813,46 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  private void gettingResourceCount(Promise<JsonObject> resourceCountResult) {
+  private void gettingResourceAccessPolicyCount(Promise<JsonObject> resourceCountResult) {
     LOGGER.debug("Getting resource item count");
-    String query = GET_RESOURCE_ITEM_COUNT;
+    String query = RESOURCE_ACCESSPOLICY_COUNT;
     client.resourceAggregationAsync(
         query,
         docIndex,
         resourceCountRes -> {
           if (resourceCountRes.succeeded()) {
             JsonObject resourceItemCount = new JsonObject();
-            int size = resourceCountRes.result().getJsonArray(RESULTS).size();
-            for (int i = 0; i < size; i++) {
-              JsonObject record = resourceCountRes.result().getJsonArray(RESULTS).getJsonObject(i);
-              resourceItemCount.put(record.getString(KEY), record.getInteger("doc_count"));
-            }
-            resourceCountResult.complete(resourceItemCount);
+            JsonObject resourceAccessPolicy = new JsonObject();
+            JsonArray resultsArray = resourceCountRes.result().getJsonArray(RESULTS);
+            resultsArray.forEach(record -> {
+                  JsonObject recordObject = (JsonObject) record;
+                  String resourceGroup = recordObject.getJsonObject(KEY).getString("resourceGroup");
+                  int docCount = recordObject.getInteger("doc_count");
+                  resourceItemCount.put(resourceGroup, docCount);
+                  Map<String, Integer> accessPolicy = new HashMap<>();
+                  accessPolicy.put("PII",0);
+                  accessPolicy.put("SECURE",0);
+                  accessPolicy.put("OPEN",0);
+
+                  JsonArray accessPoliciesArray = recordObject
+                          .getJsonObject("access_policies")
+                          .getJsonArray("buckets");
+
+                  accessPoliciesArray.forEach(accessPolicyRecord -> {
+                      JsonObject accessPolicyRecordObject = (JsonObject) accessPolicyRecord;
+                      String accessPolicyKey = accessPolicyRecordObject.getString(KEY);
+                      int accessPolicyDocCount = accessPolicyRecordObject.getInteger("doc_count");
+                      accessPolicy.put(accessPolicyKey, accessPolicyDocCount);
+
+                  });
+                  resourceAccessPolicy.put(resourceGroup, accessPolicy);
+              });
+
+              JsonObject results = new JsonObject()
+                      .put("resourceItemCount", resourceItemCount)
+                      .put("resourceAccessPolicy", resourceAccessPolicy);
+              resourceCountResult.complete(results);
+
           } else {
             LOGGER.error("Fail: query fail;" + resourceCountRes.cause());
             resourceCountResult.handle(Future.failedFuture(internalErrorResp));
@@ -2200,13 +2226,14 @@ public class DatabaseServiceImpl implements DatabaseService {
             Promise<JsonObject> resourceCount = Promise.promise();
 
             // function to get the resource group items count
-            gettingResourceCount(resourceCount);
+            gettingResourceAccessPolicyCount(resourceCount);
             resourceCount
                 .future()
                 .onComplete(
                     handler -> {
                       if (handler.succeeded()) {
-                        JsonObject resourceItemCount = resourceCount.future().result();
+                        JsonObject resourceItemCount = resourceCount.future().result().getJsonObject("resourceItemCount");
+                        JsonObject resourceAccessPolicy = resourceCount.future().result().getJsonObject("resourceAccessPolicy");
                         int totalResourceItem = 0;
 
                         for (int i = 0; i < resultSize; i++) {
@@ -2220,6 +2247,11 @@ public class DatabaseServiceImpl implements DatabaseService {
                                     ? resourceItemCount.getInteger(id)
                                     : 0;
                             record.put("totalResources", resourceItemCountInGroup);
+                            if (resourceAccessPolicy.containsKey(id)) {
+                                record.put("accessPolicy", resourceAccessPolicy.getJsonObject(id));
+                            }
+
+
                             // getting total count of resource items
                             totalResourceItem = totalResourceItem + resourceItemCountInGroup;
                             if (record.containsKey("itemCreatedAt")) {
