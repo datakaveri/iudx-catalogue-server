@@ -2345,7 +2345,10 @@ public class DatabaseServiceImplTest {
     JsonArray jsonArray = new JsonArray();
     JsonArray provider = new JsonArray();
     provider.add("iudx:Provider");
+    JsonArray accessPolicy = new JsonArray();
     JsonObject dataset_record = new JsonObject();
+    JsonObject accessPolicyJson = new JsonObject().put("resourceGroup", "abc")
+            .put("buckets",accessPolicy);
     dataset_record
         .put(INSTANCE, "dummy instance")
         .put(PROVIDER, "dummy provider")
@@ -2354,7 +2357,9 @@ public class DatabaseServiceImplTest {
             .put("id", "dataset id")
             .put("description", "description of dataset")
             .put("key","rg_id")
-            .put("doc_count",5);
+            .put("doc_count",5)
+            .put(KEY,accessPolicyJson)
+            .put("access_policies", accessPolicyJson);
     jsonArray.add(dataset_record);
     request.put(RESULTS, jsonArray)
             .put("resourceGroupCount",5)
@@ -2446,7 +2451,10 @@ public class DatabaseServiceImplTest {
         provider.add("iudx:Provider");
         JsonObject dataset_record = new JsonObject();
         JsonObject dataset_recordRs = new JsonObject();
+        JsonArray accessPolicy = new JsonArray();
         JsonArray jsonArrayType = new JsonArray().add(0,ITEM_TYPE_RESOURCE_GROUP);
+        JsonObject accessPolicyJson = new JsonObject().put("resourceGroup", "abc")
+                .put(BUCKETS, accessPolicy);
         dataset_record
                 .put(INSTANCE, "dummy instance")
                 .put(PROVIDER, "dummy provider")
@@ -2455,7 +2463,9 @@ public class DatabaseServiceImplTest {
                 .put("id", "dataset id")
                 .put("description", "description of dataset")
                 .put("key","rg_id")
-                .put("doc_count",5);
+                .put("doc_count",5)
+                .put(KEY, accessPolicyJson)
+                .put("access_policies", accessPolicyJson);
         dataset_recordRs
                 .put(INSTANCE, "dummy instance")
                 .put(PROVIDER, "dummy provider")
@@ -2464,7 +2474,9 @@ public class DatabaseServiceImplTest {
                 .put("id", "dataset id")
                 .put("description", "description of dataset")
                 .put("key","rg_id")
-                .put("doc_count",5);
+                .put("doc_count",5)
+                .put(KEY, accessPolicyJson)
+                .put("access_policies", accessPolicyJson);
         jsonArray.add(dataset_record).add(dataset_recordRs);
         request.put(RESULTS, jsonArray)
                 .put("resourceGroupCount",5)
@@ -2532,12 +2544,17 @@ public class DatabaseServiceImplTest {
             nlpService,
             geoService);
     String instanceName ="";
-    JsonObject json =
-        new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance");
+    JsonArray accessPolicy = new JsonArray();
+    JsonObject accessPolicyJson =
+        new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance")
+                .put(BUCKETS, accessPolicy)
+                .put("resourceGroup", "abc");
     JsonObject json2 =
-        new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance");
+        new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance")
+                .put(BUCKETS, accessPolicy)
+                .put("resourceGroup", "abc");
 
-    JsonArray highestCountResource = new JsonArray().add(json).add(json2);
+    JsonArray highestCountResource = new JsonArray().add(accessPolicyJson).add(json2);
 
         JsonArray resourceArray = new JsonArray();
         JsonArray typeArray = new JsonArray().add(0, "iudx:ResourceGroup");
@@ -2551,7 +2568,9 @@ public class DatabaseServiceImplTest {
                         .put("name", "agra")
                         .put("itemCreatedAt", "2023-08-31T05:09:54+0530")
                         .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
-                        .put("doc_count", 2);
+                        .put("doc_count", 2)
+                        .put(KEY, accessPolicyJson)
+                        .put("access_policies", accessPolicyJson);
 
         JsonObject instance =
                 new JsonObject()
@@ -2564,9 +2583,11 @@ public class DatabaseServiceImplTest {
                         .put("instance", "instance")
                         .put("itemCreatedAt", "2023-08-30T05:09:54+0530")
                         .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
-                        .put("doc_count", 2);
+                        .put("doc_count", 2)
+                        .put(KEY, accessPolicyJson)
+                        .put("access_policies", accessPolicyJson);
         resourceArray.add(instance).add(jsonObject2).add(instance).add(instance).add(instance).add(instance);
-        JsonArray latestDataset = new JsonArray().add(json);
+        JsonArray latestDataset = new JsonArray().add(accessPolicyJson);
 
     JsonObject result =
         new JsonObject()
@@ -2665,10 +2686,13 @@ public class DatabaseServiceImplTest {
             mlayerDomainIndex,
             nlpService,
             geoService);
-    JsonObject json = new JsonObject().put("rgid", "duumy-id");
+    JsonArray accessPolicy = new JsonArray();
+    JsonObject record = new JsonObject().put("rgid", "duumy-id")
+            .put("resourceGroup", "abc")
+            .put(BUCKETS, accessPolicy);
     JsonObject json2 = new JsonObject().put("rgid", "duumy-id");
 
-    JsonArray highestCountResource = new JsonArray().add(json).add(json2);
+    JsonArray highestCountResource = new JsonArray().add(record).add(json2);
 
         JsonArray resourceArray = new JsonArray();
         JsonArray typeArray = new JsonArray().add(0, "iudx:Provider");
@@ -2681,7 +2705,9 @@ public class DatabaseServiceImplTest {
                         .put("resourceGroup", "abc")
                         .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
                         .put("doc_count", 2)
-                        .put("id", "719390c5-30c0-4339-b0f2-1be292312104");
+                        .put("id", "719390c5-30c0-4339-b0f2-1be292312104")
+                        .put(KEY, record)
+                        .put("access_policies", record);
         JsonObject instance =
                 new JsonObject()
                         .put("name", "agra")
@@ -2690,7 +2716,9 @@ public class DatabaseServiceImplTest {
                         .put("resourceGroup", "abc")
                         .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
                         .put("doc_count", 2)
-                        .put("id", "719390c5-30c0-4339-b0f2-1be292312104");
+                        .put("id", "719390c5-30c0-4339-b0f2-1be292312104")
+                        .put(KEY, record)
+                        .put("access_policies", record);
         resourceArray.add(instance).add(instanceRg).add(instanceRg).add(instanceRg)
                 .add(instanceRg).add(instanceRg).add(instanceRg);
 
@@ -2747,10 +2775,13 @@ public class DatabaseServiceImplTest {
             nlpService,
             geoService);
     String instanceName ="dummy";
-    JsonObject json = new JsonObject().put("rgid", "duumy-id");
+    JsonArray accessPolicy = new JsonArray();
+    JsonObject record = new JsonObject().put("rgid", "duumy-id")
+            .put("resourceGroup", "abc")
+            .put(BUCKETS, accessPolicy);
     JsonObject json2 = new JsonObject().put("rgid", "duumy-id");
 
-    JsonArray highestCountResource = new JsonArray().add(json).add(json2);
+    JsonArray highestCountResource = new JsonArray().add(record).add(json2);
     DatabaseServiceImpl.client = mock(ElasticClient.class);
 
     JsonArray resourceArray = new JsonArray();
@@ -2763,7 +2794,9 @@ public class DatabaseServiceImplTest {
             .put(TYPE, typeArray)
             .put("resourceGroup", "abc")
                 .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
-                .put("doc_count", 2);
+                .put("doc_count", 2)
+                .put(KEY, record)
+                .put("access_policies", record);
     resourceArray.add(instance);
 
     JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resourceArray);
