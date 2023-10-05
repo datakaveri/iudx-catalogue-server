@@ -217,11 +217,12 @@ public class Constants {
           + " \"resourceType\", \"resourceServerRegURL\",\"resourceType\"]},\"size\": 10000}";
 
   public static final String RESOURCE_ACCESSPOLICY_COUNT =
-      "{\"size\":0,\"query\":{\"match_all\":{}},\"aggs\":{\"results\":{\"composite\":"
-              + "{\"sources\":[{\"resourceGroup\":{\"terms\":{\"field\": "
-              + "\"resourceGroup.keyword\"}}}]},\"aggs\":{\"access_policies\":"
-              + "{\"terms\":{\"field\":\"accessPolicy.keyword\",\"size\":10000}},"
-              + "\"resource_count\":{\"value_count\":{\"field\":\"id.keyword\"}}}}}}";
+          "{\"size\": 0,\"aggs\":{\"results\":{\"terms\":{\"field\":\"resourceGroup.keyword\","
+                  + "\"size\":10000},\"aggs\":{\"access_policies\":{\"terms\":{\"field\":"
+                  + "\"accessPolicy.keyword\",\"size\":10000},\"aggs\":{\"accessPolicy_count\":"
+                  + "{\"value_count\":{\"field\":\"accessPolicy.keyword\"}}}},\"resource_count\":"
+                  + "{\"value_count\":{\"field\":\"id.keyword\"}}}}}}\n";
+
 
   public static final String GET_MLAYER_INSTANCE_ICON =
       "{\"query\":{\"match\":{\"name\":\"$1\"}},\"_source\": {\"includes\": [\"icon\"]}}";
