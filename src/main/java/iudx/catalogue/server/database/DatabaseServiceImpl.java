@@ -1796,9 +1796,14 @@ public class DatabaseServiceImpl implements DatabaseService {
                           : 0);
                   if (resourceAndPolicyCount.getJsonObject("resourceAccessPolicy")
                           .containsKey(record.getString(ID))) {
-                    record.put("accessPolicy", resourceAndPolicyCount
+                      record.put(ACCESS_POLICY, resourceAndPolicyCount
                             .getJsonObject("resourceAccessPolicy")
                           .getJsonObject(record.getString(ID)));
+                  } else {
+                      record.put(ACCESS_POLICY, new JsonObject().put("PII", 0)
+                              .put("SECURE", 0)
+                              .put("OPEN", 0));
+
                   }
                   record.remove(TYPE);
                   resourceGroupArray.add(record);
@@ -1832,7 +1837,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             JsonArray resultsArray = resourceCountRes.result().getJsonArray(RESULTS);
             resultsArray.forEach(record -> {
               JsonObject recordObject = (JsonObject) record;
-              String resourceGroup = recordObject.getJsonObject(KEY).getString("resourceGroup");
+              String resourceGroup = recordObject.getString(KEY);
               int docCount = recordObject.getInteger("doc_count");
               resourceItemCount.put(resourceGroup, docCount);
               Map<String, Integer> accessPolicy = new HashMap<>();
@@ -2257,6 +2262,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                             record.put("totalResources", resourceItemCountInGroup);
                             if (resourceAccessPolicy.containsKey(id)) {
                                 record.put("accessPolicy", resourceAccessPolicy.getJsonObject(id));
+                            } else {
+                                record.put("accessPolicy", new JsonObject().put("PII", 0)
+                                        .put("SECURE", 0)
+                                        .put("OPEN", 0));
                             }
 
 
