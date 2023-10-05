@@ -187,7 +187,7 @@ public class Constants {
           + "\"iudx:COS\", \"iudx:ResourceGroup\", \"iudx:Resource\"]}}}},\"_source\""
           + ":{\"includes\": "
           + "[\"type\",\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\","
-          + "\"provider\", \"resourceServerURL\",\"description\" ,\"cosURL\", "
+          + "\"provider\", \"resourceServerRegURL\",\"description\" ,\"cosURL\", "
           + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\":"
           + " 10000}";
 
@@ -199,7 +199,7 @@ public class Constants {
         + "{\"bool\":{\"must\":[{\"terms\":{\"type.keyword\":"
         + "[\"iudx:Provider\",\"iudx:COS\"]}}]}}]}},\"_source\":"
         + "{\"includes\":[\"type\",\"id\",\"label\",\"accessPolicy\","
-        + "\"tags\",\"instance\",\"provider\",\"resourceServerURL\","
+        + "\"tags\",\"instance\",\"provider\",\"resourceServerRegURL\","
         + "\"description\",\"cosURL\",\"cos\",\"resourceGroup\"]},"
         + "\"size\":10000}";
   public static final String GET_MLAYER_DATASET =
@@ -214,7 +214,7 @@ public class Constants {
           + " \"label\", \"description\", \"instance\", \"accessPolicy\",\"cosURL\","
           + " \"dataSample\","
           + " \"dataDescriptor\", \"@context\", \"dataQualityFile\", \"dataSampleFile\","
-          + " \"resourceType\", \"resourceServerURL\",\"resourceType\"]},\"size\": 10000}";
+          + " \"resourceType\", \"resourceServerRegURL\",\"resourceType\"]},\"size\": 10000}";
 
   public static final String RESOURCE_ACCESSPOLICY_COUNT =
       "{\"size\":0,\"query\":{\"match_all\":{}},\"aggs\":{\"results\":{\"composite\":"

@@ -1919,8 +1919,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                 providerDescription.put(record.getString(ID), record.getString(DESCRIPTION_ATTR));
                 rsUrl.put(
                     record.getString(ID),
-                    record.containsKey("resourceServerURL")
-                        ? record.getString("resourceServerURL")
+                    record.containsKey("resourceServerRegURL")
+                        ? record.getString("resourceServerRegURL")
                         : "");
               } else if (record.getJsonArray(TYPE).getString(0).equals("iudx:COS")) {
                 cosUrl.put(record.getString(ID), record.getString("cosURL"));
@@ -1935,7 +1935,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                 record.put(
                     "providerDescription",
                     providerDescription.getString(record.getString(PROVIDER)));
-                record.put("resourceServerURL", rsUrl.getString(record.getString(PROVIDER)));
+                record.put("resourceServerRegURL", rsUrl.getString(record.getString(PROVIDER)));
                 record.put(
                     "cosURL",
                     record.containsKey("cos") ? cosUrl.getString(record.getString("cos")) : "");
