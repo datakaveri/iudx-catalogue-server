@@ -155,7 +155,7 @@ public final class ElasticClient {
                   provider
                           .put(ID, record.getString(ID))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
-                  dataset.put("resourceServerURL", record.getString("resourceServerURL"));
+                  dataset.put("resourceServerRegURL", record.getString("resourceServerRegURL"));
                   dataset.put(PROVIDER, provider);
                 }
                 if (type.equals("iudx:Resource")) {
