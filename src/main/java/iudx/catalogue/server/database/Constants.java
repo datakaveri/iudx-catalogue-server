@@ -214,7 +214,8 @@ public class Constants {
           + " \"label\", \"description\", \"instance\", \"accessPolicy\",\"cosURL\","
           + " \"dataSample\","
           + " \"dataDescriptor\", \"@context\", \"dataQualityFile\", \"dataSampleFile\","
-          + " \"resourceType\", \"resourceServerRegURL\",\"resourceType\"]},\"size\": 10000}";
+          + " \"resourceType\", \"resourceServerRegURL\",\"resourceType\","
+          + "\"location\"]},\"size\": 10000}";
 
   public static final String RESOURCE_ACCESSPOLICY_COUNT =
           "{\"size\": 0,\"aggs\":{\"results\":{\"terms\":{\"field\":\"resourceGroup.keyword\","
