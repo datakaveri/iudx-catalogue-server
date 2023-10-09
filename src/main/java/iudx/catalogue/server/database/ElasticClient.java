@@ -202,6 +202,9 @@ public final class ElasticClient {
                   if (record.containsKey("resourceType")) {
                     dataset.put("resourceType", record.getString("resourceType"));
                   }
+                  if (record.containsKey("location")) {
+                    dataset.put("location", record.getJsonObject("location"));
+                  }
                 }
 
                 if (type.equals("iudx:COS")) {
