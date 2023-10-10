@@ -1775,7 +1775,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         .onComplete(
             ar -> {
               if (ar.succeeded()) {
-                LOGGER.debug("getMlayerDatasets all futures succeeded, {} {} {}", instanceResult.future().succeeded(), datasetResult.future().succeeded(), resourceCount.future().succeeded());
                 JsonObject instanceList = ar.result().resultAt(0);
                 JsonObject resourceGroupList = ar.result().resultAt(1);
                 JsonObject resourceAndPolicyCount = ar.result().resultAt(2);

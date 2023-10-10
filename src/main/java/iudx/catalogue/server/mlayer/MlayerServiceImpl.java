@@ -277,7 +277,8 @@ public class MlayerServiceImpl implements MlayerService {
       if (requestData.containsKey(TAGS) && !requestData.getJsonArray(TAGS).isEmpty()) {
         query =
             query.concat(
-                ",{\"terms\":{\"tags.keyword\":$1}}".replace("$1", requestData.getJsonArray(TAGS).toString()));
+                ",{\"terms\":{\"tags.keyword\":$1}}"
+                    .replace("$1", requestData.getJsonArray(TAGS).toString()));
       }
       if (requestData.containsKey(INSTANCE) && !requestData.getString(INSTANCE).isBlank()) {
         query =
