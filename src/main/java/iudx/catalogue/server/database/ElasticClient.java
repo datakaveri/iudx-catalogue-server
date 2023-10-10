@@ -247,6 +247,8 @@ public final class ElasticClient {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
     queryRequest.setJsonEntity(query);
+    LOGGER.debug("searchAsync called");
+    LOGGER.debug(query);
     LOGGER.debug(queryRequest);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
     future.onComplete(resultHandler);
@@ -284,6 +286,10 @@ public final class ElasticClient {
             + "/_search"
             + FILTER_PATH_AGGREGATION);
     queryRequest.setJsonEntity(query);
+
+    LOGGER.debug("resourceAggregationAsync called");
+    LOGGER.debug(query);
+    LOGGER.debug(queryRequest);
     Future<JsonObject> future = searchAsync(queryRequest, RESOURCE_AGGREGATION_ONLY);
     future.onComplete(resultHandler);
     return this;

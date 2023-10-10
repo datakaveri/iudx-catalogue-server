@@ -1775,10 +1775,12 @@ public class DatabaseServiceImpl implements DatabaseService {
         .onComplete(
             ar -> {
               if (ar.succeeded()) {
+                LOGGER.debug("getMlayerDatasets all futures succeeded, {} {} {}", instanceResult.future().succeeded(), datasetResult.future().succeeded(), resourceCount.future().succeeded());
                 JsonObject instanceList = ar.result().resultAt(0);
                 JsonObject resourceGroupList = ar.result().resultAt(1);
                 JsonObject resourceAndPolicyCount = ar.result().resultAt(2);
                 JsonArray resourceGroupArray = new JsonArray();
+                LOGGER.debug("getMlayerDatasets resourceGroupList iteration started");
                 for (int i = 0; i < resourceGroupList.getInteger("resourceGroupCount"); i++) {
                   JsonObject record =
                       resourceGroupList.getJsonArray("resourceGroup").getJsonObject(i);
@@ -1808,12 +1810,14 @@ public class DatabaseServiceImpl implements DatabaseService {
                   record.remove(TYPE);
                   resourceGroupArray.add(record);
                 }
+                LOGGER.debug("getMlayerDatasets resourceGroupList interation succeeded");
                 RespBuilder respBuilder =
                     new RespBuilder()
                         .withType(TYPE_SUCCESS)
                         .withTitle(SUCCESS)
                         .withTotalHits(resourceGroupList.getInteger("resourceGroupCount"))
                         .withResult(resourceGroupArray);
+                LOGGER.debug("getMlayerDatasets succeeded");
                 handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
 
               } else {
@@ -1832,9 +1836,12 @@ public class DatabaseServiceImpl implements DatabaseService {
         docIndex,
         resourceCountRes -> {
           if (resourceCountRes.succeeded()) {
+            try {
+            LOGGER.debug("resourceAP started");
             JsonObject resourceItemCount = new JsonObject();
             JsonObject resourceAccessPolicy = new JsonObject();
             JsonArray resultsArray = resourceCountRes.result().getJsonArray(RESULTS);
+            LOGGER.debug("resourceAP for each resultsArray started");
             resultsArray.forEach(record -> {
               JsonObject recordObject = (JsonObject) record;
               String resourceGroup = recordObject.getString(KEY);
@@ -1859,11 +1866,17 @@ public class DatabaseServiceImpl implements DatabaseService {
               resourceAccessPolicy.put(resourceGroup, accessPolicy);
             });
 
-              JsonObject results = new JsonObject()
-                      .put("resourceItemCount", resourceItemCount)
-                      .put("resourceAccessPolicy", resourceAccessPolicy);
-              resourceCountResult.complete(results);
+            LOGGER.debug("resourceAP for each resultsArray succeeded");
 
+            JsonObject results = new JsonObject()
+                    .put("resourceItemCount", resourceItemCount)
+                    .put("resourceAccessPolicy", resourceAccessPolicy);
+            LOGGER.debug("resourceAP Succeeded : {}", results.containsKey("resourceItemCount"));
+            resourceCountResult.complete(results);
+            } catch (Exception e) {
+              LOGGER.error("resourceAP unexpectedly failed : {}", e.getMessage());
+              resourceCountResult.fail(e.getMessage());
+            }
           } else {
             LOGGER.error("Fail: query fail;" + resourceCountRes.cause());
             resourceCountResult.handle(Future.failedFuture(internalErrorResp));
@@ -1878,15 +1891,23 @@ public class DatabaseServiceImpl implements DatabaseService {
         mlayerInstanceIndex,
         instanceRes -> {
           if (instanceRes.succeeded()) {
+            try {
+            LOGGER.debug("getInstance started");
             int instanceSize = instanceRes.result().getJsonArray(RESULTS).size();
             JsonObject instanceIcon = new JsonObject();
+            LOGGER.debug("getInstance for each instance started");
             for (int i = 0; i < instanceSize; i++) {
               JsonObject instanceObject =
                   instanceRes.result().getJsonArray(RESULTS).getJsonObject(i);
               instanceIcon.put(
                   instanceObject.getString("name").toLowerCase(), instanceObject.getString("icon"));
             }
+            LOGGER.debug("getInstance succeeded");
             instanceResult.complete(instanceIcon);
+            } catch (Exception e) {
+              LOGGER.error("getInstance enexpectedly failed : {}", e.getMessage());
+              instanceResult.fail(e.getMessage());
+            }
           } else {
 
             LOGGER.error("Fail: query fail;" + instanceRes.cause());
@@ -1903,9 +1924,11 @@ public class DatabaseServiceImpl implements DatabaseService {
         docIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {
-            LOGGER.debug("Success: Successful DB Request");
+            try {
+            LOGGER.debug("getRGs started");
             int size = resultHandler.result().getJsonArray(RESULTS).size();
             if (size == 0) {
+              LOGGER.debug("getRGs is zero");
               datasetResult.handle(
                   Future.failedFuture(
                       new RespBuilder()
@@ -1918,6 +1941,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             JsonObject rsUrl = new JsonObject();
             JsonObject providerDescription = new JsonObject();
             JsonObject cosUrl = new JsonObject();
+            LOGGER.debug("getRGs for each provider type result started");
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
               if (record.getJsonArray(TYPE).getString(0).equals(ITEM_TYPE_PROVIDER)) {
@@ -1931,8 +1955,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                 cosUrl.put(record.getString(ID), record.getString("cosURL"));
               }
             }
+            LOGGER.debug("getRGs for each provider type result succeeded");
             int resourceGroupHits = 0;
             JsonArray resourceGroup = new JsonArray();
+            LOGGER.debug("getRGs for each resource group result started");
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
               if (record.getJsonArray(TYPE).getString(0).equals(ITEM_TYPE_RESOURCE_GROUP)) {
@@ -1949,11 +1975,17 @@ public class DatabaseServiceImpl implements DatabaseService {
                 resourceGroup.add(record);
               }
             }
+            LOGGER.debug("getRGs for each resource group result succeeded");
             JsonObject resourceGroupResult =
                 new JsonObject()
                     .put("resourceGroupCount", resourceGroupHits)
                     .put("resourceGroup", resourceGroup);
+            LOGGER.debug("getRGs succeeded");
             datasetResult.complete(resourceGroupResult);
+            } catch (Exception e) {
+              LOGGER.error("getRGs unexpectedly failed : {}", e.getMessage());
+              datasetResult.fail(e.getMessage());
+            }
           } else {
             LOGGER.error("Fail: failed DB request");
             datasetResult.handle(Future.failedFuture(internalErrorResp));

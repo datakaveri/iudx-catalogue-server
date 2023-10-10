@@ -229,6 +229,7 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_MLAYER_ALL_DATASETS;
+    LOGGER.debug("databse get mlayer all datasets called");
     databaseService.getMlayerAllDatasets(
         query, getMlayerAllDatasets -> {
           if (getMlayerAllDatasets.succeeded()) {
@@ -236,6 +237,7 @@ public class MlayerServiceImpl implements MlayerService {
             handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
           } else {
             LOGGER.error("Fail: Getting all datasets failed");
+            LOGGER.debug("Failure cause: {}", getMlayerAllDatasets.cause().getMessage());
             handler.handle(Future.failedFuture(getMlayerAllDatasets.cause()));
           }
         });
@@ -290,6 +292,7 @@ public class MlayerServiceImpl implements MlayerService {
                     .replace("$1", requestData.getString(PROVIDERS)));
       }
       query = query.concat(GET_ALL_DATASETS_BY_FIELD_SOURCE);
+      LOGGER.debug("databse get mlayer all datasets called");
       databaseService.getMlayerAllDatasets(
           query,
           getAllDatasetsHandler -> {
@@ -298,6 +301,7 @@ public class MlayerServiceImpl implements MlayerService {
               handler.handle(Future.succeededFuture(getAllDatasetsHandler.result()));
             } else {
               LOGGER.error("Fail: Getting details of all datasets");
+              LOGGER.debug("Failure cause: {}", getAllDatasetsHandler.cause().getMessage());
               handler.handle(Future.failedFuture(getAllDatasetsHandler.cause()));
             }
           });
