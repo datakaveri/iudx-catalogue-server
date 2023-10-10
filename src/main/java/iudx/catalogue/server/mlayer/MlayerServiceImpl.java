@@ -237,7 +237,6 @@ public class MlayerServiceImpl implements MlayerService {
             handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
           } else {
             LOGGER.error("Fail: Getting all datasets failed");
-            LOGGER.debug("Failure cause: {}", getMlayerAllDatasets.cause().getMessage());
             handler.handle(Future.failedFuture(getMlayerAllDatasets.cause()));
           }
         });
@@ -302,7 +301,6 @@ public class MlayerServiceImpl implements MlayerService {
               handler.handle(Future.succeededFuture(getAllDatasetsHandler.result()));
             } else {
               LOGGER.error("Fail: Getting details of all datasets");
-              LOGGER.debug("Failure cause: {}", getAllDatasetsHandler.cause().getMessage());
               handler.handle(Future.failedFuture(getAllDatasetsHandler.cause()));
             }
           });
