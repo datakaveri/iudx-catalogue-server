@@ -2076,7 +2076,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                                 resultHandler.result().remove(TOTAL_HITS);
                                 handler.handle(Future.succeededFuture(resultHandler.result()));
                               } else {
-                                LOGGER.error("Fail: failed DB request");
+                                LOGGER.error("Fail: failed DB request inner");
+                                LOGGER.error(resultHandler.cause());
                                 handler.handle(Future.failedFuture(internalErrorResp));
                               }
                             });
@@ -2086,7 +2087,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                         handler.handle(Future.succeededFuture(resultHandler.result()));
                       }
                     } else {
-                      LOGGER.error("Fail: failed DB request");
+                      LOGGER.error("Fail: failed DB request outer");
+                      LOGGER.error(resultHandler.cause());
                       handler.handle(Future.failedFuture(internalErrorResp));
                     }
                   });
