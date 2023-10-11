@@ -155,57 +155,64 @@ public final class ElasticClient {
                   provider
                           .put(ID, record.getString(ID))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
-                  dataset.put("resourceServerRegURL", record.getString("resourceServerRegURL"));
-                  dataset.put(PROVIDER, provider);
-                }
-                if (type.equals("iudx:Resource")) {
-                  record.remove("type");
-                  record.put("resourceId", record.getString("id"));
-                  record.remove("id");
-                  resource.add(record);
-                }
-                if (type.equals("iudx:ResourceGroup")) {
-                  String schema =
-                          record.getString("@context")
-                                  + record
-                                  .getJsonArray(TYPE)
-                                  .getString(1)
-                                  .substring(5, record.getJsonArray(TYPE)
-                                          .getString(1).length());
-                  record.put("schema", schema);
-                  record.remove("@context");
-                  dataset
+                      dataset.put("resourceServerRegURL", record.getString("resourceServerRegURL"));
+                      dataset.put(PROVIDER, provider);
+                    }
+                    if (type.equals("iudx:Resource")) {
+                      record.remove("type");
+                      record.put("resourceId", record.getString("id"));
+                      record.remove("id");
+                      resource.add(record);
+                    }
+                    if (type.equals("iudx:ResourceGroup")) {
+                      dataset
                           .put(ID, record.getString(ID))
-                          .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
+                          .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
+                      if (record.getJsonArray(TYPE).size() > 1) {
+                        String schema =
+                            record.getString("@context")
+                                + record
+                                    .getJsonArray(TYPE)
+                                    .getString(1)
+                                    .substring(5, record.getJsonArray(TYPE).getString(1).length());
+                        record.put("schema", schema);
+                        record.remove("@context");
+                        dataset
                           .put("schema", schema);
-                  if (record.containsKey(LABEL)) {
-                    dataset.put(LABEL, record.getString(LABEL));
-                  }
-                  if (record.containsKey(ACCESS_POLICY)) {
-                    dataset.put(ACCESS_POLICY, record.getString(ACCESS_POLICY));
-                  }
-                  if (record.containsKey(INSTANCE)) {
-                    dataset.put(INSTANCE, record.getString(INSTANCE));
-                  }
-                  if (record.containsKey(DATA_SAMPLE)) {
-                    dataset.put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE));
-                  }
-                  if (record.containsKey("dataSampleFile")) {
-                    dataset.put("dataSampleFile", record.getJsonArray("dataSampleFile"));
-                  }
-                  if (record.containsKey("dataQualityFile")) {
-                    dataset.put("dataQualityFile", record.getJsonArray("dataQualityFile"));
-                  }
-                  if (record.containsKey(DATA_DESCRIPTOR)) {
-                    dataset.put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR));
-                  }
-                  if (record.containsKey("resourceType")) {
-                    dataset.put("resourceType", record.getString("resourceType"));
-                  }
-                  if (record.containsKey("location")) {
-                    dataset.put("location", record.getJsonObject("location"));
-                  }
-                }
+                      } else {
+                        record.put("schema", "");
+                        record.remove("@context");
+                        dataset
+                            .put("schema", "");
+                      }
+                      if (record.containsKey(LABEL)) {
+                        dataset.put(LABEL, record.getString(LABEL));
+                      }
+                      if (record.containsKey(ACCESS_POLICY)) {
+                        dataset.put(ACCESS_POLICY, record.getString(ACCESS_POLICY));
+                      }
+                      if (record.containsKey(INSTANCE)) {
+                        dataset.put(INSTANCE, record.getString(INSTANCE));
+                      }
+                      if (record.containsKey(DATA_SAMPLE)) {
+                        dataset.put(DATA_SAMPLE, record.getJsonObject(DATA_SAMPLE));
+                      }
+                      if (record.containsKey("dataSampleFile")) {
+                        dataset.put("dataSampleFile", record.getJsonArray("dataSampleFile"));
+                      }
+                      if (record.containsKey("dataQualityFile")) {
+                        dataset.put("dataQualityFile", record.getJsonArray("dataQualityFile"));
+                      }
+                      if (record.containsKey(DATA_DESCRIPTOR)) {
+                        dataset.put(DATA_DESCRIPTOR, record.getJsonObject(DATA_DESCRIPTOR));
+                      }
+                      if (record.containsKey("resourceType")) {
+                        dataset.put("resourceType", record.getString("resourceType"));
+                      }
+                      if (record.containsKey("location")) {
+                        dataset.put("location", record.getJsonObject("location"));
+                      }
+                    }
 
                 if (type.equals("iudx:COS")) {
                   dataset.put("cosURL", record.getString("cosURL"));
@@ -247,6 +254,8 @@ public final class ElasticClient {
 
     Request queryRequest = new Request(REQUEST_GET, index + "/_search" + FILTER_PATH);
     queryRequest.setJsonEntity(query);
+    LOGGER.debug("searchAsync called");
+    LOGGER.debug(query);
     LOGGER.debug(queryRequest);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_ONLY);
     future.onComplete(resultHandler);
@@ -284,6 +293,10 @@ public final class ElasticClient {
             + "/_search"
             + FILTER_PATH_AGGREGATION);
     queryRequest.setJsonEntity(query);
+
+    LOGGER.debug("resourceAggregationAsync called");
+    LOGGER.debug(query);
+    LOGGER.debug(queryRequest);
     Future<JsonObject> future = searchAsync(queryRequest, RESOURCE_AGGREGATION_ONLY);
     future.onComplete(resultHandler);
     return this;

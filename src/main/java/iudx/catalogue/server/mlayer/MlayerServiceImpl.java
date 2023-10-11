@@ -229,6 +229,7 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_MLAYER_ALL_DATASETS;
+    LOGGER.debug("databse get mlayer all datasets called");
     databaseService.getMlayerAllDatasets(
         query, getMlayerAllDatasets -> {
           if (getMlayerAllDatasets.succeeded()) {
@@ -275,7 +276,8 @@ public class MlayerServiceImpl implements MlayerService {
       if (requestData.containsKey(TAGS) && !requestData.getJsonArray(TAGS).isEmpty()) {
         query =
             query.concat(
-                ",{\"terms\":{\"tags.keyword\":$1}}".replace("$1", requestData.getString(TAGS)));
+                ",{\"terms\":{\"tags.keyword\":$1}}"
+                    .replace("$1", requestData.getJsonArray(TAGS).toString()));
       }
       if (requestData.containsKey(INSTANCE) && !requestData.getString(INSTANCE).isBlank()) {
         query =
@@ -287,9 +289,10 @@ public class MlayerServiceImpl implements MlayerService {
         query =
             query.concat(
                 ",{\"terms\":{\"provider.keyword\":$1}}"
-                    .replace("$1", requestData.getString(PROVIDERS)));
+                    .replace("$1", requestData.getJsonArray(PROVIDERS).toString()));
       }
       query = query.concat(GET_ALL_DATASETS_BY_FIELD_SOURCE);
+      LOGGER.debug("databse get mlayer all datasets called");
       databaseService.getMlayerAllDatasets(
           query,
           getAllDatasetsHandler -> {
