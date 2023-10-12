@@ -215,7 +215,7 @@ public class Constants {
           + " \"dataSample\","
           + " \"dataDescriptor\", \"@context\", \"dataQualityFile\", \"dataSampleFile\","
           + " \"resourceType\", \"resourceServerRegURL\",\"resourceType\","
-          + "\"location\"]},\"size\": 10000}";
+          + "\"location\", \"iudxResourceAPIs\"]},\"size\": 10000}";
 
   public static final String RESOURCE_ACCESSPOLICY_COUNT =
           "{\"size\": 0,\"aggs\":{\"results\":{\"terms\":{\"field\":\"resourceGroup.keyword\","
