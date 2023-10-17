@@ -159,6 +159,18 @@ public final class ElasticClient {
                       dataset.put(PROVIDER, provider);
                     }
                     if (type.equals("iudx:Resource")) {
+                      if (record.getJsonArray(TYPE).size() > 1) {
+                        String schema =
+                                record.getString("@context")
+                                        + record
+                                        .getJsonArray(TYPE)
+                                        .getString(1)
+                                        .substring(5,
+                                                record.getJsonArray(TYPE).getString(1).length());
+                        record.put("schema", schema);
+                      } else {
+                        record.put("schema", "");
+                      }
                       record.remove("type");
                       record.put("resourceId", record.getString("id"));
                       record.remove("id");
