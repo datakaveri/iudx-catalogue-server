@@ -168,8 +168,6 @@ public final class ElasticClient {
                                         .substring(5,
                                                 record.getJsonArray(TYPE).getString(1).length());
                         record.put("schema", schema);
-                      } else {
-                        record.put("schema", "");
                       }
                       record.remove("type");
                       record.put("resourceId", record.getString("id"));
@@ -191,11 +189,6 @@ public final class ElasticClient {
                         record.remove("@context");
                         dataset
                           .put("schema", schema);
-                      } else {
-                        record.put("schema", "");
-                        record.remove("@context");
-                        dataset
-                            .put("schema", "");
                       }
                       if (record.containsKey(LABEL)) {
                         dataset.put(LABEL, record.getString(LABEL));
