@@ -82,12 +82,6 @@
     {
       "id": "iudx.catalogue.server.rating.RatingVerticle",
       "verticleInstances": 1,
-      "ratingDatabaseIP": "",
-      "ratingDatabasePort": 5432,
-      "ratingDatabaseName": "",
-      "ratingDatabaseUserName": "",
-      "ratingDatabasePassword": "",
-      "ratingPoolSize": 25,
       "ratingExchangeName": "",
       "rsAuditingTableName": "",
       "minReadNumber": 100
