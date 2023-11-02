@@ -2297,7 +2297,8 @@ public class DatabaseServiceImpl implements DatabaseService {
                           Set<String> type = new HashSet<String>(new JsonArray().getList());
                           type = new HashSet<String>(record.getJsonArray(TYPE).getList());
                           type.retainAll(ITEM_TYPES);
-                          String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+                          String itemType = type.toString().replaceAll("\\[", "")
+                                  .replaceAll("\\]", "");
                           // making a map of all resource group and provider id and its description
                           if (ITEM_TYPE_RESOURCE_GROUP.equals(itemType)) {
                             String id = record.getString(ID);

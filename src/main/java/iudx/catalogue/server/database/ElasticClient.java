@@ -16,7 +16,6 @@ import io.vertx.core.json.JsonObject;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
