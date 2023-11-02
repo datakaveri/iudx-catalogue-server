@@ -1943,14 +1943,19 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.debug("getRGs for each provider type result started");
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              if (record.getJsonArray(TYPE).getString(0).equals(ITEM_TYPE_PROVIDER)) {
+              Set<String> type = new HashSet<String>(new JsonArray().getList());
+              type = new HashSet<String>(record.getJsonArray(TYPE).getList());
+              type.retainAll(ITEM_TYPES);
+              String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+
+              if (itemType.equals(ITEM_TYPE_PROVIDER)) {
                 providerDescription.put(record.getString(ID), record.getString(DESCRIPTION_ATTR));
                 rsUrl.put(
                     record.getString(ID),
                     record.containsKey("resourceServerRegURL")
                         ? record.getString("resourceServerRegURL")
                         : "");
-              } else if (record.getJsonArray(TYPE).getString(0).equals("iudx:COS")) {
+              } else if (itemType.equals("iudx:COS")) {
                 cosUrl.put(record.getString(ID), record.getString("cosURL"));
               }
             }
@@ -1960,7 +1965,12 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.debug("getRGs for each resource group result started");
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              if (record.getJsonArray(TYPE).getString(0).equals(ITEM_TYPE_RESOURCE_GROUP)) {
+                Set<String> type = new HashSet<String>(new JsonArray().getList());
+                type = new HashSet<String>(record.getJsonArray(TYPE).getList());
+                type.retainAll(ITEM_TYPES);
+                String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+
+                if (itemType.equals(ITEM_TYPE_RESOURCE_GROUP)) {
                 resourceGroupHits++;
                 record.put(
                     "providerDescription",
@@ -2284,9 +2294,12 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                         for (int i = 0; i < resultSize; i++) {
                           JsonObject record = results.getJsonObject(i);
-                          String type = record.getJsonArray(TYPE).getString(0);
+                          Set<String> type = new HashSet<String>(new JsonArray().getList());
+                          type = new HashSet<String>(record.getJsonArray(TYPE).getList());
+                          type.retainAll(ITEM_TYPES);
+                          String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
                           // making a map of all resource group and provider id and its description
-                          if (ITEM_TYPE_RESOURCE_GROUP.equals(type)) {
+                          if (ITEM_TYPE_RESOURCE_GROUP.equals(itemType)) {
                             String id = record.getString(ID);
                             int resourceItemCountInGroup =
                                 resourceItemCount.containsKey(id)
@@ -2308,7 +2321,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                               latestDatasetArray.add(record);
                             }
                             resourceGroupMap.put(record.getString(ID), record);
-                          } else if (ITEM_TYPE_PROVIDER.equals(type)) {
+                          } else if (ITEM_TYPE_PROVIDER.equals(itemType)) {
                             String description = record.getString(DESCRIPTION_ATTR);
                             String providerId = record.getString(ID);
 

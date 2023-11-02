@@ -14,6 +14,9 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -149,16 +152,18 @@ public final class ElasticClient {
               for (int i = 0; i < results.size(); i++) {
                 JsonObject record = results.getJsonObject(i).getJsonObject(SOURCE);
                 JsonObject provider = new JsonObject();
-                String type = record.getJsonArray(TYPE)
-                        .getString(0);
-                if (type.equals("iudx:Provider")) {
+                Set<String> type = new HashSet<String>(new JsonArray().getList());
+                type = new HashSet<String>(record.getJsonArray(TYPE).getList());
+                type.retainAll(ITEM_TYPES);
+                String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+                if (itemType.equals("iudx:Provider")) {
                   provider
                           .put(ID, record.getString(ID))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
                       dataset.put("resourceServerRegURL", record.getString("resourceServerRegURL"));
                       dataset.put(PROVIDER, provider);
                     }
-                    if (type.equals("iudx:Resource")) {
+                    if (itemType.equals("iudx:Resource")) {
                       if (record.getJsonArray(TYPE).size() > 1) {
                         String schema =
                                 record.getString("@context")
@@ -174,7 +179,7 @@ public final class ElasticClient {
                       record.remove("id");
                       resource.add(record);
                     }
-                    if (type.equals("iudx:ResourceGroup")) {
+                    if (itemType.equals("iudx:ResourceGroup")) {
                       dataset
                           .put(ID, record.getString(ID))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
@@ -219,7 +224,7 @@ public final class ElasticClient {
                       }
                     }
 
-                if (type.equals("iudx:COS")) {
+                if (itemType.equals("iudx:COS")) {
                   dataset.put("cosURL", record.getString("cosURL"));
                 }
               }
