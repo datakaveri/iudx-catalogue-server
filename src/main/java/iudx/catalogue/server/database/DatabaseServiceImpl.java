@@ -3,6 +3,7 @@ package iudx.catalogue.server.database;
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
@@ -1943,8 +1944,11 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.debug("getRGs for each provider type result started");
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              String itemType = Util.getItemType(record, datasetResult);
-              if (itemType.equals(ITEM_TYPE_PROVIDER)) {
+                String itemType = Util.getItemType(record);
+                if (itemType.equals(VALIDATION_FAILURE_MSG)) {
+                    datasetResult.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                }
+                if (itemType.equals(ITEM_TYPE_PROVIDER)) {
                 providerDescription.put(record.getString(ID), record.getString(DESCRIPTION_ATTR));
                 rsUrl.put(
                     record.getString(ID),
@@ -1961,7 +1965,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.debug("getRGs for each resource group result started");
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              String itemType = Util.getItemType(record, datasetResult);
+              String itemType = Util.getItemType(record);
               if (itemType.equals(ITEM_TYPE_RESOURCE_GROUP)) {
                 resourceGroupHits++;
                 record.put(
@@ -2286,7 +2290,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                         for (int i = 0; i < resultSize; i++) {
                           JsonObject record = results.getJsonObject(i);
-                          String itemType = Util.getItemType(record, datasetResult);
+                          String itemType = Util.getItemType(record);
+                          if (itemType.equals(VALIDATION_FAILURE_MSG)) {
+                            datasetResult.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                          }
                           // making a map of all resource group and provider id and its description
                           if (ITEM_TYPE_RESOURCE_GROUP.equals(itemType)) {
                             String id = record.getString(ID);

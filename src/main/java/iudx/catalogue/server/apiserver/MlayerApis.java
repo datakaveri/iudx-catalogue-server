@@ -5,6 +5,7 @@ import static iudx.catalogue.server.authenticator.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.METHOD;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -15,7 +16,6 @@ import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.authenticator.AuthenticationService;
 import iudx.catalogue.server.mlayer.MlayerService;
-import iudx.catalogue.server.mlayer.util.Constants;
 import iudx.catalogue.server.util.Api;
 import iudx.catalogue.server.validator.ValidatorService;
 import org.apache.logging.log4j.LogManager;
@@ -50,7 +50,7 @@ public class MlayerApis {
   public void setHost(String host) {
     this.host = host;
   }
-  
+
 
   /**
    * Create Mlayer Instance Handler.
@@ -532,6 +532,16 @@ public class MlayerApis {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {
+            if (handler.cause().getMessage().contains(VALIDATION_FAILURE_MSG)) {
+              response
+                  .setStatusCode(400)
+                  .end(
+                      new RespBuilder()
+                          .withType(TYPE_INVALID_SCHEMA)
+                          .withTitle(TITLE_INVALID_SCHEMA)
+                          .withDetail("The Schema of dataset is invalid")
+                          .getResponse());
+            }
             response.setStatusCode(400).end(handler.cause().getMessage());
           }
         });
@@ -564,19 +574,28 @@ public class MlayerApis {
           } else {
             LOGGER.debug("Validation of dataset Id Successful");
             mlayerService.getMlayerDataset(
-                    requestData,
-                    handler -> {
-                      if (handler.succeeded()) {
-                        response.setStatusCode(200).end(handler.result().toString());
-                      } else {
-                        if (handler.cause().getMessage().contains("urn:dx:cat:ItemNotFound")) {
-                          response.setStatusCode(404).end(handler.cause().getMessage());
-                        } else {
-                          response.setStatusCode(400).end(handler.cause().getMessage());
-                        }
-                      }
-                    });
-            }
+                requestData,
+                handler -> {
+                  if (handler.succeeded()) {
+                    response.setStatusCode(200).end(handler.result().toString());
+                  } else {
+                    if (handler.cause().getMessage().contains("urn:dx:cat:ItemNotFound")) {
+                      response.setStatusCode(404).end(handler.cause().getMessage());
+                    } else if (handler.cause().getMessage().contains(VALIDATION_FAILURE_MSG)) {
+                      response
+                          .setStatusCode(400)
+                          .end(
+                              new RespBuilder()
+                                  .withType(TYPE_INVALID_SCHEMA)
+                                  .withTitle(TITLE_INVALID_SCHEMA)
+                                  .withDetail("The Schema of dataset is invalid")
+                                  .getResponse());
+                    } else {
+                      response.setStatusCode(400).end(handler.cause().getMessage());
+                    }
+                  }
+                });
+          }
         });
   }
 
@@ -599,6 +618,16 @@ public class MlayerApis {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {
+            if (handler.cause().getMessage().contains(VALIDATION_FAILURE_MSG)) {
+              response
+                  .setStatusCode(400)
+                  .end(
+                      new RespBuilder()
+                          .withType(TYPE_INVALID_SCHEMA)
+                          .withTitle(TITLE_INVALID_SCHEMA)
+                          .withDetail("The Schema of dataset is invalid")
+                          .getResponse());
+            }
             response.setStatusCode(400).end(handler.cause().getMessage());
           }
         });

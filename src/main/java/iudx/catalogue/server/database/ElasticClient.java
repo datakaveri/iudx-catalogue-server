@@ -6,6 +6,7 @@ import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
 import static iudx.catalogue.server.geocoding.util.Constants.RESULTS;
 import static iudx.catalogue.server.geocoding.util.Constants.TYPE;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -149,7 +150,10 @@ public final class ElasticClient {
               for (int i = 0; i < results.size(); i++) {
                 JsonObject record = results.getJsonObject(i).getJsonObject(SOURCE);
                 JsonObject provider = new JsonObject();
-                String itemType = Util.getItemType(record, promise);
+                String itemType = Util.getItemType(record);
+                if (itemType.equals(VALIDATION_FAILURE_MSG)) {
+                  promise.fail(VALIDATION_FAILURE_MSG);
+                }
                 if (itemType.equals("iudx:Provider")) {
                   provider
                           .put(ID, record.getString(ID))
