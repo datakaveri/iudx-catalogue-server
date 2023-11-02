@@ -1951,7 +1951,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                     record.containsKey("resourceServerRegURL")
                         ? record.getString("resourceServerRegURL")
                         : "");
-              } else if (itemType.equals("iudx:COS")) {
+              } else if (itemType.equals(ITEM_TYPE_COS)) {
                 cosUrl.put(record.getString(ID), record.getString("cosURL"));
               }
             }
