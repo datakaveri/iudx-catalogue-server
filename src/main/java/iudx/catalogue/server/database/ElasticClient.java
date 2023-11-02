@@ -14,8 +14,6 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -151,10 +149,7 @@ public final class ElasticClient {
               for (int i = 0; i < results.size(); i++) {
                 JsonObject record = results.getJsonObject(i).getJsonObject(SOURCE);
                 JsonObject provider = new JsonObject();
-                Set<String> type = new HashSet<String>(new JsonArray().getList());
-                type = new HashSet<String>(record.getJsonArray(TYPE).getList());
-                type.retainAll(ITEM_TYPES);
-                String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
+                String itemType = Util.getItemType(record, promise);
                 if (itemType.equals("iudx:Provider")) {
                   provider
                           .put(ID, record.getString(ID))
