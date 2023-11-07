@@ -3,6 +3,7 @@ package iudx.catalogue.server.database;
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
@@ -1943,14 +1944,18 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.debug("getRGs for each provider type result started");
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              if (record.getJsonArray(TYPE).getString(0).equals(ITEM_TYPE_PROVIDER)) {
+                String itemType = Util.getItemType(record);
+                if (itemType.equals(VALIDATION_FAILURE_MSG)) {
+                    datasetResult.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                }
+                if (itemType.equals(ITEM_TYPE_PROVIDER)) {
                 providerDescription.put(record.getString(ID), record.getString(DESCRIPTION_ATTR));
                 rsUrl.put(
                     record.getString(ID),
                     record.containsKey("resourceServerRegURL")
                         ? record.getString("resourceServerRegURL")
                         : "");
-              } else if (record.getJsonArray(TYPE).getString(0).equals("iudx:COS")) {
+              } else if (itemType.equals(ITEM_TYPE_COS)) {
                 cosUrl.put(record.getString(ID), record.getString("cosURL"));
               }
             }
@@ -1960,7 +1965,8 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.debug("getRGs for each resource group result started");
             for (int i = 0; i < size; i++) {
               JsonObject record = resultHandler.result().getJsonArray(RESULTS).getJsonObject(i);
-              if (record.getJsonArray(TYPE).getString(0).equals(ITEM_TYPE_RESOURCE_GROUP)) {
+              String itemType = Util.getItemType(record);
+              if (itemType.equals(ITEM_TYPE_RESOURCE_GROUP)) {
                 resourceGroupHits++;
                 record.put(
                     "providerDescription",
@@ -2284,9 +2290,12 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                         for (int i = 0; i < resultSize; i++) {
                           JsonObject record = results.getJsonObject(i);
-                          String type = record.getJsonArray(TYPE).getString(0);
+                          String itemType = Util.getItemType(record);
+                          if (itemType.equals(VALIDATION_FAILURE_MSG)) {
+                            datasetResult.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+                          }
                           // making a map of all resource group and provider id and its description
-                          if (ITEM_TYPE_RESOURCE_GROUP.equals(type)) {
+                          if (ITEM_TYPE_RESOURCE_GROUP.equals(itemType)) {
                             String id = record.getString(ID);
                             int resourceItemCountInGroup =
                                 resourceItemCount.containsKey(id)
@@ -2308,7 +2317,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                               latestDatasetArray.add(record);
                             }
                             resourceGroupMap.put(record.getString(ID), record);
-                          } else if (ITEM_TYPE_PROVIDER.equals(type)) {
+                          } else if (ITEM_TYPE_PROVIDER.equals(itemType)) {
                             String description = record.getString(DESCRIPTION_ATTR);
                             String providerId = record.getString(ID);
 

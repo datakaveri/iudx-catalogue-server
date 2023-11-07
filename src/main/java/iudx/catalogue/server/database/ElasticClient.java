@@ -6,6 +6,7 @@ import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
 import static iudx.catalogue.server.geocoding.util.Constants.RESULTS;
 import static iudx.catalogue.server.geocoding.util.Constants.TYPE;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
@@ -149,16 +150,18 @@ public final class ElasticClient {
               for (int i = 0; i < results.size(); i++) {
                 JsonObject record = results.getJsonObject(i).getJsonObject(SOURCE);
                 JsonObject provider = new JsonObject();
-                String type = record.getJsonArray(TYPE)
-                        .getString(0);
-                if (type.equals("iudx:Provider")) {
+                String itemType = Util.getItemType(record);
+                if (itemType.equals(VALIDATION_FAILURE_MSG)) {
+                  promise.fail(VALIDATION_FAILURE_MSG);
+                }
+                if (itemType.equals("iudx:Provider")) {
                   provider
                           .put(ID, record.getString(ID))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
                       dataset.put("resourceServerRegURL", record.getString("resourceServerRegURL"));
                       dataset.put(PROVIDER, provider);
                     }
-                    if (type.equals("iudx:Resource")) {
+                    if (itemType.equals("iudx:Resource")) {
                       if (record.getJsonArray(TYPE).size() > 1) {
                         String schema =
                                 record.getString("@context")
@@ -174,7 +177,7 @@ public final class ElasticClient {
                       record.remove("id");
                       resource.add(record);
                     }
-                    if (type.equals("iudx:ResourceGroup")) {
+                    if (itemType.equals("iudx:ResourceGroup")) {
                       dataset
                           .put(ID, record.getString(ID))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR));
@@ -219,7 +222,7 @@ public final class ElasticClient {
                       }
                     }
 
-                if (type.equals("iudx:COS")) {
+                if (itemType.equals("iudx:COS")) {
                   dataset.put("cosURL", record.getString("cosURL"));
                 }
               }
