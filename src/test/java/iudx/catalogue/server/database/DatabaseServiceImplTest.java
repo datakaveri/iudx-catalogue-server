@@ -16,6 +16,7 @@ import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
@@ -2543,7 +2544,7 @@ public class DatabaseServiceImplTest {
             mlayerDomainIndex,
             nlpService,
             geoService);
-    String instanceName ="";
+    String instanceName ="pune";
     JsonArray accessPolicy = new JsonArray();
     JsonObject accessPolicyJson =
         new JsonObject().put("resourcegroup", "abcd/abcd/abcd/abcd").put("instance", "instance")
@@ -2586,39 +2587,10 @@ public class DatabaseServiceImplTest {
             .put("latestDataset", latestDataset);
     when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
-      doAnswer(
-              new Answer<AsyncResult<JsonObject>>() {
-                  @Override
-                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                      return null;
-                  }
-              })
-              .when(client)
-              .searchAsync(any(), any(), any());
-
-      doAnswer(
-              new Answer<AsyncResult<JsonObject>>() {
-                  @Override
-                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                      return null;
-                  }
-              })
-              .when(client)
-              .resourceAggregationAsync(any(), any(), any());
-      doAnswer(
-              new Answer<AsyncResult<JsonObject>>() {
-                  @Override
-                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                      return null;
-                  }
-              })
-              .when(client)
-              .searchAsyncResourceGroupAndProvider(any(), any(), any());
-
-      databaseService.getMlayerPopularDatasets(
+    mockAsyncMethod(client -> client.searchAsync(any(), any(), any()));
+    mockAsyncMethod(client -> client.resourceAggregationAsync(any(), any(), any()));
+    mockAsyncMethod(client -> client.searchAsyncResourceGroupAndProvider(any(), any(), any()));
+    databaseService.getMlayerPopularDatasets(
             instanceName,
         highestCountResource,
         handler -> {
@@ -2728,37 +2700,9 @@ public class DatabaseServiceImplTest {
       JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resultArray);
     when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
-      doAnswer(
-              new Answer<AsyncResult<JsonObject>>() {
-                  @Override
-                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                      return null;
-                  }
-              })
-              .when(client)
-              .searchAsync(any(), any(), any());
-
-      doAnswer(
-              new Answer<AsyncResult<JsonObject>>() {
-                  @Override
-                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                      return null;
-                  }
-              })
-              .when(client)
-              .resourceAggregationAsync(any(), any(), any());
-      doAnswer(
-              new Answer<AsyncResult<JsonObject>>() {
-                  @Override
-                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                      return null;
-                  }
-              })
-              .when(client)
-              .searchAsyncResourceGroupAndProvider(any(), any(), any());
+      mockAsyncMethod(client -> client.searchAsync(any(), any(), any()));
+      mockAsyncMethod(client -> client.resourceAggregationAsync(any(), any(), any()));
+      mockAsyncMethod(client -> client.searchAsyncResourceGroupAndProvider(any(), any(), any()));
 
 
       databaseService.getMlayerPopularDatasets(
@@ -2770,97 +2714,6 @@ public class DatabaseServiceImplTest {
             verify(DatabaseServiceImpl.client, times(2)).searchAsyncResourceGroupAndProvider(any(), any(), any());
             verify(DatabaseServiceImpl.client, times(4)).resourceAggregationAsync(any(), any(), any());
             testContext.completeNow();
-          } else {
-            testContext.failNow("fail");
-          }
-        });
-  }
-
-  @Test
-  @Description("test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Resource")
-  public void testGetMlayerPopularDatasetsResourceSuccess(VertxTestContext testContext) {
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
-            client,
-            docIndex,
-            ratingIndex,
-            mlayerInstanceIndex,
-            mlayerDomainIndex,
-            nlpService,
-            geoService);
-    String instanceName ="dummy";
-    JsonArray accessPolicy = new JsonArray();
-    JsonObject record = new JsonObject().put("rgid", "duumy-id")
-            .put("resourceGroup", "abc")
-            .put(BUCKETS, accessPolicy);
-    JsonObject json2 = new JsonObject().put("rgid", "duumy-id");
-
-    JsonArray highestCountResource = new JsonArray().add(record).add(json2);
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
-
-    JsonArray resourceArray = new JsonArray();
-    JsonArray typeArray = new JsonArray().add(0, "iudx:Resource");
-
-    JsonObject instance =
-        new JsonObject()
-            .put("name", "agra")
-            .put("icon", "path_of_agra-icon.jpg")
-            .put(TYPE, typeArray)
-            .put("resourceGroup", "abc")
-                .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
-                .put("doc_count", 2)
-                .put(KEY, record)
-                .put("access_policies", record)
-                .put("resourceGroupAndProvider", resourceArray)
-                .put("providerCount", 7);
-    resourceArray.add(instance);
-
-    JsonArray resultArray = new JsonArray().add(instance).add(instance).add(instance).add(instance).add(instance);
-    JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resultArray);
-    when(asyncResult.result()).thenReturn(result);
-    when(asyncResult.succeeded()).thenReturn(true);
-    doAnswer(
-            new Answer<AsyncResult<JsonObject>>() {
-              @Override
-              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                return null;
-              }
-            })
-        .when(DatabaseServiceImpl.client)
-        .searchAsync(any(), any(), any());
-      doAnswer(
-              new Answer<AsyncResult<JsonObject>>() {
-                  @Override
-                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                      return null;
-                  }
-              })
-              .when(DatabaseServiceImpl.client)
-              .resourceAggregationAsync(any(), any(), any());
-      doAnswer(
-              new Answer<AsyncResult<JsonObject>>() {
-                  @Override
-                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                      return null;
-                  }
-              })
-              .when(DatabaseServiceImpl.client)
-              .searchAsyncResourceGroupAndProvider(any(), any(), any());
-    databaseService.getMlayerPopularDatasets(
-            instanceName,
-        highestCountResource,
-        handler -> {
-          if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(2)).searchAsync(any(), any(), any());
-            verify(DatabaseServiceImpl.client, times(1)).searchAsyncResourceGroupAndProvider(any(), any(), any());
-            verify(DatabaseServiceImpl.client, times(1)).resourceAggregationAsync(any(), any(), any());
-
-
-              testContext.completeNow();
-
           } else {
             testContext.failNow("fail");
           }
@@ -2960,4 +2813,13 @@ public class DatabaseServiceImplTest {
                 });
     }
 
+    private void mockAsyncMethod(Consumer<ElasticClient> asyncMethodMock) {
+        doAnswer(invocation -> {
+            Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+            handler.handle(asyncResult);
+            return null;
+        }).when(client);
+
+        asyncMethodMock.accept(client);
+    }
 }
