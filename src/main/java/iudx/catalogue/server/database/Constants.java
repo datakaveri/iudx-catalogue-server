@@ -94,6 +94,8 @@ public class Constants {
   public static final String SOURCE_AND_ID = "SOURCE_ID";
   public static final String SOURCE_AND_ID_GEOQUERY = "SOURCE_ID_GEOQUERY";
   public static final String RESOURCE_AGGREGATION_ONLY = "RESOURCE_AGGREGATION";
+  public static final String PROVIDER_AGGREGATION_ONLY = "PROVIDER_AGGREGATION";
+
 
   /** Some queries. */
   public static final String LIST_INSTANCES_QUERY = "{\"size\": 0, \"aggs\":"
@@ -235,14 +237,15 @@ public class Constants {
                   + "\"instance\",\"label\"]},\"size\":10000}";
 
   public static final String GET_DATASET_BY_INSTANCE =
-          "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":"
-                  + "\"iudx:ResourceGroup\"}},{\"match\": {\"instance.keyword\": \"$1\"}}]}},"
-                  + "{\"bool\":"
-                  + "{\"must\":[{\"match\":{\"type.keyword\":\"iudx:Resource\"}},{\"match\":"
-                  + " {\"instance.keyword\": \"$1\"}}]}},{\"bool\":{\"must\":[{\"match\":"
-                  + "{\"type.keyword\": \"iudx:Provider\"}}]}}]}},\"_source\":{\"includes\": "
-                  + "[\"id\",\"description\",\"type\",\"resourceGroup\",\"accessPolicy\","
-                  + "\"provider\",\"itemCreatedAt\",\"instance\",\"label\"]},\"size\":10000}\n";
+          "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"type.keyword\""
+                  + ":\"iudx:ResourceGroup\"}},{\"match\":{\"instance.keyword\":\"$1\"}}]}},"
+                  + "{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"iudx:Provider\"}}]}}]}},"
+                  + "\"aggs\":{\"provider_count\":{\"cardinality\":{\"field\":"
+                  + "\"provider.keyword\"}}},\"_source\":{\"includes\":[\"id\","
+                  + "\"description\",\"type\",\"resourceGroup\","
+                  + "\"accessPolicy\",\"provider\",\"itemCreatedAt\",\"instance\",\"label\"]},"
+                  + "\"size\":10000}";
+
   public static final String GET_SORTED_MLAYER_INSTANCES =
       "{\"query\": {\"match_all\":{}},\"sort\":[{\"name\":\"asc\"}],\"_source\": "
           + "{\"includes\": [\"name\",\"cover\",\"icon\"]},\"size\":10000}";
