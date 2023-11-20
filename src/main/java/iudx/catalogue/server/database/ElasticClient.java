@@ -91,9 +91,10 @@ public final class ElasticClient {
                     || options == DOC_IDS_ONLY
                     || options == SOURCE_AND_ID
                     || options == SOURCE_AND_ID_GEOQUERY
-                    || options == DATASET) &&  responseJson.getJsonObject(HITS).containsKey(HITS)) {
-                results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
-
+                    || options == DATASET
+                    || options == PROVIDER_AGGREGATION_ONLY)
+                    && responseJson.getJsonObject(HITS).containsKey(HITS)) {
+              results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
             }
             if (options == AGGREGATION_ONLY || options == RATING_AGGREGATION_ONLY
                         || options == RESOURCE_AGGREGATION_ONLY) {
@@ -230,6 +231,25 @@ public final class ElasticClient {
               datasetDetail.put("resource", resource);
               responseMsg.addResult(datasetDetail);
             }
+            if (options == PROVIDER_AGGREGATION_ONLY) {
+              JsonObject result = new JsonObject();
+              JsonArray resourceGroupAndProvider = new JsonArray();
+              if (responseJson.containsKey(AGGREGATIONS)) {
+                int providerCount = responseJson
+                        .getJsonObject(AGGREGATIONS)
+                        .getJsonObject("provider_count")
+                        .getInteger(VALUE);
+                result.put("providerCount", providerCount);
+              }
+              for (int i = 0; i < results.size(); i++) {
+                JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
+                source.remove(SUMMARY_KEY);
+                source.remove(WORD_VECTOR_KEY);
+                resourceGroupAndProvider.add(source);
+              }
+              result.put("resourceGroupAndProvider", resourceGroupAndProvider);
+              responseMsg.addResult(result);
+            }
           } else {
             responseMsg.addResult();
           }
@@ -341,6 +361,23 @@ public final class ElasticClient {
     queryRequest.setJsonEntity(query);
     LOGGER.debug(queryRequest);
     Future<JsonObject> future = searchAsync(queryRequest, SOURCE_AND_ID);
+    future.onComplete(resultHandler);
+    return this;
+  }
+
+  /**
+   * Asynchronously searches for resource groups and providers based on the provided query.
+   * @param query the query in JSON format as a string
+   * @param index the index to search within
+   * @param resultHandler the handler for the asynchronous result of the search
+   * @return the ElasticClient instance to allow method chaining
+   */
+  public ElasticClient searchAsyncResourceGroupAndProvider(
+      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
+    Request queryRequest = new Request(REQUEST_GET, index + "/_search" + "?filter_path=");
+    queryRequest.setJsonEntity(query);
+    LOGGER.debug("searchAsync called for resource group and provider");
+    Future<JsonObject> future = searchAsync(queryRequest, "PROVIDER_AGGREGATION");
     future.onComplete(resultHandler);
     return this;
   }

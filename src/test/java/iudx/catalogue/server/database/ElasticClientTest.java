@@ -224,4 +224,20 @@ public class ElasticClientTest {
     assertNotNull(elasticClient.docDelAsync(query,docIndex, handler));
     vertxTestContext.completeNow();
   }
+
+  @Test
+  @Description("test searchAsyncResourceGroupAndProvider method")
+  public void testSearchAsyncResourceGroupAndProvider(VertxTestContext vertxTestContext) {
+    String query="dummy";
+    assertNotNull(elasticClient.searchAsyncResourceGroupAndProvider(query,docIndex, handler));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("test resourceAggregationAsync method")
+  public void testResourceAggregationAsync(VertxTestContext vertxTestContext) {
+    String query="dummy";
+    assertNotNull(elasticClient.resourceAggregationAsync(query,docIndex, handler));
+    vertxTestContext.completeNow();
+  }
 }

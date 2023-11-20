@@ -2261,16 +2261,18 @@ public class DatabaseServiceImpl implements DatabaseService {
     } else {
       providerAndResources = GET_DATASET_BY_INSTANCE.replace("$1", instance);
     }
-    client.searchAsync(
-        providerAndResources,
-        docIndex,
-        getCatRecords -> {
+    client.searchAsyncResourceGroupAndProvider(
+            providerAndResources,
+            docIndex,
+            getCatRecords -> {
           if (getCatRecords.succeeded()) {
             ArrayList<JsonObject> latestDatasetArray = new ArrayList<JsonObject>();
             Map<String, JsonObject> resourceGroupMap = new HashMap<>();
             Map<String, String> providerDescription = new HashMap<>();
 
-            JsonArray results = getCatRecords.result().getJsonArray(RESULTS);
+            JsonArray results = getCatRecords.result().getJsonArray(RESULTS)
+                    .getJsonObject(0)
+                    .getJsonArray("resourceGroupAndProvider");
             int resultSize = results.size();
 
             Promise<JsonObject> resourceCount = Promise.promise();
@@ -2329,9 +2331,17 @@ public class DatabaseServiceImpl implements DatabaseService {
 
                         JsonObject typeCount =
                             new JsonObject()
-                                .put("totalPublishers", providerDescription.size())
                                 .put("totalDatasets", resourceGroupMap.size())
                                 .put("totalResources", totalResourceItem);
+
+                        if (instance.isBlank()) {
+                          typeCount.put("totalPublishers", providerDescription.size());
+                        } else {
+                          typeCount.put("totalPublishers", getCatRecords.result()
+                                  .getJsonArray(RESULTS)
+                                  .getJsonObject(0)
+                                  .getInteger("providerCount"));
+                        }
 
                         // making an arrayList of top six latest resource group
                         ArrayList<JsonObject> latestResourceGroup = new ArrayList<>();
