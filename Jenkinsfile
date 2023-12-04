@@ -133,7 +133,7 @@ pipeline {
       }
     }
 
-    stage('Continuous Deployment') {
+    stage('Push Images') {
       when {
         allOf {
           anyOf {
@@ -158,11 +158,10 @@ pipeline {
       }
     }
   }
-
   post{
     failure{
       script{
-        if (env.GIT_BRANCH == 'origin/master')
+        if (env.GIT_BRANCH == 'origin/5.0.0')
         emailext recipientProviders: [buildUser(), developers()], to: '$RS_RECIPIENTS, $DEFAULT_RECIPIENTS', subject: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!', body: '''$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
 Check console output at $BUILD_URL to view the results.'''
       }
