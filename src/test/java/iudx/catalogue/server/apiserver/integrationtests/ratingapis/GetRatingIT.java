@@ -70,7 +70,7 @@ public class GetRatingIT {
                 .get("/consumer/ratings")
                 .then()
                 .statusCode(400)
-                .body("type", equalTo("urn:dx:cat:InvalidParamValue"))
+                .body("type", equalTo("urn:dx:cat:InvalidParamValue"));
                 //.log().all();
     }
     @Test
