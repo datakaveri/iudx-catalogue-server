@@ -1,6 +1,7 @@
 package iudx.catalogue.server.apiserver.integrationTests.crudApisIT;
 
 
+import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,46 +26,58 @@ public class GetItemIT {
     @Test
     @DisplayName("testing get DX Entity by ID- 200 Success")
     void getDXEntityByID() {
-        given()
+        Response response = given()
                 .param("id", resource_server_id)
                 .contentType("application/json")
                 .when()
                 .get("/item")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
     @DisplayName("testing get DX Entity by ID - 404 Not Found")
     void getDXEntityNotFound() {
-        given()
+        Response response = given()
                 .param("id", "7c8b58a7-6e5b-4a97-a15d-8f4aeb4e987e")
                 .contentType("application/json")
                 .when()
                 .get("/item")
                 .then()
                 .statusCode(404)
-                .body("type", is("urn:dx:cat:ItemNotFound"));
+                .body("type", is("urn:dx:cat:ItemNotFound"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
     @DisplayName("testing get DX Entity by ID - 400 Invalid UUID")
     void getDXEntityInvalidUUID() {
-        given()
+        Response response = given()
                 .param("id", "dummy-id")
                 .contentType("application/json")
                 .when()
                 .get("/item")
                 .then()
                 .statusCode(400)
-                .body("type", is("urn:dx:cat:InvalidUUID"));
+                .body("type", is("urn:dx:cat:InvalidUUID"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
     @DisplayName("testing list Type (Data Model) given Resource Id - 200 type of item")
     void getDXEntityTypeRS() {
-        given()
+        Response response = given()
                 .param("id", resource_server_id)
                 .param("rel","type")
                 .contentType("application/json")
@@ -73,13 +86,17 @@ public class GetItemIT {
                 .then()
                 .statusCode(200)
                 .body("type", is("urn:dx:cat:Success"))
-                .body("title",is("Success"));
+                .body("title",is("Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
     @DisplayName("testing list Type (Data Model) given Resource Group Id - 200 type of item")
     void getDXEntityRSGroup() {
-        given()
+        Response response = given()
                 .param("id", resource_group_id)
                 .param("rel","type")
                 .contentType("application/json")
@@ -88,6 +105,10 @@ public class GetItemIT {
                 .then()
                 .statusCode(200)
                 .body("type", is("urn:dx:cat:Success"))
-                .body("title",is("Success"));
+                .body("title",is("Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 }
