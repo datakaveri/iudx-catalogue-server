@@ -1,6 +1,10 @@
 package iudx.catalogue.server.apiserver.integrationTests.searchAPIsIT;
 
+import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
+import iudx.catalogue.server.apiserver.integrationTests.listItemsIT.ListItemsIT;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,10 +17,11 @@ import static org.hamcrest.Matchers.is;
  */
 @ExtendWith(RestAssuredConfiguration.class)
 public class ComplexSearchIT {
+    private static final Logger LOGGER = LogManager.getLogger(ComplexSearchIT.class);
     @Test
     @DisplayName("testing Complex Search with geo filter - 200 Success")
     void ComplexSearchGeoFilter() {
-        given()
+        Response response = given()
                 .param("geoproperty","location")
                 .param("georel","within")
                 .param("geometry", "Polygon")
@@ -26,12 +31,16 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo attribute - 200 Success")
     void ComplexSearchGeoAttr() {
-        given()
+        Response response = given()
                 .param("property","[location.address]")
                 .param("value","[[pune,delhi]]")
                 .param("geoproperty","location")
@@ -43,12 +52,16 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo text - 200 Success")
     void ComplexSearchGeoText() {
-        given()
+        Response response = given()
                 .param("q","flood sensors")
                 .param("geoproperty","location")
                 .param("georel","within")
@@ -59,12 +72,16 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo attribute filter - 200 Success")
     void ComplexSearchGeoAttrFilter() {
-        given()
+        Response response = given()
                 .param("property","[location.address]")
                 .param("value","[[pune,delhi]]")
                 .param("geoproperty","location")
@@ -77,12 +94,16 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo text filter - 200 Success")
     void ComplexSearchGeoTextFilter() {
-        given()
+        Response response = given()
                 .param("geoproperty","location")
                 .param("georel","within")
                 .param("geometry", "Polygon")
@@ -93,12 +114,16 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with attribute filter - 200 Success")
     void ComplexSearchAttributeFilter() {
-        given()
+        Response response = given()
                 .param("property","[location.address]")
                 .param("value","[[pune,delhi]]")
                 .param("filter","[tags,id,location.geometry.coordinates]")
@@ -106,12 +131,16 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with attribute text - 200 Success")
     void ComplexSearchAttributeText() {
-        given()
+        Response response = given()
                 .param("property","[location.address]")
                 .param("value","[[pune,delhi]]")
                 .param("q","flood sensors")
@@ -119,12 +148,16 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with attribute text filter - 200 Success")
     void ComplexSearchAttributeTextFilter() {
-        given()
+        Response response = given()
                 .param("property","[location.address]")
                 .param("value","[[pune,delhi]]")
                 .param("q","flood sensors")
@@ -133,12 +166,16 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with attribute tags filter - 200 Success")
     void ComplexSearchAttributeTagsFilter() {
-        given()
+        Response response = given()
                 .param("property","[tags]")
                 .param("value","[[parking]]")
                 .param("filter","[tags,id,location.geometry.coordinates]")
@@ -146,24 +183,32 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with attribute text filter - 200 Success")
     void ComplexSearchAttributeTextFilter2() {
-        given()
+        Response response = given()
                 .param("q","paid parking")
                 .param("filter","[tags,id,location.geometry.coordinates]")
                 .when()
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo text attribute - 200 Success")
     void ComplexSearchGeoTextAttribute() {
-        given()
+        Response response = given()
                 .param("property","[location.address]")
                 .param("value","[[pune,delhi]]")
                 .param("geoproperty","location")
@@ -175,12 +220,16 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo text attribute filter - 200 Success")
     void ComplexSearchGeoTextAttributeFilter() {
-        given()
+        Response response = given()
                 .param("property","[location.address]")
                 .param("value","[[pune,delhi]]")
                 .param("geoproperty","location")
@@ -193,7 +242,11 @@ public class ComplexSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing complex search Response filter- 400 Invalid request")

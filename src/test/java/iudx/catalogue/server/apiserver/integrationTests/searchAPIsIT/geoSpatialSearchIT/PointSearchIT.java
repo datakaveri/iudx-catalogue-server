@@ -1,6 +1,10 @@
 package iudx.catalogue.server.apiserver.integrationTests.searchAPIsIT.geoSpatialSearchIT;
 
+import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
+import iudx.catalogue.server.apiserver.integrationTests.listItemsIT.ListItemsIT;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,10 +17,11 @@ import static org.hamcrest.Matchers.is;
  */
 @ExtendWith(RestAssuredConfiguration.class)
 public class PointSearchIT {
+    private static final Logger LOGGER = LogManager.getLogger(PointSearchIT.class);
     @Test
     @DisplayName("testing search based on circle - 200 Success")
     void GetSearchCircle() {
-        given()
+        Response response = given()
                 .param("geoproperty","location")
                 .param("georel","within")
                 .param("maxDistance","5000")
@@ -26,7 +31,11 @@ public class PointSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing search based on circle invalid value 1 - 400 Invalid request")

@@ -1,9 +1,11 @@
 package iudx.catalogue.server.apiserver.integrationTests.instanceAPIsIT;
 
+import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -29,7 +31,7 @@ public class InstanceAPIsIT {
         LOGGER.debug(basePath);
         LOGGER.debug(baseURI);
         LOGGER.debug(port);
-        given()
+        Response response = given()
                         .queryParam("id", "poone")
                         .header("token", cosAdminToken)
                         .when()
@@ -38,13 +40,17 @@ public class InstanceAPIsIT {
                         .statusCode(201)
                         .body("type", is("urn:dx:cat:Success"))
                         .body("title", is("Success"))
-                        .body("detail", equalTo("Success: Item created"));
+                        .body("detail", equalTo("Success: Item created"))
+                        .extract()
+                        .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
     @DisplayName("testing create instance - 400 (invalid query param)")
     void createInstanceInvalidQueryParam() {
-        given()
+       Response response= given()
                 .queryParam("ide", "poone")
                 .header("token", cosAdminToken)
                 .when()
@@ -53,7 +59,11 @@ public class InstanceAPIsIT {
                 .statusCode(400)
                 .body("type", is("urn:dx:cat:InvalidSyntax"))
                 .body("title", is("Invalid Syntax"))
-                .body("detail", equalTo("id not present in the request"));
+                .body("detail", equalTo("id not present in the request"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing create instance - 401 (Unauthorized Request)")
@@ -70,14 +80,18 @@ public class InstanceAPIsIT {
     @Test
     @DisplayName("testing delete instance - 200 Success")
     void DeleteInstance() {
-        given()
+        Response response = given()
                 .queryParam("id", "poone")
                 .header("token", cosAdminToken)
                 .when()
                 .delete("/instance")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing delete instance - 401 Unauthorized access")
@@ -107,11 +121,15 @@ public class InstanceAPIsIT {
     @Test
     @DisplayName("testing get instance - 200 Success")
     void GetInstances() {
-        given()
+        Response response = given()
                 .when()
                 .get("/list/instance")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 }

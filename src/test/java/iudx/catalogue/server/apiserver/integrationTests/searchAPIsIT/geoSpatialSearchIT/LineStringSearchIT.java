@@ -1,6 +1,9 @@
 package iudx.catalogue.server.apiserver.integrationTests.searchAPIsIT.geoSpatialSearchIT;
 
+import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,11 +15,12 @@ import static org.hamcrest.Matchers.is;
  * Integration tests for the search APIs by line string in the Catalog Server.
  */
 @ExtendWith(RestAssuredConfiguration.class)
-public class lineStringSearchIT {
+public class LineStringSearchIT {
+    private static final Logger LOGGER = LogManager.getLogger(LineStringSearchIT.class);
     @Test
     @DisplayName("testing search based on line string - 200 Success")
     void GetSearchLineString() {
-        given()
+        Response response = given()
                 .param("geoproperty","location")
                 .param("georel","intersects")
                 .param("geometry","LineString")
@@ -25,7 +29,11 @@ public class lineStringSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing search based on line string - 400 Invalid value 1")

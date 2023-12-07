@@ -1,6 +1,10 @@
 package iudx.catalogue.server.apiserver.integrationTests.searchAPIsIT;
 
+import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
+import iudx.catalogue.server.apiserver.integrationTests.listItemsIT.ListItemsIT;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,10 +17,11 @@ import static org.hamcrest.Matchers.is;
  */
 @ExtendWith(RestAssuredConfiguration.class)
 public class TagSearchIT {
+    private static final Logger LOGGER = LogManager.getLogger(TagSearchIT.class);
     @Test
     @DisplayName("testing Tag Search (filter,limit,offset) - 200 Success")
     void GetTagSearch() {
-        given()
+        Response response = given()
                 .param("property","[tags]")
                 .param("value","[[flood]]")
                 .param("filter","[id,tags]")
@@ -26,19 +31,27 @@ public class TagSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Tag Search multi value - 200 Success")
     void GetTagSearchMulVal() {
-        given()
+        Response response = given()
                 .param("property","[tags]")
                 .param("value","[[parking, flood]]")
                 .when()
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Tag Search 1 - 400 Invalid syntax")

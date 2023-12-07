@@ -1,6 +1,9 @@
 package iudx.catalogue.server.apiserver.integrationTests.searchAPIsIT.geoSpatialSearchIT;
 
+import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,11 +15,12 @@ import static org.hamcrest.Matchers.is;
  * Integration tests for the search APIs by polygon search in the Catalog Server.
  */
 @ExtendWith(RestAssuredConfiguration.class)
-public class polygonSearchIT {
+public class PolygonSearchIT {
+    private static final Logger LOGGER = LogManager.getLogger(PolygonSearchIT.class);
     @Test
     @DisplayName("testing search based on polygon - 200 Success")
     void GetSearchPolygon() {
-        given()
+        Response response = given()
                 .param("geoproperty","location")
                 .param("georel","within")
                 .param("geometry","Polygon")
@@ -25,7 +29,11 @@ public class polygonSearchIT {
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing search based on polygon - 400 Invalid value 1")

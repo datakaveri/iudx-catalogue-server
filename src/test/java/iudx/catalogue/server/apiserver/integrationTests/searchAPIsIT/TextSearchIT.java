@@ -1,6 +1,10 @@
 package iudx.catalogue.server.apiserver.integrationTests.searchAPIsIT;
 
+import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
+import iudx.catalogue.server.apiserver.integrationTests.listItemsIT.ListItemsIT;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,27 +17,36 @@ import static org.hamcrest.Matchers.is;
  */
 @ExtendWith(RestAssuredConfiguration.class)
 public class TextSearchIT {
+    private static final Logger LOGGER = LogManager.getLogger(TextSearchIT.class);
     @Test
     @DisplayName("testing text search - 200 Success")
     void GetTextSearch() {
-        given()
+        Response response = given()
                 .param("q","paid parking")
                 .when()
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing text search special character - 200 Success")
     void GetTextSearchSpecialChar() {
-        given()
+        Response response = given()
                 .param("q","flood*")
                 .when()
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing text search special character - 400 Invalid value")

@@ -1,6 +1,10 @@
 package iudx.catalogue.server.apiserver.integrationTests.searchAPIsIT.geoSpatialSearchIT;
 
+import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
+import iudx.catalogue.server.apiserver.integrationTests.listItemsIT.ListItemsIT;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,53 +17,70 @@ import static org.hamcrest.Matchers.is;
  */
 @ExtendWith(RestAssuredConfiguration.class)
 public class AttributeSearchIT {
+    private static final Logger LOGGER = LogManager.getLogger(AttributeSearchIT.class);
     @Test
     @DisplayName("testing Attribute Search - 200 Success - Simple Attribute")
     void GetSimpleAttribute() {
-        given()
+        Response response = given()
                 .param("property","[id]")
                 .param("value","[[b58da193-23d9-43eb-b98a-a103d4b6103c]]")
                 .when()
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Attribute Search - 200 Success - Simple Attribute Multi value")
     void GetSimpleAttributeMulVal() {
-        given()
+        Response response = given()
                 .param("property","[id]")
                 .param("value","[[b58da193-23d9-43eb-b98a-a103d4b6103c,5b7556b5-0779-4c47-9cf2-3f209779aa22]]")
                 .when()
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Attribute Search - 200 Success - Multi Attribute Multi value")
     void GetMultiAttributeMulVal() {
-        given()
+        Response response = given()
                 .param("property","[tags,name]")
                 .param("value","[[flooding, current level],[FWR055]]")
                 .when()
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Nested Attribute Search - 200 Success")
     void NestedAttributeSearch() {
-        given()
+        Response response = given()
                 .param("property","[tags,location.address]")
                 .param("value","[[aqm, flood], [pune,delhi]]")
                 .when()
                 .get("/search")
                 .then()
                 .statusCode(200)
-                .body("type", is("urn:dx:cat:Success"));
+                .body("type", is("urn:dx:cat:Success"))
+                .extract()
+                .response();
+        //Log the entire response details
+        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Attribute Search with non-existing id - 400 Invalid value")
