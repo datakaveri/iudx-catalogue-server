@@ -1,5 +1,5 @@
 package iudx.catalogue.server.apiserver.integrationtests.mlayerapis.mlayerinstances;
-import iudx.catalogue.server.apiserver.integrationtests.mlayerapis.RestAssuredConfiguration;
+import iudx.catalogue.server.apiserver.integrationtests.RestAssuredConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,17 +11,33 @@ import static org.hamcrest.Matchers.equalTo;
 
 @ExtendWith(RestAssuredConfiguration.class)
 public class GetMlayerInstanceIT {
+    String mlayerInstanceId="243df662-82be-4983-ba13-34a408752769";
     @Test
-    @DisplayName("Get Mlayer Instance success response test- 200")
-    public void getMlayerInstanceSuccessTest(){
+    @DisplayName("Get All Mlayer Instance success response test- 200")
+    public void getAllMlayerInstanceSuccessTest(){
         given()
-                .queryParam("id","a9157b13-908e-4f4e-af04-fc532cf84184")
                 .header("Content-Type","application/json")
                 .header("token",cosAdminToken)
                 .when()
                 .get("/internal/ui/instance")
                 .then()
                 .statusCode(200)
+                .log().body()
+                .body("type", equalTo("urn:dx:cat:Success"));
+
+    }
+    @Test
+    @DisplayName("Get Mlayer Instance success response by Id test- 200")
+    public void getMlayerInstanceByIdSuccessTest(){
+        given()
+                .queryParam("id",mlayerInstanceId)
+                .header("Content-Type","application/json")
+                .header("token",cosAdminToken)
+                .when()
+                .get("/internal/ui/instance")
+                .then()
+                .statusCode(200)
+                .log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
 
     }

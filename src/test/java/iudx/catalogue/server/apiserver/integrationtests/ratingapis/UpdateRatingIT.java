@@ -1,5 +1,7 @@
 package iudx.catalogue.server.apiserver.integrationtests.ratingapis;
 
+import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.apiserver.integrationtests.RestAssuredConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,21 +11,25 @@ import static org.hamcrest.Matchers.*;
 
 @ExtendWith(RestAssuredConfiguration.class)
 public class UpdateRatingIT {
+    String ratingId="9fb2d1b5-0db7-40b7-8efc-4bb283ee1301";
     @Test
     @DisplayName("Update rating success response test- 200")
     public void updateRatingSuccessTest(){
         basePath="";
         //request body
-        String requestBody = "{\"rating\": 4.8,\"comment\": \"very good resource\"}";
+        JsonObject requestBody = new JsonObject()
+                .put("rating", 4.8)
+                .put("comment", "very good resource");
         given()
-               .queryParam("id","b58da193-23d9-43eb-b98a-a103d4b6103c")
+               .queryParam("id",ratingId)
                 .header("Content-Type","application/json")
                 .header("token",consumerToken)
-                .body(requestBody)
+                .body(requestBody.encodePrettily())
                 .when()
                 .put("/consumer/ratings")
                 .then()
                 .statusCode(200)
+                .log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
 
     }
@@ -32,16 +38,19 @@ public class UpdateRatingIT {
     public void updateRatingWithInvalidTokenTest(){
         basePath="";
         //request body
-        String requestBody = "{\"rating\": 4.8,\"comment\": \"very good resource\"}";
+        JsonObject requestBody = new JsonObject()
+                .put("rating", 4.8)
+                .put("comment", "very good resource");
         given()
-                .queryParam("id","b58da193-23d9-43eb-b98a-a103d4b6103c")
+                .queryParam("id",ratingId)
                 .header("Content-Type","application/json")
                 .header("token","abc")
-                .body(requestBody)
+                .body(requestBody.encodePrettily())
                 .when()
                 .put("/consumer/ratings")
                 .then()
                 .statusCode(401)
+                .log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidAuthorizationToken"));
 
     }
@@ -50,16 +59,20 @@ public class UpdateRatingIT {
     public void updateRatingWithInvalidSchemaTest(){
         basePath="";
         //request body
-        String requestBody ="{\"ratingzzz\": 4.8,\"comment\": \"v.good resource\"}";
+        JsonObject requestBody = new JsonObject()
+                .put("ratingzzz", 4.8)
+                .put("comment", "v.good resource");
+
         given()
-                .queryParam("id","b58da193-23d9-43eb-b98a-a103d4b6103c")
+                .queryParam("id",ratingId)
                 .header("Content-Type","application/json")
                 .header("token",consumerToken)
-                .body(requestBody)
+                .body(requestBody.encodePrettily())
                 .when()
                 .put("/consumer/ratings")
                 .then()
                 .statusCode(400)
+                .log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSchema"));
 
     }
