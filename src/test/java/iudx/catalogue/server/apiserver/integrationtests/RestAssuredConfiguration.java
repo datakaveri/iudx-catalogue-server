@@ -6,8 +6,11 @@ import iudx.catalogue.server.Configuration;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
-
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.basePath;
+import static io.restassured.RestAssured.baseURI;
+import static io.restassured.RestAssured.enableLoggingOfRequestAndResponseIfValidationFails;
+import static io.restassured.RestAssured.port;
+import static io.restassured.RestAssured.proxy;
 
 /**
  * JUnit5 extension to allow {@link RestAssured} configuration to be injected into all integration
