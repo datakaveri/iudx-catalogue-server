@@ -25,6 +25,7 @@ public class InstanceAPIsIT {
     private static final Logger LOGGER = LogManager.getLogger(InstanceAPIsIT.class);
 
     @Test
+    @Order(1)
     @DisplayName("testing create instance - 201")
     void createInstance201() {
 
@@ -48,6 +49,7 @@ public class InstanceAPIsIT {
     }
 
     @Test
+    @Order(2)
     @DisplayName("testing create instance - 400 (invalid query param)")
     void createInstanceInvalidQueryParam() {
        Response response= given()
@@ -66,6 +68,7 @@ public class InstanceAPIsIT {
         LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
+    @Order(3)
     @DisplayName("testing create instance - 401 (Unauthorized Request)")
     void createInstanceUnauthReq() {
         given()
@@ -78,6 +81,7 @@ public class InstanceAPIsIT {
                 .body("type", is("urn:dx:cat:InvalidAuthorizationToken"));
     }
     @Test
+    @Order(4)
     @DisplayName("testing delete instance - 200 Success")
     void DeleteInstance() {
         Response response = given()
@@ -94,6 +98,7 @@ public class InstanceAPIsIT {
         LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
+    @Order(5)
     @DisplayName("testing delete instance - 401 Unauthorized access")
     void DeleteInstanceUnAuth() {
         given()
@@ -106,6 +111,7 @@ public class InstanceAPIsIT {
                 .body("type", is("urn:dx:cat:InvalidAuthorizationToken"));
     }
     @Test
+    @Order(6)
     @DisplayName("testing delete instance - 404 Not Found")
     void DeleteInstanceNotFound() {
         given()
@@ -119,6 +125,7 @@ public class InstanceAPIsIT {
                 .body("title",is("Item is not found"));
     }
     @Test
+    @Order(7)
     @DisplayName("testing get instance - 200 Success")
     void GetInstances() {
         Response response = given()
