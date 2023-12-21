@@ -109,8 +109,6 @@ pipeline {
           script{
             startZap ([host: 'localhost', port: 8090, zapHome: '/var/lib/jenkins/tools/com.cloudbees.jenkins.plugins.customtools.CustomTool/OWASP_ZAP/ZAP_2.11.0'])
             sh 'curl http://127.0.0.1:8090/JSON/pscan/action/disableScanners/?ids=10096'
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-            }
           }
         }
         script{
@@ -188,7 +186,7 @@ pipeline {
           steps {
             node('built-in') {
               script{
-            sh 'mvn test-compile failsafe:integration-test -DskipUnitTests=true -DintTestProxyHost=jenkins-master-priv -DintTestProxyPort=8090 -DintTestHost=api.cat-test.iudx.io -DintTestPort=80'
+            sh 'mvn test-compile failsafe:integration-test -DskipUnitTests=true -DintTestHost=api.cat-test.iudx.io -DintTestPort=80'
               }
             }
           }
