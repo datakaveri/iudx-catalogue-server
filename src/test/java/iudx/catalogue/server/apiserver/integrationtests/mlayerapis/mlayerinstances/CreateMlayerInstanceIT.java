@@ -1,10 +1,14 @@
 package iudx.catalogue.server.apiserver.integrationtests.mlayerapis.mlayerinstances;
+import io.restassured.response.Response;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.apiserver.integrationtests.RestAssuredConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.io.FileWriter;
+import java.io.IOException;
 
 import static io.restassured.RestAssured.given;
 import static iudx.catalogue.server.authenticator.JwtTokenHelper.cosAdminToken;
@@ -13,6 +17,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 @ExtendWith(RestAssuredConfiguration.class)
 public class CreateMlayerInstanceIT {
+    private static String instanceId;
     @Test
     @DisplayName("Create Mlayer Instance Success Test-201")
     public void createMlayerInstanceTest(){
@@ -23,17 +28,27 @@ public class CreateMlayerInstanceIT {
                 .put("logo", "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bhavya.jpg")
                 .put("coordinates", new JsonArray());
 
-        given()
+        Response resp= given()
                 .header("Content-Type", "application/json")
                 .header("token", cosAdminToken)
                 .body(requestBody.encodePrettily())
                 .when()
-                .post("/internal/ui/instance")
-                .then()
+                .post("/internal/ui/instance");
+        JsonObject respJson = new JsonObject(resp.body().asString());
+        JsonObject firstResult = respJson.getJsonArray("results").getJsonObject(0);
+        instanceId = firstResult.getString("id");
+                resp.then()
                 .statusCode(201)
                 .log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("results[0].id", notNullValue());
+        // Write domainId to a JSON file
+        JsonObject json = new JsonObject().put("instanceId", instanceId);
+        try (FileWriter file = new FileWriter("configInstances.json")) {
+            file.write(json.encodePrettily());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
     @Test
     @DisplayName("Create Mlayer Instance With Invalid Token Test-401")

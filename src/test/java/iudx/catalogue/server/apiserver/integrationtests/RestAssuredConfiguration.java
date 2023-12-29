@@ -7,7 +7,10 @@ import static io.restassured.RestAssured.port;
 import static io.restassured.RestAssured.proxy;
 
 import io.restassured.RestAssured;
+import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.Configuration;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 /**
@@ -20,6 +23,8 @@ public class RestAssuredConfiguration implements BeforeAllCallback {
 
   @Override
   public void beforeAll(ExtensionContext context) {
+   // JsonObject config = Configuration.getConfiguration("./configs/config-test.json", 3);
+   //String testHost = config.getString("ip");
     String testHost = System.getProperty("intTestHost");
 
     if (testHost != null) {
@@ -29,11 +34,13 @@ public class RestAssuredConfiguration implements BeforeAllCallback {
     }
 
     String testPort = System.getProperty("intTestPort");
+  // String testPort = config.getString("httpPort");
+
 
     if (testPort != null) {
       port = Integer.parseInt(testPort);
     } else {
-      port = 8443;
+      port = 8080;
     }
 
     basePath = "/iudx/cat/v1";

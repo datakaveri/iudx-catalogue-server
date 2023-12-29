@@ -2,15 +2,44 @@ package iudx.catalogue.server.apiserver.integrationtests.mlayerapis.mlayerinstan
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.apiserver.integrationtests.RestAssuredConfiguration;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import static io.restassured.RestAssured.given;
 import static iudx.catalogue.server.authenticator.JwtTokenHelper.cosAdminToken;
 import static org.hamcrest.Matchers.equalTo;
 @ExtendWith(RestAssuredConfiguration.class)
 public class UpdateMlayerInstanceIT {
-    String mlayerInstanceId="243df662-82be-4983-ba13-34a408752769";
+    private static String instanceId;
+    @BeforeAll
+    public static void setUp() {
+        // Check if the file exists, and if not, create it
+        Path configFile = Paths.get("configInstances.json");
+        if (!Files.exists(configFile)) {
+            try {
+                // Create an empty JSON object if the file doesn't exist
+                Files.write(configFile, "{}".getBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Read instanceId from the JSON file
+        JsonObject json;
+        try {
+            json = new JsonObject(new String(Files.readAllBytes(configFile)));
+            instanceId = json.getString("instanceId");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @Test
     @DisplayName("Update Mlayer Instance success response test- 200")
     public void updateMlayerInstanceSuccessTest(){
@@ -21,7 +50,7 @@ public class UpdateMlayerInstanceIT {
                 .put("logo", "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bhavya.jpeg")
                 .put("coordinates", new JsonArray());
         given()
-                .queryParam("id",mlayerInstanceId)
+                .queryParam("id",instanceId)
                 .header("Content-Type","application/json")
                 .header("token",cosAdminToken)
                 .body(requestBody.encodePrettily())
@@ -43,7 +72,7 @@ public class UpdateMlayerInstanceIT {
                 .put("logo", "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bhavya.jpeg")
                 .put("coordinates", new JsonArray());
         given()
-                .queryParam("id",mlayerInstanceId)
+                .queryParam("id",instanceId)
                 .header("Content-Type","application/json")
                 .header("token","abc")
                 .body(requestBody.encodePrettily())
@@ -65,7 +94,7 @@ public class UpdateMlayerInstanceIT {
                 .put("logo", "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/logo/bhavya.jpeg");
 
         given()
-                .queryParam("id",mlayerInstanceId)
+                .queryParam("id",instanceId)
                 .header("Content-Type","application/json")
                 .header("token",cosAdminToken)
                 .body(requestBody.encodePrettily())

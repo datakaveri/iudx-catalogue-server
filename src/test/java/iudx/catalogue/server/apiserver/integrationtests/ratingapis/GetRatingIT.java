@@ -13,7 +13,7 @@ public class GetRatingIT {
     @Test
     @DisplayName("Get Rating Success Test-200")
     public void getRatingSuccessTest(){
-        String ratingId="9fb2d1b5-0db7-40b7-8efc-4bb283ee1301";
+        String ratingId="b58da193-23d9-43eb-b98a-a103d4b6103e";
         basePath="";
         given()
                 .queryParam("id",ratingId)

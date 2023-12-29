@@ -12,7 +12,7 @@ import static org.hamcrest.Matchers.*;
 
 @ExtendWith(RestAssuredConfiguration.class)
 public class CreateRatingIT {
-    String ratingId="9fb2d1b5-0db7-40b7-8efc-4bb283ee1301";
+    String ratingId="a75a6efd-0544-49ca-bce8-14af25862f78";
     @Test
     @DisplayName("Create Rating Success Response-201")
     public void createRatingSuccessTest() {
