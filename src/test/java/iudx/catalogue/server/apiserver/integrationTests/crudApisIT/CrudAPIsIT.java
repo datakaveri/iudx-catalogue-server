@@ -200,7 +200,7 @@ public class CrudAPIsIT {
     void createDXProviderItem() {
         LOGGER.debug("resource server id from provider item creation..."+resource_server_id);
 
-        // Introduce a delay between creating COS item and DX Resource Server item
+        // Introduce a delay
         try {
             Thread.sleep(2000); // 2 seconds delay
         } catch (InterruptedException e) {
@@ -256,7 +256,7 @@ public class CrudAPIsIT {
     @DisplayName("testing create DX Resource Group Item Entity - 201")
     void createDXResourceGroupItemEntity() {
         LOGGER.debug("provider id before check..."+provider_id);
-        // Introduce a delay between creating COS item and DX Resource Server item
+        // Introduce a delay
        try {
             Thread.sleep(2000); // 2 seconds delay
         } catch (InterruptedException e) {
@@ -306,7 +306,7 @@ public class CrudAPIsIT {
     void createDXResourceItem() {
         LOGGER.debug("from DX RS item..."+resource_server_id +" "+provider_id+" "+resource_group_id);
 
-        // Introduce a delay between creating COS item and DX Resource Server item
+        // Introduce a delay
         try {
             Thread.sleep(2000); // 2 seconds delay
         } catch (InterruptedException e) {
