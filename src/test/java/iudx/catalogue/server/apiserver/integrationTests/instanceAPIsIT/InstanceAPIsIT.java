@@ -4,9 +4,7 @@ import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.restassured.RestAssured.*;
@@ -21,6 +19,7 @@ import static org.hamcrest.Matchers.*;
  * configurations for the Catalog Server.
  */
 @ExtendWith(RestAssuredConfiguration.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class InstanceAPIsIT {
     private static final Logger LOGGER = LogManager.getLogger(InstanceAPIsIT.class);
 

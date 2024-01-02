@@ -2,7 +2,6 @@ package iudx.catalogue.server.apiserver.integrationTests.searchAPIsIT.geoSpatial
 
 import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
-import iudx.catalogue.server.apiserver.integrationTests.listItemsIT.ListItemsIT;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
