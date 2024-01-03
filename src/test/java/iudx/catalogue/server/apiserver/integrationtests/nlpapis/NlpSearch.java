@@ -7,6 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+
+/* Rest Assured Integration tests for retrieving information about a location using valid and
+* invalid questions in NLP Search APIs in Catalogue Server APIs*/
+
 @ExtendWith(RestAssuredConfiguration.class)
 public class NlpSearch {
     String question= "where can I halt near chandigarh";

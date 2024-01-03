@@ -4,11 +4,13 @@ import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.apiserver.integrationtests.RestAssuredConfiguration;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import static io.restassured.RestAssured.basePath;
 import static io.restassured.RestAssured.given;
 import static iudx.catalogue.server.authenticator.JwtTokenHelper.consumerToken;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+
+/* Rest Assured Integration tests for the CRUD operations of consumer ratings in Catalogue server APIs. The tests cover
+creating, updating, retrieving and deleting ratings in catalogue server APIs*/
 
 @ExtendWith(RestAssuredConfiguration.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -291,7 +293,7 @@ public class RatingApisCRUDIT {
     public void tearDown() {
         // Introduce a delay
         try {
-            Thread.sleep(1000); // 1 seconds delay
+            Thread.sleep(1000); // 1 second delay
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

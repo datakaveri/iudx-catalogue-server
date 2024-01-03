@@ -8,6 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
+/* Rest Assured Integration tests to list the location of the dataset ids'
+given in the request body of a particular instance in Catalogue Server APIs
+*/
+
 @ExtendWith(RestAssuredConfiguration.class)
 public class GetGeoLocationsIT {
     String geoValue="malleswaram";

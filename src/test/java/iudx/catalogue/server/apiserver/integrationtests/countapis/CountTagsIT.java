@@ -7,6 +7,9 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.Matchers.equalTo;
 
+/*Rest Assured Integration tests to get the total number of hits for the given API request
+containing the provided query parameters in Catalogue Server APIs.
+*/
 
 @ExtendWith(RestAssuredConfiguration.class)
 public class CountTagsIT {

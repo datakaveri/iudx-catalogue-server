@@ -37,7 +37,6 @@ public class MlayerDomainCRUDIT {
         JsonObject respJson = new JsonObject(resp.body().asString());
         JsonObject firstResult = respJson.getJsonArray("results").getJsonObject(0);
         domainId = firstResult.getString("id");
-        System.out.println(domainId);
         resp.then()
                 .statusCode(201)
                 .log().body()
@@ -47,7 +46,6 @@ public class MlayerDomainCRUDIT {
     @Order(2)
     @DisplayName("Create Mlayer Domain with Invalid Schema Test-400")
     public void createMlayerDomainWithInvalidSchemaTest(){
-        System.out.println(domainId);
         JsonObject requestBody = new JsonObject()
                 .put("descriiiption", "Data Models that pertain to civic domain")
                 .put("icon", "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png")
@@ -95,7 +93,6 @@ public class MlayerDomainCRUDIT {
    @Order(4)
    @DisplayName("Update Mlayer Domain Success Test-200")
    public void updateMlayerDomainTest(){
-       System.out.println("Domain ID to update: " + domainId);
        JsonObject requestBody = new JsonObject()
                .put("icon", "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.jpeg")
                .put("name", "civic")
@@ -176,7 +173,6 @@ public class MlayerDomainCRUDIT {
     @Order(8)
     @DisplayName("Get Mlayer Domain by Id Success Test-200")
     public void getMlayerDomainByIdTest() {
-        System.out.println("domain id:" + domainId);
         given()
                 .param("id", domainId)
                 .when()

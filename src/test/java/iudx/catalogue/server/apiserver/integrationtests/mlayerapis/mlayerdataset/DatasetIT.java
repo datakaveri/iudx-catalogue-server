@@ -8,6 +8,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
+/*Rest Assured Integration tests to fetch the dataset details of a particular dataset all the datasets
+or using a particular dataset_id in Catalogue Middle layer specific APIs.
+Domains, Instance, Tags and provider field are also used to filter the datasets.*/
+
 @ExtendWith(RestAssuredConfiguration.class)
 public class DatasetIT {
     @Test
