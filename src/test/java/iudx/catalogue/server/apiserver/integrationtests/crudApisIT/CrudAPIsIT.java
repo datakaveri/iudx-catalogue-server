@@ -1,4 +1,4 @@
-package iudx.catalogue.server.apiserver.integrationTests.crudApisIT;
+package iudx.catalogue.server.apiserver.integrationtests.crudApisIT;
 
 import io.restassured.response.Response;
 import io.vertx.core.json.JsonArray;
