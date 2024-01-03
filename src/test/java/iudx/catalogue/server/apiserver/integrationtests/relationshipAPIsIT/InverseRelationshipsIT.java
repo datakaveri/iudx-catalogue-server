@@ -1,8 +1,8 @@
-package iudx.catalogue.server.apiserver.integrationTests.relationshipAPIsIT;
+package iudx.catalogue.server.apiserver.integrationtests.relationshipAPIsIT;
 
 import io.restassured.response.Response;
-import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
-import iudx.catalogue.server.apiserver.integrationTests.instanceAPIsIT.InstanceAPIsIT;
+import iudx.catalogue.server.apiserver.integrationtests.RestAssuredConfiguration;
+import iudx.catalogue.server.apiserver.integrationtests.instanceAPIsIT.InstanceAPIsIT;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayName;
