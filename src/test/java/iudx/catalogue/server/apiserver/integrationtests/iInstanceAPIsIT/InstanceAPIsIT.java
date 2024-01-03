@@ -1,4 +1,4 @@
-package iudx.catalogue.server.apiserver.integrationTests.instanceAPIsIT;
+package iudx.catalogue.server.apiserver.integrationtests.instanceAPIsIT;
 
 import io.restassured.response.Response;
 import iudx.catalogue.server.apiserver.integrationTests.RestAssuredConfiguration;
