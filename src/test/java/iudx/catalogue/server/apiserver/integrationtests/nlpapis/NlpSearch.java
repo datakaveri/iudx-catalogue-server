@@ -1,10 +1,8 @@
 package iudx.catalogue.server.apiserver.integrationtests.nlpapis;
-
 import iudx.catalogue.server.apiserver.integrationtests.RestAssuredConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -25,7 +23,7 @@ public class NlpSearch {
                 .get("/nlpsearch")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type",equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -38,7 +36,7 @@ public class NlpSearch {
                 .get("/nlpsearch")
                 .then()
                 .statusCode(404)
-                .log().body()
+                //.log().body()
                 .body("type",equalTo("urn:dx:cat:ItemNotFound"));
     }
 }

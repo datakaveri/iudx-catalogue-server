@@ -8,6 +8,7 @@ import static io.restassured.RestAssured.given;
 import static iudx.catalogue.server.authenticator.JwtTokenHelper.cosAdminToken;
 import static org.hamcrest.Matchers.equalTo;
 
+
 /* Rest Assured Integration tests for the CRUD operations of Mlayer Domain in Catalogue Middle layer specific APIs. The tests cover
  creating, updating, retrieving and deleting Mlayer Domain in Mlayer APIs*/
 
@@ -39,7 +40,7 @@ public class MlayerDomainCRUDIT {
         domainId = firstResult.getString("id");
         resp.then()
                 .statusCode(201)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -61,7 +62,7 @@ public class MlayerDomainCRUDIT {
                 .post("/internal/ui/domain")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSchema"));
     }
     @Test
@@ -83,7 +84,7 @@ public class MlayerDomainCRUDIT {
                 .post("/internal/ui/domain")
                 .then()
                 .statusCode(401)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidAuthorizationToken"));
     }
 
@@ -107,7 +108,7 @@ public class MlayerDomainCRUDIT {
                .put("/internal/ui/domain")
                .then()
                .statusCode(200)
-               .log().body()
+               //.log().body()
                .body("type",equalTo("urn:dx:cat:Success"));
    }
     @Test
@@ -129,7 +130,7 @@ public class MlayerDomainCRUDIT {
                 .put("/internal/ui/domain")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type",equalTo("urn:dx:cat:InvalidSchema"));
     }
     @Test
@@ -150,7 +151,7 @@ public class MlayerDomainCRUDIT {
                 .put("/internal/ui/domain")
                 .then()
                 .statusCode(401)
-                .log().body()
+                //.log().body()
                 .body("type",equalTo("urn:dx:cat:InvalidAuthorizationToken"));
     }
 
@@ -165,7 +166,7 @@ public class MlayerDomainCRUDIT {
                 .get("/internal/ui/domain")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
 
@@ -179,7 +180,7 @@ public class MlayerDomainCRUDIT {
                 .get("/internal/ui/domain")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
 
@@ -196,7 +197,7 @@ public class MlayerDomainCRUDIT {
                 .delete("/internal/ui/domain")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type",equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -210,7 +211,7 @@ public class MlayerDomainCRUDIT {
                 .delete("/internal/ui/domain")
                 .then()
                 .statusCode(401)
-                .log().body()
+                //.log().body()
                 .body("type",equalTo("urn:dx:cat:InvalidAuthorizationToken"));
     }
     @AfterEach

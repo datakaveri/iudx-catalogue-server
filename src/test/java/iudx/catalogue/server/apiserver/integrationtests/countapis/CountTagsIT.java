@@ -24,7 +24,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -41,7 +41,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -58,7 +58,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -75,7 +75,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -92,7 +92,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -109,7 +109,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -126,7 +126,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -144,7 +144,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -161,7 +161,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -178,7 +178,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -195,7 +195,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -212,7 +212,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -229,7 +229,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -243,7 +243,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -259,7 +259,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSyntax"));
     }
     @Test
@@ -275,7 +275,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSyntax"));
     }
     @Test
@@ -292,7 +292,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
 
@@ -311,7 +311,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidGeoValue"));
     }
     @Test
@@ -328,7 +328,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSyntax"));
     }
     @Test
@@ -344,7 +344,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("totalHits", notNullValue());
     }
@@ -361,7 +361,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidGeoValue"));
     }
     @Test
@@ -377,7 +377,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSyntax"));
     }
     @Test
@@ -393,7 +393,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -409,7 +409,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidGeoValue"));
     }
     @Test
@@ -425,7 +425,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSyntax"));
     }
     @Test
@@ -441,7 +441,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -457,7 +457,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidGeoValue"));
     }
     @Test
@@ -473,7 +473,7 @@ public class CountTagsIT {
                 .get("/count")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSyntax"));
     }
 

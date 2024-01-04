@@ -20,7 +20,7 @@ public class GetProvidersIT {
                 .get("/internal/ui/providers")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type",equalTo("urn:dx:cat:Success"));
     }
 }

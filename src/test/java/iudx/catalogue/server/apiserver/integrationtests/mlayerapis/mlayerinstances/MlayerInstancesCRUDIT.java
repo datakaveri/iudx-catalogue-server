@@ -5,7 +5,6 @@ import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.apiserver.integrationtests.RestAssuredConfiguration;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import static io.restassured.RestAssured.given;
 import static iudx.catalogue.server.authenticator.JwtTokenHelper.cosAdminToken;
 import static org.hamcrest.Matchers.equalTo;
@@ -42,7 +41,7 @@ public class MlayerInstancesCRUDIT {
         instanceId = firstResult.getString("id");
         resp.then()
                 .statusCode(201)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("results[0].id", notNullValue());
     }
@@ -64,7 +63,7 @@ public class MlayerInstancesCRUDIT {
                 .post("/internal/ui/instance")
                 .then()
                 .statusCode(401)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidAuthorizationToken"));
     }
     @Test
@@ -85,7 +84,7 @@ public class MlayerInstancesCRUDIT {
                 .post("/internal/ui/instance")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSchema"));
     }
 
@@ -110,7 +109,7 @@ public class MlayerInstancesCRUDIT {
                 .put("/internal/ui/instance")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
 
     }
@@ -133,7 +132,7 @@ public class MlayerInstancesCRUDIT {
                 .put("/internal/ui/instance")
                 .then()
                 .statusCode(401)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidAuthorizationToken"));
 
     }
@@ -156,7 +155,7 @@ public class MlayerInstancesCRUDIT {
                 .put("/internal/ui/instance")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSchema"));
 
     }
@@ -174,7 +173,7 @@ public class MlayerInstancesCRUDIT {
                 .get("/internal/ui/instance")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
 
     }
@@ -190,7 +189,7 @@ public class MlayerInstancesCRUDIT {
                 .get("/internal/ui/instance")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
 
     }
@@ -209,7 +208,7 @@ public class MlayerInstancesCRUDIT {
                 .delete("/internal/ui/instance")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
 
@@ -225,7 +224,7 @@ public class MlayerInstancesCRUDIT {
                 .delete("/internal/ui/instance")
                 .then()
                 .statusCode(401)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidAuthorizationToken"));
     }
     @AfterEach

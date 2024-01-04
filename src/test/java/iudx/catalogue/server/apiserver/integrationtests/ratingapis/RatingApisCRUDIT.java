@@ -40,7 +40,7 @@ public class RatingApisCRUDIT {
                 .post("/consumer/ratings")
                 .then()
                 .statusCode(201)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"))
                 .body("results[0].id", notNullValue());
     }
@@ -61,8 +61,8 @@ public class RatingApisCRUDIT {
                 .when()
                 .post("/consumer/ratings")
                 .then()
-                .statusCode(401)// Expecting a 401 Unauthorized response status
-                .log().body();
+                .statusCode(401);// Expecting a 401 Unauthorized response status
+                //.log().body();
 
     }
     @Test
@@ -81,7 +81,7 @@ public class RatingApisCRUDIT {
                 .post("/consumer/ratings")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSchema"));
     }
     @Test
@@ -101,8 +101,8 @@ public class RatingApisCRUDIT {
                 .when()
                 .post("/consumer/ratings")
                 .then()
-                .statusCode(400)
-                .log().body();
+                .statusCode(400);
+                //.log().body();
     }
 
     //Update Rating
@@ -124,7 +124,7 @@ public class RatingApisCRUDIT {
                 .put("/consumer/ratings")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
 
     }
@@ -145,7 +145,7 @@ public class RatingApisCRUDIT {
                 .put("/consumer/ratings")
                 .then()
                 .statusCode(401)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidAuthorizationToken"));
 
     }
@@ -167,7 +167,7 @@ public class RatingApisCRUDIT {
                 .put("/consumer/ratings")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSchema"));
 
     }
@@ -185,7 +185,7 @@ public class RatingApisCRUDIT {
                 .get("/consumer/ratings")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -198,8 +198,8 @@ public class RatingApisCRUDIT {
                 .when()
                 .get("/consumer/ratings")
                 .then()
-                .statusCode(204)
-                .log().body();
+                .statusCode(204);
+                //.log().body();
     }
     @Test
     @Order(10)
@@ -212,7 +212,7 @@ public class RatingApisCRUDIT {
                 .get("/consumer/ratings")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -226,7 +226,7 @@ public class RatingApisCRUDIT {
                 .get("/consumer/ratings")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -240,7 +240,7 @@ public class RatingApisCRUDIT {
                 .get("/consumer/ratings")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidParamValue"));
 
     }
@@ -255,7 +255,7 @@ public class RatingApisCRUDIT {
                 .get("/consumer/ratings")
                 .then()
                 .statusCode(401)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidAuthorizationToken"));
     }
 
@@ -272,7 +272,7 @@ public class RatingApisCRUDIT {
                 .delete("/consumer/ratings")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -286,7 +286,7 @@ public class RatingApisCRUDIT {
                 .delete("/consumer/ratings")
                 .then()
                 .statusCode(401)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidAuthorizationToken"));
     }
     @AfterEach
