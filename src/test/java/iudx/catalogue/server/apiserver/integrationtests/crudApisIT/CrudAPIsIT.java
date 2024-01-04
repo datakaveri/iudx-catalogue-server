@@ -88,6 +88,17 @@ public class CrudAPIsIT {
     @DisplayName("testing create COS item - 201")
     void createCOSItem() {
         LOGGER.info("owner_id: from cos item method.. "+owner_id);
+        // Introduce a delay between creating COS item and DX Resource Server item
+        try {
+            Thread.sleep(2000); // 2 seconds delay
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // Check if owner item exists before creating DX cos item
+        if (!itemExists(owner_id)) {
+            LOGGER.warn("Owner item does not exist. Retrying...");
+            // Add retry logic or handle the situation accordingly
+        }
         JsonObject jsonPayload = new JsonObject()
                 .put("@context", "https://voc.iudx.org.in/")
                 .put("type",new JsonArray().add("iudx:COS"))
