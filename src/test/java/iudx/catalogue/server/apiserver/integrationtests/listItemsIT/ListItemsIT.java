@@ -31,8 +31,6 @@ public class ListItemsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing list instances - 200 Success")
@@ -45,8 +43,6 @@ public class ListItemsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing list Resource Group - 200 Success")
@@ -59,8 +55,6 @@ public class ListItemsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing list Resource Server - 200 Success")
@@ -73,8 +67,6 @@ public class ListItemsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing list Provider - 200 Success")
@@ -87,8 +79,6 @@ public class ListItemsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing list Tags - 400 Invalid item type")
@@ -172,8 +162,6 @@ public class ListItemsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing List Owner - 200 Success")
@@ -186,8 +174,6 @@ public class ListItemsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing List COS - 400 Invalid Item Type")
