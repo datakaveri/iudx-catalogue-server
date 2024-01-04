@@ -34,8 +34,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo attribute - 200 Success")
@@ -55,8 +53,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo text - 200 Success")
@@ -75,8 +71,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo attribute filter - 200 Success")
@@ -97,8 +91,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo text filter - 200 Success")
@@ -117,8 +109,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with attribute filter - 200 Success")
@@ -134,8 +124,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with attribute text - 200 Success")
@@ -151,8 +139,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with attribute text filter - 200 Success")
@@ -169,8 +155,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with attribute tags filter - 200 Success")
@@ -186,8 +170,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with attribute text filter - 200 Success")
@@ -202,8 +184,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo text attribute - 200 Success")
@@ -223,8 +203,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Complex Search with geo text attribute filter - 200 Success")
@@ -245,8 +223,6 @@ public class ComplexSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing complex search Response filter- 400 Invalid request")
