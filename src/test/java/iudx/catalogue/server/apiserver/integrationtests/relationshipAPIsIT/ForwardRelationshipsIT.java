@@ -30,8 +30,6 @@ public class ForwardRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get RS item for resource - 200 Success")
@@ -46,9 +44,6 @@ public class ForwardRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
-
     }
     @Test
     @DisplayName("testing get provider item for resource - 200 Success")
@@ -63,8 +58,6 @@ public class ForwardRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get RG item for resource - 200 Success")
@@ -79,8 +72,6 @@ public class ForwardRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get cos item for resource group - 200 Success")
@@ -95,8 +86,6 @@ public class ForwardRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get RS item for resource group - 200 Success")
@@ -111,8 +100,6 @@ public class ForwardRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get provider item for resource group - 200 Success")
@@ -127,8 +114,6 @@ public class ForwardRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get cos item for provider - 200 Success")
@@ -143,8 +128,6 @@ public class ForwardRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get resource item for provider - 200 Success")
@@ -159,8 +142,6 @@ public class ForwardRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get cos item for resource server - 200 Success")
@@ -175,7 +156,5 @@ public class ForwardRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 }
