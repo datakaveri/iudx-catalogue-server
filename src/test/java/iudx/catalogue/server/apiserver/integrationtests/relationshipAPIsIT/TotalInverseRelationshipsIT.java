@@ -31,8 +31,6 @@ public class TotalInverseRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get total inverse relationships[Resource Group] - 200 Success")
@@ -47,8 +45,6 @@ public class TotalInverseRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get total inverse relationships[Provider] - 200 Success")
@@ -63,8 +59,6 @@ public class TotalInverseRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get total inverse relationships[Resource Server] - 200 Success")
@@ -79,8 +73,6 @@ public class TotalInverseRelationshipsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing get total inverse relationships[COS] - 400 Invalid item type")
