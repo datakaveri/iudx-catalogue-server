@@ -64,8 +64,6 @@ public class CrudAPIsIT {
         jsonPayload.put("name", "OwnerItemPM18");
         jsonPayload.put("description", "testing owner item creation through integration tests");
 
-        LOGGER.debug("json: "+jsonPayload);
-
         Response response= given()
                 .contentType("application/json")
                 .header("token", cosAdminToken)
@@ -83,8 +81,6 @@ public class CrudAPIsIT {
         // Extract the generated ID from the response
         owner_id = response.path("results.id");
         LOGGER.info(owner_id);
-        //Log the entire response details
-       LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -100,8 +96,6 @@ public class CrudAPIsIT {
                 .put("description", "testing COS item creation through integration tests")
                 .put("cosURL","cat-test.iudx.io")
                 .put("cosUI","cat-test.iudx.io");
-
-        LOGGER.debug("json: "+jsonPayload);
 
         Response response = given()
                 .contentType("application/json")
@@ -119,8 +113,6 @@ public class CrudAPIsIT {
                 .response();
         // Extract the generated ID from the response
         cos_id = response.path("results.id");
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -172,7 +164,6 @@ public class CrudAPIsIT {
                                 .put("type", "Point")
                                 .put("coordinates", new JsonArray().add(77.570423).add(13.013945))
                         ));
-        LOGGER.debug("json: "+jsonPayload);
 
         Response response = given()
                 .contentType("application/json")
@@ -190,8 +181,6 @@ public class CrudAPIsIT {
                 .response();
         // Extract the generated ID from the response
         resource_server_id = response.path("results.id");
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -247,8 +236,6 @@ public class CrudAPIsIT {
                 .response();
         // Extract the generated ID from the response
         provider_id = response.path("results.id");
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -296,8 +283,6 @@ public class CrudAPIsIT {
                 .response();
         // Extract the generated ID from the response
         resource_group_id = response.path("results.id");
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -358,8 +343,6 @@ public class CrudAPIsIT {
                 .response();
         // Extract the generated ID from the response
         resource_item_id = response.path("results.id");
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -390,8 +373,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:LinkValidationFailed"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -418,8 +399,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:InvalidSchema"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -457,8 +436,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:InvalidSchema"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -485,8 +462,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:InvalidAuthorizationToken"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     /**
@@ -517,8 +492,6 @@ public class CrudAPIsIT {
                 .body("title", is("Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -547,8 +520,6 @@ public class CrudAPIsIT {
                 .body("title", is("Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -606,8 +577,6 @@ public class CrudAPIsIT {
                 .body("title", is("Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -645,8 +614,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -672,8 +639,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(16)
@@ -704,8 +669,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -731,8 +694,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:InvalidSchema"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -763,8 +724,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:LinkValidationFailed"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -792,8 +751,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:InvalidAuthorizationToken"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -824,8 +781,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:ItemNotFound"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     /**
@@ -848,8 +803,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -866,8 +819,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:ItemNotFound"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -884,8 +835,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:InvalidUUID"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -904,8 +853,6 @@ public class CrudAPIsIT {
                 .body("title",is("Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -924,8 +871,6 @@ public class CrudAPIsIT {
                 .body("title",is("Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     /**
@@ -948,8 +893,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(27)
@@ -966,8 +909,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(28)
@@ -984,8 +925,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(29)
@@ -1002,8 +941,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(30)
@@ -1020,8 +957,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(31)
@@ -1038,8 +973,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(32)
@@ -1056,8 +989,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:ItemNotFound"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(33)
@@ -1074,8 +1005,6 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:InvalidSyntax"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(34)
@@ -1092,7 +1021,5 @@ public class CrudAPIsIT {
                 .body("type", is("urn:dx:cat:InvalidAuthorizationToken"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 }
