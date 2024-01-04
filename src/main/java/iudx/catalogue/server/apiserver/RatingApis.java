@@ -103,7 +103,7 @@ public class RatingApis {
               requestBody
                   .put(Constants.ID, id)
                   .put(USER_ID, successHandler.getString(Constants.USER_ID))
-                  .put("status", PENDING);
+                  .put("status", APPROVED);
 
               validatorService.validateRating(
                   requestBody,
@@ -296,7 +296,7 @@ public class RatingApis {
               requestBody
                   .put(Constants.ID, id)
                   .put(Constants.USER_ID, successHandler.getString(Constants.USER_ID))
-                  .put("status", PENDING);
+                  .put("status", APPROVED);
 
               validatorService.validateRating(
                   requestBody,
