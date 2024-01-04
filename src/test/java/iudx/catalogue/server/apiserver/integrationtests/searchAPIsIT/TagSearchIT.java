@@ -34,8 +34,6 @@ public class TagSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Tag Search multi value - 200 Success")
@@ -50,8 +48,6 @@ public class TagSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Tag Search 1 - 400 Invalid syntax")
