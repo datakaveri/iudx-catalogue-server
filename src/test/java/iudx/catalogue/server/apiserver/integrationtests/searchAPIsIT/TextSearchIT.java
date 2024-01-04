@@ -30,8 +30,6 @@ public class TextSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing text search special character - 200 Success")
@@ -45,8 +43,6 @@ public class TextSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing text search special character - 400 Invalid value")
