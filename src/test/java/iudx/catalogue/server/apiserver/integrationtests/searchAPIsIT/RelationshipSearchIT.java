@@ -31,8 +31,6 @@ public class RelationshipSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing search a relationship_2 - 200 Success")
@@ -47,7 +45,5 @@ public class RelationshipSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 }
