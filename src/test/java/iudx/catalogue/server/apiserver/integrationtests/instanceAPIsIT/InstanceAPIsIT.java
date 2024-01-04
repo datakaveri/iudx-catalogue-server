@@ -27,10 +27,9 @@ public class InstanceAPIsIT {
     @Order(1)
     @DisplayName("testing create instance - 201")
     void createInstance201() {
-
-        LOGGER.debug(basePath);
-        LOGGER.debug(baseURI);
-        LOGGER.debug(port);
+        //LOGGER.debug(basePath);
+        //LOGGER.debug(baseURI);
+        //LOGGER.debug(port);
         Response response = given()
                         .queryParam("id", "poone")
                         .header("token", cosAdminToken)
@@ -43,8 +42,6 @@ public class InstanceAPIsIT {
                         .body("detail", equalTo("Success: Item created"))
                         .extract()
                         .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 
     @Test
@@ -63,8 +60,6 @@ public class InstanceAPIsIT {
                 .body("detail", equalTo("id not present in the request"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(3)
@@ -93,8 +88,6 @@ public class InstanceAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @Order(5)
@@ -135,7 +128,5 @@ public class InstanceAPIsIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
 }
