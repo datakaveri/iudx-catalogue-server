@@ -30,8 +30,6 @@ public class AttributeSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Attribute Search - 200 Success - Simple Attribute Multi value")
@@ -46,8 +44,6 @@ public class AttributeSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Attribute Search - 200 Success - Multi Attribute Multi value")
@@ -62,8 +58,6 @@ public class AttributeSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Nested Attribute Search - 200 Success")
@@ -78,8 +72,6 @@ public class AttributeSearchIT {
                 .body("type", is("urn:dx:cat:Success"))
                 .extract()
                 .response();
-        //Log the entire response details
-        LOGGER.debug("Response details:\n" + response.prettyPrint());
     }
     @Test
     @DisplayName("testing Attribute Search with non-existing id - 400 Invalid value")
