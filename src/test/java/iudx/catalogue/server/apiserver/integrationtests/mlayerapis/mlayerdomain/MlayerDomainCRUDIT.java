@@ -5,7 +5,7 @@ import iudx.catalogue.server.apiserver.integrationtests.RestAssuredConfiguration
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static io.restassured.RestAssured.given;
-import static iudx.catalogue.server.authenticator.JwtTokenHelper.cosAdminToken;
+import static iudx.catalogue.server.authenticator.TokensForITs.*;
 import static org.hamcrest.Matchers.equalTo;
 
 /* Rest Assured Integration tests for the CRUD operations of Mlayer Domain in Catalogue Middle layer specific APIs. The tests cover
