@@ -10,7 +10,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.restassured.RestAssured.*;
-import static iudx.catalogue.server.authenticator.JwtTokenHelper.*;
+import static iudx.catalogue.server.authenticator.TokensForITs.*;
 import static org.hamcrest.Matchers.*;
 
 /**

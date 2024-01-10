@@ -7,7 +7,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.restassured.RestAssured.given;
-import static iudx.catalogue.server.authenticator.JwtTokenHelper.cosAdminToken;
+import static iudx.catalogue.server.authenticator.TokensForITs.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
