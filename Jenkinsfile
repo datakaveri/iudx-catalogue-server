@@ -185,7 +185,7 @@ pipeline {
         stage('Integration test on swarm deployment') {
           steps {
             script{
-                sh 'mvn test-compile failsafe:integration-test -DskipUnitTests=true -DintTestHost=api.cat-test.iudx.io -DintTestPort=80'
+                sh 'mvn test-compile failsafe:integration-test -DskipUnitTests=true -DintTestDepl=true'
             }
           }
           post{

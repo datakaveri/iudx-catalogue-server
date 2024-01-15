@@ -954,7 +954,7 @@ public class CrudAPIsIT {
                 .response();
     }
     @Test
-    @Order(30)
+    @Order(31)
     @DisplayName("testing delete a Owner DX Entity - 200")
     void DeleteOwnerDXEntity() {
         Response response = given()
@@ -970,7 +970,7 @@ public class CrudAPIsIT {
                 .response();
     }
     @Test
-    @Order(31)
+    @Order(30)
     @DisplayName("testing delete a COS DX Entity - 200")
     void DeleteCosDXEntity() {
         Response response = given()
