@@ -41,8 +41,8 @@ paths:
       tags:
         - Discovery
       description: |
-        Generic catalogue search query. Searches for entites that meet the
-        query criteria. The search enpoint allows one to query a particular property of an
+        Generic catalogue search query. Searches for entities that meet the
+        query criteria. The search endpoint allows one to query a particular property of an
         entity, or by its geo-location annotation, or by a full text-search or a combination of
         all three.
         #### Property Search
@@ -201,7 +201,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/successResponseWithObjects'
+                oneOf:
+                  - $ref: '#/components/schemas/successResponseForTagSearch'
+                  - $ref: '#/components/schemas/successResponseForTagSearchMultiValue'
+                  - $ref: '#/components/schemas/successResponseForSearchByCircle'
+                  - $ref: '#/components/schemas/successResponseForSearchByPolygon'
+                  - $ref: '#/components/schemas/successResponseForSearchByLinestring'
+                  - $ref: '#/components/schemas/successResponseForSearchByBbox'
+                  - $ref: '#/components/schemas/successResponseForSearchByText'
+                  - $ref: '#/components/schemas/successResponseForSearchByTextVthSpecialChar'
         '400':
           description: Bad Request
           content:
@@ -209,26 +217,56 @@ paths:
               schema:
                 $ref: '#/components/schemas/errorResponseForDiscovery'
               examples:
-                Invalid Query Param:
-                  value:
-                    type: 'urn:dx:cat:InvalidQueryParam'
-                    title: Generic invalid query param error
-                Invalid Geo Param:
-                  value:
-                    type: 'urn:dx:cat:InvalidGeoParam'
-                    title: Geoquery parameter error
                 Invalid Geo Value:
                   value:
                     type: 'urn:dx:cat:InvalidGeoValue'
-                    title: Geoquery value error
+                    "title": "Geoquery value error"
+                    "detail": "Invalid value for a query param"
                 Invalid Syntax:
                   value:
-                    type: 'urn:dx:cat:InvalidSyntax'
-                    title: Invalid Syntax
-                Operation not allowed:
+                    "type": "urn:dx:cat:InvalidSyntax"
+                    "title": "Invalid Syntax"
+                    "detail": "Invalid value for a query param"
+                Invalid Syntax 1:
                   value:
-                    type: 'urn:dx:cat:OperationNotAllowed'
-                    title: Operation not allowed
+                    "type": "urn:dx:cat:InvalidSyntax"
+                    "title": "Invalid Syntax"
+                    "detail": "Mandatory field(s) not provided"
+                Precision validation:
+                  value:
+                    "title": "failed"
+                    "type": "urn:dx:cat:InvalidPropertyValue"
+                    "detail": "The max point of 'coordinates' precision is 6"
+                Coordinate pair:
+                  value:
+                    "title": "failed"
+                    "type": "urn:dx:cat:InvalidPropertyValue"
+                    "detail": "The max number of 'coordinates' value is 10"
+                Max Distance limit:
+                  value:
+                    "title": "failed"
+                    "type": "urn:dx:cat:InvalidPropertyValue"
+                    "detail": "The 'maxDistance' should range between 0-10000m"
+                Coordinates value limit:
+                  value:
+                    "title": "failed"
+                    "type": "urn:dx:cat:InvalidPropertyValue"
+                    "detail": "Unable to parse 'coordinates'; value is Infinity"
+                Invalid request - Max string size:
+                  value:
+                    "title": "failed"
+                    "type": "urn:dx:cat:InvalidPropertyValue"
+                    "detail": "The max string(q) size supported is 100"
+                Bad filter:
+                  value:
+                    "title": "failed"
+                    "type": "urn:dx:cat:BadFilter"
+                    "detail": "The max number of 'filter' should be 10"
+                Exceed limit|offset value:
+                  value:
+                    "title": "failed"
+                    "type": "urn:dx:cat:InvalidPropertyValue"
+                    "detail": "The limit + offset should be between 1 to 10000"
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -359,7 +397,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/successResponseWithObjects'
+                $ref: '#/components/schemas/successResponseForCount'
+              examples:
+                Success Response:
+                  value:
+                    type: "urn:dx:cat:Success"
+                    title: "Success"
+                    totalHits: 2
         '400':
           description: Bad query
           content:
@@ -367,18 +411,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/errorResponseForDiscovery'
               examples:
-                Invalid Query Param:
-                  value:
-                    type: 'urn:dx:cat:InvalidQueryParam'
-                    title: Generic invalid query param error
                 Invalid Geo Value:
                   value:
                     type: 'urn:dx:cat:InvalidGeoValue'
-                    title: Geoquery value error
+                    "title": "Geoquery value error"
+                    "detail": "Invalid value for a query param"
                 Invalid Syntax:
                   value:
-                    type: 'urn:dx:cat:InvalidSyntax'
-                    title: Invalid Syntax
+                    "type": "urn:dx:cat:InvalidSyntax"
+                    "title": "Invalid Syntax"
+                    "detail": "Mandatory field(s) not provided"
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -435,16 +477,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/errorResponseForDiscovery'
               examples:
-                Invalid Query Param:
+                Location Not Found:
                   value:
-                    type: 'urn:dx:cat:InvalidParamValue'
-                    title: Generic invalid query param error
-                    detail: failed
+                    "type": "urn:dx:cat:ItemNotFound"
+                    "title": "location not found"
+                    "detail": "failed"
+                Invalid Param Value:
+                  value:
+                    "type": "urn:dx:cat:InvalidParamValue"
+                    "title": "invalidValue"
+                    "detail": "failed"
                 Invalid Geo Value:
                   value:
-                    type: 'urn:dx:cat:InvalidGeoValue'
-                    title: Geoquery value error
-                    detail: failed
+                    "type": "urn:dx:cat:InvalidGeoValue"
+                    "title": "Geoquery value error"
+                    "detail": "failed"
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -491,8 +538,13 @@ paths:
             application/json:
               schema:
                 oneOf:
-                 - $ref: '#/components/schemas/listTypesSuccessResponse'
-                 - $ref: '#/components/schemas/listTypesOwner'
+                  - $ref: '#/components/schemas/listInstances'
+                  - $ref: '#/components/schemas/listTypesOwner'
+                  - $ref: '#/components/schemas/listTypesCos'
+                  - $ref: '#/components/schemas/listTags'
+                  - $ref: '#/components/schemas/listResourceGroup'
+                  - $ref: '#/components/schemas/listResourceServer'
+                  - $ref: '#/components/schemas/listProviders'
         '400':
           description: Bad Request
           content:
@@ -565,18 +617,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/successResponseWithObjects'
-              examples:
-                Create Success:
-                  value:
-                    type: 'urn:dx:cat:Success'
-                    results:
-                      id: uuid
-                      type: [ ]
-                      name: wifi-location ...
-                    title: 'urn:dx:cat:Success'
-                    detail: 'Success: Item has been created successfully'
-
+                oneOf:
+                  - $ref: '#/components/schemas/successResponseForCreateOwnerEntity'
+                  - $ref: '#/components/schemas/successResponseForCreateCosEntity'
+                  - $ref: '#/components/schemas/successResponseForCreateResourceServerEntity'
+                  - $ref: '#/components/schemas/successResponseForCreateProviderEntity'
+                  - $ref: '#/components/schemas/successResponseForCreateResourceGroupEntity'
+                  - $ref: '#/components/schemas/successResponseForCreateResourceEntity'
         '400':
           description: Invalid document
           content:
@@ -584,6 +631,7 @@ paths:
               schema:
                 oneOf:
                   - $ref: '#/components/schemas/errorInvalidSchema'
+                  - $ref: '#/components/schemas/errorInvalidUUID'
                   - $ref: '#/components/schemas/errorInvalidLinks'
         '401':
           description: Unauthorized access
@@ -595,7 +643,7 @@ paths:
                 Unauthorized:
                   value:
                     type: 'urn:dx:cat:InvalidAuthorizationToken'
-                    title: Token is invalid
+                    title: 'Token is invalid'
                     detail: 'failed to decode/validate jwt token : Invalid format for JWT'
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
@@ -615,7 +663,7 @@ paths:
       description: |
         Update an item where the body contains a fully valid item with id. Relationship links like
         provider, resourceGroup, resourceServer and "name" are not allowed to be updated. itemStatus is added by backend.
-        Items maybe subClasses of type [IUDXEntity](https://voc.iudx.org.in/IUDXEntity). Depedning on this, some properties maybe mandatory.
+        Items maybe subClasses of type [IUDXEntity](https://voc.iudx.org.in/IUDXEntity). Depending on this, some properties maybe mandatory.
         The json schema for the different types can be found [here](https://github.com/datakaveri/iudx-catalogue-server/tree/master/src/main/resources/iudx/catalogue/server/validator). In the future, we will serve schemas from our own servers.
         #### Non-updateable fields
         In case update of these fields is required, it is recommended to delete the item
@@ -686,18 +734,24 @@ paths:
                 - $ref: '#/components/schemas/exampleEntityWIdResource'
       responses:
         '200':
-          description: Success
+          description: Successfully inserted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/updateItemResponse'
+                oneOf:
+                  - $ref: '#/components/schemas/successResponseForUpdateOwnerEntity'
+                  - $ref: '#/components/schemas/successResponseForUpdateCosEntity'
+                  - $ref: '#/components/schemas/successResponseForUpdateResourceServerEntity'
+                  - $ref: '#/components/schemas/successResponseForUpdateProviderEntity'
+                  - $ref: '#/components/schemas/successResponseForUpdateResourceGroupEntity'
+                  - $ref: '#/components/schemas/successResponseForUpdateResourceEntity'
         '400':
           description: Bad Request
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/errorInvalidSchema'
+                  - $ref: '#/components/schemas/errorInvalidSchema2'
                   - $ref: '#/components/schemas/errorInvalidLinks'
         '401':
           description: Unauthorized access
@@ -709,7 +763,7 @@ paths:
                 Unauthorized:
                   value:
                     type: 'urn:dx:cat:InvalidAuthorizationToken'
-                    title: Token is invalid
+                    title: 'Token is invalid'
                     detail: 'failed to decode/validate jwt token : Invalid format for JWT'
         '404':
           description: Document doesn't exist to update it
@@ -748,17 +802,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/successResponseWithObjects'
-              example:
-                type: 'urn:dx:cat:Success'
-                title: Success
-                totalHits: 10
-                results:
-                  - id: uuid
-                    name: wifi-location
-                    type:
-                      - 'iudx:Resource'
-                details: 'Success: Item fetched successfully'
+                oneOf:
+                  - $ref: '#/components/schemas/successResponseForGetOwnerEntity'
+                  - $ref: '#/components/schemas/successResponseForGetCosEntity'
+                  - $ref: '#/components/schemas/successResponseForGetResourceServerEntity'
+                  - $ref: '#/components/schemas/successResponseForGetProviderEntity'
+                  - $ref: '#/components/schemas/successResponseForGetResourceGroupEntity'
+                  - $ref: '#/components/schemas/successResponseForGetResourceEntity'
         '400':
           description: Invalid ID.
           content:
@@ -771,6 +821,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponseForGetEntity'
+              example:
+                type: "urn:dx:cat:ItemNotFound"
+                title: 'error'
+                totalHits: 0
+                results:
+                  []
+                details: "doc doesn't exist"
+
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -813,9 +871,20 @@ paths:
                     type: 'urn:dx:cat:Success'
                     title: Success
                     results:
-                      - id: uuid
-                    details: 'Success: Item has been deleted successfully'
-
+                      - id: "6e58c916-f6c1-448d-acea-756f3272bc57"
+                    detail: 'Success: Item deleted successfully'
+        '400':
+          description: Invalid uuid format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                Invalid uuid:
+                  value:
+                    type: 'urn:dx:cat:InvalidSyntax'
+                    title: "Invalid Syntax"
+                    detail: "Fail: The syntax of the id is incorrect"
         '401':
           description: Unauthorized access
           content:
@@ -827,7 +896,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/errorResponseWithObjects'
+                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                Item not found to Delete:
+                  value:
+                    type: 'urn:dx:cat:ItemNotFound'
+                    title: "Item is not found"
+                    details: "Fail: Doc doesn't exist, can't perform operation"
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -871,7 +946,7 @@ paths:
         - name: value
           in: query
           description: |
-            Value of the relationhsip. Multiple values for a single relationship are supported,
+            Value of the relationship. Multiple values for a single relationship are supported,
             for e.g, [[val1, val2]].
 
             If multiple relationships are specified, then their values will occur as so -
@@ -887,7 +962,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/successResponseWithObjects'
+                oneOf:
+                  - $ref: '#/components/schemas/relSearch1'
+                  - $ref: '#/components/schemas/relSearch2'
         '400':
           description: Bad request
           content:
@@ -996,23 +1073,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/errorResponseForRelationship'
               examples:
+                Invalid Item Type:
+                  value:
+                    type: 'urn:dx:cat:InvalidRelationSearch'
+                    title: Invalid relationship type search
+                    detail: Invalid relationship type search
+                Invalid Resource Group:
+                  value:
+                    type: "urn:dx:cat:ItemNotFound"
+                    title: "Item is not found"
+                    detail: "Item id given is not present"
+                Invalid Resource Id:
+                  value:
+                    type: "urn:dx:cat:ItemNotFound"
+                    title: "Item is not found"
+                    detail: "Item id given is not present"
                 Invalid Query Param:
                   value:
-                    type: 'urn:dx:cat:InvalidParamValue'
-                    title: Invalid value for a query param
-                    detail: Invalid relationship value
+                    type: "urn:dx:cat:InvalidParamValue"
+                    title: "Invalid value for a query param"
+                    detail: "Invalid relationship value"
                 Invalid Syntax:
                   value:
-                    type: 'urn:dx:cat:InvalidSyntax'
-                    title: Invalid Syntax
+                    type: "urn:dx:cat:MissingParams"
+                    "title": "Missing parameters"
+                    "detail": "Mandatory field(s) not provided"
                 Invalid Filter error:
                   value:
-                    type: failed
-                    title: The max number of filter should be 10
+                    "title": "failed"
+                    "type": "urn:dx:cat:BadFilter"
+                    "detail": "The max number of 'filter' should be 10"
                 Invalid limit and offset:
                   value:
-                    type: failed
-                    title: The limit + offset should be between 1 to 10000
+                    "title": "failed"
+                    "type": "urn:dx:cat:InvalidPropertyValue"
+                    "detail": "The limit + offset should be between 1 to 10000"
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1054,6 +1149,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/successResponseCreateInstance'
+              examples:
+                Created instance successfully:
+                  value:
+                    type: "urn:dx:cat:Success"
+                    results: {
+                      "id": "Bengaluru",
+                      "type": [
+                        "iudx:Instance"
+                      ],
+                      "instance": "",
+                      "_summary": ""
+                    }
+                    detail: "Success: Item created"
+                    title: "Success"
+
         '400':
           description: Bad Request
           content:
@@ -1066,6 +1176,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                Unauthorized request:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Incorrect audience value in jwt"
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1084,7 +1200,7 @@ paths:
       operationId: get instances
       responses:
         '200':
-          description: Successfully inserted
+          description: Successfully fetched
           content:
             application/json:
               schema:
@@ -1123,18 +1239,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/successResponseForDeleteInstance'
+              examples:
+                Successfully deleted:
+                  value:
+                    type: "urn:dx:cat:Success"
+                    title: "Success"
+                    results: [
+                      {
+                        "id": "poone"
+                      }
+                    ]
+                    detail: "Success: Item deleted successfully"
         '401':
           description: Unauthorized access
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                Unauthorized access:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Incorrect audience value in jwt"
         '404':
           description: Instance doesn't exist
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponseForDeleteInstance'
+              examples:
+                Item not found:
+                  value:
+                    type: "urn:dx:cat:ItemNotFound"
+                    title: "Item is not found"
+                    results: [
+                      {
+                        "id": "non-exisiting-id",
+                        "detail": "Fail: Doc doesn't exist, can't delete"
+                      }
+                    ]
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1193,17 +1337,23 @@ paths:
                   value:
                     type: 'urn:dx:cat:InvalidSchema'
                     title: Invalid Schema
+                    detail: "The Schema of requested body is invalid."
                 Invalid Access Count:
                   value:
                     type: 'urn:dx:cat:AccessDenied'
                     title: Resource usage requirements not satisfied
-                    detail: User has to access resource at least 2 times to give rating
+                    detail: "User has to access resource at least 100 times to give rating"
         '401':
           description: Unauthorized access
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                unAuthorizedAccess:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Authorization failed, Invalid token."
       servers:
         - url: 'https://example-cat.com/'
           description: Production Instance
@@ -1255,12 +1405,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorResponseForUpdateRating'
+              examples:
+                errorResponse:
+                  value:
+                    type: "urn:dx:cat:InvalidSchema"
+                    title: "Invalid Schema"
+                    detail: "The Schema of requested body is invalid."
         '401':
           description: Unauthorized access
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                unAuthorizedAccess:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Authorization failed, Invalid token."
       servers:
         - url: 'https://example-cat.com/'
           description: Production Instance
@@ -1311,14 +1472,29 @@ paths:
                 oneOf:
                   - $ref: '#/components/schemas/successResponseGetRating'
                   - $ref: '#/components/schemas/successResponseAvgRating'
+                  - $ref: '#/components/schemas/successResponseAllRatings'
         '204':
           description: No content
+        '400':
+          description: Inavlid Id
+          content:
+            application/json:
+              examples:
+                Invalid id:
+                  value:
+                    type: "urn:dx:cat:InvalidParamValue"
+                    title: "Invalid value for a query param"
+                    detail: "Invalid value for id"
         '401':
           description: Unauthorized access
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                Unauthorized access:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Authorization failed, Invalid token."
       servers:
         - url: 'https://example-cat.com/'
           description: Production Instance
@@ -1367,8 +1543,12 @@ paths:
           description: Unauthorized access
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                Unathorized:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Authorization failed, Invalid token."
       servers:
         - url: 'https://example-cat.com/'
           description: Production Instance
@@ -1416,8 +1596,12 @@ paths:
           description: Unauthorized access
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                unAuthorized:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Authorization failed, Invalid token."
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1473,8 +1657,12 @@ paths:
           description: Unauthorized access
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                unAuthorized:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Authorization failed, Invalid token."
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1546,8 +1734,12 @@ paths:
           description: Unauthorized access
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                unAuthorized:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Authorization failed, Invalid token."
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1597,8 +1789,12 @@ paths:
           description: Unauthorized access
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                unAuthorized:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Authorization failed, Invalid token."
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1655,8 +1851,12 @@ paths:
           description: Unauthorized access
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                unAuthorized:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Authorization failed, Invalid token."
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1728,8 +1928,12 @@ paths:
           description: Unauthorized access
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/unAuthorizedAccess'
+              examples:
+                unAuthorized:
+                  value:
+                    type: "urn:dx:cat:InvalidAuthorizationToken"
+                    title: "Token is invalid"
+                    detail: "Authorization failed, Invalid token."
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1833,6 +2037,7 @@ paths:
             schema:
               oneOf:
                 - $ref: '#/components/schemas/exampleReqBodyDatasetById'
+                - $ref: '#/components/schemas/exampleReqBodyDatasetByTags'
                 - $ref: '#/components/schemas/exampleReqBodyDatasetByAllField'
       responses:
         '200':
@@ -1841,8 +2046,10 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/successResponseForGettingDatasetResources'
-                  - $ref: '#/components/schemas/successResponseForGettingDatasets'
+                  - $ref: '#/components/schemas/successResponseForPostDataset'
+                  - $ref: '#/components/schemas/successResponseForPostDatasetWithTags'
+                  - $ref: '#/components/schemas/successResponseForPostDatasetWithTagsInstanceProviderFields'
+                  - $ref: '#/components/schemas/successResponseForPostDatasetGetAllDatasets'
 
         '400':
           description: Invalid Document
@@ -1914,6 +2121,110 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/successResponseWithObjects'
+              examples:
+                Success Response:
+                  value:
+                    type: "urn:dx:cat:Success"
+                    title: "Success"
+                    results:
+                      -  accessPolicy: "OPEN"
+                         apdURL: "acl-apd.iudx.io"
+                         provider: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+                         resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
+                         owner: "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+                         resourceGroup: "1173f774-794e-4ed0-9c41-281256d44b6a"
+                         instance: "pune"
+                         iudxResourceAPIs:
+                           - "SPATIAL"
+                           - "ATTR"
+                         _geosummary:
+                           _geocoded:
+                             results:
+                               - country: "India"
+                                 bbox: [ 76.703813, 30.665456, 76.848368, 30.795316 ]
+                                 name: "Chandigarh"
+                                 county: "Chandigarh"
+                                 locality: "Chandigarh"
+                                 region: "Chandigarh"
+                               - country: "India"
+                                 bbox: [ 76.95681, 28.07989, 76.99681, 28.11989 ]
+                                 name: "Chandigarh"
+                                 county: "Mewat"
+                                 locality: "Chandigarh"
+                                 region: "Haryana"
+                           _reverseGeocoded: { }
+                         description: "Paid parking locations in Chandigarh city."
+                         label: "Chandigarh Paid Parking Locations"
+                         type:
+                           - "iudx:Resource"
+                           - "iudx:PointOfInterest"
+                         '@context': "https://voc.iudx.org.in/"
+                         tags:
+                           - "parking"
+                           - "docking"
+                           - "leave"
+                           - "station"
+                           - "stop"
+                           - "places"
+                           - "parking lot"
+                           - "paid parking"
+                           - "vehicle"
+                           - "car"
+                           - "bike"
+                           - "scooter"
+                           - "two-wheeler"
+                           - "four-wheeler"
+                           - "vehicle wheeler"
+                         itemCreatedAt: "2023-09-15T05:59:05+0530"
+                         dataSampleFile:
+                           - relationType: "REL_FILE"
+                             hasObject: "https://fs-sample-file-bucket.s3.ap-south-1.amazonaws.com/public-access/chandigarh/chandigarh-paid-parking-locations.json"
+                             name: "Chandigarh Paid parking locations sample"
+                             description: "Sample file for Paid parking locations in Chandigarh City."
+                         itemStatus: "ACTIVE"
+                         name: "paid-parking-locations"
+                         location:
+                           address: "Chandigarh"
+                           geometry:
+                             coordinates:
+                               - [ 76.573333, 30.758358 ]
+                               - [ 76.551361, 30.637912 ]
+                               - [ 76.755981, 30.582361 ]
+                               - [ 76.929016, 30.649727 ]
+                               - [ 76.974334, 30.802012 ]
+                               - [ 76.766967, 30.872761 ]
+                               - [ 76.573333, 30.758358 ]
+                             type: "Polygon"
+                           type: "Place"
+                         id: "a347c5b6-5281-4749-9eab-89784d8f8f9a"
+                         dataSample:
+                           address: "AFEEM KOTHI CHAURAHA"
+                           name: "Paid Parking Camera- AFEEM KOTHI CHAURAHA"
+                           location:
+                             coordinates: [ 80.333972, 26.455667 ]
+                             type: "Point"
+                         dataDescriptor:
+                            address:
+                              dataSchema: "iudx:Text"
+                              description: "Name of the area or locality at which the Paid parking locations is located in Chandigarh city."
+                              type: [ "ValueDescriptor" ]
+                            name:
+                              dataSchema: "iudx:Text"
+                              description: "Name of the Paid parking locations corresponding to this observation."
+                              type: [ "ValueDescriptor" ]
+                            dataDescriptorLabel: "Data Descriptor for Paid parking locations in Chandigarh City"
+                            description: "Data attribute definitions of all Paid parking locations in Chandigarh city."
+                            location:
+                              dataSchema: "iudx:Point"
+                              description: "Physical coordinates of the Paid parking locations corresponding to this observation."
+                              type: [ "ValueDescriptor" ]
+                            type:
+                              - "iudx:DataDescriptor"
+                              - "iudx:PointOfInterest"
+                            '@context': "https://voc.iudx.org.in/"
+                         resourceType: "GSLAYER"
+                         ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+                         cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
         '404':
           description: Bad Request
           content:
@@ -2025,6 +2336,22 @@ components:
             name: wifi-location
             type:
               - 'iudx:Resource'
+    successResponseForCount:
+      type: object
+      title: Root Type for Count APIs
+      description: 'Response for successful count query'
+      properties:
+        type:
+          type: string
+          description: |
+            Type of the response indicating if the query was successful or if any errors have been triggered.
+        title:
+          description: A human readable title to the message response.
+        totalHits:
+          type: integer <int32>
+          description: Total number of documents which matched the query.
+      required:
+        - type
     errorResponseForDiscovery:
       type: object
       title: Root Type for Discovery APIs
@@ -2084,7 +2411,7 @@ components:
               - 12.968362
               - 77.573072
               - 12.978362
-    listTypesSuccessResponse:
+    listInstances:
       type: object
       title: Response for list with instance type
       description: Example response for list types
@@ -2110,7 +2437,7 @@ components:
       example:
         type: 'urn:dx:cat:Success'
         title: Success
-        totalHits: 5
+        totalHits: 3
         results:
           - pune
           - stqc
@@ -2135,6 +2462,38 @@ components:
         type: 'urn:dx:cat:InvalidSyntax'
         title: Invalid Syntax
         detail: Wrong Item Type
+    listTags:
+      type: object
+      title: Response for list tags
+      description: API response when item type is tags
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human readable title to the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents which matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results which matched the query. This is an array of objects.
+          items:
+            type: object
+      required:
+        - type
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 4
+        results:
+          - "IUDX"
+          - "Platform"
+          - "Resource"
+          - "Server"
     listTypesOwner:
       type: object
       title: Response for list owner
@@ -2171,9 +2530,187 @@ components:
             id: cc18c925-8990-3a07-9cac-0bb2bd8166f6
             itemStatus: ACTIVE
             itemCreatedAt: 2023-09-08T10:00:02+0530
-
-
-
+    listTypesCos:
+      type: object
+      title: Response for list COS
+      description: API response when listing COS
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human-readable title for the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents that matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results that matched the query. This is an array of COS objects.
+          items:
+            type: object
+            properties:
+              type:
+                type: array
+                items:
+                  type: string
+                description: Type of the COS.
+              name:
+                type: string
+                description: Name of the COS.
+              owner:
+                type: string
+                description: Owner of the COS.
+              description:
+                type: string
+                description: Description of the COS.
+              cosURL:
+                type: string
+                description: URL of the COS.
+              cosUI:
+                type: string
+                description: UI URL of the COS.
+              id:
+                type: string
+                description: ID of the COS.
+              '@context':
+                type: string
+                description: Context URL of the COS.
+              itemStatus:
+                type: string
+                description: Status of the COS.
+              itemCreatedAt:
+                type: string
+                format: date-time
+                description: Creation timestamp of the COS.
+            required:
+              - type
+              - name
+              - owner
+              - description
+              - cosURL
+              - cosUI
+              - id
+              - '@context'
+              - itemStatus
+              - itemCreatedAt
+          example:
+            type: "urn:dx:cat:Success"
+            title: "Success"
+            totalHits: 1
+            results:
+              - type: [ "iudx:COS" ]
+                name: "cos new"
+                owner: "54545cc8-f8f3-3b5d-92e4-1edacce83b27"
+                description: "Cos item created for test suite"
+                cosURL: "api.example.cos.iudx.org.in"
+                cosUI: "https://example.cat.iudx.org.in"
+                id: "35d8e0a3-3a33-3a11-908f-f06bd1f678db"
+                '@context': "https://voc.iudx.org.in/"
+                itemStatus: "ACTIVE"
+                itemCreatedAt: "2023-09-26T11:29:00+0530"
+    listResourceGroup:
+      type: object
+      title: List Resource Group
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          type: string
+          description: A human-readable title for the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents which matched the query.
+          format: int32
+        results:
+          type: array
+          description: List of identifiers.
+          items:
+            type: string
+      required:
+        - type
+        - title
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 3
+        results:
+          - "58f16441-a7f0-418e-a994-b62e12793610"
+          - "e63b756a-1c26-3a0c-8bbf-aeed53e423db"
+          - "f666f595-cdf3-4388-9f5b-3dd78d5b5e0a"
+    listResourceServer:
+      type: object
+      title: Response for list resource server
+      description: List Resource Sercers
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human-readable title for the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents that matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results that matched the query. This is an array of resource server IDs.
+          items:
+            type: string
+      required:
+        - type
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 4
+        results:
+          - "01ed3540-578a-468d-918b-5e8c343bc8f8"
+          - "0a181d35-2018-3d59-9b4d-651188b98efc"
+          - "1e87bd0b-0081-4963-ad3d-b64b4c0531d2"
+          - "fd1e0095-ef3c-46b9-9c9d-d369af7d7836"
+    listProviders:
+      type: object
+      title: Response for list providers
+      description: List Providers
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human-readable title for the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents that matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results that matched the query. This is an array of provider IDs.
+          items:
+            type: string
+      required:
+        - type
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 2
+        results:
+          - "0c0b1f45-7a5e-42a2-968d-27ec80649382"
+          - "0e9f58de-8052-48c5-9e69-faa285c8b483"
     invalidIdErrorResponse:
       type: object
       title: Invalid ID
@@ -2651,7 +3188,2480 @@ components:
           type: [ ]
           name: wifi-location
         details: 'Success: Item has been updated successfully'
-
+    successResponseForCreateOwnerEntity:
+      type: object
+      title: Owner Entity
+      description: An owner item is successfully created
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+        results:
+          type: object
+          properties:
+            '@context':
+              type: string
+              description: Context URL of the owner item.
+            type:
+              type: array
+              items:
+                type: string
+              description: Type of the owner item.
+            name:
+              type: string
+              description: Name of the owner item.
+            description:
+              type: string
+              description: Description of the owner item.
+            id:
+              type: string
+              description: ID of the owner item.
+            itemStatus:
+              type: string
+              description: Status of the owner item.
+            itemCreatedAt:
+              type: string
+              format: date-time
+              description: Creation timestamp of the owner item.
+            _summary:
+              type: string
+              description: Summary of the owner item.
+          required:
+            - '@context'
+            - type
+            - name
+            - description
+            - id
+            - itemStatus
+            - itemCreatedAt
+            - _summary
+      example:
+          type: 'urn:dx:cat:Success'
+          title: 'Success'
+          detail: 'Success: Item created'
+          results:
+            '@context': "https://voc.iudx.org.in/"
+            type:
+              - "iudx:Owner"
+            name: "iudxOwnerPM"
+            description: "owner item creation for the postman collection"
+            id: "bc87aba4-0dcf-4c07-b9e4-55bdf683ae2a"
+            itemStatus: "ACTIVE"
+            itemCreatedAt: "2024-01-05T02:09:10+0530"
+            _summary: "iudxOwnerPM owner item creation for the postman collection"
+    successResponseForCreateCosEntity:
+      type: object
+      title: COS Entity
+      description: COS item is successfully created
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+        results:
+          type: object
+          properties:
+            '@context':
+              type: string
+              description: Context URL of the COS item.
+            type:
+              type: array
+              items:
+                type: string
+              description: Type of the COS item.
+            name:
+              type: string
+              description: Name of the COS item.
+            owner:
+              type: string
+              description: Owner ID of the COS item.
+            description:
+              type: string
+              description: Description of the COS item.
+            cosURL:
+              type: string
+              description: URL of the COS item.
+            cosUI:
+              type: string
+              description: UI URL of the COS item.
+            id:
+              type: string
+              description: ID of the COS item.
+            itemStatus:
+              type: string
+              description: Status of the COS item.
+            itemCreatedAt:
+              type: string
+              format: date-time
+              description: Creation timestamp of the COS item.
+            _summary:
+              type: string
+              description: Summary of the COS item.
+          required:
+            - '@context'
+            - type
+            - name
+            - owner
+            - description
+            - cosURL
+            - cosUI
+            - id
+            - itemStatus
+            - itemCreatedAt
+            - _summary
+      example:
+          type: 'urn:dx:cat:Success'
+          title: 'Success'
+          detail: 'Success: Item created'
+          results:
+            '@context': "https://voc.iudx.org.in/"
+            type:
+              - "iudx:COS"
+            name: "IudxCOSItemPM32"
+            owner: "7bd116f8-1b84-4ba7-b2a1-2307ab0e9e3f"
+            description: "COS item for postman collection"
+            cosURL: "cat-test.iudx.io"
+            cosUI: "cat-test.iudx.io"
+            id: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+            itemStatus: "ACTIVE"
+            itemCreatedAt: "2024-01-07T03:51:39+0530"
+            _summary: "IudxCOSItemPM32 COS item for the postman collection"
+    successResponseForCreateResourceServerEntity:
+      type: object
+      title: Resource Server Entity
+      description: Resource Server item is successfully created
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+        results:
+          type: object
+          properties:
+            '@context':
+              type: string
+              description: Context URL of the Resource Server item.
+            type:
+              type: array
+              items:
+                type: string
+              description: Type of the Resource Server item.
+            name:
+              type: string
+              description: Name of the Resource Server item.
+            description:
+              type: string
+              description: Description of the Resource Server item.
+            tags:
+              type: array
+              items:
+                type: string
+              description: Tags associated with the Resource Server item.
+            cos:
+              type: string
+              description: COS ID associated with the Resource Server item.
+            owner:
+              type: string
+              description: Owner ID of the Resource Server item.
+            resourceServerOrg:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the organization associated with the Resource Server item.
+                additionalInfoURL:
+                  type: string
+                  description: Additional information URL of the organization.
+                location:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: Type of the location (e.g., "Place").
+                    address:
+                      type: string
+                      description: Address of the location.
+                    geometry:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: Type of geometry (e.g., "Point").
+                        coordinates:
+                          type: array
+                          items:
+                            type: number
+                          description: Coordinates of the location.
+              description: Organization details associated with the Resource Server item.
+            resourceServerRegURL:
+              type: string
+              description: Registration URL of the Resource Server item.
+            resourceAccessModalities:
+              type: array
+              items:
+                type: object
+                properties:
+                  type:
+                    type: array
+                    items:
+                      type: string
+                    description: Type of access (e.g., "iudx:HTTPAccess").
+                  protocol:
+                    type: string
+                    description: Protocol of access (e.g., "http").
+                  accessURL:
+                    type: string
+                    description: Access URL of the Resource Server item.
+                  port:
+                    type: integer
+                    description: Port number of the Resource Server item.
+              description: Modalities for accessing the Resource Server item.
+            location:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: Type of the location (e.g., "Place").
+                address:
+                  type: string
+                  description: Address of the location.
+                geometry:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: Type of geometry (e.g., "Point").
+                    coordinates:
+                      type: array
+                      items:
+                        type: number
+                      description: Coordinates of the location.
+              description: Location details of the Resource Server item.
+            id:
+              type: string
+              description: ID of the Resource Server item.
+            itemStatus:
+              type: string
+              description: Status of the Resource Server item.
+            itemCreatedAt:
+              type: string
+              format: date-time
+              description: Creation timestamp of the Resource Server item.
+            _summary:
+              type: string
+              description: Summary of the Resource Server item.
+          required:
+            - '@context'
+            - type
+            - name
+            - description
+            - tags
+            - cos
+            - owner
+            - resourceServerOrg
+            - resourceServerRegURL
+            - resourceAccessModalities
+            - location
+            - id
+            - itemStatus
+            - itemCreatedAt
+            - _summary
+      example:
+          type: 'urn:dx:cat:Success'
+          title: 'Success'
+          detail: 'Success: Item created'
+          results:
+            '@context': "https://voc.iudx.org.in/"
+            type:
+              - "iudx:ResourceServer"
+            name: "IudxResourceServerPM32"
+            description: "Multi-tenanted IUDX resource server for the postman collection"
+            tags:
+              - "IUDX"
+              - "Resource"
+              - "Server"
+              - "Platform"
+            cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+            owner: "7bd116f8-1b84-4ba7-b2a1-2307ab0e9e3f"
+            resourceServerOrg:
+              name: "iudx"
+              additionalInfoURL: "https://iudx.org.in"
+              location:
+                type: "Place"
+                address: "IISc, Bangalore"
+                geometry:
+                  type: "Point"
+                  coordinates:
+                    - 77.570423
+                    - 13.013945
+            resourceServerRegURL: "rs.iudx.io"
+            resourceAccessModalities:
+              - type:
+                  - "iudx:HTTPAccess"
+                protocol: "http"
+                accessURL: "rs"
+                port: 8080
+            location:
+              type: "Place"
+              address: "IISc, Bangalore"
+              geometry:
+                type: "Point"
+                coordinates:
+                  - 77.570423
+                  - 13.013945
+            id: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+            itemStatus: "ACTIVE"
+            itemCreatedAt: "2024-01-07T03:55:47+0530"
+            _summary: "IudxResourceServerPM32 IUDX Resource Server Platform Multi-tenanted IUDX resource server for the postman collection"
+    successResponseForCreateProviderEntity:
+      type: object
+      title: Provider Entity
+      description: Provider item is successfully created
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+        results:
+          type: object
+          properties:
+            '@context':
+              type: string
+              description: Context URL of the Provider item.
+            type:
+              type: array
+              items:
+                type: string
+              description: Type of the Provider item.
+            name:
+              type: string
+              description: Name of the Provider item.
+            resourceServer:
+              type: string
+              description: Resource Server ID associated with the Provider item.
+            description:
+              type: string
+              description: Description of the Provider item.
+            ownerUserId:
+              type: string
+              description: Owner user ID of the Provider item.
+            providerOrg:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the organization associated with the Provider item.
+                additionalInfoURL:
+                  type: string
+                  description: Additional information URL of the organization.
+                location:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: Type of the location (e.g., "Place").
+                    address:
+                      type: string
+                      description: Address of the location.
+                    geometry:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: Type of geometry (e.g., "Point").
+                        coordinates:
+                          type: array
+                          items:
+                            type: number
+                          description: Coordinates of the location.
+              description: Organization details associated with the Provider item.
+            resourceServerRegURL:
+              type: string
+              description: Registration URL of the Resource Server associated with the Provider item.
+            cos:
+              type: string
+              description: COS ID associated with the Provider item.
+            id:
+              type: string
+              description: ID of the Provider item.
+            itemStatus:
+              type: string
+              description: Status of the Provider item.
+            itemCreatedAt:
+              type: string
+              format: date-time
+              description: Creation timestamp of the Provider item.
+            _summary:
+              type: string
+              description: Summary of the Provider item.
+          required:
+            - '@context'
+            - type
+            - name
+            - resourceServer
+            - description
+            - ownerUserId
+            - providerOrg
+            - resourceServerRegURL
+            - cos
+            - id
+            - itemStatus
+            - itemCreatedAt
+            - _summary
+      example:
+          type: 'urn:dx:cat:Success'
+          title: 'Success'
+          detail: 'Success: Item created'
+          results:
+            '@context': "https://voc.iudx.org.in/"
+            type:
+              - "iudx:Provider"
+            name: "IudxProviderPM30"
+            resourceServer: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+            description: "provider for the postman collection"
+            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            providerOrg:
+              name: "Datakaveri"
+              additionalInfoURL: "https://datakaveri.org"
+              location:
+                type: "Place"
+                address: "IIsc"
+                geometry:
+                  type: "Point"
+                  coordinates:
+                    - 75.92
+                    - 14.5
+            resourceServerRegURL: "rs.iudx.io"
+            cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+            id: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+            itemStatus: "ACTIVE"
+            itemCreatedAt: "2024-01-07T04:47:02+0530"
+            _summary: "IudxProviderPM30 provider for the postman collection"
+    successResponseForCreateResourceGroupEntity:
+      type: object
+      title: Resource Group Entity
+      description: Resource Group item is successfully created
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+        results:
+          type: object
+          properties:
+            '@context':
+              type: string
+              description: Context URL of the Resource Group item.
+            type:
+              type: array
+              items:
+                type: string
+              description: Type of the Resource Group item.
+            name:
+              type: string
+              description: Name of the Resource Group item.
+            description:
+              type: string
+              description: Description of the Resource Group item.
+            tags:
+              type: array
+              items:
+                type: string
+              description: Tags associated with the Resource Group item.
+            provider:
+              type: string
+              description: Provider ID associated with the Resource Group item.
+            ownerUserId:
+              type: string
+              description: Owner user ID of the Resource Group item.
+            cos:
+              type: string
+              description: COS ID associated with the Resource Group item.
+            id:
+              type: string
+              description: ID of the Resource Group item.
+            itemStatus:
+              type: string
+              description: Status of the Resource Group item.
+            itemCreatedAt:
+              type: string
+              format: date-time
+              description: Creation timestamp of the Resource Group item.
+            _summary:
+              type: string
+              description: Summary of the Resource Group item.
+          required:
+            - '@context'
+            - type
+            - name
+            - description
+            - tags
+            - provider
+            - ownerUserId
+            - cos
+            - id
+            - itemStatus
+            - itemCreatedAt
+            - _summary
+      example:
+          type: 'urn:dx:cat:Success'
+          title: 'Success'
+          detail: 'Success: Item created'
+          results:
+            '@context': "https://voc.iudx.org.in/"
+            type:
+              - "iudx:ResourceGroup"
+              - "iudx:IssueReporting"
+            name: "iudxResourceGroupPM2"
+            description: "resource group item for the postman collection"
+            tags:
+              - "swachhata"
+              - "complaints"
+              - "construction material"
+              - "requests"
+            provider: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+            id: "8ab338ed-9367-4402-9dc7-14ab39b89114"
+            itemStatus: "ACTIVE"
+            itemCreatedAt: "2024-01-07T04:51:40+0530"
+            _summary: "iudxResourceGroupPM2 swachhata complaints construction material requests resource group item for the postman collection"
+    successResponseForCreateResourceEntity:
+      type: object
+      title: Resource Entity
+      description: Resource item is successfully created
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+        results:
+          type: object
+          properties:
+            '@context':
+              type: string
+              description: Context URL of the Resource item.
+            type:
+              type: array
+              items:
+                type: string
+              description: Type of the Resource item.
+            name:
+              type: string
+              description: Name of the Resource item.
+            label:
+              type: string
+              description: Label of the Resource item.
+            description:
+              type: string
+              description: Description of the Resource item.
+            tags:
+              type: array
+              items:
+                type: string
+              description: Tags associated with the Resource item.
+            apdURL:
+              type: string
+              description: APD URL of the Resource item.
+            accessPolicy:
+              type: string
+              description: Access Policy of the Resource item.
+            resourceServer:
+              type: string
+              description: Resource Server ID associated with the Resource item.
+            provider:
+              type: string
+              description: Provider ID associated with the Resource item.
+            resourceGroup:
+              type: string
+              description: Resource Group ID associated with the Resource item.
+            ownerUserId:
+              type: string
+              description: Owner user ID of the Resource item.
+            cos:
+              type: string
+              description: COS ID associated with the Resource item.
+            id:
+              type: string
+              description: ID of the Resource item.
+            itemStatus:
+              type: string
+              description: Status of the Resource item.
+            itemCreatedAt:
+              type: string
+              format: date-time
+              description: Creation timestamp of the Resource item.
+            _summary:
+              type: string
+              description: Summary of the Resource item.
+          required:
+            - '@context'
+            - type
+            - name
+            - label
+            - description
+            - tags
+            - apdURL
+            - accessPolicy
+            - resourceServer
+            - provider
+            - resourceGroup
+            - ownerUserId
+            - cos
+            - id
+            - itemStatus
+            - itemCreatedAt
+            - _summary
+      example:
+          type: 'urn:dx:cat:Success'
+          title: 'Success'
+          detail: 'Success: Item created'
+          results:
+            '@context': "https://voc.iudx.org.in/"
+            type:
+              - "iudx:Resource"
+              - "iudx:PointOfInterest"
+            name: "iudxResourceItemPM"
+            label: "item for test only"
+            description: "resource item for the postman collection"
+            tags:
+              - "swachhata"
+              - "complaints"
+              - "construction material"
+              - "requests"
+            apdURL: "rs.apd.iudx.org.in"
+            accessPolicy: "SECURE"
+            resourceServer: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+            provider: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+            resourceGroup: "8ab338ed-9367-4402-9dc7-14ab39b89114"
+            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+            id: "6e58c916-f6c1-448d-acea-756f3272bc57"
+            itemStatus: "ACTIVE"
+            itemCreatedAt: "2024-01-07T04:53:31+0530"
+            _summary: "iudxResourceItemPM item for test only swachhata complaints construction material requests resource item for the postman collection"
+    successResponseForUpdateOwnerEntity:
+      type: object
+      title: Owner Entity
+      description: owner item is successfully updated
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          '@context': "https://voc.iudx.org.in/"
+          type:
+            - "iudx:Owner"
+          name: "iudxOwnerPM"
+          description: "owner item creation for the postman collection"
+          id: "bc87aba4-0dcf-4c07-b9e4-55bdf683ae2a"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-05T02:09:10+0530"
+        detail: "Success: Item updated successfully"
+    successResponseForUpdateCosEntity:
+      type: object
+      title: COS Entity
+      description: COS item is successfully updated
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          "@context": "https://voc.iudx.org.in/"
+          type:
+            - "iudx:COS"
+          name: "IudxCOSItemPM32"
+          owner: "7bd116f8-1b84-4ba7-b2a1-2307ab0e9e3f"
+          description: "COS item for postman collection"
+          cosURL: "cat-test.iudx.io"
+          cosUI: "cat-test.iudx.io"
+          id: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T03:51:39+0530"
+        detail: "Success: Item updated successfully"
+    successResponseForUpdateResourceServerEntity:
+      type: object
+      title: Resource Server Entity
+      description: Resource Server item is successfully updated
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          "@context": "https://voc.iudx.org.in/"
+          type:
+            - "iudx:ResourceServer"
+          name: "IudxResourceServerPM32"
+          description: "Multi-tenanted IUDX resource server for the postman collection"
+          tags:
+            - "IUDX"
+            - "Resource"
+            - "Server"
+            - "Platform"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          owner: "7bd116f8-1b84-4ba7-b2a1-2307ab0e9e3f"
+          resourceServerOrg:
+            name: "iudx"
+            additionalInfoURL: "https://iudx.org.in"
+            location:
+              type: "Place"
+              address: "IISc, Bangalore"
+              geometry:
+                type: "Point"
+                coordinates:
+                  - 77.570423
+                  - 13.013945
+          resourceServerRegURL: "rs.iudx.io"
+          resourceAccessModalities:
+            - type:
+                - "iudx:HTTPAccess"
+              protocol: "http"
+              accessURL: "rs"
+              port: 8080
+          location:
+            type: "Place"
+            address: "IISc, Bangalore"
+            geometry:
+              type: "Point"
+              coordinates:
+                - 77.570423
+                - 13.013945
+          id: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T03:55:47+0530"
+        detail: "Success: Item updated successfully"
+    successResponseForUpdateProviderEntity:
+      type: object
+      title: Provider Entity
+      description: Provider item is successfully updated
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          "@context": "https://voc.iudx.org.in/"
+          type:
+            - "iudx:Provider"
+          name: "IudxProviderPM30"
+          resourceServer: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+          description: "provider for the postman collection"
+          ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+          providerOrg:
+            name: "Datakaveri"
+            additionalInfoURL: "https://datakaveri.org"
+            location:
+              type: "Place"
+              address: "IIsc"
+              geometry:
+                type: "Point"
+                coordinates:
+                  - 75.92
+                  - 14.5
+          resourceServerRegURL: "rs.iudx.io"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          id: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T04:47:02+0530"
+        detail: "Success: Item updated successfully"
+    successResponseForUpdateResourceGroupEntity:
+      type: object
+      title: Resource Group Entity
+      description: Resource Group item is successfully updated
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          "@context": "https://voc.iudx.org.in/"
+          type:
+            - "iudx:ResourceGroup"
+            - "iudx:IssueReporting"
+          name: "iudxResourceGroupPM2"
+          description: "resource group item for the postman collection"
+          tags:
+            - "swachhata"
+            - "complaints"
+            - "construction material"
+            - "requests"
+          provider: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+          ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          id: "8ab338ed-9367-4402-9dc7-14ab39b89114"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T04:51:40+0530"
+        detail: "Success: Item updated successfully"
+    successResponseForUpdateResourceEntity:
+      type: object
+      title: Resource Entity
+      description: Resource item is successfully updated
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          "@context": "https://voc.iudx.org.in/"
+          type:
+            - "iudx:Resource"
+            - "iudx:PointOfInterest"
+          name: "iudxResourceItemPM"
+          label: "item for test only"
+          description: "resource item for the postman collection"
+          tags:
+            - "swachhata"
+            - "complaints"
+            - "construction material"
+            - "requests"
+          apdURL: "rs.apd.iudx.org.in"
+          accessPolicy: "SECURE"
+          resourceServer: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+          provider: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+          resourceGroup: "8ab338ed-9367-4402-9dc7-14ab39b89114"
+          ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          id: "6e58c916-f6c1-448d-acea-756f3272bc57"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T04:53:31+0530"
+        detail: "Success: Item updated successfully"
+    successResponseForGetOwnerEntity:
+      type: object
+      title: Owner Entity
+      description: owner item is successfully fetched
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          '@context': "https://voc.iudx.org.in/"
+          type:
+            - "iudx:Owner"
+          name: "iudxOwnerPM"
+          description: "owner item creation for the postman collection"
+          id: "bc87aba4-0dcf-4c07-b9e4-55bdf683ae2a"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-05T02:09:10+0530"
+        detail: "Success: Item fetched Successfully"
+    successResponseForGetCosEntity:
+      type: object
+      title: COS Entity
+      description: COS item is successfully fetched
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          "@context": "https://voc.iudx.org.in/"
+          type:
+            - "iudx:COS"
+          name: "IudxCOSItemPM32"
+          owner: "7bd116f8-1b84-4ba7-b2a1-2307ab0e9e3f"
+          description: "COS item for postman collection"
+          cosURL: "cat-test.iudx.io"
+          cosUI: "cat-test.iudx.io"
+          id: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T03:51:39+0530"
+        detail: "Success: Item fetched Successfully"
+    successResponseForGetResourceServerEntity:
+      type: object
+      title: Resource Server Entity
+      description: Resource Server item is successfully fetched
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          "@context": "https://voc.iudx.org.in/"
+          type:
+            - "iudx:ResourceServer"
+          name: "IudxResourceServerPM32"
+          description: "Multi-tenanted IUDX resource server for the postman collection"
+          tags:
+            - "IUDX"
+            - "Resource"
+            - "Server"
+            - "Platform"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          owner: "7bd116f8-1b84-4ba7-b2a1-2307ab0e9e3f"
+          resourceServerOrg:
+            name: "iudx"
+            additionalInfoURL: "https://iudx.org.in"
+            location:
+              type: "Place"
+              address: "IISc, Bangalore"
+              geometry:
+                type: "Point"
+                coordinates:
+                  - 77.570423
+                  - 13.013945
+          resourceServerRegURL: "rs.iudx.io"
+          resourceAccessModalities:
+            - type:
+                - "iudx:HTTPAccess"
+              protocol: "http"
+              accessURL: "rs"
+              port: 8080
+          location:
+            type: "Place"
+            address: "IISc, Bangalore"
+            geometry:
+              type: "Point"
+              coordinates:
+                - 77.570423
+                - 13.013945
+          id: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T03:55:47+0530"
+        detail: "Success: Item fetched Successfully"
+    successResponseForGetProviderEntity:
+      type: object
+      title: Provider Entity
+      description: Provider item is successfully fetched
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          "@context": "https://voc.iudx.org.in/"
+          type:
+            - "iudx:Provider"
+          name: "IudxProviderPM30"
+          resourceServer: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+          description: "provider for the postman collection"
+          ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+          providerOrg:
+            name: "Datakaveri"
+            additionalInfoURL: "https://datakaveri.org"
+            location:
+              type: "Place"
+              address: "IIsc"
+              geometry:
+                type: "Point"
+                coordinates:
+                  - 75.92
+                  - 14.5
+          resourceServerRegURL: "rs.iudx.io"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          id: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T04:47:02+0530"
+        detail: "Success: Item fetched Successfully"
+    successResponseForGetResourceGroupEntity:
+      type: object
+      title: Resource Group Entity
+      description: Resource Group item is successfully fetched
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          "@context": "https://voc.iudx.org.in/"
+          type:
+            - "iudx:ResourceGroup"
+            - "iudx:IssueReporting"
+          name: "iudxResourceGroupPM2"
+          description: "resource group item for the postman collection"
+          tags:
+            - "swachhata"
+            - "complaints"
+            - "construction material"
+            - "requests"
+          provider: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+          ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          id: "8ab338ed-9367-4402-9dc7-14ab39b89114"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T04:51:40+0530"
+        detail: "Success: Item fetched Successfully"
+    successResponseForGetResourceEntity:
+      type: object
+      title: Resource Entity
+      description: Resource item is successfully fetched
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        results:
+          "@context": "https://voc.iudx.org.in/"
+          type:
+            - "iudx:Resource"
+            - "iudx:PointOfInterest"
+          name: "iudxResourceItemPM"
+          label: "item for test only"
+          description: "resource item for the postman collection"
+          tags:
+            - "swachhata"
+            - "complaints"
+            - "construction material"
+            - "requests"
+          apdURL: "rs.apd.iudx.org.in"
+          accessPolicy: "SECURE"
+          resourceServer: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+          provider: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+          resourceGroup: "8ab338ed-9367-4402-9dc7-14ab39b89114"
+          ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          id: "6e58c916-f6c1-448d-acea-756f3272bc57"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T04:53:31+0530"
+        detail: "Success: Item fetched Successfully"
+    successResponseForTagSearch:
+      type: object
+      title: Tag Search
+      description: Tag Search
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          type: string
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+        totalHits:
+          type: integer
+          description: The total number of hits for the tag search
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              tags:
+                type: array
+                items: string
+                description: List of tags
+              id:
+                type: string
+                description: Identifier for the result
+            required:
+              - tags
+              - id
+      required:
+        - type
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 2
+        results:
+          - tags:
+              - "flooding"
+              - "water flooding"
+              - "flood"
+              - "flood alert"
+              - "flood danger"
+              - "level"
+              - "current level"
+            id: "96fd62b7-a1e0-4e45-92dd-c6dc4a168815"
+          - tags:
+              - "flooding"
+              - "water flooding"
+              - "flood"
+              - "flood alert"
+              - "flood danger"
+              - "level"
+              - "current level"
+            id: "de91fae5-437c-4797-839d-17e1b6932d60"
+    successResponseForTagSearchMultiValue:
+      type: object
+      title: Tag Search Multi value
+      description: Tag Search Multi Value
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          type: string
+          description: A human-readable title for the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+        totalHits:
+          type: integer
+          description: The total number of hits for the tag search
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              tags:
+                type: array
+                items: string
+                description: List of tags
+              id:
+                type: string
+                description: Identifier for the result
+            required:
+              - tags
+              - id
+      required:
+        - type
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 1
+        results:
+          - owner: "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+            resourceGroup: "5b7556b5-0779-4c47-9cf2-3f209779aa22"
+            instance: "pune"
+            description: "Flood Sensor Data with respect to water level/flow"
+            label: "FW055 Environment-UUID"
+            type:
+              - "iudx:Resource"
+              - "iudx:EnvFlood"
+            "@context": "https://voc.iudx.org.in/"
+            deviceInfo:
+              deviceSimNumber: "7030924255"
+              deviceID: "FWR055"
+              deviceName: "Rajaram Bridge"
+            tags:
+              - "flooding"
+              - "water flooding"
+              - "flood"
+              - "flood alert"
+              - "flood danger"
+              - "level"
+              - "current level"
+            itemCreatedAt: "2023-09-15T06:01:11+0530"
+            provider: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+            itemStatus: "ACTIVE"
+            name: "FWR055"
+            location:
+              address: "On Mutha River,Near Vithoba Park,Pune"
+              geometry:
+                coordinates:
+                  - 73.82772
+                  - 18.488375
+                type: "Point"
+              type: "Place"
+            resourceGroup_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
+            id: "9507150e-c3af-49ea-a180-3270d3655128"
+            id_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR055"
+            accessPolicy: "OPEN"
+            apdURL: "acl-apd.iudx.io"
+            resourceServer: "7a8b02f0-d772-4e34-955d-4b4e784d1398"
+            ownerUserId: "0f7dad6e-3970-4063-9735-22bf83b9d6b4"
+            cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+    successResponseForSearchByCircle:
+      type: object
+      title: Search by Circle
+      properties:
+        type:
+          type: string
+          description: URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          type: string
+          description: A human-readable title for the message response
+        totalHits:
+          type: integer
+          description: The total number of hits for the search
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              owner:
+                type: string
+                description: Owner identifier
+              resourceGroup:
+                type: string
+                description: Resource Group identifier
+              instance:
+                type: string
+                description: Instance identifier
+              description:
+                type: string
+                description: Description of the resource
+              label:
+                type: string
+                description: Label of the resource
+              type:
+                type: array
+                items: string
+                description: List of resource types
+              "@context":
+                type: string
+                description: Context URL
+              deviceInfo:
+                type: object
+                properties:
+                  deviceSimNumber:
+                    type: string
+                    description: Device SIM Number
+                  deviceID:
+                    type: string
+                    description: Device ID
+                  deviceName:
+                    type: string
+                    description: Device Name
+              tags:
+                type: array
+                items: string
+                description: List of tags
+              itemCreatedAt:
+                type: string
+                description: Item creation timestamp
+              provider:
+                type: string
+                description: Provider identifier
+              itemStatus:
+                type: string
+                description: Status of the item
+              name:
+                type: string
+                description: Resource name
+              location:
+                type: object
+                properties:
+                  address:
+                    type: string
+                    description: Location address
+                  geometry:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: array
+                        items: number
+                        description: Coordinates [longitude, latitude]
+                      type:
+                        type: string
+                        description: Geometry type
+                  type:
+                    type: string
+                    description: Location type
+              resourceGroup_bck:
+                type: string
+                description: Backup Resource Group identifier
+              id:
+                type: string
+                description: Resource identifier
+              id_bck:
+                type: string
+                description: Backup Resource identifier
+              accessPolicy:
+                type: string
+                description: Access policy for the resource
+              apdURL:
+                type: string
+                description: APD URL
+              resourceServer:
+                type: string
+                description: Resource Server identifier
+              ownerUserId:
+                type: string
+                description: Owner's User ID
+              cos:
+                type: string
+                description: COS identifier
+            required:
+              - owner
+              - resourceGroup
+              - instance
+              - description
+              - label
+              - type
+              - "@context"
+              - deviceInfo
+              - tags
+              - itemCreatedAt
+              - provider
+              - itemStatus
+              - name
+              - location
+              - resourceGroup_bck
+              - id
+              - id_bck
+              - accessPolicy
+              - apdURL
+              - resourceServer
+              - ownerUserId
+              - cos
+      required:
+        - type
+        - title
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 1
+        results:
+          - owner: "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+            resourceGroup: "5b7556b5-0779-4c47-9cf2-3f209779aa22"
+            instance: "pune"
+            description: "Flood Sensor Data with respect to water level/flow"
+            label: "FW055 Environment-UUID"
+            type:
+              - "iudx:Resource"
+              - "iudx:EnvFlood"
+            "@context": "https://voc.iudx.org.in/"
+            deviceInfo:
+              deviceSimNumber: "7030924255"
+              deviceID: "FWR055"
+              deviceName: "Rajaram Bridge"
+            tags:
+              - "flooding"
+              - "water flooding"
+              - "flood"
+              - "flood alert"
+              - "flood danger"
+              - "level"
+              - "current level"
+            itemCreatedAt: "2023-09-15T06:01:11+0530"
+            provider: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+            itemStatus: "ACTIVE"
+            name: "FWR055"
+            location:
+              address: "On Mutha River, Near Vithoba Park, Pune"
+              geometry:
+                coordinates:
+                  - 73.82772
+                  - 18.488375
+                type: "Point"
+              type: "Place"
+            resourceGroup_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
+            id: "b58da193-23d9-43eb-b98a-a103d4b6103c"
+            id_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR055"
+            accessPolicy: "OPEN"
+            apdURL: "acl-apd.iudx.io"
+            resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
+            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+    successResponseForSearchByPolygon:
+      type: object
+      title: Search by Polygon
+      properties:
+        type:
+          type: string
+          description: URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          type: string
+          description: A human-readable title for the message response
+        totalHits:
+          type: integer
+          description: The total number of hits for the search
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              owner:
+                type: string
+                description: Owner identifier
+              resourceGroup:
+                type: string
+                description: Resource Group identifier
+              instance:
+                type: string
+                description: Instance identifier
+              description:
+                type: string
+                description: Description of the resource
+              label:
+                type: string
+                description: Label of the resource
+              type:
+                type: array
+                items: string
+                description: List of resource types
+              "@context":
+                type: string
+                description: Context URL
+              deviceInfo:
+                type: object
+                properties:
+                  deviceSimNumber:
+                    type: string
+                    description: Device SIM Number
+                  deviceID:
+                    type: string
+                    description: Device ID
+                  deviceName:
+                    type: string
+                    description: Device Name
+              tags:
+                type: array
+                items: string
+                description: List of tags
+              itemCreatedAt:
+                type: string
+                description: Item creation timestamp
+              provider:
+                type: string
+                description: Provider identifier
+              itemStatus:
+                type: string
+                description: Status of the item
+              name:
+                type: string
+                description: Resource name
+              location:
+                type: object
+                properties:
+                  address:
+                    type: string
+                    description: Location address
+                  geometry:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: array
+                        items: number
+                        description: Coordinates [longitude, latitude]
+                      type:
+                        type: string
+                        description: Geometry type
+                  type:
+                    type: string
+                    description: Location type
+              resourceGroup_bck:
+                type: string
+                description: Backup Resource Group identifier
+              id:
+                type: string
+                description: Resource identifier
+              id_bck:
+                type: string
+                description: Backup Resource identifier
+              accessPolicy:
+                type: string
+                description: Access policy for the resource
+              apdURL:
+                type: string
+                description: APD URL
+              resourceServer:
+                type: string
+                description: Resource Server identifier
+              ownerUserId:
+                type: string
+                description: Owner's User ID
+              cos:
+                type: string
+                description: COS identifier
+            required:
+              - owner
+              - resourceGroup
+              - instance
+              - description
+              - label
+              - type
+              - "@context"
+              - deviceInfo
+              - tags
+              - itemCreatedAt
+              - provider
+              - itemStatus
+              - name
+              - location
+              - resourceGroup_bck
+              - id
+              - id_bck
+              - accessPolicy
+              - apdURL
+              - resourceServer
+              - ownerUserId
+              - cos
+      required:
+        - type
+        - title
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 1
+        results:
+          - owner: "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+            resourceGroup: "5b7556b5-0779-4c47-9cf2-3f209779aa22"
+            instance: "pune"
+            description: "Flood Sensor Data with respect to water level/flow"
+            label: "FW055 Environment-UUID"
+            type:
+              - "iudx:Resource"
+              - "iudx:EnvFlood"
+            "@context": "https://voc.iudx.org.in/"
+            deviceInfo:
+              deviceSimNumber: "7030924255"
+              deviceID: "FWR055"
+              deviceName: "Rajaram Bridge"
+            tags:
+              - "flooding"
+              - "water flooding"
+              - "flood"
+              - "flood alert"
+              - "flood danger"
+              - "level"
+              - "current level"
+            itemCreatedAt: "2023-09-15T06:01:11+0530"
+            provider: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+            itemStatus: "ACTIVE"
+            name: "FWR055"
+            location:
+              address: "On Mutha River, Near Vithoba Park, Pune"
+              geometry:
+                coordinates:
+                  - 73.82772
+                  - 18.488375
+                type: "Point"
+              type: "Place"
+            resourceGroup_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
+            id: "b58da193-23d9-43eb-b98a-a103d4b6103c"
+            id_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR055"
+            accessPolicy: "OPEN"
+            apdURL: "acl-apd.iudx.io"
+            resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
+            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+          - owner: "13bf961b-b1f4-3f7f-a651-b1b1965a406"
+    successResponseForSearchByLinestring:
+      type: object
+      title: Search by Linestring
+      properties:
+        type:
+          type: string
+          description: URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          type: string
+          description: A human-readable title for the message response
+        totalHits:
+          type: integer
+          description: The total number of hits for the search
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              owner:
+                type: string
+                description: Owner identifier
+              resourceGroup:
+                type: string
+                description: Resource Group identifier
+              instance:
+                type: string
+                description: Instance identifier
+              description:
+                type: string
+                description: Description of the resource
+              label:
+                type: string
+                description: Label of the resource
+              type:
+                type: array
+                items: string
+                description: List of resource types
+              "@context":
+                type: string
+                description: Context URL
+              deviceInfo:
+                type: object
+                properties:
+                  deviceSimNumber:
+                    type: string
+                    description: Device SIM Number
+                  deviceID:
+                    type: string
+                    description: Device ID
+                  deviceName:
+                    type: string
+                    description: Device Name
+              tags:
+                type: array
+                items: string
+                description: List of tags
+              itemCreatedAt:
+                type: string
+                description: Item creation timestamp
+              provider:
+                type: string
+                description: Provider identifier
+              itemStatus:
+                type: string
+                description: Status of the item
+              name:
+                type: string
+                description: Resource name
+              location:
+                type: object
+                properties:
+                  address:
+                    type: string
+                    description: Location address
+                  geometry:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: array
+                        items: number
+                        description: Coordinates [longitude, latitude]
+                      type:
+                        type: string
+                        description: Geometry type
+                  type:
+                    type: string
+                    description: Location type
+              resourceGroup_bck:
+                type: string
+                description: Backup Resource Group identifier
+              id:
+                type: string
+                description: Resource identifier
+              id_bck:
+                type: string
+                description: Backup Resource identifier
+              accessPolicy:
+                type: string
+                description: Access policy for the resource
+              apdURL:
+                type: string
+                description: APD URL
+              resourceServer:
+                type: string
+                description: Resource Server identifier
+              ownerUserId:
+                type: string
+                description: Owner's User ID
+              cos:
+                type: string
+                description: COS identifier
+            required:
+              - owner
+              - resourceGroup
+              - instance
+              - description
+              - label
+              - type
+              - "@context"
+              - deviceInfo
+              - tags
+              - itemCreatedAt
+              - provider
+              - itemStatus
+              - name
+              - location
+              - resourceGroup_bck
+              - id
+              - id_bck
+              - accessPolicy
+              - apdURL
+              - resourceServer
+              - ownerUserId
+              - cos
+      required:
+        - type
+        - title
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 1
+        results:
+          - owner: "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+            resourceGroup: "5b7556b5-0779-4c47-9cf2-3f209779aa22"
+            instance: "pune"
+            description: "Flood Sensor Data with respect to water level/flow"
+            label: "FW055 Environment-UUID"
+            type:
+              - "iudx:Resource"
+              - "iudx:EnvFlood"
+            "@context": "https://voc.iudx.org.in/"
+            deviceInfo:
+              deviceSimNumber: "7030924255"
+              deviceID: "FWR055"
+              deviceName: "Rajaram Bridge"
+            tags:
+              - "flooding"
+              - "water flooding"
+              - "flood"
+              - "flood alert"
+              - "flood danger"
+              - "level"
+              - "current level"
+            itemCreatedAt: "2023-09-15T06:01:11+0530"
+            provider: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+            itemStatus: "ACTIVE"
+            name: "FWR055"
+            location:
+              address: "On Mutha River, Near Vithoba Park, Pune"
+              geometry:
+                coordinates:
+                  - 73.82772
+                  - 18.488375
+                type: "Point"
+              type: "Place"
+            resourceGroup_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
+            id: "b58da193-23d9-43eb-b98a-a103d4b6103c"
+            id_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR055"
+            accessPolicy: "OPEN"
+            apdURL: "acl-apd.iudx.io"
+            resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
+            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+    successResponseForSearchByBbox:
+      type: object
+      title: Search by Bbox
+      properties:
+        type:
+          type: string
+          description: URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          type: string
+          description: A human-readable title for the message response
+        totalHits:
+          type: integer
+          description: The total number of hits for the search
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              owner:
+                type: string
+                description: Owner identifier
+              resourceGroup:
+                type: string
+                description: Resource Group identifier
+              instance:
+                type: string
+                description: Instance identifier
+              description:
+                type: string
+                description: Description of the resource
+              label:
+                type: string
+                description: Label of the resource
+              type:
+                type: array
+                items: string
+                description: List of resource types
+              "@context":
+                type: string
+                description: Context URL
+              deviceInfo:
+                type: object
+                properties:
+                  deviceSimNumber:
+                    type: string
+                    description: Device SIM Number
+                  deviceID:
+                    type: string
+                    description: Device ID
+                  deviceName:
+                    type: string
+                    description: Device Name
+              tags:
+                type: array
+                items: string
+                description: List of tags
+              itemCreatedAt:
+                type: string
+                description: Item creation timestamp
+              provider:
+                type: string
+                description: Provider identifier
+              itemStatus:
+                type: string
+                description: Status of the item
+              name:
+                type: string
+                description: Resource name
+              location:
+                type: object
+                properties:
+                  address:
+                    type: string
+                    description: Location address
+                  geometry:
+                    type: object
+                    properties:
+                      coordinates:
+                        type: array
+                        items: number
+                        description: Coordinates [longitude, latitude]
+                      type:
+                        type: string
+                        description: Geometry type
+                  type:
+                    type: string
+                    description: Location type
+              resourceGroup_bck:
+                type: string
+                description: Backup Resource Group identifier
+              id:
+                type: string
+                description: Resource identifier
+              id_bck:
+                type: string
+                description: Backup Resource identifier
+              accessPolicy:
+                type: string
+                description: Access policy for the resource
+              apdURL:
+                type: string
+                description: APD URL
+              resourceServer:
+                type: string
+                description: Resource Server identifier
+              ownerUserId:
+                type: string
+                description: Owner's User ID
+              cos:
+                type: string
+                description: COS identifier
+            required:
+              - owner
+              - resourceGroup
+              - instance
+              - description
+              - label
+              - type
+              - "@context"
+              - deviceInfo
+              - tags
+              - itemCreatedAt
+              - provider
+              - itemStatus
+              - name
+              - location
+              - resourceGroup_bck
+              - id
+              - id_bck
+              - accessPolicy
+              - apdURL
+              - resourceServer
+              - ownerUserId
+              - cos
+      required:
+        - type
+        - title
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 1
+        results:
+          - owner: "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+            resourceGroup: "5b7556b5-0779-4c47-9cf2-3f209779aa22"
+            instance: "pune"
+            description: "Flood Sensor Data with respect to water level/flow"
+            label: "FW055 Environment-UUID"
+            type:
+              - "iudx:Resource"
+              - "iudx:EnvFlood"
+            "@context": "https://voc.iudx.org.in/"
+            deviceInfo:
+              deviceSimNumber: "7030924255"
+              deviceID: "FWR055"
+              deviceName: "Rajaram Bridge"
+            tags:
+              - "flooding"
+              - "water flooding"
+              - "flood"
+              - "flood alert"
+              - "flood danger"
+              - "level"
+              - "current level"
+            itemCreatedAt: "2023-09-15T06:01:11+0530"
+            provider: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+            itemStatus: "ACTIVE"
+            name: "FWR055"
+            location:
+              address: "On Mutha River, Near Vithoba Park, Pune"
+              geometry:
+                coordinates:
+                  - 73.82772
+                  - 18.488375
+                type: "Point"
+              type: "Place"
+            resourceGroup_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood"
+            id: "b58da193-23d9-43eb-b98a-a103d4b6103c"
+            id_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood/FWR055"
+            accessPolicy: "OPEN"
+            apdURL: "acl-apd.iudx.io"
+            resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
+            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+    successResponseForSearchByText:
+      type: object
+      title: Search by Text
+      properties:
+        type:
+          type: string
+          description: URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          type: string
+          description: A human-readable title for the message response
+        totalHits:
+          type: integer
+          description: The total number of hits for the search
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              instance:
+                type: string
+                description: Instance identifier
+              cos:
+                type: string
+                description: COS identifier
+              description:
+                type: string
+                description: Description of the resource
+              label:
+                type: string
+                description: Label of the resource
+              type:
+                type: array
+                items: string
+                description: List of resource types
+              "@context":
+                type: string
+                description: Context URL
+              providerUserId:
+                type: string
+                description: Provider's User ID
+              tags:
+                type: array
+                items: string
+                description: List of tags
+              itemCreatedAt:
+                type: string
+                description: Item creation timestamp
+              provider:
+                type: string
+                description: Provider identifier
+              itemStatus:
+                type: string
+                description: Status of the item
+              name:
+                type: string
+                description: Resource name
+              ownerUserId:
+                type: string
+                description: Owner's User ID
+              location:
+                type: object
+                properties:
+                  address:
+                    type: string
+                    description: Location address
+                  type:
+                    type: string
+                    description: Location type
+              id:
+                type: string
+                description: Resource identifier
+              accessPolicy:
+                type: string
+                description: Access policy for the resource
+            required:
+              - instance
+              - cos
+              - description
+              - label
+              - type
+              - "@context"
+              - providerUserId
+              - tags
+              - itemCreatedAt
+              - provider
+              - itemStatus
+              - name
+              - ownerUserId
+              - location
+              - id
+              - accessPolicy
+      required:
+        - type
+        - title
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 1
+        results:
+          - instance: "pune"
+            cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+            description: "Physical positions of places of interest in Chandigarh city."
+            label: "Places of Interest in Chandigarh City"
+            type:
+              - "iudx:ResourceGroup"
+              - "iudx:PointOfInterest"
+            "@context": "https://voc.iudx.org.in/"
+            providerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            tags:
+              - "camera"
+              - "cctv"
+              - "location"
+              - "surveillance"
+              - "junction"
+              - "locations"
+              - "point of interest"
+              - "places"
+              - "traffic management"
+              - "transit management"
+              - "itms"
+              - "rlvd"
+              - "anpr"
+              - "red light"
+              - "red light violation"
+              - "number plate"
+              - "number plate recognition"
+              - "recognition"
+              - "violation"
+              - "violation detection"
+              - "parking"
+              - "docking "
+              - "leave"
+              - "station"
+              - "stop"
+              - "places"
+              - "parking lot"
+              - "paid parking"
+            itemCreatedAt: "2023-08-30T05:09:54+0530"
+            provider: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+            itemStatus: "ACTIVE"
+            name: "chandigarh-point-of-interests"
+            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            location:
+              address: "chandigarh"
+              type: "Place"
+            id: "1173f774-794e-4ed0-9c41-281256d44b6a"
+            accessPolicy: "OPEN"
+    successResponseForSearchByTextVthSpecialChar:
+      type: object
+      title: Search by Text (Special Character)
+      properties:
+        type:
+          type: string
+          description: URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          type: string
+          description: A human-readable title for the message response
+        totalHits:
+          type: integer
+          description: The total number of hits for the search
+        results:
+          type: array
+          items:
+            type: object
+            properties:
+              owner:
+                type: string
+                description: Owner identifier
+              resourceGroup:
+                type: string
+                description: Resource Group identifier
+              instance:
+                type: string
+                description: Instance identifier
+              description:
+                type: string
+                description: Description of the resource
+              accessPolicy:
+                type: string
+                description: Access policy for the resource
+              apdURL:
+                type: string
+                description: APD URL for the resource
+              provider:
+                type: string
+                description: Provider identifier
+              resourceServer:
+                type: string
+                description: Resource Server identifier
+              label:
+                type: string
+                description: Label of the resource
+              type:
+                type: array
+                items: string
+                description: List of resource types
+              "@context":
+                type: string
+                description: Context URL
+              providerUserId:
+                type: string
+                description: Provider's User ID
+              tags:
+                type: array
+                items: string
+                description: List of tags
+              itemCreatedAt:
+                type: string
+                description: Item creation timestamp
+              provider_bck:
+                type: string
+                description: Provider backup identifier
+              itemStatus:
+                type: string
+                description: Status of the item
+              name:
+                type: string
+                description: Resource name
+              id:
+                type: string
+                description: Resource identifier
+              resourceGroup_bck:
+                type: string
+                description: Resource Group backup identifier
+              id_bck:
+                type: string
+                description: Backup identifier for the resource
+              ownerUserId:
+                type: string
+                description: Owner's User ID
+              cos:
+                type: string
+                description: COS identifier
+            required:
+              - owner
+              - resourceGroup
+              - instance
+              - description
+              - accessPolicy
+              - apdURL
+              - provider
+              - resourceServer
+              - label
+              - type
+              - "@context"
+              - providerUserId
+              - tags
+              - itemCreatedAt
+              - provider_bck
+              - itemStatus
+              - name
+              - id
+              - resourceGroup_bck
+              - id_bck
+              - ownerUserId
+              - cos
+      required:
+        - type
+        - title
+        - totalHits
+        - results
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 4
+        results:
+          - owner: "13bf961b-b1f4-3f7f-a651-b1b1965a4067"
+            resourceGroup: "ae2b8b01-f642-411a-babb-cbd1b75fa2a9"
+            instance: "pune"
+            description: "Flood Sensor Data with respect to water level/flow"
+            accessPolicy: "SECURE"
+            apdURL: "acl-apd.iudx.io"
+            provider: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+            resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
+            label: "Flood level data from FWR055"
+            type:
+              - "iudx:Resource"
+              - "iudx:EnvFlood"
+            "@context": "https://voc.iudx.org.in/"
+            providerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            tags:
+              - "flooding"
+              - "water flooding"
+              - "flood"
+              - "flood alert"
+              - "flood danger"
+              - "level"
+              - "current level"
+            itemCreatedAt: "2023-09-15T06:02:00+0530"
+            provider_bck: "datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b"
+            itemStatus: "ACTIVE"
+            name: "FWR055"
+            id: "ae2b8b01-f642-411a-babb-cbd1b75fa2a1"
+            resourceGroup_bck: "datakaveri.org04a15c9960ffda227e9546f3f46e629e1fe4132brs.iudx.org.inpune-env-flood"
+            id_bck: "datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b/rs.iudx.org.in/pune-env-flood/FWR055"
+            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+    relSearch1:
+      type: object
+      title: relSearch1
+      description: API response for relsearch
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human-readable title for the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents that matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results that matched the query. This is an array of provider objects.
+          items:
+            type: object
+            required:
+              - type
+              - title
+              - totalHits
+              - results
+      example:
+              type: "urn:dx:cat:Success"
+              title: "Success"
+              totalHits: 1
+              results:
+                - resourceServerRegURL: "rs.iudx.io"
+                  providerOrg:
+                    name: "iudx"
+                    additionalInfoURL: "https://iudx.org.in"
+                    location:
+                      address: "ABD area, Pune"
+                      geometry:
+                        coordinates:
+                          - 79.92
+                          - 15.5
+                        type: "Point"
+                      type: "Place"
+                  cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+                  description: "Administrator of the IUDX platform"
+                  type: [ "iudx:Provider" ]
+                  '@context': "https://voc.iudx.org.in/"
+                  providerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+                  tags: [ "IUDX, Admin, Platform" ]
+                  itemCreatedAt: "2023-08-30T12:13:40+0530"
+                  resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
+                  itemStatus: "ACTIVE"
+                  name: "IUDXAdmin"
+                  ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+                  id: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+                  id_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
+                  resourceServerURL: "rs.iudx.io"
+    relSearch2:
+      type: object
+      title: relSearch2
+      description: API response for relsearch
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered.
+        title:
+          description: A human-readable title for the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents that matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results that matched the query. This is an array of provider objects.
+          items:
+            type: object
+            required:
+              - type
+              - title
+              - totalHits
+              - results
+      example:
+              type: "urn:dx:cat:Success"
+              title: "Success"
+              totalHits: 1
+              results:
+                - resourceServerRegURL: "cat-test.iudx.io"
+                  providerOrg:
+                    name: "Datakaveri"
+                    additionalInfoURL: "https://datakaveri.org"
+                    location:
+                      address: "IIsc"
+                      geometry:
+                        coordinates:
+                          - 75.92
+                          - 14.5
+                        type: "Point"
+                      type: "Place"
+                  cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+                  description: "provider id for uuid test"
+                  type:
+                    - "iudx:Provider"
+                  '@context': "https://voc.iudx.org.in/"
+                  providerUserId: "d8e46706-b9db-44e1-a9aa-e40839396b01"
+                  itemCreatedAt: "2023-08-22T02:36:33+0530"
+                  resourceServer: "f3061e6c-9639-321d-a532-829c7bb870aa"
+                  itemStatus: "ACTIVE"
+                  name: "uuid-test"
+                  ownerUserId: "d8e46706-b9db-44e1-a9aa-e40839396b01"
+                  id: "dec308e5-bc50-3671-af18-7f89ec33564b"
+                  resourceServerURL: "cat-test.iudx.io"
     errorInvalidSchema:
       type: object
       title: Response - invalid schema
@@ -2671,8 +5681,49 @@ components:
       example:
         type: 'urn:dx:cat:InvalidSchema'
         title: Invalid Schema
+        detail: Invalid Json payload
+    errorInvalidSchema2:
+      type: object
+      title: Response - invalid schema
+      description: Invalid Schema response schema
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human readable title to the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+        required:
+          - type
+      example:
+        type: 'urn:dx:cat:InvalidSchema'
+        title: Invalid Schema
         detail: Invalid Schema
-        results: [ ]
+        results: []
+    errorInvalidUUID:
+      type: object
+      title: Response  - invalid UUID
+      description: Invalid UUID response schema
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have been triggered
+        title:
+          description: A human readable title to the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
+        required:
+          - type
+      example:
+        type: urn:dx:cat:InvalidSchema
+        title: Invalid Schema
+        detail: Invalid Schema
+        results: []
     errorInvalidLinks:
       type: object
       title: Response  - invalid links
@@ -2729,21 +5780,21 @@ components:
       type: object
       title: Document not found
       properties:
-       type:
-        type: string
-        description: |
-          Type of the response indicating if the query was successful or if any errors have been triggered.
-       title:
-        type: string
-        description: A human readable title to the message response.\
-       results:
-        type: array
-        description: Results which matched the query. This is an array of objects.
-        items:
-          type: object
-       detail:
-         type: string
-         description: Detailed description of the type or response
+        type:
+          type: string
+          description: |
+            Type of the response indicating if the query was successful or if any errors have been triggered.
+        title:
+          type: string
+          description: A human readable title to the message response.\
+        results:
+          type: array
+          description: Results which matched the query. This is an array of objects.
+          items:
+            type: object
+        detail:
+          type: string
+          description: Detailed description of the type or response
 
       description: Update Item Not Found
       example:
@@ -2776,6 +5827,12 @@ components:
         - type
         - name
         - description
+      example:
+        '@context': "https://voc.iudx.org.in/"
+        type:
+          - "iudx:Owner"
+        name: "iudxOwnerPM"
+        description: "owner item creation for the postman collection"
     exampleEntityCos:
       type: object
       title: cos entity
@@ -3149,7 +6206,7 @@ components:
       example:
         type: 'urn:dx:cat:InvalidAuthorizationToken'
         title: Token is invalid
-        detail: 'failed to decode/validate jwt token : Invalid format for JWT'
+        detail: "failed to decode/validate jwt token : Invalid format for JWT"
     relSearchErrorResponse:
       type: object
       title: Response for bad request
@@ -3166,9 +6223,10 @@ components:
       example:
         type: 'urn:dx:cat:InvalidSyntax'
         title: Invalid Syntax
+        detail: 'Invalid Syntax'
     successResponseForRelationship:
       type: object
-      title: Response for relationship search - Get resourceGroup for resource
+      title: Get resourceGroup for resource
       description: Given the type of relationship is Provider mentioned in query param
       properties:
         type:
@@ -3214,7 +6272,7 @@ components:
             provider: '{{UUID}}'
     successResponseForRelationship2:
       type: object
-      title: Response for relationship search - Get all parents for resourceGroup
+      title: Get all parents for resourceGroup
       description: Given the type of relationship is Provider mentioned in query param
       properties:
         type:
@@ -3340,6 +6398,9 @@ components:
             Error response due to invalid query param in the request
         title:
           description: A human readable title to the message response
+        detail:
+          type: string
+          description: Detailed description of the type or response
       required:
         - type
     successResponseCreateInstance:
@@ -3395,6 +6456,9 @@ components:
           description: |
             URN type of the response indicating if the query was successful or if any errors have
             been triggered.
+        totalHits:
+          type: integer <int32>
+          description: Total number of documents which matched the query.
         title:
           description: A human readable title to the message response.
         results:
@@ -3566,6 +6630,7 @@ components:
       example:
         type: 'urn:dx:cat:InvalidSchema'
         title: Invalid Schema
+        detail: "The Schema of requested body is invalid."
     successResponseGetRating:
       type: object
       title: Success response for get rating
@@ -3592,10 +6657,9 @@ components:
       example:
         type: 'urn:dx:cat:Success'
         title: Success
-        totalHits: 1
         results:
           - rating: 4.8
-            id: iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/surat-itms-realtime-information/surat-itms-live-eta
+            id: "823541a2-bb47-4fbd-b63e-bfdc52a34ff2"
     successResponseAvgRating:
       type: object
       title: Success response for average rating
@@ -3624,12 +6688,41 @@ components:
         title: Success
         totalHits: 6
         results:
-          - id: datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b/rs.iudx.io/pune-env-flood/FWR053
+          - id: "b59cb465-a349-478a-926f-3ba1a06f5ec1"
             totalRatings: '1'
             average_rating: 4.099999904632568
-          - id: datakaveri.org/04a15c9960ffda227e9546f3f46e629e1fe4132b/rs.iudx.io/pune-env-flood/FWR057
-            totalRatings: '1'
-            average_rating: 4.599999904632568
+    successResponseAllRatings:
+      type: object
+      title: Success response for get all ratings
+      description: Example response for get all ratings
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human readable title to the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents which matched the query
+          format: int32
+        results:
+          type: array
+          description: Results which matched the query. This is an array of objects
+          items:
+            type: object
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: Success
+        totalHits: 2
+        results:
+          - rating: 4.8
+            id: "b59cb465-a349-478a-926f-3ba1a06f5ec1"
+          - rating: 4.8
+            id: "b59cb465-a349-478a-926f-3ba1a06f5ec1"
     successResponseForDeleteRatingObject:
       type: object
       title: Success response for delete rating object
@@ -3962,7 +7055,7 @@ components:
       example:
         type: 'urn:dx:cat:Success'
         title: Success
-        totalHits: 10
+        totalHits: 1
         results:
           - description: UI Test Provider-other
             id: 9760a820-85b0-40df-b6b0-73d3d1848109
@@ -4010,7 +7103,7 @@ components:
       example:
         type: 'urn:dx:cat:Success'
         title: Success
-        totalHits: 3
+        totalHits: 1
         results:
           - instance: pune
             location:
@@ -4030,7 +7123,7 @@ components:
             URN type of the response indicating if the query was successful or if any errors have
             been triggered.
         title:
-          description: A human readable title to the message response.
+          description: A human-readable title to the message response.
         totalHits:
           type: integer
           description: Total number of documents which matched the query.
@@ -4043,23 +7136,25 @@ components:
       required:
         - type
       example:
-        type: 'urn:dx:cat:Success'
-        title: Success
-        totalHits: 191
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 17
         results:
-          - instance: pune
-            provider: 7b8ecc32-650f-485a-a0c8-64e340bb084f
-            label: Civic Issues Reported from Swachhata App in Agra city
-            id: b268d727-187d-4c78-a4c1-acde99b97ebb
-            accessPolicy: SECURE
+          - instance: "pune"
+            description: "PLEASE DON'T DELETE - Bravo Provider Resource Group Item for AAA Integration Test - PLEASE DON'T DELETE"
             tags:
-              - swachhata
-              - complaints
-              - reporting
-              - issue
-            icon: 'https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg'
-            providerDescription: UI Test Provider-other
-            totalResources: 1
+              - "Test"
+            provider: "d960fa2f-c6e0-4243-b9c7-eb037618a33b"
+            id: "30500de9-fd02-4cc3-a65b-18dd7e7ef0a7"
+            providerDescription: "PLEASE DON'T DELETE - Bravo Provider Item for AAA Integration Test - PLEASE DON'T DELETE"
+            resourceServerRegURL: "aaa.integration-test.com"
+            cosURL: "iudx.io"
+            icon: "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg"
+            totalResources: 2
+            accessPolicy:
+              PII: 1
+              SECURE: 1
+              OPEN: 0
     exampleReqBodyDatasetById:
       type: object
       title: Root Type for exampleReqBodyDatasetById
@@ -4070,6 +7165,20 @@ components:
           description: dataset_id of resource group that need to be retrieved
       example:
         id: 8b95ab80-2aaf-4636-a65e-7f2563d0d371
+    exampleReqBodyDatasetByTags:
+      type: object
+      title: Root Type for exampleReqBodyDatasetByTags
+      description: An example of requested body of dataset API when fields are tags.
+      properties:
+        tags:
+          type: array
+          description: data models based on which datasets need to be filtered
+          items:
+            type: string
+      example:
+        tags:
+          - flood
+          - transport
     exampleReqBodyDatasetByAllField:
       type: object
       title: Root Type for exampleReqBodyDatasetByAllField
@@ -4109,7 +7218,308 @@ components:
           - bbeacb12-5e54-339d-92e0-d8e063b551r9
         domains:
           - itms
-
+    successResponseForPostDataset:
+      type: object
+      title: Post Dataset
+      description: Example success response for creating datasets
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human-readable title to the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents which matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results which matched the query. This is an array of objects.
+          items:
+            type: object
+      required:
+        - type
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        results:
+          - dataset:
+              id: "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
+              description: "Realtime information for tracking public transit buses in Surat city."
+              schema: "https://voc.iudx.org.in/TransitManagement"
+              label: "Surat Realtime Bus Position Info-UUID"
+              accessPolicy: "SECURE"
+              instance: "surat"
+              dataSample:
+                trip_direction: "DN"
+                trip_id: "23952340"
+                route_id: "17AD"
+                license_plate: "GJ05BX1583"
+                last_stop_id: "4032"
+                trip_delay: 11968
+                location:
+                  coordinates:
+                    - 72.886055
+                    - 21.224406
+                  type: "Point"
+                last_stop_arrival_time: "13:30:12"
+                vehicle_label: "A03"
+                actual_trip_start_time: "2020-09-16T13:30:00+05:30"
+                observationDateTime: "2020-09-16T13:30:00+05:30"
+                speed: 28
+              dataDescriptor:
+                 trip_direction:
+                   dataSchema: "iudx:Text"
+                   description: "The direction in which the vehicle is travelling. ENUM[UP,DN]."
+                   type: [ "ValueDescriptor" ]
+                 trip_id:
+                   dataSchema: "iudx:Text"
+                   description: "Trip ID/Trip name allotted to the bus corresponding to this observation."
+                   type: [ "ValueDescriptor" ]
+                 route_id:
+                   dataSchema: "iudx:Text"
+                   description: "Route ID assigned to the route on which the bus corresponding to this observation is plying on."
+                   type: [ "ValueDescriptor" ]
+                 dataDescriptorLabel: "Surat ITMS realtime bus ETA tracking."
+                 description: "Data descriptor for live bus ETA and live vehicle position of the public transit buses in Surat city."
+                 trip_delay:
+                   dataSchema: "iudx:Number"
+                   unitCode: "SEC"
+                   description: "This can be positive and negative in seconds and shows how much the vehicle deviates from the planned one."
+                   type: [ "ValueDescriptor" ]
+                   unitText: "second"
+                 last_stop_arrival_time:
+                   dataSchema: "iudx:DateTime"
+                   description: "Specifies the arrival time at the previous stop for a specific trip on a route. Times must be eight digits in HH:MM:SS format (H:MM:SS is also accepted, if the hour begins with 0). Note: Trips that span multiple dates will have stop times greater than 24:00:00. For example, if a trip begins at 10:30:00 p.m. and ends at 2:15:00 a.m. on the following day, the stop times would be 22:30:00 and 26:15:00."
+                   type: [ "ValueDescriptor" ]
+                 vehicle_label:
+                   dataSchema: "iudx:Text"
+                   description: "User-visible label, i.e., something that must be shown to the passenger to help identify the correct vehicle."
+                   type: [ "ValueDescriptor" ]
+                 actual_trip_start_time:
+                   dataSchema: "iudx:DateTime"
+                   description: "This field specifies the time at which bus service actually began for the trip corresponding to this observation."
+                   type: [ "ValueDescriptor" ]
+                 type:
+                   - "iudx:DataDescriptor"
+                   - "iudx:TransitManagement"
+                 observationDateTime:
+                   dataSchema: "iudx:DateTime"
+                   description: "The time at which the vehicle was last tracked."
+                   type: [ "ValueDescriptor" ]
+                   '@context': "https://voc.iudx.org.in/"
+                   speed:
+                     dataSchema: "iudx:Number"
+                     unitCode: "KMH"
+                     description: "The Speed of the bus observed at the last tracked coordinates."
+                     type: [ "ValueDescriptor" ]
+                     unitText: "kilometre per hour"
+                   license_plate:
+                     dataSchema: "iudx:Text"
+                     description: "Vehicle registration number/license plate number of the bus corresponding to this observation."
+                     type: [ "ValueDescriptor" ]
+                   last_stop_id:
+                     dataSchema: "iudx:Text"
+                     description: "Stop ID/Stop name of the previous bus stop corresponding to the bus in this observation."
+                     type: [ "ValueDescriptor" ]
+                   location:
+                     dataSchema: "iudx:Point"
+                     description: "The coordinates for the current position of the bus corresponding to this observation."
+                     type: [ "ValueDescriptor" ]
+              resourceType: "MESSAGESTREAM"
+              location:
+                address: "Surat, Gujarat"
+                geometry:
+                  coordinates:
+                    - [ 72.941762, 21.259964 ]
+                    - [ 72.896444, 21.166506 ]
+                    - [ 72.822981, 21.068548 ]
+                    - [ 72.713804, 21.136772 ]
+                    - [ 72.746763, 21.200163 ]
+                    - [ 72.831564, 21.269925 ]
+                    - [ 72.941762, 21.259964 ]
+                  type: "Polygon"
+                type: "Place"
+              cosURL: "iudx.io"
+              resourceServerRegURL: "rs.iudx.io"
+              provider:
+                id: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+                description: "Administrator of the IUDX platform"
+              totalResources: 2
+              instance_icon: "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/surat.jpg"
+            resource:
+              -  instance: "surat"
+                 apdURL: "authdev.iudx.io"
+                 description: "TEST ITEM FOR APD verify. authdev.iudx.io is a dummy APD"
+                 label: "TEST ITEM FOR APD /verify TESTS"
+                 '@context': "https://voc.iudx.org.in/"
+                 resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
+                 location:
+                   address: "Surat"
+                   type: "Place"
+                 accessPolicy: "SECURE"
+                 schema: "https://voc.iudx.org.in/TransitManagement"
+                 resourceId: "2d043bdb-fc62-4650-8426-dc72492cd621"
+              -  accessPolicy: "SECURE"
+                 apdURL: "acl-apd.iudx.io"
+                 resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
+                 instance: "surat"
+                 description: "Realtime bus position information from Surat city public transit buses."
+                 label: "Surat Transit Realtime Position-UUID"
+                 '@context': "https://voc.iudx.org.in/"
+                 location:
+                   address: "Surat"
+                   type: "Place"
+                 schema: "https://voc.iudx.org.in/TransitManagement"
+                 resourceId: "83c2e5c2-3574-4e11-9530-2b1fbdfce832"
+    successResponseForPostDatasetWithTags:
+      type: object
+      title: Post Dataset With Tags
+      description: Example success response for creating datasets
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human-readable title to the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents which matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results which matched the query. This is an array of objects.
+          items:
+            type: object
+      required:
+        - type
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 6
+        results:
+          - instance: "surat"
+            description: "Realtime information for tracking public transit buses in Surat city."
+            label: "Surat Realtime Bus Position Info-UUID"
+            tags:
+              - "itms"
+              - "mobility"
+              - "vehicle"
+              - "transport"
+              - "buses"
+              - "gtfs"
+              - "commute"
+              - "route"
+              - "bus tracking"
+            provider: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+            accessPolicy:
+              PII: 0
+              SECURE: 2
+              OPEN: 0
+            id: "8b95ab80-2aaf-4636-a65e-7f2563d0d371"
+            providerDescription: "Administrator of the IUDX platform"
+            resourceServerRegURL: "rs.iudx.io"
+            cosURL: "iudx.io"
+            icon: "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/surat.jpg"
+            totalResources: 2
+    successResponseForPostDatasetWithTagsInstanceProviderFields:
+      type: object
+      title: Post Dataset with tags, instance, provider field
+      description: Example success response for creating datasets
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human-readable title to the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents which matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results which matched the query. This is an array of objects.
+          items:
+            type: object
+      required:
+        - type
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 3
+        results:
+          - instance: "pune"
+            description: "Flood level sensors in Pune city."
+            label: "Environment-UUID"
+            tags:
+              - "flooding"
+              - "water flooding"
+              - "flood"
+              - "flood alert"
+              - "flood danger"
+              - "level"
+              - "river"
+              - "river bed"
+            provider: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+            id: "5b7556b5-0779-4c47-9cf2-3f209779aa22"
+            accessPolicy:
+              PII: 0
+              SECURE: 0
+              OPEN: 1
+            providerDescription: "Administrator of the IUDX platform"
+            resourceServerRegURL: "rs.iudx.io"
+            cosURL: "iudx.io"
+            icon: "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg"
+            totalResources: 1
+    successResponseForPostDatasetGetAllDatasets:
+      type: object
+      title: Post Dataset - Get All Datasets
+      description: Example success response for creating datasets
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human-readable title to the message response.
+        totalHits:
+          type: integer
+          description: Total number of documents which matched the query.
+          format: int32
+        results:
+          type: array
+          description: Results which matched the query. This is an array of objects.
+          items:
+            type: object
+      required:
+        - type
+      example:
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 18
+        results:
+          - instance: "pune"
+            description: "PLEASE DON'T DELETE - Alpha Provider Resource Group Item for AAA Integration Test - PLEASE DON'T DELETE"
+            tags:
+              - "Test"
+            provider: "6ede5977-e3a8-410b-8aa0-f2a177655e82"
+            id: "f666f595-cdf3-4388-9f5b-3dd78d5b5e0a"
+            providerDescription: "PLEASE DON'T DELETE - Alpha Provider Item for AAA Integration Test - PLEASE DON'T DELETE"
+            resourceServerRegURL: "aaa.integration-test.com"
+            cosURL: "iudx.io"
+            icon: "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/pune.jpg"
+            totalResources: 2
+            accessPolicy:
+              PII: 0
+              SECURE: 1
+              OPEN: 1
     successResponseForGettingDatasetResources:
       type: object
       title: Response for getting dataset based on the dataset_id and its resources.
@@ -4194,7 +7604,7 @@ components:
       example:
         type: 'urn:dx:cat:ItemNotFound'
         title: Item is not found
-        detail: object belonging to Id requested is not present
+        detail: dataset belonging to Id requested is not present
     successResponseForPopularDatasets:
       type: object
       title: Response for getting dataset locations.
