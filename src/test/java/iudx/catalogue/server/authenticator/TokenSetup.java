@@ -81,12 +81,6 @@ public class TokenSetup {
                         LOGGER.error("Failed to fetch token", result.cause());
                         promise.fail(result.cause());
                     }
-                })
-                .onFailure(throwable -> {
-                    throwable.printStackTrace();
-                    promise.fail(throwable);
-                })
-                .onComplete(result -> {
                     webClient.close();
                 });
 
