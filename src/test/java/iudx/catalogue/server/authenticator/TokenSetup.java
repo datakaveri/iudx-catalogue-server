@@ -7,13 +7,14 @@ import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static iudx.catalogue.server.authenticator.TokensForITs.*;
 
 public class TokenSetup {
-    private static final Logger LOGGER = LogManager.getLogger(TokenSetup.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TokenSetup.class);
     private static WebClient webClient;
 
     public static void setupTokens(String authEndpoint, String providerClientId, String providerClientSecret, String consumerClientId, String consumerClientSecret) {
@@ -26,10 +27,12 @@ public class TokenSetup {
         ).onComplete(result -> {
             if (result.succeeded()) {
                 LOGGER.debug("Tokens setup completed successfully");
+                webClient.close();
             } else {
                 // Handle failure, e.g., log the error
-                LOGGER.debug("errorrrr...");
+                LOGGER.error("Error- {}", result.cause().getMessage());
                 result.cause().printStackTrace();
+                webClient.close();
             }
         });
     }
@@ -85,9 +88,6 @@ public class TokenSetup {
                 .onFailure(throwable -> {
                     throwable.printStackTrace();
                     promise.fail(throwable);
-                })
-                .onComplete(result -> {
-                    webClient.close();
                 });
 
         return promise.future();
