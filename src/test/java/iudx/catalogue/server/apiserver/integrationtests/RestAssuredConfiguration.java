@@ -11,6 +11,8 @@ import io.restassured.RestAssured;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.authenticator.TokenSetup;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -22,17 +24,15 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * ), proxy host (<code>intTestProxyHost</code>) and proxy port (<code>intTestProxyPort</code>).
  */
 public class RestAssuredConfiguration implements BeforeAllCallback {
+    private static final Logger LOGGER = LogManager.getLogger(RestAssuredConfiguration.class);
 
   @Override
   public void beforeAll(ExtensionContext context) {
    JsonObject config = Configuration.getConfiguration("./configs/config-test.json", 1);
    //String testHost = config.getString("ip");
     String authServerHost = config.getString("authServerHost");
-    String authUrl=config.getString("authUrl");
+    //String authUrl=config.getString("authUrl");
     String testHost = System.getProperty("intTestHost");
-     // System.out.println(authUrl);
-     // System.out.println(authServerHost);
-     // System.out.println(testHost);
 
     if (testHost != null) {
       baseURI = "http://" + testHost;
@@ -68,14 +68,14 @@ public class RestAssuredConfiguration implements BeforeAllCallback {
           proxy(proxyHost, Integer.parseInt(proxyPort));
       }
 
-    System.out.println("baseURI="+baseURI);
-    System.out.println("setting up the tokens");
+    LOGGER.debug("baseURI="+baseURI);
+    LOGGER.debug("setting up the tokens");
     TokenSetup.setupTokens(authEndpoint, providerClientId, providerClientSecret, consumerClientId, consumerClientSecret);
 
     // Wait for tokens to be available before proceeding
       waitForTokens();
 
-         // System.out.println("done with setting up the tokens");
+         // LOGGER.debug();("done with setting up the tokens");
 
     enableLoggingOfRequestAndResponseIfValidationFails();
  }
@@ -85,7 +85,7 @@ public class RestAssuredConfiguration implements BeforeAllCallback {
 
         // Keep trying to get tokens until they are available or max attempts are reached
         while ((cosAdminToken == null || adminToken == null || token == null) && attempt < maxAttempts) {
-            System.out.println("Waiting for tokens to be available. Attempt: " + (attempt + 1));
+            LOGGER.debug("Waiting for tokens to be available. Attempt: " + (attempt + 1));
             // Introduce a delay between attempts
             try {
                 Thread.sleep(1000); // Adjust the delay as needed
@@ -99,7 +99,7 @@ public class RestAssuredConfiguration implements BeforeAllCallback {
             // Log an error or throw an exception if tokens are still not available
             throw new RuntimeException("Failed to retrieve tokens after multiple attempts.");
         } else {
-            System.out.println("Tokens are now available. Proceeding with RestAssured configuration.");
+            LOGGER.debug("Tokens are now available. Proceeding with RestAssured configuration.");
         }
     }
 }

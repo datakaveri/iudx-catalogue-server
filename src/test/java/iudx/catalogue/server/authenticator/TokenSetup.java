@@ -1,14 +1,19 @@
 package iudx.catalogue.server.authenticator;
 
 import io.vertx.core.*;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import static iudx.catalogue.server.authenticator.TokensForITs.*;
 
 public class TokenSetup {
+    private static final Logger LOGGER = LogManager.getLogger(TokenSetup.class);
     private static WebClient webClient;
 
     public static void setupTokens(String authEndpoint, String providerClientId, String providerClientSecret, String consumerClientId, String consumerClientSecret) {
@@ -20,20 +25,20 @@ public class TokenSetup {
                 fetchToken("consumer", authEndpoint, consumerClientId,consumerClientSecret)
         ).onComplete(result -> {
             if (result.succeeded()) {
-                System.out.println("Tokens setup completed successfully");
+                LOGGER.debug("Tokens setup completed successfully");
             } else {
                 // Handle failure, e.g., log the error
-                System.out.println("errorrrr...");
+                LOGGER.debug("errorrrr...");
                 result.cause().printStackTrace();
             }
         });
     }
 
     private static Future<String> fetchToken(String userType, String authEndpoint, String clientID, String clientSecret) {
-        //System.out.println("user type is..." + userType);
+        //LOGGER.debug("user type is..." + userType);
         Promise<String> promise = Promise.promise();
         JsonObject jsonPayload = getPayload(userType);
-        //System.out.println("payload: " + jsonPayload);
+        //LOGGER.debug("payload: " + jsonPayload);
 
         // Create a WebClient to make the HTTP request
         webClient = WebClient.create(Vertx.vertx(), new WebClientOptions().setSsl(true));
@@ -43,12 +48,14 @@ public class TokenSetup {
                 .putHeader("clientID", clientID)
                 .putHeader("clientSecret", clientSecret)
                 .sendJson(jsonPayload)
-                .compose(response -> {
-                    if (response.statusCode() == 200) {
+                .onComplete(result -> {
+                    if (result.succeeded()) {
+                        HttpResponse<Buffer> response = result.result();
+                        if (response.statusCode() == 200) {
                         JsonObject jsonResponse = response.bodyAsJsonObject();
-                        //System.out.println("response is.. " + jsonResponse);
+                        //LOGGER.debug("response is.. " + jsonResponse);
                         String accessToken = jsonResponse.getJsonObject("results").getString("accessToken");
-                        //System.out.println("access token is..." + accessToken);
+                        //LOGGER.debug("access token is..." + accessToken);
                         // Store the token based on user type
                         switch (userType) {
                             case "provider":
@@ -70,7 +77,10 @@ public class TokenSetup {
                     } else {
                         promise.fail("Failed to get token. Status code: " + response.statusCode());
                     }
-                    return Future.succeededFuture();
+                    }else {
+                        LOGGER.error("Failed to fetch token", result.cause());
+                        promise.fail(result.cause());
+                    }
                 })
                 .onFailure(throwable -> {
                     throwable.printStackTrace();
@@ -86,22 +96,27 @@ public class TokenSetup {
     @NotNull
     private static JsonObject getPayload(String userType) {
         JsonObject jsonPayload = new JsonObject();
-        if (userType.equals("consumer")) {
-            jsonPayload.put("itemId", "rs.iudx.io");
-            jsonPayload.put("itemType", "resource_server");
-            jsonPayload.put("role", "consumer");
-        } else if (userType.equals("provider")) {
-            jsonPayload.put("itemId", "rs.iudx.io");
-            jsonPayload.put("itemType", "resource_server");
-            jsonPayload.put("role", "provider");
-        } else if (userType.equals("admin")) {
-            jsonPayload.put("itemId", "rs.iudx.io");
-            jsonPayload.put("itemType", "resource_server");
-            jsonPayload.put("role", "admin");
-        } else if (userType.equals("cosAdmin")) {
-            jsonPayload.put("itemId", "cos.iudx.io");
-            jsonPayload.put("itemType", "cos");
-            jsonPayload.put("role", "cos_admin");
+        switch (userType) {
+            case "consumer":
+                jsonPayload.put("itemId", "rs.iudx.io");
+                jsonPayload.put("itemType", "resource_server");
+                jsonPayload.put("role", "consumer");
+                break;
+            case "provider":
+                jsonPayload.put("itemId", "rs.iudx.io");
+                jsonPayload.put("itemType", "resource_server");
+                jsonPayload.put("role", "provider");
+                break;
+            case "admin":
+                jsonPayload.put("itemId", "rs.iudx.io");
+                jsonPayload.put("itemType", "resource_server");
+                jsonPayload.put("role", "admin");
+                break;
+            case "cosAdmin":
+                jsonPayload.put("itemId", "cos.iudx.io");
+                jsonPayload.put("itemType", "cos");
+                jsonPayload.put("role", "cos_admin");
+                break;
         }
         return jsonPayload;
     }
