@@ -26,7 +26,7 @@ public class PostGeoQueryIT {
                 .post("/internal/ui/geoquery")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -43,7 +43,7 @@ public class PostGeoQueryIT {
                 .post("/internal/ui/geoquery")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSchema"));
     }
 
