@@ -22,7 +22,7 @@ public class DatasetIT {
                 .get("/internal/ui/dataset")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type",equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -36,7 +36,7 @@ public class DatasetIT {
                 .post("/internal/ui/dataset")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -50,7 +50,7 @@ public class DatasetIT {
                 .post("/internal/ui/dataset")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -69,7 +69,7 @@ public class DatasetIT {
                 .post("/internal/ui/dataset")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -88,7 +88,7 @@ public class DatasetIT {
                 .post("/internal/ui/dataset")
                 .then()
                 .statusCode(200)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
     @Test
@@ -102,7 +102,7 @@ public class DatasetIT {
                 .post("/internal/ui/dataset")
                 .then()
                 .statusCode(404)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:ItemNotFound"));
     }
     @Test
@@ -115,7 +115,7 @@ public class DatasetIT {
                 .post("/internal/ui/dataset")
                 .then()
                 .statusCode(400)
-                .log().body()
+                //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidSchema"));
     }
 
