@@ -10,7 +10,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static io.restassured.RestAssured.*;
-import static iudx.catalogue.server.authenticator.JwtTokenHelper.*;
+import static iudx.catalogue.server.authenticator.TokensForITs.*;
 import static org.hamcrest.Matchers.*;
 
 /**
@@ -146,7 +146,7 @@ public class CrudAPIsIT {
         JsonObject jsonPayload = new JsonObject()
                 .put("@context", "https://voc.iudx.org.in/")
                 .put("type", new JsonArray().add("iudx:ResourceServer"))
-                .put("name", "IudxResourceServerPM18")
+                .put("name", "ResourceServerPM19")
                 .put("description", "Multi tenanted IUDX resource server for integration tests")
                 .put("tags",new JsonArray().add("IUDX").add("Resource").add("Server").add("Platform"))
                 .put("cos", cos_id)
@@ -215,7 +215,7 @@ public class CrudAPIsIT {
         JsonObject jsonPayload = new JsonObject()
                 .put("@context", "https://voc.iudx.org.in/")
                 .put("type", new JsonArray().add("iudx:Provider"))
-                .put("name", "IudxProviderPM18")
+                .put("name", "ProviderPM19")
                 .put("resourceServer", resource_server_id)
                 .put("description", "provider for the integration test")
                 .put("ownerUserId", "b2c27f3f-2524-4a84-816e-91f9ab23f837")
@@ -274,7 +274,7 @@ public class CrudAPIsIT {
         JsonObject jsonPayload = new JsonObject()
                 .put("@context", "https://voc.iudx.org.in/")
                 .put("type", new JsonArray().add("iudx:ResourceGroup").add("iudx:IssueReporting"))
-                .put("name", "iudxResourceGroupPM18")
+                .put("name", "ResourceGroupPM19")
                 .put("description", "resource group item for the postman collection")
                 .put("tags", new JsonArray().add("swachhata").add("complaints").add("construction material").add("requests"))
                 .put("provider", provider_id);
@@ -328,7 +328,7 @@ public class CrudAPIsIT {
         JsonObject jsonPayload = new JsonObject()
                 .put("@context", "https://voc.iudx.org.in/")
                 .put("type", new JsonArray().add("iudx:Resource").add("iudx:PointOfInterest"))
-                .put("name", "iudxResourceItemPM18")
+                .put("name", "ResourceItemPM19")
                 .put("label", "item for test only")
                 .put("description", "resource item for the postman collection")
                 .put("tags", new JsonArray().add("swachhata").add("complaints").add("construction material").add("requests"))
@@ -540,7 +540,7 @@ public class CrudAPIsIT {
         JsonObject jsonPayload = new JsonObject()
                 .put("@context", "https://voc.iudx.org.in/")
                 .put("type", new JsonArray().add("iudx:ResourceServer"))
-                .put("name", "IudxResourceServerPM18")
+                .put("name", "ResourceServerPM19")
                 .put("id", resource_server_id)
                 .put("description", "Multi tenanted IUDX resource server for postman collection")
                 .put("tags", new JsonArray().add("IUDX").add("Resource").add("Server").add("Platform"))
@@ -597,7 +597,7 @@ public class CrudAPIsIT {
         JsonObject jsonPayload = new JsonObject()
                 .put("@context", "https://voc.iudx.org.in/")
                 .put("type", new JsonArray().add("iudx:Provider"))
-                .put("name", "IudxProviderPM18")
+                .put("name", "ProviderPM19")
                 .put("id", provider_id)
                 .put("resourceServer", resource_server_id)
                 .put("description", "provider for the postman collection")
@@ -634,7 +634,7 @@ public class CrudAPIsIT {
         JsonObject jsonPayload = new JsonObject()
                 .put("@context", "https://voc.iudx.org.in/")
                 .put("type", new JsonArray().add("iudx:ResourceGroup").add("iudx:IssueReporting"))
-                .put("name", "iudxResourceGroupPM18")
+                .put("name", "ResourceGroupPM19")
                 .put("id", resource_group_id)
                 .put("description", "resource group item for the postman collection")
                 .put("tags", new JsonArray().add("swachhata").add("complaints").add("construction material").add("requests"))
@@ -658,7 +658,7 @@ public class CrudAPIsIT {
         JsonObject jsonPayload = new JsonObject()
                 .put("@context", "https://voc.iudx.org.in/")
                 .put("type", new JsonArray().add("iudx:Resource").add("iudx:PointOfInterest"))
-                .put("name", "iudxResourceItemPM18")
+                .put("name", "ResourceItemPM19")
                 .put("id", resource_item_id)
                 .put("label", "item for test only")
                 .put("description", "resource item for the postman collection")
@@ -954,7 +954,7 @@ public class CrudAPIsIT {
                 .response();
     }
     @Test
-    @Order(30)
+    @Order(31)
     @DisplayName("testing delete a Owner DX Entity - 200")
     void DeleteOwnerDXEntity() {
         Response response = given()
@@ -970,7 +970,7 @@ public class CrudAPIsIT {
                 .response();
     }
     @Test
-    @Order(31)
+    @Order(30)
     @DisplayName("testing delete a COS DX Entity - 200")
     void DeleteCosDXEntity() {
         Response response = given()
