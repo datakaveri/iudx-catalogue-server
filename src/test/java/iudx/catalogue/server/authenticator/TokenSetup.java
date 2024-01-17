@@ -7,14 +7,23 @@ import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.WebClientOptions;
 import org.apache.log4j.LogManager;
+<<<<<<< HEAD
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+=======
+import org.apache.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+>>>>>>> 32353d9570dacd99f8638a64fc4db215338efd9e
 
 import static iudx.catalogue.server.authenticator.TokensForITs.*;
 
 public class TokenSetup {
+<<<<<<< HEAD
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenSetup.class);
+=======
+    private static final Logger LOGGER = LogManager.getLogger(TokenSetup.class);
+>>>>>>> 32353d9570dacd99f8638a64fc4db215338efd9e
     private static WebClient webClient;
 
     public static void setupTokens(String authEndpoint, String providerClientId, String providerClientSecret, String consumerClientId, String consumerClientSecret) {
@@ -27,12 +36,19 @@ public class TokenSetup {
         ).onComplete(result -> {
             if (result.succeeded()) {
                 LOGGER.debug("Tokens setup completed successfully");
+<<<<<<< HEAD
                 webClient.close();
             } else {
                 // Handle failure, e.g., log the error
                 LOGGER.error("Error- {}", result.cause().getMessage());
                 result.cause().printStackTrace();
                 webClient.close();
+=======
+            } else {
+                // Handle failure, e.g., log the error
+                LOGGER.debug("errorrrr...");
+                result.cause().printStackTrace();
+>>>>>>> 32353d9570dacd99f8638a64fc4db215338efd9e
             }
         });
     }
@@ -84,10 +100,14 @@ public class TokenSetup {
                         LOGGER.error("Failed to fetch token", result.cause());
                         promise.fail(result.cause());
                     }
+<<<<<<< HEAD
                 })
                 .onFailure(throwable -> {
                     throwable.printStackTrace();
                     promise.fail(throwable);
+=======
+                    webClient.close();
+>>>>>>> 32353d9570dacd99f8638a64fc4db215338efd9e
                 });
 
         return promise.future();
