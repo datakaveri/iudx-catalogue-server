@@ -274,16 +274,24 @@ public class MlayerServiceImpl implements MlayerService {
       String query = GET_ALL_DATASETS_BY_FIELDS;
 
       if (requestData.containsKey(TAGS) && !requestData.getJsonArray(TAGS).isEmpty()) {
-        query =
-            query.concat(
-                ",{\"terms\":{\"tags.keyword\":$1}}"
-                    .replace("$1", requestData.getJsonArray(TAGS).toString()));
+        JsonArray tagsArray = requestData.getJsonArray(TAGS);
+        JsonArray lowerTagsArray = new JsonArray();
+
+        for (Object tagValue : tagsArray) {
+          if (tagValue instanceof String) {
+            lowerTagsArray.add(((String) tagValue).toLowerCase());
+          }
+        }
+
+        if (!lowerTagsArray.isEmpty()) {
+          query += ",{\"terms\":{\"tags.keyword\":" + lowerTagsArray.encode() + "}}";
+        }
       }
       if (requestData.containsKey(INSTANCE) && !requestData.getString(INSTANCE).isBlank()) {
         query =
             query.concat(
                 ",{\"match\":{\"instance.keyword\":\"$1\"}}"
-                    .replace("$1", requestData.getString(INSTANCE)));
+                    .replace("$1", requestData.getString(INSTANCE).toLowerCase()));
       }
       if (requestData.containsKey(PROVIDERS) && !requestData.getJsonArray(PROVIDERS).isEmpty()) {
         query =
