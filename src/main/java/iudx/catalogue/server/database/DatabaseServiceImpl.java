@@ -8,6 +8,8 @@ import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.database.logiccheck.MlayerDatasetLogic;
+import iudx.catalogue.server.database.logiccheck.MlayerInstanceLogic;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import java.time.LocalDateTime;
@@ -1295,7 +1297,12 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
+      LOGGER.error("at 1299 in DBSI in createMlayer");
+
+      MlayerInstanceLogic getMlayerInstanceLogic = new MlayerInstanceLogic(client,mlayerInstanceIndex);
+      getMlayerInstanceLogic.createMlayerInstance(instanceDoc,handler);
+
+    /*RespBuilder respBuilder = new RespBuilder();
     String instanceId = instanceDoc.getString(INSTANCE_ID);
     String id = instanceDoc.getString(MLAYER_ID);
     String checkForExistingRecord = CHECK_MDOC_QUERY.replace("$1", id).replace("$2", "");
@@ -1351,39 +1358,47 @@ public class DatabaseServiceImpl implements DatabaseService {
                   }
                 });
           }
-        });
+        });*/
 
     return this;
   }
 
   @Override
   public DatabaseService getMlayerInstance(String id, Handler<AsyncResult<JsonObject>> handler) {
-    String query = "";
-    if (id == null || id.isBlank()) {
-      query = GET_ALL_MLAYER_INSTANCE_QUERY;
-    } else {
-      query = GET_MLAYER_INSTANCE_QUERY.replace("$1", id);
-    }
-    client.searchAsync(
-        query,
-        mlayerInstanceIndex,
-        resultHandler -> {
-          if (resultHandler.succeeded()) {
-            LOGGER.debug("Success: Successful DB Request");
-            JsonObject result = resultHandler.result();
-            handler.handle(Future.succeededFuture(result));
-          } else {
-            LOGGER.error("Fail: failed DB request");
-            handler.handle(Future.failedFuture(internalErrorResp));
-          }
-        });
+      LOGGER.error("Checking endpoints at 1361");
+     /* String query = "";
+      if (id == null || id.isBlank()) {
+          query = GET_ALL_MLAYER_INSTANCE_QUERY;
+      } else {
+          query = GET_MLAYER_INSTANCE_QUERY.replace("$1", id);
+      }
+        client.searchAsync(
+              query,
+              mlayerInstanceIndex,
+              resultHandler -> {
+                  if (resultHandler.succeeded()) {
+                      LOGGER.debug("Success: Successful DB Request");
+                      JsonObject result = resultHandler.result();
+                      handler.handle(Future.succeededFuture(result));
+                  } else {
+                      LOGGER.error("Fail: failed DB request");
+                      handler.handle(Future.failedFuture(internalErrorResp));
+                  }
+              });*/
+      MlayerInstanceLogic getMlayerInstanceLogic = new MlayerInstanceLogic(client,mlayerInstanceIndex);
+      getMlayerInstanceLogic.getMLayerInstance(id,handler);
     return this;
   }
 
   @Override
   public DatabaseService deleteMlayerInstance(
       String instanceId, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
+      LOGGER.error("Checking Delete M Layer in DBSI at 1390");
+
+      MlayerInstanceLogic mlayerInstanceLogic = new MlayerInstanceLogic(client,mlayerInstanceIndex);
+      mlayerInstanceLogic.deleteMLayerInstance(instanceId,handler);
+
+    /*RespBuilder respBuilder = new RespBuilder();
 
     String checkForExistingRecord =
         CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
@@ -1427,14 +1442,20 @@ public class DatabaseServiceImpl implements DatabaseService {
                   }
                 });
           }
-        });
+        });*/
     return this;
   }
 
   @Override
   public DatabaseService updateMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
+
+      LOGGER.error("Checking Delete M Layer in DBSI at 1390");
+
+      MlayerInstanceLogic mlayerInstanceLogic = new MlayerInstanceLogic(client,mlayerInstanceIndex);
+      mlayerInstanceLogic.updateMlayerInstance(request,handler);
+
+      /*RespBuilder respBuilder = new RespBuilder();
     String instanceId = request.getString(INSTANCE_ID);
     String checkForExistingRecord =
         CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
@@ -1494,7 +1515,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               LOGGER.error("Fail: Updation Failed" + checkRes.cause());
             }
           }
-        });
+        });*/
     return this;
   }
 
@@ -1763,7 +1784,11 @@ public class DatabaseServiceImpl implements DatabaseService {
   public DatabaseService getMlayerAllDatasets(
       String query, Handler<AsyncResult<JsonObject>> handler) {
 
-    LOGGER.debug("Getting all the resource group items");
+      LOGGER.error("at lien 1787 in DBSI");
+      MlayerDatasetLogic mlayerDatasetLogic = new MlayerDatasetLogic(client,docIndex,mlayerInstanceIndex);
+      mlayerDatasetLogic.getMlayerAllDatasets(query,handler);
+
+    /*LOGGER.debug("Getting all the resource group items");
     Promise<JsonObject> datasetResult = Promise.promise();
     Promise<JsonObject> instanceResult = Promise.promise();
     Promise<JsonObject> resourceCount = Promise.promise();
@@ -1824,11 +1849,11 @@ public class DatabaseServiceImpl implements DatabaseService {
                 LOGGER.error("Fail: failed DB request");
                 handler.handle(Future.failedFuture(internalErrorResp));
               }
-            });
+            });*/
     return this;
   }
 
-  private void gettingResourceAccessPolicyCount(Promise<JsonObject> resourceCountResult) {
+  /*private void gettingResourceAccessPolicyCount(Promise<JsonObject> resourceCountResult) {
     LOGGER.debug("Getting resource item count");
     String query = RESOURCE_ACCESSPOLICY_COUNT;
     client.resourceAggregationAsync(
@@ -1882,9 +1907,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             resourceCountResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
-  }
+  }*/
 
-  private void allMlayerInstance(Promise<JsonObject> instanceResult) {
+  /*private void allMlayerInstance(Promise<JsonObject> instanceResult) {
     LOGGER.debug("Getting all instance name and icons");
     client.searchAsync(
         GET_ALL_MLAYER_INSTANCES,
@@ -1914,9 +1939,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             instanceResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
-  }
+  }*/
 
-  private void gettingAllDatasets(String query, Promise<JsonObject> datasetResult) {
+  /*private void gettingAllDatasets(String query, Promise<JsonObject> datasetResult) {
+
     LOGGER.debug("Getting all resourceGroup along with provider description, "
             + "resource server url and cosUrl");
     client.searchAsync(
@@ -1996,12 +2022,17 @@ public class DatabaseServiceImpl implements DatabaseService {
             datasetResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
-  }
+  }*/
 
   @Override
   public DatabaseService getMlayerDataset(
       JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.debug("dataset Id" + requestData.getString(ID));
+      LOGGER.error("at line 2024 in DBSI dataset");
+
+      MlayerDatasetLogic mlayerDatasetLogic = new MlayerDatasetLogic(client,docIndex,mlayerInstanceIndex);
+      mlayerDatasetLogic.getMlayerDataset(requestData,handler);
+
+    /*LOGGER.debug("dataset Id" + requestData.getString(ID));
     client.searchAsync(
           GET_PROVIDER_AND_RS_ID.replace("$1", requestData.getString(ID)),
           docIndex,
@@ -2025,10 +2056,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
               }
 
-              /*
+              *//*
               query to fetch resource group, provider of the resource group, resource
               items associated with the resource group and cos item.
-              */
+              *//*
               String query =
                   GET_MLAYER_DATASET
                       .replace("$1", requestData.getString(ID))
@@ -2101,7 +2132,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               LOGGER.error("Fail: DB request to get provider failed.");
               handler.handle(Future.failedFuture(internalErrorResp));
             }
-          });
+          });*/
     return this;
   }
 
@@ -2276,9 +2307,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             int resultSize = results.size();
 
             Promise<JsonObject> resourceCount = Promise.promise();
-
+            MlayerDatasetLogic mlayerDatasetLogic = new MlayerDatasetLogic(client,docIndex,mlayerInstanceIndex);
             // function to get the resource group items count
-            gettingResourceAccessPolicyCount(resourceCount);
+            mlayerDatasetLogic.gettingResourceAccessPolicyCount(resourceCount);
             resourceCount
                 .future()
                 .onComplete(
