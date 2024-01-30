@@ -3,14 +3,13 @@ package iudx.catalogue.server.util;
 import static iudx.catalogue.server.apiserver.util.Constants.*;
 import static iudx.catalogue.server.apiserver.util.Constants.ROUTE_MLAYER_POPULAR_DATASETS;
 
-
 /**
  * This class is used to get complete endpoint by appending configurable base path with the APIs.
  */
 public class Api {
 
+  private static volatile Api apiInstance;
   private String dxApiBasePath;
-
   private StringBuilder routeItems;
   private StringBuilder routUpdateItems;
   private StringBuilder routeDeleteItems;
@@ -32,11 +31,8 @@ public class Api {
   private StringBuilder routeMlayerDataset;
   private StringBuilder routeMlayerPopularDatasets;
   private StringBuilder routeRating;
-
-
-
-
-  private static volatile Api apiInstance;
+  private StringBuilder totalCountApi;
+  private StringBuilder monthlyCountSizeApi;
 
   private Api(String dxApiBasePath) {
     this.dxApiBasePath = dxApiBasePath;
@@ -60,9 +56,7 @@ public class Api {
     return apiInstance;
   }
 
-  /**
-   * Builds the endpoints for the API by appending the route paths to the base API path.
-   */
+  /** Builds the endpoints for the API by appending the route paths to the base API path. */
   public void buildEndpoints() {
     routeItems = new StringBuilder(dxApiBasePath).append(ROUTE_ITEMS);
     routUpdateItems = new StringBuilder(dxApiBasePath).append(ROUTE_UPDATE_ITEMS);
@@ -77,16 +71,18 @@ public class Api {
     routeRelSearch = new StringBuilder(dxApiBasePath).append(ROUTE_REL_SEARCH);
     routeGeoCoordinates = new StringBuilder(dxApiBasePath).append(ROUTE_GEO_COORDINATES);
     routeGeoReverse = new StringBuilder(dxApiBasePath).append(ROUTE_GEO_REVERSE);
-    routeListResourceGroupRel = new StringBuilder(dxApiBasePath)
-            .append(ROUTE_LIST_RESOURCE_GROUP_REL);
+    routeListResourceGroupRel =
+        new StringBuilder(dxApiBasePath).append(ROUTE_LIST_RESOURCE_GROUP_REL);
     routeMlayerInstance = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_INSTANCE);
     routeMlayerDoamin = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_DOMAIN);
     routeMlayerProvider = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_PROVIDER);
     routeMlayerGeoquery = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_GEOQUERY);
     routeMlayerDataset = new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_DATASET);
-    routeMlayerPopularDatasets = new StringBuilder(dxApiBasePath)
-            .append(ROUTE_MLAYER_POPULAR_DATASETS);
+    routeMlayerPopularDatasets =
+        new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_POPULAR_DATASETS);
     routeRating = new StringBuilder(ROUTE_RATING);
+    totalCountApi = new StringBuilder(dxApiBasePath).append(TOTAL_COUNT_API);
+    monthlyCountSizeApi = new StringBuilder(dxApiBasePath).append(MONTHLY_COUNT_SIZE_API);
   }
 
   public String getRouteItems() {
@@ -150,11 +146,11 @@ public class Api {
   }
 
   public String getRouteMlayerDomains() {
-    return  routeMlayerDoamin.toString();
+    return routeMlayerDoamin.toString();
   }
 
   public String getRouteMlayerProviders() {
-    return  routeMlayerProvider.toString();
+    return routeMlayerProvider.toString();
   }
 
   public String getRouteMlayerGeoQuery() {
@@ -172,6 +168,12 @@ public class Api {
   public String getRouteRating() {
     return routeRating.toString();
   }
+
+  public String getTotalCountApi() {
+    return totalCountApi.toString();
+  }
+
+  public String getMonthlyCountSizeApi() {
+    return monthlyCountSizeApi.toString();
+  }
 }
-
-

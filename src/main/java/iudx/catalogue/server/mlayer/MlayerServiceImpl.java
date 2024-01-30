@@ -16,6 +16,9 @@ import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.postgres.PostgresService;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,11 +62,12 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerInstance(String instanceId,
-                                         Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerInstance(
+      String instanceId, Handler<AsyncResult<JsonObject>> handler) {
 
     databaseService.getMlayerInstance(
-        instanceId, getMlayerInstancehandler -> {
+        instanceId,
+        getMlayerInstancehandler -> {
           if (getMlayerInstancehandler.succeeded()) {
             LOGGER.info("Success: Getting all Instance Values");
             handler.handle(Future.succeededFuture(getMlayerInstancehandler.result()));
@@ -142,7 +146,8 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerDomain(
-        id, getMlayerDomainHandler -> {
+        id,
+        getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
             LOGGER.info("Success: Getting all domain values");
             handler.handle(Future.succeededFuture(getMlayerDomainHandler.result()));
@@ -231,7 +236,8 @@ public class MlayerServiceImpl implements MlayerService {
     String query = GET_MLAYER_ALL_DATASETS;
     LOGGER.debug("databse get mlayer all datasets called");
     databaseService.getMlayerAllDatasets(
-        query, getMlayerAllDatasets -> {
+        query,
+        getMlayerAllDatasets -> {
           if (getMlayerAllDatasets.succeeded()) {
             LOGGER.info("Success: Getting all datasets");
             handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
@@ -265,8 +271,8 @@ public class MlayerServiceImpl implements MlayerService {
         && (!requestData.containsKey(ID) || requestData.getString(ID).isBlank())) {
       if (requestData.containsKey("domains") && !requestData.getJsonArray("domains").isEmpty()) {
         JsonArray domainsArray = requestData.getJsonArray("domains");
-        JsonArray tagsArray = requestData.containsKey("tags")
-                ? requestData.getJsonArray("tags") : new JsonArray();
+        JsonArray tagsArray =
+            requestData.containsKey("tags") ? requestData.getJsonArray("tags") : new JsonArray();
 
         tagsArray.addAll(domainsArray);
         requestData.put("tags", tagsArray);
@@ -327,8 +333,8 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerPopularDatasets(String instance,
-                                                Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerPopularDatasets(
+      String instance, Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_HIGH_COUNT_DATASET.replace("$1", databaseTable);
     LOGGER.debug("postgres query" + query);
     postgresService.executeQuery(
@@ -338,7 +344,7 @@ public class MlayerServiceImpl implements MlayerService {
             JsonArray popularDataset = dbHandler.result().getJsonArray("results");
             LOGGER.debug("popular datasets are {}", popularDataset);
             databaseService.getMlayerPopularDatasets(
-                    instance,
+                instance,
                 popularDataset,
                 getPopularDatasetsHandler -> {
                   if (getPopularDatasetsHandler.succeeded()) {
@@ -356,6 +362,80 @@ public class MlayerServiceImpl implements MlayerService {
           }
         });
 
+    return this;
+  }
+
+  @Override
+  public MlayerService getTotalCountApi(Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.error(" into get total count api");
+
+    StringBuilder query = new StringBuilder(TOTAL_HIT_AND_SIZE_QUERY.replace("$a", databaseTable));
+
+    LOGGER.error("Query at line 390 --> " + query.toString());
+
+    postgresService.executeQuery(
+        query.toString(),
+        dbHandler -> {
+          if (dbHandler.succeeded()) {
+            var results = dbHandler.result();
+            LOGGER.debug("total hits are are {}", results);
+            handler.handle(Future.succeededFuture(results));
+          } else {
+            LOGGER.debug("postgres query failed");
+            handler.handle(Future.failedFuture(dbHandler.cause()));
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public MlayerService getMonthlyCountSizeApi(Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.error(" into get monthly count and size api");
+    String current = ZonedDateTime.now().toString();
+    LOGGER.debug("zone IST =" + ZonedDateTime.now());
+    ZonedDateTime zonedDateTimeUtc = ZonedDateTime.parse(current);
+    zonedDateTimeUtc = zonedDateTimeUtc.withZoneSameInstant(ZoneId.of("UTC"));
+    LOGGER.debug("zonedDateTimeUTC UTC = " + zonedDateTimeUtc);
+    LocalDateTime utcTime = zonedDateTimeUtc.toLocalDateTime();
+    LOGGER.debug("UTCtime =" + utcTime);
+    long today = zonedDateTimeUtc.getDayOfMonth();
+    String seriesGenerator =
+        utcTime
+            .minusYears(1)
+            .minusDays(today)
+            .plusDays(1)
+            .withHour(0)
+            .withMinute(0)
+            .withSecond(0)
+            .toString();
+    LOGGER.debug("Generator Year back =" + seriesGenerator);
+
+    String timeYearBack = utcTime.minusYears(1).toString();
+    LOGGER.debug("time year back = " + timeYearBack);
+
+    StringBuilder query =
+        new StringBuilder(
+            MONTHLY_HIT_SIZE_QUERY
+                .concat(GROUPBY)
+                .replace("$0", seriesGenerator)
+                .replace("$1", utcTime.toString())
+                .replace("$2", timeYearBack)
+                .replace("$3", utcTime.toString())
+                .replace("$a", databaseTable));
+    LOGGER.error("Query at line 415 --> " + query.toString());
+
+    postgresService.executeQuery(
+        query.toString(),
+        dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject results = dbHandler.result();
+            LOGGER.debug("total results are are {}", results);
+            handler.handle(Future.succeededFuture(results));
+          } else {
+            LOGGER.debug("postgres query failed");
+            handler.handle(Future.failedFuture(dbHandler.cause()));
+          }
+        });
     return this;
   }
 }

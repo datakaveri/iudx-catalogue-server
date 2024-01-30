@@ -30,6 +30,7 @@ import org.mockito.stubbing.Answer;
 
 import static iudx.catalogue.server.mlayer.util.Constants.INSTANCE_ID;
 import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_ID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -985,4 +986,135 @@ public class MlayerServiceTest {
                     }
                 });
     }
+
+    @Test
+    @DisplayName("Success: Get Total Count Api")
+    public void successGetTotalCountApi(VertxTestContext vertxTestContext){
+        mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+
+        JsonArray jsonArray = new JsonArray();
+        JsonObject json = new JsonObject();
+        json.put("results", jsonArray);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.put("counts",122343243);
+        jsonArray.add(jsonObject);
+        when(asyncResult.result()).thenReturn(json);
+
+        when(asyncResult.succeeded()).thenReturn(true);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(postgresService)
+                .executeQuery(any(), any());
+
+        mlayerService.getTotalCountApi(handler->{
+           if(handler.succeeded()){
+               assertEquals(handler.result(),json);
+               vertxTestContext.completeNow();
+           }
+           else {
+               vertxTestContext.failNow(handler.cause());
+           }
+        });
+    }
+
+  @Test
+  @DisplayName("Fail: Get Total Count Api")
+  void failGetTotalCountApi(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(postgresService)
+        .executeQuery(any(), any());
+
+    mlayerService.getTotalCountApi(
+        handler -> {
+          if (handler.failed()) {
+            verify(postgresService, times(1)).executeQuery(any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Success: Get Monthly Count Size Api")
+  public void successGetMonthlyCountSizeApi(VertxTestContext vertxTestContext) {
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+
+    JsonArray jsonArray = new JsonArray();
+    JsonObject json = new JsonObject();
+    json.put("results", jsonArray);
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.put("month", "december");
+    jsonObject.put("year", 2023);
+    jsonObject.put("counts", 456);
+    jsonObject.put("total_size", 122343243);
+    jsonArray.add(jsonObject);
+    when(asyncResult.result()).thenReturn(json);
+
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(postgresService)
+        .executeQuery(any(), any());
+
+    mlayerService.getMonthlyCountSizeApi(
+        handler -> {
+          if (handler.succeeded()) {
+            assertEquals(handler.result(), json);
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Fail: Get Monthly Count Size Api")
+  void failGetMonthlyCountSizeApi(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(postgresService)
+        .executeQuery(any(), any());
+
+    mlayerService.getMonthlyCountSizeApi(
+        handler -> {
+          if (handler.failed()) {
+            verify(postgresService, times(1)).executeQuery(any(), any());
+            testContext.completeNow();
+          } else {
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
 }
