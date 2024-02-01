@@ -29,7 +29,7 @@ public class Constants {
   public static final String GROUPBY =
       "\n" + "   GROUP  BY 1\n" + "   ) t USING (day)\n" + "ORDER  BY day";
 
-  public static final String TOTAL_HIT_AND_SIZE_QUERY =
-      "SELECT count(api) as counts,SUM(size) AS total_size\n"
-          + "FROM $a --where isotime like '%2024-01-26%';";
+  public static final String TIME_QUERY = "where time between '$1' AND '$2'";
+
+  public static final String TOTAL_COUNT_QUERY = "SELECT count(api) \n" + "FROM $a ";
 }

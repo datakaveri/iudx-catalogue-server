@@ -15,10 +15,8 @@ import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.postgres.PostgresService;
+import iudx.catalogue.server.mlayer.util.QueryBuilder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +25,7 @@ public class MlayerServiceImpl implements MlayerService {
   private static final Logger LOGGER = LogManager.getLogger(MlayerServiceImpl.class);
   DatabaseService databaseService;
   PostgresService postgresService;
+  QueryBuilder queryBuilder = new QueryBuilder();
   private String databaseTable;
 
   MlayerServiceImpl(
@@ -367,22 +366,18 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService getTotalCountApi(Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.error(" into get total count api");
+    LOGGER.info(" into get total count api");
+    String allQuery = queryBuilder.buildTotalCountQuery(databaseTable);
 
-    StringBuilder query = new StringBuilder(TOTAL_HIT_AND_SIZE_QUERY.replace("$a", databaseTable));
-
-    LOGGER.error("Query at line 390 --> " + query.toString());
-
+    LOGGER.debug(" Query {} ", allQuery);
     postgresService.executeQuery(
-        query.toString(),
-        dbHandler -> {
-          if (dbHandler.succeeded()) {
-            var results = dbHandler.result();
-            LOGGER.debug("total hits are are {}", results);
-            handler.handle(Future.succeededFuture(results));
+        allQuery,
+        allQueryHandler -> {
+          if (allQueryHandler.succeeded()) {
+            LOGGER.debug(allQueryHandler.result());
+            handler.handle(Future.succeededFuture(allQueryHandler.result()));
           } else {
-            LOGGER.debug("postgres query failed");
-            handler.handle(Future.failedFuture(dbHandler.cause()));
+            handler.handle(Future.failedFuture(allQueryHandler.cause()));
           }
         });
     return this;
@@ -390,46 +385,15 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService getMonthlyCountSizeApi(Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.error(" into get monthly count and size api");
-    String current = ZonedDateTime.now().toString();
-    LOGGER.debug("zone IST =" + ZonedDateTime.now());
-    ZonedDateTime zonedDateTimeUtc = ZonedDateTime.parse(current);
-    zonedDateTimeUtc = zonedDateTimeUtc.withZoneSameInstant(ZoneId.of("UTC"));
-    LOGGER.debug("zonedDateTimeUTC UTC = " + zonedDateTimeUtc);
-    LocalDateTime utcTime = zonedDateTimeUtc.toLocalDateTime();
-    LOGGER.debug("UTCtime =" + utcTime);
-    long today = zonedDateTimeUtc.getDayOfMonth();
-    String seriesGenerator =
-        utcTime
-            .minusYears(1)
-            .minusDays(today)
-            .plusDays(1)
-            .withHour(0)
-            .withMinute(0)
-            .withSecond(0)
-            .toString();
-    LOGGER.debug("Generator Year back =" + seriesGenerator);
-
-    String timeYearBack = utcTime.minusYears(1).toString();
-    LOGGER.debug("time year back = " + timeYearBack);
-
-    StringBuilder query =
-        new StringBuilder(
-            MONTHLY_HIT_SIZE_QUERY
-                .concat(GROUPBY)
-                .replace("$0", seriesGenerator)
-                .replace("$1", utcTime.toString())
-                .replace("$2", timeYearBack)
-                .replace("$3", utcTime.toString())
-                .replace("$a", databaseTable));
-    LOGGER.error("Query at line 415 --> " + query.toString());
+    LOGGER.info(" into get monthly count and size api");
+    String query = queryBuilder.buildMonthlyHitAndSizeQuery(databaseTable);
+    LOGGER.debug("Query =  {}", query);
 
     postgresService.executeQuery(
-        query.toString(),
+        query,
         dbHandler -> {
           if (dbHandler.succeeded()) {
             JsonObject results = dbHandler.result();
-            LOGGER.debug("total results are are {}", results);
             handler.handle(Future.succeededFuture(results));
           } else {
             LOGGER.debug("postgres query failed");

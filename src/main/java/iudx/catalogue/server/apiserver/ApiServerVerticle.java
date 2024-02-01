@@ -662,7 +662,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         .failureHandler(exceptionhandler)
         .handler(
             routingContext -> {
-              mlayerApis.getMontlyCountSizeApi(routingContext);
+              mlayerApis.getMonthlyCountSizeApi(routingContext);
             });
 
     // Start server

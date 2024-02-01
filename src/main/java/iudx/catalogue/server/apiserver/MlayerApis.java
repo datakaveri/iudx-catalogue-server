@@ -655,7 +655,7 @@ public class MlayerApis {
    *
    * @param routingContext {@link RoutingContext}
    */
-  public void getMontlyCountSizeApi(RoutingContext routingContext) {
+  public void getMonthlyCountSizeApi(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching monthly count and size");
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
