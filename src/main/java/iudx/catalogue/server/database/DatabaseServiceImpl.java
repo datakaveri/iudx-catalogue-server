@@ -8,8 +8,7 @@ import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.logiccheck.MlayerDatasetLogic;
-import iudx.catalogue.server.database.logiccheck.MlayerInstanceLogic;
+import iudx.catalogue.server.database.logiccheck.*;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import java.time.LocalDateTime;
@@ -1386,7 +1385,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                   }
               });*/
       MlayerInstanceLogic getMlayerInstanceLogic = new MlayerInstanceLogic(client,mlayerInstanceIndex);
-      getMlayerInstanceLogic.getMLayerInstance(id,handler);
+      getMlayerInstanceLogic.getMlayerInstance(id,handler);
     return this;
   }
 
@@ -1396,7 +1395,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       LOGGER.error("Checking Delete M Layer in DBSI at 1390");
 
       MlayerInstanceLogic mlayerInstanceLogic = new MlayerInstanceLogic(client,mlayerInstanceIndex);
-      mlayerInstanceLogic.deleteMLayerInstance(instanceId,handler);
+      mlayerInstanceLogic.deleteMlayerInstance(instanceId,handler);
 
     /*RespBuilder respBuilder = new RespBuilder();
 
@@ -1522,7 +1521,10 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService createMlayerDomain(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
+      LOGGER.error("Checking create M Layer domain in DBSI at 1526");
+      MlayerDomainLogic mlayerDomainLogic = new MlayerDomainLogic(client,mlayerDomainIndex);
+      mlayerDomainLogic.createMlayerDomain(request,handler);
+    /*RespBuilder respBuilder = new RespBuilder();
     String domainId = request.getString(DOMAIN_ID);
     String id = request.getString(MLAYER_ID);
     String checkForExistingDomain = CHECK_MDOC_QUERY.replace("$1", id).replace("$2", "");
@@ -1573,13 +1575,13 @@ public class DatabaseServiceImpl implements DatabaseService {
                   }
                 });
           }
-        });
+        });*/
     return this;
   }
 
   @Override
   public DatabaseService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
-    String query = "";
+    /*String query = "";
     if (id == null || id.isBlank()) {
       query = GET_ALL_MLAYER_DOMAIN_QUERY;
     } else {
@@ -1597,14 +1599,17 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.error("Fail: failed DB request");
             handler.handle(Future.failedFuture(internalErrorResp));
           }
-        });
+        });*/
+      LOGGER.error("Checking get M Layer domain in DBSI at 1605");
+      MlayerDomainLogic mlayerDomainLogic = new MlayerDomainLogic(client,mlayerDomainIndex);
+      mlayerDomainLogic.getMlayerDomain(id,handler);
     return this;
   }
 
   @Override
   public DatabaseService updateMlayerDomain(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
+    /*RespBuilder respBuilder = new RespBuilder();
     String domainId = request.getString(DOMAIN_ID);
     String checkForExistingRecord =
         CHECK_MDOC_QUERY_DOMAIN.replace("$1", domainId).replace("$2", "");
@@ -1666,14 +1671,17 @@ public class DatabaseServiceImpl implements DatabaseService {
               LOGGER.error("Fail: Updation Failed" + checkRes.cause());
             }
           }
-        });
+        });*/
+      LOGGER.error("Checking get M Layer update in DBSI at 1677");
+      MlayerDomainLogic mlayerDomainLogic = new MlayerDomainLogic(client,mlayerDomainIndex);
+      mlayerDomainLogic.updateMlayerDomain(request,handler);
     return this;
   }
 
   @Override
   public DatabaseService deleteMlayerDomain(
       String domainId, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
+    /*RespBuilder respBuilder = new RespBuilder();
     LOGGER.debug(domainId);
 
     String checkForExistingRecord =
@@ -1722,13 +1730,16 @@ public class DatabaseServiceImpl implements DatabaseService {
                   }
                 });
           }
-        });
+        });*/
+      LOGGER.error("Checking get M Layer delete in DBSI at 1736");
+      MlayerDomainLogic mlayerDomainLogic = new MlayerDomainLogic(client,mlayerDomainIndex);
+      mlayerDomainLogic.deleteMlayerDomain(domainId,handler);
     return this;
   }
 
   @Override
   public DatabaseService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler) {
-    String query = GET_MLAYER_PROVIDERS_QUERY;
+    /*String query = GET_MLAYER_PROVIDERS_QUERY;
     client.searchAsync(
         query,
         docIndex,
@@ -1741,7 +1752,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.error("Fail: failed DB request");
             handler.handle(Future.failedFuture(internalErrorResp));
           }
-        });
+        });*/
+      LOGGER.error("Checking get M Layer provider in DBSI at 1758");
+    MlayerProviderLogic mlayerProviderLogic = new MlayerProviderLogic(client, docIndex);
+      mlayerProviderLogic.getMlayerProviders(handler);
     return this;
   }
 
@@ -1750,7 +1764,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.debug("request body" + request);
 
-    String instance = request.getString(INSTANCE);
+    /*String instance = request.getString(INSTANCE);
     JsonArray id = request.getJsonArray("id");
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < id.size(); i++) {
@@ -1775,7 +1789,10 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.error("Fail: failed DB request");
             handler.handle(Future.failedFuture(internalErrorResp));
           }
-        });
+        });*/
+
+      MlayerGeoQuery mlayerGeoQuery = new MlayerGeoQuery(client,docIndex);
+      mlayerGeoQuery.getMlayerGeoQuery(request,handler);
 
     return this;
   }
@@ -2139,7 +2156,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService getMlayerPopularDatasets(String instance,
       JsonArray frequentlyUsedResourceGroup, Handler<AsyncResult<JsonObject>> handler) {
-    Promise<JsonObject> instanceResult = Promise.promise();
+    /*Promise<JsonObject> instanceResult = Promise.promise();
     Promise<JsonArray> domainResult = Promise.promise();
     Promise<JsonObject> datasetResult = Promise.promise();
 
@@ -2215,11 +2232,16 @@ public class DatabaseServiceImpl implements DatabaseService {
                 LOGGER.error("Fail: failed DB request");
                 handler.handle(Future.failedFuture(internalErrorResp));
               }
-            });
+            });*/
+
+      LOGGER.error("at line 2237 in DBSI dataset");
+
+      MlayerPopularDatasets mlayerPopularDatasets = new MlayerPopularDatasets(client,docIndex,mlayerInstanceIndex,mlayerDomainIndex);
+      mlayerPopularDatasets.getMlayerPopularDatasets(instance,frequentlyUsedResourceGroup,handler);
     return this;
   }
 
-  private void searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
+  /*private void searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
     client.searchAsync(
         GET_SORTED_MLAYER_INSTANCES,
         mlayerInstanceIndex,
@@ -2249,9 +2271,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             instanceResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
-  }
+  }*/
 
-  private void allMlayerDomains(Promise<JsonArray> domainResult) {
+  /*private void allMlayerDomains(Promise<JsonArray> domainResult) {
     client.searchAsync(
         GET_ALL_MLAYER_DOMAIN_QUERY,
         mlayerDomainIndex,
@@ -2264,9 +2286,9 @@ public class DatabaseServiceImpl implements DatabaseService {
             domainResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
-  }
+  }*/
 
-  private Comparator<JsonObject> comapratorForLatestDataset() {
+  /*private Comparator<JsonObject> comapratorForLatestDataset() {
     Comparator<JsonObject> jsonComparator =
         new Comparator<JsonObject>() {
 
@@ -2282,9 +2304,9 @@ public class DatabaseServiceImpl implements DatabaseService {
           }
         };
     return jsonComparator;
-  }
+  }*/
 
-  private void datasets(
+  /*private void datasets(
       String instance, Promise<JsonObject> datasetResult, JsonArray frequentlyUsedResourceGroup) {
     String providerAndResources = "";
     if (instance.isBlank()) {
@@ -2413,11 +2435,11 @@ public class DatabaseServiceImpl implements DatabaseService {
                         int remainingResources =
                             Math.min(6 - featuredResourceGroup.size(), resourceGroupMap.size());
 
-                        /* Iterate through the values of 'resourceGroupMap' to add resources
+                        *//* Iterate through the values of 'resourceGroupMap' to add resources
                           to 'featuredResourceGroup' array while ensuring we don't exceed the
                           'remainingResources' limit. For each resource, we update its
                           'providerDescription' before adding it to the group.
-                        */
+                        *//*
                         for (JsonObject resourceGroup : resourceGroupMap.values()) {
                           if (remainingResources <= 0) {
                             break; // No need to continue if we've added enough resources
@@ -2448,7 +2470,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             datasetResult.handle(Future.failedFuture(internalErrorResp));
           }
         });
-  }
+  }*/
   /* Verify the existance of an instance */
 
   Future<Boolean> verifyInstance(String instanceId) {

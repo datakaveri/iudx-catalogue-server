@@ -30,7 +30,7 @@ public class MlayerInstanceLogic {
         this.mlayerInstanceIndex = mlayerInstanceIndex;
     }
 
-    public void getMLayerInstance(String id, Handler<AsyncResult<JsonObject>> handler){
+    public void getMlayerInstance(String id, Handler<AsyncResult<JsonObject>> handler){
         LOGGER.error("Checking endpoints at in GetMLayerInstanceLogic 31");
         String query = "";
         if (id == null || id.isBlank()) {
@@ -53,7 +53,7 @@ public class MlayerInstanceLogic {
                 });
     }
 
-    public void deleteMLayerInstance(String instanceId, Handler<AsyncResult<JsonObject>> handler){
+    public void deleteMlayerInstance(String instanceId, Handler<AsyncResult<JsonObject>> handler){
         LOGGER.error("Checking endpoints at in DeleteMlayerInstance 55");
         RespBuilder respBuilder = new RespBuilder();
 
