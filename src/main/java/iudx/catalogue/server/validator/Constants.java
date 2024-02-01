@@ -15,14 +15,24 @@ public class Constants {
 
   /** Error messages. */
   public static final String NON_EXISTING_LINK_MSG = "No such cat item exists: ";
+
   public static final String VALIDATION_FAILURE_MSG = "Validation failed";
   public static final String INVALID_SCHEMA_MSG = "Invalid Schema";
-  public static final String ITEM_EXISTS_QUERY =
+
+  public static final String ID_MATCH_SUB_QUERY =
       "{\"query\":{\"bool\":{\"should\":[{"
           + "\"bool\":{\"must\":[{"
-          + "\"match\":{\"id.keyword\":\"$1\"}}]}},"
-          + "{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"$2\"}},"
-          + "{\"match\":{\"name.keyword\":\"$3\"}}]}}]}},\"_source\":[\"type\"]}";
+          + "\"match\":{\"id.keyword\":\"$1\"}}]}},";
+  public static final String ITEM_EXISTS_QUERY =
+      ID_MATCH_SUB_QUERY.concat(
+          "{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"$2\"}},"
+              + "{\"match\":{\"$3.keyword\":\"$4\"}}]}}]}},\"_source\":[\"type\"]}");
+
+  public static final String PROVIDER_ITEM_EXISTS_QUERY =
+      ID_MATCH_SUB_QUERY.concat(
+          "{\"bool\":{\"must\":[{\"match\":{\"ownerUserId.keyword\":\"$2\"}},"
+              + "{\"match\":{\"resourceServerRegURL.keyword\":\"$3\"}}]}}]}},\"_source\":[\"type\"]}");
+
   public static final String RESOURCE_ITEM_EXISTS_QUERY =
       "{\"query\":{\"bool\":{\"should\":[{"
           + "\"match\":{\"id.keyword\":\"$1\"}},{"

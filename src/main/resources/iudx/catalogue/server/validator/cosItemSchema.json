@@ -86,7 +86,7 @@
             "examples": [
                 "cos-kdmc.cop-nec.iudx.org.in"
             ],
-            "pattern": "^[a-zA-Z0-9-]([\\w-.]*[a-zA-Z0-9-])?$"
+            "pattern": "^[a-zA-Z0-9-]([\\w-.]*[a-zA-Z0-9- ])?$"
         },
         "description": {
             "$id": "#/properties/description",

@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 public class ValidatorServiceImpl implements ValidatorService {
 
   private static final Logger LOGGER = LogManager.getLogger(ValidatorServiceImpl.class);
+
   /** ES client. */
   static ElasticClient client;
 
@@ -203,7 +204,8 @@ public class ValidatorServiceImpl implements ValidatorService {
         ITEM_EXISTS_QUERY
             .replace("$1", provider)
             .replace("$2", ITEM_TYPE_RESOURCE_GROUP)
-            .replace("$3", request.getString(NAME));
+            .replace("$3", NAME)
+            .replace("$4", request.getString(NAME));
     client.searchAsync(
         checkQuery,
         docIndex,
@@ -239,11 +241,15 @@ public class ValidatorServiceImpl implements ValidatorService {
 
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
     String resourceServer = request.getString(RESOURCE_SVR);
+    String ownerUserId = request.getString(PROVIDER_USER_ID);
+    String resourceServerUrl = request.getString(RESOURCE_SERVER_URL);
     String checkQuery =
-        ITEM_EXISTS_QUERY
+        PROVIDER_ITEM_EXISTS_QUERY
             .replace("$1", resourceServer)
-            .replace("$2", ITEM_TYPE_PROVIDER)
-            .replace("$3", request.getString(NAME));
+            .replace("$2", ownerUserId)
+            .replace("$3", resourceServerUrl);
+
+    LOGGER.debug("query provider exists " + checkQuery);
     client.searchAsync(
         checkQuery,
         docIndex,
@@ -256,14 +262,15 @@ public class ValidatorServiceImpl implements ValidatorService {
           String returnType = getReturnTypeForValidation(res.result());
           LOGGER.debug(returnType);
 
-          if (res.result().getInteger(TOTAL_HITS) < 1
-              || !returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
+          LOGGER.debug("res result " + res.result());
+          if (!returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
             LOGGER.debug("RS does not exist");
             handler.handle(Future.failedFuture("Fail: Resource Server item doesn't exist"));
           } else if (method.equalsIgnoreCase(REQUEST_POST)
               && returnType.contains(ITEM_TYPE_PROVIDER)) {
             LOGGER.debug("Provider already exists");
-            handler.handle(Future.failedFuture("Fail: Provider item already exists"));
+            handler.handle(
+                Future.failedFuture("Fail: Provider item for this resource server already exists"));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
@@ -280,11 +287,13 @@ public class ValidatorServiceImpl implements ValidatorService {
 
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
     String cos = request.getString(COS_ITEM);
+    String resourceServerUrl = request.getString(RESOURCE_SERVER_URL);
     String checkQuery =
         ITEM_EXISTS_QUERY
             .replace("$1", cos)
             .replace("$2", ITEM_TYPE_RESOURCE_SERVER)
-            .replace("$3", request.getString(NAME));
+            .replace("$3", RESOURCE_SERVER_URL)
+            .replace("$4", resourceServerUrl);
     LOGGER.debug(checkQuery);
     client.searchAsync(
         checkQuery,
@@ -304,7 +313,11 @@ public class ValidatorServiceImpl implements ValidatorService {
           } else if (method.equalsIgnoreCase(REQUEST_POST)
               && returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
             LOGGER.debug("RS already exists");
-            handler.handle(Future.failedFuture("Fail: Resource Server item already exists"));
+            handler.handle(
+                Future.failedFuture(
+                    String.format(
+                        "Fail: Resource Server item with url %s already exists for this COS",
+                        resourceServerUrl)));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
@@ -380,7 +393,8 @@ public class ValidatorServiceImpl implements ValidatorService {
         ITEM_EXISTS_QUERY
             .replace("$1", owner)
             .replace("$2", ITEM_TYPE_COS)
-            .replace("$3", request.getString(NAME));
+            .replace("$3", NAME)
+            .replace("$4", request.getString(NAME));
     LOGGER.debug(checkQuery);
     client.searchAsync(
         checkQuery,
@@ -396,8 +410,7 @@ public class ValidatorServiceImpl implements ValidatorService {
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_OWNER)) {
             LOGGER.debug("Owner does not exist");
             handler.handle(Future.failedFuture("Fail: Owner item doesn't exist"));
-          } else if (method.equalsIgnoreCase(REQUEST_POST)
-              && returnType.contains(ITEM_TYPE_COS)) {
+          } else if (method.equalsIgnoreCase(REQUEST_POST) && returnType.contains(ITEM_TYPE_COS)) {
             LOGGER.debug("COS already exists");
             handler.handle(Future.failedFuture("Fail: COS item already exists"));
           } else {
@@ -425,8 +438,7 @@ public class ValidatorServiceImpl implements ValidatorService {
             handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
             return;
           }
-          if (method.equalsIgnoreCase(REQUEST_POST)
-               && res.result().getInteger(TOTAL_HITS) > 0) {
+          if (method.equalsIgnoreCase(REQUEST_POST) && res.result().getInteger(TOTAL_HITS) > 0) {
             LOGGER.debug("Owner item already exists");
             handler.handle(Future.failedFuture("Fail: Owner item already exists"));
           } else {
