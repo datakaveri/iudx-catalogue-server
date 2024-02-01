@@ -118,6 +118,14 @@ public class ValidatorServiceImplTest {
         Arguments.of(ITEM_TYPE_RESOURCE_GROUP, ITEM_TYPE_PROVIDER, 9));
   }
 
+  private static Stream<Arguments> parentTypes() {
+    return Stream.of(
+        Arguments.of(ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_PROVIDER),
+        Arguments.of(ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_RESOURCE_GROUP),
+        Arguments.of(ITEM_TYPE_PROVIDER, ITEM_TYPE_RESOURCE_GROUP)
+    );
+  }
+
   @ParameterizedTest
   @MethodSource("itemTypes")
   @Description("testing the method validateSchema when itemType equals ITEM_TYPE_RESOURCE_SERVER")
@@ -136,7 +144,7 @@ public class ValidatorServiceImplTest {
   @DisplayName("test validate item")
   public void testValidateItem(
       String item, String parent, int invocations, VertxTestContext testContext) {
-    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item)).put(HTTP_METHOD, REQUEST_POST);
+    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item)).put(HTTP_METHOD, REQUEST_POST).put(PROVIDER_USER_ID, "own-usr-id").put(RESOURCE_SERVER_URL, "fs.iudx.io");
 
     when(asyncResult.failed()).thenReturn(false);
     when(asyncResult.result())
@@ -162,7 +170,7 @@ public class ValidatorServiceImplTest {
   @DisplayName("failure test validate item: DB error")
   public void testValidateItemDbError(
       String item, String parent, int invocations, VertxTestContext testContext) {
-    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item));
+    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item)).put(HTTP_METHOD, REQUEST_POST).put(PROVIDER_USER_ID, "own-usr-id").put(RESOURCE_SERVER_URL, "fs.iudx.io");
 
     when(asyncResult.failed()).thenReturn(true);
 
@@ -183,19 +191,20 @@ public class ValidatorServiceImplTest {
   @DisplayName("failure test validate item: parent does not exist")
   public void testValidateItemParentNotExists(
       String item, String parent, int invocations, VertxTestContext testContext) {
-    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item));
+    JsonObject request = requestBody().put(TYPE, new JsonArray().add(item)).put(HTTP_METHOD, REQUEST_POST).put(PROVIDER_USER_ID, "own-usr-id").put(RESOURCE_SERVER_URL, "fs.iudx.io");
 
     when(asyncResult.failed()).thenReturn(false);
     when(asyncResult.result())
         .thenReturn(
             new JsonObject()
                 .put(TOTAL_HITS, 0)
-                .put(RESULTS, new JsonArray().add(new JsonObject().put(TYPE, parent))));
+                .put(RESULTS, new JsonArray().add(new JsonObject())));
 
     validatorService.validateItem(
         request,
         handler -> {
           if (handler.failed()) {
+            LOGGER.error(handler.cause());
             Assertions.assertTrue(handler.cause().getMessage().contains("doesn't exist"));
             testContext.completeNow();
           } else {
@@ -278,14 +287,6 @@ public class ValidatorServiceImplTest {
             vertxTestContext.failNow("Fail");
           }
         });
-  }
-
-  private static Stream<Arguments> parentTypes() {
-    return Stream.of(
-        Arguments.of(ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_PROVIDER),
-        Arguments.of(ITEM_TYPE_RESOURCE_SERVER, ITEM_TYPE_RESOURCE_GROUP),
-        Arguments.of(ITEM_TYPE_PROVIDER, ITEM_TYPE_RESOURCE_GROUP)
-    );
   }
 
   @ParameterizedTest
