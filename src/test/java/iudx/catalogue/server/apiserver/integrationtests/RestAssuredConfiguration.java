@@ -60,15 +60,6 @@ public class RestAssuredConfiguration implements BeforeAllCallback {
     String proxyHost = System.getProperty("intTestProxyHost");
     String proxyPort = System.getProperty("intTestProxyPort");
 
-    JsonObject providerCredentials =
-        config.getJsonObject("clientCredentials").getJsonObject("provider");
-    String providerClientId = providerCredentials.getString("clientID");
-    String providerClientSecret = providerCredentials.getString("clientSecret");
-
-    JsonObject consumerCredentials =
-        config.getJsonObject("clientCredentials").getJsonObject("consumer");
-    String consumerClientId = consumerCredentials.getString("clientID");
-    String consumerClientSecret = consumerCredentials.getString("clientSecret");
 
     if (proxyHost != null && proxyPort != null) {
       proxy(proxyHost, Integer.parseInt(proxyPort));
@@ -78,10 +69,7 @@ public class RestAssuredConfiguration implements BeforeAllCallback {
     LOGGER.debug("setting up the tokens");
     TokenSetup.setupTokens(
         authEndpoint,
-        providerClientId,
-        providerClientSecret,
-        consumerClientId,
-        consumerClientSecret);
+        config.getJsonObject("clientCredentials"));
 
     // Wait for tokens to be available before proceeding
     waitForTokens();
