@@ -57,8 +57,8 @@ public interface MlayerService {
   MlayerService getMlayerPopularDatasets(String instance, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService getTotalCountApi(Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getTotalCountSizeApi(Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService getMonthlyCountSizeApi(Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getCountSizeApi(Handler<AsyncResult<JsonObject>> handler);
 }

@@ -10,26 +10,7 @@ public class Constants {
       "select resource_group, count(id) as totalhits from $1 "
           + "group by resource_group order by totalhits "
           + "desc limit 6";
-
-  public static final String MONTHLY_HIT_SIZE_QUERY =
-      "SELECT month,year,COALESCE(counts, 0) as counts , COALESCE(total_size,0) as total_size\n"
-          + "FROM  (\n"
-          + "   SELECT day::date ,to_char(date_trunc('month', day),'FMmonth') as month"
-          + ",extract('year' from day) as year\n"
-          + "   FROM   generate_series(timestamp '$0'\n"
-          + "                        , timestamp '$1'\n"
-          + "                        , interval  '1 month') day\n"
-          + "   ) d\n"
-          + "LEFT  JOIN (\n"
-          + "   SELECT date_trunc('month', time)::date AS day\n"
-          + "        , count(api) as counts , SUM(size) as total_size\n"
-          + "   FROM   $a\n"
-          + "   WHERE  time between '$2'\n"
-          + "   AND '$3'\n";
-  public static final String GROUPBY =
-      "\n" + "   GROUP  BY 1\n" + "   ) t USING (day)\n" + "ORDER  BY day";
-
   public static final String TIME_QUERY = "where time between '$1' AND '$2'";
-
-  public static final String TOTAL_COUNT_QUERY = "SELECT count(api) \n" + "FROM $a ";
+  public static final String COUNT_SIZE_QUERY =
+      "select count(api) as counts , COALESCE(SUM(size), 0) as size from $a ";
 }

@@ -636,11 +636,11 @@ public class MlayerApis {
    *
    * @param routingContext {@link RoutingContext}
    */
-  public void getTotalCountApi(RoutingContext routingContext) {
+  public void getTotalCountSizeApi(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching total counts");
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    mlayerService.getTotalCountApi(
+    mlayerService.getTotalCountSizeApi(
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
@@ -655,11 +655,11 @@ public class MlayerApis {
    *
    * @param routingContext {@link RoutingContext}
    */
-  public void getMonthlyCountSizeApi(RoutingContext routingContext) {
+  public void getCountSizeApi(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching monthly count and size");
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    mlayerService.getMonthlyCountSizeApi(
+    mlayerService.getCountSizeApi(
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());

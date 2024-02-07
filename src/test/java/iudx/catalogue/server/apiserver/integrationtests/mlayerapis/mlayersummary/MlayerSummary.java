@@ -15,7 +15,7 @@ public class MlayerSummary {
     public void getTotalHit(){
         given()
                 .when()
-                .get("/internal/ui/totalcount")
+                .get("/internal/ui/totalcountsize")
                 .then()
                 .statusCode(200)
                 .body("type",equalTo("urn:dx:cat:Success"))
@@ -27,7 +27,7 @@ public class MlayerSummary {
     public void getMonthlyHitAndSize(){
         given()
                 .when()
-                .get("/internal/ui/monthlycountsize")
+                .get("/internal/ui/countsize")
                 .then()
                 .statusCode(200)
                 .body("type",equalTo("urn:dx:cat:Success"))

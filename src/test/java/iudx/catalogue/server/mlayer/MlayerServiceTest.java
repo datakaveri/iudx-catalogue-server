@@ -35,6 +35,7 @@ public class MlayerServiceTest {
   private static Logger LOGGER = LogManager.getLogger(MlayerServiceTest.class);
   @Mock private static AsyncResult<JsonObject> asyncResult;
   private static String tableName = "database Table";
+  private static String catSummaryTable = "cat_summary";
   private static Vertx vertxObj;
   @Mock JsonObject json;
 
@@ -49,7 +50,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: test create mlayer instance")
   void successfulMlayerInstanceCreationTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     json = requestJson();
     when(asyncResult.succeeded()).thenReturn(true);
@@ -82,7 +83,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Failure: test create mlayer instance")
   void failureMlayerInstanceCreationTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     JsonObject request = requestJson();
     when(asyncResult.succeeded()).thenReturn(false);
     Mockito.doAnswer(
@@ -113,7 +114,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: test get all mlayer instance")
   void successfulMlayerInstanceGetTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     String id = "abc";
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
@@ -143,7 +144,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Failure: test get all mlayer instance")
   void failureMlayerInstanceGetTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     when(asyncResult.succeeded()).thenReturn(false);
     Mockito.doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -174,7 +175,7 @@ public class MlayerServiceTest {
   @DisplayName("Success: test delete mlayer instance")
   void successfulMlayerInstanceDeleteTest(VertxTestContext testContext) {
     String request = "dummy";
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
@@ -206,7 +207,7 @@ public class MlayerServiceTest {
   @DisplayName("Failure: test delete mlayer instance")
   void failureMlayerInstanceDeleteTest(VertxTestContext testContext) {
     String request = "dummy";
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     when(asyncResult.succeeded()).thenReturn(false);
     doAnswer(
@@ -239,7 +240,7 @@ public class MlayerServiceTest {
   void successfulMlayerInstanceUpdateTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request.put("name", "instance name");
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
@@ -272,7 +273,7 @@ public class MlayerServiceTest {
   void failureMlayerInstanceUpdateTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
     request.put("name", "instance name");
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     when(asyncResult.succeeded()).thenReturn(false);
     doAnswer(
@@ -305,7 +306,7 @@ public class MlayerServiceTest {
   @DisplayName("Success: test create mlayer domain")
   void successMlayerDomainCreateTest(VertxTestContext testContext) {
     JsonObject jsonObject = new JsonObject();
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     jsonObject.put("name", "dummy");
     when(asyncResult.succeeded()).thenReturn(true);
@@ -339,7 +340,7 @@ public class MlayerServiceTest {
   @DisplayName("Failure: test create mlayer domain")
   void failureMlayerDomainCreateTest(VertxTestContext testContext) {
     JsonObject jsonObject = new JsonObject();
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     jsonObject.put("name", "dummy");
     when(asyncResult.succeeded()).thenReturn(false);
@@ -374,7 +375,7 @@ public class MlayerServiceTest {
   void successMlayerDomainUpdateTest(VertxTestContext testContext) {
     JsonObject jsonObject = new JsonObject();
     jsonObject.put("name", "dummy");
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     when(asyncResult.succeeded()).thenReturn(true);
 
@@ -407,7 +408,7 @@ public class MlayerServiceTest {
   @DisplayName("Failure: test update mlayer domain")
   void failureMlayerDomainUpdateTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     request.put("name", "instance name");
     when(asyncResult.succeeded()).thenReturn(false);
@@ -441,7 +442,7 @@ public class MlayerServiceTest {
   @DisplayName("Success: test delete mlayer domain")
   void successfulMlayerDomainDeleteTest(VertxTestContext testContext) {
     String request = "dummy";
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
@@ -473,7 +474,7 @@ public class MlayerServiceTest {
   @DisplayName("Failure: test delete mlayer domain")
   void failureMlayerDomainDeleteTest(VertxTestContext testContext) {
     String request = "dummy";
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     when(asyncResult.succeeded()).thenReturn(false);
     doAnswer(
@@ -505,7 +506,7 @@ public class MlayerServiceTest {
   @DisplayName("Success: test get all mlayer domain")
   void successfulMlayerDomainGetTest(VertxTestContext testContext) {
     when(asyncResult.succeeded()).thenReturn(true);
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -535,7 +536,7 @@ public class MlayerServiceTest {
   @DisplayName("Failure: test get all mlayer domain")
   void failureMlayerDomainGetTest(VertxTestContext testContext) {
     when(asyncResult.succeeded()).thenReturn(false);
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     Mockito.doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -565,7 +566,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: test get all mlayer providers")
   void successfulMlayerProvidersGetTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
@@ -594,7 +595,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Failure: test get all mlayer providers")
   void failureMlayerProvidersGetTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     when(asyncResult.succeeded()).thenReturn(false);
     Mockito.doAnswer(
@@ -624,7 +625,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: test get dataset location and label")
   void successfulMlayerGeoQueryGetTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     JsonObject request = new JsonObject();
     when(asyncResult.succeeded()).thenReturn(true);
@@ -655,7 +656,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Failure: test get dataset location and label")
   void failureMlayerGeoQueryGetTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     JsonObject request = new JsonObject();
     when(asyncResult.succeeded()).thenReturn(false);
@@ -687,7 +688,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: test get all datasets")
   void successfulGetMlayerAllDatasetsTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     JsonObject request = new JsonObject();
     when(asyncResult.succeeded()).thenReturn(true);
@@ -717,7 +718,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Failure: test get all datasets")
   void failureMlayerAllDatasetsTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     JsonObject request = new JsonObject();
     when(asyncResult.succeeded()).thenReturn(false);
@@ -748,7 +749,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: test get dataset and its resources details")
   void successMlayerDatasetAndResourcesTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     JsonObject request = new JsonObject().put("id", "dummy id");
     when(asyncResult.succeeded()).thenReturn(true);
     Mockito.doAnswer(
@@ -779,7 +780,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Failure: test get dataset and its resources details")
   void failureMlayerDatasetAndResourcesTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     JsonObject request = new JsonObject().put("id", "dummy id");
     when(asyncResult.succeeded()).thenReturn(false);
     Mockito.doAnswer(
@@ -809,7 +810,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: test get dataset details")
   void successMlayerDatasetTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     JsonArray tags = new JsonArray().add("flood");
     JsonArray providers = new JsonArray().add("26005f3b-a6a0-4edb-ae28-70474b4ef90c");
     JsonObject request =
@@ -847,7 +848,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Failure: test get dataset details")
   void failureMlayerDatasetInvalidParamTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     JsonObject request = new JsonObject().put("instances", "pune");
     mlayerService.getMlayerDataset(
         request,
@@ -865,7 +866,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Failure: test get dataset details")
   void failureMlayerDatasetTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     JsonArray tags = new JsonArray().add("flood");
     JsonArray providers = new JsonArray().add("providerId");
     JsonObject request =
@@ -901,7 +902,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: test get overview detail")
   void successfulGetMlayerOverviewTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
     json.put("results", jsonArray);
@@ -951,7 +952,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Fail: test get overview detail when postgres query fails")
   void failedPostgresQueryTest(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
     json.put("results", jsonArray);
@@ -986,7 +987,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: Get Total Count Api")
   public void successGetTotalCountApi(VertxTestContext vertxTestContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
@@ -1009,7 +1010,7 @@ public class MlayerServiceTest {
         .when(postgresService)
         .executeQuery(any(), any());
 
-    mlayerService.getTotalCountApi(
+    mlayerService.getTotalCountSizeApi(
         handler -> {
           if (handler.succeeded()) {
             assertEquals(handler.result(), json);
@@ -1023,7 +1024,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Fail: Get Total Count Api")
   void failGetTotalCountApi(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @SuppressWarnings("unchecked")
@@ -1036,7 +1037,7 @@ public class MlayerServiceTest {
         .when(postgresService)
         .executeQuery(any(), any());
 
-    mlayerService.getTotalCountApi(
+    mlayerService.getTotalCountSizeApi(
         handler -> {
           if (handler.failed()) {
             verify(postgresService, times(1)).executeQuery(any(), any());
@@ -1050,7 +1051,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: Get Monthly Count Size Api")
   public void successGetMonthlyCountSizeApi(VertxTestContext vertxTestContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     JsonArray jsonArray = new JsonArray();
     JsonObject json = new JsonObject();
@@ -1076,7 +1077,7 @@ public class MlayerServiceTest {
         .when(postgresService)
         .executeQuery(any(), any());
 
-    mlayerService.getMonthlyCountSizeApi(
+    mlayerService.getCountSizeApi(
         handler -> {
           if (handler.succeeded()) {
             assertEquals(handler.result(), json);
@@ -1090,7 +1091,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Fail: Get Monthly Count Size Api")
   void failGetMonthlyCountSizeApi(VertxTestContext testContext) {
-    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName);
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @SuppressWarnings("unchecked")
@@ -1103,7 +1104,7 @@ public class MlayerServiceTest {
         .when(postgresService)
         .executeQuery(any(), any());
 
-    mlayerService.getMonthlyCountSizeApi(
+    mlayerService.getCountSizeApi(
         handler -> {
           if (handler.failed()) {
             verify(postgresService, times(1)).executeQuery(any(), any());

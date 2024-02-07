@@ -27,12 +27,17 @@ public class MlayerServiceImpl implements MlayerService {
   PostgresService postgresService;
   QueryBuilder queryBuilder = new QueryBuilder();
   private String databaseTable;
+  private String catSummaryTable;
 
   MlayerServiceImpl(
-      DatabaseService databaseService, PostgresService postgresService, String databaseTable) {
+      DatabaseService databaseService,
+      PostgresService postgresService,
+      String databaseTable,
+      String catSummaryTable) {
     this.databaseService = databaseService;
     this.postgresService = postgresService;
     this.databaseTable = databaseTable;
+    this.catSummaryTable = catSummaryTable;
   }
 
   @Override
@@ -365,13 +370,13 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getTotalCountApi(Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getTotalCountSizeApi(Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.info(" into get total count api");
-    String allQuery = queryBuilder.buildTotalCountQuery(databaseTable);
+    String query = queryBuilder.buildTotalCountSizeQuery(catSummaryTable);
 
-    LOGGER.debug(" Query {} ", allQuery);
+    LOGGER.debug(" Query {} ", query);
     postgresService.executeQuery(
-        allQuery,
+        query,
         allQueryHandler -> {
           if (allQueryHandler.succeeded()) {
             LOGGER.debug(allQueryHandler.result());
@@ -384,9 +389,9 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMonthlyCountSizeApi(Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getCountSizeApi(Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.info(" into get monthly count and size api");
-    String query = queryBuilder.buildMonthlyHitAndSizeQuery(databaseTable);
+    String query = queryBuilder.buildCountAndSizeQuery(databaseTable);
     LOGGER.debug("Query =  {}", query);
 
     postgresService.executeQuery(

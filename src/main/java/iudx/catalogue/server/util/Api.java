@@ -31,8 +31,8 @@ public class Api {
   private StringBuilder routeMlayerDataset;
   private StringBuilder routeMlayerPopularDatasets;
   private StringBuilder routeRating;
-  private StringBuilder totalCountApi;
-  private StringBuilder monthlyCountSizeApi;
+  private StringBuilder totalCountSizeApi;
+  private StringBuilder countSizeApi;
 
   private Api(String dxApiBasePath) {
     this.dxApiBasePath = dxApiBasePath;
@@ -81,8 +81,8 @@ public class Api {
     routeMlayerPopularDatasets =
         new StringBuilder(dxApiBasePath).append(ROUTE_MLAYER_POPULAR_DATASETS);
     routeRating = new StringBuilder(ROUTE_RATING);
-    totalCountApi = new StringBuilder(dxApiBasePath).append(TOTAL_COUNT_API);
-    monthlyCountSizeApi = new StringBuilder(dxApiBasePath).append(MONTHLY_COUNT_SIZE_API);
+    totalCountSizeApi = new StringBuilder(dxApiBasePath).append(TOTAL_COUNT_SIZE_API);
+    countSizeApi = new StringBuilder(dxApiBasePath).append(COUNT_SIZE_API);
   }
 
   public String getRouteItems() {
@@ -169,11 +169,11 @@ public class Api {
     return routeRating.toString();
   }
 
-  public String getTotalCountApi() {
-    return totalCountApi.toString();
+  public String getTotalCountSizeApi() {
+    return totalCountSizeApi.toString();
   }
 
-  public String getMonthlyCountSizeApi() {
-    return monthlyCountSizeApi.toString();
+  public String getCountSizeApi() {
+    return countSizeApi.toString();
   }
 }
