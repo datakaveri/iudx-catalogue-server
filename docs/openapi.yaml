@@ -2204,24 +2204,24 @@ paths:
                              coordinates: [ 80.333972, 26.455667 ]
                              type: "Point"
                          dataDescriptor:
-                            address:
-                              dataSchema: "iudx:Text"
-                              description: "Name of the area or locality at which the Paid parking locations is located in Chandigarh city."
-                              type: [ "ValueDescriptor" ]
-                            name:
-                              dataSchema: "iudx:Text"
-                              description: "Name of the Paid parking locations corresponding to this observation."
-                              type: [ "ValueDescriptor" ]
-                            dataDescriptorLabel: "Data Descriptor for Paid parking locations in Chandigarh City"
-                            description: "Data attribute definitions of all Paid parking locations in Chandigarh city."
-                            location:
-                              dataSchema: "iudx:Point"
-                              description: "Physical coordinates of the Paid parking locations corresponding to this observation."
-                              type: [ "ValueDescriptor" ]
-                            type:
-                              - "iudx:DataDescriptor"
-                              - "iudx:PointOfInterest"
-                            '@context': "https://voc.iudx.org.in/"
+                           address:
+                             dataSchema: "iudx:Text"
+                             description: "Name of the area or locality at which the Paid parking locations is located in Chandigarh city."
+                             type: [ "ValueDescriptor" ]
+                           name:
+                             dataSchema: "iudx:Text"
+                             description: "Name of the Paid parking locations corresponding to this observation."
+                             type: [ "ValueDescriptor" ]
+                           dataDescriptorLabel: "Data Descriptor for Paid parking locations in Chandigarh City"
+                           description: "Data attribute definitions of all Paid parking locations in Chandigarh city."
+                           location:
+                             dataSchema: "iudx:Point"
+                             description: "Physical coordinates of the Paid parking locations corresponding to this observation."
+                             type: [ "ValueDescriptor" ]
+                           type:
+                             - "iudx:DataDescriptor"
+                             - "iudx:PointOfInterest"
+                           '@context': "https://voc.iudx.org.in/"
                          resourceType: "GSLAYER"
                          ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
                          cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
@@ -2239,6 +2239,59 @@ paths:
           label: search
           source: |
             curl --location --request GET 'https://example-cat.com/iudx/cat/v1/nlpsearch?q=where can I halt near chandigarh'
+
+  /internal/ui/internaldataset:
+    get:
+      tags:
+        - MLayer Summary
+      description: |
+        A catalogue API to get internal datasets(count and size), which will be reflected on the catalogue UI. It contains six information:
+        1. Total Number of hits and size from beginning
+        2. Last one year , no of hits and size
+        3. Last six month, no of hits and size
+        4. Last one month, no of hits and size
+        5. Last one week, no of hits and size
+        6. Yesterday, no of hits and size
+      operationId: get internal datasets(hits and size)
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/successTotalHitsAndSize'
+      servers:
+        - url: 'https://example-cat.com/iudx/cat/v1'
+          description: Production Instance
+      x-codeSamples:
+        - lang: cURL
+          label: get internal datasets(hits and size)
+          source: |
+            curl --location --request GET 'http://example-cat.com/iudx/cat/v1/internal/ui/internaldataset'
+
+  /internal/ui/realtimedataset:
+    get:
+      tags:
+        - MLayer Summary
+      description: |
+        A catalogue API to get real time count and size from time between 00:00 to current time, which will be reflected on the catalogue UI.
+      operationId: get realtime datasets
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/successRealTimeHitsAndSize'
+      servers:
+        - url: 'https://example-cat.com/iudx/cat/v1'
+          description: Production Instance
+      x-codeSamples:
+        - lang: cURL
+          label: get realtime datasets
+          source: |
+            curl --location --request GET 'http://example-cat.com/iudx/cat/v1/internal/ui/realtimedataset'
+
 tags:
   - name: Entity
     description: |
@@ -2289,6 +2342,10 @@ tags:
     description: |
       Natural Language Processing API is used a for a text based search to discover resources and resource groups on the catalogue server
     x-displayName: NLP API
+  - name: MLayer Summary
+    description: |
+      Catalogue middle layer specific APIs.  <br> These apis consist of total counts and size APIs
+    x-displayName: MLayer Summary
 components:
   schemas:
     successResponseWithObjects:
@@ -3242,19 +3299,19 @@ components:
             - itemCreatedAt
             - _summary
       example:
-          type: 'urn:dx:cat:Success'
-          title: 'Success'
-          detail: 'Success: Item created'
-          results:
-            '@context': "https://voc.iudx.org.in/"
-            type:
-              - "iudx:Owner"
-            name: "iudxOwnerPM"
-            description: "owner item creation for the postman collection"
-            id: "bc87aba4-0dcf-4c07-b9e4-55bdf683ae2a"
-            itemStatus: "ACTIVE"
-            itemCreatedAt: "2024-01-05T02:09:10+0530"
-            _summary: "iudxOwnerPM owner item creation for the postman collection"
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        detail: 'Success: Item created'
+        results:
+          '@context': "https://voc.iudx.org.in/"
+          type:
+            - "iudx:Owner"
+          name: "iudxOwnerPM"
+          description: "owner item creation for the postman collection"
+          id: "bc87aba4-0dcf-4c07-b9e4-55bdf683ae2a"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-05T02:09:10+0530"
+          _summary: "iudxOwnerPM owner item creation for the postman collection"
     successResponseForCreateCosEntity:
       type: object
       title: COS Entity
@@ -3321,22 +3378,22 @@ components:
             - itemCreatedAt
             - _summary
       example:
-          type: 'urn:dx:cat:Success'
-          title: 'Success'
-          detail: 'Success: Item created'
-          results:
-            '@context': "https://voc.iudx.org.in/"
-            type:
-              - "iudx:COS"
-            name: "IudxCOSItemPM32"
-            owner: "7bd116f8-1b84-4ba7-b2a1-2307ab0e9e3f"
-            description: "COS item for postman collection"
-            cosURL: "cat-test.iudx.io"
-            cosUI: "cat-test.iudx.io"
-            id: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
-            itemStatus: "ACTIVE"
-            itemCreatedAt: "2024-01-07T03:51:39+0530"
-            _summary: "IudxCOSItemPM32 COS item for the postman collection"
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        detail: 'Success: Item created'
+        results:
+          '@context': "https://voc.iudx.org.in/"
+          type:
+            - "iudx:COS"
+          name: "IudxCOSItemPM32"
+          owner: "7bd116f8-1b84-4ba7-b2a1-2307ab0e9e3f"
+          description: "COS item for postman collection"
+          cosURL: "cat-test.iudx.io"
+          cosUI: "cat-test.iudx.io"
+          id: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T03:51:39+0530"
+          _summary: "IudxCOSItemPM32 COS item for the postman collection"
     successResponseForCreateResourceServerEntity:
       type: object
       title: Resource Server Entity
@@ -3483,40 +3540,25 @@ components:
             - itemCreatedAt
             - _summary
       example:
-          type: 'urn:dx:cat:Success'
-          title: 'Success'
-          detail: 'Success: Item created'
-          results:
-            '@context': "https://voc.iudx.org.in/"
-            type:
-              - "iudx:ResourceServer"
-            name: "IudxResourceServerPM32"
-            description: "Multi-tenanted IUDX resource server for the postman collection"
-            tags:
-              - "IUDX"
-              - "Resource"
-              - "Server"
-              - "Platform"
-            cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
-            owner: "7bd116f8-1b84-4ba7-b2a1-2307ab0e9e3f"
-            resourceServerOrg:
-              name: "iudx"
-              additionalInfoURL: "https://iudx.org.in"
-              location:
-                type: "Place"
-                address: "IISc, Bangalore"
-                geometry:
-                  type: "Point"
-                  coordinates:
-                    - 77.570423
-                    - 13.013945
-            resourceServerRegURL: "rs.iudx.io"
-            resourceAccessModalities:
-              - type:
-                  - "iudx:HTTPAccess"
-                protocol: "http"
-                accessURL: "rs"
-                port: 8080
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        detail: 'Success: Item created'
+        results:
+          '@context': "https://voc.iudx.org.in/"
+          type:
+            - "iudx:ResourceServer"
+          name: "IudxResourceServerPM32"
+          description: "Multi-tenanted IUDX resource server for the postman collection"
+          tags:
+            - "IUDX"
+            - "Resource"
+            - "Server"
+            - "Platform"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          owner: "7bd116f8-1b84-4ba7-b2a1-2307ab0e9e3f"
+          resourceServerOrg:
+            name: "iudx"
+            additionalInfoURL: "https://iudx.org.in"
             location:
               type: "Place"
               address: "IISc, Bangalore"
@@ -3525,10 +3567,25 @@ components:
                 coordinates:
                   - 77.570423
                   - 13.013945
-            id: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
-            itemStatus: "ACTIVE"
-            itemCreatedAt: "2024-01-07T03:55:47+0530"
-            _summary: "IudxResourceServerPM32 IUDX Resource Server Platform Multi-tenanted IUDX resource server for the postman collection"
+          resourceServerRegURL: "rs.iudx.io"
+          resourceAccessModalities:
+            - type:
+                - "iudx:HTTPAccess"
+              protocol: "http"
+              accessURL: "rs"
+              port: 8080
+          location:
+            type: "Place"
+            address: "IISc, Bangalore"
+            geometry:
+              type: "Point"
+              coordinates:
+                - 77.570423
+                - 13.013945
+          id: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T03:55:47+0530"
+          _summary: "IudxResourceServerPM32 IUDX Resource Server Platform Multi-tenanted IUDX resource server for the postman collection"
     successResponseForCreateProviderEntity:
       type: object
       title: Provider Entity
@@ -3630,34 +3687,34 @@ components:
             - itemCreatedAt
             - _summary
       example:
-          type: 'urn:dx:cat:Success'
-          title: 'Success'
-          detail: 'Success: Item created'
-          results:
-            '@context': "https://voc.iudx.org.in/"
-            type:
-              - "iudx:Provider"
-            name: "IudxProviderPM30"
-            resourceServer: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
-            description: "provider for the postman collection"
-            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
-            providerOrg:
-              name: "Datakaveri"
-              additionalInfoURL: "https://datakaveri.org"
-              location:
-                type: "Place"
-                address: "IIsc"
-                geometry:
-                  type: "Point"
-                  coordinates:
-                    - 75.92
-                    - 14.5
-            resourceServerRegURL: "rs.iudx.io"
-            cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
-            id: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
-            itemStatus: "ACTIVE"
-            itemCreatedAt: "2024-01-07T04:47:02+0530"
-            _summary: "IudxProviderPM30 provider for the postman collection"
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        detail: 'Success: Item created'
+        results:
+          '@context': "https://voc.iudx.org.in/"
+          type:
+            - "iudx:Provider"
+          name: "IudxProviderPM30"
+          resourceServer: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+          description: "provider for the postman collection"
+          ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+          providerOrg:
+            name: "Datakaveri"
+            additionalInfoURL: "https://datakaveri.org"
+            location:
+              type: "Place"
+              address: "IIsc"
+              geometry:
+                type: "Point"
+                coordinates:
+                  - 75.92
+                  - 14.5
+          resourceServerRegURL: "rs.iudx.io"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          id: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T04:47:02+0530"
+          _summary: "IudxProviderPM30 provider for the postman collection"
     successResponseForCreateResourceGroupEntity:
       type: object
       title: Resource Group Entity
@@ -3730,28 +3787,28 @@ components:
             - itemCreatedAt
             - _summary
       example:
-          type: 'urn:dx:cat:Success'
-          title: 'Success'
-          detail: 'Success: Item created'
-          results:
-            '@context': "https://voc.iudx.org.in/"
-            type:
-              - "iudx:ResourceGroup"
-              - "iudx:IssueReporting"
-            name: "iudxResourceGroupPM2"
-            description: "resource group item for the postman collection"
-            tags:
-              - "swachhata"
-              - "complaints"
-              - "construction material"
-              - "requests"
-            provider: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
-            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
-            cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
-            id: "8ab338ed-9367-4402-9dc7-14ab39b89114"
-            itemStatus: "ACTIVE"
-            itemCreatedAt: "2024-01-07T04:51:40+0530"
-            _summary: "iudxResourceGroupPM2 swachhata complaints construction material requests resource group item for the postman collection"
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        detail: 'Success: Item created'
+        results:
+          '@context': "https://voc.iudx.org.in/"
+          type:
+            - "iudx:ResourceGroup"
+            - "iudx:IssueReporting"
+          name: "iudxResourceGroupPM2"
+          description: "resource group item for the postman collection"
+          tags:
+            - "swachhata"
+            - "complaints"
+            - "construction material"
+            - "requests"
+          provider: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+          ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          id: "8ab338ed-9367-4402-9dc7-14ab39b89114"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T04:51:40+0530"
+          _summary: "iudxResourceGroupPM2 swachhata complaints construction material requests resource group item for the postman collection"
     successResponseForCreateResourceEntity:
       type: object
       title: Resource Entity
@@ -3844,33 +3901,33 @@ components:
             - itemCreatedAt
             - _summary
       example:
-          type: 'urn:dx:cat:Success'
-          title: 'Success'
-          detail: 'Success: Item created'
-          results:
-            '@context': "https://voc.iudx.org.in/"
-            type:
-              - "iudx:Resource"
-              - "iudx:PointOfInterest"
-            name: "iudxResourceItemPM"
-            label: "item for test only"
-            description: "resource item for the postman collection"
-            tags:
-              - "swachhata"
-              - "complaints"
-              - "construction material"
-              - "requests"
-            apdURL: "rs.apd.iudx.org.in"
-            accessPolicy: "SECURE"
-            resourceServer: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
-            provider: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
-            resourceGroup: "8ab338ed-9367-4402-9dc7-14ab39b89114"
-            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
-            cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
-            id: "6e58c916-f6c1-448d-acea-756f3272bc57"
-            itemStatus: "ACTIVE"
-            itemCreatedAt: "2024-01-07T04:53:31+0530"
-            _summary: "iudxResourceItemPM item for test only swachhata complaints construction material requests resource item for the postman collection"
+        type: 'urn:dx:cat:Success'
+        title: 'Success'
+        detail: 'Success: Item created'
+        results:
+          '@context': "https://voc.iudx.org.in/"
+          type:
+            - "iudx:Resource"
+            - "iudx:PointOfInterest"
+          name: "iudxResourceItemPM"
+          label: "item for test only"
+          description: "resource item for the postman collection"
+          tags:
+            - "swachhata"
+            - "complaints"
+            - "construction material"
+            - "requests"
+          apdURL: "rs.apd.iudx.org.in"
+          accessPolicy: "SECURE"
+          resourceServer: "c3016995-04a6-4cdd-aaff-37d6d93e20bc"
+          provider: "8fe8d1dd-ae51-4ff8-b995-13bce85d9d88"
+          resourceGroup: "8ab338ed-9367-4402-9dc7-14ab39b89114"
+          ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+          cos: "2716157b-0ed9-4bdc-94fb-5236f244a10a"
+          id: "6e58c916-f6c1-448d-acea-756f3272bc57"
+          itemStatus: "ACTIVE"
+          itemCreatedAt: "2024-01-07T04:53:31+0530"
+          _summary: "iudxResourceItemPM item for test only swachhata complaints construction material requests resource item for the postman collection"
     successResponseForUpdateOwnerEntity:
       type: object
       title: Owner Entity
@@ -5577,36 +5634,36 @@ components:
               - totalHits
               - results
       example:
-              type: "urn:dx:cat:Success"
-              title: "Success"
-              totalHits: 1
-              results:
-                - resourceServerRegURL: "rs.iudx.io"
-                  providerOrg:
-                    name: "iudx"
-                    additionalInfoURL: "https://iudx.org.in"
-                    location:
-                      address: "ABD area, Pune"
-                      geometry:
-                        coordinates:
-                          - 79.92
-                          - 15.5
-                        type: "Point"
-                      type: "Place"
-                  cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
-                  description: "Administrator of the IUDX platform"
-                  type: [ "iudx:Provider" ]
-                  '@context': "https://voc.iudx.org.in/"
-                  providerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
-                  tags: [ "IUDX, Admin, Platform" ]
-                  itemCreatedAt: "2023-08-30T12:13:40+0530"
-                  resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
-                  itemStatus: "ACTIVE"
-                  name: "IUDXAdmin"
-                  ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
-                  id: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
-                  id_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
-                  resourceServerURL: "rs.iudx.io"
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 1
+        results:
+          - resourceServerRegURL: "rs.iudx.io"
+            providerOrg:
+              name: "iudx"
+              additionalInfoURL: "https://iudx.org.in"
+              location:
+                address: "ABD area, Pune"
+                geometry:
+                  coordinates:
+                    - 79.92
+                    - 15.5
+                  type: "Point"
+                type: "Place"
+            cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+            description: "Administrator of the IUDX platform"
+            type: [ "iudx:Provider" ]
+            '@context': "https://voc.iudx.org.in/"
+            providerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            tags: [ "IUDX, Admin, Platform" ]
+            itemCreatedAt: "2023-08-30T12:13:40+0530"
+            resourceServer: "49cf5c76-09de-11ee-be56-0242ac120002"
+            itemStatus: "ACTIVE"
+            name: "IUDXAdmin"
+            ownerUserId: "b2c27f3f-2524-4a84-816e-91f9ab23f837"
+            id: "bbeacb12-5e54-339d-92e0-d8e063b551a8"
+            id_bck: "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86"
+            resourceServerURL: "rs.iudx.io"
     relSearch2:
       type: object
       title: relSearch2
@@ -5633,35 +5690,35 @@ components:
               - totalHits
               - results
       example:
-              type: "urn:dx:cat:Success"
-              title: "Success"
-              totalHits: 1
-              results:
-                - resourceServerRegURL: "cat-test.iudx.io"
-                  providerOrg:
-                    name: "Datakaveri"
-                    additionalInfoURL: "https://datakaveri.org"
-                    location:
-                      address: "IIsc"
-                      geometry:
-                        coordinates:
-                          - 75.92
-                          - 14.5
-                        type: "Point"
-                      type: "Place"
-                  cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
-                  description: "provider id for uuid test"
-                  type:
-                    - "iudx:Provider"
-                  '@context': "https://voc.iudx.org.in/"
-                  providerUserId: "d8e46706-b9db-44e1-a9aa-e40839396b01"
-                  itemCreatedAt: "2023-08-22T02:36:33+0530"
-                  resourceServer: "f3061e6c-9639-321d-a532-829c7bb870aa"
-                  itemStatus: "ACTIVE"
-                  name: "uuid-test"
-                  ownerUserId: "d8e46706-b9db-44e1-a9aa-e40839396b01"
-                  id: "dec308e5-bc50-3671-af18-7f89ec33564b"
-                  resourceServerURL: "cat-test.iudx.io"
+        type: "urn:dx:cat:Success"
+        title: "Success"
+        totalHits: 1
+        results:
+          - resourceServerRegURL: "cat-test.iudx.io"
+            providerOrg:
+              name: "Datakaveri"
+              additionalInfoURL: "https://datakaveri.org"
+              location:
+                address: "IIsc"
+                geometry:
+                  coordinates:
+                    - 75.92
+                    - 14.5
+                  type: "Point"
+                type: "Place"
+            cos: "637e32b6-9a6c-396f-914c-9db5d1a222b0"
+            description: "provider id for uuid test"
+            type:
+              - "iudx:Provider"
+            '@context': "https://voc.iudx.org.in/"
+            providerUserId: "d8e46706-b9db-44e1-a9aa-e40839396b01"
+            itemCreatedAt: "2023-08-22T02:36:33+0530"
+            resourceServer: "f3061e6c-9639-321d-a532-829c7bb870aa"
+            itemStatus: "ACTIVE"
+            name: "uuid-test"
+            ownerUserId: "d8e46706-b9db-44e1-a9aa-e40839396b01"
+            id: "dec308e5-bc50-3671-af18-7f89ec33564b"
+            resourceServerURL: "cat-test.iudx.io"
     errorInvalidSchema:
       type: object
       title: Response - invalid schema
@@ -7270,64 +7327,64 @@ components:
                 observationDateTime: "2020-09-16T13:30:00+05:30"
                 speed: 28
               dataDescriptor:
-                 trip_direction:
-                   dataSchema: "iudx:Text"
-                   description: "The direction in which the vehicle is travelling. ENUM[UP,DN]."
-                   type: [ "ValueDescriptor" ]
-                 trip_id:
-                   dataSchema: "iudx:Text"
-                   description: "Trip ID/Trip name allotted to the bus corresponding to this observation."
-                   type: [ "ValueDescriptor" ]
-                 route_id:
-                   dataSchema: "iudx:Text"
-                   description: "Route ID assigned to the route on which the bus corresponding to this observation is plying on."
-                   type: [ "ValueDescriptor" ]
-                 dataDescriptorLabel: "Surat ITMS realtime bus ETA tracking."
-                 description: "Data descriptor for live bus ETA and live vehicle position of the public transit buses in Surat city."
-                 trip_delay:
-                   dataSchema: "iudx:Number"
-                   unitCode: "SEC"
-                   description: "This can be positive and negative in seconds and shows how much the vehicle deviates from the planned one."
-                   type: [ "ValueDescriptor" ]
-                   unitText: "second"
-                 last_stop_arrival_time:
-                   dataSchema: "iudx:DateTime"
-                   description: "Specifies the arrival time at the previous stop for a specific trip on a route. Times must be eight digits in HH:MM:SS format (H:MM:SS is also accepted, if the hour begins with 0). Note: Trips that span multiple dates will have stop times greater than 24:00:00. For example, if a trip begins at 10:30:00 p.m. and ends at 2:15:00 a.m. on the following day, the stop times would be 22:30:00 and 26:15:00."
-                   type: [ "ValueDescriptor" ]
-                 vehicle_label:
-                   dataSchema: "iudx:Text"
-                   description: "User-visible label, i.e., something that must be shown to the passenger to help identify the correct vehicle."
-                   type: [ "ValueDescriptor" ]
-                 actual_trip_start_time:
-                   dataSchema: "iudx:DateTime"
-                   description: "This field specifies the time at which bus service actually began for the trip corresponding to this observation."
-                   type: [ "ValueDescriptor" ]
-                 type:
-                   - "iudx:DataDescriptor"
-                   - "iudx:TransitManagement"
-                 observationDateTime:
-                   dataSchema: "iudx:DateTime"
-                   description: "The time at which the vehicle was last tracked."
-                   type: [ "ValueDescriptor" ]
-                   '@context': "https://voc.iudx.org.in/"
-                   speed:
-                     dataSchema: "iudx:Number"
-                     unitCode: "KMH"
-                     description: "The Speed of the bus observed at the last tracked coordinates."
-                     type: [ "ValueDescriptor" ]
-                     unitText: "kilometre per hour"
-                   license_plate:
-                     dataSchema: "iudx:Text"
-                     description: "Vehicle registration number/license plate number of the bus corresponding to this observation."
-                     type: [ "ValueDescriptor" ]
-                   last_stop_id:
-                     dataSchema: "iudx:Text"
-                     description: "Stop ID/Stop name of the previous bus stop corresponding to the bus in this observation."
-                     type: [ "ValueDescriptor" ]
-                   location:
-                     dataSchema: "iudx:Point"
-                     description: "The coordinates for the current position of the bus corresponding to this observation."
-                     type: [ "ValueDescriptor" ]
+                trip_direction:
+                  dataSchema: "iudx:Text"
+                  description: "The direction in which the vehicle is travelling. ENUM[UP,DN]."
+                  type: [ "ValueDescriptor" ]
+                trip_id:
+                  dataSchema: "iudx:Text"
+                  description: "Trip ID/Trip name allotted to the bus corresponding to this observation."
+                  type: [ "ValueDescriptor" ]
+                route_id:
+                  dataSchema: "iudx:Text"
+                  description: "Route ID assigned to the route on which the bus corresponding to this observation is plying on."
+                  type: [ "ValueDescriptor" ]
+                dataDescriptorLabel: "Surat ITMS realtime bus ETA tracking."
+                description: "Data descriptor for live bus ETA and live vehicle position of the public transit buses in Surat city."
+                trip_delay:
+                  dataSchema: "iudx:Number"
+                  unitCode: "SEC"
+                  description: "This can be positive and negative in seconds and shows how much the vehicle deviates from the planned one."
+                  type: [ "ValueDescriptor" ]
+                  unitText: "second"
+                last_stop_arrival_time:
+                  dataSchema: "iudx:DateTime"
+                  description: "Specifies the arrival time at the previous stop for a specific trip on a route. Times must be eight digits in HH:MM:SS format (H:MM:SS is also accepted, if the hour begins with 0). Note: Trips that span multiple dates will have stop times greater than 24:00:00. For example, if a trip begins at 10:30:00 p.m. and ends at 2:15:00 a.m. on the following day, the stop times would be 22:30:00 and 26:15:00."
+                  type: [ "ValueDescriptor" ]
+                vehicle_label:
+                  dataSchema: "iudx:Text"
+                  description: "User-visible label, i.e., something that must be shown to the passenger to help identify the correct vehicle."
+                  type: [ "ValueDescriptor" ]
+                actual_trip_start_time:
+                  dataSchema: "iudx:DateTime"
+                  description: "This field specifies the time at which bus service actually began for the trip corresponding to this observation."
+                  type: [ "ValueDescriptor" ]
+                type:
+                  - "iudx:DataDescriptor"
+                  - "iudx:TransitManagement"
+                observationDateTime:
+                  dataSchema: "iudx:DateTime"
+                  description: "The time at which the vehicle was last tracked."
+                  type: [ "ValueDescriptor" ]
+                  '@context': "https://voc.iudx.org.in/"
+                  speed:
+                    dataSchema: "iudx:Number"
+                    unitCode: "KMH"
+                    description: "The Speed of the bus observed at the last tracked coordinates."
+                    type: [ "ValueDescriptor" ]
+                    unitText: "kilometre per hour"
+                  license_plate:
+                    dataSchema: "iudx:Text"
+                    description: "Vehicle registration number/license plate number of the bus corresponding to this observation."
+                    type: [ "ValueDescriptor" ]
+                  last_stop_id:
+                    dataSchema: "iudx:Text"
+                    description: "Stop ID/Stop name of the previous bus stop corresponding to the bus in this observation."
+                    type: [ "ValueDescriptor" ]
+                  location:
+                    dataSchema: "iudx:Point"
+                    description: "The coordinates for the current position of the bus corresponding to this observation."
+                    type: [ "ValueDescriptor" ]
               resourceType: "MESSAGESTREAM"
               location:
                 address: "Surat, Gujarat"
@@ -7669,6 +7726,88 @@ components:
                 - 'iudx:FeaturesOfInterest'
               totalResources: 6
               icon: null
+    successTotalHitsAndSize:
+      type: object
+      title: Response for internal datasets .
+      description: Example success response for getting internal datasets
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human readable title to the message response.
+        results:
+          type: array
+          description: Results which matched the query. This is an array of objects.
+          items:
+            type: object
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: Success
+        results: [
+          {
+            "description": "Total usage since the beginning",
+            "count": "1550856",
+            "size": "9124560508"
+          },
+          {
+            "description": "Total usage for the last 1 Year",
+            "count": "1145750",
+            "size": "6375184440"
+          },
+          {
+            "description": "Total usage for the last 6 months",
+            "count": "884251",
+            "size": "1091784668"
+          },
+          {
+            "description": "Total usage for the last 1 month",
+            "count": "863228",
+            "size": "625708328"
+          },
+          {
+            "description": "Total usage for the last 1 week",
+            "count": "287767",
+            "size": "189002738"
+          },
+          {
+            "description": "Total usage of Yesterday",
+            "count": "83404",
+            "size": "34228471"
+          }
+        ]
+    successRealTimeHitsAndSize:
+      type: object
+      title: Response for internal datasets .
+      description: Example success response for getting internal datasets
+      properties:
+        type:
+          type: string
+          description: |
+            URN type of the response indicating if the query was successful or if any errors have
+            been triggered.
+        title:
+          description: A human readable title to the message response.
+        results:
+          type: array
+          description: Results which matched the query. This is an array of objects.
+          items:
+            type: object
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:Success'
+        title: Success
+        results: [
+          {
+            "counts": 51014,
+            "size": 20938732
+          }
+        ]
     errorResponseForNlpSearch:
       type: object
       title: Root Type for standardResponse

@@ -389,8 +389,8 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getCountSizeApi(Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.info(" into get monthly count and size api");
+  public MlayerService getRealTimeDataSetApi(Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.info(" into get real time dataset api");
     String query = queryBuilder.buildCountAndSizeQuery(databaseTable);
     LOGGER.debug("Query =  {}", query);
 

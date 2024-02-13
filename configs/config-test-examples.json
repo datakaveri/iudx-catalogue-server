@@ -35,12 +35,20 @@
       "jwtIgnoreExpiry": true,
       "admin": "",
       "clientCredentials": {
+        "cosAdmin": {
+          "clientID": "",
+          "clientSecret": ""
+        },
         "provider": {
           "clientID": "",
           "clientSecret": ""
         },
         "consumer": {
           "clientID": "",
+          "clientSecret": ""
+        },
+        "rsAdmin": {
+          "clientID" : "",
           "clientSecret": ""
         }
       }

@@ -93,35 +93,35 @@ try:
     one_day_count = records[0][5]
     one_day_size = records2[0][5]
    
-    insert_query = f"insert into {insertDatabaseTableName}(description,count,size) values('total',{totat_count},{totat_size}) on conflict(description) do update set count = {totat_count}, size = {totat_size}"
+    insert_query = f"insert into {insertDatabaseTableName}(description,count,size) values('Total usage since the beginning',{totat_count},{totat_size}) on conflict(description) do update set count = {totat_count}, size = {totat_size}"
     
     cursor.execute(insert_query)
     connection.commit()
     
-    insert_query = f"insert into {insertDatabaseTableName}(description,count,size) values('year',{year_count},{year_size}) on conflict(description) do update set count = {year_count}, size = {year_size}"
+    insert_query = f"insert into {insertDatabaseTableName}(description,count,size) values('Total usage for the last 1 Year',{year_count},{year_size}) on conflict(description) do update set count = {year_count}, size = {year_size}"
     
     
     cursor.execute(insert_query)
     connection.commit()
     
-    insert_query = f"insert into {insertDatabaseTableName}(description,count,size) values('sixmonth',{six_month_count},{six_month_size}) on conflict(description) do update set count = {six_month_count}, size = {six_month_size}"
+    insert_query = f"insert into {insertDatabaseTableName}(description,count,size) values('Total usage for the last 6 months',{six_month_count},{six_month_size}) on conflict(description) do update set count = {six_month_count}, size = {six_month_size}"
     
     cursor.execute(insert_query)
     connection.commit()
 
-    insert_query = f"insert into {insertDatabaseTableName}(description,count,size) values('onemonth',{one_month_count},{one_month_size}) on conflict(description) do update set count = {one_month_count}, size = {one_month_size}"
+    insert_query = f"insert into {insertDatabaseTableName}(description,count,size) values('Total usage for the last 1 month',{one_month_count},{one_month_size}) on conflict(description) do update set count = {one_month_count}, size = {one_month_size}"
     
     
     cursor.execute(insert_query)
     connection.commit()
     
-    insert_query = f"insert into {insertDatabaseTableName}(description,count,size) values('oneweek',{one_week_count},{one_week_size}) on conflict(description) do update set count = {one_week_count}, size = {one_week_size}"
+    insert_query = f"insert into {insertDatabaseTableName}(description,count,size) values('Total usage for the last 1 week',{one_week_count},{one_week_size}) on conflict(description) do update set count = {one_week_count}, size = {one_week_size}"
     
     
     cursor.execute(insert_query)
     connection.commit()
     
-    insert_query = f"INSERT INTO {insertDatabaseTableName}(description, count, size) VALUES('oneday', COALESCE({one_day_count}, 0), COALESCE({one_day_size}, 0)) ON CONFLICT(description) DO UPDATE SET count = COALESCE({one_day_count}, 0), size = COALESCE({one_day_size}, 0)"
+    insert_query = f"INSERT INTO {insertDatabaseTableName}(description, count, size) VALUES('Total usage of Yesterday', COALESCE({one_day_count}, 0), COALESCE({one_day_size}, 0)) ON CONFLICT(description) DO UPDATE SET count = COALESCE({one_day_count}, 0), size = COALESCE({one_day_size}, 0)"
     
     
     cursor.execute(insert_query)

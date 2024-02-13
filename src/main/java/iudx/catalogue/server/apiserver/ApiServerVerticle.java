@@ -657,7 +657,7 @@ public class ApiServerVerticle extends AbstractVerticle {
               mlayerApis.getTotalCountSizeApi(routingContext);
             });
     router
-        .get(api.getCountSizeApi())
+        .get(api.getRealDatasetApi())
         .produces(MIME_APPLICATION_JSON)
         .failureHandler(exceptionhandler)
         .handler(

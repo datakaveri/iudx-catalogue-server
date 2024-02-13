@@ -659,7 +659,7 @@ public class MlayerApis {
     LOGGER.debug("Info : fetching monthly count and size");
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    mlayerService.getCountSizeApi(
+    mlayerService.getRealTimeDataSetApi(
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());

@@ -1049,8 +1049,8 @@ public class MlayerServiceTest {
   }
 
   @Test
-  @DisplayName("Success: Get Monthly Count Size Api")
-  public void successGetMonthlyCountSizeApi(VertxTestContext vertxTestContext) {
+  @DisplayName("Success: Get  Count Size Api")
+  public void successGetCountSizeApi(VertxTestContext vertxTestContext) {
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
 
     JsonArray jsonArray = new JsonArray();
@@ -1077,7 +1077,7 @@ public class MlayerServiceTest {
         .when(postgresService)
         .executeQuery(any(), any());
 
-    mlayerService.getCountSizeApi(
+    mlayerService.getRealTimeDataSetApi(
         handler -> {
           if (handler.succeeded()) {
             assertEquals(handler.result(), json);
@@ -1089,8 +1089,8 @@ public class MlayerServiceTest {
   }
 
   @Test
-  @DisplayName("Fail: Get Monthly Count Size Api")
-  void failGetMonthlyCountSizeApi(VertxTestContext testContext) {
+  @DisplayName("Fail: Get Count Size Api")
+  void failGetCountSizeApi(VertxTestContext testContext) {
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, tableName,catSummaryTable);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -1104,7 +1104,7 @@ public class MlayerServiceTest {
         .when(postgresService)
         .executeQuery(any(), any());
 
-    mlayerService.getCountSizeApi(
+    mlayerService.getRealTimeDataSetApi(
         handler -> {
           if (handler.failed()) {
             verify(postgresService, times(1)).executeQuery(any(), any());
