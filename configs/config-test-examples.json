@@ -1,41 +1,57 @@
 {
   "version": "1.0",
-  "zookeepers": [
-    "zookeeper"
-  ],
-  "commonConfig": {
-    "dxApiBasePath": "",
-    "dxAuthBasePath": "",
-    "isUACInstance": false
-  },
+  "zookeepers": [ "zookeeper" ],
   "clusterId": "iudx-catalogue-cluster",
-  "host": "server",
+  "host": "",
   "modules": [
     {
       "id": "iudx.catalogue.server.database.DatabaseVerticle",
       "optionalModules": [
-        "iudx.catalogue.server.geocoding",
-        "iudx.catalogue.server.nlpsearch"
+        "iudx.catalogue.server.geocoding.GeocodingVerticle",
+        "iudx.catalogue.server.nlp.NLPSearchVerticle"
       ],
       "verticleInstances": 2,
       "databaseIP": "",
-      "ratingIndex": "",
       "docIndex": "",
       "mlayerInstanceIndex": "",
       "mlayerDomainIndex": "",
+      "ratingIndex": "",
       "databaseUser": "",
       "databasePassword": "",
       "databasePort": 1234,
       "bypassAuth": true
     },
     {
-       "id": "iudx.catalogue.server.authenticator.AuthenticationVerticle",
-      "host": "",
-      "consumerHost": "",
-      "verticleInstances": 1,
+      "id": "iudx.catalogue.server.authenticator.AuthenticationVerticle",
+      "verticleInstances": 2,
+      "keystorePath": "",
+      "keystorePassword": "",
       "authServerHost": "",
+      "dummyToken": "abc",
+      "host": "",
       "issuer": "",
-      "jwtIgnoreExpiry": true
+      "token": "",
+      "cert": "",
+      "jwtIgnoreExpiry": true,
+      "admin": "",
+      "clientCredentials": {
+        "cosAdmin": {
+          "clientID": "",
+          "clientSecret": ""
+        },
+        "provider": {
+          "clientID": "",
+          "clientSecret": ""
+        },
+        "consumer": {
+          "clientID": "",
+          "clientSecret": ""
+        },
+        "rsAdmin": {
+          "clientID" : "",
+          "clientSecret": ""
+        }
+      }
     },
     {
       "id": "iudx.catalogue.server.validator.ValidatorVerticle",
@@ -44,23 +60,27 @@
       "databasePort": 1234,
       "databasePassword": "",
       "databaseUser": "",
-      "docIndex": "",
-      "@context": ""
+      "docIndex": ""
     },
     {
       "id": "iudx.catalogue.server.apiserver.ApiServerVerticle",
+      "keystorePath": "",
+      "keystorePassword": "",
+      "token":"",
+      "admin_token":"",
       "catAdmin": "",
       "verticleInstances": 2,
       "ip": "",
-      "httpPort": 8080,
+      "httpPort": 1234,
       "ssl": false,
-      "host": ""
+      "host": "",
+      "isUACInstance": false
     },
     {
       "id": "iudx.catalogue.server.auditing.AuditingVerticle",
       "verticleInstances": 1,
       "auditingDatabaseIP": "",
-      "auditingDatabasePort": 5432,
+      "auditingDatabasePort": 1234,
       "auditingDatabaseName": "",
       "auditingDatabaseUserName": "",
       "auditingDatabasePassword": "",
@@ -70,18 +90,24 @@
     {
       "id": "iudx.catalogue.server.geocoding.GeocodingVerticle",
       "peliasUrl": "",
-      "peliasPort": 4000,
+      "peliasPort": 1234,
       "verticleInstances": 2
     },
     {
       "id": "iudx.catalogue.server.nlpsearch.NLPSearchVerticle",
       "nlpServiceUrl": "",
-      "nlpServicePort": 3000,
-      "verticleInstances": 2
+      "nlpServicePort": 1234,
+      "verticleInstances":2
     },
     {
       "id": "iudx.catalogue.server.rating.RatingVerticle",
       "verticleInstances": 1,
+      "ratingDatabaseIP": "",
+      "ratingDatabasePort": 1234,
+      "ratingDatabaseName": "",
+      "ratingDatabaseUserName": "",
+      "ratingDatabasePassword": "",
+      "ratingPoolSize": 25,
       "ratingExchangeName": "",
       "rsAuditingTableName": "",
       "minReadNumber": 100
@@ -99,7 +125,7 @@
       "handshakeTimeout": 6000,
       "requestedChannelMax": 5,
       "networkRecoveryInterval": 500,
-      "automaticRecoveryEnabled": ""
+      "automaticRecoveryEnabled": "true"
     },
     {
       "id": "iudx.catalogue.server.mlayer.MlayerVerticle",
@@ -112,11 +138,12 @@
       "isWorkerVerticle": false,
       "verticleInstances": 1,
       "databaseIP": "",
-      "databasePort": 5432,
+      "databasePort": 12334,
       "databaseName": "",
       "databaseUserName": "",
       "databasePassword": "",
-      "poolSize": 25
+      "poolSize": 25,
+      "auditingTableName": ""
     }
   ]
 }

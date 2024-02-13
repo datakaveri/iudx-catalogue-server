@@ -46,6 +46,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class ApiServerVerticle extends AbstractVerticle {
 
+  private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
   private HttpServer server;
   private CrudApis crudApis;
   private SearchApis searchApis;
@@ -63,11 +64,8 @@ public class ApiServerVerticle extends AbstractVerticle {
   private String catAdmin;
   private boolean isSsL;
   private int port;
-
   private String dxApiBasePath;
   private Api api;
-
-  private static final Logger LOGGER = LogManager.getLogger(ApiServerVerticle.class);
 
   /**
    * This method is used to start the Verticle and joing a cluster.
@@ -86,9 +84,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     catAdmin = config().getString(CAT_ADMIN);
     isSsL = config().getBoolean(IS_SSL);
 
-
     HttpServerOptions serverOptions = new HttpServerOptions();
-
 
     if (isSsL) {
       LOGGER.debug("Info: Starting HTTPs server");
@@ -101,12 +97,12 @@ public class ApiServerVerticle extends AbstractVerticle {
       /*
        * Default port when ssl is enabled is 8443. If set through config, then that value is taken
        */
-      port = config().getInteger(PORT) == null ? 8443
-          : config().getInteger(PORT);
+      port = config().getInteger(PORT) == null ? 8443 : config().getInteger(PORT);
 
       /* Setup the HTTPs server properties, APIs and port. */
 
-      serverOptions.setSsl(true)
+      serverOptions
+          .setSsl(true)
           .setKeyStoreOptions(new JksOptions().setPath(keystore).setPassword(keystorePassword));
 
     } else {
@@ -118,8 +114,7 @@ public class ApiServerVerticle extends AbstractVerticle {
       /*
        * Default port when ssl is disabled is 8080. If set through config, then that value is taken
        */
-      port = config().getInteger(PORT) == null ? 8080
-          : config().getInteger(PORT);
+      port = config().getInteger(PORT) == null ? 8080 : config().getInteger(PORT);
     }
     LOGGER.debug("Started HTTP server at port : " + port);
 
@@ -136,7 +131,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     geoApis = new GeocodingApis();
     ratingApis = new RatingApis();
     mlayerApis = new MlayerApis(api);
-
 
     // Todo - Set service proxies based on availability?
     DatabaseService dbService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
@@ -167,235 +161,273 @@ public class ApiServerVerticle extends AbstractVerticle {
     ratingApis.setValidatorService(validationService);
     mlayerApis.setValidatorService(validationService);
 
-    GeocodingService geoService
-        = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
+    GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
     geoApis.setGeoService(geoService);
 
-    NLPSearchService nlpsearchService
-        = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
+    NLPSearchService nlpsearchService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
 
     searchApis.setService(dbService, geoService, nlpsearchService);
 
-    AuditingService auditingService
-        = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
+    AuditingService auditingService = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
     crudApis.setAuditingService(auditingService);
     ratingApis.setAuditingService(auditingService);
 
     ExceptionHandler exceptionhandler = new ExceptionHandler();
 
-    //API Routes and Callbacks
+    // API Routes and Callbacks
 
     // Routes - Defines the routes and callbacks
     Router router = Router.router(vertx);
     router.route().handler(BodyHandler.create());
-    router.route().handler(
-        CorsHandler.create("*")
-                   .allowedHeaders(ALLOWED_HEADERS)
-                   .allowedMethods(ALLOWED_METHODS));
+    router
+        .route()
+        .handler(
+            CorsHandler.create("*")
+                .allowedHeaders(ALLOWED_HEADERS)
+                .allowedMethods(ALLOWED_METHODS));
 
-    router.route().handler(routingContext -> {
-      routingContext.response()
-                    .putHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate")
-                    .putHeader("Pragma", "no-cache")
-                    .putHeader("Expires", "0")
-                    .putHeader("X-Content-Type-Options", "nosniff");
-      routingContext.next();
-    });
-
+    router
+        .route()
+        .handler(
+            routingContext -> {
+              routingContext
+                  .response()
+                  .putHeader("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate")
+                  .putHeader("Pragma", "no-cache")
+                  .putHeader("Expires", "0")
+                  .putHeader("X-Content-Type-Options", "nosniff");
+              routingContext.next();
+            });
 
     //  Documentation routes
 
     /* Static Resource Handler */
     /* Get openapiv3 spec */
-    router.get(ROUTE_STATIC_SPEC)
+    router
+        .get(ROUTE_STATIC_SPEC)
         .produces(MIME_APPLICATION_JSON)
-        .handler(routingContext -> {
-          HttpServerResponse response = routingContext.response();
-          response.sendFile("docs/openapi.yaml");
-        });
+        .handler(
+            routingContext -> {
+              HttpServerResponse response = routingContext.response();
+              response.sendFile("docs/openapi.yaml");
+            });
     /* Get redoc */
-    router.get(ROUTE_DOC)
+    router
+        .get(ROUTE_DOC)
         .produces(MIME_TEXT_HTML)
-        .handler(routingContext -> {
-          HttpServerResponse response = routingContext.response();
-          response.sendFile("docs/apidoc.html");
-        });
-
-
+        .handler(
+            routingContext -> {
+              HttpServerResponse response = routingContext.response();
+              response.sendFile("docs/apidoc.html");
+            });
 
     // UI routes
 
     /* Static Resource Handler */
-    router.route("/*").produces("text/html")
-      .handler(StaticHandler.create("ui/dist/dk-customer-ui/"));
+    router
+        .route("/*")
+        .produces("text/html")
+        .handler(StaticHandler.create("ui/dist/dk-customer-ui/"));
 
-    router.route("/assets/*").produces("*/*")
-      .handler(StaticHandler.create("ui/dist/dk-customer-ui/assets/"));
+    router
+        .route("/assets/*")
+        .produces("*/*")
+        .handler(StaticHandler.create("ui/dist/dk-customer-ui/assets/"));
 
-    router.route("/").produces("text/html")
-        .handler(routingContext -> {
-          HttpServerResponse response = routingContext.response();
-          response.sendFile("ui/dist/dk-customer-ui/index.html");
-        });
-
+    router
+        .route("/")
+        .produces("text/html")
+        .handler(
+            routingContext -> {
+              HttpServerResponse response = routingContext.response();
+              response.sendFile("ui/dist/dk-customer-ui/index.html");
+            });
 
     // Routes for item CRUD
 
     /* Create Item - Body contains data */
-    router.post(api.getRouteItems())
+    router
+        .post(api.getRouteItems())
         .consumes(MIME_APPLICATION_JSON)
         .produces(MIME_APPLICATION_JSON)
         .failureHandler(exceptionhandler)
-        .handler(routingContext -> {
-          /* checking auhthentication info in requests */
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            crudApis.createItemHandler(routingContext);
-          } else {
-            LOGGER.warn("Fail: Unathorized CRUD operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
+        .handler(
+            routingContext -> {
+              /* checking auhthentication info in requests */
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                crudApis.createItemHandler(routingContext);
+              } else {
+                LOGGER.warn("Fail: Unathorized CRUD operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
 
     /* Get Item */
-    router.get(api.getRouteItems())
+    router
+        .get(api.getRouteItems())
         .produces(MIME_APPLICATION_JSON)
-        .handler(routingContext -> {
-          crudApis.getItemHandler(routingContext);
-        });
+        .handler(
+            routingContext -> {
+              crudApis.getItemHandler(routingContext);
+            });
 
     /* Update Item - Body contains data */
-    router.put(api.getRoutUpdateItems())
+    router
+        .put(api.getRoutUpdateItems())
         .consumes(MIME_APPLICATION_JSON)
         .produces(MIME_APPLICATION_JSON)
-        .handler(routingContext -> {
-          /* checking auhthentication info in requests */
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            // Update params checked in createItemHandler
-            crudApis.createItemHandler(routingContext);
-          } else {
-            LOGGER.warn("Unathorized CRUD operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
+        .handler(
+            routingContext -> {
+              /* checking auhthentication info in requests */
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                // Update params checked in createItemHandler
+                crudApis.createItemHandler(routingContext);
+              } else {
+                LOGGER.warn("Unathorized CRUD operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
 
     /* Delete Item - Query param contains id */
-    router.delete(api.getRouteDeleteItems())
+    router
+        .delete(api.getRouteDeleteItems())
         .produces(MIME_APPLICATION_JSON)
-        .handler(routingContext -> {
-          /* checking auhthentication info in requests */
-          if (routingContext.request().headers().contains(HEADER_TOKEN)
-                && routingContext.queryParams().contains(ID)) {
-            // Update params checked in createItemHandler
-            crudApis.deleteItemHandler(routingContext);
-          } else {
-            LOGGER.warn("Unathorized CRUD operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
+        .handler(
+            routingContext -> {
+              /* checking auhthentication info in requests */
+              if (routingContext.request().headers().contains(HEADER_TOKEN)
+                  && routingContext.queryParams().contains(ID)) {
+                // Update params checked in createItemHandler
+                crudApis.deleteItemHandler(routingContext);
+              } else {
+                LOGGER.warn("Unathorized CRUD operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
 
     /* Create instance - Instance name in query param */
-    router.post(api.getRouteInstance())
+    router
+        .post(api.getRouteInstance())
         .produces(MIME_APPLICATION_JSON)
-        .handler(routingContext -> {
-          /* checking auhthentication info in requests */
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            crudApis.createInstanceHandler(routingContext, catAdmin);
-          } else {
-            LOGGER.warn("Fail: Unathorized CRUD operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
+        .handler(
+            routingContext -> {
+              /* checking auhthentication info in requests */
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                crudApis.createInstanceHandler(routingContext, catAdmin);
+              } else {
+                LOGGER.warn("Fail: Unathorized CRUD operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
 
     /* Delete instance - Instance name in query param */
-    router.delete(api.getRouteInstance())
+    router
+        .delete(api.getRouteInstance())
         .produces(MIME_APPLICATION_JSON)
-        .handler(routingContext -> {
-          /* checking auhthentication info in requests */
-          LOGGER.debug("Info: HIT instance");
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            crudApis.deleteInstanceHandler(routingContext, catAdmin);
-          } else {
-            LOGGER.warn("Fail: Unathorized CRUD operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
-
+        .handler(
+            routingContext -> {
+              /* checking auhthentication info in requests */
+              LOGGER.debug("Info: HIT instance");
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                crudApis.deleteInstanceHandler(routingContext, catAdmin);
+              } else {
+                LOGGER.warn("Fail: Unathorized CRUD operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
 
     // Routes for search and count
 
     /* Search for an item */
-    router.get(api.getRouteSearch())
+    router
+        .get(api.getRouteSearch())
         .produces(MIME_APPLICATION_JSON)
         .failureHandler(exceptionhandler)
-        .handler(routingContext -> {
-          searchApis.searchHandler(routingContext);
-        });
+        .handler(
+            routingContext -> {
+              searchApis.searchHandler(routingContext);
+            });
 
     /* NLP Search */
-    router.get(api.getRouteNlpSearch())
+    router
+        .get(api.getRouteNlpSearch())
         .produces(MIME_APPLICATION_JSON)
-        .handler(routingContext -> {
-          searchApis.nlpSearchHandler(routingContext);
-        });
+        .handler(
+            routingContext -> {
+              searchApis.nlpSearchHandler(routingContext);
+            });
 
     /* Count the Cataloque server items */
-    router.get(api.getRouteCount())
+    router
+        .get(api.getRouteCount())
         .produces(MIME_APPLICATION_JSON)
-        .handler(routingContext -> {
-          searchApis.searchHandler(routingContext);
-        });
+        .handler(
+            routingContext -> {
+              searchApis.searchHandler(routingContext);
+            });
 
     //  Routes for list
 
     /* list the item from database using itemId */
-    router.get(api.getRouteListItems())
+    router
+        .get(api.getRouteListItems())
         .produces(MIME_APPLICATION_JSON)
-        .handler(routingContext -> {
-          listApis.listItemsHandler(routingContext);
-        });
+        .handler(
+            routingContext -> {
+              listApis.listItemsHandler(routingContext);
+            });
 
     //  Routes for relationships
 
     /* Relationship related search */
-    router.get(api.getRouteRelSearch())
-        .handler(routingContext -> {
-          relApis.relSearchHandler(routingContext);
-        });
+    router
+        .get(api.getRouteRelSearch())
+        .handler(
+            routingContext -> {
+              relApis.relSearchHandler(routingContext);
+            });
 
     /* Get all resources belonging to a resource group */
-    router.get(api.getRouteRelationship()).handler(routingContext -> {
-      relApis.listRelationshipHandler(routingContext);
-    });
-
+    router
+        .get(api.getRouteRelationship())
+        .handler(
+            routingContext -> {
+              relApis.listRelationshipHandler(routingContext);
+            });
 
     //  Routes for Geocoding
 
-    router.get(api.getRouteGeoCoordinates())
-        .handler(routingContext -> {
-          geoApis.getCoordinates(routingContext);
-        });
+    router
+        .get(api.getRouteGeoCoordinates())
+        .handler(
+            routingContext -> {
+              geoApis.getCoordinates(routingContext);
+            });
 
-    router.get(api.getRouteGeoReverse())
-        .handler(routingContext -> {
-          geoApis.getLocation(routingContext);
-        });
-
+    router
+        .get(api.getRouteGeoReverse())
+        .handler(
+            routingContext -> {
+              geoApis.getLocation(routingContext);
+            });
 
     //  Routes for Rating APIs
 
     /* Create Rating */
-    router.post(ROUTE_RATING)
+    router
+        .post(ROUTE_RATING)
         .consumes(MIME_APPLICATION_JSON)
         .produces(MIME_APPLICATION_JSON)
         .failureHandler(exceptionhandler)
-        .handler(routingContext -> {
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            ratingApis.createRatingHandler(routingContext);
-          } else {
-            LOGGER.error("Unauthorized Operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
+        .handler(
+            routingContext -> {
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                ratingApis.createRatingHandler(routingContext);
+              } else {
+                LOGGER.error("Unauthorized Operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
 
     /* Get Ratings */
     router
@@ -417,31 +449,35 @@ public class ApiServerVerticle extends AbstractVerticle {
             });
 
     /* Update Rating */
-    router.put(ROUTE_RATING)
+    router
+        .put(ROUTE_RATING)
         .consumes(MIME_APPLICATION_JSON)
         .produces(MIME_APPLICATION_JSON)
         .failureHandler(exceptionhandler)
-        .handler(routingContext -> {
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            ratingApis.updateRatingHandler(routingContext);
-          } else {
-            LOGGER.error("Unauthorized Operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
+        .handler(
+            routingContext -> {
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                ratingApis.updateRatingHandler(routingContext);
+              } else {
+                LOGGER.error("Unauthorized Operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
 
     /* Delete Rating */
-    router.delete(ROUTE_RATING)
+    router
+        .delete(ROUTE_RATING)
         .produces(MIME_APPLICATION_JSON)
         .failureHandler(exceptionhandler)
-        .handler(routingContext -> {
-          if (routingContext.request().headers().contains(HEADER_TOKEN)) {
-            ratingApis.deleteRatingHandler(routingContext);
-          } else {
-            LOGGER.error("Unauthorized Operation");
-            routingContext.response().setStatusCode(401).end();
-          }
-        });
+        .handler(
+            routingContext -> {
+              if (routingContext.request().headers().contains(HEADER_TOKEN)) {
+                ratingApis.deleteRatingHandler(routingContext);
+              } else {
+                LOGGER.error("Unauthorized Operation");
+                routingContext.response().setStatusCode(401).end();
+              }
+            });
 
     // Routes for Mlayer Instance APIs
 
@@ -568,7 +604,7 @@ public class ApiServerVerticle extends AbstractVerticle {
         .failureHandler(exceptionhandler)
         .handler(
             routingContext -> {
-                mlayerApis.getMlayerProvidersHandler(routingContext);
+              mlayerApis.getMlayerProvidersHandler(routingContext);
             });
 
     // Routes for Mlayer GeoQuery API
@@ -609,6 +645,24 @@ public class ApiServerVerticle extends AbstractVerticle {
         .handler(
             routingContext -> {
               mlayerApis.getMlayerPopularDatasetsHandler(routingContext);
+            });
+
+    // Total Count Api and Monthly Count & Size(MLayer)
+    router
+        .get(api.getTotalCountSizeApi())
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              mlayerApis.getTotalCountSizeApi(routingContext);
+            });
+    router
+        .get(api.getRealDatasetApi())
+        .produces(MIME_APPLICATION_JSON)
+        .failureHandler(exceptionhandler)
+        .handler(
+            routingContext -> {
+              mlayerApis.getCountSizeApi(routingContext);
             });
 
     // Start server

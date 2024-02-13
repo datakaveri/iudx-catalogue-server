@@ -21,8 +21,8 @@ import iudx.catalogue.server.validator.ValidatorService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 public class MlayerApis {
+  private static final Logger LOGGER = LogManager.getLogger(MlayerApis.class);
   private MlayerService mlayerService;
   private AuthenticationService authService;
   private ValidatorService validatorService;
@@ -32,8 +32,6 @@ public class MlayerApis {
   public MlayerApis(Api api) {
     this.api = api;
   }
-
-  private static final Logger LOGGER = LogManager.getLogger(MlayerApis.class);
 
   public void setMlayerService(MlayerService mlayerService) {
     this.mlayerService = mlayerService;
@@ -50,7 +48,6 @@ public class MlayerApis {
   public void setHost(String host) {
     this.host = host;
   }
-
 
   /**
    * Create Mlayer Instance Handler.
@@ -130,7 +127,8 @@ public class MlayerApis {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerInstance(
-        id, handler -> {
+        id,
+        handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {
@@ -345,7 +343,8 @@ public class MlayerApis {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerDomain(
-        id, handler -> {
+        id,
+        handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {
@@ -359,7 +358,6 @@ public class MlayerApis {
    *
    * @param routingContext {@link RoutingContext}
    */
-
   public void updateMlayerDomainHandler(RoutingContext routingContext) {
     LOGGER.debug("Info: Updating Mlayer Instance");
 
@@ -419,7 +417,6 @@ public class MlayerApis {
    *
    * @param routingContext {@link RoutingContext}
    */
-
   public void deleteMlayerDomainHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : deleting mlayer Domain");
 
@@ -473,13 +470,13 @@ public class MlayerApis {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerProviders(
-            handler -> {
-              if (handler.succeeded()) {
-                response.setStatusCode(200).end(handler.result().toString());
-              } else {
-                response.setStatusCode(400).end(handler.cause().getMessage());
-              }
-            });
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
   }
 
   /**
@@ -528,7 +525,7 @@ public class MlayerApis {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     mlayerService.getMlayerAllDatasets(
-         handler -> {
+        handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
           } else {
@@ -563,14 +560,14 @@ public class MlayerApis {
         requestData,
         validationHandler -> {
           if (validationHandler.failed()) {
-              response
-                    .setStatusCode(400)
-                    .end(
-                            new RespBuilder()
-                                    .withType(TYPE_INVALID_SCHEMA)
-                                    .withTitle(TITLE_INVALID_SCHEMA)
-                                    .withDetail("The Schema of requested body is invalid.")
-                                    .getResponse());
+            response
+                .setStatusCode(400)
+                .end(
+                    new RespBuilder()
+                        .withType(TYPE_INVALID_SCHEMA)
+                        .withTitle(TITLE_INVALID_SCHEMA)
+                        .withDetail("The Schema of requested body is invalid.")
+                        .getResponse());
           } else {
             LOGGER.debug("Validation of dataset Id Successful");
             mlayerService.getMlayerDataset(
@@ -613,7 +610,8 @@ public class MlayerApis {
     LOGGER.debug("Instance {}", instance);
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    mlayerService.getMlayerPopularDatasets(instance,
+    mlayerService.getMlayerPopularDatasets(
+        instance,
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
@@ -628,6 +626,44 @@ public class MlayerApis {
                           .withDetail("The Schema of dataset is invalid")
                           .getResponse());
             }
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
+  }
+
+  /**
+   * Get mlayer total count and size.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
+  public void getTotalCountSizeApi(RoutingContext routingContext) {
+    LOGGER.debug("Info : fetching total counts");
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    mlayerService.getTotalCountSizeApi(
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
+  }
+
+  /**
+   * Get mlayer monthly count and size.
+   *
+   * @param routingContext {@link RoutingContext}
+   */
+  public void getCountSizeApi(RoutingContext routingContext) {
+    LOGGER.debug("Info : fetching monthly count and size");
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    mlayerService.getRealTimeDataSetApi(
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
             response.setStatusCode(400).end(handler.cause().getMessage());
           }
         });

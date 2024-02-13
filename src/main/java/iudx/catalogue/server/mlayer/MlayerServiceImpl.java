@@ -15,6 +15,7 @@ import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.postgres.PostgresService;
+import iudx.catalogue.server.mlayer.util.QueryBuilder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
@@ -24,13 +25,19 @@ public class MlayerServiceImpl implements MlayerService {
   private static final Logger LOGGER = LogManager.getLogger(MlayerServiceImpl.class);
   DatabaseService databaseService;
   PostgresService postgresService;
+  QueryBuilder queryBuilder = new QueryBuilder();
   private String databaseTable;
+  private String catSummaryTable;
 
   MlayerServiceImpl(
-      DatabaseService databaseService, PostgresService postgresService, String databaseTable) {
+      DatabaseService databaseService,
+      PostgresService postgresService,
+      String databaseTable,
+      String catSummaryTable) {
     this.databaseService = databaseService;
     this.postgresService = postgresService;
     this.databaseTable = databaseTable;
+    this.catSummaryTable = catSummaryTable;
   }
 
   @Override
@@ -59,11 +66,12 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerInstance(String instanceId,
-                                         Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerInstance(
+      String instanceId, Handler<AsyncResult<JsonObject>> handler) {
 
     databaseService.getMlayerInstance(
-        instanceId, getMlayerInstancehandler -> {
+        instanceId,
+        getMlayerInstancehandler -> {
           if (getMlayerInstancehandler.succeeded()) {
             LOGGER.info("Success: Getting all Instance Values");
             handler.handle(Future.succeededFuture(getMlayerInstancehandler.result()));
@@ -142,7 +150,8 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerDomain(
-        id, getMlayerDomainHandler -> {
+        id,
+        getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
             LOGGER.info("Success: Getting all domain values");
             handler.handle(Future.succeededFuture(getMlayerDomainHandler.result()));
@@ -231,7 +240,8 @@ public class MlayerServiceImpl implements MlayerService {
     String query = GET_MLAYER_ALL_DATASETS;
     LOGGER.debug("databse get mlayer all datasets called");
     databaseService.getMlayerAllDatasets(
-        query, getMlayerAllDatasets -> {
+        query,
+        getMlayerAllDatasets -> {
           if (getMlayerAllDatasets.succeeded()) {
             LOGGER.info("Success: Getting all datasets");
             handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
@@ -265,8 +275,8 @@ public class MlayerServiceImpl implements MlayerService {
         && (!requestData.containsKey(ID) || requestData.getString(ID).isBlank())) {
       if (requestData.containsKey("domains") && !requestData.getJsonArray("domains").isEmpty()) {
         JsonArray domainsArray = requestData.getJsonArray("domains");
-        JsonArray tagsArray = requestData.containsKey("tags")
-                ? requestData.getJsonArray("tags") : new JsonArray();
+        JsonArray tagsArray =
+            requestData.containsKey("tags") ? requestData.getJsonArray("tags") : new JsonArray();
 
         tagsArray.addAll(domainsArray);
         requestData.put("tags", tagsArray);
@@ -327,8 +337,8 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerPopularDatasets(String instance,
-                                                Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerPopularDatasets(
+      String instance, Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_HIGH_COUNT_DATASET.replace("$1", databaseTable);
     LOGGER.debug("postgres query" + query);
     postgresService.executeQuery(
@@ -338,7 +348,7 @@ public class MlayerServiceImpl implements MlayerService {
             JsonArray popularDataset = dbHandler.result().getJsonArray("results");
             LOGGER.debug("popular datasets are {}", popularDataset);
             databaseService.getMlayerPopularDatasets(
-                    instance,
+                instance,
                 popularDataset,
                 getPopularDatasetsHandler -> {
                   if (getPopularDatasetsHandler.succeeded()) {
@@ -356,6 +366,45 @@ public class MlayerServiceImpl implements MlayerService {
           }
         });
 
+    return this;
+  }
+
+  @Override
+  public MlayerService getTotalCountSizeApi(Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.info(" into get total count api");
+    String query = queryBuilder.buildTotalCountSizeQuery(catSummaryTable);
+
+    LOGGER.debug(" Query {} ", query);
+    postgresService.executeQuery(
+        query,
+        allQueryHandler -> {
+          if (allQueryHandler.succeeded()) {
+            LOGGER.debug(allQueryHandler.result());
+            handler.handle(Future.succeededFuture(allQueryHandler.result()));
+          } else {
+            handler.handle(Future.failedFuture(allQueryHandler.cause()));
+          }
+        });
+    return this;
+  }
+
+  @Override
+  public MlayerService getRealTimeDataSetApi(Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.info(" into get real time dataset api");
+    String query = queryBuilder.buildCountAndSizeQuery(databaseTable);
+    LOGGER.debug("Query =  {}", query);
+
+    postgresService.executeQuery(
+        query,
+        dbHandler -> {
+          if (dbHandler.succeeded()) {
+            JsonObject results = dbHandler.result();
+            handler.handle(Future.succeededFuture(results));
+          } else {
+            LOGGER.debug("postgres query failed");
+            handler.handle(Future.failedFuture(dbHandler.cause()));
+          }
+        });
     return this;
   }
 }

@@ -101,6 +101,8 @@ public class Constants {
   public static final String ROUTE_MLAYER_GEOQUERY = "/internal/ui/geoquery";
   public static final String ROUTE_MLAYER_DATASET = "/internal/ui/dataset";
   public static final String ROUTE_MLAYER_POPULAR_DATASETS = "/internal/ui/popularDatasets";
+  public static final String TOTAL_COUNT_SIZE_API = "/internal/ui/internaldataset";
+  public static final String COUNT_SIZE_API = "/internal/ui/realtimedataset";
 
   /** Geometries. */
   public static final ArrayList<String> GEOMETRIES =
