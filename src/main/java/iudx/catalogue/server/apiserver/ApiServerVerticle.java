@@ -504,7 +504,6 @@ public class ApiServerVerticle extends AbstractVerticle {
         .failureHandler(exceptionhandler)
         .handler(
             routingContext -> {
-                LOGGER.error("api server verticle ka line 471");
               mlayerApis.getMlayerInstanceHandler(routingContext);
             });
 
