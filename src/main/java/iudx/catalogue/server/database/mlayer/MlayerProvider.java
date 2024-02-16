@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database.logiccheck;
+package iudx.catalogue.server.database.mlayer;
 
 import static iudx.catalogue.server.database.Constants.GET_MLAYER_PROVIDERS_QUERY;
 import static iudx.catalogue.server.util.Constants.*;
@@ -12,8 +12,8 @@ import iudx.catalogue.server.database.RespBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class MlayerProviderLogic {
-  private static final Logger LOGGER = LogManager.getLogger(MlayerProviderLogic.class);
+public class MlayerProvider {
+  private static final Logger LOGGER = LogManager.getLogger(MlayerProvider.class);
   private static String internalErrorResp =
       new RespBuilder()
           .withType(TYPE_INTERNAL_SERVER_ERROR)
@@ -23,7 +23,7 @@ public class MlayerProviderLogic {
   ElasticClient client;
   String docIndex;
 
-  public MlayerProviderLogic(ElasticClient client, String docIndex) {
+  public MlayerProvider(ElasticClient client, String docIndex) {
     this.client = client;
     this.docIndex = docIndex;
   }

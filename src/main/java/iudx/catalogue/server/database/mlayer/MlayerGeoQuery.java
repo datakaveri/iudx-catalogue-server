@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database.logiccheck;
+package iudx.catalogue.server.database.mlayer;
 
 import static iudx.catalogue.server.database.Constants.GET_MLAYER_BOOL_GEOQUERY;
 import static iudx.catalogue.server.database.Constants.GET_MLAYER_GEOQUERY;

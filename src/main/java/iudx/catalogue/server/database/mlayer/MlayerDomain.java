@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database.logiccheck;
+package iudx.catalogue.server.database.mlayer;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.DOMAIN_ID;
@@ -15,8 +15,8 @@ import iudx.catalogue.server.database.RespBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class MlayerDomainLogic {
-  private static final Logger LOGGER = LogManager.getLogger(MlayerDomainLogic.class);
+public class MlayerDomain {
+  private static final Logger LOGGER = LogManager.getLogger(MlayerDomain.class);
   private static String internalErrorResp =
       new RespBuilder()
           .withType(TYPE_INTERNAL_SERVER_ERROR)
@@ -26,7 +26,7 @@ public class MlayerDomainLogic {
   ElasticClient client;
   String mlayerDomainIndex;
 
-  public MlayerDomainLogic(ElasticClient client, String mlayerDomainIndex) {
+  public MlayerDomain(ElasticClient client, String mlayerDomainIndex) {
     this.client = client;
     this.mlayerDomainIndex = mlayerDomainIndex;
   }

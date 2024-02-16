@@ -1,13 +1,12 @@
 package iudx.catalogue.server.database;
 
 import static iudx.catalogue.server.database.Constants.*;
-import static iudx.catalogue.server.mlayer.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.logiccheck.*;
+import iudx.catalogue.server.database.mlayer.*;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import java.util.*;
@@ -309,7 +308,12 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   *
+   * @param doc Json
+   * @return the current DatabaseService instance
+   */
   @Override
   public DatabaseService createItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -462,7 +466,12 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   *
+   * @param doc JsonObject
+   * @return the current DatabaseService instance
+   */
   @Override
   public DatabaseService updateItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -530,7 +539,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
   @Override
   public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -609,7 +617,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
   @Override
   public DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -643,7 +650,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
   @Override
   public DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -673,7 +679,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
   @Override
   public DatabaseService listOwnerOrCos(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -704,7 +709,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
   @Override
   public DatabaseService listRelationship(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
@@ -871,7 +875,6 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
   }
 
-  /** {@inheritDoc} */
   @Override
   public DatabaseService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
@@ -993,7 +996,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
   @Override
   public DatabaseService createRating(
       JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
@@ -1057,7 +1059,6 @@ public class DatabaseServiceImpl implements DatabaseService {
     return this;
   }
 
-  /** {@inheritDoc} */
   @Override
   public DatabaseService updateRating(
       JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
@@ -1272,71 +1273,69 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerInstanceLogic getMlayerInstanceLogic =
-        new MlayerInstanceLogic(client, mlayerInstanceIndex);
-    getMlayerInstanceLogic.createMlayerInstance(instanceDoc, handler);
+    MlayerInstance getMlayerInstance = new MlayerInstance(client, mlayerInstanceIndex);
+    getMlayerInstance.createMlayerInstance(instanceDoc, handler);
     return this;
   }
 
   @Override
   public DatabaseService getMlayerInstance(String id, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerInstanceLogic getMlayerInstanceLogic =
-        new MlayerInstanceLogic(client, mlayerInstanceIndex);
-    getMlayerInstanceLogic.getMlayerInstance(id, handler);
+    MlayerInstance getMlayerInstance = new MlayerInstance(client, mlayerInstanceIndex);
+    getMlayerInstance.getMlayerInstance(id, handler);
     return this;
   }
 
   @Override
   public DatabaseService deleteMlayerInstance(
       String instanceId, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerInstanceLogic mlayerInstanceLogic = new MlayerInstanceLogic(client, mlayerInstanceIndex);
-    mlayerInstanceLogic.deleteMlayerInstance(instanceId, handler);
+    MlayerInstance mlayerInstance = new MlayerInstance(client, mlayerInstanceIndex);
+    mlayerInstance.deleteMlayerInstance(instanceId, handler);
     return this;
   }
 
   @Override
   public DatabaseService updateMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerInstanceLogic mlayerInstanceLogic = new MlayerInstanceLogic(client, mlayerInstanceIndex);
-    mlayerInstanceLogic.updateMlayerInstance(request, handler);
+    MlayerInstance mlayerInstance = new MlayerInstance(client, mlayerInstanceIndex);
+    mlayerInstance.updateMlayerInstance(request, handler);
     return this;
   }
 
   @Override
   public DatabaseService createMlayerDomain(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerDomainLogic mlayerDomainLogic = new MlayerDomainLogic(client, mlayerDomainIndex);
-    mlayerDomainLogic.createMlayerDomain(request, handler);
+    MlayerDomain mlayerDomain = new MlayerDomain(client, mlayerDomainIndex);
+    mlayerDomain.createMlayerDomain(request, handler);
     return this;
   }
 
   @Override
   public DatabaseService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerDomainLogic mlayerDomainLogic = new MlayerDomainLogic(client, mlayerDomainIndex);
-    mlayerDomainLogic.getMlayerDomain(id, handler);
+    MlayerDomain mlayerDomain = new MlayerDomain(client, mlayerDomainIndex);
+    mlayerDomain.getMlayerDomain(id, handler);
     return this;
   }
 
   @Override
   public DatabaseService updateMlayerDomain(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerDomainLogic mlayerDomainLogic = new MlayerDomainLogic(client, mlayerDomainIndex);
-    mlayerDomainLogic.updateMlayerDomain(request, handler);
+    MlayerDomain mlayerDomain = new MlayerDomain(client, mlayerDomainIndex);
+    mlayerDomain.updateMlayerDomain(request, handler);
     return this;
   }
 
   @Override
   public DatabaseService deleteMlayerDomain(
       String domainId, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerDomainLogic mlayerDomainLogic = new MlayerDomainLogic(client, mlayerDomainIndex);
-    mlayerDomainLogic.deleteMlayerDomain(domainId, handler);
+    MlayerDomain mlayerDomain = new MlayerDomain(client, mlayerDomainIndex);
+    mlayerDomain.deleteMlayerDomain(domainId, handler);
     return this;
   }
 
   @Override
   public DatabaseService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler) {
-    MlayerProviderLogic mlayerProviderLogic = new MlayerProviderLogic(client, docIndex);
-    mlayerProviderLogic.getMlayerProviders(handler);
+    MlayerProvider mlayerProvider = new MlayerProvider(client, docIndex);
+    mlayerProvider.getMlayerProviders(handler);
     return this;
   }
 
@@ -1353,18 +1352,16 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService getMlayerAllDatasets(
       String query, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerDatasetLogic mlayerDatasetLogic =
-        new MlayerDatasetLogic(client, docIndex, mlayerInstanceIndex);
-    mlayerDatasetLogic.getMlayerAllDatasets(query, handler);
+    MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
+    mlayerDataset.getMlayerAllDatasets(query, handler);
     return this;
   }
 
   @Override
   public DatabaseService getMlayerDataset(
       JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerDatasetLogic mlayerDatasetLogic =
-        new MlayerDatasetLogic(client, docIndex, mlayerInstanceIndex);
-    mlayerDatasetLogic.getMlayerDataset(requestData, handler);
+    MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
+    mlayerDataset.getMlayerDataset(requestData, handler);
     return this;
   }
 

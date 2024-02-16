@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database.logiccheck;
+package iudx.catalogue.server.database.mlayer;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
@@ -29,7 +29,8 @@ public class MlayerPopularDatasets {
   String mlayerInstanceIndex;
   String mlayerDomainIndex;
 
-  public MlayerPopularDatasets(ElasticClient client, String docIndex, String mlayerInstanceIndex, String mlayerDomainIndex) {
+  public MlayerPopularDatasets(
+      ElasticClient client, String docIndex, String mlayerInstanceIndex, String mlayerDomainIndex) {
     this.client = client;
     this.docIndex = docIndex;
     this.mlayerInstanceIndex = mlayerInstanceIndex;
@@ -52,7 +53,6 @@ public class MlayerPopularDatasets {
         .onComplete(
             ar -> {
               if (ar.succeeded()) {
-                JsonArray domainList = ar.result().resultAt(1);
                 JsonObject instanceList = ar.result().resultAt(0);
                 JsonObject datasetJson = ar.result().resultAt(2);
                 for (int i = 0; i < datasetJson.getJsonArray("latestDataset").size(); i++) {
@@ -100,6 +100,7 @@ public class MlayerPopularDatasets {
                     datasetJson.getJsonArray("featuredDataset").getJsonObject(i).put("icon", "");
                   }
                 }
+                JsonArray domainList = ar.result().resultAt(1);
                 JsonObject result = new JsonObject();
                 result.mergeIn(datasetJson.getJsonObject("typeCount"));
                 result
@@ -193,10 +194,9 @@ public class MlayerPopularDatasets {
             int resultSize = results.size();
 
             Promise<JsonObject> resourceCount = Promise.promise();
-            MlayerDatasetLogic mlayerDatasetLogic =
-                new MlayerDatasetLogic(client, docIndex, mlayerInstanceIndex);
+            MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
             // function to get the resource group items count
-            mlayerDatasetLogic.gettingResourceAccessPolicyCount(resourceCount);
+            mlayerDataset.gettingResourceAccessPolicyCount(resourceCount);
             resourceCount
                 .future()
                 .onComplete(
