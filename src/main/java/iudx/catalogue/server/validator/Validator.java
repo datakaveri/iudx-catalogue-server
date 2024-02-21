@@ -3,9 +3,15 @@ package iudx.catalogue.server.validator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
+import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,15 +19,17 @@ public final class Validator {
 
   public static final Logger LOGGER = LogManager.getLogger(Validator.class);
   private static final String PKGBASE;
-  private final JsonSchema schema;
 
   static {
     final String pkgName = Validator.class.getPackage().getName();
     PKGBASE = '/' + pkgName.replace(".", "/");
   }
 
+  private final JsonSchema schema;
+
   /**
    * Creates a new instance of Validator that can validate JSON objects against a given JSON schema.
+   *
    * @param schemaPath a String that represents the path of the JSON schema file
    * @throws IOException if there is an error reading the schema file
    */
@@ -59,14 +67,32 @@ public final class Validator {
    * @param obj Json encoded string object
    * @return isValid boolean
    */
-  public boolean validate(String obj) {
+  public Future<String> validate(String obj) {
+    Promise<String> promise = Promise.promise();
     boolean isValid;
+      List<String> schemaErrorList = new ArrayList<>();
     try {
       JsonNode jsonobj = loadString(obj);
-      isValid = schema.validInstance(jsonobj);
+      ProcessingReport report = schema.validate(jsonobj);
+      report.forEach(
+          x -> {
+            if (x.getLogLevel().toString().equalsIgnoreCase("error")) {
+              LOGGER.error(x.getMessage());
+              schemaErrorList.add(x.getMessage());
+            }
+          });
+      isValid = report.isSuccess();
+
     } catch (IOException | ProcessingException e) {
       isValid = false;
+      schemaErrorList.add(e.getMessage());
     }
-    return isValid;
+
+    if(isValid) {
+      promise.complete();
+    } else {
+      promise.fail(schemaErrorList.toString());
+    }
+    return promise.future();
   }
 }

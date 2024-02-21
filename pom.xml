@@ -72,6 +72,7 @@
             <groupId>io.vertx</groupId>
             <artifactId>vertx-service-proxy</artifactId>
         </dependency>
+        <!-- Packages for Vertx Hazelcast cluster manager  -->
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-hazelcast</artifactId>
@@ -141,11 +142,6 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
             <version>${micrometer.version}</version>
-        </dependency>
-        <!-- Packages for Vertx Hazelcast cluster manager  -->
-         <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-hazelcast</artifactId>
         </dependency>
         <!--  package for hazelcast based clustering using zookeeper -->
         <dependency>
