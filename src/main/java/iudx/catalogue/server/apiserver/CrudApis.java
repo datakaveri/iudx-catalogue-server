@@ -126,7 +126,6 @@ public final class CrudApis {
         requestBody,
         schValHandler -> {
           if (schValHandler.failed()) {
-            // response.setStatusCode(400).end(schValHandler.cause().getMessage());
 
             response
                 .setStatusCode(400)
@@ -134,8 +133,8 @@ public final class CrudApis {
                     new RespBuilder()
                         .withType(TYPE_INVALID_SCHEMA)
                         .withTitle(TITLE_INVALID_SCHEMA)
-                        .withDetail(schValHandler.cause().getMessage())
-                        .withResult()
+                        .withDetail(TITLE_INVALID_SCHEMA)
+                        .withResult(schValHandler.cause().getMessage())
                         .getResponse());
             return;
           }
