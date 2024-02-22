@@ -31,9 +31,9 @@ public class Constants {
 
   static final String TYPE_KEY = "type";
   static final String ID_KEYWORD = "id.keyword";
-  static final String DOC_ID = "_id";
+  public static final String DOC_ID = "_id";
   static final String DOC_COUNT = "doc_count";
-  static final String KEY = "key";
+  public static final String KEY = "key";
   static final String SUMMARY_KEY = "_summary";
   static final String GEOSUMMARY_KEY = "_geosummary";
 

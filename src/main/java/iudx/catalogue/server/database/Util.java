@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 public class Util {
   private static final Logger LOGGER = LogManager.getLogger(Util.class);
 
-  static String getItemType(JsonObject request) {
+  public static String getItemType(JsonObject request) {
     Set<String> type = new HashSet<String>(new JsonArray().getList());
     try {
       type = new HashSet<String>(request.getJsonArray(TYPE).getList());
