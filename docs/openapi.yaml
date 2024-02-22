@@ -1335,9 +1335,12 @@ paths:
               examples:
                 Invalid Schema:
                   value:
-                    type: 'urn:dx:cat:InvalidSchema'
+                    type: urn:dx:cat:InvalidSchema
                     title: Invalid Schema
-                    detail: "The Schema of requested body is invalid."
+                    detail: Invalid Schema
+                    results:
+                      - '[ECMA 262 regex "^[a-zA-Z0-9]([\w-]*[a-zA-Z0-9 ])?$" does not match input string "bgfnbgj!!!"]'
+
                 Invalid Access Count:
                   value:
                     type: 'urn:dx:cat:AccessDenied'
@@ -1408,9 +1411,12 @@ paths:
               examples:
                 errorResponse:
                   value:
-                    type: "urn:dx:cat:InvalidSchema"
-                    title: "Invalid Schema"
-                    detail: "The Schema of requested body is invalid."
+                    type: urn:dx:cat:InvalidSchema
+                    title: Invalid Schema
+                    detail: Invalid Schema
+                    results:
+                      - '[ECMA 262 regex "^[a-zA-Z0-9]([\w-]*[a-zA-Z0-9 ])?$" does not match input string "bgfnbgj!!!"]'
+
         '401':
           description: Unauthorized access
           content:
@@ -5679,9 +5685,12 @@ components:
         required:
           - type
       example:
-        type: 'urn:dx:cat:InvalidSchema'
+        type: urn:dx:cat:InvalidSchema
         title: Invalid Schema
-        detail: Invalid Json payload
+        detail: Invalid Schema
+        results:
+          - '[ECMA 262 regex "^[a-zA-Z0-9]([\w-]*[a-zA-Z0-9 ])?$" does not match input string "bgfnbgj!!!"]'
+
     errorInvalidSchema2:
       type: object
       title: Response - invalid schema
@@ -5699,10 +5708,12 @@ components:
         required:
           - type
       example:
-        type: 'urn:dx:cat:InvalidSchema'
+        type: urn:dx:cat:InvalidSchema
         title: Invalid Schema
         detail: Invalid Schema
-        results: []
+        results:
+          - '[ECMA 262 regex "^[a-zA-Z0-9]([\w-]*[a-zA-Z0-9 ])?$" does not match input string "bgfnbgj!!!"]'
+
     errorInvalidUUID:
       type: object
       title: Response  - invalid UUID
@@ -6628,9 +6639,12 @@ components:
       required:
         - type
       example:
-        type: 'urn:dx:cat:InvalidSchema'
+        type: urn:dx:cat:InvalidSchema
         title: Invalid Schema
-        detail: "The Schema of requested body is invalid."
+        detail: Invalid Schema
+        results:
+          - '[ECMA 262 regex "^[a-zA-Z0-9]([\w-]*[a-zA-Z0-9 ])?$" does not match input string "bgfnbgj!!!"]'
+
     successResponseGetRating:
       type: object
       title: Success response for get rating
