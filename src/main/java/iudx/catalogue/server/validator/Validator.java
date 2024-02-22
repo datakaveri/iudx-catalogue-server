@@ -6,12 +6,11 @@ import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -70,7 +69,7 @@ public final class Validator {
   public Future<String> validate(String obj) {
     Promise<String> promise = Promise.promise();
     boolean isValid;
-      List<String> schemaErrorList = new ArrayList<>();
+    List<String> schemaErrorList = new ArrayList<>();
     try {
       JsonNode jsonobj = loadString(obj);
       ProcessingReport report = schema.validate(jsonobj);
@@ -88,7 +87,7 @@ public final class Validator {
       schemaErrorList.add(e.getMessage());
     }
 
-    if(isValid) {
+    if (isValid) {
       promise.complete();
     } else {
       promise.fail(schemaErrorList.toString());

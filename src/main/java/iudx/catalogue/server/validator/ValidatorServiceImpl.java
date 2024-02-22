@@ -32,6 +32,7 @@ import org.apache.logging.log4j.Logger;
 public class ValidatorServiceImpl implements ValidatorService {
 
   private static final Logger LOGGER = LogManager.getLogger(ValidatorServiceImpl.class);
+
   /** ES client. */
   static ElasticClient client;
 
@@ -391,8 +392,7 @@ public class ValidatorServiceImpl implements ValidatorService {
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_OWNER)) {
             LOGGER.debug("Owner does not exist");
             handler.handle(Future.failedFuture("Fail: Owner item doesn't exist"));
-          } else if (method.equalsIgnoreCase(REQUEST_POST)
-              && returnType.contains(ITEM_TYPE_COS)) {
+          } else if (method.equalsIgnoreCase(REQUEST_POST) && returnType.contains(ITEM_TYPE_COS)) {
             LOGGER.debug("COS already exists");
             handler.handle(Future.failedFuture("Fail: COS item already exists"));
           } else {
@@ -420,8 +420,7 @@ public class ValidatorServiceImpl implements ValidatorService {
             handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
             return;
           }
-          if (method.equalsIgnoreCase(REQUEST_POST)
-               && res.result().getInteger(TOTAL_HITS) > 0) {
+          if (method.equalsIgnoreCase(REQUEST_POST) && res.result().getInteger(TOTAL_HITS) > 0) {
             LOGGER.debug("Owner item already exists");
             handler.handle(Future.failedFuture("Fail: Owner item already exists"));
           } else {
@@ -466,7 +465,8 @@ public class ValidatorServiceImpl implements ValidatorService {
             x -> {
               LOGGER.error("Fail: Invalid Schema");
               LOGGER.error(x.getMessage());
-              handler.handle(Future.failedFuture(String.valueOf(new JsonArray().add(x.getMessage()))));
+              handler.handle(
+                  Future.failedFuture(String.valueOf(new JsonArray().add(x.getMessage()))));
             });
   }
 
