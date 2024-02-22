@@ -36,7 +36,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   /** ES client. */
   static ElasticClient client;
 
-  private boolean isValidSchema;
+  private Future<String> isValidSchema;
   private Validator resourceValidator;
   private Validator resourceGroupValidator;
   private Validator providerValidator;
@@ -145,16 +145,11 @@ public class ValidatorServiceImpl implements ValidatorService {
         isValidSchema = ownerItemSchema.validate(request.toString());
         break;
       default:
-        isValidSchema = false;
-        break;
+        handler.handle(Future.failedFuture("Invalid Item Type"));
+        return this;
     }
 
-    if (isValidSchema) {
-      handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
-    } else {
-      LOGGER.debug("Fail: Invalid Schema");
-      handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
-    }
+    validateSchema(handler);
     return this;
   }
 
@@ -465,18 +460,26 @@ public class ValidatorServiceImpl implements ValidatorService {
     }
   }
 
+  private void validateSchema(Handler<AsyncResult<JsonObject>> handler) {
+    isValidSchema
+        .onSuccess(
+            x -> handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS))))
+        .onFailure(
+            x -> {
+              LOGGER.error("Fail: Invalid Schema");
+              LOGGER.error(x.getMessage());
+              handler.handle(
+                  Future.failedFuture(String.valueOf(new JsonArray().add(x.getMessage()))));
+            });
+  }
+
   @Override
   public ValidatorService validateRating(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     isValidSchema = ratingValidator.validate(request.toString());
 
-    if (isValidSchema) {
-      handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
-    } else {
-      LOGGER.error("Fail: Invalid Schema");
-      handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
-    }
+    validateSchema(handler);
     return this;
   }
 
@@ -484,12 +487,7 @@ public class ValidatorServiceImpl implements ValidatorService {
   public ValidatorService validateMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema = mlayerInstanceValidator.validate(request.toString());
-    if (isValidSchema) {
-      handler.handle(Future.succeededFuture(new JsonObject()));
-    } else {
-      LOGGER.error("Fail: Invalid Schema");
-      handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
-    }
+    validateSchema(handler);
     return null;
   }
 
@@ -498,12 +496,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema = mlayerDomainValidator.validate(request.toString());
 
-    if (isValidSchema) {
-      handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
-    } else {
-      LOGGER.error("Fail: Invalid Schema");
-      handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
-    }
+    validateSchema(handler);
     return this;
   }
 
@@ -512,12 +505,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema = mlayerGeoQueryValidator.validate(request.toString());
 
-    if (isValidSchema) {
-      handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
-    } else {
-      LOGGER.error("Fail: Invalid Schema");
-      handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
-    }
+    validateSchema(handler);
     return this;
   }
 
@@ -526,12 +514,7 @@ public class ValidatorServiceImpl implements ValidatorService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema = mlayerDatasetValidator.validate(request.toString());
 
-    if (isValidSchema) {
-      handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS)));
-    } else {
-      LOGGER.error("Fail: Invalid Schema");
-      handler.handle(Future.failedFuture(INVALID_SCHEMA_MSG));
-    }
+    validateSchema(handler);
     return this;
   }
 }
