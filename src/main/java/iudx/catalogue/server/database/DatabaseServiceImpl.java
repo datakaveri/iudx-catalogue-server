@@ -6,11 +6,16 @@ import static iudx.catalogue.server.util.Constants.*;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.database.listapis.ListService;
 import iudx.catalogue.server.database.mlayer.*;
+import iudx.catalogue.server.database.rating.AverageRating;
+import iudx.catalogue.server.database.rating.CreateRating;
+import iudx.catalogue.server.database.rating.DeleteRating;
+import iudx.catalogue.server.database.rating.UpdateRating;
+import iudx.catalogue.server.database.relationship.ListRelationship;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import java.util.*;
-import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -120,7 +125,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     geoPluggedIn = true;
   }
 
-  private static boolean isInvalidRelForGivenItem(JsonObject request, String itemType) {
+  public static boolean isInvalidRelForGivenItem(JsonObject request, String itemType) {
     if (request.getString(RELATIONSHIP).equalsIgnoreCase("resource")
         && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
       return true;
@@ -652,227 +657,25 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-
-    RespBuilder respBuilder = new RespBuilder();
-    String elasticQuery = queryDecoder.listItemQuery(request);
-
-    LOGGER.debug("Info: Listing items;" + elasticQuery);
-
-    client.listAggregationAsync(
-        elasticQuery,
-        clientHandler -> {
-          if (clientHandler.succeeded()) {
-            LOGGER.debug("Success: Successful DB request");
-            JsonObject responseJson = clientHandler.result();
-            handler.handle(Future.succeededFuture(responseJson));
-          } else {
-            LOGGER.error("Fail: DB request has failed;" + clientHandler.cause());
-            /* Handle request error */
-            handler.handle(
-                Future.failedFuture(
-                    respBuilder
-                        .withType(TYPE_INTERNAL_SERVER_ERROR)
-                        .withTitle(TITLE_INTERNAL_SERVER_ERROR)
-                        .getResponse()));
-          }
-        });
+    ListService listService = new ListService(client, docIndex);
+    listService.listItems(request, handler);
     return this;
   }
 
   @Override
   public DatabaseService listOwnerOrCos(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
-    String elasticQuery = queryDecoder.listItemQuery(request);
-
-    LOGGER.debug("Info: Listing items;" + elasticQuery);
-
-    client.searchAsync(
-        elasticQuery,
-        docIndex,
-        clientHandler -> {
-          if (clientHandler.succeeded()) {
-            LOGGER.debug("Success: Successful DB request");
-            JsonObject responseJson = clientHandler.result();
-            handler.handle(Future.succeededFuture(responseJson));
-          } else {
-            LOGGER.error("Fail: DB request has failed;" + clientHandler.cause());
-            /* Handle request error */
-            handler.handle(
-                Future.failedFuture(
-                    respBuilder
-                        .withType(TYPE_INTERNAL_SERVER_ERROR)
-                        .withTitle(TITLE_INTERNAL_SERVER_ERROR)
-                        .getResponse()));
-          }
-        });
+    ListService listService = new ListService(client, docIndex);
+    listService.listOwnerOrCos(request, handler);
     return this;
   }
 
   @Override
   public DatabaseService listRelationship(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
-
-    StringBuilder typeQuery =
-        new StringBuilder(GET_TYPE_SEARCH.replace("$1", request.getString(ID)));
-    LOGGER.debug("typeQuery: " + typeQuery);
-
-    client.searchAsync(
-        typeQuery.toString(),
-        docIndex,
-        qeryhandler -> {
-          if (qeryhandler.succeeded()) {
-            if (qeryhandler.result().getInteger(TOTAL_HITS) == 0) {
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ITEM_NOT_FOUND)
-                          .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withDetail("Item id given is not present")
-                          .getResponse()));
-              return;
-            }
-            JsonObject relType = qeryhandler.result().getJsonArray(RESULTS).getJsonObject(0);
-
-            Set<String> type = new HashSet<String>(relType.getJsonArray(TYPE).getList());
-            type.retainAll(ITEM_TYPES);
-            String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
-            LOGGER.debug("Info: itemType: " + itemType);
-            relType.put("itemType", itemType);
-
-            if (isInvalidRelForGivenItem(request, itemType)) {
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_INVALID_SEARCH_ERROR)
-                          .withTitle(TITLE_INVALID_SEARCH_ERROR)
-                          .withDetail(TITLE_INVALID_SEARCH_ERROR)
-                          .getResponse()));
-              return;
-            }
-
-            if ((request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE_SVR)
-                    || request.getString(RELATIONSHIP).equalsIgnoreCase(ALL))
-                && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
-              LOGGER.debug(relType);
-              handleRsFetchForResourceGroup(request, handler, respBuilder, relType);
-            } else if (request.getString(RELATIONSHIP).equalsIgnoreCase(RESOURCE_GRP)
-                && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
-              handleResourceGroupFetchForRs(request, handler, respBuilder, relType);
-            } else {
-              request.mergeIn(relType);
-              String elasticQuery = queryDecoder.listRelationshipQuery(request);
-              LOGGER.debug("Info: Query constructed;" + elasticQuery);
-              if (elasticQuery != null) {
-                handleClientSearchAsync(handler, respBuilder, elasticQuery);
-              } else {
-                handler.handle(
-                    Future.failedFuture(
-                        respBuilder
-                            .withType(TYPE_INVALID_SEARCH_ERROR)
-                            .withTitle(TITLE_INVALID_SEARCH_ERROR)
-                            .withDetail(TITLE_INVALID_SEARCH_ERROR)
-                            .getResponse()));
-              }
-            }
-          } else {
-            LOGGER.error(qeryhandler.cause().getMessage());
-          }
-        });
+    ListRelationship listRelationship = new ListRelationship(client, docIndex);
+    listRelationship.listRelationship(request, handler);
     return this;
-  }
-
-  private void handleClientSearchAsync(
-      Handler<AsyncResult<JsonObject>> handler, RespBuilder respBuilder, String elasticQuery) {
-    client.searchAsync(
-        elasticQuery,
-        docIndex,
-        searchRes -> {
-          if (searchRes.succeeded()) {
-            LOGGER.debug("Success: Successful DB request");
-            handler.handle(Future.succeededFuture(searchRes.result()));
-          } else {
-            LOGGER.error("Fail: DB request has failed;" + searchRes.cause());
-            /* Handle request error */
-            handler.handle(
-                Future.failedFuture(
-                    respBuilder
-                        .withType(TYPE_INTERNAL_SERVER_ERROR)
-                        .withDetail(TITLE_INTERNAL_SERVER_ERROR)
-                        .getResponse()));
-          }
-        });
-  }
-
-  private void handleResourceGroupFetchForRs(
-      JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler,
-      RespBuilder respBuilder,
-      JsonObject relType) {
-    StringBuilder typeQuery4RsGroup =
-        new StringBuilder(GET_RSGROUP.replace("$1", relType.getString(ID)));
-    LOGGER.debug("typeQuery4RsGroup: " + typeQuery4RsGroup);
-
-    client.searchAsync(
-        typeQuery4RsGroup.toString(),
-        docIndex,
-        serverSearch -> {
-          if (serverSearch.succeeded()) {
-            JsonArray serverResult = serverSearch.result().getJsonArray("results");
-            LOGGER.debug("serverResult: " + serverResult);
-            request.put("providerIds", serverResult);
-            request.mergeIn(relType);
-            String elasticQuery = queryDecoder.listRelationshipQuery(request);
-
-            LOGGER.debug("Info: Query constructed;" + elasticQuery);
-
-            handleClientSearchAsync(handler, respBuilder, elasticQuery);
-          }
-        });
-  }
-
-  private void handleRsFetchForResourceGroup(
-      JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler,
-      RespBuilder respBuilder,
-      JsonObject relType) {
-    StringBuilder typeQuery4Rserver =
-        new StringBuilder(GET_TYPE_SEARCH.replace("$1", relType.getString(PROVIDER)));
-    LOGGER.debug("typeQuery4Rserver: " + typeQuery4Rserver);
-
-    client.searchAsync(
-        typeQuery4Rserver.toString(),
-        docIndex,
-        serverSearch -> {
-          if (serverSearch.succeeded() && serverSearch.result().getInteger(TOTAL_HITS) != 0) {
-            JsonObject serverResult =
-                serverSearch.result().getJsonArray("results").getJsonObject(0);
-            request.mergeIn(serverResult);
-            request.mergeIn(relType);
-            String elasticQuery = queryDecoder.listRelationshipQuery(request);
-
-            LOGGER.debug("Info: Query constructed;" + elasticQuery);
-
-            if (elasticQuery != null) {
-              handleClientSearchAsync(handler, respBuilder, elasticQuery);
-            } else {
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_INVALID_SEARCH_ERROR)
-                          .withTitle(TITLE_INVALID_SEARCH_ERROR)
-                          .withDetail(TITLE_INVALID_SEARCH_ERROR)
-                          .getResponse()));
-            }
-          } else {
-            respBuilder
-                .withType(TYPE_ITEM_NOT_FOUND)
-                .withTitle(TITLE_ITEM_NOT_FOUND)
-                .withDetail("Resource Group for given item not found");
-            handler.handle(Future.failedFuture(respBuilder.getResponse()));
-          }
-        });
   }
 
   @Override
@@ -999,172 +802,24 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService createRating(
       JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
-    String ratingId = ratingDoc.getString("ratingID");
-
-    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
-
-    client.searchAsync(
-        checkForExistingRecord,
-        ratingIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Insertion of rating failed: " + checkRes.cause());
-            handler.handle(
-                Future.failedFuture(
-                    respBuilder
-                        .withType(FAILED)
-                        .withResult(ratingId)
-                        .withDetail("Fail: Insertion of rating failed")
-                        .getResponse()));
-          } else {
-            if (checkRes.result().getInteger(TOTAL_HITS) != 0) {
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ALREADY_EXISTS)
-                          .withTitle(TITLE_ALREADY_EXISTS)
-                          .withResult(ratingId, INSERT, FAILED, " Fail: Doc Already Exists")
-                          .withDetail(" Fail: Doc Already Exists")
-                          .getResponse()));
-              return;
-            }
-
-            client.docPostAsync(
-                ratingIndex,
-                ratingDoc.toString(),
-                postRes -> {
-                  if (postRes.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                                .withResult(ratingId, INSERT, TYPE_SUCCESS)
-                                .getJsonResponse()));
-                  } else {
-
-                    handler.handle(
-                        Future.failedFuture(
-                            respBuilder
-                                .withType(TYPE_FAIL)
-                                .withResult(ratingId, INSERT, FAILED)
-                                .withDetail("Insertion Failed")
-                                .getResponse()));
-                    LOGGER.error("Fail: Insertion failed" + postRes.cause());
-                  }
-                });
-          }
-        });
+    CreateRating createRating = new CreateRating(client, ratingIndex);
+    createRating.createRating(ratingDoc, handler);
     return this;
   }
 
   @Override
   public DatabaseService updateRating(
       JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
-    String ratingId = ratingDoc.getString("ratingID");
-
-    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
-
-    client.searchGetId(
-        checkForExistingRecord,
-        ratingIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(internalErrorResp));
-          } else {
-            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-              LOGGER.error("Fail: Doc doesn't exist, can't update");
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ITEM_NOT_FOUND)
-                          .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withResult(
-                              ratingId, UPDATE, FAILED, "Fail: Doc doesn't exist, can't update")
-                          .withDetail("Fail: Doc doesn't exist, can't update")
-                          .getResponse()));
-              return;
-            }
-
-            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-
-            client.docPutAsync(
-                docId,
-                ratingIndex,
-                ratingDoc.toString(),
-                putRes -> {
-                  if (putRes.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                                .withResult(ratingId)
-                                .getJsonResponse()));
-                  } else {
-                    handler.handle(Future.failedFuture(internalErrorResp));
-                    LOGGER.error("Fail: Updation failed;" + putRes.cause());
-                  }
-                });
-          }
-        });
+    UpdateRating updateRating = new UpdateRating(client, ratingIndex);
+    updateRating.updateRating(ratingDoc, handler);
     return this;
   }
 
   @Override
   public DatabaseService deleteRating(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    RespBuilder respBuilder = new RespBuilder();
-    String ratingId = request.getString("ratingID");
-
-    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
-
-    client.searchGetId(
-        checkForExistingRecord,
-        ratingIndex,
-        checkRes -> {
-          if (checkRes.failed()) {
-            LOGGER.error("Fail: Check query fail;" + checkRes.cause());
-            handler.handle(Future.failedFuture(internalErrorResp));
-          } else {
-            if (checkRes.result().getInteger(TOTAL_HITS) != 1) {
-              LOGGER.error("Fail: Doc doesn't exist, can't delete");
-              handler.handle(
-                  Future.failedFuture(
-                      respBuilder
-                          .withType(TYPE_ITEM_NOT_FOUND)
-                          .withTitle(TITLE_ITEM_NOT_FOUND)
-                          .withResult(
-                              ratingId, DELETE, FAILED, "Fail: Doc doesn't exist, can't delete")
-                          .withDetail("Fail: Doc doesn't exist, can't delete")
-                          .getResponse()));
-              return;
-            }
-
-            String docId = checkRes.result().getJsonArray(RESULTS).getString(0);
-
-            client.docDelAsync(
-                docId,
-                ratingIndex,
-                putRes -> {
-                  if (putRes.succeeded()) {
-                    handler.handle(
-                        Future.succeededFuture(
-                            respBuilder
-                                .withType(TYPE_SUCCESS)
-                                .withTitle(TITLE_SUCCESS)
-                                .withResult(ratingId)
-                                .getJsonResponse()));
-                  } else {
-                    handler.handle(Future.failedFuture(internalErrorResp));
-                    LOGGER.error("Fail: Deletion failed;" + putRes.cause());
-                  }
-                });
-          }
-        });
+    DeleteRating deleteRating = new DeleteRating(client, ratingIndex);
+    deleteRating.deleteRating(request, handler);
     return this;
   }
 
@@ -1179,37 +834,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     } else {
       String id = request.getString(ID);
       if (request.containsKey(TYPE) && request.getString(TYPE).equalsIgnoreCase("average")) {
-        Future<List<String>> getAssociatedIdFuture = getAssociatedIDs(id);
-        getAssociatedIdFuture.onComplete(
-            ids -> {
-              StringBuilder avgQuery = new StringBuilder(GET_AVG_RATING_PREFIX);
-              if (ids.succeeded()) {
-                ids.result().stream()
-                    .forEach(
-                        v -> {
-                          avgQuery.append(GET_AVG_RATING_MATCH_QUERY.replace("$1", v));
-                        });
-                avgQuery.deleteCharAt(avgQuery.lastIndexOf(","));
-                avgQuery.append(GET_AVG_RATING_SUFFIX);
-                LOGGER.debug(avgQuery);
-                client.ratingAggregationAsync(
-                    avgQuery.toString(),
-                    ratingIndex,
-                    getRes -> {
-                      if (getRes.succeeded()) {
-                        LOGGER.debug("Success: Successful DB request");
-                        JsonObject result = getRes.result();
-                        handler.handle(Future.succeededFuture(result));
-                      } else {
-                        LOGGER.error("Fail: failed getting average rating: " + getRes.cause());
-                        handler.handle(Future.failedFuture(internalErrorResp));
-                      }
-                    });
-              } else {
-                handler.handle(Future.failedFuture(internalErrorResp));
-              }
-            });
-
+        AverageRating averageRating = new AverageRating(client, ratingIndex, docIndex);
+        averageRating.getAverageRating(id, handler);
         return this;
       } else {
         query = GET_RATING_DOCS.replace("$1", "id.keyword").replace("$2", id);
@@ -1236,31 +862,6 @@ public class DatabaseServiceImpl implements DatabaseService {
           }
         });
     return this;
-  }
-
-  private Future<List<String>> getAssociatedIDs(String id) {
-    Promise<List<String>> promise = Promise.promise();
-
-    StringBuilder query =
-        new StringBuilder(GET_ASSOCIATED_ID_QUERY.replace("$1", id).replace("$2", id));
-    LOGGER.debug(query);
-    client.searchAsync(
-        query.toString(),
-        docIndex,
-        res -> {
-          if (res.succeeded()) {
-            List<String> idCollector =
-                res.result().getJsonArray(RESULTS).stream()
-                    .map(JsonObject.class::cast)
-                    .map(d -> d.getString(ID))
-                    .collect(Collectors.toList());
-            promise.complete(idCollector);
-          } else {
-            LOGGER.error("Fail: Get average rating failed");
-            promise.fail("Fail: Get average rating failed");
-          }
-        });
-    return promise.future();
   }
 
   /**
