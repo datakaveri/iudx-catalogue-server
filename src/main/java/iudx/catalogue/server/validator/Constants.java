@@ -31,7 +31,8 @@ public class Constants {
   public static final String PROVIDER_ITEM_EXISTS_QUERY =
       ID_MATCH_SUB_QUERY.concat(
           "{\"bool\":{\"must\":[{\"match\":{\"ownerUserId.keyword\":\"$2\"}},"
-              + "{\"match\":{\"resourceServerRegURL.keyword\":\"$3\"}}]}}]}},\"_source\":[\"type\"]}");
+              + "{\"match\":{\"resourceServerRegURL.keyword\":\"$3\"}}]}}]}},"
+              + "\"_source\":[\"type\"]}");
 
   public static final String RESOURCE_ITEM_EXISTS_QUERY =
       "{\"query\":{\"bool\":{\"should\":[{"
