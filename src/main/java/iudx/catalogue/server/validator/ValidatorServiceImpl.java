@@ -460,16 +460,6 @@ public class ValidatorServiceImpl implements ValidatorService {
     }
   }
 
-  @Override
-  public ValidatorService validateRating(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-
-    isValidSchema = ratingValidator.validate(request.toString());
-
-    validateSchema(handler);
-    return this;
-  }
-
   private void validateSchema(Handler<AsyncResult<JsonObject>> handler) {
     isValidSchema
         .onSuccess(
@@ -478,8 +468,19 @@ public class ValidatorServiceImpl implements ValidatorService {
             x -> {
               LOGGER.error("Fail: Invalid Schema");
               LOGGER.error(x.getMessage());
-              handler.handle(Future.failedFuture(String.valueOf(new JsonArray().add(x.getMessage()))));
+              handler.handle(
+                  Future.failedFuture(String.valueOf(new JsonArray().add(x.getMessage()))));
             });
+  }
+
+  @Override
+  public ValidatorService validateRating(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+
+    isValidSchema = ratingValidator.validate(request.toString());
+
+    validateSchema(handler);
+    return this;
   }
 
   @Override
