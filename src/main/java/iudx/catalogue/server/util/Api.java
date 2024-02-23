@@ -177,9 +177,9 @@ public class Api {
 
   public String getRealDatasetApi() {
     return realDatasetApi.toString();
-    }
+  }
+
   public String getStackRestApis() {
     return stack.toString();
   }
-
 }

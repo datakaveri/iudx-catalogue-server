@@ -97,7 +97,9 @@ public class StackRestApi {
               }
             });
 
-    router.get(api.getStackRestApis()).handler(routingContext -> handleGetStackRequest(routingContext));
+    router
+        .get(api.getStackRestApis())
+        .handler(routingContext -> handleGetStackRequest(routingContext));
     router
         .delete(api.getStackRestApis())
         .handler(
@@ -301,7 +303,7 @@ public class StackRestApi {
                       deleteHandler -> {
                         if (deleteHandler.succeeded()) {
                           JsonObject result = deleteHandler.result();
-                            Future.future(fu -> updateAuditTable(authInfo));
+                          Future.future(fu -> updateAuditTable(authInfo));
                           handleSuccessResponse(response, 200, result.toString());
                         } else {
                           LOGGER.error(
@@ -376,12 +378,12 @@ public class StackRestApi {
     LOGGER.debug("TIME ZST: " + zst);
     long epochTime = getEpochTime(zst);
     /*auditInfo
-        .put(IUDX_ID, otherInfo[0])
-        .put(API, otherInfo[1])
-        .put(HTTP_METHOD, otherInfo[2])
-        .put(EPOCH_TIME, epochTime)
-        .put(USERID, jwtDecodedInfo.getString(USER_ID));
-*/
+            .put(IUDX_ID, otherInfo[0])
+            .put(API, otherInfo[1])
+            .put(HTTP_METHOD, otherInfo[2])
+            .put(EPOCH_TIME, epochTime)
+            .put(USERID, jwtDecodedInfo.getString(USER_ID));
+    */
     LOGGER.debug("audit data: " + auditInfo.encodePrettily());
     auditingService.insertAuditngValuesInRmq(
         auditInfo,

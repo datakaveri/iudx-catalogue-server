@@ -638,8 +638,9 @@ public final class ElasticClient {
     future.onComplete(resultHandler);
     return this;
   }
-  public ElasticClient docPatchAsync(String docId, String index, String doc,
-                                   Handler<AsyncResult<JsonObject>> resultHandler) {
+
+  public ElasticClient docPatchAsync(
+      String docId, String index, String doc, Handler<AsyncResult<JsonObject>> resultHandler) {
 
     // TODO: Validation
     Request docRequest = new Request(REQUEST_POST, index + "/_update/" + docId);
@@ -712,7 +713,7 @@ public final class ElasticClient {
               int statusCode = response.getStatusLine().getStatusCode();
               switch (method) {
                 case REQUEST_POST:
-                  if (statusCode == 201 ||statusCode == 200 ) {
+                  if (statusCode == 201 || statusCode == 200) {
                     promise.complete(responseJson);
                     return;
                   }
