@@ -33,6 +33,7 @@ public class Api {
   private StringBuilder routeRating;
   private StringBuilder summaryCountSizeApi;
   private StringBuilder realDatasetApi;
+  private StringBuilder stack;
 
   private Api(String dxApiBasePath) {
     this.dxApiBasePath = dxApiBasePath;
@@ -83,6 +84,7 @@ public class Api {
     routeRating = new StringBuilder(ROUTE_RATING);
     summaryCountSizeApi = new StringBuilder(dxApiBasePath).append(SUMMARY_TOTAL_COUNT_SIZE_API);
     realDatasetApi = new StringBuilder(dxApiBasePath).append(COUNT_SIZE_API);
+    stack = new StringBuilder(dxApiBasePath).append(ROUTE_STACK);
   }
 
   public String getRouteItems() {
@@ -175,5 +177,9 @@ public class Api {
 
   public String getRealDatasetApi() {
     return realDatasetApi.toString();
+    }
+  public String getStackRestApis() {
+    return stack.toString();
   }
+
 }

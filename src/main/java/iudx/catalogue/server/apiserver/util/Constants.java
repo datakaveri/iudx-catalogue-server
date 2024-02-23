@@ -18,6 +18,10 @@ public class Constants {
   /** Accept Headers and CORS. */
   public static final String HEADER_ACCEPT = "Accept";
 
+  public static final String CONTENT_TYPE = "content-type";
+  public static final String APPLICATION_JSON = "application/json";
+
+
   public static final String HEADER_TOKEN = "token";
   public static final String HEADER_CONTENT_LENGTH = "Content-Length";
   public static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -62,6 +66,7 @@ public class Constants {
   public static final String ROUTE_LIST_ITEMS = "/list/:itemType";
 
   public static final String ROUTE_RATING = "/consumer/ratings";
+  public static final String ROUTE_STACK = "/stack";
 
   public static final String RESOURCE_ITEM = "resItem";
   public static final String RESOURCE_GRP_ITEM = "resGrpItem";

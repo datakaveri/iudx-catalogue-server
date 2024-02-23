@@ -638,6 +638,16 @@ public final class ElasticClient {
     future.onComplete(resultHandler);
     return this;
   }
+  public ElasticClient docPatchAsync(String docId, String index, String doc,
+                                   Handler<AsyncResult<JsonObject>> resultHandler) {
+
+    // TODO: Validation
+    Request docRequest = new Request(REQUEST_POST, index + "/_update/" + docId);
+    docRequest.setJsonEntity(doc.toString());
+    Future<JsonObject> future = docAsync(REQUEST_POST, docRequest);
+    future.onComplete(resultHandler);
+    return this;
+  }
 
   /**
    * DbResponseMessageBuilder} Message builder for search APIs.
@@ -702,7 +712,7 @@ public final class ElasticClient {
               int statusCode = response.getStatusLine().getStatusCode();
               switch (method) {
                 case REQUEST_POST:
-                  if (statusCode == 201) {
+                  if (statusCode == 201 ||statusCode == 200 ) {
                     promise.complete(responseJson);
                     return;
                   }

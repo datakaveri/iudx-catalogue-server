@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string"
+    },
+    "stac_version": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rel": {
+            "type": "string",
+            "enum": [
+              "self",
+              "item",
+              "root",
+              "child",
+              "parent"
+            ]
+          },
+          "href": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https?://.*$"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "rel",
+          "href"
+        ]
+      }
+    }
+  },
+  "required": [
+    "type",
+    "description",
+    "links"
+  ]
+}

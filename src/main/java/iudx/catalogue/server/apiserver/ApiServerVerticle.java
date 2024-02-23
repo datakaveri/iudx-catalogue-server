@@ -171,7 +171,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     AuditingService auditingService = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
     crudApis.setAuditingService(auditingService);
     ratingApis.setAuditingService(auditingService);
-
     ExceptionHandler exceptionhandler = new ExceptionHandler();
 
     // API Routes and Callbacks
@@ -664,6 +663,13 @@ public class ApiServerVerticle extends AbstractVerticle {
             routingContext -> {
               mlayerApis.getCountSizeApi(routingContext);
             });
+
+    router
+        .route(api.getStackRestApis() + "/*")
+        .subRouter(
+            new StackRestApi(
+                     router, api, config(), validationService, authService, auditingService)
+                .init());
 
     // Start server
     server.requestHandler(router).listen(port);
