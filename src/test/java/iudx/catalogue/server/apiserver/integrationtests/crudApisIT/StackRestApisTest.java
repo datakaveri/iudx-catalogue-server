@@ -216,7 +216,7 @@ public class StackRestApisTest {
   @Order(8)
   @DisplayName("Update stack item - Success (200)")
   void updateStackItemSuccess() {
-    LOGGER.info("stackId {}", stackId);
+    LOGGER.debug("stackId {}", stackId);
     JsonObject payloadJson = createChildObject();
     payloadJson.put("id", stackId);
 
@@ -229,7 +229,7 @@ public class StackRestApisTest {
   @Order(8)
   @DisplayName("Get stack item - Success (200)")
   void getStackItemSuccess() {
-    LOGGER.info("stackId {}", stackId);
+    LOGGER.debug("stackId {}", stackId);
     Response response = getStackItem(stackId);
     response
         .then()
@@ -242,7 +242,7 @@ public class StackRestApisTest {
   @Order(9)
   @DisplayName("Get stack item - Not Found (404)")
   void getStackItemNotFound() {
-    LOGGER.info("stackId " + stackId);
+    LOGGER.debug("stackId " + stackId);
     Response response = getStackItem("7c8a0478-7986-4d6e-91d1-2ba82bd22863");
     assertResponse(
         response, 404, "urn:dx:cat:ItemNotFound", "Item is not found", "Fail: Stack doesn't exist");
@@ -291,7 +291,7 @@ public class StackRestApisTest {
   @Order(13)
   @DisplayName("Delete stack item - Not Found (404)")
   void deleteStackItemNotFound() {
-    LOGGER.info("stackId " + stackId);
+    LOGGER.debug("stackId " + stackId);
     Response response = deleteStackItem("714f82e7-146b-411c-b2e1-8618141d8b99", cosAdminToken);
     assertResponse(response, 404, "urn:dx:cat:ItemNotFound", "Item not found, can't delete");
   }
@@ -300,7 +300,7 @@ public class StackRestApisTest {
   @Order(14)
   @DisplayName("Delete stack item - Success (200)")
   void deleteStackItemSuccess() {
-    LOGGER.info("stackId " + stackId);
+    LOGGER.debug("stackId " + stackId);
     Response response = deleteStackItem(stackId, cosAdminToken);
     assertResponse(response, 200, "Success", "Stack deleted successfully.");
   }
