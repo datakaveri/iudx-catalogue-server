@@ -6,11 +6,9 @@
   "required": [
     "id",
     "rel",
-    "href",
-    "type",
-    "title"
+    "href"
   ],
-  "additionalProperties": false,
+  "additionalProperties": true,
   "properties": {
     "id": {
       "$id": "#root/id",

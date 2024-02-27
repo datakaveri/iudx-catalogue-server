@@ -267,6 +267,7 @@ public class Constants {
   public static final String TITLE_INVALID_SEARCH_ERROR = "Invalid relationship type search";
   public static final String STACK_CREATION_SUCCESS = "Stack created successfully.";
   public static final String STACK_DELETION_SUCCESS = "Stack deleted successfully.";
+  public static final String DETAIL_INVALID_SCHEMA = "Invalid schema provided";
 
 
 }
