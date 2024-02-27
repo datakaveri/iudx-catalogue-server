@@ -54,7 +54,12 @@
       "ip": "",
       "httpPort": 8080,
       "ssl": false,
-      "host": ""
+      "host": "",
+      "databaseIP": "",
+      "docIndex": "",
+      "databaseUser": "",
+      "databasePassword": "",
+      "databasePort": 123
     },
     {
       "id": "iudx.catalogue.server.auditing.AuditingVerticle",
