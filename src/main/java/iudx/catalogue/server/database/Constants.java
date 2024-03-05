@@ -156,34 +156,22 @@ public class Constants {
           "{\"query\":{\"match\":{\"instanceId.keyword\": \"$1\"}},\"_source\":"
                   + "{\"includes\": [\"instanceId\",\"name\",\"cover\",\"icon\","
                   + "\"logo\",\"coordinates\"]}}";
-public static final String GET_ALL_MLAYER_INSTANCE_QUERY =
-        "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
-                + "[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\","
-                + "\"coordinates\" ]},\"size\": $0,\"from\": $2}";
-//  public static final String GET_ALL_MLAYER_INSTANCE_QUERY =
-//          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
-//                  + "[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\","
-//                  + "\"coordinates\" ]},\"size\": 10000}";
-
+  public static final String GET_ALL_MLAYER_INSTANCE_QUERY =
+          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
+                  + "[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\","
+                  + "\"coordinates\" ]},\"size\": 10000}";
   public static final String GET_MLAYER_DOMAIN_QUERY =
       "{\"query\": {\"match\":{\"domainId.keyword\": \"$1\"}},\"_source\":{\"includes\": "
           + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},\"size\": 10000}";
-//  public static final String GET_ALL_MLAYER_DOMAIN_QUERY =
-//          "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
-//                  + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},\"size\": 10000}";
-
   public static final String GET_ALL_MLAYER_DOMAIN_QUERY =
           "{\"query\": {\"match_all\": {}},\"_source\":{\"includes\": "
-                  + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},\"size\": $0,\"from\": $2}";
+                  + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},\"size\": 10000}";
   public static final String CHECK_MDOC_QUERY_DOMAIN =
           "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": "
                   + "{\"domainId.keyword\":\"$1\"} } ] } } }";
-//  public static final String GET_MLAYER_PROVIDERS_QUERY =
-//      "{\"query\": {\"match\": {\"type.keyword\": \"iudx:Provider\"}},\"_source\": "
-//          + "{\"includes\": [\"id\",\"description\"]},\"size\": 10000}";
-public static final String GET_MLAYER_PROVIDERS_QUERY =
-        "{\"query\": {\"match\": {\"type.keyword\": \"iudx:Provider\"}},\"_source\": "
-                + "{\"includes\": [\"id\",\"description\"]},\"size\": $0,\"from\": $1}";
+  public static final String GET_MLAYER_PROVIDERS_QUERY =
+      "{\"query\": {\"match\": {\"type.keyword\": \"iudx:Provider\"}},\"_source\": "
+          + "{\"includes\": [\"id\",\"description\"]},\"size\": 10000}";
   public static final String GET_MLAYER_GEOQUERY =
       "{ \"query\": { \"bool\": { \"minimum_should_match\": 1, \"should\": [$1]}},\"_source\": "
               + "{\"includes\": [\"id\",\"location\",\"instance\",\"label\"] }}";
@@ -196,21 +184,14 @@ public static final String GET_MLAYER_PROVIDERS_QUERY =
   public static final String GET_ALL_MLAYER_INSTANCES =
           "{\"size\": 10000,\"_source\": [\"name\", \"icon\"]}";
 
-//  public static final String GET_MLAYER_ALL_DATASETS =
-//      "{\"query\":{\"bool\":{\"must\":{\"terms\":{\"type.keyword\": [\"iudx:Provider\", "
-//          + "\"iudx:COS\", \"iudx:ResourceGroup\", \"iudx:Resource\"]}}}},\"_source\""
-//          + ":{\"includes\": "
-//          + "[\"type\",\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\","
-//          + "\"provider\", \"resourceServerRegURL\",\"description\" ,\"cosURL\", "
-//          + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\":"
-//          + " 10000}";
-public static final String GET_MLAYER_ALL_DATASETS =
-        "{\"query\":{\"bool\":{\"must\":{\"terms\":{\"type.keyword\": [\"iudx:Provider\", "
-                + "\"iudx:COS\", \"iudx:ResourceGroup\", \"iudx:Resource\"]}}}},\"_source\""
-                + ":{\"includes\": "
-                + "[\"type\",\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\","
-                + "\"provider\", \"resourceServerRegURL\",\"description\" ,\"cosURL\", "
-                + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\":$0,\"from\":$1}";
+  public static final String GET_MLAYER_ALL_DATASETS =
+      "{\"query\":{\"bool\":{\"must\":{\"terms\":{\"type.keyword\": [\"iudx:Provider\", "
+          + "\"iudx:COS\", \"iudx:ResourceGroup\", \"iudx:Resource\"]}}}},\"_source\""
+          + ":{\"includes\": "
+          + "[\"type\",\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\","
+          + "\"provider\", \"resourceServerRegURL\",\"description\" ,\"cosURL\", "
+          + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\":"
+          + " 10000}";
 
 
   public static final String GET_ALL_DATASETS_BY_FIELDS =
@@ -236,7 +217,7 @@ public static final String GET_MLAYER_ALL_DATASETS =
           + " \"dataSample\","
           + " \"dataDescriptor\", \"@context\", \"dataQualityFile\", \"dataSampleFile\","
           + " \"resourceType\", \"resourceServerRegURL\",\"resourceType\","
-          + "\"location\", \"iudxResourceAPIs\"]},\"size\": $0}";
+          + "\"location\", \"iudxResourceAPIs\"]},\"size\": 10000}";
 
   public static final String RESOURCE_ACCESSPOLICY_COUNT =
           "{\"size\": 0,\"aggs\":{\"results\":{\"terms\":{\"field\":\"resourceGroup.keyword\","

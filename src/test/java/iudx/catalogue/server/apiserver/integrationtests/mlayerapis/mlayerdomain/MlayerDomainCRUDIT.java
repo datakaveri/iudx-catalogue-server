@@ -184,73 +184,10 @@ public class MlayerDomainCRUDIT {
                 .body("type", equalTo("urn:dx:cat:Success"));
     }
 
-    @Test
-    @Order(9)
-    @DisplayName("Get Mlayer Domain by Id Success Test-200")
-    public void getMlayerDomainByLimitAndOffset() {
-        given()
-                .param("id", domainId)
-                .param("limit",10)
-                .param("offset", 0)
-                .when()
-                .get("/internal/ui/domain")
-                .then()
-                .statusCode(200)
-                //.log().body()
-                .body("type", equalTo("urn:dx:cat:Success"));
-    }
-    @Test
-    @Order(10)
-    @DisplayName("Invalid limit value Test-400")
-    public void getMlayerDomainWithInvalidLimit() {
-        given()
-                .param("limit",-1)
-                .param("offset", 0)
-                .when()
-                .get("/internal/ui/domain")
-                .then()
-                .statusCode(400)
-                //.log().body()
-                .body("type", equalTo("urn:dx:cat:InvalidParamValue"))
-                .body("detail", equalTo("Invalid limit parameter"));
-    }
-
-    @Test
-    @Order(11)
-    @DisplayName("Invalid Offset value Test-400")
-    public void getMlayerDomainWithInvalidOffset() {
-        given()
-                .param("limit",10000)
-                .param("offset", -1)
-                .when()
-                .get("/internal/ui/domain")
-                .then()
-                .statusCode(400)
-                //.log().body()
-                .body("type", equalTo("urn:dx:cat:InvalidParamValue"))
-                .body("detail", equalTo("Invalid offset parameter"));
-    }
-
-    @Test
-    @Order(12)
-    @DisplayName("Limit and offset > 10K Test-400")
-    public void getMlayerDomainWithLimitOrOffsetGreaterThan10K() {
-        given()
-                .param("limit",10001)
-                .param("offset", 1)
-                .when()
-                .get("/internal/ui/domain")
-                .then()
-                .statusCode(400)
-                //.log().body()
-                .body("type", equalTo("urn:dx:cat:InvalidParamValue"))
-                .body("detail", equalTo("Invalid offset parameter"));
-    }
-
     //Deleting Mlayer Domain
 
     @Test
-    @Order(13)
+    @Order(9)
     @DisplayName("Delete Mlayer Domain Success Test-200")
     public void deleteMlayerDomainTest(){
         given()
@@ -264,7 +201,7 @@ public class MlayerDomainCRUDIT {
                 .body("type",equalTo("urn:dx:cat:Success"));
     }
     @Test
-    @Order(14)
+    @Order(10)
     @DisplayName("Delete Mlayer Domain With Invalid Token Test-401")
     public void deleteMlayerDomainWithInvalidTokenTest(){
         given()

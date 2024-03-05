@@ -92,13 +92,10 @@ public class MlayerDomain {
         });
   }
 
-  public void getMlayerDomain(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
+  public void getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
     String query = "";
-    String id = requestParams.getString("id");
-    String limit = requestParams.getString("limit");
-    String offset = requestParams.getString("offset" );
-    if (!requestParams.containsKey("id")) {
-      query = GET_ALL_MLAYER_DOMAIN_QUERY.replace("$0", limit).replace("$2", offset);
+    if (id == null || id.isBlank()) {
+      query = GET_ALL_MLAYER_DOMAIN_QUERY;
     } else {
       query = GET_MLAYER_DOMAIN_QUERY.replace("$1", id);
     }
