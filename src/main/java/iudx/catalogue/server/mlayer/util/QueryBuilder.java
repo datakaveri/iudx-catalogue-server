@@ -34,13 +34,9 @@ public class QueryBuilder {
     StringBuilder ids = new StringBuilder();
 
     for (int i = 0; i < exlcudedIdsJson.size(); i++) {
-      if (i == exlcudedIdsJson.size()) {
-        break;
-      } else {
         ids.append("'").append(exlcudedIdsJson.getString(i)).append("'");
         if (i != exlcudedIdsJson.size() - 1) {
           ids.append(",");
-        }
       }
     }
 
