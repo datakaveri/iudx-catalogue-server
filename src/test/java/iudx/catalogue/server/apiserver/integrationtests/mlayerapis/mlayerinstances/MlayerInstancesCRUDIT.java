@@ -168,7 +168,6 @@ public class MlayerInstancesCRUDIT {
     public void getAllMlayerInstanceSuccessTest(){
         given()
                 .header("Content-Type","application/json")
-                .header("token",cosAdminToken)
                 .when()
                 .get("/internal/ui/instance")
                 .then()
@@ -194,10 +193,73 @@ public class MlayerInstancesCRUDIT {
 
     }
 
+    @Test
+    @Order(9)
+    @DisplayName("Get Mlayer Instance by Limit and Offset Test-200")
+    public void getMlayerInstanceByLimitAndOffset() {
+        given()
+                .param("id", instanceId)
+                .param("limit",10)
+                .param("offset", 0)
+                .when()
+                .get("/internal/ui/domain")
+                .then()
+                .statusCode(200)
+                //.log().body()
+                .body("type", equalTo("urn:dx:cat:Success"));
+    }
+    @Test
+    @Order(10)
+    @DisplayName("Invalid limit value Test-400")
+    public void getMlayerInstanceWithInvalidLimit() {
+        given()
+                .param("limit",-1)
+                .param("offset", 0)
+                .when()
+                .get("/internal/ui/domain")
+                .then()
+                .statusCode(400)
+                //.log().body()
+                .body("type", equalTo("urn:dx:cat:InvalidParamValue"))
+                .body("detail", equalTo("Invalid limit parameter"));
+    }
+
+    @Test
+    @Order(11)
+    @DisplayName("Invalid Offset value Test-400")
+    public void getMlayerInstanceWithInvalidOffset() {
+        given()
+                .param("limit",10000)
+                .param("offset", -1)
+                .when()
+                .get("/internal/ui/domain")
+                .then()
+                .statusCode(400)
+                //.log().body()
+                .body("type", equalTo("urn:dx:cat:InvalidParamValue"))
+                .body("detail", equalTo("Invalid offset parameter"));
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Limit and offset > 10K Test-400")
+    public void getMlayerInstanceWithLimitOrOffsetGreaterThan10K() {
+        given()
+                .param("limit",10001)
+                .param("offset", 1)
+                .when()
+                .get("/internal/ui/domain")
+                .then()
+                .statusCode(400)
+                //.log().body()
+                .body("type", equalTo("urn:dx:cat:InvalidParamValue"))
+                .body("detail", equalTo("Invalid offset parameter"));
+    }
+
     // Deleting Mlayer Instance
 
     @Test
-    @Order(9)
+    @Order(12)
     @DisplayName("Delete Mlayer Instance success response test- 200")
     public void deleteMlayerInstanceSuccessTest() {
         given()
@@ -213,7 +275,7 @@ public class MlayerInstancesCRUDIT {
     }
 
     @Test
-    @Order(10)
+    @Order(14)
     @DisplayName("Delete Mlayer Instance with Invalid Token response test- 401")
     public void deleteMlayerInstanceWithInvalidTokenTest() {
         given()

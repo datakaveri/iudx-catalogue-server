@@ -21,7 +21,7 @@ public interface MlayerService {
   MlayerService createMlayerInstance(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService getMlayerInstance(String instance, Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getMlayerInstance(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
   MlayerService deleteMlayerInstance(String request, Handler<AsyncResult<JsonObject>> handler);
@@ -33,7 +33,7 @@ public interface MlayerService {
   MlayerService createMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getMlayerDomain(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
   MlayerService deleteMlayerDomain(String request, Handler<AsyncResult<JsonObject>> handler);
@@ -42,7 +42,7 @@ public interface MlayerService {
   MlayerService updateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  MlayerService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler);
+  MlayerService getMlayerProviders(JsonObject requestParams ,Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
   MlayerService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
