@@ -206,7 +206,7 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerInstance(String instance, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerInstance(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The deleteMlayerInstance implements deleting instance from the database.
@@ -246,7 +246,7 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerDomain(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The updateMlayerDomain implements updating all domain from database.
@@ -275,7 +275,7 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerProviders(JsonObject requestParams ,Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The post Mlayer GeoQuery posts all the dataset_id's location and label.
