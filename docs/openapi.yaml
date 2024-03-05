@@ -2251,7 +2251,7 @@ paths:
       tags:
         - MLayer Summary
       description: |
-        A catalogue API retrieves summary, including both count and size, which are then displayed on the catalogue UI. The data provided includes six key metrics, all of which are updated through the previous day:
+        A catalogue API retrieves summary, including both count and size, which are then displayed on the catalogue UI. The data provided includes six key metrics, all of which are updated untill yesterday:
         1. Total Number of hits and size from beginning
         2. Last one year , no of hits and size
         3. Last six month, no of hits and size
@@ -2350,7 +2350,7 @@ tags:
     x-displayName: NLP API
   - name: MLayer Summary
     description: |
-      Catalogue middle layer specific APIs.  <br> These apis consist of total counts and size APIs
+      Catalogue middle layer specific APIs.  <br> These apis consist of summary (total counts and size) and real time APIs
     x-displayName: MLayer Summary
 components:
   schemas:
