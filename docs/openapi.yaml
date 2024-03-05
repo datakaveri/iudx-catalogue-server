@@ -1,6 +1,6 @@
 openapi: 3.0.2
 info:
-  version: '5.0'
+  version: '5.5.0'
   title: Data Exchange Catalogue Server APIs
   description: |
     # Introduction
@@ -2246,34 +2246,34 @@ paths:
           source: |
             curl --location --request GET 'https://example-cat.com/iudx/cat/v1/nlpsearch?q=where can I halt near chandigarh'
 
-  /internal/ui/internaldataset:
+  /internal/ui/summary:
     get:
       tags:
         - MLayer Summary
       description: |
-        A catalogue API to get internal datasets(count and size), which will be reflected on the catalogue UI. It contains six information:
+        A catalogue API retrieves summary, including both count and size, which are then displayed on the catalogue UI. The data provided includes six key metrics, all of which are updated through the previous day:
         1. Total Number of hits and size from beginning
         2. Last one year , no of hits and size
         3. Last six month, no of hits and size
         4. Last one month, no of hits and size
         5. Last one week, no of hits and size
         6. Yesterday, no of hits and size
-      operationId: get internal datasets(hits and size)
+      operationId: get summary datasets(hits and size)
       responses:
         '200':
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/successTotalHitsAndSize'
+                $ref: '#/components/schemas/successSummaryHitsAndSize'
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
       x-codeSamples:
         - lang: cURL
-          label: get internal datasets(hits and size)
+          label: get summary datasets(hits and size)
           source: |
-            curl --location --request GET 'http://example-cat.com/iudx/cat/v1/internal/ui/internaldataset'
+            curl --location --request GET 'http://example-cat.com/iudx/cat/v1/internal/ui/summary'
 
   /internal/ui/realtimedataset:
     get:
@@ -7740,7 +7740,7 @@ components:
                 - 'iudx:FeaturesOfInterest'
               totalResources: 6
               icon: null
-    successTotalHitsAndSize:
+    successSummaryHitsAndSize:
       type: object
       title: Response for internal datasets .
       description: Example success response for getting internal datasets

@@ -105,7 +105,8 @@
       "id": "iudx.catalogue.server.mlayer.MlayerVerticle",
       "verticleInstances": 1,
       "databaseTable": "",
-      "catSummaryTable" : ""
+      "catSummaryTable" : "",
+      "excluded_ids": []
     },
     {
       "id": "iudx.catalogue.server.database.postgres.PostgresVerticle",

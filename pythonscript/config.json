@@ -5,5 +5,6 @@
   "port": "",
   "database": "",
   "databasetablename": "",
-  "insertdatabasetablename": ""
+  "insertdatabasetablename": "",
+  "excluded_ids": []
 }
