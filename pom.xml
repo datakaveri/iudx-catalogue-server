@@ -469,7 +469,7 @@
                     <useSystemClassLoader>true</useSystemClassLoader>
                     <testFailureIgnore>true</testFailureIgnore>
                     <argLine>
-                        @{argLine} -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.6/aspectjweaver-1.9.6.jar"
+                        @{argLine} -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/1.9.21.1/aspectjweaver-1.9.21.1.jar"
                     </argLine>
                     <systemProperties>
                         <property>
