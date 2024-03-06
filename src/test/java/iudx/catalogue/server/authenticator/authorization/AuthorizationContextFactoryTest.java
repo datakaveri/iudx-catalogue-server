@@ -27,6 +27,7 @@ public class AuthorizationContextFactoryTest {
     JwtData jwtData;
     DelegateAuthStrategy delegateAuthStrategy;
     ConsumerAuthStrategy consumerAuthStrategy;
+    AdminAuthStrategy adminAuthStrategy;
     AuthorizationContextFactory authorizationContextFactory;
     private String dxApiBasePath;
     private Api api;
@@ -81,6 +82,15 @@ public class AuthorizationContextFactoryTest {
         vertxTestContext.completeNow();
 
     }
-
+    @Test
+    @Description("testing the method create when role is Admin")
+    public void testCreateAdmin(VertxTestContext vertxTestContext) {
+        authorizationContextFactory=new AuthorizationContextFactory();
+        String role="admin";
+        adminAuthStrategy= adminAuthStrategy.getInstance(this.api);
+        assertFalse(adminAuthStrategy.isAuthorized(authRequest));
+        assertNotNull(AuthorizationContextFactory.create(role,this.api));
+        vertxTestContext.completeNow();
+    }
 
 }

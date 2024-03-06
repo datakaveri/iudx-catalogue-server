@@ -28,16 +28,19 @@ public class MlayerServiceImpl implements MlayerService {
   QueryBuilder queryBuilder = new QueryBuilder();
   private String databaseTable;
   private String catSummaryTable;
+  private JsonObject configJson;
+  private JsonArray excludedIdsJson;
 
   MlayerServiceImpl(
-      DatabaseService databaseService,
-      PostgresService postgresService,
-      String databaseTable,
-      String catSummaryTable) {
+          DatabaseService databaseService,
+          PostgresService postgresService,
+          JsonObject config) {
     this.databaseService = databaseService;
     this.postgresService = postgresService;
-    this.databaseTable = databaseTable;
-    this.catSummaryTable = catSummaryTable;
+    this.configJson = config;
+    databaseTable = configJson.getString("databaseTable");
+    catSummaryTable = configJson.getString("catSummaryTable");
+    excludedIdsJson = configJson.getJsonArray("excluded_ids");
   }
 
   @Override
@@ -370,16 +373,15 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getTotalCountSizeApi(Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.info(" into get total count api");
-    String query = queryBuilder.buildTotalCountSizeQuery(catSummaryTable);
+  public MlayerService getSummaryCountSizeApi(Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.info(" into get summary count api");
+    String query = queryBuilder.buildSummaryCountSizeQuery(catSummaryTable);
 
-    LOGGER.debug(" Query {} ", query);
+    LOGGER.debug(" Query: {} ", query);
     postgresService.executeQuery(
         query,
         allQueryHandler -> {
           if (allQueryHandler.succeeded()) {
-            LOGGER.debug(allQueryHandler.result());
             handler.handle(Future.succeededFuture(allQueryHandler.result()));
           } else {
             handler.handle(Future.failedFuture(allQueryHandler.cause()));
@@ -391,7 +393,7 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService getRealTimeDataSetApi(Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.info(" into get real time dataset api");
-    String query = queryBuilder.buildCountAndSizeQuery(databaseTable);
+    String query = queryBuilder.buildCountAndSizeQuery(databaseTable, excludedIdsJson);
     LOGGER.debug("Query =  {}", query);
 
     postgresService.executeQuery(

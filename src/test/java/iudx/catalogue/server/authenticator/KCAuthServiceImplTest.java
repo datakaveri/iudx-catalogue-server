@@ -145,6 +145,34 @@ public class KCAuthServiceImplTest {
             + "}");
   }
 
+    private JWTClaimsSet jwtClaimsSetBuilder2() throws ParseException {
+        return JWTClaimsSet.parse(
+                "{\n"
+                        + "\t\"exp\": 1687091138,\n"
+                        + "\t\"iat\": 1687089398,\n"
+                        + "\t\"jti\": \"f801adad-704e-40cc-b2ea-c2e42408e3bc\",\n"
+                        + "\t\"iss\": \"https://keycloak.demo.org/auth/realms/demo\",\n"
+                        + "\t\"aud\": \"account\",\n"
+                        + "\t\"sub\": \"dummy-admin-id\",\n"
+                        + "\t\"typ\": \"Bearer\",\n"
+                        + "\t\"role\": \"admin\"\n"
+                        + "}");
+    }
+
+    private JWTClaimsSet jwtClaimsSetBuilder3() throws ParseException {
+        return JWTClaimsSet.parse(
+                "{\n"
+                        + "\t\"exp\": 1687091138,\n"
+                        + "\t\"iat\": 1687089398,\n"
+                        + "\t\"jti\": \"f801adad-704e-40cc-b2ea-c2e42408e3bc\",\n"
+                        + "\t\"iss\": \"https://keycloak.demo.org/auth/realms/demo\",\n"
+                        + "\t\"aud\": \"account\",\n"
+                        + "\t\"sub\": \"dummy-admin-id\",\n"
+                        + "\t\"typ\": \"Bearer\",\n"
+                        + "\t\"role\": \"user\"\n"
+                        + "}");
+    }
+
   @Test
   @DisplayName("Success: Test decode token")
   public void TestDecodeTokenFuture(Vertx vertx, VertxTestContext testContext)
@@ -180,6 +208,40 @@ public class KCAuthServiceImplTest {
               }
             });
   }
+
+    @Test
+    @DisplayName("Success: Test validUACAdmin Future")
+    public void TestisValidUAC2(Vertx vertx, VertxTestContext testContext) throws ParseException {
+
+        JWTClaimsSet jwtClaimsSet = jwtClaimsSetBuilder2();
+        JwtData jwtData = new JwtData(new JsonObject(jwtClaimsSet.toString()));
+        Util.isValidAdmin("cos.iudx.io", jwtData, false)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                testContext.completeNow();
+                            } else {
+                                testContext.failNow("valid UAC token failed");
+                            }
+                        });
+    }
+
+    @Test
+    @DisplayName("Fail: Test validUACAdmin Future")
+    public void TestisValidUACFail(Vertx vertx, VertxTestContext testContext) throws ParseException {
+
+        JWTClaimsSet jwtClaimsSet = jwtClaimsSetBuilder3();
+        JwtData jwtData = new JwtData(new JsonObject(jwtClaimsSet.toString()));
+        Util.isValidAdmin("cos.iudx.io", jwtData, false)
+                .onComplete(
+                        handler -> {
+                            if (handler.succeeded()) {
+                                testContext.failNow("Invalid Token: Admin token required");
+                            } else {
+                                testContext.completeNow();
+                            }
+                        });
+    }
 
   @Test
   @DisplayName("successful valid endpoint check")
