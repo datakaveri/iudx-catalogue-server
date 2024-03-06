@@ -28,9 +28,10 @@ public class MlayerProvider {
     this.docIndex = docIndex;
   }
 
-  public void getMlayerProviders(JsonObject requestParams,Handler<AsyncResult<JsonObject>> handler) {
-    String limit = requestParams.getString("limit");
-    String offset = requestParams.getString("offset" );
+  public void getMlayerProviders(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
+    String limit = requestParams.getString(LIMIT);
+    String offset = requestParams.getString(OFFSET);
     String query = GET_MLAYER_PROVIDERS_QUERY.replace("$0", limit).replace("$1", offset);
     client.searchAsync(
         query,

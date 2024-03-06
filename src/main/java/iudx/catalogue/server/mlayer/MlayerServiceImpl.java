@@ -148,9 +148,10 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerDomain(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerDomain(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerDomain(
-            requestParams,
+        requestParams,
         getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
             LOGGER.info("Success: Getting all domain values");
@@ -204,9 +205,10 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerProviders(JsonObject requestParams ,Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerProviders(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerProviders(
-            requestParams,
+        requestParams,
         getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
             LOGGER.info("Success: Getting all  providers");
@@ -238,20 +240,20 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
-      String query = GET_MLAYER_ALL_DATASETS;
-      LOGGER.debug("databse get mlayer all datasets called");
-      databaseService.getMlayerAllDatasets(
-              query,
-              getMlayerAllDatasets -> {
-                  if (getMlayerAllDatasets.succeeded()) {
-                      LOGGER.info("Success: Getting all datasets");
-                      handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
-                  } else {
-                      LOGGER.error("Fail: Getting all datasets failed");
-                      handler.handle(Future.failedFuture(getMlayerAllDatasets.cause()));
-                  }
-              });
-      return this;
+    String query = GET_MLAYER_ALL_DATASETS;
+    LOGGER.debug("databse get mlayer all datasets called");
+    databaseService.getMlayerAllDatasets(
+        query,
+        getMlayerAllDatasets -> {
+          if (getMlayerAllDatasets.succeeded()) {
+            LOGGER.info("Success: Getting all datasets");
+            handler.handle(Future.succeededFuture(getMlayerAllDatasets.result()));
+          } else {
+            LOGGER.error("Fail: Getting all datasets failed");
+            handler.handle(Future.failedFuture(getMlayerAllDatasets.cause()));
+          }
+        });
+    return this;
   }
 
   @Override
@@ -259,7 +261,7 @@ public class MlayerServiceImpl implements MlayerService {
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     if (requestParams.containsKey(ID) && !requestParams.getString(ID).isBlank()) {
       databaseService.getMlayerDataset(
-              requestParams,
+          requestParams,
           getMlayerDatasetHandler -> {
             if (getMlayerDatasetHandler.succeeded()) {
               LOGGER.info("Success: Getting details of dataset");
@@ -274,13 +276,16 @@ public class MlayerServiceImpl implements MlayerService {
             || requestParams.containsKey("providers")
             || requestParams.containsKey("domains"))
         && (!requestParams.containsKey(ID) || requestParams.getString(ID).isBlank())) {
-      if (requestParams.containsKey("domains") && !requestParams.getJsonArray("domains").isEmpty()) {
+      if (requestParams.containsKey("domains")
+          && !requestParams.getJsonArray("domains").isEmpty()) {
         JsonArray domainsArray = requestParams.getJsonArray("domains");
         JsonArray tagsArray =
-                requestParams.containsKey("tags") ? requestParams.getJsonArray("tags") : new JsonArray();
+            requestParams.containsKey("tags")
+                ? requestParams.getJsonArray("tags")
+                : new JsonArray();
 
         tagsArray.addAll(domainsArray);
-          requestParams.put("tags", tagsArray);
+        requestParams.put("tags", tagsArray);
       }
       String query = GET_ALL_DATASETS_BY_FIELDS;
 
@@ -304,7 +309,8 @@ public class MlayerServiceImpl implements MlayerService {
                 ",{\"match\":{\"instance.keyword\":\"$1\"}}"
                     .replace("$1", requestParams.getString(INSTANCE).toLowerCase()));
       }
-      if (requestParams.containsKey(PROVIDERS) && !requestParams.getJsonArray(PROVIDERS).isEmpty()) {
+      if (requestParams.containsKey(PROVIDERS)
+          && !requestParams.getJsonArray(PROVIDERS).isEmpty()) {
         query =
             query.concat(
                 ",{\"terms\":{\"provider.keyword\":$1}}"
@@ -313,7 +319,7 @@ public class MlayerServiceImpl implements MlayerService {
       query = query.concat(GET_ALL_DATASETS_BY_FIELD_SOURCE);
       LOGGER.debug("databse get mlayer all datasets called");
       databaseService.getMlayerAllDatasets(
-              query,
+          query,
           getAllDatasetsHandler -> {
             if (getAllDatasetsHandler.succeeded()) {
               LOGGER.info("Success: Getting details of all datasets");

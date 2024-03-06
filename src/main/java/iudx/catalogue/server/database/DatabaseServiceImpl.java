@@ -1279,7 +1279,8 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerInstance(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService getMlayerInstance(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     MlayerInstance getMlayerInstance = new MlayerInstance(client, mlayerInstanceIndex);
     getMlayerInstance.getMlayerInstance(requestParams, handler);
     return this;
@@ -1310,7 +1311,8 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerDomain(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService getMlayerDomain(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     MlayerDomain mlayerDomain = new MlayerDomain(client, mlayerDomainIndex);
     mlayerDomain.getMlayerDomain(requestParams, handler);
     return this;
@@ -1333,9 +1335,10 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerProviders(JsonObject requestParams ,Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService getMlayerProviders(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     MlayerProvider mlayerProvider = new MlayerProvider(client, docIndex);
-    mlayerProvider.getMlayerProviders(requestParams,handler);
+    mlayerProvider.getMlayerProviders(requestParams, handler);
     return this;
   }
 
@@ -1351,10 +1354,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService getMlayerAllDatasets(
-          String query, Handler<AsyncResult<JsonObject>> handler) {
-      MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
-      mlayerDataset.getMlayerAllDatasets(query, handler);
-      return this;
+      String query, Handler<AsyncResult<JsonObject>> handler) {
+    MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
+    mlayerDataset.getMlayerAllDatasets(query, handler);
+    return this;
   }
 
   @Override

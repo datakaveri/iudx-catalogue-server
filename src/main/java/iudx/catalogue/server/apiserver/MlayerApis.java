@@ -8,7 +8,6 @@ import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
 import io.vertx.core.Future;
-import io.vertx.core.MultiMap;
 import io.vertx.core.Promise;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -121,19 +120,18 @@ public class MlayerApis {
    */
   public void getMlayerInstanceHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching mlayer Instance");
-      HttpServerResponse response = routingContext.response();
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-      JsonObject requestParams = parseRequestParams(routingContext);
-      LOGGER.debug("Info: handleMlayerService started");
-      mlayerService.getMlayerInstance(
-              requestParams,
-              handler -> {
-                  if (handler.succeeded()) {
-                      response.setStatusCode(200).end(handler.result().toString());
-                  } else {
-                      response.setStatusCode(400).end(handler.cause().getMessage());
-                  }
-              });
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    JsonObject requestParams = parseRequestParams(routingContext);
+    mlayerService.getMlayerInstance(
+        requestParams,
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
   }
 
   /**
@@ -333,159 +331,93 @@ public class MlayerApis {
    *
    * @param routingContext {@link RoutingContext}
    */
-//  public void getMlayerDomainHandler(RoutingContext routingContext) {
-//      LOGGER.debug("Info : fetching mlayer Domain");
-//      String id = "";
-////      MultiMap reqParams = routingContext.request().params();
-////      LOGGER.debug(reqParams);
-//      JsonObject requestParams = new JsonObject();
-//      LOGGER.debug("REQUEST PARAMS "+requestParams);
-//      String limit  = routingContext.request().getParam("limit");
-//      String offset = routingContext.request().getParam("offset");
-//      LOGGER.debug("GET DOMAIN LIMIT "+ limit);
-//      LOGGER.debug("GET DOMAIN OFFSET "+ offset);
-//      int limitInt = 10000;
-////      int limitInt = Integer.parseInt(limit) >= 10000 ? 10000:Integer.parseInt(limit);
-//      int offsetInt = 0;
-//
-//      if (routingContext.request().getParam("id") != null) {
-//          id = routingContext.request().getParam("id");
-//
-//      }
-//
-//      if (limit != null && !limit.isBlank()) {
-//          if (validateLimitandOffset(limit)) {
-//              limitInt = Integer.parseInt(limit);
-//          } else {
-//              LOGGER.error("Invalid limit parameter");
-//              routingContext.response().setStatusCode(400).end("Invalid limit parameter");
-//              return;
-//          }
-//      }
-//
-//      if (offset != null && !offset.isBlank()) {
-//          if (validateLimitandOffset(offset)) {
-//              offsetInt = Integer.parseInt(offset);
-////              limit = null;
-//              LOGGER.debug("LIMIT INT : 390 ->" + limit);
-//              if (limit == null && limit.isEmpty()) { // limit == null |||| limit.isEmpty()
-//                  limitInt = limitInt - offsetInt;
-//                  LOGGER.debug("LIMIT INT : 393 ->" + limitInt);
-//              }
-//          } else {
-//              LOGGER.error("Invalid offset parameter");
-//              routingContext.response().setStatusCode(400).end("Invalid offset parameter");
-//              return;
-//          }
-//      }
-//
-//      requestParams.put(LIMIT,limitInt)
-//              .put(OFFSET,offsetInt)
-//              .put(ID,id);
-//      LOGGER.debug("394-> REQUEST PARAMS"+requestParams);
-//      HttpServerResponse response = routingContext.response();
-//      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-//      mlayerService.getMlayerDomain(
-//              requestParams,
-//              handler -> {
-//                  if (handler.succeeded()) {
-//                      response.setStatusCode(200).end(handler.result().toString());
-//                  } else {
-//                      response.setStatusCode(400).end(handler.cause().getMessage());
-//                  }
-//              });
-//  }
   public void getMlayerDomainHandler(RoutingContext routingContext) {
-
-      LOGGER.debug("Info: getMlayerDomainHandler() started");
-
-      HttpServerResponse response = routingContext.response();
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-      JsonObject requestParams = parseRequestParams(routingContext);
-      LOGGER.debug("Info: handleMlayerService started");
-      mlayerService.getMlayerDomain(
-              requestParams,
-              handler -> {
-                  if (handler.succeeded()) {
-                      response.setStatusCode(200).end(handler.result().toString());
-                  } else {
-                      response.setStatusCode(400).end(handler.cause().getMessage());
-                  }
-              });  }
-
-    private JsonObject parseRequestParams(RoutingContext routingContext) {
-        LOGGER.debug("Info: parseRequestParams() started");
-
-        JsonObject requestParams = new JsonObject();
-        String id = routingContext.request().getParam("id");
-        String limit = routingContext.request().getParam("limit");
-        String offset = routingContext.request().getParam("offset");
-
-        int limitInt = 10000;
-        int offsetInt = 0;
-
-        if (id != null) {
-            return requestParams.put(ID, id);
-        }
-
-        if (limit != null && !limit.isBlank()) {
-            if (validateLimitAndOffset(limit)) {
-                limitInt = Integer.parseInt(limit);
-            } else {
-                handleInvalidParameter(400, "Invalid limit parameter", routingContext);
-            }
-        }
-        if (offset != null && !offset.isBlank()) {
-            if (validateLimitAndOffset(offset)) {
-                offsetInt = Integer.parseInt(offset);
-                if (limitInt + offsetInt > 10000) {
-                    if(limitInt > offsetInt)
-                        limitInt = limitInt - offsetInt;
-                    else
-                        offsetInt = offsetInt - limitInt;
-                }
-            } else {
-                handleInvalidParameter(400, "Invalid offset parameter", routingContext);
-            }
-        }
-        requestParams.put(LIMIT, limitInt).put(OFFSET, offsetInt);
-        return requestParams;
-    }
-
-    boolean validateLimitAndOffset(String value) {
-        try {
-            int size = Integer.parseInt(value);
-            if (size > 10000 || size < 0) {
-                LOGGER.error(
-                        "Validation error : invalid pagination limit Value > 10000 or negative value passed [ "
-                                + value
-                                + " ]");
-                return false;
-            }
-            return true;
-        } catch (NumberFormatException e) {
-            LOGGER.error(
-                    "Validation error : invalid pagination limit Value [ "
-                            + value
-                            + " ] only integer expected");
-            return false;
-        }
-    }
-
-
-
-  private void handleInvalidParameter(
-          int statusCode, String errorMessage, RoutingContext routingContext) {
-      LOGGER.error(errorMessage);
-      String responseMessage =
-              new RespBuilder()
-                      .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
-                      .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
-                      .withDetail(errorMessage)
-                      .getResponse();
-      routingContext.response().setStatusCode(statusCode).end(responseMessage);
+    LOGGER.debug("Info: getMlayerDomainHandler() started");
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    JsonObject requestParams = parseRequestParams(routingContext);
+    mlayerService.getMlayerDomain(
+        requestParams,
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
   }
 
+  private JsonObject parseRequestParams(RoutingContext routingContext) {
+    LOGGER.debug("Info: parseRequestParams() started");
+
+    JsonObject requestParams = new JsonObject();
+    String id = routingContext.request().getParam(ID);
+    String limit = routingContext.request().getParam(LIMIT);
+    String offset = routingContext.request().getParam(OFFSET);
+
+    int limitInt = 10000;
+    int offsetInt = 0;
+
+    if (id != null) {
+      return requestParams.put(ID, id);
+    }
+
+    if (limit != null && !limit.isBlank()) {
+      if (validateLimitAndOffset(limit)) {
+        limitInt = Integer.parseInt(limit);
+      } else {
+        handleInvalidParameter(400, "Invalid limit parameter", routingContext);
+      }
+    }
+    if (offset != null && !offset.isBlank()) {
+      if (validateLimitAndOffset(offset)) {
+        offsetInt = Integer.parseInt(offset);
+        if (limitInt + offsetInt > 10000) {
+          if (limitInt > offsetInt) {
+            limitInt = limitInt - offsetInt;
+          } else {
+            offsetInt = offsetInt - limitInt;
+          }
+        }
+      } else {
+        handleInvalidParameter(400, "Invalid offset parameter", routingContext);
+      }
+    }
+    requestParams.put(LIMIT, limitInt).put(OFFSET, offsetInt);
+    return requestParams;
+  }
+
+  boolean validateLimitAndOffset(String value) {
+    try {
+      int size = Integer.parseInt(value);
+      if (size > 10000 || size < 0) {
+        LOGGER.error(
+            "Validation error : invalid pagination limit Value > 10000 or negative value passed [ "
+                + value
+                + " ]");
+        return false;
+      }
+      return true;
+    } catch (NumberFormatException e) {
+      LOGGER.error(
+          "Validation error : invalid pagination limit Value [ "
+              + value
+              + " ] only integer expected");
+      return false;
+    }
+  }
+
+  private void handleInvalidParameter(
+      int statusCode, String errorMessage, RoutingContext routingContext) {
+    LOGGER.error(errorMessage);
+    String responseMessage =
+        new RespBuilder()
+            .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
+            .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+            .withDetail(errorMessage)
+            .getResponse();
+    routingContext.response().setStatusCode(statusCode).end(responseMessage);
+  }
 
   /**
    * Update Mlayer Domain Handler.
@@ -601,19 +533,18 @@ public class MlayerApis {
    */
   public void getMlayerProvidersHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching mlayer Providers");
-      HttpServerResponse response = routingContext.response();
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-      JsonObject requestParams = parseRequestParams(routingContext);
-      LOGGER.debug("Info: handleMlayerService started");
-      mlayerService.getMlayerProviders(
-              requestParams,
-              handler -> {
-                  if (handler.succeeded()) {
-                      response.setStatusCode(200).end(handler.result().toString());
-                  } else {
-                      response.setStatusCode(400).end(handler.cause().getMessage());
-                  }
-              });
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    JsonObject requestParams = parseRequestParams(routingContext);
+    mlayerService.getMlayerProviders(
+        requestParams,
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
   }
 
   /**
@@ -658,27 +589,27 @@ public class MlayerApis {
    * @param routingContext {@link RoutingContext}
    */
   public void getMlayerAllDatasetsHandler(RoutingContext routingContext) {
-      LOGGER.debug("Info : fetching all datasets that belong to IUDX");
-      HttpServerResponse response = routingContext.response();
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-      mlayerService.getMlayerAllDatasets(
-              handler -> {
-                  if (handler.succeeded()) {
-                      response.setStatusCode(200).end(handler.result().toString());
-                  } else {
-                      if (handler.cause().getMessage().contains(VALIDATION_FAILURE_MSG)) {
-                          response
-                                  .setStatusCode(400)
-                                  .end(
-                                          new RespBuilder()
-                                                  .withType(TYPE_INVALID_SCHEMA)
-                                                  .withTitle(TITLE_INVALID_SCHEMA)
-                                                  .withDetail("The Schema of dataset is invalid")
-                                                  .getResponse());
-                      }
-                      response.setStatusCode(400).end(handler.cause().getMessage());
-                  }
-              });
+    LOGGER.debug("Info : fetching all datasets that belong to IUDX");
+    HttpServerResponse response = routingContext.response();
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    mlayerService.getMlayerAllDatasets(
+        handler -> {
+          if (handler.succeeded()) {
+            response.setStatusCode(200).end(handler.result().toString());
+          } else {
+            if (handler.cause().getMessage().contains(VALIDATION_FAILURE_MSG)) {
+              response
+                  .setStatusCode(400)
+                  .end(
+                      new RespBuilder()
+                          .withType(TYPE_INVALID_SCHEMA)
+                          .withTitle(TITLE_INVALID_SCHEMA)
+                          .withDetail("The Schema of dataset is invalid")
+                          .getResponse());
+            }
+            response.setStatusCode(400).end(handler.cause().getMessage());
+          }
+        });
   }
 
   /**
@@ -687,50 +618,50 @@ public class MlayerApis {
    * @param routingContext {@link RoutingContext}
    */
   public void getMlayerDatasetHandler(RoutingContext routingContext) {
-      LOGGER.debug("Info : fetching details of the dataset");
-      HttpServerResponse response = routingContext.response();
-      JsonObject requestData = routingContext.body().asJsonObject();
+    LOGGER.debug("Info : fetching details of the dataset");
+    HttpServerResponse response = routingContext.response();
+    JsonObject requestData = routingContext.body().asJsonObject();
 
-      response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-      validatorService.validateMlayerDatasetId(
-              requestData,
-              validationHandler -> {
-                  if (validationHandler.failed()) {
-                      response
-                              .setStatusCode(400)
-                              .end(
-                                      new RespBuilder()
-                                              .withType(TYPE_INVALID_SCHEMA)
-                                              .withTitle(TITLE_INVALID_SCHEMA)
-                                              .withDetail("The Schema of requested body is invalid.")
-                                              .getResponse());
+    validatorService.validateMlayerDatasetId(
+        requestData,
+        validationHandler -> {
+          if (validationHandler.failed()) {
+            response
+                .setStatusCode(400)
+                .end(
+                    new RespBuilder()
+                        .withType(TYPE_INVALID_SCHEMA)
+                        .withTitle(TITLE_INVALID_SCHEMA)
+                        .withDetail("The Schema of requested body is invalid.")
+                        .getResponse());
+          } else {
+            LOGGER.debug("Validation of dataset Id Successful");
+            mlayerService.getMlayerDataset(
+                requestData,
+                handler -> {
+                  if (handler.succeeded()) {
+                    response.setStatusCode(200).end(handler.result().toString());
                   } else {
-                      LOGGER.debug("Validation of dataset Id Successful");
-                      mlayerService.getMlayerDataset(
-                              requestData,
-                              handler -> {
-                                  if (handler.succeeded()) {
-                                      response.setStatusCode(200).end(handler.result().toString());
-                                  } else {
-                                      if (handler.cause().getMessage().contains("urn:dx:cat:ItemNotFound")) {
-                                          response.setStatusCode(404).end(handler.cause().getMessage());
-                                      } else if (handler.cause().getMessage().contains(VALIDATION_FAILURE_MSG)) {
-                                          response
-                                                  .setStatusCode(400)
-                                                  .end(
-                                                          new RespBuilder()
-                                                                  .withType(TYPE_INVALID_SCHEMA)
-                                                                  .withTitle(TITLE_INVALID_SCHEMA)
-                                                                  .withDetail("The Schema of dataset is invalid")
-                                                                  .getResponse());
-                                      } else {
-                                          response.setStatusCode(400).end(handler.cause().getMessage());
-                                      }
-                                  }
-                              });
+                    if (handler.cause().getMessage().contains("urn:dx:cat:ItemNotFound")) {
+                      response.setStatusCode(404).end(handler.cause().getMessage());
+                    } else if (handler.cause().getMessage().contains(VALIDATION_FAILURE_MSG)) {
+                      response
+                          .setStatusCode(400)
+                          .end(
+                              new RespBuilder()
+                                  .withType(TYPE_INVALID_SCHEMA)
+                                  .withTitle(TITLE_INVALID_SCHEMA)
+                                  .withDetail("The Schema of dataset is invalid")
+                                  .getResponse());
+                    } else {
+                      response.setStatusCode(400).end(handler.cause().getMessage());
+                    }
                   }
-              });
+                });
+          }
+        });
   }
 
   /**
@@ -805,31 +736,4 @@ public class MlayerApis {
           }
         });
   }
-
-  public boolean validateLimitandOffset(String value){
-      if( value == null || value.isBlank()){
-          return false;
-      }
-      try {
-          int size = Integer.parseInt(value);
-          if (size > 10001 || size < 0) {
-              LOGGER.error(
-                      "Validation error : invalid pagination limit Value > 10000 or negative value passed [ "
-                              + value
-                              + " ]");
-//              throw new DxRuntimeException(failureCode(), INVALID_PARAM_VALUE_URN, failureMessage(value));
-              return false;
-          }
-      } catch (Exception ex) {
-          LOGGER.error(
-                  "Validation error : invalid pagination limit Value [ "
-                          + value
-                          + " ] only integer expected");
-//          throw new DxRuntimeException(failureCode(), INVALID_PARAM_VALUE_URN, failureMessage(value));
-          return false;
-      }
-      return true;
-  }
-
-
 }

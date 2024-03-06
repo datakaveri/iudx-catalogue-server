@@ -14,21 +14,37 @@ import iudx.catalogue.server.nlpsearch.NLPSearchService;
 
 /**
  * The Database Service.
+ *
  * <h1>Database Service</h1>
- * <p>
- * The Database Service in the IUDX Catalogue Server defines the operations to be performed with the
- * IUDX Database server.
- * </p>
+ *
+ * <p>The Database Service in the IUDX Catalogue Server defines the operations to be performed with
+ * the IUDX Database server.
  *
  * @see io.vertx.codegen.annotations.ProxyGen
  * @see io.vertx.codegen.annotations.VertxGen
  * @version 1.0
  * @since 2020-05-31
  */
-
 @VertxGen
 @ProxyGen
 public interface DatabaseService {
+
+  /* create db service with nlp and geocoding */
+  @GenIgnore
+  static DatabaseService create(
+      ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
+    return new DatabaseServiceImpl(client, nlpService, geoService);
+  }
+
+  @GenIgnore
+  static DatabaseService create(ElasticClient client) {
+    return new DatabaseServiceImpl(client);
+  }
+
+  @GenIgnore
+  static DatabaseService createProxy(Vertx vertx, String address) {
+    return new DatabaseServiceVertxEBProxy(vertx, address);
+  }
 
   /**
    * The searchQuery implements the search operation with the database.
@@ -59,8 +75,8 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService nlpSearchLocationQuery(JsonArray request, JsonObject queryParams,
-                                          Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService nlpSearchLocationQuery(
+      JsonArray request, JsonObject queryParams, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The countQuery implements the count operation with the database.
@@ -81,7 +97,6 @@ public interface DatabaseService {
    */
   @Fluent
   DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
-
 
   /**
    * The updateItem implements the update item operation with the database.
@@ -114,7 +129,7 @@ public interface DatabaseService {
   DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
-   *  The listOwnerOrCos implements the fetch of entire owner or cos item from the database.
+   * The listOwnerOrCos implements the fetch of entire owner or cos item from the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
@@ -132,8 +147,7 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService listRelationship(JsonObject request,
-      Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService listRelationship(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The relSearch implements the Relationship searches with the database.
@@ -206,7 +220,8 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerInstance(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerInstance(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The deleteMlayerInstance implements deleting instance from the database.
@@ -246,7 +261,8 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerDomain(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerDomain(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The updateMlayerDomain implements updating all domain from database.
@@ -275,7 +291,8 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerProviders(JsonObject requestParams ,Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerProviders(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The post Mlayer GeoQuery posts all the dataset_id's location and label.
@@ -295,7 +312,9 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerAllDatasets(String query,  Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerAllDatasets(String query, Handler<AsyncResult<JsonObject>> handler);
+
+  /* create db service vanilla */
 
   /**
    * The get Mlayer datasset get details of the dataset.
@@ -305,28 +324,10 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service.
    */
   @Fluent
-  DatabaseService getMlayerDataset(JsonObject requestData,
-                                   Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerDataset(
+      JsonObject requestData, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  DatabaseService getMlayerPopularDatasets(String instance, JsonArray highestCountResource,
-                                           Handler<AsyncResult<JsonObject>> handler);
-
-  /* create db service with nlp and geocoding */
-  @GenIgnore
-  static DatabaseService create(
-      ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
-    return new DatabaseServiceImpl(client, nlpService, geoService);
-  }
-  /* create db service vanilla */
-
-  @GenIgnore
-  static DatabaseService create(ElasticClient client) {
-    return new DatabaseServiceImpl(client);
-  }
-
-  @GenIgnore
-  static DatabaseService createProxy(Vertx vertx, String address) {
-    return new DatabaseServiceVertxEBProxy(vertx, address);
-  }
+  DatabaseService getMlayerPopularDatasets(
+      String instance, JsonArray highestCountResource, Handler<AsyncResult<JsonObject>> handler);
 }
