@@ -1693,6 +1693,18 @@ paths:
             `id` of the instance to be fetched
           schema:
             type: string
+        - name: limit
+          in: query
+          description: |
+            `limit` of the data model domain, to be fetched
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: |
+            `offset` of the data model domain, to be fetched
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -1700,6 +1712,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/successResponseForGettingInstance'
+        '400':
+          description: Invalid Parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/invalidResponseForWrongLimitAndOffsetValues'
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1887,6 +1905,18 @@ paths:
             `id` of the data model domain, to be fetched
           schema:
             type: string
+        - name: limit
+          in: query
+          description: |
+            `limit` of the data model domain, to be fetched
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: |
+            `offset` of the data model domain, to be fetched
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -1894,6 +1924,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/successResponseForGettingDomain'
+        '400':
+          description: Invalid Parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/invalidResponseForWrongLimitAndOffsetValues'
+
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1956,6 +1993,19 @@ paths:
       description: |
         A catalogue API to list all providers, which will be reflected on the catalogue UI.
       operationId: get providers
+      parameters:
+        - name: limit
+          in: query
+          description: |
+            `limit` of the data model domain, to be fetched
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: |
+            `offset` of the data model domain, to be fetched
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -1963,6 +2013,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/successResponseForUIProvider'
+        '400':
+          description: Invalid Parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/invalidResponseForWrongLimitAndOffsetValues'
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -6882,6 +6938,23 @@ components:
         type: 'urn:dx:cat:InvalidSchema'
         title: Invalid Schema
         detail: The Schema of requested body is invalid.
+    invalidResponseForWrongLimitAndOffsetValues:
+      type: object
+      title: Example Response for get mlayer for provider or domain or instance
+      description: Invalid parameter in the given request
+      properties:
+        type:
+          type: string
+          description: |
+            Indicates Invalid parameter in the given request
+        title:
+          description: A human readable title to the message response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:InvalidParamValue'
+        title: Invalid value for a query param
+        detail: Invalid limit parameter.
     successResponseForUpdatingInstance:
       type: object
       title: Response for updating an instance
