@@ -28,35 +28,33 @@ pipeline {
     stage('Unit Tests and CodeCoverage Test'){
       steps{
         script{
-          sh 'docker compose up test'
+          sh 'cp /home/ubuntu/configs/cat-config-test.json ./configs/config-test.json'
+          sh 'mvn clean test checkstyle:checkstyle pmd:pmd'
         }
         xunit (
-          thresholds: [ skipped(failureThreshold: '12'), failed(failureThreshold: '0') ],
+          thresholds: [ skipped(failureThreshold: '6'), failed(failureThreshold: '0') ],
           tools: [ JUnit(pattern: 'target/surefire-reports/*.xml') ]
         )
         jacoco classPattern: 'target/classes', execPattern: 'target/*.exec', sourcePattern: 'src/main/java', exclusionPattern: 'iudx/catalogue/server/apiserver/*,iudx/catalogue/server/deploy/*,iudx/catalogue/server/mockauthenticator/*,iudx/catalogue/server/**/*EBProxy.*,iudx/catalogue/server/**/*ProxyHandler.*,iudx/catalogue/server/**/reactivex/*,**/Constants.class,**/*Verticle.class,iudx/catalogue/server/auditing/util/Constants.class,iudx/catalogue/server/database/DatabaseService.class,iudx/catalogue/server/database/postgres/PostgresService.class'
       }
       post{
-       always {
-                             recordIssues(
-                               enabledForFailure: true,
-                               blameDisabled: true,
-                               forensicsDisabled: true,
-                               qualityGates: [[threshold:6, type: 'TOTAL', unstable: false]],
-                               tool: checkStyle(pattern: 'target/checkstyle-result.xml')
-                             )
-                             recordIssues(
-                               enabledForFailure: true,
-                             	blameDisabled: true,
-                               forensicsDisabled: true,
-                               qualityGates: [[threshold:8, type: 'TOTAL', unstable: false]],
-                               tool: pmdParser(pattern: 'target/pmd.xml')
-                             )
-                           }
+        always{
+          recordIssues(
+            enabledForFailure: true,
+            blameDisabled: true,
+            forensicsDisabled: true,
+            qualityGates: [[threshold:6, type: 'TOTAL', unstable: false]],
+            tool: checkStyle(pattern: 'target/checkstyle-result.xml')
+          )
+          recordIssues(
+            enabledForFailure: true,
+          blameDisabled: true,
+            forensicsDisabled: true,
+            qualityGates: [[threshold:8, type: 'TOTAL', unstable: false]],
+            tool: pmdParser(pattern: 'target/pmd.xml')
+          )
+        }
         failure{
-          script{
-            sh 'docker compose down --remove-orphans'
-          }
           error "Test failure. Stopping pipeline execution!"
         }
         cleanup{
