@@ -15,7 +15,7 @@ public class MlayerSummary {
     public void getTotalHit(){
         given()
                 .when()
-                .get("/internal/ui/internaldataset")
+                .get("/internal/ui/summary")
                 .then()
                 .statusCode(200)
                 .body("type",equalTo("urn:dx:cat:Success"))

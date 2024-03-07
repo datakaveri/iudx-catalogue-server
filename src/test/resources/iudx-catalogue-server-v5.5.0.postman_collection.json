@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b83a0101-4ff3-4674-ba1e-80042e2bfa8a",
+		"_postman_id": "d14b7e10-c0f4-42fd-8c23-9ff754c22d33",
 		"name": "iudx-catalogue-server v5.5.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "20457128"
@@ -14752,7 +14752,7 @@
 					"name": "Mlayer Summary",
 					"item": [
 						{
-							"name": "200 (Success) - Get Total Hit",
+							"name": "200 (Success) - Get Summary",
 							"event": [
 								{
 									"listen": "test",
@@ -14775,21 +14775,21 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/totalcountsize",
+									"raw": "{{host}}{{base}}/internal/ui/summary",
 									"host": [
 										"{{host}}{{base}}"
 									],
 									"path": [
 										"internal",
 										"ui",
-										"totalcountsize"
+										"summary"
 									]
 								}
 							},
 							"response": []
 						},
 						{
-							"name": "200 (Success) - Get  Countt and Size",
+							"name": "200 (Success) - Get  Count and Size",
 							"event": [
 								{
 									"listen": "test",
@@ -14812,14 +14812,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/countsize",
+									"raw": "{{host}}{{base}}/internal/ui/realtimedataset",
 									"host": [
 										"{{host}}{{base}}"
 									],
 									"path": [
 										"internal",
 										"ui",
-										"countsize"
+										"realtimedataset"
 									]
 								}
 							},

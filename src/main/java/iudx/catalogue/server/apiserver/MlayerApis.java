@@ -704,11 +704,11 @@ public class MlayerApis {
    *
    * @param routingContext {@link RoutingContext}
    */
-  public void getTotalCountSizeApi(RoutingContext routingContext) {
+  public void getSummaryCountSizeApi(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching total counts");
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
-    mlayerService.getTotalCountSizeApi(
+    mlayerService.getSummaryCountSizeApi(
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());

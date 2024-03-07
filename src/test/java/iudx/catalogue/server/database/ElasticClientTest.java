@@ -5,8 +5,10 @@ import static iudx.catalogue.server.geocoding.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -19,6 +21,7 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import io.vertx.core.Vertx;
 import iudx.catalogue.server.Configuration;
+import org.elasticsearch.client.Request;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -27,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -238,6 +242,14 @@ public class ElasticClientTest {
   public void testResourceAggregationAsync(VertxTestContext vertxTestContext) {
     String query="dummy";
     assertNotNull(elasticClient.resourceAggregationAsync(query,docIndex, handler));
+    vertxTestContext.completeNow();
+  }
+
+  @Test
+  @Description("test resourceAggregationAsync method")
+  public void testResourceAggregationAsync2(VertxTestContext vertxTestContext) {
+    String query="dummy";
+    assertNotNull(elasticClient.searchGetId(query,docIndex, handler));
     vertxTestContext.completeNow();
   }
 }

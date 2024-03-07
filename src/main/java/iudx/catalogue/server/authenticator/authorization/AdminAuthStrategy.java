@@ -10,10 +10,8 @@ import java.util.List;
 public class AdminAuthStrategy implements AuthorizationStratergy {
   static List<AuthorizationRequest> accessList = new ArrayList<>();
   private static volatile AdminAuthStrategy instance;
-  private Api api;
 
   private AdminAuthStrategy(Api api) {
-    this.api = api;
     buildPermissions(api);
   }
 
