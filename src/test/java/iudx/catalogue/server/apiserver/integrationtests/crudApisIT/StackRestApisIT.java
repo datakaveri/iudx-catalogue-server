@@ -12,11 +12,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-@Disabled
+
 @ExtendWith(RestAssuredConfiguration.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class StackRestApisTest {
-  public static final Logger LOGGER = LogManager.getLogger(StackRestApisTest.class);
+public class StackRestApisIT {
+  public static final Logger LOGGER = LogManager.getLogger(StackRestApisIT.class);
 
   public static String stackId;
 
