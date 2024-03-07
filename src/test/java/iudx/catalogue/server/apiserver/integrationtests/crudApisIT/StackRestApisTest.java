@@ -1,6 +1,6 @@
 package iudx.catalogue.server.apiserver.integrationtests.crudApisIT;
 
-import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.*;
 import static iudx.catalogue.server.authenticator.TokensForITs.*;
 import static org.hamcrest.Matchers.*;
 
@@ -80,6 +80,7 @@ public class StackRestApisTest {
         .header("token", token)
         .body(payloadJson.toString())
         .when()
+            .log().uri()
         .post("/stack")
         .then()
         .extract()
@@ -99,6 +100,8 @@ public class StackRestApisTest {
   }
 
   private Response getStackItem(String stackId) {
+    LOGGER.debug("baseURI: " + baseURI);
+    LOGGER.debug("basePath: " + basePath);
     return given()
         .contentType("application/json")
         .param("id", stackId)
