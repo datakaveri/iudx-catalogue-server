@@ -19,17 +19,14 @@ public class MlayerVerticle extends AbstractVerticle {
   private ServiceBinder binder;
   private MessageConsumer<JsonObject> consumer;
   private MlayerService mlayer;
-  private String rsTable;
-  private String catSummaryTable;
 
   @Override
   public void start() throws Exception {
     databaseService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
     postgresService = PostgresService.createProxy(vertx, PG_SERVICE_ADDRESS);
     binder = new ServiceBinder(vertx);
-    rsTable = config().getString("databaseTable");
-    catSummaryTable = config().getString("catSummaryTable");
-    mlayer = new MlayerServiceImpl(databaseService, postgresService, rsTable, catSummaryTable);
+
+    mlayer = new MlayerServiceImpl(databaseService, postgresService, config());
     consumer = binder.setAddress(MLAYER_SERVICE_ADDRESS).register(MlayerService.class, mlayer);
     LOGGER.info("Mlayer Service Started");
   }

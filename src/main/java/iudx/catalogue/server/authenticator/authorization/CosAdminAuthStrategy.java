@@ -12,10 +12,8 @@ public class CosAdminAuthStrategy implements AuthorizationStratergy {
 
   static List<AuthorizationRequest> accessList = new ArrayList<>();
   private static volatile CosAdminAuthStrategy instance;
-  private Api api;
 
   private CosAdminAuthStrategy(Api api) {
-    this.api = api;
     buildPermissions(api);
   }
 
@@ -56,7 +54,6 @@ public class CosAdminAuthStrategy implements AuthorizationStratergy {
     accessList.add(new AuthorizationRequest(POST, api.getRouteMlayerDomains(), ""));
     accessList.add(new AuthorizationRequest(PUT, api.getRouteMlayerDomains(), ""));
     accessList.add(new AuthorizationRequest(DELETE, api.getRouteMlayerDomains(), ""));
-
   }
 
   @Override
