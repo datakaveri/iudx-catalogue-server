@@ -294,8 +294,6 @@
                         <exclude>**/*Verticle.class</exclude>
                         <exclude>**/mockauthenticator/</exclude>
                         <exclude>**/JwtDataConverter.class</exclude>
-                        <exclude>**/StackRestApi.class</exclude>
-                        <exclude>**/ApiServerVerticle.class</exclude>
 
                         <!-- service proxy interfaces -->
                         <exclude>**/*Service.class</exclude>
