@@ -75,12 +75,12 @@ public class StackRestApisIT {
   }
 
   private Response createStackItem(JsonObject payloadJson, String token) {
+    LOGGER.debug("createStackItem payloadJson:: " + payloadJson);
     return given()
         .contentType("application/json")
         .header("token", token)
         .body(payloadJson.toString())
         .when()
-            .log().uri()
         .post("/stack")
         .then()
         .extract()
@@ -88,6 +88,7 @@ public class StackRestApisIT {
   }
 
   private Response updateStackItem(JsonObject payloadJson, String token) {
+    LOGGER.debug("updateStackItem payloadJson:: " + payloadJson);
     return given()
         .contentType("application/json")
         .header("token", token)
@@ -100,8 +101,7 @@ public class StackRestApisIT {
   }
 
   private Response getStackItem(String stackId) {
-    LOGGER.debug("baseURI: " + baseURI);
-    LOGGER.debug("basePath: " + basePath);
+    LOGGER.debug("getStackItem stackId:: {} ", stackId);
     return given()
         .contentType("application/json")
         .param("id", stackId)
@@ -113,6 +113,7 @@ public class StackRestApisIT {
   }
 
   private Response deleteStackItem(String stackId, String token) {
+    LOGGER.debug("deleteStackItem stackId::{} ", stackId);
     return given()
         .contentType("application/json")
         .header("token", token)
@@ -143,6 +144,11 @@ public class StackRestApisIT {
   @Order(2)
   @DisplayName("Create Stack Item - Conflict (409)")
   void testCreateStackItemConflicts() {
+    try {
+      Thread.sleep(2000); // 2 seconds delay
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     JsonObject payloadJson = createPayload();
     Response response = createStackItem(payloadJson, cosAdminToken);
     assertResponse(
@@ -193,6 +199,11 @@ public class StackRestApisIT {
   @Order(6)
   @DisplayName("Update stack item - Not Found (404)")
   void updateStackItemNotFound() {
+    try {
+      Thread.sleep(2000); // 2 seconds delay
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     JsonObject payloadJson = createChildObject();
     payloadJson.put("id", "f47ac10b-58cc-4372-a567-0e02b2c3d479");
     Response response = updateStackItem(payloadJson, cosAdminToken);
@@ -220,6 +231,11 @@ public class StackRestApisIT {
   @DisplayName("Update stack item - Success (200)")
   void updateStackItemSuccess() {
     LOGGER.debug("stackId {}", stackId);
+    try {
+      Thread.sleep(2000); // 2 seconds delay
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     JsonObject payloadJson = createChildObject();
     payloadJson.put("id", stackId);
 
@@ -233,6 +249,11 @@ public class StackRestApisIT {
   @DisplayName("Get stack item - Success (200)")
   void getStackItemSuccess() {
     LOGGER.debug("stackId {}", stackId);
+    try {
+      Thread.sleep(2000); // 2 seconds delay
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     Response response = getStackItem(stackId);
     response
         .then()
@@ -245,7 +266,7 @@ public class StackRestApisIT {
   @Order(9)
   @DisplayName("Get stack item - Not Found (404)")
   void getStackItemNotFound() {
-    LOGGER.debug("stackId " + stackId);
+    LOGGER.debug("stackId : {}", stackId);
     Response response = getStackItem("7c8a0478-7986-4d6e-91d1-2ba82bd22863");
     assertResponse(
         response, 404, "urn:dx:cat:ItemNotFound", "Item is not found", "Fail: Stack doesn't exist");
@@ -294,7 +315,7 @@ public class StackRestApisIT {
   @Order(13)
   @DisplayName("Delete stack item - Not Found (404)")
   void deleteStackItemNotFound() {
-    LOGGER.debug("stackId " + stackId);
+    LOGGER.debug("stackId : {} ", stackId);
     Response response = deleteStackItem("714f82e7-146b-411c-b2e1-8618141d8b99", cosAdminToken);
     assertResponse(response, 404, "urn:dx:cat:ItemNotFound", "Item not found, can't delete");
   }
@@ -303,7 +324,12 @@ public class StackRestApisIT {
   @Order(14)
   @DisplayName("Delete stack item - Success (200)")
   void deleteStackItemSuccess() {
-    LOGGER.debug("stackId " + stackId);
+    LOGGER.debug("stackId : {} ", stackId);
+    try {
+      Thread.sleep(2000); // 2 seconds delay
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
     Response response = deleteStackItem(stackId, cosAdminToken);
     assertResponse(response, 200, "Success", "Stack deleted successfully.");
   }
