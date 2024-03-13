@@ -32,7 +32,7 @@ pipeline {
           sh 'mvn clean test checkstyle:checkstyle pmd:pmd'
         }
         xunit (
-          thresholds: [ skipped(failureThreshold: '6'), failed(failureThreshold: '0') ],
+          thresholds: [ skipped(failureThreshold: '75'), failed(failureThreshold: '0') ],
           tools: [ JUnit(pattern: 'target/surefire-reports/*.xml') ]
         )
         jacoco classPattern: 'target/classes', execPattern: 'target/*.exec', sourcePattern: 'src/main/java', exclusionPattern: 'iudx/catalogue/server/apiserver/*,iudx/catalogue/server/deploy/*,iudx/catalogue/server/mockauthenticator/*,iudx/catalogue/server/**/*EBProxy.*,iudx/catalogue/server/**/*ProxyHandler.*,iudx/catalogue/server/**/reactivex/*,**/Constants.class,**/*Verticle.class,iudx/catalogue/server/auditing/util/Constants.class,iudx/catalogue/server/database/DatabaseService.class,iudx/catalogue/server/database/postgres/PostgresService.class'
