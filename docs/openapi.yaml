@@ -30,6 +30,7 @@ info:
     
     - <b> Pagination is applicable only for</b>
        - <b>/internal/ui/providers</b>
+       - <b>/internal/ui/providers</b>
        - <b>/internal/ui/instance</b>
        - <b>/internal/ui/domain</b>
        
