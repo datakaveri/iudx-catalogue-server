@@ -244,7 +244,7 @@ public class MlayerDomainCRUDIT {
                 .statusCode(400)
                 //.log().body()
                 .body("type", equalTo("urn:dx:cat:InvalidParamValue"))
-                .body("detail", equalTo("Invalid offset parameter"));
+                .body("detail", equalTo("Invalid limit parameter"));
     }
 
     //Deleting Mlayer Domain
