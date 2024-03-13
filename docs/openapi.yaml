@@ -29,7 +29,7 @@ info:
     Catalogue server also offers way to paginate the result for queries. If a query returns large number of records then user can use additional parameters in query parameters to limit numbers of records to be returned.
     
     - <b> Pagination is applicable only for</b>
-       - <b>/internal/ui/providers</b>
+       - <b>/search</b>
        - <b>/internal/ui/providers</b>
        - <b>/internal/ui/instance</b>
        - <b>/internal/ui/domain</b>
