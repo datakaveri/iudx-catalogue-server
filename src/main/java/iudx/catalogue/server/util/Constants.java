@@ -154,6 +154,7 @@ public class Constants {
   public static final String REQUEST_GET = "GET";
   public static final String REQUEST_POST = "POST";
   public static final String REQUEST_PUT = "PUT";
+  public static final String REQUEST_PATCH = "PATCH";
   public static final String REQUEST_DELETE = "DELETE";
 
   /** Error Messages. */
@@ -201,6 +202,7 @@ public class Constants {
   public static final String TYPE_OPERATION_NOT_ALLOWED = "urn:dx:cat:OperationNotAllowed";
   public static final String TYPE_LINK_VALIDATION_FAILED = "urn:dx:cat:LinkValidationFailed";
   public static final String TYPE_DB_ERROR = "urn:dx:cat:DatabaseError";
+  public static final String TYPE_CONFLICT = "urn:dx:cat:Conflicts";
 
   public static final String TITLE_WRONG_PROVIDER = "Wrong Provider";
   public static final String TITLE_WRONG_RESOURCESERVER = "Wrong Resource Server";
@@ -221,7 +223,7 @@ public class Constants {
   public static final String TITLE_REQUIREMENTS_NOT_MET =
           "Resource usage requirements not satisfied";
 
-
+  public static final String DETAIL_CONFLICT = "Conflicts";
   public static final String DETAIL_INTERNAL_SERVER_ERROR = "Internal error";
   public static final String DETAIL_WRONG_ITEM_TYPE = "Wrong Item Type";
   public static final String DETAIL_ID_NOT_FOUND = "id not present in the request";
@@ -263,6 +265,9 @@ public class Constants {
   public static final String TITLE_DB_ERROR = "database error";
   public static final String TYPE_INVALID_SEARCH_ERROR = "urn:dx:cat:InvalidRelationSearch";
   public static final String TITLE_INVALID_SEARCH_ERROR = "Invalid relationship type search";
+  public static final String STACK_CREATION_SUCCESS = "Stack created successfully.";
+  public static final String STACK_DELETION_SUCCESS = "Stack deleted successfully.";
+  public static final String DETAIL_INVALID_SCHEMA = "Invalid schema provided";
 
 
 }

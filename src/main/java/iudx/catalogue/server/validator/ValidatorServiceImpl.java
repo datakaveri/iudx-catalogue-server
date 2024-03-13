@@ -48,6 +48,8 @@ public class ValidatorServiceImpl implements ValidatorService {
   private Validator mlayerDomainValidator;
   private Validator mlayerGeoQueryValidator;
   private Validator mlayerDatasetValidator;
+  private Validator stack4PatchValidator;
+  private Validator stackSchema4Post;
   private String docIndex;
   private boolean isUacInstance;
   private String vocContext;
@@ -77,6 +79,8 @@ public class ValidatorServiceImpl implements ValidatorService {
       mlayerDomainValidator = new Validator("/mlayerDomainSchema.json");
       mlayerGeoQueryValidator = new Validator("/mlayerGeoQuerySchema.json");
       mlayerDatasetValidator = new Validator("/mlayerDatasetSchema.json");
+      stack4PatchValidator = new Validator("/stackSchema4Patch.json");
+      stackSchema4Post = new Validator("/stackSchema4Post.json");
 
     } catch (IOException | ProcessingException e) {
       e.printStackTrace();
@@ -121,8 +125,13 @@ public class ValidatorServiceImpl implements ValidatorService {
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Info: Reached Validator service validate schema");
+    String itemType = null;
+    itemType =
+        request.containsKey("stack_type")
+            ? request.getString("stack_type")
+            : getItemType(request, handler);
+    request.remove("api");
 
-    String itemType = getItemType(request, handler);
     LOGGER.debug("Info: itemType: " + itemType);
 
     switch (itemType) {
@@ -143,6 +152,12 @@ public class ValidatorServiceImpl implements ValidatorService {
         break;
       case ITEM_TYPE_OWNER:
         isValidSchema = ownerItemSchema.validate(request.toString());
+        break;
+      case "patch:Stack":
+        isValidSchema =  stack4PatchValidator.validate(request.toString());
+        break;
+      case "post:Stack":
+        isValidSchema =  stackSchema4Post.validate(request.toString());
         break;
       default:
         handler.handle(Future.failedFuture("Invalid Item Type"));

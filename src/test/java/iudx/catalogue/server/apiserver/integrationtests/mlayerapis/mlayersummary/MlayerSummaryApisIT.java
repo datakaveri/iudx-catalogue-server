@@ -9,7 +9,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 @ExtendWith(RestAssuredConfiguration.class)
-public class MlayerSummary {
+public class MlayerSummaryApisIT {
     @Test
     @DisplayName("Get totalhit Success Test-200")
     public void getTotalHit(){
