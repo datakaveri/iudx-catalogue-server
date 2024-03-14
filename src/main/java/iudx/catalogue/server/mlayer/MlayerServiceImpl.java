@@ -70,10 +70,10 @@ public class MlayerServiceImpl implements MlayerService {
 
   @Override
   public MlayerService getMlayerInstance(
-      String instanceId, Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
 
     databaseService.getMlayerInstance(
-        instanceId,
+        requestParams,
         getMlayerInstancehandler -> {
           if (getMlayerInstancehandler.succeeded()) {
             LOGGER.info("Success: Getting all Instance Values");
@@ -151,9 +151,10 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerDomain(String id, Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerDomain(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerDomain(
-        id,
+        requestParams,
         getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
             LOGGER.info("Success: Getting all domain values");
@@ -207,8 +208,10 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerProviders(Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerProviders(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     databaseService.getMlayerProviders(
+        requestParams,
         getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
             LOGGER.info("Success: Getting all  providers");
@@ -276,10 +279,13 @@ public class MlayerServiceImpl implements MlayerService {
             || requestData.containsKey("providers")
             || requestData.containsKey("domains"))
         && (!requestData.containsKey(ID) || requestData.getString(ID).isBlank())) {
-      if (requestData.containsKey("domains") && !requestData.getJsonArray("domains").isEmpty()) {
+      if (requestData.containsKey("domains")
+          && !requestData.getJsonArray("domains").isEmpty()) {
         JsonArray domainsArray = requestData.getJsonArray("domains");
         JsonArray tagsArray =
-            requestData.containsKey("tags") ? requestData.getJsonArray("tags") : new JsonArray();
+            requestData.containsKey("tags")
+                ? requestData.getJsonArray("tags")
+                : new JsonArray();
 
         tagsArray.addAll(domainsArray);
         requestData.put("tags", tagsArray);
@@ -306,7 +312,8 @@ public class MlayerServiceImpl implements MlayerService {
                 ",{\"match\":{\"instance.keyword\":\"$1\"}}"
                     .replace("$1", requestData.getString(INSTANCE).toLowerCase()));
       }
-      if (requestData.containsKey(PROVIDERS) && !requestData.getJsonArray(PROVIDERS).isEmpty()) {
+      if (requestData.containsKey(PROVIDERS)
+          && !requestData.getJsonArray(PROVIDERS).isEmpty()) {
         query =
             query.concat(
                 ",{\"terms\":{\"provider.keyword\":$1}}"

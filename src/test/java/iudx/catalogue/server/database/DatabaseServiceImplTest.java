@@ -1420,28 +1420,46 @@ public class DatabaseServiceImplTest {
         });
   }
 
-  @Test
-  @Description("test getMlayerInstance method when the DB Request is Successful")
-  public void testGetMlayerInstance(VertxTestContext testContext) {
-
+//  @Test
+//  @Description("test getMlayerInstance method when the DB Request is Successful")
+//  public void testGetMlayerInstance(VertxTestContext testContext) {
+//
+//    when(asyncResult.succeeded()).thenReturn(true);
+//
+//    dbService.getMlayerInstance("id",
+//        handler -> {
+//          if (handler.succeeded()) {
+//            verify(client, times(34)).searchAsync(any(), any(), any());
+//            testContext.completeNow();
+//          } else {
+//            testContext.failNow("Fail");
+//          }
+//        });
+//  }
+@Test
+@Description("test getMlayerInstance method when the DB Request is Successful")
+public void testGetMlayerInstance(VertxTestContext testContext) {
+    JsonObject requestParams = new JsonObject().put("id", ID).put("limit", LIMIT).put("offset",OFFSET);
     when(asyncResult.succeeded()).thenReturn(true);
 
-    dbService.getMlayerInstance("id",
-        handler -> {
-          if (handler.succeeded()) {
-            verify(client, times(34)).searchAsync(any(), any(), any());
-            testContext.completeNow();
-          } else {
-            testContext.failNow("Fail");
-          }
-        });
-  }
+//    when(asyncResult.succeeded()).thenReturn(true);
+    dbService.getMlayerInstance(requestParams,
+            handler -> {
+                if (handler.succeeded()) {
+                    verify(client, times(34)).searchAsync(any(), any(), any());
+                    testContext.completeNow();
+                } else {
+                    testContext.failNow("Fail");
+                }
+            });
+}
 
   @Test
   @Description("test getMlayerInstance method when get instance DB Request fails")
   public void testGetMlayerInstanceFailure(VertxTestContext testContext) {
+      JsonObject requestParams = new JsonObject().put("id", ID).put("limit", LIMIT).put("offset",OFFSET);
     when(asyncResult.succeeded()).thenReturn(false);
-    dbService.getMlayerInstance("id",
+    dbService.getMlayerInstance(requestParams,
         handler -> {
           if (handler.failed()) {
             verify(client, times(62)).searchAsync(any(), any(), any());
@@ -1846,11 +1864,12 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getMlayerDomain method when the DB Request is Successful")
   public void testGetMlayerDomain(VertxTestContext testContext) {
+      JsonObject requestParams = new JsonObject().put("id", ID).put("limit", LIMIT).put("offset",OFFSET);
 
     when(asyncResult.succeeded()).thenReturn(true);
 
     dbService.getMlayerDomain(
-       "abc", handler -> {
+       requestParams, handler -> {
           if (handler.succeeded()) {
             verify(client, times(37)).searchAsync(any(), any(), any());
             testContext.completeNow();
@@ -1863,10 +1882,11 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getMlayerDomain method when get instance DB Request fails")
   public void testGetMlayerDomainFailure(VertxTestContext testContext) {
+      JsonObject requestParams = new JsonObject().put("id", ID).put("limit", LIMIT).put("offset",OFFSET);
     when(asyncResult.succeeded()).thenReturn(false);
 
     dbService.getMlayerDomain(
-       "abc", handler -> {
+       requestParams, handler -> {
           if (handler.failed()) {
             verify(client, times(57)).searchAsync(any(), any(), any());
             testContext.completeNow();
@@ -2155,10 +2175,11 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getMlayerProviders method when the DB Request is Successful")
   public void testGetMlayerProviders(VertxTestContext testContext) {
+      JsonObject requestParams = new JsonObject().put("id", ID).put("limit", LIMIT).put("offset",OFFSET);
 
     when(asyncResult.succeeded()).thenReturn(true);
 
-    dbService.getMlayerProviders(
+    dbService.getMlayerProviders(requestParams,
         handler -> {
           if (handler.succeeded()) {
             verify(client, times(24)).searchAsync(any(), any(), any());
@@ -2172,9 +2193,10 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test getMlayerProviders method when get providers DB Request fails")
   public void testGetMlayerProvidersFailure(VertxTestContext testContext) {
+      JsonObject requestParams = new JsonObject().put("id", ID).put("limit", LIMIT).put("offset",OFFSET);
     when(asyncResult.succeeded()).thenReturn(false);
 
-    dbService.getMlayerProviders(
+    dbService.getMlayerProviders(requestParams,
         handler -> {
           if (handler.failed()) {
             verify(client, times(45)).searchAsync(any(), any(), any());

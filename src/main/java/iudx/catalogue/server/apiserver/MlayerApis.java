@@ -120,14 +120,11 @@ public class MlayerApis {
    */
   public void getMlayerInstanceHandler(RoutingContext routingContext) {
     LOGGER.debug("Info : fetching mlayer Instance");
-    String id = "";
-    if (routingContext.request().getParam("id") != null) {
-      id = routingContext.request().getParam("id");
-    }
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    JsonObject requestParams = parseRequestParams(routingContext);
     mlayerService.getMlayerInstance(
-        id,
+        requestParams,
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
@@ -335,15 +332,12 @@ public class MlayerApis {
    * @param routingContext {@link RoutingContext}
    */
   public void getMlayerDomainHandler(RoutingContext routingContext) {
-    LOGGER.debug("Info: fetching mlayer domains");
-    String id = "";
-    if (routingContext.request().getParam("id") != null) {
-      id = routingContext.request().getParam("id");
-    }
+    LOGGER.debug("Info: getMlayerDomainHandler() started");
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    JsonObject requestParams = parseRequestParams(routingContext);
     mlayerService.getMlayerDomain(
-        id,
+        requestParams,
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
@@ -351,6 +345,78 @@ public class MlayerApis {
             response.setStatusCode(400).end(handler.cause().getMessage());
           }
         });
+  }
+
+  private JsonObject parseRequestParams(RoutingContext routingContext) {
+    LOGGER.debug("Info: parseRequestParams() started");
+
+    JsonObject requestParams = new JsonObject();
+    String id = routingContext.request().getParam(ID);
+    String limit = routingContext.request().getParam(LIMIT);
+    String offset = routingContext.request().getParam(OFFSET);
+
+    int limitInt = 10000;
+    int offsetInt = 0;
+
+    if (id != null) {
+      return requestParams.put(ID, id);
+    }
+
+    if (limit != null && !limit.isBlank()) {
+      if (validateLimitAndOffset(limit)) {
+        limitInt = Integer.parseInt(limit);
+      } else {
+        handleInvalidParameter(400, "Invalid limit parameter", routingContext);
+      }
+    }
+    if (offset != null && !offset.isBlank()) {
+      if (validateLimitAndOffset(offset)) {
+        offsetInt = Integer.parseInt(offset);
+        if (limitInt + offsetInt > 10000) {
+          if (limitInt > offsetInt) {
+            limitInt = limitInt - offsetInt;
+          } else {
+            offsetInt = offsetInt - limitInt;
+          }
+        }
+      } else {
+        handleInvalidParameter(400, "Invalid offset parameter", routingContext);
+      }
+    }
+    requestParams.put(LIMIT, limitInt).put(OFFSET, offsetInt);
+    return requestParams;
+  }
+
+  boolean validateLimitAndOffset(String value) {
+    try {
+      int size = Integer.parseInt(value);
+      if (size > 10000 || size < 0) {
+        LOGGER.error(
+            "Validation error : invalid pagination limit Value > 10000 or negative value passed [ "
+                + value
+                + " ]");
+        return false;
+      }
+      return true;
+    } catch (NumberFormatException e) {
+      LOGGER.error(
+          "Validation error : invalid pagination limit Value [ "
+              + value
+              + " ] only integer expected");
+      return false;
+    }
+  }
+
+  private void handleInvalidParameter(
+      int statusCode, String errorMessage, RoutingContext routingContext) {
+    LOGGER.error(errorMessage);
+    String responseMessage =
+        new RespBuilder()
+            .withType(TYPE_INVALID_QUERY_PARAM_VALUE)
+            .withTitle(TITLE_INVALID_QUERY_PARAM_VALUE)
+            .withDetail(errorMessage)
+            .getResponse();
+    routingContext.response().setStatusCode(statusCode).end(responseMessage);
   }
 
   /**
@@ -469,7 +535,9 @@ public class MlayerApis {
     LOGGER.debug("Info : fetching mlayer Providers");
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    JsonObject requestParams = parseRequestParams(routingContext);
     mlayerService.getMlayerProviders(
+        requestParams,
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());

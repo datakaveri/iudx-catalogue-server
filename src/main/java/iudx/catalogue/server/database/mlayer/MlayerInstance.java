@@ -30,10 +30,14 @@ public class MlayerInstance {
     this.mlayerInstanceIndex = mlayerInstanceIndex;
   }
 
-  public void getMlayerInstance(String id, Handler<AsyncResult<JsonObject>> handler) {
+  public void getMlayerInstance(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     String query = "";
+    String id = requestParams.getString(ID);
+    String limit = requestParams.getString(LIMIT);
+    String offset = requestParams.getString(OFFSET);
     if (id == null || id.isBlank()) {
-      query = GET_ALL_MLAYER_INSTANCE_QUERY;
+      query = GET_ALL_MLAYER_INSTANCE_QUERY.replace("$0", limit).replace("$2", offset);
     } else {
       query = GET_MLAYER_INSTANCE_QUERY.replace("$1", id);
     }

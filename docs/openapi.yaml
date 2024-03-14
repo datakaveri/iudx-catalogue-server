@@ -24,6 +24,19 @@ info:
       - The `<token>` in the header of request sample could be replaced with respective token value that could be obtained from DX Auth Server
       - The `<payload>` in the request sample could be replaced with the payload given adjacent to the request sample
       - The payload contains `<some_item_id>`, `<provider_id>`, `<some_item_name>`, for which the appropriate values could be added 
+    
+    # Pagination
+    Catalogue server also offers way to paginate the result for queries. If a query returns large number of records then user can use additional parameters in query parameters to limit numbers of records to be returned.
+    
+    - <b> Pagination is applicable only for</b>
+       - <b>/search</b>
+       - <b>/internal/ui/providers</b>
+       - <b>/internal/ui/instance</b>
+       - <b>/internal/ui/domain</b>
+       
+    Additional query parameters to be used:
+      - <b>offset</b> : The from parameter defines the offset from the first result you want to fetch,  ( <i>default : 0</i> ,<i>minValue: 0</i>, <i>maxValue: 10000</i> )
+      - <b>limit</b> : The size parameter allows you to configure the maximum results to be returned  ( <i>default: 10000</i> ,<i>minValue: 0</i>, <i>maxValue: 10000</i> )
 
      # API HTTP Responses
     Apart from the response codes specified in each API,
@@ -1685,12 +1698,29 @@ paths:
         - Mlayer Instance
       description: |
         Get list of all Instances
+        
+        #### Limits and filters
+          - Documents returned can be limited by specifying a limit and offset. For e.g, `limit=100&offset=10` gives 100 documents from the 10th search result.
+          - A subset of properties of returned documents can be filtered out. For e.g, `filter=[id]` returns documents with only the `id` property retained in them.
+          - The sum of `offset` and `limit` should `<= 10000`, i.e. if the `offset=100`, then max `limit` should be `9900` and so on.
       operationId: get instance
       parameters:
         - name: id
           in: query
           description: |
             `id` of the instance to be fetched
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            `limit` of the data model domain, to be fetched
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: |
+            `offset` of the data model domain, to be fetched
           schema:
             type: string
       responses:
@@ -1700,6 +1730,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/successResponseForGettingInstance'
+        '400':
+          description: Invalid Parameter
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/invalidResponseForWrongLimitValues'
+                  - $ref: '#/components/schemas/invalidResponseForWrongOffsetValues'
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1879,12 +1917,29 @@ paths:
         - Mlayer Domain
       description: |
         Get list of all Data-model Domains.
+        
+        #### Limits and filters
+          - Documents returned can be limited by specifying a limit and offset. For e.g, `limit=100&offset=10` gives 100 documents from the 10th search result.
+          - A subset of properties of returned documents can be filtered out. For e.g, `filter=[id]` returns documents with only the `id` property retained in them.
+          - The sum of `offset` and `limit` should `<= 10000`, i.e. if the `offset=100`, then max `limit` should be `9900` and so on.
       operationId: get domain
       parameters:
         - name: id
           in: query
           description: |
             `id` of the data model domain, to be fetched
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: |
+            `limit` of the data model domain, to be fetched
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: |
+            `offset` of the data model domain, to be fetched
           schema:
             type: string
       responses:
@@ -1894,6 +1949,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/successResponseForGettingDomain'
+        '400':
+          description: Invalid Parameter
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/invalidResponseForWrongLimitValues'
+                  - $ref: '#/components/schemas/invalidResponseForWrongOffsetValues'
+
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -1955,7 +2019,25 @@ paths:
         - MLayer
       description: |
         A catalogue API to list all providers, which will be reflected on the catalogue UI.
+        
+        #### Limits and filters
+          - Documents returned can be limited by specifying a limit and offset. For e.g, `limit=100&offset=10` gives 100 documents from the 10th search result.
+          - A subset of properties of returned documents can be filtered out. For e.g, `filter=[id]` returns documents with only the `id` property retained in them.
+          - The sum of `offset` and `limit` should `<= 10000`, i.e. if the `offset=100`, then max `limit` should be `9900` and so on.
       operationId: get providers
+      parameters:
+        - name: limit
+          in: query
+          description: |
+            `limit` of the data model domain, to be fetched
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: |
+            `offset` of the data model domain, to be fetched
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -1963,6 +2045,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/successResponseForUIProvider'
+        '400':
+          description: Invalid Parameter
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/invalidResponseForWrongLimitValues'
+                  - $ref: '#/components/schemas/invalidResponseForWrongOffsetValues'
       servers:
         - url: 'https://example-cat.com/iudx/cat/v1'
           description: Production Instance
@@ -6882,6 +6972,40 @@ components:
         type: 'urn:dx:cat:InvalidSchema'
         title: Invalid Schema
         detail: The Schema of requested body is invalid.
+    invalidResponseForWrongLimitValues:
+      type: object
+      title: Example Response for get mlayer for provider or domain or instance
+      description: Invalid parameter in the given request
+      properties:
+        type:
+          type: string
+          description: |
+            Indicates Invalid parameter in the given request
+        title:
+          description: A human readable title to the message response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:InvalidParamValue'
+        title: Invalid value for a query param
+        detail: Invalid limit parameter.
+    invalidResponseForWrongOffsetValues:
+      type: object
+      title: Example Response for get mlayer for provider or domain or instance
+      description: Invalid parameter in the given request
+      properties:
+        type:
+          type: string
+          description: |
+            Indicates Invalid parameter in the given request
+        title:
+          description: A human readable title to the message response
+      required:
+        - type
+      example:
+        type: 'urn:dx:cat:InvalidParamValue'
+        title: Invalid value for a query param
+        detail: Invalid offset parameter.
     successResponseForUpdatingInstance:
       type: object
       title: Response for updating an instance

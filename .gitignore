@@ -45,6 +45,8 @@ local.properties
 .loadpath
 .recommenders
 
+allure-results
+
 # External tool builders
 .externalToolBuilders/
 
