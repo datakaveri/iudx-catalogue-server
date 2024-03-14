@@ -130,7 +130,7 @@ public class Constants {
           + ":{\"includes\": "
           + "[\"type\",\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\","
           + "\"provider\", \"resourceServerRegURL\",\"description\" ,\"cosURL\", "
-          + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\":$0,\"from\":$1}";
+          + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\": 10000}";
   public static final String GET_ALL_DATASETS_BY_FIELDS =
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":"
           + "{\"type.keyword\":\"iudx:ResourceGroup\"}}";
@@ -155,7 +155,7 @@ public class Constants {
           + " \"dataSample\","
           + " \"dataDescriptor\", \"@context\", \"dataQualityFile\", \"dataSampleFile\","
           + " \"resourceType\", \"resourceServerRegURL\",\"resourceType\","
-          + "\"location\", \"iudxResourceAPIs\"]},\"size\": $0}";
+          + "\"location\", \"iudxResourceAPIs\"]},\"size\": 10000}";
   public static final String RESOURCE_ACCESSPOLICY_COUNT =
       "{\"size\": 0,\"aggs\":{\"results\":{\"terms\":{\"field\":\"resourceGroup.keyword\","
           + "\"size\":10000},\"aggs\":{\"access_policies\":{\"terms\":{\"field\":"
