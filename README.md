@@ -111,4 +111,4 @@ We follow Git Merge based workflow
 
 
 ## License
-[MIT](./LICENSE.txt)
+[View License](./LICENSE)
