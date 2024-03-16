@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "18907aa9-5b2f-4c81-b526-f18b1e940d1c",
+		"_postman_id": "4fd78e94-0f63-40d8-bb16-3d0cb16cf4c4",
 		"name": "iudx-catalogue-server v5.0.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "27217689"
+		"_exporter_id": "32186493"
 	},
 	"item": [
 		{
@@ -13397,6 +13397,67 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "200 (Success) Get Instance with LImit and Offset",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{localhost}}{{base}}/internal/ui/instance?limit=1&offset=1",
+											"host": [
+												"{{localhost}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "limit",
+													"value": "1"
+												},
+												{
+													"key": "offset",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "200 (Success) - Get Instances By ID",
+									"request": {
+										"method": "GET",
+										"header": []
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid Parameter) - Limit is negative",
+									"request": {
+										"method": "GET",
+										"header": []
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid Parameter) - Offset is negative",
+									"request": {
+										"method": "GET",
+										"header": []
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid Parameter) - Limit + Offset >  100K",
+									"request": {
+										"method": "GET",
+										"header": []
+									},
+									"response": []
 								}
 							]
 						},
@@ -13980,7 +14041,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/domain?id={{domainId}}",
+											"raw": "{{host}}{{base}}/internal/ui/domain?id=4d9241db-f5c2-4938-86fe-47918e4a8567",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -13992,10 +14053,42 @@
 											"query": [
 												{
 													"key": "id",
-													"value": "{{domainId}}"
+													"value": "4d9241db-f5c2-4938-86fe-47918e4a8567"
 												}
 											]
 										}
+									},
+									"response": []
+								},
+								{
+									"name": "200 (Success) - Get Domain with Limit and Offset",
+									"request": {
+										"method": "GET",
+										"header": []
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid Parameter) - Limit is Invalid",
+									"request": {
+										"method": "GET",
+										"header": []
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid Parameter) - Offset is Invalid",
+									"request": {
+										"method": "GET",
+										"header": []
+									},
+									"response": []
+								},
+								{
+									"name": "400 (Invalid Parameter) - Limit and offset > 10K",
+									"request": {
+										"method": "GET",
+										"header": []
 									},
 									"response": []
 								}
@@ -14161,16 +14254,64 @@
 									}
 								],
 								"url": {
-									"raw": "{{host}}{{base}}/internal/ui/providers",
+									"raw": "http://localhost:8080/iudx/cat/v1//internal/ui/providers?limit=1&offset=1",
+									"protocol": "http",
 									"host": [
-										"{{host}}{{base}}"
+										"localhost"
 									],
+									"port": "8080",
 									"path": [
+										"iudx",
+										"cat",
+										"v1",
+										"",
 										"internal",
 										"ui",
 										"providers"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "1"
+										},
+										{
+											"key": "offset",
+											"value": "1"
+										}
 									]
 								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (Success) - Get Provider with Limit and Offset",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Parameter) - Limit is Invalid",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Parameter) - Offset is Invalid",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						},
+						{
+							"name": "400 (Invalid Parameter) - Limit and offset > 10K",
+							"request": {
+								"method": "GET",
+								"header": []
 							},
 							"response": []
 						}
