@@ -1,0 +1,4 @@
+psycopg2==2.9.9
+python_dateutil==2.9.0.post0
+python_dateutil==2.7.3
+pytz==2019.3
