@@ -154,8 +154,9 @@ public class MlayerPopularDatasets {
   }
 
   private void allMlayerDomains(Promise<JsonArray> domainResult) {
+    String getAllDomains = GET_ALL_MLAYER_DOMAIN_QUERY.replace("$0", "10000").replace("$2", "0");
     client.searchAsync(
-        GET_ALL_MLAYER_DOMAIN_QUERY,
+        getAllDomains,
         mlayerDomainIndex,
         getDomainHandler -> {
           if (getDomainHandler.succeeded()) {
@@ -284,7 +285,7 @@ public class MlayerPopularDatasets {
                           String id =
                               frequentlyUsedResourceGroup
                                   .getJsonObject(resourceIndex)
-                                  .getString("resourcegroup");
+                                  .getString("resource_group");
                           if (resourceGroupMap.containsKey(id)) {
                             JsonObject resourceGroup = resourceGroupMap.get(id);
                             resourceGroup.put(
