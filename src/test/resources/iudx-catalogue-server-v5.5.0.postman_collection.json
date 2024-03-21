@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "d14b7e10-c0f4-42fd-8c23-9ff754c22d33",
+		"_postman_id": "3e3cb414-543d-43ab-9434-e0b0478f4037",
 		"name": "iudx-catalogue-server v5.5.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "20457128"
@@ -29,12 +29,12 @@
 						"header": [
 							{
 								"key": "clientId",
-								"value": "{{clientID}}",
+								"value": "{{consumerClientID}}",
 								"type": "text"
 							},
 							{
 								"key": "clientSecret",
-								"value": "{{clientSecret}}",
+								"value": "{{consumerClientSecret}}",
 								"type": "text"
 							},
 							{
@@ -111,7 +111,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"itemId\": \"rs.iudx.io\", \n  \"itemType\": \"resource_server\",\n  \"role\": \"provider\"\n}",
+							"raw": "{\n  \"itemId\": \"rs-test-pm.iudx.io\", \n  \"itemType\": \"resource_server\",\n  \"role\": \"provider\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -155,12 +155,12 @@
 						"header": [
 							{
 								"key": "clientId",
-								"value": "{{clientID}}",
+								"value": "{{rsAdminClientID}}",
 								"type": "text"
 							},
 							{
 								"key": "clientSecret",
-								"value": "{{clientSecret}}",
+								"value": "{{rsAdminClientSecret}}",
 								"type": "text"
 							},
 							{
@@ -177,7 +177,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"itemId\": \"rs.iudx.io\", \n  \"itemType\": \"resource_server\",\n  \"role\": \"admin\"\n}",
+							"raw": "{\n  \"itemId\": \"rs-test-pm.iudx.io\", \n  \"itemType\": \"resource_server\",\n  \"role\": \"admin\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -221,12 +221,12 @@
 						"header": [
 							{
 								"key": "clientId",
-								"value": "{{providerClientID}}",
+								"value": "{{cosAdminClientID}}",
 								"type": "text"
 							},
 							{
 								"key": "clientSecret",
-								"value": "{{providerClientSecret}}",
+								"value": "{{cosAdminClientSecret}}",
 								"type": "text"
 							},
 							{
