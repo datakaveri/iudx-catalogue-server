@@ -13365,7 +13365,8 @@
 													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -13400,13 +13401,43 @@
 								},
 								{
 									"name": "200 (Success) Get Instance with LImit and Offset",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
 									"request": {
 										"method": "GET",
-										"header": [],
+										"header": [
+											{
+												"key": "limit",
+												"value": "10000",
+												"type": "text"
+											},
+											{
+												"key": "offset",
+												"value": "0",
+												"type": "text"
+											}
+										],
 										"url": {
-											"raw": "{{localhost}}{{base}}/internal/ui/instance?limit=1&offset=1",
+											"raw": "{{host}}{{base}}/internal/ui/instance?limit=10000&offset=1",
 											"host": [
-												"{{localhost}}{{base}}"
+												"{{host}}{{base}}"
 											],
 											"path": [
 												"internal",
@@ -13416,7 +13447,7 @@
 											"query": [
 												{
 													"key": "limit",
-													"value": "1"
+													"value": "10000"
 												},
 												{
 													"key": "offset",
@@ -13429,33 +13460,181 @@
 								},
 								{
 									"name": "200 (Success) - Get Instances By ID",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
 									"request": {
 										"method": "GET",
-										"header": []
+										"header": [],
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?id={{instance_id}}",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "id",
+													"value": "{{instance_id}}"
+												}
+											]
+										}
 									},
 									"response": []
 								},
 								{
 									"name": "400 (Invalid Parameter) - Limit is negative",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
 									"request": {
 										"method": "GET",
-										"header": []
+										"header": [],
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?limit=-100",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "limit",
+													"value": "-100"
+												}
+											]
+										}
 									},
 									"response": []
 								},
 								{
 									"name": "400 (Invalid Parameter) - Offset is negative",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
 									"request": {
 										"method": "GET",
-										"header": []
+										"header": [],
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?offset=-100",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "offset",
+													"value": "-100"
+												}
+											]
+										}
 									},
 									"response": []
 								},
 								{
 									"name": "400 (Invalid Parameter) - Limit + Offset >  100K",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
 									"request": {
 										"method": "GET",
-										"header": []
+										"header": [],
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/instance?limit=10000&offset=9999",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"instance"
+											],
+											"query": [
+												{
+													"key": "limit",
+													"value": "10000"
+												},
+												{
+													"key": "offset",
+													"value": "9999"
+												}
+											]
+										}
 									},
 									"response": []
 								}
@@ -13958,7 +14137,8 @@
 													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14014,7 +14194,8 @@
 													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
 													"});"
 												],
-												"type": "text/javascript"
+												"type": "text/javascript",
+												"packages": {}
 											}
 										}
 									],
@@ -14041,7 +14222,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{host}}{{base}}/internal/ui/domain?id=4d9241db-f5c2-4938-86fe-47918e4a8567",
+											"raw": "{{host}}{{base}}/internal/ui/domain?id={{domain_id}}",
 											"host": [
 												"{{host}}{{base}}"
 											],
@@ -14053,7 +14234,7 @@
 											"query": [
 												{
 													"key": "id",
-													"value": "4d9241db-f5c2-4938-86fe-47918e4a8567"
+													"value": "{{domain_id}}"
 												}
 											]
 										}
@@ -14062,33 +14243,185 @@
 								},
 								{
 									"name": "200 (Success) - Get Domain with Limit and Offset",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
 									"request": {
 										"method": "GET",
-										"header": []
+										"header": [],
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain?limit=10000&offset=1",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											],
+											"query": [
+												{
+													"key": "limit",
+													"value": "10000"
+												},
+												{
+													"key": "offset",
+													"value": "1"
+												}
+											]
+										}
 									},
 									"response": []
 								},
 								{
 									"name": "400 (Invalid Parameter) - Limit is Invalid",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
 									"request": {
 										"method": "GET",
-										"header": []
+										"header": [],
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain?limit=-11",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											],
+											"query": [
+												{
+													"key": "limit",
+													"value": "-11"
+												}
+											]
+										}
 									},
 									"response": []
 								},
 								{
 									"name": "400 (Invalid Parameter) - Offset is Invalid",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
 									"request": {
 										"method": "GET",
-										"header": []
+										"header": [],
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain?offset=-100",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											],
+											"query": [
+												{
+													"key": "offset",
+													"value": "-100"
+												}
+											]
+										}
 									},
 									"response": []
 								},
 								{
 									"name": "400 (Invalid Parameter) - Limit and offset > 10K",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Response status\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Check response body\", function () {    ",
+													"    const body = pm.response.json();",
+													"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+													"});"
+												],
+												"type": "text/javascript",
+												"packages": {}
+											}
+										}
+									],
 									"request": {
 										"method": "GET",
-										"header": []
+										"header": [],
+										"url": {
+											"raw": "{{host}}{{base}}/internal/ui/domain?limit=10010&offset=100",
+											"host": [
+												"{{host}}{{base}}"
+											],
+											"path": [
+												"internal",
+												"ui",
+												"domain"
+											],
+											"query": [
+												{
+													"key": "limit",
+													"value": "10010"
+												},
+												{
+													"key": "offset",
+													"value": "100"
+												}
+											]
+										}
 									},
 									"response": []
 								}
@@ -14239,7 +14572,8 @@
 											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
 											"});"
 										],
-										"type": "text/javascript"
+										"type": "text/javascript",
+										"packages": {}
 									}
 								}
 							],
@@ -14254,17 +14588,49 @@
 									}
 								],
 								"url": {
-									"raw": "http://localhost:8080/iudx/cat/v1//internal/ui/providers?limit=1&offset=1",
-									"protocol": "http",
+									"raw": "{{host}}{{base}}/internal/ui/providers",
 									"host": [
-										"localhost"
+										"{{host}}{{base}}"
 									],
-									"port": "8080",
 									"path": [
-										"iudx",
-										"cat",
-										"v1",
-										"",
+										"internal",
+										"ui",
+										"providers"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (Success) - Get Provider with Limit and Offset",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/providers?limit=1000&offset=1",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
 										"internal",
 										"ui",
 										"providers"
@@ -14272,7 +14638,7 @@
 									"query": [
 										{
 											"key": "limit",
-											"value": "1"
+											"value": "1000"
 										},
 										{
 											"key": "offset",
@@ -14284,34 +14650,119 @@
 							"response": []
 						},
 						{
-							"name": "200 (Success) - Get Provider with Limit and Offset",
-							"request": {
-								"method": "GET",
-								"header": []
-							},
-							"response": []
-						},
-						{
 							"name": "400 (Invalid Parameter) - Limit is Invalid",
 							"request": {
 								"method": "GET",
-								"header": []
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/providers?limit=-100",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"providers"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "-100"
+										}
+									]
+								}
 							},
 							"response": []
 						},
 						{
 							"name": "400 (Invalid Parameter) - Offset is Invalid",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
 							"request": {
 								"method": "GET",
-								"header": []
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/providers?offset=-100",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"providers"
+									],
+									"query": [
+										{
+											"key": "offset",
+											"value": "-100"
+										}
+									]
+								}
 							},
 							"response": []
 						},
 						{
 							"name": "400 (Invalid Parameter) - Limit and offset > 10K",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Check response body\", function () {    ",
+											"    const body = pm.response.json();",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
 							"request": {
 								"method": "GET",
-								"header": []
+								"header": [],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/providers?limit=10100&offset=10",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"providers"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "10100"
+										},
+										{
+											"key": "offset",
+											"value": "10"
+										}
+									]
+								}
 							},
 							"response": []
 						}
