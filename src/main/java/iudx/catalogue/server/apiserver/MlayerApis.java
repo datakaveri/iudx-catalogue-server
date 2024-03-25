@@ -592,7 +592,9 @@ public class MlayerApis {
     LOGGER.debug("Info : fetching all datasets that belong to IUDX");
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
+    JsonObject requestParams = parseRequestParams(routingContext);
     mlayerService.getMlayerAllDatasets(
+        requestParams,
         handler -> {
           if (handler.succeeded()) {
             response.setStatusCode(200).end(handler.result().toString());
@@ -638,6 +640,10 @@ public class MlayerApis {
                         .getResponse());
           } else {
             LOGGER.debug("Validation of dataset Id Successful");
+            JsonObject requestParam = parseRequestParams(routingContext);
+            requestData
+                .put(LIMIT, requestParam.getInteger(LIMIT))
+                .put(OFFSET, requestParam.getInteger(OFFSET));
             mlayerService.getMlayerDataset(
                 requestData,
                 handler -> {

@@ -242,10 +242,12 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerAllDatasets(Handler<AsyncResult<JsonObject>> handler) {
+  public MlayerService getMlayerAllDatasets(
+      JsonObject requestParam, Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_MLAYER_ALL_DATASETS;
     LOGGER.debug("databse get mlayer all datasets called");
     databaseService.getMlayerAllDatasets(
+        requestParam,
         query,
         getMlayerAllDatasets -> {
           if (getMlayerAllDatasets.succeeded()) {
@@ -322,6 +324,7 @@ public class MlayerServiceImpl implements MlayerService {
       query = query.concat(GET_ALL_DATASETS_BY_FIELD_SOURCE);
       LOGGER.debug("databse get mlayer all datasets called");
       databaseService.getMlayerAllDatasets(
+          requestData,
           query,
           getAllDatasetsHandler -> {
             if (getAllDatasetsHandler.succeeded()) {

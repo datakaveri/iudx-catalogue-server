@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "3e3cb414-543d-43ab-9434-e0b0478f4037",
+		"_postman_id": "a3aec51e-fa8c-4852-8a0c-7a71104fb4c2",
 		"name": "iudx-catalogue-server v5.5.0",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "20457128"
+		"_exporter_id": "27217689"
 	},
 	"item": [
 		{
@@ -14330,6 +14330,60 @@
 							"response": []
 						},
 						{
+							"name": "200 (Success) - Get All datasets with limit and offset",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/dataset?limit=10&offset=10",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"dataset"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "10"
+										},
+										{
+											"key": "offset",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "200 (Success) - Post Dataset",
 							"event": [
 								{
@@ -14483,6 +14537,69 @@
 										"internal",
 										"ui",
 										"dataset"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "200 (Success) - Post Dataset with tags, instance, provider field, limit, offset",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Response status\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Check response body\", function () {    \r",
+											"    const body = pm.response.json();\r",
+											"    pm.expect(body).to.have.property(\"type\", \"urn:dx:cat:Success\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"tags\" : [\"flood\", \"transport\"],\r\n    \"instance\" : \"pune\",\r\n    \"providers\": [\"bbeacb12-5e54-339d-92e0-d8e063b551a8\"],\r\n    \"domains\" : [\"itms\"]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{host}}{{base}}/internal/ui/dataset?limit=1&offset=1",
+									"host": [
+										"{{host}}{{base}}"
+									],
+									"path": [
+										"internal",
+										"ui",
+										"dataset"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "1"
+										},
+										{
+											"key": "offset",
+											"value": "1"
+										}
 									]
 								}
 							},

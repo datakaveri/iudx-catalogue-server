@@ -722,16 +722,16 @@ public class MlayerServiceTest {
               @SuppressWarnings("unchecked")
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
               }
             })
         .when(databaseService)
-        .getMlayerAllDatasets(any(), any());
+        .getMlayerAllDatasets(any(),any(), any());
     mlayerService.getMlayerAllDatasets(
-        handler -> {
+       request, handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).getMlayerAllDatasets(any(), any());
+            verify(databaseService, times(1)).getMlayerAllDatasets(any(), any(), any());
             testContext.completeNow();
           } else {
             LOGGER.debug("Fail");
@@ -752,17 +752,17 @@ public class MlayerServiceTest {
               @SuppressWarnings("unchecked")
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
               }
             })
         .when(databaseService)
-        .getMlayerAllDatasets(any(), any());
+        .getMlayerAllDatasets(any(), any(), any());
 
     mlayerService.getMlayerAllDatasets(
-        handler -> {
+        request, handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).getMlayerAllDatasets(any(), any());
+            verify(databaseService, times(1)).getMlayerAllDatasets(any(), any(), any());
             LOGGER.debug("Fail");
             testContext.failNow(handler.cause());
           } else {
@@ -850,17 +850,17 @@ public class MlayerServiceTest {
               @SuppressWarnings("unchecked")
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
               }
             })
         .when(databaseService)
-        .getMlayerAllDatasets(any(), any());
+        .getMlayerAllDatasets(any(), any(), any());
     mlayerService.getMlayerDataset(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).getMlayerAllDatasets(any(), any());
+            verify(databaseService, times(1)).getMlayerAllDatasets(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -905,17 +905,17 @@ public class MlayerServiceTest {
               @SuppressWarnings("unchecked")
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
                 return null;
               }
             })
         .when(databaseService)
-        .getMlayerAllDatasets(any(), any());
+        .getMlayerAllDatasets(any(), any(), any());
     mlayerService.getMlayerDataset(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).getMlayerAllDatasets(any(), any());
+            verify(databaseService, times(1)).getMlayerAllDatasets(any(), any(), any());
             LOGGER.debug("Fail");
             testContext.failNow(handler.cause());
           } else {

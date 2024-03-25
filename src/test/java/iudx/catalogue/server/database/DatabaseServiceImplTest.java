@@ -2386,7 +2386,9 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     jsonArray.add(dataset_record);
     request.put(RESULTS, jsonArray)
             .put("resourceGroupCount",5)
-            .put("resourceGroup", jsonArray);
+            .put("resourceGroup", jsonArray)
+            .put(LIMIT,0)
+            .put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(request);
 
@@ -2402,7 +2404,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
               .resourceAggregationAsync(any(), any(), any());
 
     dbService.getMlayerAllDatasets(
-            "abc", handler -> {
+            request,"abc", handler -> {
           if (handler.succeeded()) {
             verify(client, times(5)).searchAsync(any(), any(), any());
             verify(client, times(1)).resourceAggregationAsync(any(), any(), any());
@@ -2435,7 +2437,9 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
        // jsonArray.add(dataset_record);
         request.put(RESULTS, jsonArray)
                 .put("resourceGroupCount",5)
-                .put("resourceGroup", jsonArray);
+                .put("resourceGroup", jsonArray)
+                .put(LIMIT, 0)
+                .put(OFFSET, 0);
         when(asyncResult.succeeded()).thenReturn(true);
         when(asyncResult.result()).thenReturn(request);
 
@@ -2451,7 +2455,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
                 .resourceAggregationAsync(any(), any(), any());
 
         dbService.getMlayerAllDatasets(
-                "abc", handler -> {
+                request,"abc", handler -> {
                     if (handler.succeeded()) {
                         verify(client, times(6)).searchAsync(any(), any(), any());
                         verify(client, times(1)).resourceAggregationAsync(any(), any(), any());
@@ -2503,7 +2507,9 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
         jsonArray.add(dataset_record).add(dataset_recordRs);
         request.put(RESULTS, jsonArray)
                 .put("resourceGroupCount",5)
-                .put("resourceGroup", jsonArray);
+                .put("resourceGroup", jsonArray)
+                .put(LIMIT, 0)
+                .put(OFFSET, 0);
         when(asyncResult.succeeded()).thenReturn(true);
         when(asyncResult.result()).thenReturn(request);
 
@@ -2519,7 +2525,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
                 .resourceAggregationAsync(any(), any(), any());
 
         dbService.getMlayerAllDatasets(
-                "abc", handler -> {
+                request,"abc", handler -> {
                     if (handler.succeeded()) {
                         // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
                         verify(client, times(53)).searchAsync(any(), any(), any());
@@ -2536,12 +2542,12 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     @Test
     @Description("test getMlayerAllDatasets method when DB Request fails")
     public void testGetMlayerAllDatasetsResourceFails(VertxTestContext testContext) {
-        JsonObject request = new JsonObject();
+        JsonObject request = new JsonObject().put(LIMIT, 0).put(OFFSET,0);
 
     when(asyncResult.succeeded()).thenReturn(false);
 
     dbService.getMlayerAllDatasets(
-        "abc", handler -> {
+        request,"abc", handler -> {
           if (handler.failed()) {
             // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
             verify(client, times(28)).searchAsync(any(), any(), any());

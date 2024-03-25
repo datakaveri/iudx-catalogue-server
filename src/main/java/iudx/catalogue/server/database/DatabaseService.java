@@ -312,7 +312,8 @@ public interface DatabaseService {
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerAllDatasets(String query, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerAllDatasets(
+      JsonObject requestPram, String query, Handler<AsyncResult<JsonObject>> handler);
 
   /* create db service vanilla */
 
