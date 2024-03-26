@@ -2387,6 +2387,752 @@ paths:
           label: get realtime datasets
           source: |
             curl --location --request GET 'http://example-cat.com/iudx/cat/v1/internal/ui/realtimedataset'
+  /stac:
+    post:
+      summary: Create Stac Item
+      tags:
+        - STAC
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: Success
+                    results:
+                      - id: 00940488-c3ee-4f99-a41a-48c5568643b0
+                        method: insert
+                        title: Success
+                    detail: Stac created successfully.
+                required:
+                  - type
+                  - results
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        method:
+                          type: string
+                        title:
+                          type: string
+                  detail:
+                    type: string
+              examples:
+                Created:
+                  value:
+                    type: Success
+                    results:
+                      - id: 00940488-c3ee-4f99-a41a-48c5568643b0
+                        method: insert
+                        title: Success
+                    detail: Stac created successfully.
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:InvalidSchema'
+                    title: Invalid Schema
+                    detail: Invalid schema provided
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Invalid Schema:
+                  value:
+                    type: 'urn:dx:cat:InvalidSchema'
+                    title: Invalid Schema
+                    detail: Invalid schema provided
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:InvalidAuthorizationToken'
+                    title: Token is invalid
+                    detail: 'failed to decode/validate jwt token : Invalid format for JWT'
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Unauthorized:
+                  value:
+                    type: 'urn:dx:cat:InvalidAuthorizationToken'
+                    title: Token is invalid
+                    detail: 'failed to decode/validate jwt token : Invalid format for JWT'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:Conflicts'
+                    title: Conflicts
+                    detail: 'STAC already exists,creation skipped'
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Already Exists:
+                  value:
+                    type: 'urn:dx:cat:Conflicts'
+                    title: Conflicts
+                    detail: 'STAC already exists,creation skipped'
+      operationId: post-stac
+      x-stoplight:
+        id: j5fm6u654cx6z
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: token
+          required: true
+          description: DX Auth token to process the request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  type: Catalog
+                  stac_version: 1.0.0
+                  description: This object represents a Catalog in a SpatioTemporal Asset Catalog.
+                  links:
+                    - rel: child
+                      href: 'https://ogc.iudx.io/collections/af1c526b-283e-441b-a4fb-09e6760de9c7'
+                      type: application/json
+                      title: Link to the STAC collection
+                    - rel: child
+                      href: 'https://ogc.iudx.io/collections/f64743f6-1f74-4ada-8020-45cfb2d08a1b'
+                      type: application/json
+                      title: Link to the STAC collection
+                    - rel: self
+                      href: 'https://ogc.iudx.io/catalog'
+                      type: application/json
+                      title: Link to the STAC catalog
+                    - rel: root
+                      href: 'https://ogc.iudx.io/catalog'
+                      type: application/json
+                      title: Link to the STAC catalog
+              required:
+                - type
+                - description
+                - links
+              properties:
+                type:
+                  type: string
+                stac_version:
+                  type: string
+                description:
+                  type: string
+                links:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - rel
+                      - href
+                    properties:
+                      rel:
+                        type: string
+                      href:
+                        type: string
+                      type:
+                        type: string
+                      title:
+                        type: string
+            examples:
+              Sample Request:
+                value:
+                  type: Catalog
+                  stac_version: 1.0.0
+                  description: This object represents a Catalog in a SpatioTemporal Asset Catalog.
+                  links:
+                    - rel: child
+                      href: 'https://ogc.iudx.io/collections/af1c526b-283e-441b-a4fb-09e6760de9c7'
+                      type: application/json
+                      title: Link to the STAC collection
+                    - rel: child
+                      href: 'https://ogc.iudx.io/collections/f64743f6-1f74-4ada-8020-45cfb2d08a1b'
+                      type: application/json
+                      title: Link to the STAC collection
+                    - rel: self
+                      href: 'https://ogc.iudx.io/catalog'
+                      type: application/json
+                      title: Link to the STAC catalog
+                    - rel: root
+                      href: 'https://ogc.iudx.io/catalog'
+                      type: application/json
+                      title: Link to the STAC catalog
+        description: 'Insert a STAC item into the catalogue server. '
+    patch:
+      summary: Patch Stac Item
+      tags:
+        - STAC
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                  detail:
+                    type: string
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:Success'
+                    title: Success
+                    results:
+                      - id: 00940488-c3ee-4f99-a41a-48c5568643b0
+                    detail: 'Success: Item updated successfully'
+              examples:
+                Successfully Patched:
+                  value:
+                    type: 'urn:dx:cat:Success'
+                    title: Success
+                    results:
+                      - id: 00940488-c3ee-4f99-a41a-48c5568643b0
+                    detail: 'Success: Item updated successfully'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:InvalidSchema'
+                    title: Invalid Schema
+                    detail: Invalid schema provided
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Invalid Schema:
+                  value:
+                    type: 'urn:dx:cat:InvalidSchema'
+                    title: Invalid Schema
+                    detail: Invalid schema provided
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:InvalidAuthorizationToken'
+                    title: Token is invalid
+                    detail: 'failed to decode/validate jwt token : Invalid format for JWT'
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Unauthorized:
+                  value:
+                    type: 'urn:dx:cat:InvalidAuthorizationToken'
+                    title: Token is invalid
+                    detail: 'failed to decode/validate jwt token : Invalid format for JWT'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:ItemNotFound'
+                    title: Item is not found
+                    detail: 'Fail: stac doesn''t exist'
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Item Not Found:
+                  value:
+                    type: 'urn:dx:cat:ItemNotFound'
+                    title: Item is not found
+                    detail: 'Fail: stac doesn''t exist'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:Conflicts'
+                    title: Item already exists
+                    detail: Patch operations not allowed for duplicate child
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Duplicate Entry:
+                  value:
+                    type: 'urn:dx:cat:Conflicts'
+                    title: Item already exists
+                    detail: Patch operations not allowed for duplicate child
+      operationId: patch-stac
+      x-stoplight:
+        id: 4si2dt1xptd0f
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: token
+          description: DX Auth token to process the request
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              x-examples:
+                Example 1:
+                  id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                  rel: child
+                  href: 'https://ogc.iudx.io/collections/f64743f6-1f74-4ada-8020-45cfb2d08a1b'
+                  type: application/json
+                  title: Link to the STAC collection
+              required:
+                - id
+                - rel
+                - href
+              properties:
+                id:
+                  type: string
+                rel:
+                  type: string
+                  description: is always `child`
+                href:
+                  type: string
+                type:
+                  type: string
+                title:
+                  type: string
+            examples:
+              Sample Request:
+                value:
+                  id: f47ac10b-58cc-4372-a567-0e02b2c3d479
+                  rel: child
+                  href: 'https://ogc.iudx.io/collections/f64743f6-1f74-4ada-8020-45cfb2d08a1b'
+                  type: application/json
+                  title: Link to the STAC collection
+        description: 'Patch a STAC item. Only child links can be appended to existing STAC item. If self or root links need to be updated, one must delete and re-create the STAC item.'
+    get:
+      summary: Get Stac Item
+      tags:
+        - STAC
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:Success'
+                    title: Success
+                    totalHits: 1
+                    results:
+                      - type: Catalog
+                        stac_version: 1.0.0
+                        id: 00940488-c3ee-4f99-a41a-48c5568643b0
+                        description: This object represents a Catalog in a SpatioTemporal Asset Catalog.
+                        links:
+                          - rel: child
+                            href: 'https://ogc.iudx.io/collections/af1c526b-283e-441b-a4fb-09e6760de9c7'
+                            type: application/json
+                            title: Link to the STAC collection
+                          - rel: child
+                            href: 'https://ogc.iudx.io/collections/f64743f6-1f74-4ada-8020-45cfb2d08a1b'
+                            type: application/json
+                            title: Link to the STAC collection
+                          - rel: self
+                            href: 'https://ogc.iudx.io/catalog'
+                            type: application/json
+                            title: Link to the STAC catalog
+                          - rel: root
+                            href: 'https://ogc.iudx.io/catalog'
+                            type: application/json
+                            title: Link to the STAC catalog
+                required:
+                  - type
+                  - title
+                  - results
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  totalHits:
+                    type: integer
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                        stac_version:
+                          type: string
+                        id:
+                          type: string
+                        description:
+                          type: string
+                        links:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              rel:
+                                type: string
+                              href:
+                                type: string
+                              type:
+                                type: string
+                              title:
+                                type: string
+              examples:
+                Sample Response:
+                  value:
+                    type: 'urn:dx:cat:Success'
+                    title: Success
+                    totalHits: 1
+                    results:
+                      - type: Catalog
+                        stac_version: 1.0.0
+                        id: 00940488-c3ee-4f99-a41a-48c5568643b0
+                        description: This object represents a Catalog in a SpatioTemporal Asset Catalog.
+                        links:
+                          - rel: child
+                            href: 'https://ogc.iudx.io/collections/af1c526b-283e-441b-a4fb-09e6760de9c7'
+                            type: application/json
+                            title: Link to the STAC collection
+                          - rel: child
+                            href: 'https://ogc.iudx.io/collections/f64743f6-1f74-4ada-8020-45cfb2d08a1b'
+                            type: application/json
+                            title: Link to the STAC collection
+                          - rel: self
+                            href: 'https://ogc.iudx.io/catalog'
+                            type: application/json
+                            title: Link to the STAC catalog
+                          - rel: root
+                            href: 'https://ogc.iudx.io/catalog'
+                            type: application/json
+                            title: Link to the STAC catalog
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:InvalidUUID'
+                    title: Invalid syntax of uuid
+                    detail: The id is invalid or not present
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Invalid ID:
+                  value:
+                    type: 'urn:dx:cat:InvalidUUID'
+                    title: Invalid syntax of uuid
+                    detail: The id is invalid or not present
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:ItemNotFound'
+                    title: Item is not found
+                    detail: 'Fail: Stac doesn''t exist'
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Item Not Found:
+                  value:
+                    type: 'urn:dx:cat:ItemNotFound'
+                    title: Item is not found
+                    detail: 'Fail: Stac doesn''t exist'
+      operationId: get-stac
+      x-stoplight:
+        id: taofpu36jtbtp
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: Universally Unique Identifier
+          required: true
+    delete:
+      summary: Delete STAC Item
+      tags:
+        - STAC
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: Success
+                    results:
+                      - id: 00940488-c3ee-4f99-a41a-48c5568643b0
+                    detail: Stac deleted successfully.
+                required:
+                  - results
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                      properties:
+                        id:
+                          type: string
+                  detail:
+                    type: string
+              examples:
+                Deleted STAC Item:
+                  value:
+                    type: Success
+                    results:
+                      - id: 00940488-c3ee-4f99-a41a-48c5568643b0
+                    detail: Stac deleted successfully.
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:InvalidUUID'
+                    title: Invalid syntax of uuid
+                    detail: The id is invalid or not present
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Invalid ID:
+                  value:
+                    type: 'urn:dx:cat:InvalidUUID'
+                    title: Invalid syntax of uuid
+                    detail: The id is invalid or not present
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:InvalidAuthorizationToken'
+                    title: Token is invalid
+                    detail: 'failed to decode/validate jwt token : Invalid format for JWT'
+                required:
+                  - type
+                  - title
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  title:
+                    type: string
+                  detail:
+                    type: string
+              examples:
+                Unauthorized:
+                  value:
+                    type: 'urn:dx:cat:InvalidAuthorizationToken'
+                    title: Token is invalid
+                    detail: 'failed to decode/validate jwt token : Invalid format for JWT'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    type: 'urn:dx:cat:ItemNotFound'
+                    results:
+                      - id: 00940488-c3ee-4f99-a41a-48c5568643b0
+                        method: DELETE
+                        title: failed
+                    detail: 'Item not found, can''t delete'
+                required:
+                  - type
+                  - results
+                  - detail
+                properties:
+                  type:
+                    type: string
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        method:
+                          type: string
+                        title:
+                          type: string
+                  detail:
+                    type: string
+              examples:
+                Item Not Found:
+                  value:
+                    type: 'urn:dx:cat:ItemNotFound'
+                    results:
+                      - id: 00940488-c3ee-4f99-a41a-48c5568643b0
+                        method: DELETE
+                        title: failed
+                    detail: 'Item not found, can''t delete'
+      operationId: delete-stac
+      x-stoplight:
+        id: tplb8lkpum93r
+      parameters:
+        - schema:
+            type: string
+          in: header
+          name: token
+          description: DX Auth token to process the request
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: id
+          description: Universally Unique Identifier
+          required: true
+
 
 tags:
   - name: Entity
@@ -2442,6 +3188,9 @@ tags:
     description: |
       Catalogue middle layer specific APIs.  <br> These apis consist of summary (total counts and size) and real time APIs
     x-displayName: MLayer Summary
+  - name: STAC
+    description: |
+      APIs for Spatio-Temporal Asset Catalogs (STAC) items.
 components:
   schemas:
     successResponseWithObjects:
