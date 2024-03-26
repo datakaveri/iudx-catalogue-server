@@ -667,7 +667,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     router
         .route(api.getStackRestApis() + "/*")
         .subRouter(
-            new StackRestApi(
+            new StacRestApi(
                      router, api, config(), validationService, authService, auditingService)
                 .init());
 

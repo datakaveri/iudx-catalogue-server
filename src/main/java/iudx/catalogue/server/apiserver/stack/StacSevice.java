@@ -2,9 +2,8 @@ package iudx.catalogue.server.apiserver.stack;
 
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
-import netscape.javascript.JSObject;
 
-public interface StackSevice {
+public interface StacSevice {
 
   Future<JsonObject> get(String stackId);
 

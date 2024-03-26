@@ -18,7 +18,6 @@ import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
 import jdk.jfr.Description;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(VertxExtension.class)
 @ExtendWith(MockitoExtension.class)
 class StackServiceImplTest {
-  static StackSevice stackSevice;
+  static StacSevice stackSevice;
   @Mock private static ElasticClient mockElasticClient;
   @Mock private static RespBuilder mockRespBuilder;
   @Mock JsonObject mockJson;
@@ -36,7 +35,7 @@ class StackServiceImplTest {
       new RespBuilder()
           .withType(TYPE_ITEM_NOT_FOUND)
           .withTitle(TITLE_ITEM_NOT_FOUND)
-          .withDetail("Fail: Stack doesn't exist")
+          .withDetail("Fail: Stac doesn't exist")
           .getResponse();
   String dbError =
       new RespBuilder()
@@ -68,7 +67,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    StackServiceImpl stackService = new StackServiceImpl(mockElasticClient, "Index");
+    StacServiceImpl stackService = new StacServiceImpl(mockElasticClient, "Index");
     stackService.respBuilder = mockRespBuilder;
 
     Future<JsonObject> resultFuture = stackService.get("uuid");
@@ -92,7 +91,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    StackServiceImpl stackService = new StackServiceImpl(mockElasticClient, "index");
+    StacServiceImpl stackService = new StacServiceImpl(mockElasticClient, "index");
     stackService.respBuilder = mockRespBuilder;
 
     Future<JsonObject> resultFuture = stackService.get("stackId");
@@ -116,7 +115,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    StackServiceImpl stackService = new StackServiceImpl(mockElasticClient, "index");
+    StacServiceImpl stackService = new StacServiceImpl(mockElasticClient, "index");
     stackService.respBuilder = mockRespBuilder;
 
     Future<JsonObject> resultFuture = stackService.get("stackId");
@@ -150,7 +149,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    StackServiceImpl stackService = new StackServiceImpl(mockElasticClient, "Index");
+    StacServiceImpl stackService = new StacServiceImpl(mockElasticClient, "Index");
 
     // Stubbing other methods as needed
     JsonObject self = new JsonObject().put("href", "dummy_href").put("rel", "self");
@@ -167,7 +166,7 @@ class StackServiceImplTest {
                   if (handler.succeeded()) {
                     JsonObject result = handler.result();
                     assertEquals(SUCCESS, result.getString(TYPE));
-                    assertEquals(STACK_CREATION_SUCCESS, result.getString(DETAIL));
+                    assertEquals(STAC_CREATION_SUCCESS, result.getString(DETAIL));
                     testContext.completeNow();
                   } else {
                     testContext.failNow("failed: " + handler.cause().getMessage());
@@ -199,7 +198,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    StackServiceImpl stackService = new StackServiceImpl(mockElasticClient, "Index");
+    StacServiceImpl stackService = new StacServiceImpl(mockElasticClient, "Index");
 
     // Stubbing other methods as needed
     JsonObject self = new JsonObject().put("href", "dummy_href").put("rel", "self");
@@ -239,7 +238,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    StackServiceImpl stackService = new StackServiceImpl(mockElasticClient, "Index");
+    StacServiceImpl stackService = new StacServiceImpl(mockElasticClient, "Index");
 
     // Stubbing other methods as needed
     JsonObject self = new JsonObject().put("href", "dummy_href").put("rel", "self");
@@ -276,7 +275,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    StackServiceImpl stackService = new StackServiceImpl(mockElasticClient, "Index");
+    StacServiceImpl stackService = new StacServiceImpl(mockElasticClient, "Index");
 
     // Stubbing other methods as needed
     JsonObject self = new JsonObject().put("href", "dummy_href").put("rel", "self");
@@ -304,7 +303,7 @@ class StackServiceImplTest {
   @Test
   @Description("Success: stack [patch] ")
   void testUpdate(VertxTestContext vertxTestContext) {
-    stackSevice = new StackServiceImpl(mockElasticClient, "index");
+    stackSevice = new StacServiceImpl(mockElasticClient, "index");
     // Mocking data
     JsonObject stack = new JsonObject().put("id", "someId").put("rel", "child").put("href", "href");
 
@@ -363,7 +362,7 @@ class StackServiceImplTest {
   @Test
   @Description("Conflict : stack [patch] ")
   void testUpdate4ExistingNotAllowed(VertxTestContext vertxTestContext) {
-    stackSevice = new StackServiceImpl(mockElasticClient, "index");
+    stackSevice = new StacServiceImpl(mockElasticClient, "index");
     // Mocking data
     JsonObject stack = new JsonObject().put("id", "someId").put("rel", "child").put("href", "href");
 
@@ -414,7 +413,7 @@ class StackServiceImplTest {
   @Test
   @Description("NotFound : stack [patch] ")
   void testUpdate4ItemNotFound(VertxTestContext vertxTestContext) {
-    stackSevice = new StackServiceImpl(mockElasticClient, "index");
+    stackSevice = new StacServiceImpl(mockElasticClient, "index");
     // Mocking data
     JsonObject stack = new JsonObject().put("id", "someId").put("rel", "child").put("href", "href");
 
@@ -494,7 +493,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    stackSevice = new StackServiceImpl(mockElasticClient, "index");
+    stackSevice = new StacServiceImpl(mockElasticClient, "index");
 
     // Testing the delete method
     Future<JsonObject> deleteFuture = stackSevice.delete(stackId);
@@ -503,7 +502,7 @@ class StackServiceImplTest {
         handler -> {
           if (handler.succeeded()) {
             JsonObject result = handler.result();
-            assertEquals(STACK_DELETION_SUCCESS, result.getString(DETAIL));
+            assertEquals(STAC_DELETION_SUCCESS, result.getString(DETAIL));
             assertEquals(SUCCESS, result.getString("type"));
             vertxTestContext.completeNow();
           } else {
@@ -527,7 +526,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    stackSevice = new StackServiceImpl(mockElasticClient, "index");
+    stackSevice = new StacServiceImpl(mockElasticClient, "index");
 
     // Testing the delete method
     Future<JsonObject> deleteFuture = stackSevice.delete(stackId);
@@ -580,7 +579,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    stackSevice = new StackServiceImpl(mockElasticClient, "index");
+    stackSevice = new StacServiceImpl(mockElasticClient, "index");
 
     // Testing the delete method
     Future<JsonObject> deleteFuture = stackSevice.delete(stackId);
@@ -615,7 +614,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    stackSevice = new StackServiceImpl(mockElasticClient, "index");
+    stackSevice = new StacServiceImpl(mockElasticClient, "index");
 
     // Testing the delete method
     Future<JsonObject> deleteFuture = stackSevice.delete(stackId);
@@ -650,7 +649,7 @@ class StackServiceImplTest {
               return null;
             });
 
-    stackSevice = new StackServiceImpl(mockElasticClient, "index");
+    stackSevice = new StacServiceImpl(mockElasticClient, "index");
 
     // Testing the delete method
     Future<JsonObject> deleteFuture = stackSevice.delete(stackId);

@@ -17,8 +17,8 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
-import iudx.catalogue.server.apiserver.stack.StackServiceImpl;
-import iudx.catalogue.server.apiserver.stack.StackSevice;
+import iudx.catalogue.server.apiserver.stack.StacServiceImpl;
+import iudx.catalogue.server.apiserver.stack.StacSevice;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.authenticator.AuthenticationService;
@@ -29,8 +29,8 @@ import java.time.ZonedDateTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class StackRestApi {
-  private static final Logger LOGGER = LogManager.getLogger(StackRestApi.class);
+public class StacRestApi {
+  private static final Logger LOGGER = LogManager.getLogger(StacRestApi.class);
 
   private AuthenticationService authService;
   private ValidatorService validatorService;
@@ -38,10 +38,10 @@ public class StackRestApi {
   private Api api;
   private Router router;
   private ElasticClient elasticClient;
-  private StackSevice stackSevice;
+  private StacSevice stackSevice;
   private RespBuilder respBuilder;
 
-  public StackRestApi(
+  public StacRestApi(
       Router router,
       Api api,
       JsonObject config,
@@ -60,7 +60,7 @@ public class StackRestApi {
             config.getString("docIndex"),
             config.getString("databaseUser"),
             config.getString("databasePassword"));
-    stackSevice = new StackServiceImpl(elasticClient, config.getString("docIndex"));
+    stackSevice = new StacServiceImpl(elasticClient, config.getString("docIndex"));
   }
 
   Router init() {
@@ -128,11 +128,11 @@ public class StackRestApi {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    String stackId = routingContext.queryParams().get(ID);
-    LOGGER.debug("stackId:: {}", stackId);
-    if (validateId(stackId)) {
+    String stacId = routingContext.queryParams().get(ID);
+    LOGGER.debug("stackId:: {}", stacId);
+    if (validateId(stacId)) {
       stackSevice
-          .get(stackId)
+          .get(stacId)
           .onComplete(
               stackHandler -> {
                 if (stackHandler.succeeded()) {
@@ -150,7 +150,7 @@ public class StackRestApi {
               .withType(TYPE_INVALID_UUID)
               .withTitle(TITLE_INVALID_UUID)
               .withDetail("The id is invalid or not present");
-      LOGGER.error("Error invalid id : {}", stackId);
+      LOGGER.error("Error invalid id : {}", stacId);
       processBackendResponse(response, respBuilder.getResponse());
     }
   }
@@ -234,7 +234,7 @@ public class StackRestApi {
 
     JsonObject requestBody = routingContext.body().asJsonObject();
     JsonObject validationJson = requestBody.copy();
-    String stackId = requestBody.getString(ID);
+    String stacId = requestBody.getString(ID);
     validationJson.put("stack_type", "patch:Stack");
 
     validatorService.validateSchema(
@@ -252,7 +252,7 @@ public class StackRestApi {
                 authHandler -> {
                   if (authHandler.succeeded()) {
                     JsonObject authInfo = authHandler.result();
-                    authInfo.put(IUDX_ID, stackId);
+                    authInfo.put(IUDX_ID, stacId);
                     authInfo.put(API, path);
                     authInfo.put(HTTP_METHOD, REQUEST_PATCH);
                     stackSevice
@@ -297,9 +297,9 @@ public class StackRestApi {
     String path = routingContext.normalizedPath();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-    String stackId = routingContext.queryParams().get(ID);
-    LOGGER.debug("stackId:: {}", stackId);
-    if (validateId(stackId)) {
+    String stacId = routingContext.queryParams().get(ID);
+    LOGGER.debug("stackId:: {}", stacId);
+    if (validateId(stacId)) {
       JsonObject jwtAuthenticationInfo =
           new JsonObject()
               .put(TOKEN, request.getHeader(HEADER_TOKEN))
@@ -312,11 +312,11 @@ public class StackRestApi {
           authHandler -> {
             if (authHandler.succeeded()) {
               JsonObject authInfo = authHandler.result();
-              authInfo.put(IUDX_ID, stackId);
+              authInfo.put(IUDX_ID, stacId);
               authInfo.put(API, path);
               authInfo.put(HTTP_METHOD, REQUEST_DELETE);
               stackSevice
-                  .delete(stackId)
+                  .delete(stacId)
                   .onComplete(
                       deleteHandler -> {
                         if (deleteHandler.succeeded()) {
@@ -345,7 +345,7 @@ public class StackRestApi {
               .withType(TYPE_INVALID_UUID)
               .withTitle(TITLE_INVALID_UUID)
               .withDetail("The id is invalid or not present");
-      LOGGER.error("Invalid id : {}", stackId);
+      LOGGER.error("Invalid id : {}", stacId);
       processBackendResponse(response, respBuilder.getResponse());
     }
   }
