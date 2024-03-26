@@ -55,7 +55,7 @@ Make a config file based on the template in `./configs/config-example.json`
 
 
 ### Maven based
-1. Install java 13 and maven
+1. Install java 11 and maven
 2. Use the maven exec plugin based starter to start the server 
    `mvn clean compile exec:java@catalogue-server`
 
@@ -91,7 +91,7 @@ The server requires certificates to be stored in Java keystore format.
 
 
 ### Integration tests
-Integration tests are through Postman/Newman whose script can be found from [here](./src/test/resources/iudx-catalogue-server-v4.5.0.postman_collection.json).
+Integration tests are through Postman/Newman whose script can be found from [here](https://github.com/datakaveri/iudx-catalogue-server/tree/master/src/test/resources).
 1. Install prerequisites 
    - [postman](https://www.postman.com/) + [newman](https://www.npmjs.com/package/newman)
    - [newman reporter-htmlextra](https://www.npmjs.com/package/newman-reporter-htmlextra)
