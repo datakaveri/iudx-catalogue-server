@@ -1,6 +1,7 @@
 package iudx.catalogue.server.apiserver.integrationtests.crudApisIT;
 
 import static io.restassured.RestAssured.*;
+import static iudx.catalogue.server.apiserver.util.Constants.ROUTE_STACK;
 import static iudx.catalogue.server.authenticator.TokensForITs.*;
 import static org.hamcrest.Matchers.*;
 
@@ -18,7 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 public class StackRestApisIT {
   public static final Logger LOGGER = LogManager.getLogger(StackRestApisIT.class);
 
-  public static String stackId;
+  public static String stacId;
 
   private JsonObject createPayload() {
     JsonObject jsonPayload = new JsonObject();
@@ -74,52 +75,52 @@ public class StackRestApisIT {
     response.then().statusCode(statusCode).body("type", is(type)).body("detail", equalTo(detail));
   }
 
-  private Response createStackItem(JsonObject payloadJson, String token) {
+  private Response createStacItem(JsonObject payloadJson, String token) {
     LOGGER.debug("createStackItem payloadJson:: " + payloadJson);
     return given()
         .contentType("application/json")
         .header("token", token)
         .body(payloadJson.toString())
         .when()
-        .post("/stack")
+        .post(ROUTE_STACK)
         .then()
         .extract()
         .response();
   }
 
-  private Response updateStackItem(JsonObject payloadJson, String token) {
+  private Response updateStacItem(JsonObject payloadJson, String token) {
     LOGGER.debug("updateStackItem payloadJson:: " + payloadJson);
     return given()
         .contentType("application/json")
         .header("token", token)
         .body(payloadJson.toString())
         .when()
-        .patch("/stack")
+        .patch(ROUTE_STACK)
         .then()
         .extract()
         .response();
   }
 
-  private Response getStackItem(String stackId) {
-    LOGGER.debug("getStackItem stackId:: {} ", stackId);
+  private Response getStacItem(String stackId) {
+    LOGGER.debug("getStacItem stackId:: {} ", stackId);
     return given()
         .contentType("application/json")
         .param("id", stackId)
         .when()
-        .get("/stack")
+        .get(ROUTE_STACK)
         .then()
         .extract()
         .response();
   }
 
   private Response deleteStackItem(String stackId, String token) {
-    LOGGER.debug("deleteStackItem stackId::{} ", stackId);
+    LOGGER.debug("deleteStacItem stackId::{} ", stackId);
     return given()
         .contentType("application/json")
         .header("token", token)
         .param("id", stackId)
         .when()
-        .delete("/stack")
+        .delete(ROUTE_STACK)
         .then()
         .extract()
         .response();
@@ -127,22 +128,22 @@ public class StackRestApisIT {
 
   @Test
   @Order(1)
-  @DisplayName("Create Stack Item - Success (201)")
+  @DisplayName("Create Stac Item - Success (201)")
   void testCreateStackItemSuccess() {
     JsonObject payloadJson = createPayload();
-    Response response = createStackItem(payloadJson, cosAdminToken);
+    Response response = createStacItem(payloadJson, cosAdminToken);
 
     // Extract the generated ID from the response
     JsonObject json = new JsonObject(response.body().prettyPrint());
-    stackId = json.getJsonArray("results").getJsonObject(0).getString("id");
-    LOGGER.info("Stack ID: {}", stackId);
+    stacId = json.getJsonArray("results").getJsonObject(0).getString("id");
+    LOGGER.info("Stac ID: {}", stacId);
 
-    assertResponse(response, 201, "Success", "Stack created successfully.");
+    assertResponse(response, 201, "Success", "Stac created successfully.");
   }
 
   @Test
   @Order(2)
-  @DisplayName("Create Stack Item - Conflict (409)")
+  @DisplayName("Create Stac Item - Conflict (409)")
   void testCreateStackItemConflicts() {
     try {
       Thread.sleep(2000); // 2 seconds delay
@@ -150,21 +151,21 @@ public class StackRestApisIT {
       e.printStackTrace();
     }
     JsonObject payloadJson = createPayload();
-    Response response = createStackItem(payloadJson, cosAdminToken);
+    Response response = createStacItem(payloadJson, cosAdminToken);
     assertResponse(
         response,
         409,
         "urn:dx:cat:Conflicts",
         "Conflicts",
-        "Stack already exists,creation skipped");
+        "STAC already exists,creation skipped");
   }
 
   @Test
   @Order(3)
-  @DisplayName("Create stack item - Invalid Authorization Token (401)")
+  @DisplayName("Create stac item - Invalid Authorization Token (401)")
   void createStackItemNotAuthorization() {
     JsonObject payloadJson = createPayload();
-    Response response = createStackItem(payloadJson, adminToken);
+    Response response = createStacItem(payloadJson, adminToken);
     assertResponse(
         response,
         401,
@@ -175,11 +176,11 @@ public class StackRestApisIT {
 
   @Test
   @Order(4)
-  @DisplayName("Create stack item - Bad Request (400)")
+  @DisplayName("Create stac item - Bad Request (400)")
   void createStackItemInvalidSchema() {
     JsonObject payloadJson = createPayload();
     payloadJson.remove("links");
-    Response response = createStackItem(payloadJson, adminToken);
+    Response response = createStacItem(payloadJson, adminToken);
     assertResponse(
         response, 400, "urn:dx:cat:InvalidSchema", "Invalid Schema", "Invalid schema provided");
   }
@@ -190,14 +191,14 @@ public class StackRestApisIT {
   void updateStackItemInvalidSchema() {
     JsonObject payloadJson = createChildObject();
     payloadJson.remove("id");
-    Response response = updateStackItem(payloadJson, adminToken);
+    Response response = updateStacItem(payloadJson, adminToken);
     assertResponse(
         response, 400, "urn:dx:cat:InvalidSchema", "Invalid Schema", "Invalid schema provided");
   }
 
   @Test
   @Order(6)
-  @DisplayName("Update stack item - Not Found (404)")
+  @DisplayName("Update stac item - Not Found (404)")
   void updateStackItemNotFound() {
     try {
       Thread.sleep(2000); // 2 seconds delay
@@ -206,18 +207,18 @@ public class StackRestApisIT {
     }
     JsonObject payloadJson = createChildObject();
     payloadJson.put("id", "f47ac10b-58cc-4372-a567-0e02b2c3d479");
-    Response response = updateStackItem(payloadJson, cosAdminToken);
+    Response response = updateStacItem(payloadJson, cosAdminToken);
     assertResponse(
-        response, 404, "urn:dx:cat:ItemNotFound", "Item is not found", "Fail: stack doesn't exist");
+        response, 404, "urn:dx:cat:ItemNotFound", "Item is not found", "Fail: stac doesn't exist");
   }
 
   @Test
   @Order(7)
-  @DisplayName("Update stack item - Invalid Authorization Token (401)")
+  @DisplayName("Update stackitem - Invalid Authorization Token (401)")
   void updateStackItemInvalidAuthorization() {
     JsonObject payloadJson = createChildObject();
     payloadJson.put("id", "f47ac10b-58cc-4372-a567-0e02b2c3d479");
-    Response response = updateStackItem(payloadJson, adminToken);
+    Response response = updateStacItem(payloadJson, adminToken);
     assertResponse(
         response,
         401,
@@ -228,33 +229,33 @@ public class StackRestApisIT {
 
   @Test
   @Order(8)
-  @DisplayName("Update stack item - Success (200)")
+  @DisplayName("Update stac item - Success (200)")
   void updateStackItemSuccess() {
-    LOGGER.debug("stackId {}", stackId);
+    LOGGER.debug("stacId {}", stacId);
     try {
       Thread.sleep(2000); // 2 seconds delay
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
     JsonObject payloadJson = createChildObject();
-    payloadJson.put("id", stackId);
+    payloadJson.put("id", stacId);
 
-    Response response = updateStackItem(payloadJson, cosAdminToken);
+    Response response = updateStacItem(payloadJson, cosAdminToken);
     assertResponse(
         response, 201, "urn:dx:cat:Success", "Success", "Success: Item updated successfully");
   }
 
   @Test
   @Order(8)
-  @DisplayName("Get stack item - Success (200)")
+  @DisplayName("Get stac item - Success (200)")
   void getStackItemSuccess() {
-    LOGGER.debug("stackId {}", stackId);
+    LOGGER.debug("stacId {}", stacId);
     try {
       Thread.sleep(2000); // 2 seconds delay
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    Response response = getStackItem(stackId);
+    Response response = getStacItem(stacId);
     response
         .then()
         .statusCode(200)
@@ -266,17 +267,17 @@ public class StackRestApisIT {
   @Order(9)
   @DisplayName("Get stack item - Not Found (404)")
   void getStackItemNotFound() {
-    LOGGER.debug("stackId : {}", stackId);
-    Response response = getStackItem("7c8a0478-7986-4d6e-91d1-2ba82bd22863");
+    LOGGER.debug("stacId : {}", stacId);
+    Response response = getStacItem("7c8a0478-7986-4d6e-91d1-2ba82bd22863");
     assertResponse(
-        response, 404, "urn:dx:cat:ItemNotFound", "Item is not found", "Fail: Stack doesn't exist");
+        response, 404, "urn:dx:cat:ItemNotFound", "Item is not found", "Fail: Stac doesn't exist");
   }
 
   @Test
   @Order(10)
   @DisplayName("Get stack item - Bad Request (400) - Invalid Id")
   void getStackItemInvalidId() {
-    Response response = getStackItem("761a9527-94ed-48d2-8995-b061cdfe1f9");
+    Response response = getStacItem("761a9527-94ed-48d2-8995-b061cdfe1f9");
     assertResponse(
         response,
         400,
@@ -287,7 +288,7 @@ public class StackRestApisIT {
 
   @Test
   @Order(11)
-  @DisplayName("Delete stack item - Bad Request (400) - Invalid Id")
+  @DisplayName("Delete stac item - Bad Request (400) - Invalid Id")
   void deleteStackItemInvalidId() {
     Response response = deleteStackItem("61a9527-94ed-48d2-8995-b061cdfe1f9", cosAdminToken);
     assertResponse(
@@ -300,7 +301,7 @@ public class StackRestApisIT {
 
   @Test
   @Order(12)
-  @DisplayName("Delete stack item - Invalid Authorization Token (401)")
+  @DisplayName("Delete stac item - Invalid Authorization Token (401)")
   void deleteStackItemInvalidToken() {
     Response response = deleteStackItem("714f82e7-146b-411c-b2e1-8618141d8b99", adminToken);
     assertResponse(
@@ -313,24 +314,24 @@ public class StackRestApisIT {
 
   @Test
   @Order(13)
-  @DisplayName("Delete stack item - Not Found (404)")
+  @DisplayName("Delete stac item - Not Found (404)")
   void deleteStackItemNotFound() {
-    LOGGER.debug("stackId : {} ", stackId);
+    LOGGER.debug("stackId : {} ", stacId);
     Response response = deleteStackItem("714f82e7-146b-411c-b2e1-8618141d8b99", cosAdminToken);
     assertResponse(response, 404, "urn:dx:cat:ItemNotFound", "Item not found, can't delete");
   }
 
   @Test
   @Order(14)
-  @DisplayName("Delete stack item - Success (200)")
+  @DisplayName("Delete stac item - Success (200)")
   void deleteStackItemSuccess() {
-    LOGGER.debug("stackId : {} ", stackId);
+    LOGGER.debug("stacId : {} ", stacId);
     try {
       Thread.sleep(2000); // 2 seconds delay
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    Response response = deleteStackItem(stackId, cosAdminToken);
-    assertResponse(response, 200, "Success", "Stack deleted successfully.");
+    Response response = deleteStackItem(stacId, cosAdminToken);
+    assertResponse(response, 200, "Success", "Stac deleted successfully.");
   }
 }

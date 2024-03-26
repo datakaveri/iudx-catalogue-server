@@ -265,8 +265,8 @@ public class Constants {
   public static final String TITLE_DB_ERROR = "database error";
   public static final String TYPE_INVALID_SEARCH_ERROR = "urn:dx:cat:InvalidRelationSearch";
   public static final String TITLE_INVALID_SEARCH_ERROR = "Invalid relationship type search";
-  public static final String STACK_CREATION_SUCCESS = "Stack created successfully.";
-  public static final String STACK_DELETION_SUCCESS = "Stack deleted successfully.";
+  public static final String STAC_CREATION_SUCCESS = "Stac created successfully.";
+  public static final String STAC_DELETION_SUCCESS = "Stac deleted successfully.";
   public static final String DETAIL_INVALID_SCHEMA = "Invalid schema provided";
 
 

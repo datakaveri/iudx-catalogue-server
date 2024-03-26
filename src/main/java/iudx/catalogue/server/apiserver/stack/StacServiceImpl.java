@@ -16,9 +16,9 @@ import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class StackServiceImpl implements StackSevice {
+public class StacServiceImpl implements StacSevice {
 
-  private static final Logger LOGGER = LogManager.getLogger(StackServiceImpl.class);
+  private static final Logger LOGGER = LogManager.getLogger(StacServiceImpl.class);
 
   private final ElasticClient elasticClient;
   private final String index;
@@ -26,7 +26,7 @@ public class StackServiceImpl implements StackSevice {
   Supplier<String> idSuppler = () -> UUID.randomUUID().toString();
   private QueryBuilder queryBuilder = new QueryBuilder();
 
-  public StackServiceImpl(ElasticClient elasticClient, String index) {
+  public StacServiceImpl(ElasticClient elasticClient, String index) {
     this.elasticClient = elasticClient;
     this.index = index;
   }
@@ -54,7 +54,7 @@ public class StackServiceImpl implements StackSevice {
                   new RespBuilder()
                       .withType(TYPE_ITEM_NOT_FOUND)
                       .withTitle(TITLE_ITEM_NOT_FOUND)
-                      .withDetail("Fail: Stack doesn't exist");
+                      .withDetail("Fail: Stac doesn't exist");
               promise.fail(respBuilder.getResponse());
             }
           } else {
@@ -95,17 +95,17 @@ public class StackServiceImpl implements StackSevice {
                   request.toString(),
                   postHandler -> {
                     if (postHandler.succeeded()) {
-                      LOGGER.info("Success: Stack creation");
+                      LOGGER.info("Success: Stac creation");
                       JsonObject result = postHandler.result();
                       LOGGER.debug("Success : " + result);
                       respBuilder =
                           new RespBuilder()
                               .withType(SUCCESS)
                               .withResult(id, INSERT, SUCCESS)
-                              .withDetail(STACK_CREATION_SUCCESS);
+                              .withDetail(STAC_CREATION_SUCCESS);
                       promise.complete(respBuilder.getJsonResponse());
                     } else {
-                      LOGGER.error("Fail: Stack creation : {}", postHandler.cause().getMessage());
+                      LOGGER.error("Fail: STAC creation : {}", postHandler.cause().getMessage());
                       respBuilder =
                           new RespBuilder()
                               .withType(FAILED)
@@ -115,12 +115,12 @@ public class StackServiceImpl implements StackSevice {
                     }
                   });
             } else {
-              LOGGER.error("Stack already exists, skipping creation");
+              LOGGER.error("STAC already exists, skipping creation");
               respBuilder =
                   new RespBuilder()
                       .withType(TYPE_CONFLICT)
                       .withTitle(DETAIL_CONFLICT)
-                      .withDetail("Stack already exists,creation skipped");
+                      .withDetail("STAC already exists,creation skipped");
               promise.fail(respBuilder.getResponse());
             }
           } else {
@@ -128,7 +128,7 @@ public class StackServiceImpl implements StackSevice {
             respBuilder =
                 new RespBuilder()
                     .withType(FAILED)
-                    .withResult("stack", INSERT, FAILED)
+                    .withResult("stac", INSERT, FAILED)
                     .withDetail(DATABASE_ERROR);
             promise.fail(respBuilder.getResponse());
           }
@@ -146,8 +146,8 @@ public class StackServiceImpl implements StackSevice {
     LOGGER.debug("update () method started");
     Promise<JsonObject> promise = Promise.promise();
     ResultContainer result = new ResultContainer();
-    String stackId = stack.getString("id");
-    Future<JsonObject> existFuture = isExist(stackId);
+    String stacId = stack.getString("id");
+    Future<JsonObject> existFuture = isExist(stacId);
     existFuture
         .compose(
             existHandler -> {
@@ -166,7 +166,7 @@ public class StackServiceImpl implements StackSevice {
                   new RespBuilder()
                       .withType(TYPE_SUCCESS)
                       .withTitle(TITLE_SUCCESS)
-                      .withResult(stackId)
+                      .withResult(stacId)
                       .withDetail("Success: Item updated successfully");
               promise.complete(respBuilder.getJsonResponse());
             })
@@ -180,15 +180,15 @@ public class StackServiceImpl implements StackSevice {
   }
 
   /**
-   * @param stackId String
+   * @param stacId String
    * @return future json
    */
   @Override
-  public Future<JsonObject> delete(String stackId) {
+  public Future<JsonObject> delete(String stacId) {
     LOGGER.debug("delete () method started");
     Promise<JsonObject> promise = Promise.promise();
-    LOGGER.debug("stackId for delete :{}", stackId);
-    isExist(stackId)
+    LOGGER.debug("stackId for delete :{}", stacId);
+    isExist(stacId)
         .onComplete(
             existHandler -> {
               if (existHandler.succeeded()) {
@@ -204,8 +204,8 @@ public class StackServiceImpl implements StackSevice {
                         respBuilder =
                             new RespBuilder()
                                 .withType(SUCCESS)
-                                .withResult(stackId)
-                                .withDetail(STACK_DELETION_SUCCESS);
+                                .withResult(stacId)
+                                .withDetail(STAC_DELETION_SUCCESS);
                         promise.complete(respBuilder.getJsonResponse());
                       } else {
                         LOGGER.error(
@@ -214,7 +214,7 @@ public class StackServiceImpl implements StackSevice {
                         respBuilder =
                             new RespBuilder()
                                 .withType(FAILED)
-                                .withResult(stackId, REQUEST_DELETE, FAILED)
+                                .withResult(stacId, REQUEST_DELETE, FAILED)
                                 .withDetail(DATABASE_ERROR);
                         promise.fail(respBuilder.getResponse());
                       }
@@ -225,7 +225,7 @@ public class StackServiceImpl implements StackSevice {
                 respBuilder =
                     new RespBuilder()
                         .withType(TYPE_ITEM_NOT_FOUND)
-                        .withResult(stackId, REQUEST_DELETE, FAILED)
+                        .withResult(stacId, REQUEST_DELETE, FAILED)
                         .withDetail("Item not found, can't delete");
                 promise.fail(respBuilder.getResponse());
               }
@@ -237,7 +237,7 @@ public class StackServiceImpl implements StackSevice {
   private Future<JsonObject> isExist(String id) {
     LOGGER.debug("isExist () method started");
     Promise<JsonObject> promise = Promise.promise();
-    LOGGER.debug("stackId: {}", id);
+    LOGGER.debug("stacId: {}", id);
     String query = queryBuilder.getQuery(id);
     LOGGER.error(elasticClient);
 
@@ -257,7 +257,7 @@ public class StackServiceImpl implements StackSevice {
                 new RespBuilder()
                     .withType(TYPE_ITEM_NOT_FOUND)
                     .withTitle(TITLE_ITEM_NOT_FOUND)
-                    .withDetail("Fail: stack doesn't exist");
+                    .withDetail("Fail: stac doesn't exist");
             promise.fail(respBuilder.getResponse());
           } else {
             try {
