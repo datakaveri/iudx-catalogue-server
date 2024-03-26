@@ -1,0 +1,57 @@
+{
+    "mappings": {
+        "properties": {
+            "ate": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "coordinates": {
+                "type": "float"
+            },
+            "cover": {
+                "type": "text"
+            },
+            "icon": {
+                "type": "text"
+            },
+            "id": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "instance": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "instanceId": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "logo": {
+                "type": "text"
+            },
+            "name": {
+                "type": "keyword"
+            }
+        }
+    }
+}
