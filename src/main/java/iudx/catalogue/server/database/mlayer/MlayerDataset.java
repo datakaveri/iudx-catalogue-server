@@ -135,7 +135,8 @@ public class MlayerDataset {
         });
   }
 
-  public void getMlayerAllDatasets(String query, Handler<AsyncResult<JsonObject>> handler) {
+  public void getMlayerAllDatasets(
+      JsonObject requestParam, String query, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Getting all the resource group items");
     Promise<JsonObject> datasetResult = Promise.promise();
@@ -188,13 +189,33 @@ public class MlayerDataset {
                   record.remove(TYPE);
                   resourceGroupArray.add(record);
                 }
+                JsonArray pagedResourceGroups = new JsonArray();
+                int endIndex =
+                    requestParam.getInteger(LIMIT) + requestParam.getInteger(OFFSET);
+                if (endIndex >= resourceGroupArray.size()) {
+                  if (requestParam.getInteger(OFFSET) >= resourceGroupArray.size()) {
+                    LOGGER.debug("Offset value has exceeded total hits");
+                    RespBuilder respBuilder =
+                        new RespBuilder()
+                            .withType(TYPE_SUCCESS)
+                            .withTitle(SUCCESS)
+                            .withTotalHits(resourceGroupList.getInteger("resourceGroupCount"));
+                    handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+                  } else {
+                    endIndex = resourceGroupArray.size();
+                  }
+                }
+                for (int i = requestParam.getInteger(OFFSET); i < endIndex; i++) {
+                  pagedResourceGroups.add(resourceGroupArray.getJsonObject(i));
+                }
+
                 LOGGER.debug("getMlayerDatasets resourceGroupList interation succeeded");
                 RespBuilder respBuilder =
                     new RespBuilder()
                         .withType(TYPE_SUCCESS)
                         .withTitle(SUCCESS)
                         .withTotalHits(resourceGroupList.getInteger("resourceGroupCount"))
-                        .withResult(resourceGroupArray);
+                        .withResult(pagedResourceGroups);
                 LOGGER.debug("getMlayerDatasets succeeded");
                 handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
 

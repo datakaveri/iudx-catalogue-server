@@ -1355,9 +1355,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService getMlayerAllDatasets(
-      String query, Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject requestParam, String query, Handler<AsyncResult<JsonObject>> handler) {
     MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
-    mlayerDataset.getMlayerAllDatasets(query, handler);
+    mlayerDataset.getMlayerAllDatasets(requestParam, query, handler);
     return this;
   }
 
