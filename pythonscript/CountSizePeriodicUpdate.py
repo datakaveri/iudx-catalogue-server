@@ -49,7 +49,7 @@ with open("./config.json","r+") as file:
         # Execute a SELECT query
         if excluded_ids:
             excluded_ids_str = ",".join(f"'{str(id)}'" for id in excluded_ids)
-            where_clause = f" resourceid NOT IN ({excluded_ids_str})"
+            where_clause = f" userid NOT IN ({excluded_ids_str})"
             and_addition = " AND "
             where_addition = " where "
         else:
