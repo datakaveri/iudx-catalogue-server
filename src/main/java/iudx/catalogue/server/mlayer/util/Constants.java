@@ -14,5 +14,5 @@ public class Constants {
   public static final String COUNT_SIZE_QUERY =
       "select count(api) as counts , COALESCE(SUM(size), 0) as size from $a ";
 
-  public static final String EXCLUDED_IDS_QUERY = " and resourceid NOT IN ($3)";
+  public static final String EXCLUDED_IDS_QUERY = " and userid NOT IN ($3)";
 }
