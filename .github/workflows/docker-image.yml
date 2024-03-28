@@ -1,4 +1,4 @@
-# This github workflow will automatically update docker image tags of cat-prod in the datakaveri/iudx-deployment repository files, whenever docker image is pushed to ghcr.io/datakaveri/cat-prod  .Based on tag it will update the master/latest branch (if its 5.0.0-alpha-) or 4.5.0 stable branch (if its 4.5.0-)
+# This github workflow will automatically update docker image tags of cat-prod in the datakaveri/iudx-deployment repository files, whenever docker image is pushed to ghcr.io/datakaveri/cat-prod  .Based on tag it will update the master/latest branch (if its 5.5.1-alpha-) or 5.5.0 stable branch (if its 5.5.0-)
 
 name: Update CAT docker image tags
 
@@ -30,9 +30,9 @@ jobs:
         GH_TOKEN: ${{ secrets.JENKINS_UPDATE}}
       run: | 
 
-        # Get the latest version of 4.5.0 and 5.0.0-alpha tags from the container registry using GitHub API
+        # Get the latest version of 5.5.0 and 5.0.1-alpha tags from the container registry using GitHub API
         export newtag5_5_0=`(head -n 1 <(curl -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/orgs/datakaveri/packages/container/cat-prod/versions | jq ' .[].metadata.container.tags[0]'  | grep 5.5.0 | sed -e 's/^"//' -e 's/"$//'))`
-        export newtag5_5_1=`(head -n 1 <(curl -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/orgs/datakaveri/packages/container/cat-prod/versions | jq ' .[].metadata.container.tags[0]'  | grep 5.0.1-alpha | sed -e 's/^"//' -e 's/"$//'))`
+        export newtag5_5_1=`(head -n 1 <(curl -H "Accept: application/vnd.github+json" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/orgs/datakaveri/packages/container/cat-prod/versions | jq ' .[].metadata.container.tags[0]'  | grep 5.5.1-alpha | sed -e 's/^"//' -e 's/"$//'))`
         
         # Get the old tags from the YAML files
         export oldtag5_5_1=`yq -r .services.cat.image Docker-Swarm-deployment/single-node/catalogue/cat-stack.yaml | cut -d : -f 2`
