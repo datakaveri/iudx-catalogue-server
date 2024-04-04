@@ -28,7 +28,7 @@ pipeline {
     stage('Unit Tests and CodeCoverage Test'){
       steps{
         script{
-          sh 'cp /home/ubuntu/configs/cat-config-test.json ./configs/config-test.json'
+          sh 'cp /home/ubuntu/configs/5.5.0/cat-config-test.json ./configs/config-test.json'
           sh 'mvn clean test checkstyle:checkstyle pmd:pmd'
         }
         xunit (
@@ -110,7 +110,7 @@ pipeline {
           }
         }
         script{
-            sh 'scp /home/ubuntu/configs/cat-config-test.json ./configs/config-test.json'
+            sh 'scp /home/ubuntu/configs/5.5.0/cat-config-test.json ./configs/config-test.json'
             sh 'mvn test-compile failsafe:integration-test -DskipUnitTests=true -DintTestProxyHost=jenkins-master-priv -DintTestProxyPort=8090 -DintTestHost=jenkins-slave1 -DintTestPort=8080'
         }
         node('built-in') {
@@ -142,70 +142,36 @@ pipeline {
       }
     }
 
-    stage('Continuous Deployment') {
+    stage('Push Images') {
       when {
-        allOf {
-          anyOf {
+          allOf {
+            anyOf {
             changeset "docker/**"
             changeset "docs/**"
             changeset "pom.xml"
             changeset "src/main/**"
             triggeredBy cause: 'UserIdCause'
+            }
+            expression {
+            return env.GIT_BRANCH == 'origin/5.5.0;
+            }
           }
-          expression {
-            return env.GIT_BRANCH == 'origin/master';
-          }
-        }
       }
-      stages {
-        stage('Push Images') {
-          steps {
-            script {
-              docker.withRegistry( registryUri, registryCredential ) {
-                devImage.push("5.5.0-alpha-${env.GIT_HASH}")
-                deplImage.push("5.5.0-alpha-${env.GIT_HASH}")
-              }
+      steps {
+          script {
+            docker.withRegistry( registryUri, registryCredential ) {
+            devImage.push("5.5.0-${env.GIT_HASH}")
+            deplImage.push("5.5.0-${env.GIT_HASH}")
             }
           }
-        }
-        stage('Docker Swarm deployment') {
-          steps {
-            script {
-              sh "ssh azureuser@docker-swarm 'docker service update cat_cat --image ghcr.io/datakaveri/cat-prod:5.5.0-alpha-${env.GIT_HASH}'"
-              sh 'sleep 10'
-            }
-          }
-          post{
-            failure{
-              error "Failed to deploy image in Docker Swarm"
-            }
-          }
-        }
-        stage('Integration test on swarm deployment') {
-          steps {
-            script{
-                sh 'mvn test-compile failsafe:integration-test -DskipUnitTests=true -DintTestDepl=true'
-            }
-          }
-          post{
-            always{
-              xunit (
-                thresholds: [ skipped(failureThreshold: '0'), failed(failureThreshold: '0') ],
-                tools: [ JUnit(pattern: 'target/failsafe-reports/*.xml') ]
-              )
-            }
-            failure{
-              error "Test failure. Stopping pipeline execution!"
-            }
-          }
-        }
       }
     }
+
   }
   post{
     failure{
       script{
-        if (env.GIT_BRANCH == 'origin/master')
+        if (env.GIT_BRANCH == 'origin/5.5.0')
         emailext recipientProviders: [buildUser(), developers()], to: '$RS_RECIPIENTS, $DEFAULT_RECIPIENTS', subject: '$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!', body: '''$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
 Check console output at $BUILD_URL to view the results.'''
       }
