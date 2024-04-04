@@ -153,7 +153,7 @@ pipeline {
             triggeredBy cause: 'UserIdCause'
             }
             expression {
-            return env.GIT_BRANCH == 'origin/5.5.0;
+            return env.GIT_BRANCH == 'origin/5.5.0';
             }
           }
       }
