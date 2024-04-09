@@ -536,6 +536,11 @@ public class MlayerApis {
     HttpServerResponse response = routingContext.response();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
     JsonObject requestParams = parseRequestParams(routingContext);
+    if (routingContext.request().getParam(INSTANCE) != null) {
+      routingContext.request().getParam(INSTANCE);
+      requestParams.put(INSTANCE, routingContext.request().getParam(INSTANCE));
+      LOGGER.debug("Instance {}", requestParams.getString(INSTANCE));
+    }
     mlayerService.getMlayerProviders(
         requestParams,
         handler -> {

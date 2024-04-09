@@ -2624,7 +2624,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
         handler -> {
           if (handler.succeeded()) {
             verify(client, times(56)).searchAsync(any(), any(), any());
-            verify(client, times(3)).searchAsyncResourceGroupAndProvider(any(), any(), any());
+            verify(client, times(5)).searchAsyncResourceGroupAndProvider(any(), any(), any());
             verify(client, times(6)).resourceAggregationAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -2739,7 +2739,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
         handler -> {
           if (handler.succeeded()) {
             verify(DatabaseServiceImpl.client, times(39)).searchAsync(any(), any(), any());
-            verify(DatabaseServiceImpl.client, times(2)).searchAsyncResourceGroupAndProvider(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(3)).searchAsyncResourceGroupAndProvider(any(), any(), any());
             verify(DatabaseServiceImpl.client, times(4)).resourceAggregationAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -2850,4 +2850,89 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
 
         asyncMethodMock.accept(client);
     }
+
+  @Test
+  @Description("test getMlayerProviders method when instance is provided")
+  public void testGetMlayerProviderSuccess(VertxTestContext testContext) {
+    JsonObject request = new JsonObject();
+    JsonArray resourceAndProvider = new JsonArray();
+    resourceAndProvider.add(request).add(request);
+    request
+        .put(OFFSET, 100)
+        .put(LIMIT, 0)
+        .put(INSTANCE, "pune")
+        .put("providerCount", 2)
+        .put("resourceGroupAndProvider", resourceAndProvider)
+        .put(TYPE, new JsonArray().add(ITEM_TYPE_PROVIDER))
+        .put("provider", "abc");
+    JsonObject rg =
+        new JsonObject()
+            .put(OFFSET, 0)
+            .put(LIMIT, 0)
+            .put(INSTANCE, "pune")
+            .put("providerCount", 2)
+            .put("resourceGroupAndProvider", resourceAndProvider)
+            .put(TYPE, new JsonArray().add(ITEM_TYPE_RESOURCE_GROUP))
+            .put("provider", "abc");
+
+    JsonArray results = new JsonArray();
+    results.add(request).add(rg);
+    JsonObject providerResponse = new JsonObject().put(RESULTS, results);
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(providerResponse);
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(client)
+        .searchAsyncResourceGroupAndProvider(any(), any(), any());
+
+    dbService.getMlayerProviders(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            //   verify(client, times(6)).searchAsync(any(), any(), any());
+            verify(client, times(2)).searchAsyncResourceGroupAndProvider(any(), any(), any());
+            testContext.completeNow();
+
+          } else {
+            testContext.failNow("fail");
+          }
+        });
+  }
+
+  @Test
+  @Description("test getMlayerProviders method when instance is provided and db Request Fails")
+  public void testGetMlayerProviderFailure(VertxTestContext testContext) {
+    JsonObject request = new JsonObject().put(INSTANCE, "pune");
+    when(asyncResult.succeeded()).thenReturn(false);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(client)
+        .searchAsyncResourceGroupAndProvider(any(), any(), any());
+
+    dbService.getMlayerProviders(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            //   verify(client, times(6)).searchAsync(any(), any(), any());
+            verify(client, times(1)).searchAsyncResourceGroupAndProvider(any(), any(), any());
+            testContext.failNow("fail");
+
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
 }
