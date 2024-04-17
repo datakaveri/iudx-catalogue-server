@@ -77,6 +77,9 @@ public class Constants {
   public static final String TEXT_QUERY = "{\"query_string\":{\"query\":\"$1\"}}";
   public static final String GET_DOC_QUERY =
       "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
+
+  public static final String GET_INSTANCE_CASE_INSENSITIVE_QUERY =
+      "{\"_source\":[$2], \"query\": {\"match\": \"id\": \"$1\"}}}";
   public static final String GET_ASSOCIATED_ID_QUERY =
       "{\"query\":{\"bool\":{\"should\":[{"
           + "\"match\":{\"id.keyword\":\"$1\"}},{"
