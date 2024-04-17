@@ -79,7 +79,7 @@ public class Constants {
       "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
 
   public static final String GET_INSTANCE_CASE_INSENSITIVE_QUERY =
-      "{\"_source\":[$2], \"query\": {\"match\": \"id\": \"$1\"}}}";
+      "{\"_source\":[$2], \"query\": {\"match\": {\"id\": \"$1\"}}}";
   public static final String GET_ASSOCIATED_ID_QUERY =
       "{\"query\":{\"bool\":{\"should\":[{"
           + "\"match\":{\"id.keyword\":\"$1\"}},{"
