@@ -30,7 +30,7 @@
       "examples": [
         "Bangalore"
       ],
-      "pattern": "^[a-zA-Z ]*$"
+      "pattern": "^[a-zA-Z_\\- ]*$"
     },
     "cover": {
       "$id": "#/properties/cover",
