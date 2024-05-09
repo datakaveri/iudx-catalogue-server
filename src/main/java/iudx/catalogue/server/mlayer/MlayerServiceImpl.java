@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -211,120 +210,123 @@ public class MlayerServiceImpl implements MlayerService {
   }
 
   @Override
-  public MlayerService getMlayerProviders(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
-      databaseService.getMlayerProviders(requestParams, resultHandler -> {
+  public MlayerService getMlayerProviders(
+      JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
+    databaseService.getMlayerProviders(
+        requestParams,
+        resultHandler -> {
           if (resultHandler.succeeded()) {
-              JsonObject resultHandlerResult = resultHandler.result();
-              LOGGER.info("Success: Getting all  providers");
-              if (requestParams.containsKey(INSTANCE)) {
-                  processProviderData(resultHandlerResult, requestParams, handler);
-              } else {
-                  handler.handle(Future.succeededFuture(resultHandler.result()));
-              }
+            JsonObject resultHandlerResult = resultHandler.result();
+            LOGGER.info("Success: Getting all  providers");
+            if (requestParams.containsKey(INSTANCE)) {
+              processProviderData(resultHandlerResult, requestParams, handler);
+            } else {
+              handler.handle(Future.succeededFuture(resultHandler.result()));
+            }
           } else {
-              LOGGER.error("Fail: Getting all providers failed");
-              handler.handle(Future.failedFuture(resultHandler.cause()));
+            LOGGER.error("Fail: Getting all providers failed");
+            handler.handle(Future.failedFuture(resultHandler.cause()));
           }
-      });
-      return this;
+        });
+    return this;
   }
 
-  private void processProviderData(JsonObject resultHandlerResult, JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
-      Integer providerCount = resultHandlerResult
-              .getJsonArray(RESULTS)
-              .getJsonObject(0)
-              .getInteger("providerCount");
-      LOGGER.debug("provider Count {} ", providerCount);
-      JsonArray results = resultHandlerResult
-              .getJsonArray(RESULTS)
-              .getJsonObject(0)
-              .getJsonArray("resourceGroupAndProvider");
-      int resultSize = results.size();
-      // 'allProviders' is a mapping of provider IDs to their corresponding JSON objects
-      Map<String, JsonObject> allProviders = new HashMap<>();
-      JsonArray providersList = new JsonArray();
-      // creating mapping of all provider IDs to their corresponding JSON objects
-      for (int i = 0; i < resultSize; i++) {
-          JsonObject provider = results.getJsonObject(i);
-          String itemType = Util.getItemType(provider);
-          if (itemType.equals(VALIDATION_FAILURE_MSG)) {
-              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-              return;
-          }
-          if (ITEM_TYPE_PROVIDER.equals(itemType)) {
-              allProviders.put(
-                      provider.getString(ID),
-                      new JsonObject()
-                              .put(ID, provider.getString(ID))
-                              .put(DESCRIPTION_ATTR, provider.getString(DESCRIPTION_ATTR))
-              );
-          }
+  private void processProviderData(
+      JsonObject resultHandlerResult,
+      JsonObject requestParams,
+      Handler<AsyncResult<JsonObject>> handler) {
+    Integer providerCount =
+        resultHandlerResult.getJsonArray(RESULTS).getJsonObject(0).getInteger("providerCount");
+    LOGGER.debug("provider Count {} ", providerCount);
+    JsonArray results =
+        resultHandlerResult
+            .getJsonArray(RESULTS)
+            .getJsonObject(0)
+            .getJsonArray("resourceGroupAndProvider");
+    int resultSize = results.size();
+    // 'allProviders' is a mapping of provider IDs to their corresponding JSON objects
+    Map<String, JsonObject> allProviders = new HashMap<>();
+    JsonArray providersList = new JsonArray();
+    // creating mapping of all provider IDs to their corresponding JSON objects
+    for (int i = 0; i < resultSize; i++) {
+      JsonObject provider = results.getJsonObject(i);
+      String itemType = Util.getItemType(provider);
+      if (itemType.equals(VALIDATION_FAILURE_MSG)) {
+        handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+        return;
       }
-      // filtering out providers which belong to the instance from all providers map.
-      for (int i = 0; i < resultSize; i++) {
-          JsonObject resourceGroup = results.getJsonObject(i);
-          String itemType = Util.getItemType(resourceGroup);
-          if (itemType.equals(VALIDATION_FAILURE_MSG)) {
-              handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-              return;
-          }
-          if (ITEM_TYPE_RESOURCE_GROUP.equals(itemType)
-                  && allProviders.containsKey(resourceGroup.getString(PROVIDER))) {
-              providersList.add(allProviders.get(resourceGroup.getString(PROVIDER)));
-              allProviders.remove(resourceGroup.getString(PROVIDER));
-          }
+      if (ITEM_TYPE_PROVIDER.equals(itemType)) {
+        allProviders.put(
+            provider.getString(ID),
+            new JsonObject()
+                .put(ID, provider.getString(ID))
+                .put(DESCRIPTION_ATTR, provider.getString(DESCRIPTION_ATTR)));
       }
-      LOGGER.debug("provider belonging to instance are {} ", providersList);
+    }
+    // filtering out providers which belong to the instance from all providers map.
+    for (int i = 0; i < resultSize; i++) {
+      JsonObject resourceGroup = results.getJsonObject(i);
+      String itemType = Util.getItemType(resourceGroup);
+      if (itemType.equals(VALIDATION_FAILURE_MSG)) {
+        handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+        return;
+      }
+      if (ITEM_TYPE_RESOURCE_GROUP.equals(itemType)
+          && allProviders.containsKey(resourceGroup.getString(PROVIDER))) {
+        providersList.add(allProviders.get(resourceGroup.getString(PROVIDER)));
+        allProviders.remove(resourceGroup.getString(PROVIDER));
+      }
+    }
+    LOGGER.debug("provider belonging to instance are {} ", providersList);
 
-      handler.handle(Future.succeededFuture(
-              paginateProviders(requestParams, providersList)));
+    handler.handle(Future.succeededFuture(paginateProviders(requestParams, providersList)));
   }
 
   // Pagination applied to the final response.
   private JsonObject paginateProviders(JsonObject requestParams, JsonArray providersList) {
-      int limit = requestParams.getInteger(LIMIT);
-      int offset = requestParams.getInteger(OFFSET);
-      int endIndex = limit + offset;
-      int providerCount = providersList.size();
+    int limit = requestParams.getInteger(LIMIT);
+    int offset = requestParams.getInteger(OFFSET);
+    int endIndex = limit + offset;
+    int providerCount = providersList.size();
 
-      if (endIndex >= providerCount) {
-          if (offset >= providerCount) {
-              LOGGER.debug("Offset value has exceeded total hits");
-              return new JsonObject()
-                      .put(TYPE, TYPE_SUCCESS)
-                      .put(TITLE, SUCCESS)
-                      .put(TOTAL_HITS, providerCount);
-          } else {
-              endIndex = providerCount;
-          }
+    if (endIndex >= providerCount) {
+      if (offset >= providerCount) {
+        LOGGER.debug("Offset value has exceeded total hits");
+        return new JsonObject()
+            .put(TYPE, TYPE_SUCCESS)
+            .put(TITLE, SUCCESS)
+            .put(TOTAL_HITS, providerCount);
+      } else {
+        endIndex = providerCount;
       }
+    }
 
-      JsonArray pagedProviders = new JsonArray();
-      for (int i = offset; i < endIndex; i++) {
-          pagedProviders.add(providersList.getJsonObject(i));
-      }
-      return new JsonObject()
-              .put(TYPE, TYPE_SUCCESS)
-              .put(TITLE, SUCCESS)
-              .put(TOTAL_HITS, providerCount)
-              .put(RESULTS, pagedProviders);
+    JsonArray pagedProviders = new JsonArray();
+    for (int i = offset; i < endIndex; i++) {
+      pagedProviders.add(providersList.getJsonObject(i));
+    }
+    return new JsonObject()
+        .put(TYPE, TYPE_SUCCESS)
+        .put(TITLE, SUCCESS)
+        .put(TOTAL_HITS, providerCount)
+        .put(RESULTS, pagedProviders);
   }
 
   @Override
   public MlayerService getMlayerGeoQuery(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-      LOGGER.debug("request body" + request);
-      String instance = request.getString(INSTANCE);
-      JsonArray id = request.getJsonArray("id");
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < id.size(); i++) {
-          String datasetId = id.getString(i);
-          String combinedQuery =
-                  GET_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", datasetId);
-          sb.append(combinedQuery).append(",");
-      }
-      sb.deleteCharAt(sb.length() - 1);
-      String query = GET_MLAYER_GEOQUERY.replace("$1", sb);
+    LOGGER.debug("request body" + request);
+    String instance = request.getString(INSTANCE);
+    JsonArray id = request.getJsonArray("id");
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < id.size(); i++) {
+      String datasetId = id.getString(i);
+      String combinedQuery =
+          GET_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", datasetId);
+      sb.append(combinedQuery).append(",");
+    }
+    sb.deleteCharAt(sb.length() - 1);
+    String query = GET_MLAYER_GEOQUERY.replace("$1", sb);
     databaseService.getMlayerGeoQuery(
         query,
         postMlayerGeoQueryHandler -> {
