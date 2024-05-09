@@ -297,12 +297,12 @@ public interface DatabaseService {
   /**
    * The post Mlayer GeoQuery posts all the dataset_id's location and label.
    *
-   * @param request which is a JsonObject
+   * @param query which is a String
    * @param handler which is a request handler
    * @return DatabaseService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getMlayerGeoQuery(String query, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The get Mlayer All Datasets gets all the dataset belonging to IUDX.

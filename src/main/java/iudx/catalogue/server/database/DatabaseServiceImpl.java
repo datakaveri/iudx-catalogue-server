@@ -1345,10 +1345,10 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService getMlayerGeoQuery(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.debug("request body" + request);
+      String query, Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.debug("query " + query);
     MlayerGeoQuery mlayerGeoQuery = new MlayerGeoQuery(client, docIndex);
-    mlayerGeoQuery.getMlayerGeoQuery(request, handler);
+    mlayerGeoQuery.getMlayerGeoQuery(query, handler);
 
     return this;
   }

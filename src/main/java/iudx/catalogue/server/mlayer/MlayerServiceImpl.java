@@ -313,8 +313,20 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService getMlayerGeoQuery(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+      LOGGER.debug("request body" + request);
+      String instance = request.getString(INSTANCE);
+      JsonArray id = request.getJsonArray("id");
+      StringBuilder sb = new StringBuilder();
+      for (int i = 0; i < id.size(); i++) {
+          String datasetId = id.getString(i);
+          String combinedQuery =
+                  GET_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", datasetId);
+          sb.append(combinedQuery).append(",");
+      }
+      sb.deleteCharAt(sb.length() - 1);
+      String query = GET_MLAYER_GEOQUERY.replace("$1", sb);
     databaseService.getMlayerGeoQuery(
-        request,
+        query,
         postMlayerGeoQueryHandler -> {
           if (postMlayerGeoQueryHandler.succeeded()) {
             LOGGER.info("Success: Getting locations of datasets");
