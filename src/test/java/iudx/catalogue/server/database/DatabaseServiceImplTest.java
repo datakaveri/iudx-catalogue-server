@@ -2211,11 +2211,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
   @Test
   @Description("test getMlayerGeoQuery method when the DB Request is Successful")
   public void testgetMlayerGeoQuery(VertxTestContext testContext) {
-
-    JsonObject request = new JsonObject();
-    JsonArray id = new JsonArray();
-    id.add(0, "dummy id");
-    request.put(INSTANCE, "instance").put(MLAYER_ID, id);
+    String query = "abc";
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -2228,7 +2224,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
         .when(client)
         .searchAsyncGeoQuery(any(), any(), any());
     dbService.getMlayerGeoQuery(
-        request,
+        query,
         handler -> {
           if (handler.succeeded()) {
             verify(client, times(1)).searchAsyncGeoQuery(any(), any(), any());

@@ -1,5 +1,7 @@
 package iudx.catalogue.server.mlayer;
 
+import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_ID;
+import static iudx.catalogue.server.util.Constants.INSTANCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -651,8 +653,10 @@ public class MlayerServiceTest {
   @DisplayName("Success: test get dataset location and label")
   void successfulMlayerGeoQueryGetTest(VertxTestContext testContext) {
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
-
     JsonObject request = new JsonObject();
+    JsonArray id = new JsonArray();
+    id.add(0, "dummy id");
+    request.put(INSTANCE, "instance").put(MLAYER_ID, id);
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -682,8 +686,10 @@ public class MlayerServiceTest {
   @DisplayName("Failure: test get dataset location and label")
   void failureMlayerGeoQueryGetTest(VertxTestContext testContext) {
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
-
     JsonObject request = new JsonObject();
+    JsonArray id = new JsonArray();
+    id.add(0, "dummy id");
+    request.put(INSTANCE, "instance").put(MLAYER_ID, id);
     when(asyncResult.succeeded()).thenReturn(false);
     Mockito.doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
