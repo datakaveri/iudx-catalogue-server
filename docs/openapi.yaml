@@ -2,6 +2,8 @@ openapi: 3.0.2
 info:
   version: '5.5.0'
   title: Data Exchange Catalogue Server APIs
+  license:
+    name: Apache 2.0
   description: |
     # Introduction
     The Catalogue is DXs' (Data Exchange) dataset discovery portal and metadata store. 
@@ -46,6 +48,7 @@ info:
   contact:
     name: For support contact IUDX Team at
     email: support@iudx.org.in
+    url: https://iudx.org.in/
 servers:
   - url: 'https://example-cat.com/iudx/cat/v1'
     description: Production Instance
