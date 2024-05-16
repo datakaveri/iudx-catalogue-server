@@ -1,12 +1,12 @@
 package iudx.catalogue.server.mlayer;
 
 import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_ID;
-import static iudx.catalogue.server.util.Constants.INSTANCE;
+import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.OFFSET;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
-import static org.postgresql.hostchooser.HostRequirement.master;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
@@ -38,11 +38,12 @@ public class MlayerServiceTest {
   private static String tableName = "database Table";
   private static String catSummaryTable = "cat_summary";
   private static JsonArray jsonArray = new JsonArray().add("excluded_ids").add("excluded_ids2");
-  JsonObject jsonObject = new JsonObject()
-          .put("databaseTable", tableName)
-          .put("catSummaryTable",catSummaryTable)
-          .put("excluded_ids",jsonArray);
   private static Vertx vertxObj;
+  JsonObject jsonObject =
+      new JsonObject()
+          .put("databaseTable", tableName)
+          .put("catSummaryTable", catSummaryTable)
+          .put("excluded_ids", jsonArray);
   @Mock JsonObject json;
 
   private JsonObject requestJson() {
@@ -121,8 +122,7 @@ public class MlayerServiceTest {
   @DisplayName("Success: test get all mlayer instance")
   void successfulMlayerInstanceGetTest(VertxTestContext testContext) {
 
-      JsonObject requestParams = new JsonObject(); //.put("id", ID).put("limit", LIMIT).put("offset",OFFSET)
-
+    JsonObject requestParams = new JsonObject();
 
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
 
@@ -156,7 +156,7 @@ public class MlayerServiceTest {
   @DisplayName("Failure: test get all mlayer instance")
   void failureMlayerInstanceGetTest(VertxTestContext testContext) {
 
-      JsonObject requestParams = new JsonObject();
+    JsonObject requestParams = new JsonObject();
 
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
 
@@ -520,7 +520,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Success: test get all mlayer domain")
   void successfulMlayerDomainGetTest(VertxTestContext testContext) {
-      JsonObject requestParams = new JsonObject();
+    JsonObject requestParams = new JsonObject();
     when(asyncResult.succeeded()).thenReturn(true);
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
 
@@ -551,7 +551,7 @@ public class MlayerServiceTest {
   @Test
   @DisplayName("Failure: test get all mlayer domain")
   void failureMlayerDomainGetTest(VertxTestContext testContext) {
-      JsonObject requestParams = new JsonObject();
+    JsonObject requestParams = new JsonObject();
     when(asyncResult.succeeded()).thenReturn(false);
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
 
@@ -584,10 +584,9 @@ public class MlayerServiceTest {
   @DisplayName("Success: test get all mlayer providers")
   void successfulMlayerProvidersGetTest(VertxTestContext testContext) {
 
-      JsonObject requestParams = new JsonObject();
+    JsonObject requestParams = new JsonObject();
 
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
-
 
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
@@ -600,12 +599,69 @@ public class MlayerServiceTest {
               }
             })
         .when(databaseService)
-        .getMlayerProviders(any(),any());
+        .getMlayerProviders(any(), any());
     mlayerService.getMlayerProviders(
-            requestParams,
+        requestParams,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).getMlayerProviders(any(),any());
+            verify(databaseService, times(1)).getMlayerProviders(any(), any());
+            testContext.completeNow();
+          } else {
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Success: test get all mlayer providers with instance")
+  void successfulMlayerProvidersGetWithInstanceTest(VertxTestContext testContext) {
+
+    JsonObject requestParams =
+        new JsonObject().put("instance", "pune").put("limit", 0).put("offset", 1);
+    JsonObject request =
+        new JsonObject()
+            .put(
+                "results",
+                new JsonArray()
+                    .add(
+                        new JsonObject()
+                            .put("providerCount", 2)
+                            .put(
+                                "resourceGroupAndProvider",
+                                new JsonArray()
+                                    .add(
+                                        new JsonObject()
+                                            .put("type", new JsonArray().add("iudx:Provider"))
+                                            .put("description", "dummy")
+                                            .put("id", "id")
+                                            .put("itemCreatedAt", "time"))
+                                    .add(
+                                        new JsonObject()
+                                            .put("type", new JsonArray().add("iudx:Provider"))
+                                            .put("description", "dummy")
+                                            .put("id", "id")
+                                            .put("itemCreatedAt", "time")))));
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
+
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerProviders(any(), any());
+    mlayerService.getMlayerProviders(
+        requestParams,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerProviders(any(), any());
             testContext.completeNow();
           } else {
             LOGGER.debug("Fail");
@@ -618,8 +674,7 @@ public class MlayerServiceTest {
   @DisplayName("Failure: test get all mlayer providers")
   void failureMlayerProvidersGetTest(VertxTestContext testContext) {
 
-      JsonObject requestParams = new JsonObject();
-
+    JsonObject requestParams = new JsonObject();
 
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
 
@@ -634,13 +689,47 @@ public class MlayerServiceTest {
               }
             })
         .when(databaseService)
-        .getMlayerProviders(any(),any());
+        .getMlayerProviders(any(), any());
 
     mlayerService.getMlayerProviders(
-            requestParams,
+        requestParams,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).getMlayerProviders(any(),any());
+            verify(databaseService, times(1)).getMlayerProviders(any(), any());
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          } else {
+            testContext.completeNow();
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Failure: test get all mlayer providers with instance")
+  void failureMlayerProvidersGetWithInstanceTest(VertxTestContext testContext) {
+
+    JsonObject requestParams = new JsonObject().put("instance", "abc");
+
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
+
+    when(asyncResult.succeeded()).thenReturn(false);
+    Mockito.doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerProviders(any(), any());
+
+    mlayerService.getMlayerProviders(
+        requestParams,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerProviders(any(), any());
             LOGGER.debug("Fail");
             testContext.failNow(handler.cause());
           } else {
@@ -722,7 +811,116 @@ public class MlayerServiceTest {
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
 
     JsonObject request = new JsonObject();
+    JsonObject instanceList = new JsonObject();
+    JsonObject resourceGroupList = new JsonObject();
+    JsonObject resourceAndPolicyCount = new JsonObject();
+    JsonObject resourceGrpList = new JsonObject();
+    JsonArray typeArray = new JsonArray().add(0, "iudx:Provider");
+    JsonObject record =
+        new JsonObject()
+            .put("id", "dummy-id")
+            .put("description", "dummy-desc")
+            .put("resourceServerRegUrl", "abc/abc/abc")
+            .put("provider", "")
+            .put("cos", "")
+            .put(TYPE, typeArray);
+    JsonArray results = new JsonArray().add(0, record).add(1, record).add(2, record);
+    resourceGrpList.put("results", results);
+    instanceList.put("pune", "dummy1.png").put("kanpur", "dummy.png");
+    resourceGroupList
+        .put("resourceGroupCount", 2)
+        .put(
+            "resourceGroup",
+            new JsonArray()
+                .add(
+                    new JsonObject()
+                        .put("type", new JsonArray().add("dummy"))
+                        .put("description", "dummy")
+                        .put("id", "id")
+                        .put("instance", "dummy"))
+                .add(
+                    new JsonObject()
+                        .put("type", new JsonArray().add("exampleType"))
+                        .put("description", "example_description")
+                        .put("id", "example-id")
+                        .put("instance", "dummy")));
+    resourceAndPolicyCount
+        .put("resourceItemCount", new JsonObject())
+        .put("resourceAccessPolicy", new JsonObject().put("id", new JsonObject()));
+    JsonObject instances =
+        new JsonObject()
+            .put(
+                "results",
+                new JsonArray()
+                    .add(
+                        0,
+                        new JsonObject()
+                            .put("name", "dummy")
+                            .put("icon", "abc.jpg")
+                            .put(TYPE, typeArray)));
+    JsonObject resourceAndPolicyCnt =
+        new JsonObject()
+            .put(
+                "results",
+                new JsonArray()
+                    .add(
+                        0,
+                        new JsonObject()
+                            .put("key", "19390c5-30c0-4339-b0f2-1be292312104")
+                            .put("doc_count", 2)
+                            .put(TYPE, typeArray)
+                            .put(
+                                "access_policies",
+                                new JsonObject()
+                                    .put(
+                                        "buckets",
+                                        new JsonArray()
+                                            .add(
+                                                0,
+                                                new JsonObject()
+                                                    .put(
+                                                        "key",
+                                                        "19390c5-30c0-4339-b0f2-1be292312104")
+                                                    .put("doc_count", 2))
+                                            .add(
+                                                1,
+                                                new JsonObject()
+                                                    .put("key", "dummy")
+                                                    .put("doc_count", 2)))))
+                    .add(
+                        1,
+                        new JsonObject()
+                            .put("key", "19390c5-30c0-4339-b0f2-1be292312104")
+                            .put("doc_count", 2)
+                            .put(
+                                "access_policies",
+                                new JsonObject()
+                                    .put(
+                                        "buckets",
+                                        new JsonArray()
+                                            .add(
+                                                0,
+                                                new JsonObject()
+                                                    .put(
+                                                        "key",
+                                                        "89390c5-30c0-4339-b0f2-1be292312104")
+                                                    .put("doc_count", 2))
+                                            .add(
+                                                1,
+                                                new JsonObject()
+                                                    .put("key", "dummy")
+                                                    .put("doc_count", 2))))));
+    request
+        .put("resourceGrpList", resourceGrpList)
+        .put("instanceList", instanceList)
+        .put("resourceGroupList", resourceGroupList)
+        .put("resourceAndPolicyCount", resourceAndPolicyCount)
+        .put("instances", instances)
+        .put("resourceAndPolicyCnt", resourceAndPolicyCnt)
+        .put(LIMIT, 0)
+        .put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @SuppressWarnings("unchecked")
@@ -733,9 +931,10 @@ public class MlayerServiceTest {
               }
             })
         .when(databaseService)
-        .getMlayerAllDatasets(any(),any(), any());
+        .getMlayerAllDatasets(any(), any(), any());
     mlayerService.getMlayerAllDatasets(
-       request, handler -> {
+        request,
+        handler -> {
           if (handler.succeeded()) {
             verify(databaseService, times(1)).getMlayerAllDatasets(any(), any(), any());
             testContext.completeNow();
@@ -766,7 +965,8 @@ public class MlayerServiceTest {
         .getMlayerAllDatasets(any(), any(), any());
 
     mlayerService.getMlayerAllDatasets(
-        request, handler -> {
+        request,
+        handler -> {
           if (handler.succeeded()) {
             verify(databaseService, times(1)).getMlayerAllDatasets(any(), any(), any());
             LOGGER.debug("Fail");
@@ -844,13 +1044,121 @@ public class MlayerServiceTest {
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
     JsonArray tags = new JsonArray().add("flood");
     JsonArray providers = new JsonArray().add("26005f3b-a6a0-4edb-ae28-70474b4ef90c");
-    JsonObject request =
+    JsonObject request = new JsonObject();
+    JsonObject instanceList = new JsonObject();
+    JsonObject resourceGroupList = new JsonObject();
+    JsonObject resourceAndPolicyCount = new JsonObject();
+    JsonObject resourceGrpList = new JsonObject();
+    JsonArray typeArray = new JsonArray().add(0, "iudx:Provider");
+    JsonObject record =
         new JsonObject()
-            .put("instance", "pune")
-            .put("tags", tags)
-            .put("providers", providers)
-            .put("domains", tags);
+            .put("id", "dummy-id")
+            .put("description", "dummy-desc")
+            .put("resourceServerRegUrl", "abc/abc/abc")
+            .put("provider", "")
+            .put("cos", "")
+            .put(TYPE, typeArray);
+    JsonArray results = new JsonArray().add(0, record).add(1, record).add(2, record);
+    resourceGrpList.put("results", results);
+    instanceList.put("pune", "dummy1.png").put("kanpur", "dummy.png");
+    resourceGroupList
+        .put("resourceGroupCount", 2)
+        .put(
+            "resourceGroup",
+            new JsonArray()
+                .add(
+                    new JsonObject()
+                        .put("type", new JsonArray().add("dummy"))
+                        .put("description", "dummy")
+                        .put("id", "id")
+                        .put("instance", "dummy"))
+                .add(
+                    new JsonObject()
+                        .put("type", new JsonArray().add("exampleType"))
+                        .put("description", "example_description")
+                        .put("id", "example-id")
+                        .put("instance", "dummy")));
+    resourceAndPolicyCount
+        .put("resourceItemCount", new JsonObject())
+        .put("resourceAccessPolicy", new JsonObject().put("id", new JsonObject()));
+    JsonObject instances =
+        new JsonObject()
+            .put(
+                "results",
+                new JsonArray()
+                    .add(
+                        0,
+                        new JsonObject()
+                            .put("name", "dummy")
+                            .put("icon", "abc.jpg")
+                            .put(TYPE, typeArray)));
+    JsonObject resourceAndPolicyCnt =
+        new JsonObject()
+            .put(
+                "results",
+                new JsonArray()
+                    .add(
+                        0,
+                        new JsonObject()
+                            .put("key", "19390c5-30c0-4339-b0f2-1be292312104")
+                            .put("doc_count", 2)
+                            .put(TYPE, typeArray)
+                            .put(
+                                "access_policies",
+                                new JsonObject()
+                                    .put(
+                                        "buckets",
+                                        new JsonArray()
+                                            .add(
+                                                0,
+                                                new JsonObject()
+                                                    .put(
+                                                        "key",
+                                                        "19390c5-30c0-4339-b0f2-1be292312104")
+                                                    .put("doc_count", 2))
+                                            .add(
+                                                1,
+                                                new JsonObject()
+                                                    .put("key", "dummy")
+                                                    .put("doc_count", 2)))))
+                    .add(
+                        1,
+                        new JsonObject()
+                            .put("key", "19390c5-30c0-4339-b0f2-1be292312104")
+                            .put("doc_count", 2)
+                            .put(
+                                "access_policies",
+                                new JsonObject()
+                                    .put(
+                                        "buckets",
+                                        new JsonArray()
+                                            .add(
+                                                0,
+                                                new JsonObject()
+                                                    .put(
+                                                        "key",
+                                                        "89390c5-30c0-4339-b0f2-1be292312104")
+                                                    .put("doc_count", 2))
+                                            .add(
+                                                1,
+                                                new JsonObject()
+                                                    .put("key", "dummy")
+                                                    .put("doc_count", 2))))));
+    request
+        .put("instance", "pune")
+        .put("tags", tags)
+        .put("providers", providers)
+        .put("domains", tags)
+        .put("resourceGrpList", resourceGrpList)
+        .put("instanceList", instanceList)
+        .put("resourceGroupList", resourceGroupList)
+        .put("resourceAndPolicyCount", resourceAndPolicyCount)
+        .put("instances", instances)
+        .put("resourceAndPolicyCnt", resourceAndPolicyCnt)
+        .put(LIMIT, 0)
+        .put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
     Mockito.doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @SuppressWarnings("unchecked")
@@ -1146,44 +1454,44 @@ public class MlayerServiceTest {
         });
   }
 
-    @Test
-    @DisplayName("Success: Get Count Size Api")
-    public void successGetCountSizeApi2(VertxTestContext vertxTestContext) {
-        jsonObject.put("excluded_ids", new JsonArray());
-        mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
+  @Test
+  @DisplayName("Success: Get Count Size Api")
+  public void successGetCountSizeApi2(VertxTestContext vertxTestContext) {
+    jsonObject.put("excluded_ids", new JsonArray());
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
 
-        JsonArray jsonArray = new JsonArray();
-        JsonObject json = new JsonObject();
-        json.put("results", jsonArray);
-        JsonObject jsonObject = new JsonObject();
-        jsonObject.put("month", "december");
-        jsonObject.put("year", 2023);
-        jsonObject.put("counts", 456);
-        jsonObject.put("total_size", 122343243);
-        jsonArray.add(jsonObject);
-        when(asyncResult.result()).thenReturn(json);
+    JsonArray jsonArray = new JsonArray();
+    JsonObject json = new JsonObject();
+    json.put("results", jsonArray);
+    JsonObject jsonObject = new JsonObject();
+    jsonObject.put("month", "december");
+    jsonObject.put("year", 2023);
+    jsonObject.put("counts", 456);
+    jsonObject.put("total_size", 122343243);
+    jsonArray.add(jsonObject);
+    when(asyncResult.result()).thenReturn(json);
 
-        when(asyncResult.succeeded()).thenReturn(true);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(postgresService)
-                .executeQuery(any(), any());
+    when(asyncResult.succeeded()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(postgresService)
+        .executeQuery(any(), any());
 
-        mlayerService.getRealTimeDataSetApi(
-                handler -> {
-                    if (handler.succeeded()) {
-                        assertEquals(handler.result(), json);
-                        vertxTestContext.completeNow();
-                    } else {
-                        vertxTestContext.failNow(handler.cause());
-                    }
-                });
-    }
+    mlayerService.getRealTimeDataSetApi(
+        handler -> {
+          if (handler.succeeded()) {
+            assertEquals(handler.result(), json);
+            vertxTestContext.completeNow();
+          } else {
+            vertxTestContext.failNow(handler.cause());
+          }
+        });
+  }
 }
