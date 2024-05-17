@@ -1,5 +1,6 @@
 package iudx.catalogue.server.mlayer;
 
+import static iudx.catalogue.server.database.Constants.KEY;
 import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_ID;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.OFFSET;
@@ -1247,8 +1248,72 @@ public class MlayerServiceTest {
     json.put("results", jsonArray);
     jsonArray.add("dataset");
     String instanceName = "dummy";
-    when(asyncResult.result()).thenReturn(json);
+    JsonArray accessPolicy = new JsonArray();
+    JsonObject accessPolicyJson =
+        new JsonObject()
+            .put("resourcegroup", "abcd/abcd/abcd/abcd")
+            .put("instance", "instance")
+            .put(BUCKETS, accessPolicy)
+            .put("resourceGroup", "abc");
+    JsonObject json2 =
+        new JsonObject()
+            .put("resourcegroup", "abcd/abcd/abcd/abcd")
+            .put("instance", "instance")
+            .put(BUCKETS, accessPolicy)
+            .put("resourceGroup", "abc");
 
+    JsonArray highestCountResource = new JsonArray().add(accessPolicyJson).add(json2);
+
+    JsonArray resourceArray = new JsonArray();
+    JsonArray typeArray = new JsonArray().add(0, "iudx:Provider");
+
+    JsonObject instance =
+        new JsonObject()
+            .put("name", "agra")
+            .put("icon", "path_of_agra-icon.jpg")
+            .put(TYPE, typeArray)
+            .put("itemCreatedAt", "2022-12-15T04:23:28+0530")
+            .put("id", "abcd/abcd/abcd/abcd")
+            .put("rgid", "abcd/abcd/abcd/abcd")
+            .put("instance", "instance")
+            .put("itemCreatedAt", "2023-08-30T05:09:54+0530")
+            .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
+            .put("doc_count", 2)
+            .put(KEY, accessPolicyJson)
+            .put("access_policies", accessPolicyJson)
+            .put("resourceGroupAndProvider", resourceArray)
+            .put("providerCount", 7);
+    resourceArray.add(instance).add(instance).add(instance).add(instance).add(instance);
+    JsonArray latestDataset = new JsonArray().add(instance);
+    JsonArray resultArray =
+        new JsonArray().add(instance).add(instance).add(instance).add(instance).add(instance);
+
+    JsonObject result =
+        new JsonObject()
+            .put("instanceList", new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resultArray))
+            .put("domainList", new JsonArray())
+            .put(
+                "datasetJson",
+                new JsonObject()
+                    .put("results", latestDataset)
+                    .put(
+                        "cat_results",
+                        new JsonArray()
+                            .add(
+                                0,
+                                new JsonObject()
+                                    .put("description", "dummy-data")
+                                    .put("id", "id")
+                                    .put("type", typeArray))
+                            .add(
+                                1,
+                                new JsonObject()
+                                    .put("description", "dummy-data")
+                                    .put("id", "id")
+                                    .put("type", typeArray)))
+                    .put("resultSize", 2)
+                    .put("frequentlyUsedResourceGroup", highestCountResource));
+    when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
