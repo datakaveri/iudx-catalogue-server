@@ -813,41 +813,24 @@ public class MlayerServiceTest {
 
     JsonObject request = new JsonObject();
     JsonObject instanceList = new JsonObject();
-    JsonObject resourceGroupList = new JsonObject();
-    JsonObject resourceAndPolicyCount = new JsonObject();
     JsonObject resourceGrpList = new JsonObject();
     JsonArray typeArray = new JsonArray().add(0, "iudx:Provider");
     JsonObject record =
         new JsonObject()
             .put("id", "dummy-id")
+            .put("instance", "instance")
             .put("description", "dummy-desc")
-            .put("resourceServerRegUrl", "abc/abc/abc")
+            .put("resourceServerRegURL", "abc/abc/abc")
             .put("provider", "")
-            .put("cos", "")
-            .put(TYPE, typeArray);
-    JsonArray results = new JsonArray().add(0, record).add(1, record).add(2, record);
+            .put("cosURL", "abc/abc")
+            .put("itemCreatedAt", "2022-12-15T04:23:28+0530");
+    JsonArray results =
+        new JsonArray()
+            .add(0, record.put("type", new JsonArray().add(0, "iudx:ResourceGroup")))
+            .add(1, record.put("type", typeArray))
+            .add(2, record.put("type", new JsonArray().add(0, "iudx:ResourceGroup")));
     resourceGrpList.put("results", results);
     instanceList.put("pune", "dummy1.png").put("kanpur", "dummy.png");
-    resourceGroupList
-        .put("resourceGroupCount", 2)
-        .put(
-            "resourceGroup",
-            new JsonArray()
-                .add(
-                    new JsonObject()
-                        .put("type", new JsonArray().add("dummy"))
-                        .put("description", "dummy")
-                        .put("id", "id")
-                        .put("instance", "dummy"))
-                .add(
-                    new JsonObject()
-                        .put("type", new JsonArray().add("exampleType"))
-                        .put("description", "example_description")
-                        .put("id", "example-id")
-                        .put("instance", "dummy")));
-    resourceAndPolicyCount
-        .put("resourceItemCount", new JsonObject())
-        .put("resourceAccessPolicy", new JsonObject().put("id", new JsonObject()));
     JsonObject instances =
         new JsonObject()
             .put(
@@ -914,8 +897,6 @@ public class MlayerServiceTest {
     request
         .put("resourceGrpList", resourceGrpList)
         .put("instanceList", instanceList)
-        .put("resourceGroupList", resourceGroupList)
-        .put("resourceAndPolicyCount", resourceAndPolicyCount)
         .put("instances", instances)
         .put("resourceAndPolicyCnt", resourceAndPolicyCnt)
         .put(LIMIT, 0)
@@ -942,6 +923,43 @@ public class MlayerServiceTest {
           } else {
             LOGGER.debug("Fail");
             testContext.failNow(handler.cause());
+          }
+        });
+  }
+
+  @Test
+  @DisplayName("Failure: test get all datasets when hits are zero")
+  void MlayerAllDatasetsTest0Hitsfailure(VertxTestContext testContext) {
+    mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
+
+    JsonObject resourceGrpList = new JsonObject();
+    JsonArray results = new JsonArray();
+    resourceGrpList.put("results", results);
+    JsonObject request =
+        new JsonObject().put("instance", "instance").put("resourceGrpList", resourceGrpList);
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
+    Mockito.doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getMlayerAllDatasets(any(), any(), any());
+
+    mlayerService.getMlayerAllDatasets(
+        request,
+        handler -> {
+          if (handler.succeeded()) {
+            verify(databaseService, times(1)).getMlayerAllDatasets(any(), any(), any());
+            LOGGER.debug("Fail");
+            testContext.failNow(handler.cause());
+          } else {
+            testContext.completeNow();
           }
         });
   }
@@ -1248,16 +1266,27 @@ public class MlayerServiceTest {
     json.put("results", jsonArray);
     jsonArray.add("dataset");
     String instanceName = "dummy";
-    JsonArray accessPolicy = new JsonArray();
+    JsonArray accessPolicy =
+        new JsonArray()
+            .add(
+                0,
+                new JsonObject()
+                    .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
+                    .put("doc_count", 2))
+            .add(
+                1,
+                new JsonObject()
+                    .put(KEY, "719390c5-30c0-4339-b0f2-1be292312104")
+                    .put("doc_count", 2));
     JsonObject accessPolicyJson =
         new JsonObject()
-            .put("resourcegroup", "abcd/abcd/abcd/abcd")
+            .put("resource_group", "abcd/abcd/abcd/abcd")
             .put("instance", "instance")
             .put(BUCKETS, accessPolicy)
             .put("resourceGroup", "abc");
     JsonObject json2 =
         new JsonObject()
-            .put("resourcegroup", "abcd/abcd/abcd/abcd")
+            .put("resource group", "abcd/abcd/abcd/abcd")
             .put("instance", "instance")
             .put(BUCKETS, accessPolicy)
             .put("resourceGroup", "abc");
@@ -1272,7 +1301,6 @@ public class MlayerServiceTest {
             .put("name", "agra")
             .put("icon", "path_of_agra-icon.jpg")
             .put(TYPE, typeArray)
-            .put("itemCreatedAt", "2022-12-15T04:23:28+0530")
             .put("id", "abcd/abcd/abcd/abcd")
             .put("rgid", "abcd/abcd/abcd/abcd")
             .put("instance", "instance")
@@ -1296,6 +1324,8 @@ public class MlayerServiceTest {
                 "datasetJson",
                 new JsonObject()
                     .put("results", latestDataset)
+                    .put("latestDataset", latestDataset)
+                    .put("featuredDataset", latestDataset)
                     .put(
                         "cat_results",
                         new JsonArray()
@@ -1310,8 +1340,20 @@ public class MlayerServiceTest {
                                 new JsonObject()
                                     .put("description", "dummy-data")
                                     .put("id", "id")
-                                    .put("type", typeArray)))
-                    .put("resultSize", 2)
+                                    .put("type", typeArray))
+                            .add(
+                                2,
+                                new JsonObject()
+                                    .put("id", "id")
+                                    .put("type", new JsonArray().add(0, "iudx:ResourceGroup"))
+                                    .put("itemCreatedAt", "2023-08-30T05:09:54+0530"))
+                            .add(
+                                3,
+                                new JsonObject()
+                                    .put("id", "id")
+                                    .put("type", new JsonArray().add(0, "iudx:ResourceGroup"))
+                                    .put("itemCreatedAt", "2023-08-30T05:09:54+0530")))
+                    .put("resultSize", 4)
                     .put("frequentlyUsedResourceGroup", highestCountResource));
     when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
