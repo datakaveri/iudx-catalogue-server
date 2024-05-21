@@ -1,6 +1,6 @@
 {
     "mappings": {
-        "dynamic": "strict",
+        "dynamic": "false",
         "properties": {
             "@context": {
                 "type": "text",
