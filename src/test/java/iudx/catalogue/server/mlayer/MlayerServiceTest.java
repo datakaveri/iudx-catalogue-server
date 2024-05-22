@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
@@ -812,7 +813,6 @@ public class MlayerServiceTest {
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
 
     JsonObject request = new JsonObject();
-    JsonObject instanceList = new JsonObject();
     JsonObject resourceGrpList = new JsonObject();
     JsonArray typeArray = new JsonArray().add(0, "iudx:Provider");
     JsonObject record =
@@ -830,7 +830,6 @@ public class MlayerServiceTest {
             .add(1, record.put("type", typeArray))
             .add(2, record.put("type", new JsonArray().add(0, "iudx:ResourceGroup")));
     resourceGrpList.put("results", results);
-    instanceList.put("pune", "dummy1.png").put("kanpur", "dummy.png");
     JsonObject instances =
         new JsonObject()
             .put(
@@ -895,10 +894,9 @@ public class MlayerServiceTest {
                                                     .put("key", "dummy")
                                                     .put("doc_count", 2))))));
     request
-        .put("resourceGrpList", resourceGrpList)
-        .put("instanceList", instanceList)
-        .put("instances", instances)
-        .put("resourceAndPolicyCnt", resourceAndPolicyCnt)
+        .put("resourceGroupList", resourceGrpList)
+        .put("instanceResult", instances)
+        .put("resourceAndPolicyCount", resourceAndPolicyCnt)
         .put(LIMIT, 0)
         .put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -932,11 +930,14 @@ public class MlayerServiceTest {
   void MlayerAllDatasetsTest0Hitsfailure(VertxTestContext testContext) {
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
 
-    JsonObject resourceGrpList = new JsonObject();
+    JsonObject resourceGroupList = new JsonObject();
     JsonArray results = new JsonArray();
-    resourceGrpList.put("results", results);
+    resourceGroupList.put("results", results);
     JsonObject request =
-        new JsonObject().put("instance", "instance").put("resourceGrpList", resourceGrpList);
+        new JsonObject()
+            .put("instanceResult", new JsonObject().put("results", results))
+            .put("resourceGroupList", resourceGroupList)
+            .put("resourceAndPolicyCount", new JsonObject().put("results", results));
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(request);
     Mockito.doAnswer(
@@ -1064,7 +1065,6 @@ public class MlayerServiceTest {
     JsonArray tags = new JsonArray().add("flood");
     JsonArray providers = new JsonArray().add("26005f3b-a6a0-4edb-ae28-70474b4ef90c");
     JsonObject request = new JsonObject();
-    JsonObject instanceList = new JsonObject();
     JsonObject resourceGroupList = new JsonObject();
     JsonObject resourceAndPolicyCount = new JsonObject();
     JsonObject resourceGrpList = new JsonObject();
@@ -1079,7 +1079,6 @@ public class MlayerServiceTest {
             .put(TYPE, typeArray);
     JsonArray results = new JsonArray().add(0, record).add(1, record).add(2, record);
     resourceGrpList.put("results", results);
-    instanceList.put("pune", "dummy1.png").put("kanpur", "dummy.png");
     resourceGroupList
         .put("resourceGroupCount", 2)
         .put(
@@ -1168,12 +1167,9 @@ public class MlayerServiceTest {
         .put("tags", tags)
         .put("providers", providers)
         .put("domains", tags)
-        .put("resourceGrpList", resourceGrpList)
-        .put("instanceList", instanceList)
-        .put("resourceGroupList", resourceGroupList)
-        .put("resourceAndPolicyCount", resourceAndPolicyCount)
-        .put("instances", instances)
-        .put("resourceAndPolicyCnt", resourceAndPolicyCnt)
+        .put("resourceGroupList", resourceGrpList)
+        .put("instanceResult", instances)
+        .put("resourceAndPolicyCount", resourceAndPolicyCnt)
         .put(LIMIT, 0)
         .put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -1355,6 +1351,9 @@ public class MlayerServiceTest {
                                     .put("itemCreatedAt", "2023-08-30T05:09:54+0530")))
                     .put("resultSize", 4)
                     .put("frequentlyUsedResourceGroup", highestCountResource));
+    JsonObject results = new JsonObject().put("results", highestCountResource);
+    AsyncResult<JsonObject> asyncResult1 = Future.succeededFuture(results);
+
     when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
     doAnswer(
@@ -1373,7 +1372,7 @@ public class MlayerServiceTest {
               @SuppressWarnings("unchecked")
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult1);
                 return null;
               }
             })
