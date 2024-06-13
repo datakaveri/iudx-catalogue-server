@@ -221,7 +221,7 @@ public class MlayerDataset {
 
               } else {
                 LOGGER.error("Fail: failed DB request");
-                handler.handle(Future.failedFuture(internalErrorResp));
+                handler.handle(Future.failedFuture(ar.cause().getMessage()));
               }
             });
   }
@@ -242,12 +242,7 @@ public class MlayerDataset {
               if (size == 0) {
                 LOGGER.debug("getRGs is zero");
                 datasetResult.handle(
-                    Future.failedFuture(
-                        new RespBuilder()
-                            .withType(TYPE_ITEM_NOT_FOUND)
-                            .withTitle(TITLE_ITEM_NOT_FOUND)
-                            .withDetail("no datasets are present")
-                            .getResponse()));
+                    Future.failedFuture(NO_CONTENT_AVAILABLE));
                 return;
               }
               JsonObject rsUrl = new JsonObject();
