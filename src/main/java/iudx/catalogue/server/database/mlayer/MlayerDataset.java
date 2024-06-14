@@ -137,7 +137,6 @@ public class MlayerDataset {
   }
 
   public void getMlayerAllDatasets(
-      JsonObject config,
       JsonObject requestParam,
       String query,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -155,12 +154,9 @@ public class MlayerDataset {
         .onComplete(
             ar -> {
               if (ar.succeeded()) {
-                int port = config.getInteger("httpPort");
-                LOGGER.debug("port: " + port);
-                DataModel dataModel = new DataModel(port, Vertx.vertx());
-
+                DataModel dataModel = new DataModel(client, docIndex);
                 dataModel
-                    .getDataModelInfo(config.getString("dxApiBasePath"))
+                    .getDataModelInfo()
                     .onComplete(
                         dmDataResult -> {
                           if (dmDataResult.succeeded()) {
