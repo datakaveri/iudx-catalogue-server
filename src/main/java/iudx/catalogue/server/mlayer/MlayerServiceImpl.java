@@ -245,7 +245,6 @@ public class MlayerServiceImpl implements MlayerService {
     String query = GET_MLAYER_ALL_DATASETS;
     LOGGER.debug("databse get mlayer all datasets called");
     databaseService.getMlayerAllDatasets(
-        configJson,
         requestParam,
         query,
         getMlayerAllDatasets -> {
@@ -319,7 +318,6 @@ public class MlayerServiceImpl implements MlayerService {
       query = query.concat(GET_ALL_DATASETS_BY_FIELD_SOURCE);
       LOGGER.debug("databse get mlayer all datasets called");
       databaseService.getMlayerAllDatasets(
-          configJson,
           requestData,
           query,
           getAllDatasetsHandler -> {
