@@ -1355,9 +1355,12 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   @Override
   public DatabaseService getMlayerAllDatasets(
-      JsonObject requestParam, String query, Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject config,
+      JsonObject requestParam,
+      String query,
+      Handler<AsyncResult<JsonObject>> handler) {
     MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
-    mlayerDataset.getMlayerAllDatasets(requestParam, query, handler);
+    mlayerDataset.getMlayerAllDatasets(config, requestParam, query, handler);
     return this;
   }
 
@@ -1392,7 +1395,8 @@ public class DatabaseServiceImpl implements DatabaseService {
       return promise.future();
     }
 
-    String checkInstance = GET_INSTANCE_CASE_INSENSITIVE_QUERY.replace("$1", instanceId).replace("$2", "");
+    String checkInstance =
+        GET_INSTANCE_CASE_INSENSITIVE_QUERY.replace("$1", instanceId).replace("$2", "");
     client.searchAsync(
         checkInstance,
         docIndex,
