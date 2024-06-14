@@ -675,6 +675,8 @@ public class MlayerApis {
                   } else {
                     if (handler.cause().getMessage().contains(NO_CONTENT_AVAILABLE)) {
                       response.setStatusCode(204).end();
+                    } else if (handler.cause().getMessage().contains("urn:dx:cat:ItemNotFound")) {
+                        response.setStatusCode(404).end(handler.cause().getMessage());
                     } else if (handler.cause().getMessage().contains(VALIDATION_FAILURE_MSG)) {
                       response
                           .setStatusCode(400)
