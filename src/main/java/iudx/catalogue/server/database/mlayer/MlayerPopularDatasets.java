@@ -116,6 +116,9 @@ public class MlayerPopularDatasets {
                 handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
               } else {
                 LOGGER.error("Fail: failed DB request");
+                if (ar.cause().getMessage().equals("No Content Available")) {
+                  handler.handle(Future.failedFuture(ar.cause().getMessage()));
+                }
                 handler.handle(Future.failedFuture(internalErrorResp));
               }
             });
@@ -185,6 +188,12 @@ public class MlayerPopularDatasets {
             ArrayList<JsonObject> latestDatasetArray = new ArrayList<JsonObject>();
             Map<String, JsonObject> resourceGroupMap = new HashMap<>();
             Map<String, String> providerDescription = new HashMap<>();
+            if (getCatRecords
+                    .result()
+                    .getJsonArray(RESULTS).isEmpty()) {
+              datasetResult.handle(Future.failedFuture(NO_CONTENT_AVAILABLE));
+
+            }
 
             JsonArray results =
                 getCatRecords
