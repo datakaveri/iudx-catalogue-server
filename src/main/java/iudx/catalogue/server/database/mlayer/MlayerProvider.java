@@ -45,6 +45,10 @@ public class MlayerProvider {
           resultHandler -> {
             if (resultHandler.succeeded()) {
               LOGGER.debug("Success: Successful DB Request");
+              if (resultHandler.result().getJsonArray(RESULTS).isEmpty()) {
+                handler.handle(Future.failedFuture(NO_CONTENT_AVAILABLE));
+              }
+
               // providerCount depicts the number of provider associated with the instance
               Integer providerCount =
                   resultHandler

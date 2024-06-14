@@ -268,6 +268,7 @@ public class Constants {
   public static final String STAC_CREATION_SUCCESS = "Stac created successfully.";
   public static final String STAC_DELETION_SUCCESS = "Stac deleted successfully.";
   public static final String DETAIL_INVALID_SCHEMA = "Invalid schema provided";
+  public static final String NO_CONTENT_AVAILABLE = "No Content Available";
 
 
 }
