@@ -80,7 +80,13 @@ public class DataModel {
                   .send(
                       dmAr -> {
                         handleDataModelResponse(
-                            dmAr, id, classId, classIdToSubClassMap, pendingRequests, promise, dmUrl);
+                            dmAr,
+                            id,
+                            classId,
+                            classIdToSubClassMap,
+                            pendingRequests,
+                            promise,
+                            dmUrl);
                       });
             }
           } else {
