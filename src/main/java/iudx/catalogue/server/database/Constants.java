@@ -76,25 +76,26 @@ public class Constants {
           + " \"relation\": \"$3\" } } }";
   public static final String TEXT_QUERY = "{\"query_string\":{\"query\":\"$1\"}}";
   public static final String GET_DOC_QUERY =
-      "{\"_source\":[$2],\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
+      "{\"_source\": {\"includes\": [$2]},\"query\":{\"term\":{\"id.keyword\":\"$1\"}}}";
 
   public static final String GET_INSTANCE_CASE_INSENSITIVE_QUERY =
-      "{\"_source\":[$2], \"query\": {\"match\": {\"id\": \"$1\"}}}";
+      "{\"_source\": {\"includes\": [$2]}, \"query\": {\"match\": {\"id\": \"$1\"}}}";
+
   public static final String GET_ASSOCIATED_ID_QUERY =
       "{\"query\":{\"bool\":{\"should\":[{"
           + "\"match\":{\"id.keyword\":\"$1\"}},{"
           + "\"match\":{\"resourceGroup.keyword\":\"$2\"}}],"
           + "\"minimum_should_match\":1}},"
-          + "\"_source\":[\"id\"]}";
+          + "\"_source\":{\"includes\":[\"id\"]}}";
   public static final String GET_RDOC_QUERY =
-      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": "
+      "{\"_source\":{\"includes\":[\"$2\"]},\"query\":{\"bool\": {\"must\": "
           + "[ { \"match\": {\"ratingID.keyword\":\"$1\"} } ],"
           + "\"must_not\": [ { \"match\": {\"status\": \"denied\"} } ] } } }";
   public static final String CHECK_MDOC_QUERY =
-      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": "
+      "{\"_source\":{\"includes\":[\"$2\"]},\"query\":{\"bool\": {\"must\": [ { \"match\": "
           + "{\"id.keyword\":\"$1\"} } ] } } }";
   public static final String CHECK_MDOC_QUERY_INSTANCE =
-      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": "
+      "{\"_source\":{\"includes\":[\"$2\"]},\"query\":{\"bool\": {\"must\": [ { \"match\": "
           + "{\"instanceId.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MLAYER_INSTANCE_QUERY =
       "{\"query\":{\"match\":{\"instanceId.keyword\": \"$1\"}},\"_source\":"
@@ -112,7 +113,7 @@ public class Constants {
           + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},"
           + "\"size\": $0,\"from\": $2}";
   public static final String CHECK_MDOC_QUERY_DOMAIN =
-      "{\"_source\":[$2],\"query\":{\"bool\": {\"must\": [ { \"match\": "
+      "{\"_source\":{\"includes\":[\"$2\"]},\"query\":{\"bool\": {\"must\": [ { \"match\": "
           + "{\"domainId.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MLAYER_PROVIDERS_QUERY =
       "{\"query\": {\"match\": {\"type.keyword\": \"iudx:Provider\"}},\"_source\": "
@@ -126,7 +127,7 @@ public class Constants {
           + "[{\"match\": {\"instance.keyword\": \"$2\"}},{\"match\": {\"id.keyword\": "
           + "\"$3\"}}]}}";
   public static final String GET_ALL_MLAYER_INSTANCES =
-      "{\"size\": 10000,\"_source\": [\"name\", \"icon\"]}";
+      "{\"size\": 10000,\"_source\": {\"includes\": [\"name\", \"icon\"]}}";
   public static final String GET_MLAYER_ALL_DATASETS =
       "{\"query\":{\"bool\":{\"must\":{\"terms\":{\"type.keyword\": [\"iudx:Provider\", "
           + "\"iudx:COS\", \"iudx:ResourceGroup\", \"iudx:Resource\"]}}}},\"_source\""
@@ -135,8 +136,8 @@ public class Constants {
           + "\"provider\", \"resourceServerRegURL\",\"description\" ,\"cosURL\", "
           + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\": 10000}";
   public static final String GET_ALL_DATASETS_BY_RS_GRP =
-          "{\"size\":10000,\"query\":{\"bool\":{\"must\":[{\"bool\":{\"should\":[{\"match\":"
-                  + "{\"type.keyword\":\"iudx:ResourceGroup\"}}]}}]}}}";
+      "{\"size\":10000,\"query\":{\"bool\":{\"must\":[{\"bool\":{\"should\":[{\"match\":"
+          + "{\"type.keyword\":\"iudx:ResourceGroup\"}}]}}]}}}";
   public static final String GET_ALL_DATASETS_BY_FIELDS =
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":"
           + "{\"type.keyword\":\"iudx:ResourceGroup\"}}";
@@ -190,7 +191,8 @@ public class Constants {
           + "{\"includes\": [\"name\",\"cover\",\"icon\"]},\"size\":10000}";
   public static final String GET_PROVIDER_AND_RS_ID =
       "{\"query\":{\"bool\":{\"must\":[{\"match\":{\"type.keyword\": \"iudx:ResourceGroup\"}},"
-          + "{\"match\":{\"id.keyword\":\"$1\"}}]}},\"_source\": [\"provider\",\"cos\"]}";
+          + "{\"match\":{\"id.keyword\":\"$1\"}}]}},\"_source\": {"
+          + "\"includes\": [\"provider\",\"cos\"]}}";
   public static final String INSTANCE_FILTER = "{\"match\":" + "{\"instance\": \"" + "$1" + "\"}}";
   public static final String BOOL_MUST_QUERY = "{\"query\":{\"bool\":{\"must\":[$1]}}}";
   public static final String BOOL_SHOULD_QUERY = "{\"query\":{\"bool\":{\"should\":[$1]}}}";
@@ -200,9 +202,9 @@ public class Constants {
   public static final String MATCH_QUERY = "{\"match\":{\"$1\":\"$2\"}}";
   public static final String TERM_QUERY = "{\"term\":{\"$1\":\"$2\"}}";
   public static final String GET_RATING_DOCS =
-      "{\"query\": {\"bool\": {\"must\": [ { \"match\": {\"$1\":\"$2\" } }, "
-          + "{ \"match\": { \"status\": \"approved\" } } ] } } , "
-          + "\"_source\": [\"rating\",\"id\"] }";
+      "{\"query\": {\"bool\": {\"must\": [{ \"match\": {\"$1\":\"$2\" }}, "
+          + "{ \"match\": { \"status\": \"approved\" }}]}} , "
+          + "\"_source\": { \"includes\": [\"rating\",\"id\"]}}";
   public static final String GET_AVG_RATING_PREFIX =
       "{\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\"},"
           + "\"aggs\":{\"average_rating\":{\"avg\":{\"field\":\"rating\"}}}}},"
@@ -225,18 +227,23 @@ public class Constants {
   public static final String GET_TYPE_SEARCH =
       "{\"query\": {\"bool\": {\"filter\": [{\"terms\": "
           + "{\"id.keyword\": [\"$1\"],\"boost\": 1}}]}},"
-          + "\"_source\": [\"cos\",\"resourceServer\",\"type\","
-          + "\"provider\",\"resourceGroup\",\"id\"]}";
+          + "\"_source\": {"
+          + " \"includes\": [\"cos\",\"resourceServer\",\"type\","
+          + " \"provider\",\"resourceGroup\",\"id\"]}}";
   public static final String GET_RSGROUP =
       "{\"query\": {\"bool\": {\"must\": [{\"match\": "
           + "{\"resourceServer.keyword\": \"$1\"}},"
           + "{\"term\": {\"type.keyword\": \"iudx:Provider\"}}]}},"
-          + "\"_source\": [\"id\"],\"size\": \"10000\"}";
+          + "\"_source\": {"
+          + "  \"includes\": [\"id\"]"
+          + "},"
+          + "\"size\": \"10000\"}";
+
   public static final String GET_RS1 = "{\"query\": {\"bool\": {\"should\": [";
   public static final String GET_RS2 = "{\"match\": {\"provider.keyword\": \"$1\"}},";
   public static final String GET_RS3 = "],\"minimum_should_match\": 1}}}";
   public static final String GET_DOC_QUERY_WITH_TYPE =
-      "{\"_source\":[\"$2\"],\"query\":{\"bool\": {\"must\": "
+      "{\"_source\": { \"includes\": [\"$2\"] },\"query\":{\"bool\": {\"must\": "
           + "[{\"term\": {\"id.keyword\": \"$1\"}},"
           + "{\"match\":{ \"type.keyword\": \"$3\"}}]}}}";
   /* General purpose */
