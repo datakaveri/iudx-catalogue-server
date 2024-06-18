@@ -159,7 +159,7 @@ public class MlayerDataset {
                     .getDataModelInfo()
                     .onComplete(
                         domainInfoResult -> {
-                          if (dmDataResult.succeeded()) {
+                          if (domainInfoResult.succeeded()) {
                             JsonObject domains = domainInfoResult.result();
 
                             JsonObject instanceList = ar.result().resultAt(0);
