@@ -32,9 +32,7 @@ public class MlayerServiceImpl implements MlayerService {
   private JsonArray excludedIdsJson;
 
   MlayerServiceImpl(
-          DatabaseService databaseService,
-          PostgresService postgresService,
-          JsonObject config) {
+      DatabaseService databaseService, PostgresService postgresService, JsonObject config) {
     this.databaseService = databaseService;
     this.postgresService = postgresService;
     this.configJson = config;
@@ -281,13 +279,10 @@ public class MlayerServiceImpl implements MlayerService {
             || requestData.containsKey("providers")
             || requestData.containsKey("domains"))
         && (!requestData.containsKey(ID) || requestData.getString(ID).isBlank())) {
-      if (requestData.containsKey("domains")
-          && !requestData.getJsonArray("domains").isEmpty()) {
+      if (requestData.containsKey("domains") && !requestData.getJsonArray("domains").isEmpty()) {
         JsonArray domainsArray = requestData.getJsonArray("domains");
         JsonArray tagsArray =
-            requestData.containsKey("tags")
-                ? requestData.getJsonArray("tags")
-                : new JsonArray();
+            requestData.containsKey("tags") ? requestData.getJsonArray("tags") : new JsonArray();
 
         tagsArray.addAll(domainsArray);
         requestData.put("tags", tagsArray);
@@ -314,8 +309,7 @@ public class MlayerServiceImpl implements MlayerService {
                 ",{\"match\":{\"instance.keyword\":\"$1\"}}"
                     .replace("$1", requestData.getString(INSTANCE).toLowerCase()));
       }
-      if (requestData.containsKey(PROVIDERS)
-          && !requestData.getJsonArray(PROVIDERS).isEmpty()) {
+      if (requestData.containsKey(PROVIDERS) && !requestData.getJsonArray(PROVIDERS).isEmpty()) {
         query =
             query.concat(
                 ",{\"terms\":{\"provider.keyword\":$1}}"
