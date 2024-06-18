@@ -41,7 +41,7 @@ public class DataModel {
    */
   public Future<JsonObject> getDataModelInfo() {
     Promise<JsonObject> promise = Promise.promise();
-    JsonObject classToSubclass = new JsonObject();
+    JsonObject classIdToSubClassMap = new JsonObject();
 
     client.searchAsync(
         GET_ALL_DATASETS_BY_RS_GRP,
@@ -49,14 +49,14 @@ public class DataModel {
         searchHandler -> {
           if (searchHandler.succeeded()) {
             LOGGER.debug("Successful Elastic request");
-            JsonObject json = searchHandler.result();
-            JsonArray results = json.getJsonArray("results");
+            JsonObject response = searchHandler.result();
+            JsonArray results = response.getJsonArray("results");
             if (results.isEmpty()) {
-              promise.complete(classToSubclass);
+              promise.complete(classIdToSubClassMap);
               return;
             }
             AtomicInteger pendingRequests = new AtomicInteger(results.size());
-            String dmBasePath = results.getJsonObject(0).getString("@context");
+            String contextUrl = results.getJsonObject(0).getString("@context");
             for (int i = 0; i < results.size(); i++) {
 
               JsonObject result = results.getJsonObject(i);
@@ -65,7 +65,7 @@ public class DataModel {
               if (typeArray == null || typeArray.size() < 2) {
                 LOGGER.error("Invalid type array in result: {}", result.encode());
                 if (pendingRequests.decrementAndGet() == 0) {
-                  promise.complete(classToSubclass);
+                  promise.complete(classIdToSubClassMap);
                 }
                 continue;
               }
@@ -73,19 +73,19 @@ public class DataModel {
               String id = result.getString("id");
               String type = typeArray.getString(1);
               String classId = type.split(":")[1];
-              String dmUrl = dmBasePath + classId + ".jsonld";
+              String dmUrl = contextUrl + classId + ".jsonld";
 
               webClient
                   .getAbs(dmUrl)
                   .send(
                       dmAr -> {
                         handleDataModelResponse(
-                            dmAr, id, classId, classToSubclass, pendingRequests, promise, dmUrl);
+                            dmAr, id, classId, classIdToSubClassMap, pendingRequests, promise, dmUrl);
                       });
             }
           } else {
             LOGGER.error("Failed Elastic Request: {}", searchHandler.cause().getMessage());
-            promise.complete(classToSubclass);
+            promise.complete(classIdToSubClassMap);
           }
         });
 
@@ -98,16 +98,16 @@ public class DataModel {
    * @param dmAr The async result of the HTTP response.
    * @param id The id of the data model.
    * @param classId The class id of the data model.
-   * @param classToSubclass The JsonObject mapping class to subclass.
+   * @param classIdToSubClassMap The JsonObject mapping class to subclass.
    * @param pendingRequests The AtomicInteger tracking pending requests.
-   * @param promise The Promise to complete with classToSubclass.
+   * @param promise The Promise to complete with classIdToSubClassMap.
    * @param dmUrl The URL of the data model.
    */
   private void handleDataModelResponse(
       AsyncResult<HttpResponse<Buffer>> dmAr,
       String id,
       String classId,
-      JsonObject classToSubclass,
+      JsonObject classIdToSubClassMap,
       AtomicInteger pendingRequests,
       Promise<JsonObject> promise,
       String dmUrl) {
@@ -134,14 +134,14 @@ public class DataModel {
           if (graph != null) {
             for (Object obj : graph) {
               if (obj instanceof JsonObject) {
-                JsonObject jsonObj = (JsonObject) obj;
-                if (("iudx:" + classId).equals(jsonObj.getString("@id"))) {
-                  JsonObject subClassOfObj = jsonObj.getJsonObject("rdfs:subClassOf");
+                JsonObject graphItem = (JsonObject) obj;
+                if (("iudx:" + classId).equals(graphItem.getString("@id"))) {
+                  JsonObject subClassOfObj = graphItem.getJsonObject("rdfs:subClassOf");
                   if (subClassOfObj != null) {
                     String subClassIdStr = subClassOfObj.getString("@id");
                     if (subClassIdStr != null && subClassIdStr.contains(":")) {
                       String subClassId = subClassIdStr.split(":")[1];
-                      classToSubclass.put(id, subClassId);
+                      classIdToSubClassMap.put(id, subClassId);
                     } else {
                       LOGGER.error("Invalid @id in rdfs:subClassOf for class ID: {}", classId);
                     }
@@ -162,7 +162,7 @@ public class DataModel {
     }
 
     if (pendingRequests.decrementAndGet() == 0) {
-      promise.complete(classToSubclass);
+      promise.complete(classIdToSubClassMap);
     }
   }
 }
