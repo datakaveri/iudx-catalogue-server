@@ -158,9 +158,9 @@ public class MlayerDataset {
                 dataModel
                     .getDataModelInfo()
                     .onComplete(
-                        dmDataResult -> {
+                        domainInfoResult -> {
                           if (dmDataResult.succeeded()) {
-                            JsonObject dmData = dmDataResult.result();
+                            JsonObject domains = domainInfoResult.result();
 
                             JsonObject instanceList = ar.result().resultAt(0);
                             JsonObject resourceGroupList = ar.result().resultAt(1);
@@ -199,8 +199,8 @@ public class MlayerDataset {
                                     ACCESS_POLICY,
                                     new JsonObject().put("PII", 0).put("SECURE", 0).put("OPEN", 0));
                               }
-                              if (dmData.getString(record.getString("id")) != null) {
-                                record.put("domain", dmData.getString(record.getString("id")));
+                              if (domains.getString(record.getString("id")) != null) {
+                                record.put("domain", domains.getString(record.getString("id")));
                               }
                               record.remove(TYPE);
                               resourceGroupArray.add(record);
