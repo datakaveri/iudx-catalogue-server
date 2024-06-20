@@ -148,15 +148,9 @@ public class MlayerDataset {
               if (ar.succeeded()) {
                 JsonObject result =
                     new JsonObject()
-<<<<<<< HEAD
                         .put("instanceResult", ar.result().resultAt(0))
                         .put("resourceGroupList", ar.result().resultAt(1))
                         .put("resourceAndPolicyCount", ar.result().resultAt(2));
-=======
-                        .put("instances", ar.result().resultAt(0))
-                        .put("resourceGrpList", ar.result().resultAt(1))
-                        .put("resourceAndPolicyCnt", ar.result().resultAt(2));
->>>>>>> 23c7c4bd (resolve checkstyle warnings)
                 LOGGER.debug("getMlayerDatasets succeeded");
                 handler.handle(Future.succeededFuture(result));
               } else {
