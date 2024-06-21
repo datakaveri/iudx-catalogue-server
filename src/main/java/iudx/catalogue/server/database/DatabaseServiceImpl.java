@@ -1344,8 +1344,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerGeoQuery(
-      String query, Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService getMlayerGeoQuery(String query, Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.debug("query " + query);
     MlayerGeoQuery mlayerGeoQuery = new MlayerGeoQuery(client, docIndex);
     mlayerGeoQuery.getMlayerGeoQuery(query, handler);
@@ -1392,7 +1391,8 @@ public class DatabaseServiceImpl implements DatabaseService {
       return promise.future();
     }
 
-    String checkInstance = GET_INSTANCE_CASE_INSENSITIVE_QUERY.replace("$1", instanceId).replace("$2", "");
+    String checkInstance =
+        GET_INSTANCE_CASE_INSENSITIVE_QUERY.replace("$1", instanceId).replace("$2", "");
     client.searchAsync(
         checkInstance,
         docIndex,
