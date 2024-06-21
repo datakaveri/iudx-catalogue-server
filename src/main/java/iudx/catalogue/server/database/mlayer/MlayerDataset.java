@@ -159,7 +159,7 @@ public class MlayerDataset {
                                     .put("instanceResult", ar.result().resultAt(0))
                                     .put("resourceGroupList", ar.result().resultAt(1))
                                     .put("resourceAndPolicyCount", ar.result().resultAt(2))
-                                    .put("domains", domains);
+                                    .put("idAndDomainList", domains);
                             LOGGER.debug("getMlayerDatasets succeeded");
                             handler.handle(Future.succeededFuture(result));
                           } else {
