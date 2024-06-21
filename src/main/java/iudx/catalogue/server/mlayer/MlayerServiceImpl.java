@@ -359,8 +359,8 @@ public class MlayerServiceImpl implements MlayerService {
 
     JsonObject resourceGroupResult = result.getJsonObject("resourceGroupList");
     JsonObject instancesList = result.getJsonObject("instanceResult");
-    JsonObject resourceAndPolicyCnt = result.getJsonObject("resourceAndPolicyCount");
-    JsonObject domains = result.getJsonObject("idAndDomainList");
+    final JsonObject resourceAndPolicyCnt = result.getJsonObject("resourceAndPolicyCount");
+    final JsonObject domains = result.getJsonObject("idAndDomainList");
 
     LOGGER.debug("Getting all the resource group items");
     Promise<JsonObject> datasetResult = Promise.promise();
