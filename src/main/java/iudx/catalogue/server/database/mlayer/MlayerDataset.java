@@ -8,6 +8,7 @@ import io.vertx.core.*;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
+import iudx.catalogue.server.mlayer.vocabulary.DataModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -146,13 +147,26 @@ public class MlayerDataset {
         .onComplete(
             ar -> {
               if (ar.succeeded()) {
-                JsonObject result =
-                    new JsonObject()
-                        .put("instanceResult", ar.result().resultAt(0))
-                        .put("resourceGroupList", ar.result().resultAt(1))
-                        .put("resourceAndPolicyCount", ar.result().resultAt(2));
-                LOGGER.debug("getMlayerDatasets succeeded");
-                handler.handle(Future.succeededFuture(result));
+                DataModel dataModel = new DataModel(client, docIndex);
+                dataModel
+                    .getDataModelInfo()
+                    .onComplete(
+                        domainInfoResult -> {
+                          if (domainInfoResult.succeeded()) {
+                            JsonObject domains = domainInfoResult.result();
+                            JsonObject result =
+                                new JsonObject()
+                                    .put("instanceResult", ar.result().resultAt(0))
+                                    .put("resourceGroupList", ar.result().resultAt(1))
+                                    .put("resourceAndPolicyCount", ar.result().resultAt(2))
+                                    .put("domains", domains);
+                            LOGGER.debug("getMlayerDatasets succeeded");
+                            handler.handle(Future.succeededFuture(result));
+                          } else {
+                            LOGGER.error("Fail: failed DataModel request");
+                            handler.handle(Future.failedFuture(internalErrorResp));
+                          }
+                        });
               } else {
                 LOGGER.error("Fail: failed DB request");
                 handler.handle(Future.failedFuture(ar.cause().getMessage()));

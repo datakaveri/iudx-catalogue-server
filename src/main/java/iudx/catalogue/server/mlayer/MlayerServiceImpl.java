@@ -360,6 +360,7 @@ public class MlayerServiceImpl implements MlayerService {
     JsonObject resourceGroupResult = result.getJsonObject("resourceGroupList");
     JsonObject instancesList = result.getJsonObject("instanceResult");
     JsonObject resourceAndPolicyCnt = result.getJsonObject("resourceAndPolicyCount");
+    JsonObject domains = result.getJsonObject("domains");
 
     LOGGER.debug("Getting all the resource group items");
     Promise<JsonObject> datasetResult = Promise.promise();
@@ -408,6 +409,9 @@ public class MlayerServiceImpl implements MlayerService {
                     record.put(
                         ACCESS_POLICY,
                         new JsonObject().put("PII", 0).put("SECURE", 0).put("OPEN", 0));
+                  }
+                  if (domains.getString(record.getString("id")) != null) {
+                    record.put("domain", domains.getString(record.getString("id")));
                   }
                   record.remove(TYPE);
                   resourceGroupArray.add(record);
