@@ -595,16 +595,20 @@ public class MlayerServiceImpl implements MlayerService {
 
       if (requestData.containsKey(TAGS) && !requestData.getJsonArray(TAGS).isEmpty()) {
         JsonArray tagsArray = requestData.getJsonArray(TAGS);
-        JsonArray lowerTagsArray = new JsonArray();
+        String tagQueryString = "";
 
         for (Object tagValue : tagsArray) {
           if (tagValue instanceof String) {
-            lowerTagsArray.add(((String) tagValue).toLowerCase());
+            tagQueryString = tagQueryString.concat(tagValue + " OR ");
           }
         }
 
-        if (!lowerTagsArray.isEmpty()) {
-          query += ",{\"terms\":{\"tags.keyword\":" + lowerTagsArray.encode() + "}}";
+        if (!tagQueryString.isEmpty()) {
+          tagQueryString = "(" + tagQueryString.substring(0, tagQueryString.length() - 4) + ")";
+          query +=
+              ",{\"query_string\":{\"default_field\":\"tags\",\"query\":\""
+                  + tagQueryString
+                  + "\"}}";
         }
       }
       if (requestData.containsKey(INSTANCE) && !requestData.getString(INSTANCE).isBlank()) {
