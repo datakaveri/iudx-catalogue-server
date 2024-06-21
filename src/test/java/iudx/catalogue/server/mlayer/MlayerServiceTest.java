@@ -897,6 +897,7 @@ public class MlayerServiceTest {
         .put("resourceGroupList", resourceGrpList)
         .put("instanceResult", instances)
         .put("resourceAndPolicyCount", resourceAndPolicyCnt)
+        .put("idAndDomainList", new JsonObject())
         .put(LIMIT, 0)
         .put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -1170,6 +1171,7 @@ public class MlayerServiceTest {
         .put("resourceGroupList", resourceGrpList)
         .put("instanceResult", instances)
         .put("resourceAndPolicyCount", resourceAndPolicyCnt)
+        .put("idAndDomainList", new JsonObject())
         .put(LIMIT, 0)
         .put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(true);
