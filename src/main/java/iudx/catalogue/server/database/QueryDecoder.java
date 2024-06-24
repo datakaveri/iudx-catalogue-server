@@ -38,7 +38,7 @@ public final class QueryDecoder {
 
     if (request.containsKey(FILTER)) {
       JsonArray sourceFilter = request.getJsonArray(FILTER, new JsonArray());
-      tempQuery.put(SOURCE, sourceFilter);
+      tempQuery.put(SOURCE, new JsonObject().put("includes", sourceFilter));
     }
     return tempQuery;
   }
@@ -248,7 +248,7 @@ public final class QueryDecoder {
         elasticQuery.put(SOURCE, sourceFilter);
       } else if (request.containsKey(FILTER)) {
         JsonArray sourceFilter = request.getJsonArray(FILTER);
-        elasticQuery.put(SOURCE, sourceFilter);
+        elasticQuery.put(SOURCE, new JsonObject().put("includes", sourceFilter));
       } else {
         return new JsonObject().put(ERROR, new RespBuilder()
             .withType(TYPE_BAD_FILTER)
