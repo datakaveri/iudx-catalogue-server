@@ -283,7 +283,7 @@ public class DatabaseServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(25)).searchAsync(anyString(), any(), any());
+            verify(client, times(26)).searchAsync(anyString(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -396,7 +396,7 @@ public class DatabaseServiceImplTest {
             handler -> {
               if (handler.failed()) {
                 databaseService.verifyInstance(instanceId);
-                verify(client, times(46)).searchAsync(any(), any(), any());
+                verify(client, times(50)).searchAsync(any(), any(), any());
                 assertEquals(TYPE_INTERNAL_SERVER_ERROR, handler.cause().getMessage());
                 vertxTestContext.completeNow();
               } else {
@@ -447,7 +447,7 @@ public class DatabaseServiceImplTest {
             boolHandler -> {
               if (boolHandler.succeeded()) {
                 assertEquals(json, asyncResult.result());
-                verify(client, times(28)).searchAsync(anyString(), any(), any());
+                verify(client, times(30)).searchAsync(anyString(), any(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -603,7 +603,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(49)).searchAsync(any(), any(), any());
+            verify(client, times(53)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else vertxTestContext.failNow("Fail");
         });
@@ -635,7 +635,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(75)).searchAsync(any(), any(), any());
+            verify(client, times(76)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -684,7 +684,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(73)).searchAsync(any(), any(), any());
+            verify(client, times(74)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -810,7 +810,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(62)).searchAsync(any(), any(), any());
+            verify(client, times(64)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -884,7 +884,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(51)).searchAsync(any(), any(), any());
+            verify(client, times(55)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1036,7 +1036,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(24)).searchAsync(any(), any(), any());
+            verify(client, times(25)).searchAsync(any(), any(), any());
 
             vertxTestContext.completeNow();
           } else {
@@ -1102,7 +1102,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(71)).searchAsync(any(), any(), any());
+            verify(client, times(72)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1138,7 +1138,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(35)).searchAsync(any(), any(), any());
+            verify(client, times(37)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1283,7 +1283,7 @@ public class DatabaseServiceImplTest {
         .onComplete(
             handler -> {
               if (handler.failed()) {
-                verify(client, times(44)).searchAsync(any(), any(), any());
+                verify(client, times(48)).searchAsync(any(), any(), any());
                 verify(nlpService, times(0)).getEmbedding(any(), any());
                 verify(geoService, times(0)).geoSummarize(any(), any());
                 vertxTestContext.completeNow();
@@ -1311,7 +1311,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(67)).searchAsync(any(), any(), any());
+            verify(client, times(69)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1343,7 +1343,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(31)).searchAsync(any(), any(), any());
+            verify(client, times(33)).searchAsync(any(), any(), any());
             verify(client, times(4)).docPostAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1364,7 +1364,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(64)).searchAsync(any(), any(), any());
+            verify(client, times(66)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -1396,7 +1396,7 @@ public class DatabaseServiceImplTest {
         handler -> {
           if (handler.failed()) {
             verify(client, times(5)).docPostAsync(any(), any(), any());
-            verify(client, times(57)).searchAsync(any(), any(), any());
+            verify(client, times(59)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -1434,7 +1434,7 @@ public class DatabaseServiceImplTest {
         requestParams,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(36)).searchAsync(any(), any(), any());
+            verify(client, times(39)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -1452,7 +1452,7 @@ public class DatabaseServiceImplTest {
         requestParams,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(65)).searchAsync(any(), any(), any());
+            verify(client, times(67)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -1815,7 +1815,7 @@ public class DatabaseServiceImplTest {
         handler -> {
           if (handler.failed()) {
 
-            verify(client, times(72)).searchAsync(any(), any(), any());
+            verify(client, times(73)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -1860,7 +1860,7 @@ public class DatabaseServiceImplTest {
         requestParams,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(39)).searchAsync(any(), any(), any());
+            verify(client, times(43)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -1879,7 +1879,7 @@ public class DatabaseServiceImplTest {
         requestParams,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(60)).searchAsync(any(), any(), any());
+            verify(client, times(62)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2173,7 +2173,7 @@ public class DatabaseServiceImplTest {
         requestParams,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(26)).searchAsync(any(), any(), any());
+            verify(client, times(27)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -2192,7 +2192,7 @@ public class DatabaseServiceImplTest {
         requestParams,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(47)).searchAsync(any(), any(), any());
+            verify(client, times(51)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2229,8 +2229,9 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
-  @Description("test getMlayerDataset method when DB Request has 0 hits")
-  public void testGetMlayerDataset0Hits(VertxTestContext testContext) {
+  @Description("test getProviderAndResourceServerId method when DB Request has 0 hits")
+  public void testGetProviderAndResourceServerId0Hits(VertxTestContext testContext) {
+    String query = "dummy";
     JsonArray results = new JsonArray();
     JsonObject provider = new JsonObject().put("provider", "dummy id");
     results.add(0, provider);
@@ -2238,8 +2239,8 @@ public class DatabaseServiceImplTest {
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(request);
 
-    dbService.getMlayerDataset(
-        request,
+    dbService.getProviderAndResourceServerId(
+        query,
         handler -> {
           if (handler.succeeded()) {
             verify(client, times(2)).searchAsync(any(), any(), any());
@@ -2252,8 +2253,9 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
-  @Description("test getMlayerDataset method when DB Request is successful")
-  public void testGetMlayerDatasetSuccess(VertxTestContext testContext) {
+  @Description("test getProviderAndResourceServerId method when DB Request is successful")
+  public void testGetProviderAndResourceServerIdSuccess(VertxTestContext testContext) {
+    String query = "dummy";
     JsonArray results = new JsonArray();
     JsonObject json = new JsonObject().put("instance", "pune");
     JsonArray jsonArray = new JsonArray();
@@ -2277,14 +2279,13 @@ public class DatabaseServiceImplTest {
               }
             })
         .when(client)
-        .searchAsyncDataset(any(), any(), any());
+        .searchAsync(any(), any(), any());
 
-    dbService.getMlayerDataset(
-        request,
+    dbService.getProviderAndResourceServerId(
+        query,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(53)).searchAsync(any(), any(), any());
-            verify(client, times(2)).searchAsyncDataset(any(), any(), any());
+            verify(client, times(23)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -2295,8 +2296,9 @@ public class DatabaseServiceImplTest {
   }
 
   @Test
-  @Description("test getMlayerDataset method when DB Request is fails")
-  public void testGetMlayerDatasetFailure(VertxTestContext testContext) {
+  @Description("test getProviderAndResourceServerId method when DB Request is fails")
+  public void testGetProviderAndResourceServerIdFailure(VertxTestContext testContext) {
+    String query = "dummy";
     JsonArray results = new JsonArray();
     JsonObject json = new JsonObject().put("instance", "pune");
     JsonArray jsonArray = new JsonArray();
@@ -2320,24 +2322,109 @@ public class DatabaseServiceImplTest {
               }
             })
         .when(client)
-        .searchAsyncDataset(any(), any(), any());
+        .searchAsync(any(), any(), any());
 
-    dbService.getMlayerDataset(
-        request,
+    dbService.getProviderAndResourceServerId(
+        query,
         handler -> {
           if (handler.succeeded()) {
             testContext.failNow("fail");
 
           } else {
-            verify(client, times(68)).searchAsync(any(), any(), any());
-            verify(client, times(2)).searchAsyncDataset(any(), any(), any());
-
+            verify(client, times(42)).searchAsync(any(), any(), any());
             testContext.completeNow();
           }
         });
   }
+    @Test
+    @Description("test getDataset method when the DB Request is Successful")
+    public void testGetDatasetSuccess(VertxTestContext testContext) {
+        String query = "abc";
+        when(asyncResult.succeeded()).thenReturn(true);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(client)
+                .searchAsyncDataset(any(), any(), any());
+        dbService.getDataset(
+                query,
+                handler -> {
+                    if (handler.succeeded()) {
+                        verify(client, times(1)).searchAsyncDataset(any(), any(), any());
+                        testContext.completeNow();
+                    } else {
+                        testContext.failNow("Fail");
+                    }
+                });
+    }
+    @Test
+    @Description("test getInstanceIcon method when the DB Request is Successful")
+    public void testGetInstanceIconSuccess(VertxTestContext testContext) {
+        String query = "abc";
+        when(asyncResult.succeeded()).thenReturn(true);
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(client)
+                .searchAsync(any(), any(), any());
+        dbService.getInstanceIcon(
+                query,
+                handler -> {
+                    if (handler.succeeded()) {
+                        verify(client, times(16)).searchAsync(any(), any(), any());
+                        testContext.completeNow();
+                    } else {
+                        testContext.failNow("Fail");
+                    }
+                });
+    }
+    @Test
+    @Description("Test getInstanceIcon method when the DB Request fails")
+    public void testGetInstanceIconFailure(VertxTestContext testContext) {
+        String query = "abc";
+        String errorMessage = "DB request failed";
 
-  @Test
+        // Mocking the asynchronous result to indicate failure
+        when(asyncResult.succeeded()).thenReturn(false);
+        when(asyncResult.cause()).thenReturn(new Throwable(errorMessage));
+
+        // Mocking the searchAsyncDataset method behavior
+        doAnswer(
+                new Answer<AsyncResult<JsonObject>>() {
+                    @Override
+                    public AsyncResult<JsonObject> answer(InvocationOnMock invocation) throws Throwable {
+                        ((Handler<AsyncResult<JsonObject>>) invocation.getArgument(2)).handle(asyncResult);
+                        return null;
+                    }
+                })
+                .when(client)
+                .searchAsync(any(), any(), any());
+
+        // Invoking the method under test
+        dbService.getInstanceIcon(
+                query,
+                handler -> {
+                    if (handler.succeeded()) {
+                        testContext.failNow("Expected failure, but operation succeeded");
+                    } else {
+                        verify(client, times(29)).searchAsync(any(), any(), any());
+                        testContext.completeNow();
+                    }
+                });
+    }
+
+
+    @Test
   @Description("test getMlayerAllDatasets method when DB Request is successful")
   public void testGetMlayerAllDatasetsSuccess(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
@@ -2511,7 +2598,7 @@ public class DatabaseServiceImplTest {
         handler -> {
           if (handler.succeeded()) {
             // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
-            verify(client, times(56)).searchAsync(any(), any(), any());
+            verify(client, times(58)).searchAsync(any(), any(), any());
             verify(client, times(5)).resourceAggregationAsync(any(), any(), any());
             testContext.completeNow();
 
@@ -2534,7 +2621,7 @@ public class DatabaseServiceImplTest {
         handler -> {
           if (handler.failed()) {
             // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
-            verify(client, times(30)).searchAsync(any(), any(), any());
+            verify(client, times(32)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -2612,7 +2699,7 @@ public class DatabaseServiceImplTest {
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(59)).searchAsync(any(), any(), any());
+            verify(client, times(61)).searchAsync(any(), any(), any());
             verify(client, times(5)).searchAsyncResourceGroupAndProvider(any(), any(), any());
             verify(client, times(6)).resourceAggregationAsync(any(), any(), any());
             testContext.completeNow();
@@ -2737,7 +2824,7 @@ public class DatabaseServiceImplTest {
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(41)).searchAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(45)).searchAsync(any(), any(), any());
             verify(DatabaseServiceImpl.client, times(3))
                 .searchAsyncResourceGroupAndProvider(any(), any(), any());
             verify(DatabaseServiceImpl.client, times(4))
