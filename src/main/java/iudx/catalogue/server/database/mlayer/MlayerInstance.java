@@ -205,7 +205,7 @@ public class MlayerInstance {
               client.docPutAsync(
                   docId,
                   mlayerInstanceIndex,
-                  request.toString(),
+                  request,
                   putRes -> {
                     if (putRes.succeeded()) {
                       handler.handle(

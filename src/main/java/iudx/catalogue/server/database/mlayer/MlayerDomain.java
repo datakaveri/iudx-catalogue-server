@@ -155,7 +155,7 @@ public class MlayerDomain {
               client.docPutAsync(
                   docId,
                   mlayerDomainIndex,
-                  request.toString(),
+                  request,
                   putRes -> {
                     if (putRes.succeeded()) {
                       handler.handle(

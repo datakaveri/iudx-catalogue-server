@@ -516,7 +516,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                         client.docPutAsync(
                             docId,
                             docIndex,
-                            doc.toString(),
+                            doc,
                             putRes -> {
                               if (putRes.succeeded()) {
                                 handler.handle(
@@ -1095,7 +1095,7 @@ public class DatabaseServiceImpl implements DatabaseService {
             client.docPutAsync(
                 docId,
                 ratingIndex,
-                ratingDoc.toString(),
+                ratingDoc,
                 putRes -> {
                   if (putRes.succeeded()) {
                     handler.handle(
