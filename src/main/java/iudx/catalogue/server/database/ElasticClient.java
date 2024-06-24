@@ -10,6 +10,7 @@ import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.WriteResponseBase;
 import co.elastic.clients.elasticsearch._types.aggregations.*;
 import co.elastic.clients.elasticsearch.core.*;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -27,16 +28,15 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import jakarta.json.stream.JsonGenerator;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.function.BiConsumer;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.*;
@@ -44,10 +44,9 @@ import org.elasticsearch.client.*;
 public final class ElasticClient {
 
   private static final Logger LOGGER = LogManager.getLogger(ElasticClient.class);
+  private final RestClient rsClient;
   ElasticsearchAsyncClient client;
   ElasticsearchClient esClient;
-  private final RestClient rsClient;
-  private RestClient asyncClient;
   private String index;
 
   /**
@@ -109,6 +108,7 @@ public final class ElasticClient {
       DbResponseMessageBuilder responseMsg = new DbResponseMessageBuilder();
       TotalHits totalHitsObj = response.hits().total();
       int totalHits = (int) (totalHitsObj != null ? totalHitsObj.value() : 0);
+      //LOGGER.debug("options: " + options);
       responseMsg.statusSuccess().setTotalHits(totalHits);
       if (totalHits > 0) {
         JsonArray results = new JsonArray();
@@ -116,7 +116,8 @@ public final class ElasticClient {
                 || options == DOC_IDS_ONLY
                 || options == SOURCE_AND_ID
                 || options == SOURCE_AND_ID_GEOQUERY
-                || options == DATASET)
+                || options == DATASET
+                || options == PROVIDER_AGGREGATION_ONLY)
             && response.hits() != null) {
           LOGGER.debug("total: " + totalHits);
           List<Hit<ObjectNode>> hits = response.hits().hits();
@@ -274,10 +275,9 @@ public final class ElasticClient {
           JsonObject result = new JsonObject();
           JsonArray resourceGroupAndProvider = new JsonArray();
           if (response.aggregations().containsKey("provider_count")) {
-            ValueCountAggregate providerCount =
-                response.aggregations().get("provider_count").valueCount();
-            LOGGER.debug("providerCount: " + providerCount);
-            result.put("providerCount", providerCount);
+            Aggregate providerCount = response.aggregations().get("provider_count");
+            //LOGGER.debug("providerCount: " + providerCount);
+            result.put("providerCount", providerCount.cardinality().value());
           }
           for (int i = 0; i < results.size(); i++) {
             JsonObject source = results.getJsonObject(i).getJsonObject(SOURCE);
@@ -614,7 +614,7 @@ public final class ElasticClient {
         .whenCompleteAsync(
             (response, exception) -> {
               if (exception != null) {
-                LOGGER.error("async count query failed : {}", exception);
+                LOGGER.error("async count query failed: {}", exception);
                 promise.fail(exception);
                 return;
               }
@@ -658,9 +658,12 @@ public final class ElasticClient {
       String index, String doc, Handler<AsyncResult<JsonObject>> resultHandler) {
 
     // TODO: Validation
-    Request docRequest = new Request(REQUEST_POST, index + "/_doc");
-    docRequest.setJsonEntity(doc.toString());
-
+    // Parse the document JSON to extract the id
+    JsonObject jsonDoc = new JsonObject(doc);
+    String id = jsonDoc.getString("id");
+    LOGGER.debug("id: {}", id);
+    CreateRequest<JsonObject> docRequest =
+        CreateRequest.of(e -> e.index(index).id(id).withJson(new StringReader(doc)));
     Future<JsonObject> future = docAsync(REQUEST_POST, docRequest);
     future.onComplete(resultHandler);
     return this;
@@ -675,11 +678,14 @@ public final class ElasticClient {
    * @param resultHandler JsonObject @TODO XPack Security
    */
   public ElasticClient docPutAsync(
-      String docId, String index, String doc, Handler<AsyncResult<JsonObject>> resultHandler) {
+      String docId, String index, JsonObject doc, Handler<AsyncResult<JsonObject>> resultHandler) {
 
     // TODO: Validation
-    Request docRequest = new Request(REQUEST_PUT, index + "/_doc/" + docId);
-    docRequest.setJsonEntity(doc.toString());
+    JsonObject wrappedDoc = new JsonObject().put("doc", doc);
+
+    UpdateRequest<Object, Object> docRequest =
+        UpdateRequest.of(
+            e -> e.index(index).id(docId).withJson(new StringReader(wrappedDoc.encode())));
     Future<JsonObject> future = docAsync(REQUEST_PUT, docRequest);
     future.onComplete(resultHandler);
     return this;
@@ -696,8 +702,7 @@ public final class ElasticClient {
       String docId, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
 
     // TODO: Validation
-    Request docRequest = new Request(REQUEST_DELETE, index + "/_doc/" + docId);
-
+    DeleteRequest docRequest = DeleteRequest.of(e -> e.index(index).id(docId));
     Future<JsonObject> future = docAsync(REQUEST_DELETE, docRequest);
     future.onComplete(resultHandler);
     return this;
@@ -707,8 +712,8 @@ public final class ElasticClient {
       String docId, String index, String doc, Handler<AsyncResult<JsonObject>> resultHandler) {
 
     // TODO: Validation
-    Request docRequest = new Request(REQUEST_POST, index + "/_update/" + docId);
-    docRequest.setJsonEntity(doc.toString());
+    UpdateRequest<JsonObject, JsonObject> docRequest =
+        UpdateRequest.of(e -> e.index(index).id(docId).withJson(new StringReader(doc)));
     Future<JsonObject> future = docAsync(REQUEST_POST, docRequest);
     future.onComplete(resultHandler);
     return this;
@@ -721,48 +726,75 @@ public final class ElasticClient {
    * @param method SOURCE - Source only DOCIDS - DOCIDs only IDS - IDs only @TODO XPack
    *     Security @TODO Can combine countAsync and searchAsync
    */
-  private Future<JsonObject> docAsync(String method, Request request) {
+  public <T> Future<JsonObject> docAsync(String method, T request) {
     Promise<JsonObject> promise = Promise.promise();
 
-    rsClient.performRequestAsync(
-        request,
-        new ResponseListener() {
-          @Override
-          public void onSuccess(Response response) {
-            try {
-              JsonObject responseJson = new JsonObject(EntityUtils.toString(response.getEntity()));
-              int statusCode = response.getStatusLine().getStatusCode();
-              switch (method) {
-                case REQUEST_POST:
-                  if (statusCode == 201 || statusCode == 200) {
-                    promise.complete(responseJson);
-                    return;
-                  }
-                  break;
-                case REQUEST_DELETE:
-                case REQUEST_PUT:
-                  if (statusCode == 200) {
-                    promise.complete(responseJson);
-                    return;
-                  }
-                  break;
-                default:
-                  promise.fail(DATABASE_BAD_QUERY);
-              }
-              promise.fail("Failed request");
-            } catch (IOException e) {
-              promise.fail(e);
-            } finally {
-              EntityUtils.consumeQuietly(response.getEntity());
-            }
-          }
+    if (request instanceof CreateRequest) {
+      client.create((CreateRequest<?>) request).whenComplete(handleResponse(promise));
+    } else if (request instanceof DeleteRequest) {
+      client.delete((DeleteRequest) request).whenComplete(handleResponse(promise));
+    } else if (request instanceof UpdateRequest) {
+      client
+          .update((UpdateRequest<?, ?>) request, UpdateResponse.class)
+          .whenComplete(handleResponse(promise));
+    } else {
+      promise.fail("Invalid request type");
+    }
 
-          @Override
-          public void onFailure(Exception e) {
-            promise.fail(e);
-          }
-        });
     return promise.future();
+  }
+
+  private <R> BiConsumer<R, Throwable> handleResponse(Promise<JsonObject> promise) {
+    return (response, exception) -> {
+      if (exception != null) {
+        LOGGER.debug("before...");
+        promise.fail(exception);
+        return;
+      }
+
+      try {
+        LOGGER.debug("after...");
+        JsonObject responseJson = extractFields(response);
+        LOGGER.debug("Response: {}", responseJson);
+        promise.complete(responseJson);
+      } catch (Exception e) {
+        LOGGER.debug("exception...");
+        promise.fail(e);
+      }
+    };
+  }
+
+  private JsonObject extractFields(Object response) {
+    JsonObject responseJson = new JsonObject();
+
+    if (response instanceof CreateResponse) {
+      CreateResponse createResponse = (CreateResponse) response;
+      responseJson = populateFields(createResponse);
+    } else if (response instanceof UpdateResponse) {
+      UpdateResponse updateResponse = (UpdateResponse) response;
+      responseJson = populateFields(updateResponse);
+    } else if (response instanceof DeleteResponse) {
+      DeleteResponse deleteResponse = (DeleteResponse) response;
+      responseJson = populateFields(deleteResponse);
+    }
+
+    return responseJson;
+  }
+
+  private JsonObject populateFields(WriteResponseBase response) {
+    return new JsonObject()
+        .put("_id", response.id())
+        .put("_index", response.index())
+        .put("_primary_term", response.primaryTerm())
+        .put("result", response.result())
+        .put("_seq_no", response.seqNo())
+        .put(
+            "_shards",
+            new JsonObject()
+                .put("failed", response.shards().failed())
+                .put("successful", response.shards().successful())
+                .put("total", response.shards().total()))
+        .put("_version", response.version());
   }
 
   /** DbResponseMessageBuilder} Message builder for search APIs. */
