@@ -217,7 +217,7 @@ public class ElasticClientTest {
   @Description("test docPutAsync method")
   public void testDocPutAsync(VertxTestContext vertxTestContext) {
     String query="dummy";
-    String doc = "dummy";
+    JsonObject doc = new JsonObject();
     assertNotNull(elasticClient.docPutAsync(query,docIndex,doc, handler));
     vertxTestContext.completeNow();
   }
