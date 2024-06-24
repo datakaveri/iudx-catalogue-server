@@ -4,9 +4,7 @@ import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.geocoding.GeocodingService;
@@ -318,15 +316,35 @@ public interface DatabaseService {
   /* create db service vanilla */
 
   /**
-   * The get Mlayer datasset get details of the dataset.
+   * Retrieves provider and resource server ID based on the provided dataset ID.
    *
-   * @param requestData which is a Json Object.
-   * @param handler which is a request handler.
-   * @return DatabaseService which is a Service.
+   * @param query which is a String to retrieve provider and resource server ID.
+   * @param handler Handler to process the async result with a JsonObject.
+   * @return DatabaseService instance for fluent API usage.
    */
   @Fluent
-  DatabaseService getMlayerDataset(
-      JsonObject requestData, Handler<AsyncResult<JsonObject>> handler);
+  DatabaseService getProviderAndResourceServerId(
+      String query, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * Retrieves dataset details based on the provided query.
+   *
+   * @param query Query string to fetch dataset details.
+   * @param handler Handler to process the async result with a JsonObject.
+   * @return DatabaseService instance for fluent API usage.
+   */
+  @Fluent
+  DatabaseService getDataset(String query, Handler<AsyncResult<JsonObject>> handler);
+
+  /**
+   * Retrieves instance icon details based on the provided instance name.
+   *
+   * @param query Name of the instance to fetch icon details.
+   * @param handler Handler to process the async result with a JsonObject.
+   * @return DatabaseService instance for fluent API usage.
+   */
+  @Fluent
+  DatabaseService getInstanceIcon(String query, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
   DatabaseService getMlayerPopularDatasets(

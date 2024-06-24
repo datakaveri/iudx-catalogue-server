@@ -571,15 +571,88 @@ public class MlayerServiceImpl implements MlayerService {
   public MlayerService getMlayerDataset(
       JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
     if (requestData.containsKey(ID) && !requestData.getString(ID).isBlank()) {
-      databaseService.getMlayerDataset(
-          requestData,
-          getMlayerDatasetHandler -> {
-            if (getMlayerDatasetHandler.succeeded()) {
-              LOGGER.info("Success: Getting details of dataset");
-              handler.handle(Future.succeededFuture(getMlayerDatasetHandler.result()));
+      String providerRSQuery = GET_PROVIDER_AND_RS_ID.replace("$1", requestData.getString(ID));
+      databaseService.getProviderAndResourceServerId(
+          providerRSQuery,
+          providerAndResourceServerIdResult -> {
+            if (providerAndResourceServerIdResult.succeeded()) {
+              JsonObject providerAndResourceServerId = providerAndResourceServerIdResult.result();
+
+              String providerId =
+                  providerAndResourceServerId
+                      .getJsonArray(RESULTS)
+                      .getJsonObject(0)
+                      .getString("provider");
+              String cosId = "";
+              if (providerAndResourceServerId
+                  .getJsonArray(RESULTS)
+                  .getJsonObject(0)
+                  .containsKey("cos")) {
+                cosId =
+                    providerAndResourceServerId
+                        .getJsonArray(RESULTS)
+                        .getJsonObject(0)
+                        .getString("cos");
+              }
+              /*
+              query to fetch resource group, provider of the resource group, resource
+              items associated with the resource group and cos item.
+              */
+              String query =
+                  GET_MLAYER_DATASET
+                      .replace("$1", requestData.getString(ID))
+                      .replace("$2", providerId)
+                      .replace("$3", cosId);
+              LOGGER.debug("Query " + query);
+              databaseService.getDataset(
+                  query,
+                  datasetResult -> {
+                    if (datasetResult.succeeded()) {
+                      JsonObject dataset = datasetResult.result();
+                      JsonObject record = dataset.getJsonArray(RESULTS).getJsonObject(0);
+                      record
+                          .getJsonObject("dataset")
+                          .put("totalResources", record.getJsonArray("resource").size());
+
+                      String instanceName = record.getJsonObject("dataset").getString(INSTANCE);
+                      if (instanceName != null && !instanceName.isBlank()) {
+                        String instanceCapitalizeName =
+                            instanceName.substring(0, 1).toUpperCase() + instanceName.substring(1);
+                        // query to get the icon path of the instance in the  resource group
+                        String getIconQuery =
+                            GET_MLAYER_INSTANCE_ICON.replace("$1", instanceCapitalizeName);
+
+                        databaseService.getInstanceIcon(
+                            getIconQuery,
+                            instanceIconResult -> {
+                              if (instanceIconResult.succeeded()) {
+                                JsonObject instances = instanceIconResult.result();
+
+                                if (instances.getInteger(TOTAL_HITS) == 0) {
+                                  record.getJsonObject("dataset").put("instance_icon", "");
+                                } else {
+                                  JsonObject resource =
+                                      instances.getJsonArray(RESULTS).getJsonObject(0);
+                                  String instancePath = resource.getString("icon");
+                                  record
+                                      .getJsonObject("dataset")
+                                      .put("instance_icon", instancePath);
+                                }
+                                handler.handle(Future.succeededFuture(dataset));
+                              } else {
+                                handler.handle(Future.failedFuture(instanceIconResult.cause()));
+                              }
+                            });
+                      } else {
+                        record.getJsonObject("dataset").put("instance_icon", "");
+                        handler.handle(Future.succeededFuture(dataset));
+                      }
+                    } else {
+                      handler.handle(Future.failedFuture(datasetResult.cause()));
+                    }
+                  });
             } else {
-              LOGGER.error("Fail: Getting details of dataset");
-              handler.handle(Future.failedFuture(getMlayerDatasetHandler.cause()));
+              handler.handle(Future.failedFuture(providerAndResourceServerIdResult.cause()));
             }
           });
     } else if ((requestData.containsKey("tags")
