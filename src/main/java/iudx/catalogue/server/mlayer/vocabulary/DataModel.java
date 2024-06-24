@@ -5,7 +5,6 @@ import static iudx.catalogue.server.database.Constants.GET_ALL_DATASETS_BY_RS_GR
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -28,8 +27,8 @@ public class DataModel {
    * @param client The ElasticClient instance
    * @param docIndex The index name where data are stored/retrieved in elastic.
    */
-  public DataModel(ElasticClient client, String docIndex) {
-    this.webClient = WebClient.create(Vertx.vertx());
+  public DataModel(ElasticClient client, String docIndex, WebClient webClient) {
+    this.webClient = webClient;
     this.client = client;
     this.docIndex = docIndex;
   }
