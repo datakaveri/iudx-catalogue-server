@@ -9,23 +9,26 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
 
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
-import io.vertx.core.Handler;
-import io.vertx.core.Vertx;
+import io.vertx.core.*;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.HttpRequest;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.database.postgres.PostgresService;
+import iudx.catalogue.server.mlayer.vocabulary.DataModel;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
@@ -41,12 +44,24 @@ public class MlayerServiceTest {
   private static String catSummaryTable = "cat_summary";
   private static JsonArray jsonArray = new JsonArray().add("excluded_ids").add("excluded_ids2");
   private static Vertx vertxObj;
+  @Mock ElasticClient elasticClient;
+  @Mock WebClient webClient;
+  @Mock DataModel dataModel;
   JsonObject jsonObject =
       new JsonObject()
           .put("databaseTable", tableName)
           .put("catSummaryTable", catSummaryTable)
           .put("excluded_ids", jsonArray);
   @Mock JsonObject json;
+
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+    if (webClient == null) {
+      throw new NullPointerException("webClient is null");
+    }
+    dataModel = new DataModel(elasticClient, "test-index", webClient);
+  }
 
   private JsonObject requestJson() {
     return new JsonObject()
@@ -1002,8 +1017,19 @@ public class MlayerServiceTest {
   @DisplayName("Success: test get dataset and its resources details")
   void successMlayerDatasetAndResourcesTest(VertxTestContext testContext) {
     mlayerService = new MlayerServiceImpl(databaseService, postgresService, jsonObject);
-    JsonObject request = new JsonObject().put("id", "dummy id");
+    JsonArray results = new JsonArray();
+    JsonObject json = new JsonObject().put("instance", "pune");
+    JsonArray jsonArray = new JsonArray();
+    JsonObject provider =
+        new JsonObject()
+            .put("provider", "dummy id")
+            .put("cos", "cis id")
+            .put("dataset", json)
+            .put("resource", jsonArray);
+    results.add(0, provider);
+    JsonObject request = new JsonObject().put(TOTAL_HITS, 0).put(ID, "dummy").put(RESULTS, results);
     when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
     Mockito.doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @SuppressWarnings("unchecked")
@@ -1014,12 +1040,38 @@ public class MlayerServiceTest {
               }
             })
         .when(databaseService)
-        .getMlayerDataset(any(), any());
+        .getProviderAndResourceServerId(any(), any());
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
+    Mockito.doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getDataset(any(), any());
+    when(asyncResult.succeeded()).thenReturn(true);
+    when(asyncResult.result()).thenReturn(request);
+    Mockito.doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @SuppressWarnings("unchecked")
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(databaseService)
+        .getInstanceIcon(any(), any());
     mlayerService.getMlayerDataset(
-        request,
+        new JsonObject().put("id", "dummy-id"),
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).getMlayerDataset(any(), any());
+            verify(databaseService, times(1)).getInstanceIcon(any(), any());
             testContext.completeNow();
 
           } else {
@@ -1045,12 +1097,12 @@ public class MlayerServiceTest {
               }
             })
         .when(databaseService)
-        .getMlayerDataset(any(), any());
+        .getProviderAndResourceServerId(any(), any());
     mlayerService.getMlayerDataset(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).getMlayerDataset(any(), any());
+            verify(databaseService, times(1)).getInstanceIcon(any(), any());
             LOGGER.debug("Fail");
             testContext.failNow(handler.cause());
           } else {
@@ -1171,7 +1223,9 @@ public class MlayerServiceTest {
         .put("resourceGroupList", resourceGrpList)
         .put("instanceResult", instances)
         .put("resourceAndPolicyCount", resourceAndPolicyCnt)
-        .put("idAndDomainList", new JsonObject())
+        .put(
+            "idAndDomainList",
+            new JsonObject().put("dummy-id-1", "domain-1").put("dummy-id-2", "domain-2"))
         .put(LIMIT, 0)
         .put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -1601,5 +1655,81 @@ public class MlayerServiceTest {
             vertxTestContext.failNow(handler.cause());
           }
         });
+  }
+
+  @Test
+  @DisplayName("Success: Get Data Model Info")
+  public void testGetDataModelInfo(VertxTestContext testContext) {
+    // Mock response from ElasticSearch
+    JsonObject mockResponse =
+        new JsonObject()
+            .put(
+                "results",
+                new JsonArray()
+                    .add(
+                        new JsonObject()
+                            .put("id", "test-id")
+                            .put("@context", "http://example.com/")
+                            .put("type", new JsonArray().add("iudx:Type1").add("iudx:Class1"))));
+
+    // Mock response from WebClient
+    JsonObject mockDmJson =
+        new JsonObject()
+            .put(
+                "@graph",
+                new JsonArray()
+                    .add(
+                        new JsonObject()
+                            .put("@id", "iudx:Class1")
+                            .put(
+                                "rdfs:subClassOf",
+                                new JsonObject().put("@id", "iudx:SuperClass"))));
+
+    // Stub ElasticClient behavior
+    when(elasticClient.searchAsync(any(), any(), any()))
+        .thenAnswer(
+            invocation -> {
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              handler.handle(Future.succeededFuture(mockResponse));
+              return null;
+            });
+
+    // Mock WebClient behavior
+    HttpRequest<Buffer> mockHttpRequest = mock(HttpRequest.class);
+    HttpResponse<Buffer> mockHttpResponse = mock(HttpResponse.class);
+    // Creating a mock MultiMap to return from the headers() method
+    MultiMap mockHeaders = MultiMap.caseInsensitiveMultiMap();
+    mockHeaders.add("content-type", "application/json");
+
+    when(mockHttpResponse.body()).thenReturn(Buffer.buffer(mockDmJson.encode()));
+    when(mockHttpResponse.headers()).thenReturn(mockHeaders);
+
+    doAnswer(
+            invocation -> {
+              Handler<AsyncResult<HttpResponse<Buffer>>> handler = invocation.getArgument(0);
+              handler.handle(Future.succeededFuture(mockHttpResponse));
+              LOGGER.debug("Mocking HttpRequest send method");
+              return null;
+            })
+        .when(mockHttpRequest)
+        .send(any());
+
+    when(webClient.getAbs(anyString())).thenReturn(mockHttpRequest);
+    // Adding a debug statement to verify the mock setup
+    LOGGER.debug("Mock setup complete. Starting test.");
+    dataModel
+        .getDataModelInfo()
+        .onComplete(
+            ar -> {
+              if (ar.failed()) {
+                testContext.failNow(ar.cause());
+              } else {
+                JsonObject result = ar.result();
+                assertEquals("SuperClass", result.getString("test-id"));
+                testContext.completeNow();
+              }
+            });
+    // Verify that webClient.getAbs was called
+    verify(webClient).getAbs(anyString());
   }
 }
