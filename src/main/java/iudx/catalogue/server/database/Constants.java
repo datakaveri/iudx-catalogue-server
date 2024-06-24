@@ -95,7 +95,7 @@ public class Constants {
       "{\"_source\":{\"includes\":[\"$2\"]},\"query\":{\"bool\": {\"must\": [ { \"match\": "
           + "{\"id.keyword\":\"$1\"} } ] } } }";
   public static final String CHECK_MDOC_QUERY_INSTANCE =
-      "{\"_source\":{\"includes\":[\"$2\"]},\"query\":{\"bool\": {\"must\": [ { \"match\": "
+      "{\"_source\":{\"includes\":[\"instanceId\",\"name\",\"cover\",\"icon\",\"logo\",\"coordinates\"]},\"query\":{\"bool\": {\"must\": [ { \"match\": "
           + "{\"instanceId.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MLAYER_INSTANCE_QUERY =
       "{\"query\":{\"match\":{\"instanceId.keyword\": \"$1\"}},\"_source\":"
@@ -113,7 +113,7 @@ public class Constants {
           + "[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},"
           + "\"size\": $0,\"from\": $2}";
   public static final String CHECK_MDOC_QUERY_DOMAIN =
-      "{\"_source\":{\"includes\":[\"$2\"]},\"query\":{\"bool\": {\"must\": [ { \"match\": "
+      "{\"_source\":{\"includes\":[\"domainId\",\"description\",\"icon\",\"label\",\"name\"]},\"query\":{\"bool\": {\"must\": [ { \"match\": "
           + "{\"domainId.keyword\":\"$1\"} } ] } } }";
   public static final String GET_MLAYER_PROVIDERS_QUERY =
       "{\"query\": {\"match\": {\"type.keyword\": \"iudx:Provider\"}},\"_source\": "
