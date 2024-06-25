@@ -592,9 +592,7 @@ public final class ElasticClient {
             .index(index)
             .withJson(new StringReader(query)) // using a StringReader to pass the query JSON
             .build();
-    LOGGER.debug("hello am inside list aggregations");
     Future<JsonObject> future = searchAsync(searchRequest, AGGREGATION_ONLY);
-    LOGGER.debug("after");
     future.onComplete(resultHandler);
     return this;
   }
@@ -661,7 +659,6 @@ public final class ElasticClient {
     // Parse the document JSON to extract the id
     JsonObject jsonDoc = new JsonObject(doc);
     String id = jsonDoc.getString("id");
-    LOGGER.debug("id: {}", id);
     CreateRequest<JsonObject> docRequest =
         CreateRequest.of(e -> e.index(index).id(id).withJson(new StringReader(doc)));
     Future<JsonObject> future = docAsync(REQUEST_POST, docRequest);
@@ -747,18 +744,15 @@ public final class ElasticClient {
   private <R> BiConsumer<R, Throwable> handleResponse(Promise<JsonObject> promise) {
     return (response, exception) -> {
       if (exception != null) {
-        LOGGER.debug("before...");
         promise.fail(exception);
         return;
       }
 
       try {
-        LOGGER.debug("after...");
         JsonObject responseJson = extractFields(response);
-        LOGGER.debug("Response: {}", responseJson);
+        //LOGGER.debug("Response: {}", responseJson);
         promise.complete(responseJson);
       } catch (Exception e) {
-        LOGGER.debug("exception...");
         promise.fail(e);
       }
     };
