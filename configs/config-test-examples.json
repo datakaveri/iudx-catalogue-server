@@ -5,7 +5,7 @@
   "host": "",
   "modules": [
     {
-      "id": "iudx.catalogue.server.database.DatabaseVerticle",
+      "id": "iudx.catalogue.server.database.ElasticsearchVerticle",
       "optionalModules": [
         "iudx.catalogue.server.geocoding.GeocodingVerticle",
         "iudx.catalogue.server.nlp.NLPSearchVerticle"
