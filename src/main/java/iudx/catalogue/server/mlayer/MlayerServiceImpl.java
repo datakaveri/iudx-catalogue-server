@@ -12,8 +12,8 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.DatabaseService;
 import iudx.catalogue.server.database.RespBuilder;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.mlayer.util.QueryBuilder;
 import java.nio.charset.StandardCharsets;
@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 public class MlayerServiceImpl implements MlayerService {
   private static final Logger LOGGER = LogManager.getLogger(MlayerServiceImpl.class);
-  DatabaseService databaseService;
+  ElasticsearchService esService;
   PostgresService postgresService;
   QueryBuilder queryBuilder = new QueryBuilder();
   private String databaseTable;
@@ -32,8 +32,8 @@ public class MlayerServiceImpl implements MlayerService {
   private JsonArray excludedIdsJson;
 
   MlayerServiceImpl(
-      DatabaseService databaseService, PostgresService postgresService, JsonObject config) {
-    this.databaseService = databaseService;
+          ElasticsearchService esService, PostgresService postgresService, JsonObject config) {
+    this.esService = esService;
     this.postgresService = postgresService;
     this.configJson = config;
     databaseTable = configJson.getString("databaseTable");
@@ -52,7 +52,7 @@ public class MlayerServiceImpl implements MlayerService {
     }
     request.put(MLAYER_ID, id);
 
-    databaseService.createMlayerInstance(
+    esService.createMlayerInstance(
         request,
         createMlayerInstanceHandler -> {
           if (createMlayerInstanceHandler.succeeded()) {
@@ -70,7 +70,7 @@ public class MlayerServiceImpl implements MlayerService {
   public MlayerService getMlayerInstance(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
 
-    databaseService.getMlayerInstance(
+    esService.getMlayerInstance(
         requestParams,
         getMlayerInstancehandler -> {
           if (getMlayerInstancehandler.succeeded()) {
@@ -87,7 +87,7 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService deleteMlayerInstance(
       String request, Handler<AsyncResult<JsonObject>> handler) {
-    databaseService.deleteMlayerInstance(
+    esService.deleteMlayerInstance(
         request,
         deleteMlayerInstanceHandler -> {
           if (deleteMlayerInstanceHandler.succeeded()) {
@@ -108,7 +108,7 @@ public class MlayerServiceImpl implements MlayerService {
     String id = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
     LOGGER.debug(id);
     request.put("id", id);
-    databaseService.updateMlayerInstance(
+    esService.updateMlayerInstance(
         request,
         updateMlayerHandler -> {
           if (updateMlayerHandler.succeeded()) {
@@ -134,7 +134,7 @@ public class MlayerServiceImpl implements MlayerService {
     }
     request.put(MLAYER_ID, id);
 
-    databaseService.createMlayerDomain(
+    esService.createMlayerDomain(
         request,
         createMlayerDomainHandler -> {
           if (createMlayerDomainHandler.succeeded()) {
@@ -151,7 +151,7 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService getMlayerDomain(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
-    databaseService.getMlayerDomain(
+    esService.getMlayerDomain(
         requestParams,
         getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
@@ -168,7 +168,7 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService deleteMlayerDomain(
       String request, Handler<AsyncResult<JsonObject>> handler) {
-    databaseService.deleteMlayerDomain(
+    esService.deleteMlayerDomain(
         request,
         deleteMlayerDomainHandler -> {
           if (deleteMlayerDomainHandler.succeeded()) {
@@ -190,7 +190,7 @@ public class MlayerServiceImpl implements MlayerService {
     String id = Hashing.sha256().hashString(name, StandardCharsets.UTF_8).toString();
     LOGGER.debug(id);
     request.put(MLAYER_ID, id);
-    databaseService.updateMlayerDomain(
+    esService.updateMlayerDomain(
         request,
         updateMlayerHandler -> {
           if (updateMlayerHandler.succeeded()) {
@@ -208,7 +208,7 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService getMlayerProviders(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
-    databaseService.getMlayerProviders(
+    esService.getMlayerProviders(
         requestParams,
         getMlayerDomainHandler -> {
           if (getMlayerDomainHandler.succeeded()) {
@@ -225,7 +225,7 @@ public class MlayerServiceImpl implements MlayerService {
   @Override
   public MlayerService getMlayerGeoQuery(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    databaseService.getMlayerGeoQuery(
+    esService.getMlayerGeoQuery(
         request,
         postMlayerGeoQueryHandler -> {
           if (postMlayerGeoQueryHandler.succeeded()) {
@@ -244,7 +244,7 @@ public class MlayerServiceImpl implements MlayerService {
       JsonObject requestParam, Handler<AsyncResult<JsonObject>> handler) {
     String query = GET_MLAYER_ALL_DATASETS;
     LOGGER.debug("databse get mlayer all datasets called");
-    databaseService.getMlayerAllDatasets(
+    esService.getMlayerAllDatasets(
         requestParam,
         query,
         getMlayerAllDatasets -> {
@@ -263,7 +263,7 @@ public class MlayerServiceImpl implements MlayerService {
   public MlayerService getMlayerDataset(
       JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
     if (requestData.containsKey(ID) && !requestData.getString(ID).isBlank()) {
-      databaseService.getMlayerDataset(
+      esService.getMlayerDataset(
           requestData,
           getMlayerDatasetHandler -> {
             if (getMlayerDatasetHandler.succeeded()) {
@@ -317,7 +317,7 @@ public class MlayerServiceImpl implements MlayerService {
       }
       query = query.concat(GET_ALL_DATASETS_BY_FIELD_SOURCE);
       LOGGER.debug("databse get mlayer all datasets called");
-      databaseService.getMlayerAllDatasets(
+      esService.getMlayerAllDatasets(
           requestData,
           query,
           getAllDatasetsHandler -> {
@@ -354,7 +354,7 @@ public class MlayerServiceImpl implements MlayerService {
           if (dbHandler.succeeded()) {
             JsonArray popularDataset = dbHandler.result().getJsonArray("results");
             LOGGER.debug("popular datasets are {}", popularDataset);
-            databaseService.getMlayerPopularDatasets(
+            esService.getMlayerPopularDatasets(
                 instance,
                 popularDataset,
                 getPopularDatasetsHandler -> {

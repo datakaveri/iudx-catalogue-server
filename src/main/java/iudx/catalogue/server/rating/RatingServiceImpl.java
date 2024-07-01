@@ -12,10 +12,10 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
-import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.databroker.DataBrokerService;
-import iudx.catalogue.server.util.Constants;
+
 import java.nio.charset.StandardCharsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 public class RatingServiceImpl implements RatingService {
   private static final Logger LOGGER = LogManager.getLogger(RatingServiceImpl.class);
-  DatabaseService databaseService;
+    ElasticsearchService databaseService;
   DataBrokerService dataBrokerService;
   PostgresService postgresService;
   private String ratingExchangeName;
@@ -43,7 +43,7 @@ public class RatingServiceImpl implements RatingService {
       String exchangeName,
       String rsauditingtable,
       int minReadNumber,
-      DatabaseService databaseService,
+      ElasticsearchService databaseService,
       DataBrokerService dataBrokerService,
       PostgresService postgresService) {
     this.ratingExchangeName = exchangeName;

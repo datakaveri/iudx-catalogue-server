@@ -1,4 +1,4 @@
-package iudx.catalogue.server.postgres;
+package iudx.catalogue.server.database.postgres;
 
 import static iudx.catalogue.server.util.Constants.PG_SERVICE_ADDRESS;
 

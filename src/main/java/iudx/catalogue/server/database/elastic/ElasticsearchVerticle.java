@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database;
+package iudx.catalogue.server.database.elastic;
 
 import static iudx.catalogue.server.util.Constants.*;
 
@@ -7,7 +7,6 @@ import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ServiceBinder;
-import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 

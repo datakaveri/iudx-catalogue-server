@@ -6,7 +6,7 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.serviceproxy.ServiceBinder;
-import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
@@ -28,7 +28,7 @@ public class RatingVerticle extends AbstractVerticle {
   private static final String RATING_SERVICE_ADDRESS = "iudx.catalogue.rating.service";
   private static final Logger LOGGER = LogManager.getLogger(RatingVerticle.class);
 
-  DatabaseService databaseService;
+  ElasticsearchService databaseService;
   DataBrokerService dataBrokerService;
   PostgresService postgresService;
   private String ratingExchangeName;
@@ -52,7 +52,7 @@ public class RatingVerticle extends AbstractVerticle {
     rsauditingtable = config().getString("rsAuditingTableName");
     minReadNumber = config().getInteger("minReadNumber");
 
-    databaseService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
+    databaseService = ElasticsearchService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
     dataBrokerService = DataBrokerService.createProxy(vertx, BROKER_SERVICE_ADDRESS);
     postgresService = PostgresService.createProxy(vertx, PG_SERVICE_ADDRESS);
 

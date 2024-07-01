@@ -1,7 +1,9 @@
 package iudx.catalogue.server.mlayer.vocabulary;
 
-import static iudx.catalogue.server.database.Constants.GET_ALL_DATASETS_BY_RS_GRP;
+import static iudx.catalogue.server.database.elastic.query.Queries.buildAllDatasetsByRsGrpQuery;
+import static iudx.catalogue.server.database.elastic.query.Queries.buildSourceConfig;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -11,7 +13,9 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
-import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.database.elastic.ElasticClient;
+
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,9 +46,12 @@ public class DataModel {
   public Future<JsonObject> getDataModelInfo() {
     Promise<JsonObject> promise = Promise.promise();
     JsonObject classIdToSubClassMap = new JsonObject();
-
+    Query query = buildAllDatasetsByRsGrpQuery();
     client.searchAsync(
-        GET_ALL_DATASETS_BY_RS_GRP,
+        query,
+        buildSourceConfig(List.of()),
+        10000,
+        0,
         docIndex,
         searchHandler -> {
           if (searchHandler.succeeded()) {

@@ -247,17 +247,17 @@ public class Constants {
           + "[{\"term\": {\"id.keyword\": \"$1\"}},"
           + "{\"match\":{ \"type.keyword\": \"$3\"}}]}}}";
   /* General purpose */
-  static final String SEARCH = "search";
-  static final String COUNT = "count";
+  public static final String SEARCH = "search";
+  public static final String COUNT = "count";
   static final String DESCRIPTION = "detail";
   static final String HTTP = "http";
-  static final String ATTRIBUTE = "attrs";
-  static final String RESULT = "results";
-  static final String SHAPE_KEY = "shape";
-  static final String SIZE_KEY = "size";
-  static final int STATIC_DELAY_TIME = 3000;
+  public static final String ATTRIBUTE = "attrs";
+  public static final String RESULT = "results";
+  public static final String SHAPE_KEY = "shape";
+  public static final String SIZE_KEY = "size";
+  public static final int STATIC_DELAY_TIME = 3000;
   /* Database */
-  static final String AGGREGATION_KEY = "aggs";
+  public static final String AGGREGATION_KEY = "aggs";
   static final String FILTER_PATH = "?filter_path=took,hits.total.value,hits.hits._source";
   static final String FILTER_PATH_AGGREGATION =
       "?filter_path=hits.total.value,aggregations.results.buckets";
@@ -266,29 +266,29 @@ public class Constants {
       "?filter_path=hits.total.value,hits.hits._id&size=10000";
   static final String FILTER_PATH_ID_AND_SOURCE =
       "?filter_path=took,hits.total.value,hits.hits._source,hits.hits._id";
-  static final String TYPE_KEY = "type";
-  static final String ID_KEYWORD = "id.keyword";
-  static final String DOC_COUNT = "doc_count";
-  static final String SUMMARY_KEY = "_summary";
-  static final String GEOSUMMARY_KEY = "_geosummary";
+  public static final String TYPE_KEY = "type";
+  public static final String ID_KEYWORD = "id.keyword";
+  public static final String DOC_COUNT = "doc_count";
+  public static final String SUMMARY_KEY = "_summary";
+  public static final String GEOSUMMARY_KEY = "_geosummary";
   /* Geo-Spatial */
-  static final String COORDINATES_KEY = "coordinates";
+  public static final String COORDINATES_KEY = "coordinates";
   static final String DISTANCE_IN_METERS = "m";
-  static final String GEO_BBOX = "envelope";
-  static final String GEO_CIRCLE = "circle";
+  public static final String GEO_BBOX = "envelope";
+  public static final String GEO_CIRCLE = "circle";
   /* Replace above source list with commented one to include comment in response for rating API */
   //    "\"_source\": [\"rating\",\"comment\",\"id\"] }";
-  static final String GEO_KEY = ".geometry";
+  public static final String GEO_KEY = ".geometry";
   static final String GEO_RADIUS = "radius";
   static final String GEO_RELATION_KEY = "relation";
-  static final String GEO_SHAPE_KEY = "geo_shape";
+  public static final String GEO_SHAPE_KEY = "geo_shape";
   /* Error */
   static final String DATABASE_BAD_QUERY = "Query Failed with status != 20x";
   static final String EMPTY_RESPONSE = "Empty response";
-  static final String NO_SEARCH_TYPE_FOUND = "No searchType found";
+  public static final String NO_SEARCH_TYPE_FOUND = "No searchType found";
   static final String COUNT_UNSUPPORTED = "Count is not supported with filtering";
   static final String INVALID_SEARCH = "Invalid search request";
-  static final String ERROR_DB_REQUEST = "DB request has failed";
+  public static final String ERROR_DB_REQUEST = "DB request has failed";
   static final String DOC_EXISTS = "item already exists";
-  static final String INSTANCE_NOT_EXISTS = "instance doesn't exist";
+  public static final String INSTANCE_NOT_EXISTS = "instance doesn't exist";
 }

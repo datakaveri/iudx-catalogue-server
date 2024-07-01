@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database;
+package iudx.catalogue.server.database.elastic;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.geocoding.util.Constants.*;
@@ -30,6 +30,7 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.database.Util;
 import jakarta.json.stream.JsonGenerator;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -122,7 +123,7 @@ public final class ElasticClient {
                 || options == DATASET
                 || options == PROVIDER_AGGREGATION_ONLY)
             && response.hits() != null) {
-          LOGGER.debug("total: " + totalHits);
+          //LOGGER.debug("total: " + totalHits);
           List<Hit<ObjectNode>> hits = response.hits().hits();
           for (Hit<ObjectNode> hit : hits) {
             JsonObject jsonObject = new JsonObject();
@@ -279,7 +280,6 @@ public final class ElasticClient {
           JsonArray resourceGroupAndProvider = new JsonArray();
           if (response.aggregations().containsKey("provider_count")) {
             Aggregate providerCount = response.aggregations().get("provider_count");
-            // LOGGER.debug("providerCount: " + providerCount);
             result.put("providerCount", providerCount.cardinality().value());
           }
           for (int i = 0; i < results.size(); i++) {
@@ -459,19 +459,11 @@ public final class ElasticClient {
    * Executes an asynchronous search operation with a geo query in the specified index.
    *
    * @param query the query to execute
+   * @param source SourceConfig
    * @param index the name of the index to search
    * @param resultHandler the handler for the search result
    * @return this ElasticClient instance
    */
-  public ElasticClient searchAsyncGeoQuery(
-      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
-    SearchRequest searchRequest =
-        new SearchRequest.Builder().index(index).withJson(new StringReader(query)).build();
-    Future<JsonObject> future = searchAsync(searchRequest, SOURCE_AND_ID_GEOQUERY);
-    future.onComplete(resultHandler);
-    return this;
-  }
-
   public ElasticClient searchAsyncGeoQuery(
       Query query,
       SourceConfig source,
@@ -488,22 +480,11 @@ public final class ElasticClient {
    * Asynchronously search for documents and retrieve only their ids and sources in the given index.
    *
    * @param query the query in JSON format as a string
+   * @param source SourceConfig
    * @param index the name of the index to search in
    * @param resultHandler the handler for the asynchronous result of the search
    * @return the ElasticClient instance to enable method chaining
    */
-  public ElasticClient searchAsyncGetId(
-      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
-    SearchRequest searchRequest =
-        new SearchRequest.Builder()
-            .index(index)
-            .withJson(new StringReader(query)) // using a StringReader to pass the query JSON
-            .build();
-    Future<JsonObject> future = searchAsync(searchRequest, SOURCE_AND_ID);
-    future.onComplete(resultHandler);
-    return this;
-  }
-
   public ElasticClient searchAsyncGetId(
       Query query,
       SourceConfig source,
@@ -521,22 +502,11 @@ public final class ElasticClient {
    *
    * @param query the query in JSON format as a string
    * @param index the index to search within
+   * @param aggregation Aggregation
+   * @param sourceConfig SourceConfig
    * @param resultHandler the handler for the asynchronous result of the search
    * @return the ElasticClient instance to allow method chaining
    */
-  public ElasticClient searchAsyncResourceGroupAndProvider(
-      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
-    SearchRequest searchRequest =
-        new SearchRequest.Builder()
-            .index(index)
-            .withJson(new StringReader(query)) // Set the JSON query using withJsonEntity method
-            .build();
-    LOGGER.debug("searchAsync called for resource group and provider");
-    Future<JsonObject> future = searchAsync(searchRequest, "PROVIDER_AGGREGATION");
-    future.onComplete(resultHandler);
-    return this;
-  }
-
   public ElasticClient searchAsyncResourceGroupAndProvider(
       Query query,
       Aggregation aggregation,
@@ -674,21 +644,10 @@ public final class ElasticClient {
    * searchGetIdAsync - Get document IDs matching a query.
    *
    * @param query Query
+   * @param source SourceConfig
+   * @param index String
    * @param resultHandler JsonObject result {@link AsyncResult} @TODO XPack Security
    */
-  public ElasticClient searchGetId(
-      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
-
-    SearchRequest searchRequest =
-        new SearchRequest.Builder()
-            .index(index)
-            .withJson(new StringReader(query)) // using a StringReader to pass the query JSON
-            .build();
-    Future<JsonObject> future = searchAsync(searchRequest, DOC_IDS_ONLY);
-    future.onComplete(resultHandler);
-    return this;
-  }
-
   public ElasticClient searchGetId(
       Query query,
       SourceConfig source,
@@ -707,22 +666,11 @@ public final class ElasticClient {
    * the result through the resultHandler.
    *
    * @param query the aggregation query to execute
+   * @param aggregation Aggregation
    * @param index the index to search in
    * @param resultHandler the handler for the result of the aggregation query
    * @return the ElasticClient object
    */
-  public ElasticClient ratingAggregationAsync(
-      String query, String index, Handler<AsyncResult<JsonObject>> resultHandler) {
-    SearchRequest searchRequest =
-        new SearchRequest.Builder()
-            .index(index)
-            .withJson(new StringReader(query)) // using a StringReader to pass the query JSON
-            .build();
-    Future<JsonObject> future = searchAsync(searchRequest, RATING_AGGREGATION_ONLY);
-    future.onComplete(resultHandler);
-    return this;
-  }
-
   public ElasticClient ratingAggregationAsync(
       Query query,
       Aggregation aggregation,
@@ -743,20 +691,9 @@ public final class ElasticClient {
    * aggregationsAsync - Wrapper around elasticsearch async search requests.
    *
    * @param query Query
+   * @param aggregation Aggregation
    * @param resultHandler JsonObject result {@link AsyncResult} @TODO XPack Security
    */
-  public ElasticClient listAggregationAsync(
-      String query, Handler<AsyncResult<JsonObject>> resultHandler) {
-    SearchRequest searchRequest =
-        new SearchRequest.Builder()
-            .index(index)
-            .withJson(new StringReader(query)) // using a StringReader to pass the query JSON
-            .build();
-    Future<JsonObject> future = searchAsync(searchRequest, AGGREGATION_ONLY);
-    future.onComplete(resultHandler);
-    return this;
-  }
-
   public ElasticClient listAggregationAsync(
       Query query, Aggregation aggregation, Handler<AsyncResult<JsonObject>> resultHandler) {
     SearchRequest searchRequest =
@@ -804,8 +741,8 @@ public final class ElasticClient {
   /**
    * countAsync - Wrapper around elasticsearch async count requests.
    *
-   * @param index Index to search on
    * @param query Query
+   * @param index Index to search on
    * @param resultHandler JsonObject result {@link AsyncResult} @TODO XPack Security
    */
   public ElasticClient countAsync(
@@ -922,7 +859,6 @@ public final class ElasticClient {
 
       try {
         JsonObject responseJson = extractFields(response);
-        // LOGGER.debug("Response: {}", responseJson);
         promise.complete(responseJson);
       } catch (Exception e) {
         promise.fail(e);

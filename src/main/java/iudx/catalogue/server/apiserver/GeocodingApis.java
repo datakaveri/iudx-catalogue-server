@@ -3,9 +3,8 @@
  *
  * <h1>GeocodingApis.java</h1>
  *
- *<p>Callback handlers for Geocoding APIs</p>
+ * <p>Callback handlers for Geocoding APIs
  */
-
 package iudx.catalogue.server.apiserver;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
@@ -18,15 +17,13 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.geocoding.GeocodingService;
-import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 public final class GeocodingApis {
 
-  private GeocodingService geoService;
   private static final Logger LOGGER = LogManager.getLogger(GeocodingApis.class);
+  private GeocodingService geoService;
 
   public void setGeoService(GeocodingService geoService) {
     this.geoService = geoService;
@@ -75,7 +72,7 @@ public final class GeocodingApis {
         location,
         reply -> {
           if (reply.succeeded()) {
-            JsonObject  result = new JsonObject(reply.result());
+            JsonObject result = new JsonObject(reply.result());
             routingContext
                 .response()
                 .putHeader("content-type", "application/json")
@@ -86,7 +83,8 @@ public final class GeocodingApis {
                         .withTitle(TITLE_SUCCESS)
                         .totalHits(result.getJsonArray(RESULTS))
                         .withResult(result.getJsonArray(RESULTS))
-                        .getJsonResponse().toString());
+                        .getJsonResponse()
+                        .toString());
           } else {
             LOGGER.error("Failed to find coordinates");
             routingContext
@@ -124,7 +122,7 @@ public final class GeocodingApis {
               new RespBuilder()
                   .withType(TYPE_INVALID_SYNTAX)
                   .withTitle(TITLE_INVALID_SYNTAX)
-                      .withDetail("Invalid Syntax")
+                  .withDetail("Invalid Syntax")
                   .getResponse());
       return;
     }

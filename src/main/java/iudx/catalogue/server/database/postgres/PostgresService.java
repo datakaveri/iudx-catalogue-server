@@ -1,4 +1,4 @@
-package iudx.catalogue.server.postgres;
+package iudx.catalogue.server.database.postgres;
 
 import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.GenIgnore;
@@ -8,7 +8,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.postgres.PostgresServiceVertxEBProxy;
 
 @VertxGen
 @ProxyGen

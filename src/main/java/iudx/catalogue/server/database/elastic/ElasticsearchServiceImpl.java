@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database;
+package iudx.catalogue.server.database.elastic;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.database.elastic.query.Queries.*;
@@ -10,7 +10,7 @@ import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.elastic.ElasticsearchService;
+import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.elastic.model.QueryAndAggregation;
 import iudx.catalogue.server.database.elastic.query.QueryDecoder;
 import iudx.catalogue.server.database.mlayer.*;
@@ -830,7 +830,6 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
               request.mergeIn(relType);
               Query elasticQuery = queryDecoder.listRelationshipQuery(request);
               LOGGER.debug("Info: Query constructed;" + elasticQuery);
-              LOGGER.debug("hello: " + List.of());
               JsonObject filters = handleResponseFiltering(request);
               int size = filters.getInteger(SIZE_KEY), from = filters.getInteger("from");
               List<String> includes =
