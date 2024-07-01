@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database.postgres;
+package iudx.catalogue.server.postgres;
 
 
 import static iudx.catalogue.server.util.Constants.*;

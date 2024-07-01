@@ -1,11 +1,18 @@
 package iudx.catalogue.server.database;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.database.elastic.query.Queries.*;
 import static iudx.catalogue.server.util.Constants.*;
 
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.query_dsl.*;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
+import iudx.catalogue.server.database.elastic.model.QueryAndAggregation;
+import iudx.catalogue.server.database.elastic.query.QueryDecoder;
 import iudx.catalogue.server.database.mlayer.*;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
@@ -21,14 +28,14 @@ import org.apache.logging.log4j.Logger;
  * <h1>Database Service Implementation</h1>
  *
  * <p>The Database Service implementation in the IUDX Catalogue Server implements the definitions of
- * the {@link iudx.catalogue.server.database.DatabaseService}.
+ * the {@link ElasticsearchService}.
  *
  * @version 1.0
  * @since 2020-05-31
  */
-public class DatabaseServiceImpl implements DatabaseService {
+public class ElasticsearchServiceImpl implements ElasticsearchService {
 
-  private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceImpl.class);
+  private static final Logger LOGGER = LogManager.getLogger(ElasticsearchServiceImpl.class);
   static ElasticClient client;
   private static String internalErrorResp =
       new RespBuilder()
@@ -47,7 +54,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   private String mlayerDomainIndex;
 
   /**
-   * Constructs a new DatabaseServiceImpl instance with the given ElasticClient and index names.
+   * Constructs a new ElasticsearchServiceImpl instance with the given ElasticClient and index names.
    *
    * @param client the ElasticClient used for accessing Elasticsearch
    * @param docIndex the name of the index used for document storage
@@ -55,7 +62,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @param mlayerInstanceIndex the name of the index used for ML layer instance storage
    * @param mlayerDomainIndex the name of the index used for ML layer domain storage
    */
-  public DatabaseServiceImpl(
+  public ElasticsearchServiceImpl(
       ElasticClient client,
       String docIndex,
       String ratingIndex,
@@ -79,7 +86,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @param nlpService the NLP search service used to perform NLP searches
    * @param geoService the geocoding service used to perform geocoding operations
    */
-  public DatabaseServiceImpl(
+  public ElasticsearchServiceImpl(
       ElasticClient client,
       String docIndex,
       String ratingIndex,
@@ -95,24 +102,24 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   /**
-   * Constructs a new instance of DatabaseServiceImpl with only the ElasticClient provided. This
+   * Constructs a new instance of ElasticsearchServiceImpl with only the ElasticClient provided. This
    * constructor sets the values of nlpPluggedIn and geoPluggedIn to false.
    *
    * @param client the ElasticClient used to interact with the Elasticsearch instance
    */
-  public DatabaseServiceImpl(ElasticClient client) {
+  public ElasticsearchServiceImpl(ElasticClient client) {
     this.client = client;
     nlpPluggedIn = false;
     geoPluggedIn = false;
   }
 
   /**
-   * Constructor for initializing DatabaseServiceImpl object.
+   * Constructor for initializing ElasticsearchServiceImpl object.
    *
    * @param client the ElasticClient object for connecting to Elasticsearch
    * @param nlpService the NLPSearchService object for natural language processing searches
    */
-  public DatabaseServiceImpl(
+  public ElasticsearchServiceImpl(
       ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
     this.client = client;
     this.nlpService = nlpService;
@@ -145,7 +152,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Info: searchQuery");
 
@@ -165,18 +172,60 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     /* Construct the query to be made */
-    JsonObject query = queryDecoder.searchQuery(request);
-    if (query.containsKey(ERROR)) {
+    Query query = queryDecoder.searchQuery(request);
+    if (query == null) {
 
       LOGGER.error("Fail: Query returned with an error");
-      handler.handle(Future.failedFuture(query.getJsonObject(ERROR).toString()));
+      handler.handle(Future.failedFuture("Error: Failed to construct query"));
       return null;
     }
 
-    LOGGER.debug("Info: Query constructed;" + query.toString());
+    LOGGER.debug("Info: Query constructed;" + query);
+    List<String> source = null;
+    int size = FILTER_PAGINATION_SIZE, from = 0;
+    String searchType = request.getString(SEARCH_TYPE);
+    LOGGER.debug(searchType);
+    if (searchType.equalsIgnoreCase("getParentObjectInfo")) {
+      source =
+          List.of(
+              "type",
+              "provider",
+              "ownerUserId",
+              "resourceGroup",
+              "resourceServer",
+              "resourceServerRegURL",
+              "cos",
+              "cos_admin");
+    }
+    if (searchType.matches(RESPONSE_FILTER_REGEX)) {
+      /* Construct the filter for response */
+      LOGGER.debug("Info: Adding responseFilter");
 
+      if (request.containsKey(ATTRIBUTE)) {
+        JsonArray sourceFilter = request.getJsonArray(ATTRIBUTE);
+        source = sourceFilter == null ? null : sourceFilter.getList();
+      } else if (request.containsKey(FILTER)) {
+        JsonArray sourceFilter = request.getJsonArray(FILTER);
+        source = sourceFilter == null ? null : sourceFilter.getList();
+      }
+    }
+    /* checking the requests for offset attribute */
+    if (request.containsKey(OFFSET)) {
+      Integer offsetFilter = request.getInteger(OFFSET);
+      from = offsetFilter;
+    }
+    /* TODO: Pagination for large result set */
+    if (request.getBoolean(SEARCH)) {
+      Integer limit =
+          request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+      size = limit;
+    }
+    if (source == null) source = List.of();
     client.searchAsync(
-        query.toString(),
+        query,
+        buildSourceConfig(source),
+        size,
+        from,
         docIndex,
         searchRes -> {
           if (searchRes.succeeded()) {
@@ -196,9 +245,9 @@ public class DatabaseServiceImpl implements DatabaseService {
    *
    * @param request the request embeddings
    * @param handler the handler to be called when the search completes
-   * @return the DatabaseService instance
+   * @return the ElasticsearchService instance
    */
-  public DatabaseService nlpSearchQuery(
+  public ElasticsearchService nlpSearchQuery(
       JsonArray request, Handler<AsyncResult<JsonObject>> handler) {
     JsonArray embeddings = request.getJsonArray(0);
     client.scriptSearch(
@@ -220,9 +269,9 @@ public class DatabaseServiceImpl implements DatabaseService {
    *
    * @param queryParams the query parameters to search with
    * @param handler the handler to call with the response
-   * @return the current DatabaseService instance
+   * @return the current ElasticsearchService instance
    */
-  public DatabaseService nlpSearchLocationQuery(
+  public ElasticsearchService nlpSearchLocationQuery(
       JsonArray request, JsonObject queryParams, Handler<AsyncResult<JsonObject>> handler) {
     JsonArray embeddings = request.getJsonArray(0);
     JsonArray params = queryParams.getJsonArray(RESULTS);
@@ -273,7 +322,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     request.put(SEARCH, false);
 
@@ -284,18 +333,18 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     /* Construct the query to be made */
-    JsonObject query = queryDecoder.searchQuery(request);
-    if (query.containsKey(ERROR)) {
+    Query query = queryDecoder.searchQuery(request);
+    if (query == null) {
 
       LOGGER.error("Fail: Query returned with an error");
 
-      handler.handle(Future.failedFuture(query.getJsonObject(ERROR).toString()));
+      handler.handle(Future.failedFuture("Error: Failed to construct query"));
       return null;
     }
 
-    LOGGER.debug("Info: Query constructed;" + query.toString());
+    LOGGER.debug("Info: Query constructed;" + query);
     client.countAsync(
-        query.toString(),
+        query,
         docIndex,
         searchRes -> {
           if (searchRes.succeeded()) {
@@ -313,10 +362,10 @@ public class DatabaseServiceImpl implements DatabaseService {
    * {@inheritDoc}
    *
    * @param doc Json
-   * @return the current DatabaseService instance
+   * @return the current ElasticsearchService instance
    */
   @Override
-  public DatabaseService createItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService createItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
 
     RespBuilder respBuilder = new RespBuilder();
     String id = doc.getString("id");
@@ -329,7 +378,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               .withResult(id, INSERT, FAILED)
               .withDetail("Insertion Failed")
               .getResponse();
-      String checkItem = GET_DOC_QUERY.replace("$1", id).replace("$2", "");
+      Query checkItem = buildGetDocQuery(id);
 
       verifyInstance(instanceId)
           .onComplete(
@@ -338,7 +387,10 @@ public class DatabaseServiceImpl implements DatabaseService {
                   LOGGER.debug("Info: Instance info;" + instanceHandler.result());
 
                   client.searchAsync(
-                      checkItem.toString(),
+                      checkItem,
+                      buildSourceConfig(List.of()),
+                      FILTER_PAGINATION_SIZE,
+                      0,
                       docIndex,
                       checkRes -> {
                         if (checkRes.failed()) {
@@ -471,16 +523,16 @@ public class DatabaseServiceImpl implements DatabaseService {
    * {@inheritDoc}
    *
    * @param doc JsonObject
-   * @return the current DatabaseService instance
+   * @return the current ElasticsearchService instance
    */
   @Override
-  public DatabaseService updateItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService updateItem(JsonObject doc, Handler<AsyncResult<JsonObject>> handler) {
 
     RespBuilder respBuilder = new RespBuilder();
     String id = doc.getString("id");
     String type = doc.getJsonArray("type").getString(0);
-    String checkQuery =
-        GET_DOC_QUERY_WITH_TYPE.replace("$1", id).replace("$3", type).replace("$2", "id");
+    Query checkQuery = buildDocQueryWithType(id, type);
+    SourceConfig source = buildSourceConfig(Collections.singletonList("id"));
 
     new Timer()
         .schedule(
@@ -488,6 +540,7 @@ public class DatabaseServiceImpl implements DatabaseService {
               public void run() {
                 client.searchGetId(
                     checkQuery,
+                    source,
                     docIndex,
                     checkRes -> {
                       if (checkRes.failed()) {
@@ -541,7 +594,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Info: Deleting item");
 
@@ -552,14 +605,15 @@ public class DatabaseServiceImpl implements DatabaseService {
         .schedule(
             new TimerTask() {
               public void run() {
-                String checkQuery = "";
+                Query checkQuery;
 
                 /* the check query checks if any type item is present more than once.
                 If it's present then the item cannot be deleted.  */
-                checkQuery = QUERY_RESOURCE_GRP.replace("$1", id);
+                checkQuery = buildResourceGroupQuery(id);
 
                 client.searchGetId(
                     checkQuery,
+                    buildSourceConfig(List.of()),
                     docIndex,
                     checkRes -> {
                       if (checkRes.failed()) {
@@ -619,16 +673,19 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Info: Get item");
 
     RespBuilder respBuilder = new RespBuilder();
     String itemId = request.getString(ID);
-    String getQuery = GET_DOC_QUERY.replace("$1", itemId).replace("$2", "");
+    Query getQuery = buildGetDocQuery(itemId);
 
     client.searchAsync(
         getQuery,
+        buildSourceConfig(List.of()),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
         clientHandler -> {
           if (clientHandler.succeeded()) {
@@ -652,15 +709,18 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     RespBuilder respBuilder = new RespBuilder();
-    String elasticQuery = queryDecoder.listItemQuery(request);
+    QueryAndAggregation queryAndAggregation = queryDecoder.listItemQuery(request);
+    Query elasticQuery = queryAndAggregation.getQuery();
+    Aggregation aggregation = queryAndAggregation.getAggregation();
 
     LOGGER.debug("Info: Listing items;" + elasticQuery);
 
     client.listAggregationAsync(
         elasticQuery,
+        aggregation,
         clientHandler -> {
           if (clientHandler.succeeded()) {
             LOGGER.debug("Success: Successful DB request");
@@ -681,15 +741,18 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService listOwnerOrCos(
+  public ElasticsearchService listOwnerOrCos(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
-    String elasticQuery = queryDecoder.listItemQuery(request);
+    QueryAndAggregation queryAndAggregation = queryDecoder.listItemQuery(request);
+    Query elasticQuery = queryAndAggregation.getQuery();
+    Aggregation aggregation = queryAndAggregation.getAggregation();
 
     LOGGER.debug("Info: Listing items;" + elasticQuery);
 
     client.searchAsync(
         elasticQuery,
+        aggregation,
         docIndex,
         clientHandler -> {
           if (clientHandler.succeeded()) {
@@ -711,20 +774,22 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService listRelationship(
+  public ElasticsearchService listRelationship(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
-
-    StringBuilder typeQuery =
-        new StringBuilder(GET_TYPE_SEARCH.replace("$1", request.getString(ID)));
+    Query typeQuery = buildGetRSGroupQuery(request.getString(ID));
     LOGGER.debug("typeQuery: " + typeQuery);
 
     client.searchAsync(
-        typeQuery.toString(),
+        typeQuery,
+        buildSourceConfig(
+            List.of("cos", "resourceServer", "type", "provider", "resourceGroup", "id")),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
-        qeryhandler -> {
-          if (qeryhandler.succeeded()) {
-            if (qeryhandler.result().getInteger(TOTAL_HITS) == 0) {
+        queryhandler -> {
+          if (queryhandler.succeeded()) {
+            if (queryhandler.result().getInteger(TOTAL_HITS) == 0) {
               handler.handle(
                   Future.failedFuture(
                       respBuilder
@@ -734,7 +799,7 @@ public class DatabaseServiceImpl implements DatabaseService {
                           .getResponse()));
               return;
             }
-            JsonObject relType = qeryhandler.result().getJsonArray(RESULTS).getJsonObject(0);
+            JsonObject relType = queryhandler.result().getJsonArray(RESULTS).getJsonObject(0);
 
             Set<String> type = new HashSet<String>(relType.getJsonArray(TYPE).getList());
             type.retainAll(ITEM_TYPES);
@@ -763,10 +828,17 @@ public class DatabaseServiceImpl implements DatabaseService {
               handleResourceGroupFetchForRs(request, handler, respBuilder, relType);
             } else {
               request.mergeIn(relType);
-              String elasticQuery = queryDecoder.listRelationshipQuery(request);
+              Query elasticQuery = queryDecoder.listRelationshipQuery(request);
               LOGGER.debug("Info: Query constructed;" + elasticQuery);
+              LOGGER.debug("hello: " + List.of());
+              JsonObject filters = handleResponseFiltering(request);
+              int size = filters.getInteger(SIZE_KEY), from = filters.getInteger("from");
+              List<String> includes =
+                  filters.getJsonArray("includes") == null
+                      ? List.of()
+                      : filters.getJsonArray("includes").getList();
               if (elasticQuery != null) {
-                handleClientSearchAsync(handler, respBuilder, elasticQuery);
+                handleClientSearchAsync(handler, respBuilder, elasticQuery, includes, size, from);
               } else {
                 handler.handle(
                     Future.failedFuture(
@@ -778,16 +850,24 @@ public class DatabaseServiceImpl implements DatabaseService {
               }
             }
           } else {
-            LOGGER.error(qeryhandler.cause().getMessage());
+            LOGGER.error(queryhandler.cause().getMessage());
           }
         });
     return this;
   }
 
   private void handleClientSearchAsync(
-      Handler<AsyncResult<JsonObject>> handler, RespBuilder respBuilder, String elasticQuery) {
+      Handler<AsyncResult<JsonObject>> handler,
+      RespBuilder respBuilder,
+      Query elasticQuery,
+      List<String> list,
+      int size,
+      int from) {
     client.searchAsync(
         elasticQuery,
+        buildSourceConfig(list),
+        size,
+        from,
         docIndex,
         searchRes -> {
           if (searchRes.succeeded()) {
@@ -811,12 +891,14 @@ public class DatabaseServiceImpl implements DatabaseService {
       Handler<AsyncResult<JsonObject>> handler,
       RespBuilder respBuilder,
       JsonObject relType) {
-    StringBuilder typeQuery4RsGroup =
-        new StringBuilder(GET_RSGROUP.replace("$1", relType.getString(ID)));
+    Query typeQuery4RsGroup = buildTypeQuery4RsGroup(relType.getString(ID));
     LOGGER.debug("typeQuery4RsGroup: " + typeQuery4RsGroup);
 
     client.searchAsync(
-        typeQuery4RsGroup.toString(),
+        typeQuery4RsGroup,
+        buildSourceConfig(List.of("id")),
+        10000,
+        0,
         docIndex,
         serverSearch -> {
           if (serverSearch.succeeded()) {
@@ -824,11 +906,16 @@ public class DatabaseServiceImpl implements DatabaseService {
             LOGGER.debug("serverResult: " + serverResult);
             request.put("providerIds", serverResult);
             request.mergeIn(relType);
-            String elasticQuery = queryDecoder.listRelationshipQuery(request);
-
+            Query elasticQuery = queryDecoder.listRelationshipQuery(request);
             LOGGER.debug("Info: Query constructed;" + elasticQuery);
+            JsonObject filters = handleResponseFiltering(request);
+            int size = filters.getInteger(SIZE_KEY), from = filters.getInteger("from");
+            List<String> includes =
+                filters.getJsonArray("includes") == null
+                    ? List.of()
+                    : filters.getJsonArray("includes").getList();
 
-            handleClientSearchAsync(handler, respBuilder, elasticQuery);
+            handleClientSearchAsync(handler, respBuilder, elasticQuery, includes, size, from);
           }
         });
   }
@@ -838,12 +925,16 @@ public class DatabaseServiceImpl implements DatabaseService {
       Handler<AsyncResult<JsonObject>> handler,
       RespBuilder respBuilder,
       JsonObject relType) {
-    StringBuilder typeQuery4Rserver =
-        new StringBuilder(GET_TYPE_SEARCH.replace("$1", relType.getString(PROVIDER)));
+    Query typeQuery4Rserver = buildTypeQuery4RsServer(relType.getString(PROVIDER));
+
     LOGGER.debug("typeQuery4Rserver: " + typeQuery4Rserver);
 
     client.searchAsync(
-        typeQuery4Rserver.toString(),
+        typeQuery4Rserver,
+        buildSourceConfig(
+            List.of("cos", "resourceServer", "type", "provider", "resourceGroup", "id")),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
         serverSearch -> {
           if (serverSearch.succeeded() && serverSearch.result().getInteger(TOTAL_HITS) != 0) {
@@ -851,12 +942,17 @@ public class DatabaseServiceImpl implements DatabaseService {
                 serverSearch.result().getJsonArray("results").getJsonObject(0);
             request.mergeIn(serverResult);
             request.mergeIn(relType);
-            String elasticQuery = queryDecoder.listRelationshipQuery(request);
-
+            Query elasticQuery = queryDecoder.listRelationshipQuery(request);
             LOGGER.debug("Info: Query constructed;" + elasticQuery);
+            JsonObject filters = handleResponseFiltering(request);
+            int size = filters.getInteger(SIZE_KEY), from = filters.getInteger("from");
+            List<String> includes =
+                filters.getJsonArray("includes") == null
+                    ? List.of()
+                    : filters.getJsonArray("includes").getList();
 
             if (elasticQuery != null) {
-              handleClientSearchAsync(handler, respBuilder, elasticQuery);
+              handleClientSearchAsync(handler, respBuilder, elasticQuery, includes, size, from);
             } else {
               handler.handle(
                   Future.failedFuture(
@@ -876,11 +972,40 @@ public class DatabaseServiceImpl implements DatabaseService {
         });
   }
 
+  private JsonObject handleResponseFiltering(JsonObject request) {
+    Integer limit =
+        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+    JsonObject responseFilters =
+        new JsonObject().put(SIZE_KEY, limit).put("from", 0).put("includes", null);
+    String relationshipType = request.getString(RELATIONSHIP, "");
+    if (TYPE_KEY.equals(relationshipType)) {
+      responseFilters.put("includes", new JsonArray().add(TYPE_KEY));
+    }
+
+    /* checking the requests for limit attribute */
+    if (request.containsKey(LIMIT)) {
+      Integer sizeFilter = request.getInteger(LIMIT);
+      responseFilters.put(SIZE_KEY, sizeFilter);
+    }
+
+    /* checking the requests for offset attribute */
+    if (request.containsKey(OFFSET)) {
+      Integer offsetFilter = request.getInteger(OFFSET);
+      responseFilters.put("from", offsetFilter);
+    }
+    /* checking the requests for any filters */
+    if (request.containsKey(FILTER)) {
+      JsonArray sourceFilter = request.getJsonArray(FILTER, new JsonArray());
+      responseFilters.put("includes", sourceFilter);
+    }
+    return responseFilters;
+  }
+
   @Override
-  public DatabaseService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     RespBuilder respBuilder = new RespBuilder();
-    String subQuery = "";
+    Query elasticQuery;
     String errorJson =
         respBuilder.withType(FAILED).withDetail(ERROR_INVALID_PARAMETER).getResponse();
 
@@ -893,7 +1018,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         LOGGER.debug("Info: Reached relationship search dbServiceImpl");
 
-        String typeValue = null;
+        String typeValue;
         String[] relReqs = relReq.split("\\.", 2);
         String relReqsKey = relReqs[1];
         String relReqsValue = request.getJsonArray(VALUE).getJsonArray(0).getString(0);
@@ -910,72 +1035,79 @@ public class DatabaseServiceImpl implements DatabaseService {
           typeValue = ITEM_TYPE_RESOURCE_SERVER;
 
         } else {
+          typeValue = null;
           LOGGER.error("Fail: Incorrect/missing query parameters");
           handler.handle(Future.failedFuture(errorJson));
           return null;
         }
 
-        subQuery =
-            TERM_QUERY.replace("$1", TYPE_KEYWORD).replace("$2", typeValue)
-                + ","
-                + MATCH_QUERY.replace("$1", relReqsKey).replace("$2", relReqsValue);
+        // Construct the term and match queries
+        Query termQuery = QueryBuilders.term(t -> t.field(TYPE_KEYWORD).value(typeValue));
+        Query matchQuery = QueryBuilders.match(m -> m.field(relReqsKey).query(relReqsValue));
+
+        // Construct the bool must query
+        elasticQuery = QueryBuilders.bool(b -> b.must(termQuery, matchQuery));
+
       } else {
         LOGGER.error("Fail: Incorrect/missing query parameters");
         handler.handle(Future.failedFuture(errorJson));
         return null;
       }
 
-      JsonObject elasticQuery =
-          new JsonObject(BOOL_MUST_QUERY.replace("$1", subQuery)).put(SOURCE, ID);
-
       /* Initial db query to filter matching attributes */
       client.searchAsync(
-          elasticQuery.toString(),
+          elasticQuery,
+          buildSourceConfig(Collections.singletonList("id")),
+          FILTER_PAGINATION_SIZE,
+          0,
           docIndex,
           searchRes -> {
             if (searchRes.succeeded()) {
 
               JsonArray resultValues = searchRes.result().getJsonArray(RESULTS);
-              elasticQuery.clear();
-              JsonArray idCollection = new JsonArray();
+              List<String> idCollection;
 
               /* iterating over the filtered response json array */
               if (!resultValues.isEmpty()) {
-
-                for (Object idIndex : resultValues) {
-                  JsonObject id = (JsonObject) idIndex;
-                  if (!id.isEmpty()) {
-                    idCollection.add(
-                        new JsonObject()
-                            .put(
-                                WILDCARD_KEY,
-                                new JsonObject().put(ID_KEYWORD, id.getString(ID) + "*")));
-                  }
-                }
+                idCollection =
+                    resultValues.stream()
+                        .map(idIndex -> ((JsonObject) idIndex).getString(ID))
+                        .collect(Collectors.toList());
               } else {
+                idCollection = null;
                 handler.handle(Future.succeededFuture(searchRes.result()));
               }
-
-              elasticQuery.put(
-                  QUERY_KEY, new JsonObject(SHOULD_QUERY.replace("$1", idCollection.toString())));
-
+              // Construct the bool should query
+              Query boolShouldQuery =
+                  QueryBuilders.bool(
+                      b ->
+                          b.should(
+                              idCollection.stream()
+                                  .map(
+                                      idObj ->
+                                          QueryBuilders.wildcard(
+                                              w -> w.field(ID_KEYWORD).value(idObj + "*")))
+                                  .collect(Collectors.toList())));
               /* checking the requests for limit attribute */
+              int size = FILTER_PAGINATION_SIZE, from = 0;
               if (request.containsKey(LIMIT)) {
                 Integer sizeFilter = request.getInteger(LIMIT);
-                elasticQuery.put(SIZE_KEY, sizeFilter);
+                size = sizeFilter;
               }
-
               /* checking the requests for offset attribute */
               if (request.containsKey(OFFSET)) {
                 Integer offsetFilter = request.getInteger(OFFSET);
-                elasticQuery.put(FROM, offsetFilter);
+                from = offsetFilter;
               }
 
-              LOGGER.debug("INFO: Query constructed;" + elasticQuery.toString());
+              LOGGER.debug("INFO: Query constructed;" + boolShouldQuery);
 
               /* db query to find the relationship to the initial query */
               client.searchAsync(
-                  elasticQuery.toString(),
+                  boolShouldQuery,
+                  buildSourceConfig(List.of()),
+                  size,
+                  from,
                   docIndex,
                   relSearchRes -> {
                     if (relSearchRes.succeeded()) {
@@ -998,15 +1130,19 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService createRating(
+  public ElasticsearchService createRating(
       JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String ratingId = ratingDoc.getString("ratingID");
 
-    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
+    Query checkForExistingRecord = buildRDocQuery(ratingId);
+    // TODO: should add sourceconfig to the query
 
     client.searchAsync(
         checkForExistingRecord,
+        buildSourceConfig(List.of()),
+        FILTER_PAGINATION_SIZE,
+        0,
         ratingIndex,
         checkRes -> {
           if (checkRes.failed()) {
@@ -1061,15 +1197,17 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService updateRating(
+  public ElasticsearchService updateRating(
       JsonObject ratingDoc, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String ratingId = ratingDoc.getString("ratingID");
 
-    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
+    Query checkForExistingRecord = buildRDocQuery(ratingId);
+    SourceConfig source = buildSourceConfig(List.of());
 
     client.searchGetId(
         checkForExistingRecord,
+        source,
         ratingIndex,
         checkRes -> {
           if (checkRes.failed()) {
@@ -1116,15 +1254,17 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService deleteRating(
+  public ElasticsearchService deleteRating(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
     String ratingId = request.getString("ratingID");
 
-    String checkForExistingRecord = GET_RDOC_QUERY.replace("$1", ratingId).replace("$2", "");
+    Query checkForExistingRecord = buildRDocQuery(ratingId);
+    SourceConfig source = buildSourceConfig(List.of());
 
     client.searchGetId(
         checkForExistingRecord,
+        source,
         ratingIndex,
         checkRes -> {
           if (checkRes.failed()) {
@@ -1170,12 +1310,12 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getRatings(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService getRatings(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
-    String query;
+    Query query;
     if (request.containsKey("ratingID")) {
       String ratingId = request.getString("ratingID");
-      query = GET_RATING_DOCS.replace("$1", "ratingID").replace("$2", ratingId);
+      query = buildGetRatingDocsQuery("ratingID", ratingId);
       LOGGER.debug(query);
     } else {
       String id = request.getString(ID);
@@ -1183,18 +1323,24 @@ public class DatabaseServiceImpl implements DatabaseService {
         Future<List<String>> getAssociatedIdFuture = getAssociatedIDs(id);
         getAssociatedIdFuture.onComplete(
             ids -> {
-              StringBuilder avgQuery = new StringBuilder(GET_AVG_RATING_PREFIX);
+              // StringBuilder avgQuery = new StringBuilder(GET_AVG_RATING_PREFIX);
               if (ids.succeeded()) {
-                ids.result().stream()
-                    .forEach(
-                        v -> {
-                          avgQuery.append(GET_AVG_RATING_MATCH_QUERY.replace("$1", v));
-                        });
-                avgQuery.deleteCharAt(avgQuery.lastIndexOf(","));
-                avgQuery.append(GET_AVG_RATING_SUFFIX);
+                List<Query> matchQueries =
+                    ids.result().stream()
+                        .map(v -> QueryBuilders.match(m -> m.field("id.keyword").query(v)))
+                        .collect(Collectors.toList());
+
+                Query avgQuery =
+                    QueryBuilders.bool(
+                        b ->
+                            b.should(matchQueries)
+                                .minimumShouldMatch("1")
+                                .must(
+                                    QueryBuilders.match(m -> m.field("status").query("approved"))));
                 LOGGER.debug(avgQuery);
                 client.ratingAggregationAsync(
-                    avgQuery.toString(),
+                    avgQuery,
+                    buildAvgRatingAggregation(),
                     ratingIndex,
                     getRes -> {
                       if (getRes.succeeded()) {
@@ -1213,7 +1359,7 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         return this;
       } else {
-        query = GET_RATING_DOCS.replace("$1", "id.keyword").replace("$2", id);
+        query = buildGetRatingDocsQuery(ID_KEYWORD, id);
         LOGGER.debug(query);
       }
     }
@@ -1222,6 +1368,9 @@ public class DatabaseServiceImpl implements DatabaseService {
 
     client.searchAsync(
         query,
+        buildSourceConfig(List.of("rating", "id")),
+        FILTER_PAGINATION_SIZE,
+        0,
         ratingIndex,
         getRes -> {
           if (getRes.succeeded()) {
@@ -1241,12 +1390,14 @@ public class DatabaseServiceImpl implements DatabaseService {
 
   private Future<List<String>> getAssociatedIDs(String id) {
     Promise<List<String>> promise = Promise.promise();
-
-    StringBuilder query =
-        new StringBuilder(GET_ASSOCIATED_ID_QUERY.replace("$1", id).replace("$2", id));
+    Query query = getAssociatedIdQuery(id, id);
     LOGGER.debug(query);
+
     client.searchAsync(
-        query.toString(),
+        query,
+        buildSourceConfig(List.of("id")),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
         res -> {
           if (res.succeeded()) {
@@ -1269,10 +1420,10 @@ public class DatabaseServiceImpl implements DatabaseService {
    *
    * @param instanceDoc the JsonObject representing the mlayer instance document
    * @param handler the asynchronous result handler
-   * @return the DatabaseService instance
+   * @return the ElasticsearchService instance
    */
   @Override
-  public DatabaseService createMlayerInstance(
+  public ElasticsearchService createMlayerInstance(
       JsonObject instanceDoc, Handler<AsyncResult<JsonObject>> handler) {
     MlayerInstance getMlayerInstance = new MlayerInstance(client, mlayerInstanceIndex);
     getMlayerInstance.createMlayerInstance(instanceDoc, handler);
@@ -1280,7 +1431,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerInstance(
+  public ElasticsearchService getMlayerInstance(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     MlayerInstance getMlayerInstance = new MlayerInstance(client, mlayerInstanceIndex);
     getMlayerInstance.getMlayerInstance(requestParams, handler);
@@ -1288,7 +1439,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService deleteMlayerInstance(
+  public ElasticsearchService deleteMlayerInstance(
       String instanceId, Handler<AsyncResult<JsonObject>> handler) {
     MlayerInstance mlayerInstance = new MlayerInstance(client, mlayerInstanceIndex);
     mlayerInstance.deleteMlayerInstance(instanceId, handler);
@@ -1296,7 +1447,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService updateMlayerInstance(
+  public ElasticsearchService updateMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     MlayerInstance mlayerInstance = new MlayerInstance(client, mlayerInstanceIndex);
     mlayerInstance.updateMlayerInstance(request, handler);
@@ -1304,7 +1455,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService createMlayerDomain(
+  public ElasticsearchService createMlayerDomain(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     MlayerDomain mlayerDomain = new MlayerDomain(client, mlayerDomainIndex);
     mlayerDomain.createMlayerDomain(request, handler);
@@ -1312,7 +1463,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerDomain(
+  public ElasticsearchService getMlayerDomain(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     MlayerDomain mlayerDomain = new MlayerDomain(client, mlayerDomainIndex);
     mlayerDomain.getMlayerDomain(requestParams, handler);
@@ -1320,7 +1471,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService updateMlayerDomain(
+  public ElasticsearchService updateMlayerDomain(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     MlayerDomain mlayerDomain = new MlayerDomain(client, mlayerDomainIndex);
     mlayerDomain.updateMlayerDomain(request, handler);
@@ -1328,7 +1479,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService deleteMlayerDomain(
+  public ElasticsearchService deleteMlayerDomain(
       String domainId, Handler<AsyncResult<JsonObject>> handler) {
     MlayerDomain mlayerDomain = new MlayerDomain(client, mlayerDomainIndex);
     mlayerDomain.deleteMlayerDomain(domainId, handler);
@@ -1336,7 +1487,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerProviders(
+  public ElasticsearchService getMlayerProviders(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
     MlayerProvider mlayerProvider = new MlayerProvider(client, docIndex);
     mlayerProvider.getMlayerProviders(requestParams, handler);
@@ -1344,7 +1495,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerGeoQuery(
+  public ElasticsearchService getMlayerGeoQuery(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     LOGGER.debug("request body" + request);
     MlayerGeoQuery mlayerGeoQuery = new MlayerGeoQuery(client, docIndex);
@@ -1354,7 +1505,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerAllDatasets(
+  public ElasticsearchService getMlayerAllDatasets(
       JsonObject requestParam, String query, Handler<AsyncResult<JsonObject>> handler) {
     MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
     mlayerDataset.getMlayerAllDatasets(requestParam, query, handler);
@@ -1362,7 +1513,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerDataset(
+  public ElasticsearchService getMlayerDataset(
       JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
     MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
     mlayerDataset.getMlayerDataset(requestData, handler);
@@ -1370,7 +1521,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerPopularDatasets(
+  public ElasticsearchService getMlayerPopularDatasets(
       String instance,
       JsonArray frequentlyUsedResourceGroup,
       Handler<AsyncResult<JsonObject>> handler) {
@@ -1391,10 +1542,13 @@ public class DatabaseServiceImpl implements DatabaseService {
       promise.complete(true);
       return promise.future();
     }
+    Query checkInstance = buildMatchQuery("id", instanceId);
 
-    String checkInstance = GET_INSTANCE_CASE_INSENSITIVE_QUERY.replace("$1", instanceId).replace("$2", "");
     client.searchAsync(
         checkInstance,
+        buildSourceConfig(List.of()),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
         checkRes -> {
           if (checkRes.failed()) {

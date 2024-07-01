@@ -27,23 +27,23 @@ import iudx.catalogue.server.nlpsearch.NLPSearchService;
  */
 @VertxGen
 @ProxyGen
-public interface DatabaseService {
+public interface ElasticsearchService {
 
   /* create db service with nlp and geocoding */
   @GenIgnore
-  static DatabaseService create(
-      ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
-    return new DatabaseServiceImpl(client, nlpService, geoService);
+  static ElasticsearchService create(
+          ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
+    return new ElasticsearchServiceImpl(client, nlpService, geoService);
   }
 
   @GenIgnore
-  static DatabaseService create(ElasticClient client) {
-    return new DatabaseServiceImpl(client);
+  static ElasticsearchService create(ElasticClient client) {
+    return new ElasticsearchServiceImpl(client);
   }
 
   @GenIgnore
-  static DatabaseService createProxy(Vertx vertx, String address) {
-    return new DatabaseServiceVertxEBProxy(vertx, address);
+  static ElasticsearchService createProxy(Vertx vertx, String address) {
+    return new ElasticsearchServiceVertxEBProxy(vertx, address);
   }
 
   /**
@@ -51,20 +51,20 @@ public interface DatabaseService {
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The searchQuery implements the nlp search operation with the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService nlpSearchQuery(JsonArray request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService nlpSearchQuery(JsonArray request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The searchQuery implements the nlp search operation with the database.
@@ -72,10 +72,10 @@ public interface DatabaseService {
    * @param request which is a JsonObject
    * @param queryParams which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService nlpSearchLocationQuery(
+  ElasticsearchService nlpSearchLocationQuery(
       JsonArray request, JsonObject queryParams, Handler<AsyncResult<JsonObject>> handler);
 
   /**
@@ -83,60 +83,60 @@ public interface DatabaseService {
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The createItem implements the create item operation with the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService createItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The updateItem implements the update item operation with the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService updateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The deleteItem implements the delete item operation with the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listItems implements the list items operation with the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listOwnerOrCos implements the fetch of entire owner or cos item from the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a service
+   * @return ElasticsearchService which is a service
    */
   @Fluent
-  DatabaseService listOwnerOrCos(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService listOwnerOrCos(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The listRelationship implements the list resource, resourceGroup, provider, resourceServer,
@@ -144,83 +144,83 @@ public interface DatabaseService {
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService listRelationship(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService listRelationship(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The relSearch implements the Relationship searches with the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  DatabaseService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The createRating implements the rating creation operation with the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService createRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService createRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The updateRating implements the rating updation operation with the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService updateRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService updateRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The deleteRating implements the rating deletion operation with the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService deleteRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService deleteRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The getRatings implements fetching ratings from the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService getRatings(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService getRatings(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The createMlayerInstance implements the instance creation operation with the database.
    *
    * @param request which is a JsonObject
    * @param handler which is a Request Handler
-   * @return DatabaseService which is a Service.
+   * @return ElasticsearchService which is a Service.
    */
   @Fluent
-  DatabaseService createMlayerInstance(
+  ElasticsearchService createMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The getMlayerInstance implements fetching instance from the database.
    *
    * @param handler which is a request handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerInstance(
+  ElasticsearchService getMlayerInstance(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
 
   /**
@@ -228,20 +228,20 @@ public interface DatabaseService {
    *
    * @param request which is JsonObject
    * @param handler which is a request handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService deleteMlayerInstance(String request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService deleteMlayerInstance(String request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The updateMlayerInstance implements updating instance from the database.
    *
    * @param request which is a jsonobject
    * @param handler which is a request handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService updateMlayerInstance(
+  ElasticsearchService updateMlayerInstance(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
@@ -249,19 +249,19 @@ public interface DatabaseService {
    *
    * @param request is a jsonObject
    * @param handler which is a request handler
-   * @return DatabaseService which is Service
+   * @return ElasticsearchService which is Service
    */
   @Fluent
-  DatabaseService createMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService createMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The getMlayerDomain implements getting all domain from database.
    *
    * @param handler which is a request handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerDomain(
+  ElasticsearchService getMlayerDomain(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
 
   /**
@@ -269,29 +269,29 @@ public interface DatabaseService {
    *
    * @param request is a JsonObject
    * @param handler which is a request handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService updateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService updateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The deleteMlayerDomain deletes a domain from the darabase.
    *
    * @param request is a JsonObject
    * @param handler which is a request handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService deleteMlayerDomain(String request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService deleteMlayerDomain(String request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The get Mlayer Providers get all the provider's description.
    *
    * @param handler which is a request handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerProviders(
+  ElasticsearchService getMlayerProviders(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler);
 
   /**
@@ -299,20 +299,20 @@ public interface DatabaseService {
    *
    * @param request which is a JsonObject
    * @param handler which is a request handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The get Mlayer All Datasets gets all the dataset belonging to IUDX.
    *
    * @param query which is a string
    * @param handler which is a request handler
-   * @return DatabaseService which is a Service
+   * @return ElasticsearchService which is a Service
    */
   @Fluent
-  DatabaseService getMlayerAllDatasets(
+  ElasticsearchService getMlayerAllDatasets(
       JsonObject requestPram, String query, Handler<AsyncResult<JsonObject>> handler);
 
   /* create db service vanilla */
@@ -322,13 +322,13 @@ public interface DatabaseService {
    *
    * @param requestData which is a Json Object.
    * @param handler which is a request handler.
-   * @return DatabaseService which is a Service.
+   * @return ElasticsearchService which is a Service.
    */
   @Fluent
-  DatabaseService getMlayerDataset(
+  ElasticsearchService getMlayerDataset(
       JsonObject requestData, Handler<AsyncResult<JsonObject>> handler);
 
   @Fluent
-  DatabaseService getMlayerPopularDatasets(
+  ElasticsearchService getMlayerPopularDatasets(
       String instance, JsonArray highestCountResource, Handler<AsyncResult<JsonObject>> handler);
 }

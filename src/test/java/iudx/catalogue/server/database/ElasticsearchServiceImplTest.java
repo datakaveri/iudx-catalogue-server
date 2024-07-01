@@ -32,10 +32,10 @@ import org.mockito.stubbing.Answer;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
-public class DatabaseServiceImplTest {
-  private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceTest.class);
+public class ElasticsearchServiceImplTest {
+  private static final Logger LOGGER = LogManager.getLogger(ElasticsearchServiceTest.class);
   static AsyncResult<JsonObject> asyncResult;
-  private static DatabaseService dbService;
+  private static ElasticsearchService dbService;
   private static Vertx vertxObj;
   private static ElasticClient client;
   private static String docIndex;
@@ -80,7 +80,7 @@ public class DatabaseServiceImplTest {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
       dbService =
-          new DatabaseServiceImpl(
+          new ElasticsearchServiceImpl(
               client,
               docIndex,
               ratingIndex,
@@ -90,7 +90,7 @@ public class DatabaseServiceImplTest {
               geoService);
     } else {
       dbService =
-          new DatabaseServiceImpl(
+          new ElasticsearchServiceImpl(
               client, docIndex, ratingIndex, mlayerInstanceIndex, mlayerDomainIndex);
     }
 
@@ -384,20 +384,20 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test verifyInstance when handler failed")
   public void testVerifyInstanceFailed(VertxTestContext vertxTestContext) {
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
+    ElasticsearchServiceImpl ElasticsearchService =
+        new ElasticsearchServiceImpl(
             client, docIndex, ratingIndex, mlayerInstanceIndex, mlayerDomainIndex);
     String instanceId = "dummy";
     when(asyncResult.failed()).thenReturn(true);
     when(asyncResult.cause()).thenReturn(throwable);
     when(throwable.getMessage()).thenReturn("dummy");
 
-    databaseService
+    ElasticsearchService
         .verifyInstance(instanceId)
         .onComplete(
             handler -> {
               if (handler.failed()) {
-                databaseService.verifyInstance(instanceId);
+                ElasticsearchService.verifyInstance(instanceId);
                 verify(client, times(45)).searchAsync(any(), any(), any());
                 assertEquals(TYPE_INTERNAL_SERVER_ERROR, handler.cause().getMessage());
                 vertxTestContext.completeNow();
@@ -410,8 +410,8 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test verifyInstance when Total hits is 0")
   public void testVerifyInstance0Hits(VertxTestContext vertxTestContext) {
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
+    ElasticsearchServiceImpl ElasticsearchService =
+        new ElasticsearchServiceImpl(
             client, docIndex, ratingIndex, mlayerInstanceIndex, mlayerDomainIndex);
     String instanceId = "dummy";
     JsonObject json = new JsonObject();
@@ -419,7 +419,7 @@ public class DatabaseServiceImplTest {
     when(asyncResult.result()).thenReturn(json);
 
 
-    databaseService
+    ElasticsearchService
         .verifyInstance(instanceId)
         .onComplete(
             boolHandler -> {
@@ -436,15 +436,15 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test verifyInstance when Total hits is 0")
   public void testVerifyInstance(VertxTestContext vertxTestContext) {
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
+    ElasticsearchServiceImpl ElasticsearchService =
+        new ElasticsearchServiceImpl(
             client, docIndex, ratingIndex, mlayerInstanceIndex, mlayerDomainIndex);
     String instanceId = "dummy";
     JsonObject json = new JsonObject();
     json.put(TOTAL_HITS, 100);
     when(asyncResult.result()).thenReturn(json);
 
-    databaseService
+    ElasticsearchService
         .verifyInstance(instanceId)
         .onComplete(
             boolHandler -> {
@@ -1205,8 +1205,8 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test createItem method when handler checkres failed")
   public void testCreateItemFailed(VertxTestContext vertxTestContext) {
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
+    ElasticsearchServiceImpl ElasticsearchService =
+        new ElasticsearchServiceImpl(
             client,
             docIndex,
             ratingIndex,
@@ -1224,7 +1224,7 @@ public class DatabaseServiceImplTest {
 
 
     dbService.createItem(json, handler);
-    databaseService
+    ElasticsearchService
         .verifyInstance(instanceId)
         .onComplete(
             handler -> {
@@ -1240,8 +1240,8 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test createItem method when checkRes handler succeeded")
   public void testCreateItemSucceeded(VertxTestContext vertxTestContext) {
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
+    ElasticsearchServiceImpl ElasticsearchService =
+        new ElasticsearchServiceImpl(
             client,
             docIndex,
             ratingIndex,
@@ -1257,7 +1257,7 @@ public class DatabaseServiceImplTest {
     when(asyncResult.result()).thenReturn(json);
 
     dbService.createItem(json, handler);
-    databaseService
+    ElasticsearchService
         .verifyInstance(instanceId)
         .onComplete(
             handler -> {
@@ -1273,8 +1273,8 @@ public class DatabaseServiceImplTest {
   @Test
   @Description("test createItem method when handler succeeded and total_hits equals 0")
   public void testCreateItemHits0(VertxTestContext vertxTestContext) {
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
+    ElasticsearchServiceImpl ElasticsearchService =
+        new ElasticsearchServiceImpl(
             client,
             docIndex,
             ratingIndex,
@@ -1292,7 +1292,7 @@ public class DatabaseServiceImplTest {
 
 
     dbService.createItem(json, handler);
-    databaseService
+    ElasticsearchService
         .verifyInstance(instanceId)
         .onComplete(
             handler -> {
@@ -2296,14 +2296,14 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
                     }
                 })
                 .when(client)
-                .searchAsyncDataset(any(), any(), any());
+                .searchAsyncDataset(any(), any(), any(), any(), any());
 
         dbService.getMlayerDataset(
                 request,
                 handler -> {
                     if (handler.succeeded()) {
                         verify(client, times(52)).searchAsync(any(), any(), any());
-                        verify(client, times(2)).searchAsyncDataset(any(), any(), any());
+                        verify(client, times(2)).searchAsyncDataset(any(), any(), any(), any(), any());
 
                         testContext.completeNow();
 
@@ -2341,7 +2341,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
                     }
                 })
                 .when(client)
-                .searchAsyncDataset(any(), any(), any());
+                .searchAsyncDataset(any(), any(), any(), any(), any());
 
         dbService.getMlayerDataset(
                 request,
@@ -2352,7 +2352,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
 
                     } else {
                         verify(client, times(67)).searchAsync(any(), any(), any());
-                        verify(client, times(2)).searchAsyncDataset(any(), any(), any());
+                        verify(client, times(2)).searchAsyncDataset(any(), any(), any(), any(), any());
 
                         testContext.completeNow();
                     }
@@ -2401,13 +2401,13 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
                   }
               })
               .when(client)
-              .resourceAggregationAsync(any(), any(), any());
+              .resourceAggregationAsync(any(), any(), any(), any());
 
     dbService.getMlayerAllDatasets(
             request,"abc", handler -> {
           if (handler.succeeded()) {
             verify(client, times(6)).searchAsync(any(), any(), any());
-            verify(client, times(1)).resourceAggregationAsync(any(), any(), any());
+            verify(client, times(1)).resourceAggregationAsync(any(), any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2452,13 +2452,13 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
                     }
                 })
                 .when(client)
-                .resourceAggregationAsync(any(), any(), any());
+                .resourceAggregationAsync(any(), any(), any(), any());
 
         dbService.getMlayerAllDatasets(
                 request,"abc", handler -> {
                     if (handler.succeeded()) {
                         verify(client, times(6)).searchAsync(any(), any(), any());
-                        verify(client, times(1)).resourceAggregationAsync(any(), any(), any());
+                        verify(client, times(1)).resourceAggregationAsync(any(), any(), any(), any());
                         testContext.failNow("fail");
 
                     } else {
@@ -2522,14 +2522,14 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
                     }
                 })
                 .when(client)
-                .resourceAggregationAsync(any(), any(), any());
+                .resourceAggregationAsync(any(), any(), any(), any());
 
         dbService.getMlayerAllDatasets(
                 request,"abc", handler -> {
                     if (handler.succeeded()) {
                         // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
                         verify(client, times(55)).searchAsync(any(), any(), any());
-                        verify(client, times(5)).resourceAggregationAsync(any(), any(), any());
+                        verify(client, times(5)).resourceAggregationAsync(any(), any(), any(), any());
                         testContext.completeNow();
 
                     } else {
@@ -2563,8 +2563,8 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
   @Test
   @Description("test getMlayerPopularDatasets method when DB Request is successful")
   public void testGetMlayerPopularDatasetsSuccess(VertxTestContext testContext) {
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
+    ElasticsearchServiceImpl ElasticsearchService =
+        new ElasticsearchServiceImpl(
             client,
             docIndex,
             ratingIndex,
@@ -2616,16 +2616,16 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
     mockAsyncMethod(client -> client.searchAsync(any(), any(), any()));
-    mockAsyncMethod(client -> client.resourceAggregationAsync(any(), any(), any()));
+    mockAsyncMethod(client -> client.resourceAggregationAsync(any(), any(), any(), any()));
     mockAsyncMethod(client -> client.searchAsyncResourceGroupAndProvider(any(), any(), any()));
-    databaseService.getMlayerPopularDatasets(
+    ElasticsearchService.getMlayerPopularDatasets(
             instanceName,
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
             verify(client, times(58)).searchAsync(any(), any(), any());
             verify(client, times(5)).searchAsyncResourceGroupAndProvider(any(), any(), any());
-            verify(client, times(6)).resourceAggregationAsync(any(), any(), any());
+            verify(client, times(6)).resourceAggregationAsync(any(), any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -2638,8 +2638,8 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
   @Description("test getMlayerPopularDatasets method when DB Request fails")
   public void testGetMlayerPopularDatasetsFailed(VertxTestContext testContext) {
       String instance ="";
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
+    ElasticsearchServiceImpl ElasticsearchService =
+        new ElasticsearchServiceImpl(
             client,
             docIndex,
             ratingIndex,
@@ -2649,7 +2649,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
             geoService);
     JsonArray highestCountResource = new JsonArray();
     when(asyncResult.succeeded()).thenReturn(false);
-    databaseService.getMlayerPopularDatasets(
+    ElasticsearchService.getMlayerPopularDatasets(
             instance,
         highestCountResource,
         handler -> {
@@ -2673,8 +2673,8 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
       "test getMlayerPopularDatasets method when DB Request is successful and type equals iudx:Provider")
   public void testGetMlayerPopularDatasetsProviderSuccess(VertxTestContext testContext) {
       String instanceName ="";
-    DatabaseServiceImpl databaseService =
-        new DatabaseServiceImpl(
+    ElasticsearchServiceImpl ElasticsearchService =
+        new ElasticsearchServiceImpl(
             client,
             docIndex,
             ratingIndex,
@@ -2729,18 +2729,18 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
       mockAsyncMethod(client -> client.searchAsync(any(), any(), any()));
-      mockAsyncMethod(client -> client.resourceAggregationAsync(any(), any(), any()));
+      mockAsyncMethod(client -> client.resourceAggregationAsync(any(), any(), any(), any()));
       mockAsyncMethod(client -> client.searchAsyncResourceGroupAndProvider(any(), any(), any()));
 
 
-      databaseService.getMlayerPopularDatasets(
+      ElasticsearchService.getMlayerPopularDatasets(
             instanceName,
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(40)).searchAsync(any(), any(), any());
-            verify(DatabaseServiceImpl.client, times(3)).searchAsyncResourceGroupAndProvider(any(), any(), any());
-            verify(DatabaseServiceImpl.client, times(4)).resourceAggregationAsync(any(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(40)).searchAsync(any(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(3)).searchAsyncResourceGroupAndProvider(any(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(4)).resourceAggregationAsync(any(), any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
