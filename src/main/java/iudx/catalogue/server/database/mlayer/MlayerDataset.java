@@ -1,18 +1,24 @@
 package iudx.catalogue.server.database.mlayer;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.database.elastic.query.Queries.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.TOTAL_HITS;
 import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.Util;
 import iudx.catalogue.server.mlayer.vocabulary.DataModel;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,9 +43,14 @@ public class MlayerDataset {
 
   public void getMlayerDataset(JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
 
-    LOGGER.debug("dataset Id" + requestData.getString(ID));
+    LOGGER.debug("dataset Id: " + requestData.getString(ID));
+    Query providerAndRsIdQuery = buildGetProviderAndRsIdQuery(requestData.getString(ID));
+
     client.searchAsync(
-        GET_PROVIDER_AND_RS_ID.replace("$1", requestData.getString(ID)),
+        providerAndRsIdQuery,
+        buildSourceConfig(List.of("provider", "cos")),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
         handlerRes -> {
           if (handlerRes.succeeded()) {
@@ -64,14 +75,36 @@ public class MlayerDataset {
             query to fetch resource group, provider of the resource group, resource
             items associated with the resource group and cos item.
             */
-            String query =
-                GET_MLAYER_DATASET
-                    .replace("$1", requestData.getString(ID))
-                    .replace("$2", providerId)
-                    .replace("$3", cosId);
+            List<String> includesList =
+                Arrays.asList(
+                    "resourceServer",
+                    "id",
+                    "type",
+                    "apdURL",
+                    "label",
+                    "description",
+                    "instance",
+                    "accessPolicy",
+                    "cosURL",
+                    "dataSample",
+                    "dataDescriptor",
+                    "@context",
+                    "dataQualityFile",
+                    "dataSampleFile",
+                    "resourceType",
+                    "resourceServerRegURL",
+                    "resourceType",
+                    "location",
+                    "iudxResourceAPIs");
+
+            SourceConfig mlayerDatasetSource = buildSourceConfig(includesList);
+            Query query = buildMlayerDatasetQuery(requestData.getString(ID), providerId, cosId);
+            int size = 10000;
             LOGGER.debug("Query " + query);
             client.searchAsyncDataset(
                 query,
+                mlayerDatasetSource,
+                size,
                 docIndex,
                 resultHandler -> {
                   if (resultHandler.succeeded()) {
@@ -92,10 +125,12 @@ public class MlayerDataset {
                           instanceName.substring(0, 1).toUpperCase() + instanceName.substring(1);
 
                       // query to get the icon path of the instance in the  resource group
-                      String getIconQuery =
-                          GET_MLAYER_INSTANCE_ICON.replace("$1", instanceCapitalizeName);
+                      Query getIconQuery = buildMlayerInstanceIconQuery(instanceCapitalizeName);
                       client.searchAsync(
                           getIconQuery,
+                          buildSourceConfig(List.of("icon")),
+                          FILTER_PAGINATION_SIZE,
+                          0,
                           mlayerInstanceIndex,
                           iconResultHandler -> {
                             if (iconResultHandler.succeeded()) {
@@ -137,9 +172,7 @@ public class MlayerDataset {
   }
 
   public void getMlayerAllDatasets(
-      JsonObject requestParam,
-      String query,
-      Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject requestParam, String query, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Getting all the resource group items");
     Promise<JsonObject> datasetResult = Promise.promise();
@@ -264,8 +297,7 @@ public class MlayerDataset {
               int size = resultHandler.result().getJsonArray(RESULTS).size();
               if (size == 0) {
                 LOGGER.debug("getRGs is zero");
-                datasetResult.handle(
-                    Future.failedFuture(NO_CONTENT_AVAILABLE));
+                datasetResult.handle(Future.failedFuture(NO_CONTENT_AVAILABLE));
                 return;
               }
               JsonObject rsUrl = new JsonObject();
@@ -331,7 +363,10 @@ public class MlayerDataset {
   private void allMlayerInstance(Promise<JsonObject> instanceResult) {
     LOGGER.debug("Getting all instance name and icons");
     client.searchAsync(
-        GET_ALL_MLAYER_INSTANCES,
+        null,
+        buildSourceConfig(List.of("name", "icon")),
+        FILTER_PAGINATION_SIZE,
+        0,
         mlayerInstanceIndex,
         instanceRes -> {
           if (instanceRes.succeeded()) {
@@ -363,9 +398,11 @@ public class MlayerDataset {
 
   public void gettingResourceAccessPolicyCount(Promise<JsonObject> resourceCountResult) {
     LOGGER.debug("Getting resource item count");
-    String query = RESOURCE_ACCESSPOLICY_COUNT;
+    Aggregation aggregation = buildResourceAccessPolicyCountQuery();
+    int size = 0;
     client.resourceAggregationAsync(
-        query,
+        aggregation,
+        size,
         docIndex,
         resourceCountRes -> {
           if (resourceCountRes.succeeded()) {

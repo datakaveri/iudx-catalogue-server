@@ -1,17 +1,21 @@
 package iudx.catalogue.server.database.mlayer;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.database.elastic.query.Queries.*;
 import static iudx.catalogue.server.mlayer.util.Constants.DOMAIN_ID;
 import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_ID;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.DETAIL_INTERNAL_SERVER_ERROR;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,9 +39,12 @@ public class MlayerDomain {
     RespBuilder respBuilder = new RespBuilder();
     String domainId = request.getString(DOMAIN_ID);
     String id = request.getString(MLAYER_ID);
-    String checkForExistingDomain = CHECK_MDOC_QUERY.replace("$1", id).replace("$2", "");
+    Query checkForExistingDomain = buildCheckMdocQuery(id);
     client.searchAsync(
         checkForExistingDomain,
+        buildSourceConfig(List.of()),
+        FILTER_PAGINATION_SIZE,
+        0,
         mlayerDomainIndex,
         res -> {
           if (res.failed()) {
@@ -93,17 +100,30 @@ public class MlayerDomain {
   }
 
   public void getMlayerDomain(JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
-    String query = "";
-    String id = requestParams.getString(ID);
-    String limit = requestParams.getString(LIMIT);
-    String offset = requestParams.getString(OFFSET);
+    // String query = "";
+    Query query;
+    SourceConfig sourceConfig;
+    // Define the fields to include in the source
+    List<String> includes = List.of("domainId", "description", "icon", "label", "name");
+    sourceConfig = buildSourceConfig(includes);
+    int limit =
+        requestParams.getString(LIMIT) == null
+            ? 10000
+            : Integer.parseInt(requestParams.getString(LIMIT));
+    int offset =
+        requestParams.getString(OFFSET) == null
+            ? 0
+            : Integer.parseInt(requestParams.getString(OFFSET));
     if (!requestParams.containsKey(ID)) {
-      query = GET_ALL_MLAYER_DOMAIN_QUERY.replace("$0", limit).replace("$2", offset);
+      query = buildAllMlayerDomainsQuery();
     } else {
-      query = GET_MLAYER_DOMAIN_QUERY.replace("$1", id);
+      query = buildMlayerDomainQuery(requestParams.getString(ID));
     }
     client.searchAsync(
         query,
+        sourceConfig,
+        limit,
+        offset,
         mlayerDomainIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {
@@ -121,10 +141,12 @@ public class MlayerDomain {
 
     RespBuilder respBuilder = new RespBuilder();
     String domainId = request.getString(DOMAIN_ID);
-    String checkForExistingRecord =
-        CHECK_MDOC_QUERY_DOMAIN.replace("$1", domainId).replace("$2", "");
+    Query checkForExistingRecord = buildMdocDomainQuery(domainId);
+    List<String> includes = List.of("domainId", "description", "icon", "label", "name");
+    SourceConfig sourceConfig = buildSourceConfig(includes);
     client.searchAsyncGetId(
         checkForExistingRecord,
+        sourceConfig,
         mlayerDomainIndex,
         checkRes -> {
           if (checkRes.failed()) {
@@ -188,11 +210,13 @@ public class MlayerDomain {
     RespBuilder respBuilder = new RespBuilder();
     LOGGER.debug(domainId);
 
-    String checkForExistingRecord =
-        CHECK_MDOC_QUERY_DOMAIN.replace("$1", domainId).replace("$2", "");
+    Query checkForExistingRecord = buildMdocDomainQuery(domainId);
+    List<String> includes = List.of("domainId", "description", "icon", "label", "name");
+    SourceConfig sourceConfig = buildSourceConfig(includes);
 
     client.searchGetId(
         checkForExistingRecord,
+        sourceConfig,
         mlayerDomainIndex,
         checkRes -> {
           if (checkRes.failed()) {

@@ -1,18 +1,24 @@
 package iudx.catalogue.server.database.mlayer;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.database.elastic.query.Queries.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.AggregationBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.Util;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,12 +41,32 @@ public class MlayerProvider {
 
   public void getMlayerProviders(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
-    String limit = requestParams.getString(LIMIT);
-    String offset = requestParams.getString(OFFSET);
+    int limit = Integer.parseInt(requestParams.getString(LIMIT));
+    int offset = Integer.parseInt(requestParams.getString(OFFSET));
+    // Aggregation for provider_count
+    Aggregation providerCountAgg = AggregationBuilders.cardinality()
+            .field("provider.keyword")
+            .build()._toAggregation();
+
+    List<String> includes =
+            List.of(
+                    "id",
+                    "description",
+                    "type",
+                    "resourceGroup",
+                    "accessPolicy",
+                    "provider",
+                    "itemCreatedAt",
+                    "instance",
+                    "label");
+    SourceConfig source = buildSourceConfig(includes);
     if (requestParams.containsKey(INSTANCE)) {
-      String query = GET_DATASET_BY_INSTANCE.replace("$1", requestParams.getString(INSTANCE));
+      Query query = buildgetDatasetByInstanceQuery(requestParams.getString(INSTANCE));
       client.searchAsyncResourceGroupAndProvider(
           query,
+          providerCountAgg,
+          source,
+          10000,
           docIndex,
           resultHandler -> {
             if (resultHandler.succeeded()) {
@@ -130,9 +156,14 @@ public class MlayerProvider {
             }
           });
     } else {
-      String query = GET_MLAYER_PROVIDERS_QUERY.replace("$0", limit).replace("$1", offset);
+      List<String> includesList = List.of("id", "description");
+      SourceConfig sourceConfig = buildSourceConfig(includesList);
+      Query query = buildMlayerProvidersQuery();
       client.searchAsync(
           query,
+          sourceConfig,
+          limit,
+          1,
           docIndex,
           resultHandler -> {
             if (resultHandler.succeeded()) {
