@@ -15,21 +15,18 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
-import iudx.catalogue.server.database.DatabaseService;
-import iudx.catalogue.server.util.Api;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 
 public final class RelationshipApis {
 
 
-  private DatabaseService dbService;
-
   private static final Logger LOGGER = LogManager.getLogger(RelationshipApis.class);
+  private ElasticsearchService esService;
 
-  public void setDbService(DatabaseService dbService) {
-    this.dbService = dbService;
+  public void setEsService(ElasticsearchService esService) {
+    this.esService = esService;
   }
 
   /**
@@ -66,15 +63,15 @@ public final class RelationshipApis {
             /*
              * Request database service with requestBody for listing resource relationship
              */
-            dbService.listRelationship(requestBody, dbhandler -> {
-              if (dbhandler.succeeded()) {
+            esService.listRelationship(requestBody, eshandler -> {
+              if (eshandler.succeeded()) {
                 LOGGER.info("Success: Retrieved relationships of " + itemType);
-                response.setStatusCode(200).end(dbhandler.result().toString());
-              } else if (dbhandler.failed()) {
+                response.setStatusCode(200).end(eshandler.result().toString());
+              } else if (eshandler.failed()) {
                 LOGGER
-                    .error("Fail: Issue in listing relationship;" + dbhandler.cause().getMessage());
+                    .error("Fail: Issue in listing relationship;" + eshandler.cause().getMessage());
                 response.setStatusCode(400)
-                        .end(dbhandler.cause().getMessage());
+                        .end(eshandler.cause().getMessage());
               }
             });
           } else {
@@ -144,18 +141,18 @@ public final class RelationshipApis {
         requestBody.put(INSTANCE, instanceId);
 
         /* Request database service with requestBody for listing domains */
-        dbService.relSearch(requestBody, dbhandler -> {
-          if (dbhandler.succeeded()) {
+        esService.relSearch(requestBody, eshandler -> {
+          if (eshandler.succeeded()) {
             LOGGER.info("Info: Relationship search completed");
             response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                     .setStatusCode(200)
-                    .end(dbhandler.result().toString());
-          } else if (dbhandler.failed()) {
+                    .end(eshandler.result().toString());
+          } else if (eshandler.failed()) {
             LOGGER.error("Fail: Issue in relationship search "
-                + dbhandler.cause().getMessage());
+                + eshandler.cause().getMessage());
             response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON)
                     .setStatusCode(400)
-                .end(dbhandler.cause().getMessage());
+                .end(eshandler.cause().getMessage());
           }
         });
       } else {

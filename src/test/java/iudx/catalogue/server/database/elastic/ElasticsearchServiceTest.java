@@ -8,20 +8,18 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.database.elastic.ElasticClient;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
+import iudx.catalogue.server.database.elastic.ElasticsearchServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.WebClientOptions;
 import iudx.catalogue.server.Configuration;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -43,9 +41,9 @@ import org.mockito.stubbing.Answer;
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class DatabaseServiceTest {
-  private static final Logger LOGGER = LogManager.getLogger(DatabaseServiceTest.class);
-  private static DatabaseService dbService;
+public class ElasticsearchServiceTest {
+  private static final Logger LOGGER = LogManager.getLogger(ElasticsearchServiceTest.class);
+  private static ElasticsearchService dbService;
   private static Vertx vertxObj;
   private static ElasticClient client;
   private static String docIndex;
@@ -88,7 +86,7 @@ public class DatabaseServiceTest {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
       dbService =
-          new DatabaseServiceImpl(
+          new ElasticsearchServiceImpl(
               client,
               docIndex,
               ratingIndex,
@@ -98,7 +96,7 @@ public class DatabaseServiceTest {
               geoService);
     } else {
       dbService =
-          new DatabaseServiceImpl(
+          new ElasticsearchServiceImpl(
               client, docIndex, ratingIndex, mlayerInstanceIndex, mlayerDomainIndex);
     }
 
@@ -118,7 +116,7 @@ public class DatabaseServiceTest {
     JsonObject request = new JsonObject();
     JsonArray jsonArray = new JsonArray().add("iudx:Resource");
     request.put(ID, "f2e69f85-52df-47a4-9e35-76c7362f21d3").put("type", jsonArray);
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     JsonObject json = new JsonObject().put(TOTAL_HITS, 0);
     when(asyncResult.result()).thenReturn(json);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -130,7 +128,7 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchAsync(any(), any(), any());
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -140,13 +138,13 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .docPostAsync(any(), any(), any());
     dbService.createItem(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -162,7 +160,7 @@ public class DatabaseServiceTest {
     JsonArray jsonArray = new JsonArray().add("iudx:Resource");
     JsonArray result = new JsonArray().add("dummy");
     request.put(ID, "dummyid").put("type", jsonArray);
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     JsonObject json = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, result);
     when(asyncResult.result()).thenReturn(json);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -174,7 +172,7 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchGetId(any(), any(), any());
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -184,14 +182,14 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .docPutAsync(any(), any(), any(), any());
     dbService.updateItem(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
-            verify(DatabaseServiceImpl.client, times(1))
+            verify(ElasticsearchServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1))
                 .docPutAsync(anyString(), any(), any(), any());
             testContext.completeNow();
           } else {
@@ -204,7 +202,7 @@ public class DatabaseServiceTest {
   @Order(3)
   @DisplayName("Test deleteItem")
   void deleteItemTest(VertxTestContext testContext) {
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     JsonObject request = new JsonObject().put("id", "dummy id");
     when(asyncResult.succeeded()).thenReturn(true);
     JsonArray jsonArray = new JsonArray().add("dummy");
@@ -219,7 +217,7 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchGetId(any(), any(), any());
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -229,14 +227,14 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .docDelAsync(any(), any(), any());
     dbService.deleteItem(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchGetId(any(), any(), any());
-            verify(DatabaseServiceImpl.client, times(1)).docDelAsync(any(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).searchGetId(any(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).docDelAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -267,7 +265,7 @@ public class DatabaseServiceTest {
     JsonArray jsonArray = new JsonArray().add("iudx:Resource");
     JsonArray result = new JsonArray().add("dummy");
     request.put(ID, "dummyid").put("type", jsonArray);
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     JsonObject json = new JsonObject().put(TOTAL_HITS, 0).put(RESULTS, result);
     when(asyncResult.result()).thenReturn(json);
     when(asyncResult.succeeded()).thenReturn(true);
@@ -279,13 +277,13 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchGetId(any(), any(), any());
     dbService.updateItem(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
             testContext.failNow("Fail");
           } else {
             testContext.completeNow();
@@ -312,7 +310,7 @@ public class DatabaseServiceTest {
   @Order(9)
   @DisplayName("Create Rating Test")
   void createRatingTest(VertxTestContext testContext) {
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     JsonObject request =
         new JsonObject()
             .put("rating", 4.5)
@@ -335,7 +333,7 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchAsync(any(), any(), any());
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -345,13 +343,13 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .docPostAsync(any(), any(), any());
     dbService.createRating(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -370,7 +368,7 @@ public class DatabaseServiceTest {
             .put("userID", "some-user")
             .put("status", "approved")
             .put("ratingID", "rating-id");
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     JsonObject json = new JsonObject().put(TOTAL_HITS, 1);
     when(asyncResult.result()).thenReturn(json);
     doAnswer(
@@ -381,13 +379,13 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchAsync(any(), any(), any());
     dbService.createRating(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
             testContext.failNow("Fail");
           } else {
             testContext.completeNow();
@@ -399,7 +397,7 @@ public class DatabaseServiceTest {
   @Order(11)
   @DisplayName("Update rating test")
   void updateRatingTest(VertxTestContext testContext) {
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     JsonObject request =
         new JsonObject()
             .put("rating", 4.5)
@@ -423,7 +421,7 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchGetId(any(), any(), any());
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -433,14 +431,14 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .docPutAsync(any(), any(), any(), any());
     dbService.updateRating(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
-            verify(DatabaseServiceImpl.client, times(1))
+            verify(ElasticsearchServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1))
                 .docPutAsync(anyString(), any(), any(), any());
             testContext.completeNow();
           } else {
@@ -472,13 +470,13 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchGetId(any(), any(), any());
     dbService.updateRating(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
             testContext.failNow("Fail");
           } else {
             testContext.completeNow();
@@ -491,7 +489,7 @@ public class DatabaseServiceTest {
   @DisplayName("Delete Rating test")
   void deleteRatingTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put("ratingID", "rating-id");
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     JsonArray jsonArray = new JsonArray().add("dummy");
 
     JsonObject json = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, jsonArray);
@@ -505,7 +503,7 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchGetId(any(), any(), any());
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -515,14 +513,14 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .docDelAsync(any(), any(), any());
     dbService.deleteRating(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
-            verify(DatabaseServiceImpl.client, times(1)).docDelAsync(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).docDelAsync(anyString(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -536,7 +534,7 @@ public class DatabaseServiceTest {
   void deleteNonExistingRatingTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put("ratingID", "rating-id-abc");
 
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     JsonArray jsonArray = new JsonArray().add("dummy");
 
     JsonObject json = new JsonObject().put(TOTAL_HITS, 0).put(RESULTS, jsonArray);
@@ -549,13 +547,13 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchGetId(any(), any(), any());
     dbService.deleteRating(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).searchGetId(anyString(), any(), any());
             testContext.failNow("Fail");
 
           } else {
@@ -569,7 +567,7 @@ public class DatabaseServiceTest {
   @DisplayName("Get rating of a resource for a user")
   void getRatingForUserTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put("ratingID", "rating-id");
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     when(asyncResult.succeeded()).thenReturn(true);
     JsonObject json = new JsonObject().put(TOTAL_HITS, 1);
     when(asyncResult.result()).thenReturn(json);
@@ -581,14 +579,14 @@ public class DatabaseServiceTest {
                 return null;
               }
             })
-        .when(DatabaseServiceImpl.client)
+        .when(ElasticsearchServiceImpl.client)
         .searchAsync(any(), any(), any());
 
     dbService.getRatings(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
+            verify(ElasticsearchServiceImpl.client, times(1)).searchAsync(anyString(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -1295,7 +1293,7 @@ public class DatabaseServiceTest {
   @DisplayName("Test CreateItem when id is not present in request body ")
   void createItemNoIdTest(VertxTestContext testContext) {
     JsonObject request = new JsonObject();
-    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    ElasticsearchServiceImpl.client = mock(ElasticClient.class);
     dbService.createItem(
         request,
         handler -> {
@@ -1313,7 +1311,7 @@ public class DatabaseServiceTest {
         JsonObject request = new JsonObject();
         JsonArray jsonArray = new JsonArray().add("iudx:Resource");
         request.put(ID, "dummyid").put("type", jsonArray);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
+        ElasticsearchServiceImpl.client = mock(ElasticClient.class);
         when(asyncResult.failed()).thenReturn(true);
         doAnswer(
                 new Answer<AsyncResult<JsonObject>>() {
@@ -1323,7 +1321,7 @@ public class DatabaseServiceTest {
                         return null;
                     }
                 })
-                .when(DatabaseServiceImpl.client)
+                .when(ElasticsearchServiceImpl.client)
                 .searchGetId(any(), any(), any());
         dbService.updateItem(
                 request,

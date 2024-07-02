@@ -1,13 +1,20 @@
 package iudx.catalogue.server.database.mlayer;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.database.elastic.query.Queries.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.AggregationBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.Util;
 import java.time.LocalDateTime;
@@ -125,8 +132,16 @@ public class MlayerPopularDatasets {
   }
 
   private void searchSortedMlayerInstances(Promise<JsonObject> instanceResult) {
+    Query query = buildMatchAllQuery();
+    List<String> includes = List.of("name", "cover", "icon");
+    SourceConfig source = buildSourceConfig(includes);
+    // Constructing the sort options
+    SortOptions sortOptions =
+        SortOptions.of(s -> s.field(f -> f.field("name").order(SortOrder.Asc)));
     client.searchAsync(
-        GET_SORTED_MLAYER_INSTANCES,
+        query,
+        source,
+        sortOptions,
         mlayerInstanceIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {
@@ -157,9 +172,15 @@ public class MlayerPopularDatasets {
   }
 
   private void allMlayerDomains(Promise<JsonArray> domainResult) {
-    String getAllDomains = GET_ALL_MLAYER_DOMAIN_QUERY.replace("$0", "10000").replace("$2", "0");
+    List<String> includes = List.of("domainId", "description", "icon", "label", "name");
+    SourceConfig sourceConfig = buildSourceConfig(includes);
+    int limit = FILTER_PAGINATION_SIZE, offset = 0;
+    Query getAllDomains = buildAllMlayerDomainsQuery();
     client.searchAsync(
         getAllDomains,
+        sourceConfig,
+        limit,
+        offset,
         mlayerDomainIndex,
         getDomainHandler -> {
           if (getDomainHandler.succeeded()) {
@@ -174,25 +195,43 @@ public class MlayerPopularDatasets {
 
   private void datasets(
       String instance, Promise<JsonObject> datasetResult, JsonArray frequentlyUsedResourceGroup) {
-    String providerAndResources = "";
+    Query providerAndResources;
+    Aggregation providerCountAgg = null;
+    List<String> includes =
+        List.of(
+            "id",
+            "description",
+            "type",
+            "resourceGroup",
+            "accessPolicy",
+            "provider",
+            "itemCreatedAt",
+            "instance",
+            "label");
+    SourceConfig source = buildSourceConfig(includes);
     if (instance.isBlank()) {
-      providerAndResources = GET_PROVIDER_AND_RESOURCEGROUP;
+      providerAndResources = buildGetProviderNdResourceGroupQuery();
     } else {
-      providerAndResources = GET_DATASET_BY_INSTANCE.replace("$1", instance);
+      // Aggregation to count unique providers
+      // Aggregation for provider_count
+      providerCountAgg = AggregationBuilders.cardinality()
+              .field("provider.keyword")
+              .build()._toAggregation();
+      providerAndResources = buildgetDatasetByInstanceQuery(instance);
     }
     client.searchAsyncResourceGroupAndProvider(
         providerAndResources,
+        providerCountAgg,
+        source,
+        10000,
         docIndex,
         getCatRecords -> {
           if (getCatRecords.succeeded()) {
             ArrayList<JsonObject> latestDatasetArray = new ArrayList<JsonObject>();
             Map<String, JsonObject> resourceGroupMap = new HashMap<>();
             Map<String, String> providerDescription = new HashMap<>();
-            if (getCatRecords
-                    .result()
-                    .getJsonArray(RESULTS).isEmpty()) {
+            if (getCatRecords.result().getJsonArray(RESULTS).isEmpty()) {
               datasetResult.handle(Future.failedFuture(NO_CONTENT_AVAILABLE));
-
             }
 
             JsonArray results =

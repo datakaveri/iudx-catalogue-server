@@ -1,5 +1,6 @@
 package iudx.catalogue.server.database;
 
+import iudx.catalogue.server.database.elastic.Summarizer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;

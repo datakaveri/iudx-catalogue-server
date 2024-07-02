@@ -1,14 +1,17 @@
 package iudx.catalogue.server.apiserver.stack;
 
 import static iudx.catalogue.server.apiserver.stack.StackConstants.*;
+import static iudx.catalogue.server.database.elastic.query.Queries.buildCheckStackExistenceQuery;
+import static iudx.catalogue.server.database.elastic.query.Queries.buildGetStackQuery;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public class QueryBuilder {
 
-  String getQuery(String stackId) {
-    return new StringBuilder(GET_STACK_QUERY.replace("$1", stackId)).toString();
+  Query getQuery(String stackId) {
+    return buildGetStackQuery(stackId);
   }
 
   String getPatchQuery(JsonObject request) {
@@ -31,14 +34,10 @@ public class QueryBuilder {
     return query.toString();
   }
 
-  String getQuery4CheckExistence(JsonObject request) {
+  Query getQuery4CheckExistence(JsonObject request) {
     JsonObject json = getHref(request.getJsonArray("links"));
-    StringBuilder query =
-        new StringBuilder(
-            CHECK_STACK_EXISTANCE_QUERY
-                .replace("$1", json.getString("self"))
-                .replace("$2", json.getString("root")));
-    return query.toString();
+    Query query = buildCheckStackExistenceQuery(json.getString("self"), json.getString("root"));
+    return query;
   }
 
   private JsonObject getHref(JsonArray links) {

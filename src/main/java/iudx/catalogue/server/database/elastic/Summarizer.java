@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database;
+package iudx.catalogue.server.database.elastic;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;

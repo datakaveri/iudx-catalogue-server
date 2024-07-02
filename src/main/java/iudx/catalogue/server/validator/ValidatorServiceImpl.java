@@ -1,15 +1,17 @@
 package iudx.catalogue.server.validator;
 
+import static iudx.catalogue.server.database.elastic.query.Queries.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.validator.Constants.*;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -154,10 +156,10 @@ public class ValidatorServiceImpl implements ValidatorService {
         isValidSchema = ownerItemSchema.validate(request.toString());
         break;
       case "patch:Stack":
-        isValidSchema =  stack4PatchValidator.validate(request.toString());
+        isValidSchema = stack4PatchValidator.validate(request.toString());
         break;
       case "post:Stack":
-        isValidSchema =  stackSchema4Post.validate(request.toString());
+        isValidSchema = stackSchema4Post.validate(request.toString());
         break;
       default:
         handler.handle(Future.failedFuture("Invalid Item Type"));
@@ -210,14 +212,13 @@ public class ValidatorServiceImpl implements ValidatorService {
 
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
     String provider = request.getString(PROVIDER);
-    String checkQuery =
-        ITEM_EXISTS_QUERY
-            .replace("$1", provider)
-            .replace("$2", ITEM_TYPE_RESOURCE_GROUP)
-            .replace("$3", NAME)
-            .replace("$4", request.getString(NAME));
+    Query checkQuery =
+        buildItemExistsQuery(provider, ITEM_TYPE_RESOURCE_GROUP, NAME, request.getString(NAME));
     client.searchAsync(
         checkQuery,
+        buildSourceConfig(List.of("type")),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
         res -> {
           if (res.failed()) {
@@ -253,15 +254,14 @@ public class ValidatorServiceImpl implements ValidatorService {
     String resourceServer = request.getString(RESOURCE_SVR);
     String ownerUserId = request.getString(PROVIDER_USER_ID);
     String resourceServerUrl = request.getString(RESOURCE_SERVER_URL);
-    String checkQuery =
-        PROVIDER_ITEM_EXISTS_QUERY
-            .replace("$1", resourceServer)
-            .replace("$2", ownerUserId)
-            .replace("$3", resourceServerUrl);
+    Query checkQuery = buildProviderItemExistsQuery(resourceServer, ownerUserId, resourceServerUrl);
 
     LOGGER.debug("query provider exists " + checkQuery);
     client.searchAsync(
         checkQuery,
+        buildSourceConfig(List.of("type")),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
         res -> {
           if (res.failed()) {
@@ -298,15 +298,15 @@ public class ValidatorServiceImpl implements ValidatorService {
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
     String cos = request.getString(COS_ITEM);
     String resourceServerUrl = request.getString(RESOURCE_SERVER_URL);
-    String checkQuery =
-        ITEM_EXISTS_QUERY
-            .replace("$1", cos)
-            .replace("$2", ITEM_TYPE_RESOURCE_SERVER)
-            .replace("$3", RESOURCE_SERVER_URL)
-            .replace("$4", resourceServerUrl);
+    Query checkQuery =
+        buildItemExistsQuery(
+            cos, ITEM_TYPE_RESOURCE_SERVER, RESOURCE_SERVER_URL, resourceServerUrl);
     LOGGER.debug(checkQuery);
     client.searchAsync(
         checkQuery,
+        buildSourceConfig(List.of("type")),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
         res -> {
           if (res.failed()) {
@@ -347,16 +347,16 @@ public class ValidatorServiceImpl implements ValidatorService {
     String resourceGroup = request.getString(RESOURCE_GRP);
     String resourceServer = request.getString(RESOURCE_SVR);
 
-    String checkQuery =
-        RESOURCE_ITEM_EXISTS_QUERY
-            .replace("$1", resourceServer)
-            .replace("$2", provider)
-            .replace("$3", resourceGroup)
-            .replace("$4", request.getString(NAME));
+    Query checkQuery =
+        buildResourceItemExistsQuery(
+            resourceServer, provider, resourceGroup, request.getString(NAME));
     LOGGER.debug(checkQuery);
 
     client.searchAsync(
         checkQuery,
+        buildSourceConfig(List.of("type")),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
         res -> {
           if (res.failed()) {
@@ -399,15 +399,13 @@ public class ValidatorServiceImpl implements ValidatorService {
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
 
     String owner = request.getString(OWNER);
-    String checkQuery =
-        ITEM_EXISTS_QUERY
-            .replace("$1", owner)
-            .replace("$2", ITEM_TYPE_COS)
-            .replace("$3", NAME)
-            .replace("$4", request.getString(NAME));
+    Query checkQuery = buildItemExistsQuery(owner, ITEM_TYPE_COS, NAME, request.getString(NAME));
     LOGGER.debug(checkQuery);
     client.searchAsync(
         checkQuery,
+        buildSourceConfig(List.of("type")),
+        FILTER_PAGINATION_SIZE,
+        0,
         docIndex,
         res -> {
           if (res.failed()) {
@@ -437,10 +435,11 @@ public class ValidatorServiceImpl implements ValidatorService {
       request.put(ID, uuid.toString());
     }
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
-    String checkQuery = OWNER_ITEM_EXISTS_QUERY.replace("$1", request.getString(NAME));
+    Query checkQuery = buildOwnerItemExistsQuery(request.getString(NAME));
     LOGGER.debug(checkQuery);
     client.searchGetId(
         checkQuery,
+        buildSourceConfig(List.of()),
         docIndex,
         res -> {
           if (res.failed()) {
