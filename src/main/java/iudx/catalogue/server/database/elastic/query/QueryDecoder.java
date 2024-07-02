@@ -12,10 +12,9 @@ import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.elastic.ResponseUrn;
 import iudx.catalogue.server.database.elastic.exception.EsQueryException;
 import iudx.catalogue.server.database.elastic.model.QueryAndAggregation;
+import iudx.catalogue.server.database.elastic.query.querydecorator.*;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import iudx.catalogue.server.database.elastic.query.querydecorator.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,7 +29,7 @@ public final class QueryDecoder {
    * @param request Json object containing various fields related to query-type.
    * @return Query which contains an ElasticSearch query.
    */
-  public Query searchQuery(JsonObject request) {
+  public JsonObject searchQuery(JsonObject request) {
 
     String searchType = request.getString(SEARCH_TYPE);
 
@@ -41,18 +40,19 @@ public final class QueryDecoder {
     }
 
     if (searchType.equalsIgnoreCase("getParentObjectInfo")) {
-      return buildGetDocQuery(request.getString(ID));
+      return new JsonObject().put("query",buildGetDocQuery(request.getString(ID)));
     }
     ElasticsearchQueryDecorator queryDecorator = null;
 
     /* Handle the search type */
-    if (searchType.matches(GEOSEARCH_REGEX)) {
-      LOGGER.debug("Info: Geo search block");
-      queryDecorator = new GeoQueryFiltersDecorator(queryLists, request);
-      queryDecorator.add();
+    try{
+      if (searchType.matches(GEOSEARCH_REGEX)) {
+        LOGGER.debug("Info: Geo search block");
+        queryDecorator = new GeoQueryFiltersDecorator(queryLists, request);
+        queryDecorator.add();
 
-      match = true;
-    }
+        match = true;
+      }
 
     /* Construct the query for text based search */
     if (searchType.matches(TEXTSEARCH_REGEX)) {
@@ -96,7 +96,11 @@ public final class QueryDecoder {
     } else {
       Query q = getBoolQuery(queryLists);
       LOGGER.info("query : {}", q.toString());
-      return q;
+      return new JsonObject().put("query", q);
+    }
+    } catch (EsQueryException e) {
+    LOGGER.error("Error constructing search query: {}", e.getMessage());
+    return new JsonObject().put(ERROR, e.toString());
     }
   }
 

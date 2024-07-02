@@ -1,18 +1,19 @@
 package iudx.catalogue.server.database;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.database.elastic.query.Queries.buildSourceConfig;
 import static iudx.catalogue.server.geocoding.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
 
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import io.vertx.core.AsyncResult;
-import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.reactivex.ext.unit.Async;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import iudx.catalogue.server.util.Constants;
 import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
@@ -21,7 +22,6 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import io.vertx.core.Vertx;
 import iudx.catalogue.server.Configuration;
-import org.elasticsearch.client.Request;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -30,8 +30,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
@@ -194,7 +195,7 @@ public class ElasticClientTest {
   @Test
   @Description("test countAsync method")
   public void testCountAsync(VertxTestContext vertxTestContext) {
-    String query="dummy";
+    Query query = Query.of(f -> f.term(t -> t.field("dummy")));
     assertNotNull(elasticClient.countAsync(query,docIndex, handler));
     vertxTestContext.completeNow();
   }
@@ -202,8 +203,8 @@ public class ElasticClientTest {
   @Test
   @Description("test searchAsyncDataset method")
   public void testSearchAsync(VertxTestContext vertxTestContext) {
-    String query="dummy";
-    assertNotNull(elasticClient.searchAsyncDataset(query,docIndex, handler));
+    Query query=Query.of(f -> f.term(t -> t.field("dummy")));
+    assertNotNull(elasticClient.searchAsyncDataset(query, buildSourceConfig(List.of()), 10000, docIndex, handler));
     vertxTestContext.completeNow();
   }
   @Test
@@ -240,8 +241,8 @@ public class ElasticClientTest {
   @Test
   @Description("test resourceAggregationAsync method")
   public void testResourceAggregationAsync(VertxTestContext vertxTestContext) {
-    String query="dummy";
-    assertNotNull(elasticClient.resourceAggregationAsync(query,docIndex, handler));
+    Aggregation aggregation = null;
+    assertNotNull(elasticClient.resourceAggregationAsync(aggregation, 10000,  docIndex, handler));
     vertxTestContext.completeNow();
   }
 

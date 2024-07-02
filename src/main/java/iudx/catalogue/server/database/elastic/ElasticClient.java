@@ -37,7 +37,6 @@ import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.Util;
 import jakarta.json.stream.JsonGenerator;
 
-import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;

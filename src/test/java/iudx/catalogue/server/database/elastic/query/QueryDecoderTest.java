@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database;
+package iudx.catalogue.server.database.elastic;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
@@ -12,6 +12,9 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.Configuration;
 import java.util.stream.Stream;
+
+import iudx.catalogue.server.database.RespBuilder;
+import iudx.catalogue.server.database.elastic.query.QueryDecoder;
 import jdk.jfr.Description;
 import org.apache.commons.lang.StringUtils;
 import org.junit.jupiter.api.*;

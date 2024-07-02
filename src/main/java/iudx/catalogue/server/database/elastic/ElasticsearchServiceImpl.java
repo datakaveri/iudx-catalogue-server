@@ -54,7 +54,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
   private String mlayerDomainIndex;
 
   /**
-   * Constructs a new ElasticsearchServiceImpl instance with the given ElasticClient and index names.
+   * Constructs a new ElasticsearchServiceImpl instance with the given ElasticClient and index
+   * names.
    *
    * @param client the ElasticClient used for accessing Elasticsearch
    * @param docIndex the name of the index used for document storage
@@ -102,8 +103,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
   }
 
   /**
-   * Constructs a new instance of ElasticsearchServiceImpl with only the ElasticClient provided. This
-   * constructor sets the values of nlpPluggedIn and geoPluggedIn to false.
+   * Constructs a new instance of ElasticsearchServiceImpl with only the ElasticClient provided.
+   * This constructor sets the values of nlpPluggedIn and geoPluggedIn to false.
    *
    * @param client the ElasticClient used to interact with the Elasticsearch instance
    */
@@ -152,7 +153,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
   }
 
   @Override
-  public ElasticsearchService searchQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService searchQuery(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Info: searchQuery");
 
@@ -172,7 +174,15 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     }
 
     /* Construct the query to be made */
-    Query query = queryDecoder.searchQuery(request);
+    JsonObject q = queryDecoder.searchQuery(request);
+    if (q.containsKey(ERROR)) {
+
+      LOGGER.error("Fail: Query returned with an error");
+      handler.handle(Future.failedFuture(q.getString(ERROR)));
+      return null;
+    }
+    Query query = (Query) q.getValue("query");
+    LOGGER.debug("Query: " + query);
     if (query == null) {
 
       LOGGER.error("Fail: Query returned with an error");
@@ -322,7 +332,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
   }
 
   @Override
-  public ElasticsearchService countQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService countQuery(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     request.put(SEARCH, false);
 
@@ -333,11 +344,18 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     }
 
     /* Construct the query to be made */
-    Query query = queryDecoder.searchQuery(request);
+    JsonObject q = queryDecoder.searchQuery(request);
+    if (q.containsKey(ERROR)) {
+
+      LOGGER.error("Fail: Query returned with an error");
+      handler.handle(Future.failedFuture(q.getString(ERROR)));
+      return null;
+    }
+    Query query = (Query) q.getValue("query");
+    LOGGER.debug("Query: " + query);
     if (query == null) {
 
       LOGGER.error("Fail: Query returned with an error");
-
       handler.handle(Future.failedFuture("Error: Failed to construct query"));
       return null;
     }
@@ -594,7 +612,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
   }
 
   @Override
-  public ElasticsearchService deleteItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService deleteItem(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Info: Deleting item");
 
@@ -673,7 +692,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
   }
 
   @Override
-  public ElasticsearchService getItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService getItem(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Info: Get item");
 
@@ -709,7 +729,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
   }
 
   @Override
-  public ElasticsearchService listItems(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService listItems(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     RespBuilder respBuilder = new RespBuilder();
     QueryAndAggregation queryAndAggregation = queryDecoder.listItemQuery(request);
@@ -1001,7 +1022,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
   }
 
   @Override
-  public ElasticsearchService relSearch(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService relSearch(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     RespBuilder respBuilder = new RespBuilder();
     Query elasticQuery;
@@ -1309,7 +1331,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
   }
 
   @Override
-  public ElasticsearchService getRatings(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public ElasticsearchService getRatings(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
 
     Query query;
     if (request.containsKey("ratingID")) {
