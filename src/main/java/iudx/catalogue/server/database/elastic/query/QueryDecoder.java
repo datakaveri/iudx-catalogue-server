@@ -23,11 +23,13 @@ public final class QueryDecoder {
   private static final Logger LOGGER = LogManager.getLogger(QueryDecoder.class);
 
   /**
-   * Decodes and constructs ElasticSearch Search/Count query based on the parameters passed in the
+   * Decodes and constructs Elasticsearch Search/Count query based on the parameters passed in the
    * request.
    *
-   * @param request Json object containing various fields related to query-type.
-   * @return Query which contains an ElasticSearch query.
+   * @param request JsonObject containing various fields related to query type. Expected fields:
+   *     SEARCH_TYPE (String), INSTANCE (String).
+   * @return JsonObject with a "query" field containing the constructed Elasticsearch query. In case
+   *     of error constructing the query, returns an error JsonObject.
    */
   public JsonObject searchQuery(JsonObject request) {
 
