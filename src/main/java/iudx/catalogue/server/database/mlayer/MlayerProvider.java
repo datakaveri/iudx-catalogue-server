@@ -45,8 +45,10 @@ public class MlayerProvider {
         requestParams.getString(LIMIT) != null
             ? Integer.parseInt(requestParams.getString(LIMIT))
             : FILTER_PAGINATION_SIZE;
-    // int offset = requestParams.getString(OFFSET)!= null?
-    // Integer.parseInt(requestParams.getString(OFFSET)): FILTER_PAGINATION_FROM;
+    int offset =
+        requestParams.getString(OFFSET) != null
+            ? Integer.parseInt(requestParams.getString(OFFSET))
+            : FILTER_PAGINATION_FROM;
     // Aggregation for provider_count
     Aggregation providerCountAgg =
         AggregationBuilders.cardinality().field("provider.keyword").build()._toAggregation();
@@ -166,7 +168,7 @@ public class MlayerProvider {
           query,
           sourceConfig,
           limit,
-          1,
+          offset,
           docIndex,
           resultHandler -> {
             if (resultHandler.succeeded()) {

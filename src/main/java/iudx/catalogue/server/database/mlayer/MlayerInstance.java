@@ -40,8 +40,14 @@ public class MlayerInstance {
     List<String> includes = List.of("instanceId", "name", "cover", "icon", "logo", "coordinates");
     SourceConfig sourceConfig = buildSourceConfig(includes);
     String id = requestParams.getString(ID);
-    int limit = Integer.parseInt(requestParams.getString(LIMIT));
-    int offset = Integer.parseInt(requestParams.getString(OFFSET));
+    int limit =
+        requestParams.getString(LIMIT) != null
+            ? Integer.parseInt(requestParams.getString(LIMIT))
+            : FILTER_PAGINATION_SIZE;
+    int offset =
+        requestParams.getString(OFFSET) != null
+            ? Integer.parseInt(requestParams.getString(OFFSET))
+            : FILTER_PAGINATION_FROM;
     if (id == null || id.isBlank()) {
       query = buildAllMlayerInstancesQuery();
     } else {
