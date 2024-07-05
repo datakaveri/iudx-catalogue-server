@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database;
+package iudx.catalogue.server.database.elastic;
 
 import static iudx.catalogue.server.util.Constants.*;
 
@@ -17,14 +17,14 @@ import iudx.catalogue.server.nlpsearch.NLPSearchService;
  * <h1>Database Verticle</h1>
  *
  * <p>The Database Verticle implementation in the the IUDX Catalogue Server exposes the {@link
- * iudx.catalogue.server.database.DatabaseService} over the Vert.x Event Bus.
+ * ElasticsearchService} over the Vert.x Event Bus.
  *
  * @version 1.0
  * @since 2020-05-31
  */
-public class DatabaseVerticle extends AbstractVerticle {
+public class ElasticsearchVerticle extends AbstractVerticle {
 
-  private DatabaseService database;
+  private ElasticsearchService database;
   private String databaseIp;
   private String docIndex;
   private String ratingIndex;
@@ -65,16 +65,16 @@ public class DatabaseVerticle extends AbstractVerticle {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
       database =
-          new DatabaseServiceImpl(
+          new ElasticsearchServiceImpl(
               client, docIndex, ratingIndex, mlayerIndex, mlayerDomainIndex,
                   nlpService, geoService);
     } else {
-      database = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerIndex,
+      database = new ElasticsearchServiceImpl(client, docIndex, ratingIndex, mlayerIndex,
               mlayerDomainIndex);
     }
 
     consumer =
-        binder.setAddress(DATABASE_SERVICE_ADDRESS).register(DatabaseService.class, database);
+        binder.setAddress(DATABASE_SERVICE_ADDRESS).register(ElasticsearchService.class, database);
   }
 
   @Override

@@ -1,16 +1,20 @@
 package iudx.catalogue.server.database.mlayer;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.database.elastic.query.Queries.*;
 import static iudx.catalogue.server.mlayer.util.Constants.INSTANCE_ID;
 import static iudx.catalogue.server.mlayer.util.Constants.MLAYER_ID;
 import static iudx.catalogue.server.util.Constants.*;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
+import iudx.catalogue.server.database.elastic.ElasticClient;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,17 +36,28 @@ public class MlayerInstance {
 
   public void getMlayerInstance(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
-    String query = "";
+    Query query;
+    List<String> includes = List.of("instanceId", "name", "cover", "icon", "logo", "coordinates");
+    SourceConfig sourceConfig = buildSourceConfig(includes);
     String id = requestParams.getString(ID);
-    String limit = requestParams.getString(LIMIT);
-    String offset = requestParams.getString(OFFSET);
+    int limit =
+        requestParams.getString(LIMIT) != null
+            ? Integer.parseInt(requestParams.getString(LIMIT))
+            : FILTER_PAGINATION_SIZE;
+    int offset =
+        requestParams.getString(OFFSET) != null
+            ? Integer.parseInt(requestParams.getString(OFFSET))
+            : FILTER_PAGINATION_FROM;
     if (id == null || id.isBlank()) {
-      query = GET_ALL_MLAYER_INSTANCE_QUERY.replace("$0", limit).replace("$2", offset);
+      query = buildAllMlayerInstancesQuery();
     } else {
-      query = GET_MLAYER_INSTANCE_QUERY.replace("$1", id);
+      query = buildMlayerInstanceQuery(id);
     }
     client.searchAsync(
         query,
+        sourceConfig,
+        limit,
+        offset,
         mlayerInstanceIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {
@@ -59,11 +74,13 @@ public class MlayerInstance {
   public void deleteMlayerInstance(String instanceId, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
 
-    String checkForExistingRecord =
-        CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
+    Query checkForExistingRecord = buildMdocInstanceQuery(instanceId);
+    List<String> includes = List.of("instanceId", "name", "cover", "icon", "logo", "coordinates");
+    SourceConfig sourceConfig = buildSourceConfig(includes);
 
     client.searchGetId(
         checkForExistingRecord,
+        sourceConfig,
         mlayerInstanceIndex,
         checkRes -> {
           if (checkRes.failed()) {
@@ -110,9 +127,12 @@ public class MlayerInstance {
     RespBuilder respBuilder = new RespBuilder();
     String instanceId = instanceDoc.getString(INSTANCE_ID);
     String id = instanceDoc.getString(MLAYER_ID);
-    String checkForExistingRecord = CHECK_MDOC_QUERY.replace("$1", id).replace("$2", "");
+    Query checkForExistingRecord = buildCheckMdocQuery(id);
     client.searchAsync(
         checkForExistingRecord,
+        buildSourceConfig(List.of()),
+        FILTER_PAGINATION_SIZE,
+        FILTER_PAGINATION_FROM,
         mlayerInstanceIndex,
         res -> {
           if (res.failed()) {
@@ -173,10 +193,12 @@ public class MlayerInstance {
 
     RespBuilder respBuilder = new RespBuilder();
     String instanceId = request.getString(INSTANCE_ID);
-    String checkForExistingRecord =
-        CHECK_MDOC_QUERY_INSTANCE.replace("$1", instanceId).replace("$2", "");
+    Query checkForExistingRecord = buildMdocInstanceQuery(instanceId);
+    List<String> includes = List.of("instanceId", "name", "cover", "icon", "logo", "coordinates");
+    SourceConfig sourceConfig = buildSourceConfig(includes);
     client.searchAsyncGetId(
         checkForExistingRecord,
+        sourceConfig,
         mlayerInstanceIndex,
         checkRes -> {
           if (checkRes.failed()) {
@@ -205,7 +227,7 @@ public class MlayerInstance {
               client.docPutAsync(
                   docId,
                   mlayerInstanceIndex,
-                  request.toString(),
+                  request,
                   putRes -> {
                     if (putRes.succeeded()) {
                       handler.handle(

@@ -19,7 +19,12 @@ public class QueryBuilder {
     return query;
   }
 
-  public String buildCountAndSizeQuery(String databaseTable, JsonArray exlcudedIdsJson) {
+  public String buildCountAndSizeQuery(String databaseTable, JsonArray excludedIdsJson) {
+    // Handle null excludedIdsJson by initializing it as an empty JsonArray
+    if (excludedIdsJson == null) {
+      LOGGER.warn("excludedIdsJson is null, initializing as an empty JsonArray");
+      excludedIdsJson = new JsonArray();
+    }
     String current = ZonedDateTime.now().toString();
     LOGGER.debug("zone IST =" + ZonedDateTime.now());
     ZonedDateTime zonedDateTimeUtc = ZonedDateTime.parse(current);
@@ -33,14 +38,14 @@ public class QueryBuilder {
 
     StringBuilder ids = new StringBuilder();
 
-    for (int i = 0; i < exlcudedIdsJson.size(); i++) {
-      ids.append("'").append(exlcudedIdsJson.getString(i)).append("'");
-      if (i != exlcudedIdsJson.size() - 1) {
+    for (int i = 0; i < excludedIdsJson.size(); i++) {
+      ids.append("'").append(excludedIdsJson.getString(i)).append("'");
+      if (i != excludedIdsJson.size() - 1) {
         ids.append(",");
       }
     }
 
-    if (exlcudedIdsJson.isEmpty()) {
+    if (excludedIdsJson.isEmpty()) {
       query =
           COUNT_SIZE_QUERY
               .concat(TIME_QUERY)

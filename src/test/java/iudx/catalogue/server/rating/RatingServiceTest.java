@@ -9,7 +9,7 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import io.vertx.pgclient.PgPool;
 import iudx.catalogue.server.Configuration;
-import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.databroker.DataBrokerService;
 import org.apache.logging.log4j.LogManager;
@@ -37,7 +37,7 @@ public class RatingServiceTest {
   private static RatingServiceImpl ratingService, ratingServiceSpy;
   private static PgPool pgPool;
   private static AsyncResult<JsonObject> asyncResult;
-  private static DatabaseService databaseService;
+  private static ElasticsearchService elasticsearchService;
   private static DataBrokerService dataBrokerService;
   private static PostgresService postgresService;
 
@@ -48,7 +48,7 @@ public class RatingServiceTest {
     exchangeName = config.getString("exchangeName");
     rsauditingtable = config.getString("rsAuditingTableName");
     minReadNumber = config.getInteger("minReadNumber");
-    databaseService = mock(DatabaseService.class);
+    elasticsearchService = mock(ElasticsearchService.class);
     dataBrokerService = mock(DataBrokerService.class);
     postgresService = mock(PostgresService.class);
     asyncResult = mock(AsyncResult.class);
@@ -57,7 +57,7 @@ public class RatingServiceTest {
             exchangeName,
             rsauditingtable,
             minReadNumber,
-            databaseService,
+            elasticsearchService,
             dataBrokerService,
             postgresService);
     ratingServiceSpy = spy(ratingService);
@@ -104,7 +104,7 @@ public class RatingServiceTest {
                 return null;
               }
             })
-        .when(databaseService)
+        .when(elasticsearchService)
         .createRating(any(), any());
 
     ratingServiceSpy.createRating(
@@ -112,7 +112,7 @@ public class RatingServiceTest {
         handler -> {
           if (handler.succeeded()) {
             verify(ratingServiceSpy, times(2)).getAuditingInfo(any());
-            verify(databaseService, times(1)).createRating(any(), any());
+            verify(elasticsearchService, times(1)).createRating(any(), any());
             testContext.completeNow();
           } else {
             LOGGER.debug("Fail");
@@ -142,7 +142,7 @@ public class RatingServiceTest {
                 return null;
               }
             })
-        .when(databaseService)
+        .when(elasticsearchService)
         .createRating(any(), any());
 
     ratingServiceSpy.createRating(
@@ -150,7 +150,7 @@ public class RatingServiceTest {
         handler -> {
           if (handler.succeeded()) {
             verify(ratingServiceSpy, times(1)).getAuditingInfo(any());
-            verify(databaseService, times(1)).createRating(any(), any());
+            verify(elasticsearchService, times(1)).createRating(any(), any());
             LOGGER.debug("Fail");
             testContext.failNow(handler.cause());
           } else {
@@ -195,7 +195,7 @@ public class RatingServiceTest {
                 return null;
               }
             })
-        .when(databaseService)
+        .when(elasticsearchService)
         .getRatings(any(), any());
 
     ratingServiceSpy.getRating(
@@ -227,7 +227,7 @@ public class RatingServiceTest {
                 return null;
               }
             })
-        .when(databaseService)
+        .when(elasticsearchService)
         .getRatings(any(), any());
 
     ratingServiceSpy.getRating(
@@ -259,14 +259,14 @@ public class RatingServiceTest {
                 return null;
               }
             })
-        .when(databaseService)
+        .when(elasticsearchService)
         .updateRating(any(), any());
 
     ratingServiceSpy.updateRating(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(2)).updateRating(any(), any());
+            verify(elasticsearchService, times(2)).updateRating(any(), any());
             testContext.completeNow();
           } else {
             LOGGER.debug("Fail");
@@ -291,14 +291,14 @@ public class RatingServiceTest {
                 return null;
               }
             })
-        .when(databaseService)
+        .when(elasticsearchService)
         .updateRating(any(), any());
 
     ratingServiceSpy.updateRating(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).updateRating(any(), any());
+            verify(elasticsearchService, times(1)).updateRating(any(), any());
             LOGGER.debug("Fail");
             testContext.failNow(handler.cause());
           } else {
@@ -324,14 +324,14 @@ public class RatingServiceTest {
                 return null;
               }
             })
-        .when(databaseService)
+        .when(elasticsearchService)
         .deleteRating(any(), any());
 
     ratingServiceSpy.deleteRating(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(1)).deleteRating(any(), any());
+            verify(elasticsearchService, times(1)).deleteRating(any(), any());
             testContext.completeNow();
           } else {
             LOGGER.debug("Fail");
@@ -356,14 +356,14 @@ public class RatingServiceTest {
                 return null;
               }
             })
-        .when(databaseService)
+        .when(elasticsearchService)
         .deleteRating(any(), any());
 
     ratingServiceSpy.deleteRating(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(databaseService, times(2)).deleteRating(any(), any());
+            verify(elasticsearchService, times(2)).deleteRating(any(), any());
             testContext.failNow("Fail");
           } else {
             testContext.completeNow();

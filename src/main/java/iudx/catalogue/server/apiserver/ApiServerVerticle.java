@@ -16,7 +16,7 @@ import io.vertx.ext.web.handler.StaticHandler;
 import iudx.catalogue.server.apiserver.util.ExceptionHandler;
 import iudx.catalogue.server.auditing.AuditingService;
 import iudx.catalogue.server.authenticator.AuthenticationService;
-import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.mlayer.MlayerService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
@@ -133,7 +133,8 @@ public class ApiServerVerticle extends AbstractVerticle {
     mlayerApis = new MlayerApis(api);
 
     // Todo - Set service proxies based on availability?
-    DatabaseService dbService = DatabaseService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
+    ElasticsearchService esService =
+        ElasticsearchService.createProxy(vertx, DATABASE_SERVICE_ADDRESS);
 
     RatingService ratingService = RatingService.createProxy(vertx, RATING_SERVICE_ADDRESS);
     ratingApis.setRatingService(ratingService);
@@ -141,10 +142,10 @@ public class ApiServerVerticle extends AbstractVerticle {
     MlayerService mlayerService = MlayerService.createProxy(vertx, MLAYER_SERVICE_ADDRESSS);
     mlayerApis.setMlayerService(mlayerService);
 
-    crudApis.setDbService(dbService);
-    listApis.setDbService(dbService);
-    relApis.setDbService(dbService);
-    // TODO : set db service for Rating APIs
+    crudApis.setEsService(esService);
+    listApis.setEsService(esService);
+    relApis.setEsService(esService);
+    // TODO : set es service for Rating APIs
     crudApis.setHost(config().getString(HOST));
     ratingApis.setHost(config().getString(HOST));
     mlayerApis.setHost(config().getString(HOST));
@@ -166,7 +167,7 @@ public class ApiServerVerticle extends AbstractVerticle {
 
     NLPSearchService nlpsearchService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
 
-    searchApis.setService(dbService, geoService, nlpsearchService);
+    searchApis.setService(esService, geoService, nlpsearchService);
 
     AuditingService auditingService = AuditingService.createProxy(vertx, AUDITING_SERVICE_ADDRESS);
     crudApis.setAuditingService(auditingService);
@@ -667,8 +668,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     router
         .route(api.getStackRestApis() + "/*")
         .subRouter(
-            new StacRestApi(
-                     router, api, config(), validationService, authService, auditingService)
+            new StacRestApi(router, api, config(), validationService, authService, auditingService)
                 .init());
 
     // Start server

@@ -16,23 +16,21 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
-import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 public final class SearchApis {
 
 
-  private DatabaseService dbService;
+  private static final Logger LOGGER = LogManager.getLogger(SearchApis.class);
+  private ElasticsearchService esService;
   private GeocodingService geoService;
   private NLPSearchService nlpService;
   private Api api;
-
-  private static final Logger LOGGER = LogManager.getLogger(SearchApis.class);
 
   public SearchApis(Api api) {
     this.api = api;
@@ -41,19 +39,19 @@ public final class SearchApis {
   /**
    * Sets the database service, geocoding service, and NLP search service for this class.
    *
-   * @param dbService the database service to be set
+   * @param esService the database service to be set
    * @param  geoService the geocoding service to be set
    * @param nlpService the NLPService to be set
    */
-  public void setService(DatabaseService dbService,
+  public void setService(ElasticsearchService esService,
                          GeocodingService geoService, NLPSearchService nlpService) {
-    this.dbService = dbService;
+    this.esService = esService;
     this.geoService = geoService;
     this.nlpService = nlpService;
   }
 
-  public void setDbService(DatabaseService dbService) {
-    this.dbService = dbService;
+  public void setesService(ElasticsearchService esService) {
+    this.esService = esService;
   }
 
   public void setGeoService(GeocodingService geoService) {
@@ -142,7 +140,7 @@ public final class SearchApis {
       if (resp.getString(STATUS).equals(SUCCESS)) {
 
         if (path.equals(api.getRouteSearch())) {
-          dbService.searchQuery(requestBody, handler -> {
+          esService.searchQuery(requestBody, handler -> {
             if (handler.succeeded()) {
               JsonObject resultJson = handler.result();
               String status = resultJson.getString(STATUS);
@@ -163,7 +161,7 @@ public final class SearchApis {
             }
           });
         } else {
-          dbService.countQuery(requestBody, handler -> {
+          esService.countQuery(requestBody, handler -> {
             if (handler.succeeded()) {
               JsonObject resultJson = handler.result();
               String status = resultJson.getString(STATUS);
@@ -227,14 +225,14 @@ public final class SearchApis {
       routingContext.response().setStatusCode(400).end(respBuilder.getResponse());
       return;
     }
-    
+
     nlpService.search(query, res -> {
       if (res.succeeded()) {
         JsonArray result = res.result().getJsonArray("result");
         embeddings.add(result);
         String location = res.result().getString("location");
         if (location.equals("EMPTY")) {
-          dbService.nlpSearchQuery(embeddings, handler -> {
+          esService.nlpSearchQuery(embeddings, handler -> {
             if (handler.succeeded()) {
               JsonObject resultJson = handler.result();
               String status = resultJson.getString(STATUS);
@@ -260,7 +258,7 @@ public final class SearchApis {
             if (ar.succeeded()) {
               JsonObject results = new JsonObject(ar.result());
               LOGGER.debug("Info: geocoding result - " + results);
-              dbService.nlpSearchLocationQuery(embeddings, results, handler -> {
+              esService.nlpSearchLocationQuery(embeddings, results, handler -> {
                 if (handler.succeeded()) {
                   JsonObject resultJson = handler.result();
                   String status = resultJson.getString(STATUS);
@@ -292,6 +290,6 @@ public final class SearchApis {
         LOGGER.info("Failed to get embeddings");
         routingContext.response().setStatusCode(400).end();
       }
-    }); 
+    });
   }
 }

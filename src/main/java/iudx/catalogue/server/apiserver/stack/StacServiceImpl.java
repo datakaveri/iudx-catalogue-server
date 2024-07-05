@@ -1,15 +1,18 @@
 package iudx.catalogue.server.apiserver.stack;
 
 import static iudx.catalogue.server.apiserver.stack.StackConstants.DOC_ID;
+import static iudx.catalogue.server.database.elastic.query.Queries.buildSourceConfig;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.TITLE_ITEM_NOT_FOUND;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
+import iudx.catalogue.server.database.elastic.ElasticClient;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -38,9 +41,12 @@ public class StacServiceImpl implements StacSevice {
   @Override
   public Future<JsonObject> get(String stackId) {
     Promise<JsonObject> promise = Promise.promise();
-    String query = queryBuilder.getQuery(stackId);
+    Query query = queryBuilder.getQuery(stackId);
     elasticClient.searchAsync(
-        query.toString(),
+        query,
+        buildSourceConfig(List.of()),
+        FILTER_PAGINATION_SIZE,
+        FILTER_PAGINATION_FROM,
         index,
         clientHandler -> {
           if (clientHandler.succeeded()) {
@@ -78,13 +84,16 @@ public class StacServiceImpl implements StacSevice {
   @Override
   public Future<JsonObject> create(JsonObject request) {
     LOGGER.debug("create () method started");
-    String query = queryBuilder.getQuery4CheckExistence(request);
+    Query query = queryBuilder.getQuery4CheckExistence(request);
     String id = idSuppler.get();
     request.put(ID, id);
     LOGGER.info("id :{}", request);
     Promise<JsonObject> promise = Promise.promise();
     elasticClient.searchAsync(
         query,
+        buildSourceConfig(List.of()),
+        FILTER_PAGINATION_SIZE,
+        0,
         index,
         searchHandler -> {
           if (searchHandler.succeeded()) {
@@ -238,11 +247,12 @@ public class StacServiceImpl implements StacSevice {
     LOGGER.debug("isExist () method started");
     Promise<JsonObject> promise = Promise.promise();
     LOGGER.debug("stacId: {}", id);
-    String query = queryBuilder.getQuery(id);
+    Query query = queryBuilder.getQuery(id);
     LOGGER.error(elasticClient);
 
     elasticClient.searchAsyncGetId(
         query,
+        buildSourceConfig(List.of()),
         index,
         existHandler -> {
           LOGGER.error("existHandler succeeded " + existHandler.succeeded());

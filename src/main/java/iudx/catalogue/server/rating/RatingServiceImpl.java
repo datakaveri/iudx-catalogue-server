@@ -12,26 +12,25 @@ import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
-import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.databroker.DataBrokerService;
-import iudx.catalogue.server.util.Constants;
 import java.nio.charset.StandardCharsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 public class RatingServiceImpl implements RatingService {
   private static final Logger LOGGER = LogManager.getLogger(RatingServiceImpl.class);
-  DatabaseService databaseService;
+  private final String rsauditingtable;
+  private final int minReadNumber;
+  ElasticsearchService databaseService;
   DataBrokerService dataBrokerService;
   PostgresService postgresService;
   private String ratingExchangeName;
-  private final String rsauditingtable;
-  private final int minReadNumber;
 
   /**
    * Constructor for RatingServiceImpl class. Initializes the object with the given parameters.
+   *
    * @param exchangeName the name of the exchange used for rating
    * @param rsauditingtable the name of the table used for auditing the rating system
    * @param minReadNumber the minimum number of reads for a rating to be considered valid
@@ -43,7 +42,7 @@ public class RatingServiceImpl implements RatingService {
       String exchangeName,
       String rsauditingtable,
       int minReadNumber,
-      DatabaseService databaseService,
+      ElasticsearchService databaseService,
       DataBrokerService dataBrokerService,
       PostgresService postgresService) {
     this.ratingExchangeName = exchangeName;
@@ -58,8 +57,9 @@ public class RatingServiceImpl implements RatingService {
   public RatingService createRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String sub = request.getString(USER_ID);
     String id = request.getString(ID);
-    StringBuilder query = new StringBuilder(AUDIT_INFO_QUERY
-            .replace("$1", rsauditingtable).replace("$2", sub).replace("$3", id));
+    StringBuilder query =
+        new StringBuilder(
+            AUDIT_INFO_QUERY.replace("$1", rsauditingtable).replace("$2", sub).replace("$3", id));
     Future<JsonObject> getRsAuditingInfo = getAuditingInfo(query);
 
     getRsAuditingInfo
@@ -87,20 +87,23 @@ public class RatingServiceImpl implements RatingService {
                     });
               } else {
                 LOGGER.error("Fail: Rating creation failed");
-                handler.handle(Future.failedFuture(
-                    new RespBuilder()
-                        .withType(TYPE_ACCESS_DENIED)
-                        .withTitle(TITLE_REQUIREMENTS_NOT_MET)
-                        .withDetail("User has to access resource at least "
-                                + minReadNumber + " times to give rating")
-                        .getResponse()));
+                handler.handle(
+                    Future.failedFuture(
+                        new RespBuilder()
+                            .withType(TYPE_ACCESS_DENIED)
+                            .withTitle(TITLE_REQUIREMENTS_NOT_MET)
+                            .withDetail(
+                                "User has to access resource at least "
+                                    + minReadNumber
+                                    + " times to give rating")
+                            .getResponse()));
               }
             })
         .onFailure(
             failureHandler -> {
               LOGGER.error(
                   "User has not accessed resource"
-                          + " before and hence is not authorised to give rating");
+                      + " before and hence is not authorised to give rating");
               handler.handle(Future.failedFuture(failureHandler.getMessage()));
             });
 
@@ -181,13 +184,15 @@ public class RatingServiceImpl implements RatingService {
 
   Future<JsonObject> getAuditingInfo(StringBuilder query) {
     Promise<JsonObject> promise = Promise.promise();
-    postgresService.executeCountQuery(query.toString(), pgHandler -> {
-      if (pgHandler.succeeded()) {
-        promise.complete(pgHandler.result());
-      } else {
-        promise.fail(pgHandler.cause());
-      }
-    });
+    postgresService.executeCountQuery(
+        query.toString(),
+        pgHandler -> {
+          if (pgHandler.succeeded()) {
+            promise.complete(pgHandler.result());
+          } else {
+            promise.fail(pgHandler.cause());
+          }
+        });
     return promise.future();
   }
 

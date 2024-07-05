@@ -1,17 +1,20 @@
 package iudx.catalogue.server.database.mlayer;
 
-import static iudx.catalogue.server.database.Constants.GET_MLAYER_BOOL_GEOQUERY;
-import static iudx.catalogue.server.database.Constants.GET_MLAYER_GEOQUERY;
+import static iudx.catalogue.server.database.elastic.query.Queries.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.DETAIL_INTERNAL_SERVER_ERROR;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
+import iudx.catalogue.server.database.elastic.ElasticClient;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -34,17 +37,17 @@ public class MlayerGeoQuery {
   public void getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     String instance = request.getString(INSTANCE);
     JsonArray id = request.getJsonArray("id");
-    StringBuilder sb = new StringBuilder();
+    List<Query> boolGeoQueries = new ArrayList<>();
     for (int i = 0; i < id.size(); i++) {
       String datasetId = id.getString(i);
-      String combinedQuery =
-          GET_MLAYER_BOOL_GEOQUERY.replace("$2", instance).replace("$3", datasetId);
-      sb.append(combinedQuery).append(",");
+      boolGeoQueries.add(buildMlayerBoolGeoQuery(instance, datasetId));
     }
-    sb.deleteCharAt(sb.length() - 1);
-    String query = GET_MLAYER_GEOQUERY.replace("$1", sb);
+    Query query = buildMlayerGeoQuery(boolGeoQueries);
+    List<String> includes = List.of("id", "location", "instance", "label");
+    SourceConfig sourceConfig = buildSourceConfig(includes);
     client.searchAsyncGeoQuery(
         query,
+        sourceConfig,
         docIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {

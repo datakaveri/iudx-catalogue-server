@@ -19,17 +19,17 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
 import iudx.catalogue.server.apiserver.util.RespBuilder;
-import iudx.catalogue.server.database.DatabaseService;
+import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public final class ListApis {
 
   private static final Logger LOGGER = LogManager.getLogger(ListApis.class);
-  private DatabaseService dbService;
+  private ElasticsearchService esService;
 
-  public void setDbService(DatabaseService dbService) {
-    this.dbService = dbService;
+  public void setEsService(ElasticsearchService esService) {
+    this.esService = esService;
   }
 
   /**
@@ -103,18 +103,18 @@ public final class ListApis {
         requestBody.put(TYPE, type);
 
         if (type.equalsIgnoreCase(ITEM_TYPE_OWNER) || type.equalsIgnoreCase(ITEM_TYPE_COS)) {
-          dbService.listOwnerOrCos(
+          esService.listOwnerOrCos(
               requestBody,
-              dbHandler -> {
-                handleResponseFromDatabase(response, itemType, dbHandler);
+              esHandler -> {
+                handleResponseFromDatabase(response, itemType, esHandler);
               });
         } else {
 
           /* Request database service with requestBody for listing items */
-          dbService.listItems(
+          esService.listItems(
               requestBody,
-              dbhandler -> {
-                handleResponseFromDatabase(response, itemType, dbhandler);
+              eshandler -> {
+                handleResponseFromDatabase(response, itemType, eshandler);
               });
         }
       } else {
@@ -142,12 +142,12 @@ public final class ListApis {
   }
 
   void handleResponseFromDatabase(
-      HttpServerResponse response, String itemType, AsyncResult<JsonObject> dbhandler) {
-    if (dbhandler.succeeded()) {
+      HttpServerResponse response, String itemType, AsyncResult<JsonObject> eshandler) {
+    if (eshandler.succeeded()) {
       LOGGER.info("Success: Item listing");
-      response.setStatusCode(200).end(dbhandler.result().toString());
-    } else if (dbhandler.failed()) {
-      LOGGER.error("Fail: Issue in listing " + itemType + ": " + dbhandler.cause().getMessage());
+      response.setStatusCode(200).end(eshandler.result().toString());
+    } else if (eshandler.failed()) {
+      LOGGER.error("Fail: Issue in listing " + itemType + ": " + eshandler.cause().getMessage());
       response
           .setStatusCode(400)
           .end(

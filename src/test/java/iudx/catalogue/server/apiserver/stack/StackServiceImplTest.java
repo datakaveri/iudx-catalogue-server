@@ -14,7 +14,7 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
 import jdk.jfr.Description;
 import org.junit.jupiter.api.BeforeAll;
@@ -59,10 +59,10 @@ class StackServiceImplTest {
     JsonObject sampleResult = new JsonObject().put("totalHits", 1).put("value", "value");
 
     // Stubbing the searchAsync method with thenAnswer
-    when(mockElasticClient.searchAsync(any(), any(), any()))
+    when(mockElasticClient.searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(5);
               handler.handle(Future.succeededFuture(sampleResult));
               return null;
             });
@@ -83,10 +83,10 @@ class StackServiceImplTest {
     JsonObject sampleResult = new JsonObject().put("totalHits", 0).put("value", "value");
 
     // Stubbing the searchAsync method with thenAnswer
-    when(mockElasticClient.searchAsync(any(), any(), any()))
+    when(mockElasticClient.searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(5);
               handler.handle(Future.succeededFuture(sampleResult));
               return null;
             });
@@ -107,10 +107,10 @@ class StackServiceImplTest {
   @Description("Failed: get() Db error")
   public void testGetStack4DbError(VertxTestContext vertxTestContext) {
     // Stubbing the searchAsync method with thenAnswer
-    when(mockElasticClient.searchAsync(any(), any(), any()))
+    when(mockElasticClient.searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(5);
               handler.handle(Future.failedFuture("sampleResult"));
               return null;
             });
@@ -132,10 +132,10 @@ class StackServiceImplTest {
     JsonObject emptySearchResult = new JsonObject().put("totalHits", 0);
 
     // Stubbing the searchAsync method to return an empty result
-    when(mockElasticClient.searchAsync(any(), any(), any()))
+    when(mockElasticClient.searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(5);
               handler.handle(Future.succeededFuture(emptySearchResult));
               return null;
             });
@@ -181,10 +181,10 @@ class StackServiceImplTest {
     JsonObject emptySearchResult = new JsonObject().put("totalHits", 0);
 
     // Stubbing the searchAsync method to return an empty result
-    when(mockElasticClient.searchAsync(any(), any(), any()))
+    when(mockElasticClient.searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(5);
               handler.handle(Future.succeededFuture(emptySearchResult));
               return null;
             });
@@ -230,10 +230,10 @@ class StackServiceImplTest {
     JsonObject emptySearchResult = new JsonObject().put("totalHits", 1);
 
     // Stubbing the searchAsync method to return an empty result
-    when(mockElasticClient.searchAsync(any(), any(), any()))
+    when(mockElasticClient.searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(5);
               handler.handle(Future.succeededFuture(emptySearchResult));
               return null;
             });
@@ -267,10 +267,10 @@ class StackServiceImplTest {
   @Description("Failed: Db Error during searchAsync while stack creation")
   void testCreate4DbErrorFailure(VertxTestContext testContext) {
     // Stubbing the searchAsync method to return an empty result
-    when(mockElasticClient.searchAsync(any(), any(), any()))
+    when(mockElasticClient.searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(5);
               handler.handle(Future.failedFuture("Db Error during  searchAsync"));
               return null;
             });
@@ -325,10 +325,10 @@ class StackServiceImplTest {
                             .put("_source", json)));
 
     // Stubbing the searchAsync method to return an empty result
-    when(mockElasticClient.searchAsyncGetId(any(), any(), any()))
+    when(mockElasticClient.searchAsyncGetId(any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(3);
               handler.handle(Future.succeededFuture(existResult));
               return null;
             });
@@ -383,10 +383,10 @@ class StackServiceImplTest {
                             .put("_source", json)));
 
     // Stubbing the searchAsync method to return an empty result
-    when(mockElasticClient.searchAsyncGetId(any(), any(), any()))
+    when(mockElasticClient.searchAsyncGetId(any(), any(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(3);
               handler.handle(Future.succeededFuture(existResult));
               return null;
             });
@@ -434,10 +434,10 @@ class StackServiceImplTest {
                             .put("_source", json)));
 
     // Stubbing the searchAsync method to return an empty result
-    when(mockElasticClient.searchAsyncGetId(any(), any(), any()))
+    when(mockElasticClient.searchAsyncGetId(any(), any(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(3);
               handler.handle(Future.succeededFuture(existResult));
               return null;
             });
@@ -476,10 +476,10 @@ class StackServiceImplTest {
                             .put(StackConstants.DOC_ID, "someDocId")));
 
     // Stubbing the searchAsyncGetId method to return the existResult
-    when(mockElasticClient.searchAsyncGetId(anyString(), anyString(), any()))
+    when(mockElasticClient.searchAsyncGetId(any(), any(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(3);
               handler.handle(Future.succeededFuture(existResult));
               return null;
             });
@@ -518,10 +518,10 @@ class StackServiceImplTest {
     JsonObject existResult = new JsonObject().put("totalHits", 0);
 
     // Stubbing the searchAsyncGetId method to return the existResult
-    when(mockElasticClient.searchAsyncGetId(anyString(), anyString(), any()))
+    when(mockElasticClient.searchAsyncGetId(any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(3);
               handler.handle(Future.succeededFuture(existResult));
               return null;
             });
@@ -562,10 +562,10 @@ class StackServiceImplTest {
                             .put(StackConstants.DOC_ID, "someDocId")));
 
     // Stubbing the searchAsyncGetId method to return the existResult
-    when(mockElasticClient.searchAsyncGetId(anyString(), anyString(), any()))
+    when(mockElasticClient.searchAsyncGetId(any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(3);
               handler.handle(Future.succeededFuture(existResult));
               return null;
             });
@@ -606,10 +606,10 @@ class StackServiceImplTest {
     JsonObject existResult = new JsonObject().put("totalHits", 0);
 
     // Stubbing the searchAsyncGetId method to return the existResult
-    when(mockElasticClient.searchAsyncGetId(anyString(), anyString(), any()))
+    when(mockElasticClient.searchAsyncGetId(any(), any(), anyString(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(3);
               handler.handle(Future.failedFuture("failed: async failure"));
               return null;
             });
@@ -641,10 +641,10 @@ class StackServiceImplTest {
     JsonObject existResult = new JsonObject().put("totalHits", 1);
 
     // Stubbing the searchAsyncGetId method to return the existResult
-    when(mockElasticClient.searchAsyncGetId(anyString(), anyString(), any()))
+    when(mockElasticClient.searchAsyncGetId(any(), any(), any(), any()))
         .thenAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(3);
               handler.handle(Future.succeededFuture(existResult));
               return null;
             });

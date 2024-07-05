@@ -11,7 +11,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.file.FileSystem;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.apiserver.util.QueryMapper;
-import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import iudx.catalogue.server.validator.ValidatorService;
 import iudx.catalogue.server.validator.ValidatorServiceImpl;
 import org.junit.jupiter.api.BeforeAll;
