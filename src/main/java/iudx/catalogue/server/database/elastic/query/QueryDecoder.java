@@ -40,12 +40,12 @@ public final class QueryDecoder {
     }
 
     if (searchType.equalsIgnoreCase("getParentObjectInfo")) {
-      return new JsonObject().put("query",buildGetDocQuery(request.getString(ID)));
+      return new JsonObject().put("query", buildGetDocQuery(request.getString(ID)));
     }
     ElasticsearchQueryDecorator queryDecorator = null;
 
     /* Handle the search type */
-    try{
+    try {
       if (searchType.matches(GEOSEARCH_REGEX)) {
         LOGGER.debug("Info: Geo search block");
         queryDecorator = new GeoQueryFiltersDecorator(queryLists, request);
@@ -54,53 +54,54 @@ public final class QueryDecoder {
         match = true;
       }
 
-    /* Construct the query for text based search */
-    if (searchType.matches(TEXTSEARCH_REGEX)) {
-      LOGGER.debug("Info: Text search block");
-      queryDecorator = new TextQueryFiltersDecorator(queryLists, request);
-      queryDecorator.add();
+      /* Construct the query for text based search */
+      if (searchType.matches(TEXTSEARCH_REGEX)) {
+        LOGGER.debug("Info: Text search block");
+        queryDecorator = new TextQueryFiltersDecorator(queryLists, request);
+        queryDecorator.add();
 
-      match = true;
-    }
-
-    /* Construct the query for attribute based search */
-    if (searchType.matches(ATTRIBUTE_SEARCH_REGEX)) {
-      LOGGER.debug("Info: Attribute search block");
-      queryDecorator = new AttributeQueryFiltersDecorator(queryLists, request);
-      queryDecorator.add();
-
-      match = true;
-    }
-
-    /* Will be used for multi-tenancy */
-    String instanceId = request.getString(INSTANCE);
-
-    if (instanceId != null) {
-      Query instanceFilter = buildInstanceFilter(instanceId);
-      LOGGER.debug("Info: Instance found in query;" + instanceFilter);
-      queryLists.get(FilterType.MUST).add(instanceFilter);
-    }
-
-    if (searchType.matches(RESPONSE_FILTER_REGEX)) {
-      match = true;
-      if (!request.getBoolean(SEARCH)) {
-        throw new EsQueryException(ResponseUrn.OPERATION_NOT_ALLOWED_URN, "operation not allowed");
+        match = true;
       }
-      if (!request.containsKey(ATTRIBUTE) && !request.containsKey(FILTER)) {
-        throw new EsQueryException(ResponseUrn.BAD_FILTER_URN, "bad filters applied");
-      }
-    }
 
-    if (!match) {
-      throw new EsQueryException(ResponseUrn.INVALID_SYNTAX_URN, "Invalid Syntax");
-    } else {
-      Query q = getBoolQuery(queryLists);
-      LOGGER.info("query : {}", q.toString());
-      return new JsonObject().put("query", q);
-    }
+      /* Construct the query for attribute based search */
+      if (searchType.matches(ATTRIBUTE_SEARCH_REGEX)) {
+        LOGGER.debug("Info: Attribute search block");
+        queryDecorator = new AttributeQueryFiltersDecorator(queryLists, request);
+        queryDecorator.add();
+
+        match = true;
+      }
+
+      /* Will be used for multi-tenancy */
+      String instanceId = request.getString(INSTANCE);
+
+      if (instanceId != null) {
+        Query instanceFilter = buildInstanceFilter(instanceId);
+        LOGGER.debug("Info: Instance found in query;" + instanceFilter);
+        queryLists.get(FilterType.MUST).add(instanceFilter);
+      }
+
+      if (searchType.matches(RESPONSE_FILTER_REGEX)) {
+        match = true;
+        if (!request.getBoolean(SEARCH)) {
+          throw new EsQueryException(
+              ResponseUrn.OPERATION_NOT_ALLOWED_URN, "operation not allowed");
+        }
+        if (!request.containsKey(ATTRIBUTE) && !request.containsKey(FILTER)) {
+          throw new EsQueryException(ResponseUrn.BAD_FILTER_URN, "bad filters applied");
+        }
+      }
+
+      if (!match) {
+        throw new EsQueryException(ResponseUrn.INVALID_SYNTAX_URN, "Invalid Syntax");
+      } else {
+        Query q = getBoolQuery(queryLists);
+        LOGGER.info("query : {}", q.toString());
+        return new JsonObject().put("query", q);
+      }
     } catch (EsQueryException e) {
-    LOGGER.error("Error constructing search query: {}", e.getMessage());
-    return new JsonObject().put(ERROR, e.toJson());
+      LOGGER.error("Error constructing search query: {}", e.getMessage());
+      return new JsonObject().put(ERROR, e.toJson());
     }
   }
 
@@ -187,7 +188,7 @@ public final class QueryDecoder {
       // Build the should clauses for each provider ID
       BoolQuery.Builder boolQueryBuilder = QueryBuilders.bool();
       for (String id : ids) {
-        boolQueryBuilder.should(buildMatchQuery("provider.keyword",id));
+        boolQueryBuilder.should(buildMatchQuery("provider.keyword", id));
       }
       // Minimum should match clause
       boolQueryBuilder.minimumShouldMatch(String.valueOf(1));
@@ -209,7 +210,8 @@ public final class QueryDecoder {
     } else if (request.containsKey(ID) && RESOURCE_SVR.equals(relationshipType)) {
       String resourceServer = request.getString(RESOURCE_SVR);
 
-      subQuery = buildRelSubQuery(buildMatchQuery(ID_KEYWORD, resourceServer),ITEM_TYPE_RESOURCE_SERVER);
+      subQuery =
+          buildRelSubQuery(buildMatchQuery(ID_KEYWORD, resourceServer), ITEM_TYPE_RESOURCE_SERVER);
 
     } else if (request.containsKey(ID) && TYPE_KEY.equals(relationshipType)) {
       /* parsing id from the request */
@@ -259,12 +261,13 @@ public final class QueryDecoder {
     String type = request.getString(TYPE_KEY);
     String instanceId = request.getString(INSTANCE);
     Integer limit =
-        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, FILTER_PAGINATION_FROM));
+        request.getInteger(
+            LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, FILTER_PAGINATION_FROM));
     Query query;
     Aggregation aggregation;
 
     if (itemType.equalsIgnoreCase(TAGS)) {
-      aggregation = buildTermsAggs(TAGS+KEYWORD_KEY, limit);
+      aggregation = buildTermsAggs(TAGS + KEYWORD_KEY, limit);
       if (instanceId == null || instanceId.isEmpty()) {
         // Match all documents and aggregate tags
         query = QueryBuilders.matchAll().build()._toQuery();

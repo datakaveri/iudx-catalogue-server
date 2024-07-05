@@ -12,8 +12,8 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.elastic.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -187,9 +187,9 @@ public class MlayerInstance {
 
     RespBuilder respBuilder = new RespBuilder();
     String instanceId = request.getString(INSTANCE_ID);
-      Query checkForExistingRecord = buildMdocInstanceQuery(instanceId);
-      List<String> includes = List.of("instanceId", "name", "cover", "icon", "logo", "coordinates");
-      SourceConfig sourceConfig = buildSourceConfig(includes);
+    Query checkForExistingRecord = buildMdocInstanceQuery(instanceId);
+    List<String> includes = List.of("instanceId", "name", "cover", "icon", "logo", "coordinates");
+    SourceConfig sourceConfig = buildSourceConfig(includes);
     client.searchAsyncGetId(
         checkForExistingRecord,
         sourceConfig,

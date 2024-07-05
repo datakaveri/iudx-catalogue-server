@@ -32,7 +32,7 @@ public interface ElasticsearchService {
   /* create db service with nlp and geocoding */
   @GenIgnore
   static ElasticsearchService create(
-          ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
+      ElasticClient client, NLPSearchService nlpService, GeocodingService geoService) {
     return new ElasticsearchServiceImpl(client, nlpService, geoService);
   }
 
@@ -147,7 +147,8 @@ public interface ElasticsearchService {
    * @return ElasticsearchService which is a Service
    */
   @Fluent
-  ElasticsearchService listRelationship(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService listRelationship(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The relSearch implements the Relationship searches with the database.
@@ -231,7 +232,8 @@ public interface ElasticsearchService {
    * @return ElasticsearchService which is a Service
    */
   @Fluent
-  ElasticsearchService deleteMlayerInstance(String request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService deleteMlayerInstance(
+      String request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The updateMlayerInstance implements updating instance from the database.
@@ -252,7 +254,8 @@ public interface ElasticsearchService {
    * @return ElasticsearchService which is Service
    */
   @Fluent
-  ElasticsearchService createMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService createMlayerDomain(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The getMlayerDomain implements getting all domain from database.
@@ -272,7 +275,8 @@ public interface ElasticsearchService {
    * @return ElasticsearchService which is a Service
    */
   @Fluent
-  ElasticsearchService updateMlayerDomain(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService updateMlayerDomain(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The deleteMlayerDomain deletes a domain from the darabase.
@@ -302,7 +306,8 @@ public interface ElasticsearchService {
    * @return ElasticsearchService which is a Service
    */
   @Fluent
-  ElasticsearchService getMlayerGeoQuery(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  ElasticsearchService getMlayerGeoQuery(
+      JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
   /**
    * The get Mlayer All Datasets gets all the dataset belonging to IUDX.

@@ -1,8 +1,8 @@
 package iudx.catalogue.server.database.elastic.query.querydecorator;
 
+import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.database.elastic.ResponseUrn.INVALID_COORDINATE_POLYGON_URN;
 import static iudx.catalogue.server.database.elastic.ResponseUrn.INVALID_GEO_PARAMETER_URN;
-import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
 
 import co.elastic.clients.elasticsearch._types.GeoShapeRelation;
@@ -16,12 +16,7 @@ import iudx.catalogue.server.database.elastic.exception.EsQueryException;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 public class GeoQueryFiltersDecorator implements ElasticsearchQueryDecorator {
-
-  private static final Logger LOGGER = LogManager.getLogger(GeoQueryFiltersDecorator.class);
   private Map<FilterType, List<Query>> queryFilters;
   private JsonObject requestQuery;
 

@@ -33,7 +33,7 @@ public class Queries {
 
     Query matchId3 = buildMatchQuery(ID_KEYWORD, id3);
 
-    Query matchTypeCOS = buildMatchQuery(TYPE_KEYWORD, ITEM_TYPE_COS);
+    Query matchTypeCos = buildMatchQuery(TYPE_KEYWORD, ITEM_TYPE_COS);
 
     // Bool queries with must clauses
     Query boolQuery1 = getBoolQuery(matchId1, matchTypeResourceGroup);
@@ -42,7 +42,7 @@ public class Queries {
 
     Query boolQuery3 = getBoolQuery(matchResourceGroup, matchTypeResource);
 
-    Query boolQuery4 = getBoolQuery(matchId3, matchTypeCOS);
+    Query boolQuery4 = getBoolQuery(matchId3, matchTypeCos);
 
     return BoolQuery.of(b -> b.should(boolQuery1, boolQuery2, boolQuery3, boolQuery4))._toQuery();
   }
@@ -421,11 +421,11 @@ public class Queries {
     return mainBoolQuery._toQuery();
   }
 
-  public static Query buildGetRSGroupQuery(String id) {
+  public static Query buildGetRsGroupQuery(String id) {
     FieldValue field = FieldValue.of(id);
     TermsQueryField termQueryField = TermsQueryField.of(e -> e.value(List.of(field)));
     Query termQuery = QueryBuilders.terms(t -> t.field(ID_KEYWORD).terms(termQueryField));
-    return QueryBuilders.bool(b -> b.filter((termQuery)));
+    return QueryBuilders.bool(b -> b.filter(termQuery));
   }
 
   public static Query buildTypeQuery4RsGroup(String id) {

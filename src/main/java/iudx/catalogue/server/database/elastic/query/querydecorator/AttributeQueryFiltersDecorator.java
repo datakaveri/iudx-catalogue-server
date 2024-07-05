@@ -18,7 +18,7 @@ public class AttributeQueryFiltersDecorator implements ElasticsearchQueryDecorat
   private JsonObject requestQuery;
 
   public AttributeQueryFiltersDecorator(
-          Map<FilterType, List<Query>> queryFilters, JsonObject requestQuery) {
+      Map<FilterType, List<Query>> queryFilters, JsonObject requestQuery) {
     this.queryFilters = queryFilters;
     this.requestQuery = requestQuery;
   }
@@ -27,9 +27,9 @@ public class AttributeQueryFiltersDecorator implements ElasticsearchQueryDecorat
   public Map<FilterType, List<Query>> add() {
     // Validate tag search attributes
     if (requestQuery.containsKey(PROPERTY)
-            && !requestQuery.getJsonArray(PROPERTY).isEmpty()
-            && requestQuery.containsKey(VALUE)
-            && !requestQuery.getJsonArray(VALUE).isEmpty()) {
+        && !requestQuery.getJsonArray(PROPERTY).isEmpty()
+        && requestQuery.containsKey(VALUE)
+        && !requestQuery.getJsonArray(VALUE).isEmpty()) {
       /* fetching values from request */
       JsonArray propertyAttrs = requestQuery.getJsonArray(PROPERTY);
       JsonArray valueAttrs = requestQuery.getJsonArray(VALUE);
@@ -37,7 +37,7 @@ public class AttributeQueryFiltersDecorator implements ElasticsearchQueryDecorat
       // Ensure property and value arrays are of the same size
       if (propertyAttrs.size() != valueAttrs.size()) {
         throw new EsQueryException(
-                ResponseUrn.INVALID_PROPERTY_VALUE_URN, "Invalid Property Value");
+            ResponseUrn.INVALID_PROPERTY_VALUE_URN, "Invalid Property Value");
       }
 
       // Initialize a BoolQuery for combining must clauses
@@ -54,7 +54,8 @@ public class AttributeQueryFiltersDecorator implements ElasticsearchQueryDecorat
       }
 
       // Add the constructed mainBoolQuery to the appropriate query filter
-      List<Query> filterList =queryFilters.computeIfAbsent(FilterType.FILTER, k -> new ArrayList<>());
+      List<Query> filterList =
+          queryFilters.computeIfAbsent(FilterType.FILTER, k -> new ArrayList<>());
       filterList.add(mainBoolQueryBuilder.build()._toQuery());
     }
 
@@ -62,7 +63,7 @@ public class AttributeQueryFiltersDecorator implements ElasticsearchQueryDecorat
   }
 
   private void processPropertyValues(
-          String property, JsonArray values, BoolQuery.Builder propertyBoolQueryBuilder) {
+      String property, JsonArray values, BoolQuery.Builder propertyBoolQueryBuilder) {
     // Construct queries based on property and values
     for (int j = 0; j < values.size(); j++) {
       String value = values.getString(j);
@@ -74,11 +75,11 @@ public class AttributeQueryFiltersDecorator implements ElasticsearchQueryDecorat
   private Query buildQuery(String property, String value) {
     /* Attribute related queries using "match" and without the ".keyword" */
     if (property.equals(TAGS)
-            || property.equals(DESCRIPTION_ATTR)
-            || property.startsWith(LOCATION)) {
+        || property.equals(DESCRIPTION_ATTR)
+        || property.startsWith(LOCATION)) {
       return MatchQuery.of(query -> query.field(property).query(value))._toQuery();
       /* Attribute related queries using "match" and with the ".keyword" */
-    }else{
+    } else {
       /* checking keyword in the query paramters */
       if (property.endsWith(KEYWORD_KEY)) {
         // Use match query without .keyword suffix

@@ -34,7 +34,6 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.Util;
 import jakarta.json.stream.JsonGenerator;
-
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -83,32 +82,6 @@ public final class ElasticClient {
     this.client = new ElasticsearchAsyncClient(transport);
     esClient = new ElasticsearchClient(transport);
     this.index = index;
-  }
-
-  /**
-   * searchAsync - private function which perform performRequestAsync for search apis.
-   *
-   * @param searchRequest Elastic Request
-   * @param options SOURCE - Source only DOCIDS - DOCIDs only IDS - IDs only @TODO XPack Security
-   */
-  private Future<JsonObject> searchAsync(SearchRequest searchRequest, String options) {
-    Promise<JsonObject> promise = Promise.promise();
-    try {
-      client
-          .search(searchRequest, ObjectNode.class)
-          .whenComplete(
-              (response, exception) -> {
-                if (exception != null) {
-                  LOGGER.error("async search query failed : {}", exception);
-                  promise.fail(exception);
-                } else {
-                  processSearchResponse(response, options, promise);
-                }
-              });
-    } catch (Exception e) {
-      promise.fail(e);
-    }
-    return promise.future();
   }
 
   private Future<JsonObject> processSearchResponse(
@@ -308,6 +281,32 @@ public final class ElasticClient {
   }
 
   /**
+   * searchAsync - private function which perform performRequestAsync for search apis.
+   *
+   * @param searchRequest Elastic Request
+   * @param options SOURCE - Source only DOCIDS - DOCIDs only IDS - IDs only @TODO XPack Security
+   */
+  private Future<JsonObject> searchAsync(SearchRequest searchRequest, String options) {
+    Promise<JsonObject> promise = Promise.promise();
+    try {
+      client
+              .search(searchRequest, ObjectNode.class)
+              .whenComplete(
+                      (response, exception) -> {
+                        if (exception != null) {
+                          LOGGER.error("async search query failed : {}", exception);
+                          promise.fail(exception);
+                        } else {
+                          processSearchResponse(response, options, promise);
+                        }
+                      });
+    } catch (Exception e) {
+      promise.fail(e);
+    }
+    return promise.future();
+  }
+
+  /**
    * searchAsync - Wrapper around elasticsearch async search requests.
    *
    * @param query Query
@@ -350,8 +349,12 @@ public final class ElasticClient {
 
     SearchRequest.Builder searchRequest =
         new SearchRequest.Builder().index(index).size(size).from(from);
-    if (query != null) searchRequest.query(query);
-    if (source != null) searchRequest.source(source);
+    if (query != null) {
+      searchRequest.query(query);
+    }
+    if (source != null) {
+      searchRequest.source(source);
+    }
     Future<JsonObject> future = searchAsync(searchRequest.build(), SOURCE_ONLY);
     future.onComplete(resultHandler);
     return this;
@@ -427,7 +430,9 @@ public final class ElasticClient {
       Handler<AsyncResult<JsonObject>> resultHandler) {
     SearchRequest.Builder searchRequest =
         new SearchRequest.Builder().index(index).query(query).size(size);
-    if (sourceConfig != null) searchRequest.source(sourceConfig);
+    if (sourceConfig != null) {
+      searchRequest.source(sourceConfig);
+    }
     Future<JsonObject> future = searchAsync(searchRequest.build(), DATASET);
     future.onComplete(resultHandler);
     return this;
@@ -475,7 +480,9 @@ public final class ElasticClient {
       String index,
       Handler<AsyncResult<JsonObject>> resultHandler) {
     SearchRequest.Builder searchRequest = new SearchRequest.Builder().index(index).query(query);
-    if (source != null) searchRequest.source(source);
+    if (source != null) {
+      searchRequest.source(source);
+    }
     Future<JsonObject> future = searchAsync(searchRequest.build(), SOURCE_AND_ID_GEOQUERY);
     future.onComplete(resultHandler);
     return this;
@@ -496,7 +503,9 @@ public final class ElasticClient {
       String index,
       Handler<AsyncResult<JsonObject>> resultHandler) {
     SearchRequest.Builder searchRequest = new SearchRequest.Builder().index(index).query(query);
-    if (source != null) searchRequest.source(source);
+    if (source != null) {
+      searchRequest.source(source);
+    }
     Future<JsonObject> future = searchAsync(searchRequest.build(), SOURCE_AND_ID);
     future.onComplete(resultHandler);
     return this;
@@ -521,8 +530,12 @@ public final class ElasticClient {
       Handler<AsyncResult<JsonObject>> resultHandler) {
     SearchRequest.Builder searchRequest =
         new SearchRequest.Builder().index(index).query(query).size(size);
-    if (sourceConfig != null) searchRequest.source(sourceConfig);
-    if (aggregation != null) searchRequest.aggregations("provider_count", aggregation);
+    if (sourceConfig != null) {
+      searchRequest.source(sourceConfig);
+    }
+    if (aggregation != null) {
+      searchRequest.aggregations("provider_count", aggregation);
+    }
     LOGGER.debug("searchAsync called for resource group and provider");
     Future<JsonObject> future = searchAsync(searchRequest.build(), "PROVIDER_AGGREGATION");
     future.onComplete(resultHandler);
@@ -621,7 +634,9 @@ public final class ElasticClient {
       Handler<AsyncResult<JsonObject>> resultHandler) {
 
     SearchRequest.Builder searchRequest = new SearchRequest.Builder().index(index).query(query);
-    if (source != null) searchRequest.source(source);
+    if (source != null) {
+      searchRequest.source(source);
+    }
     Future<JsonObject> future = searchAsync(searchRequest.build(), DOC_IDS_ONLY);
     future.onComplete(resultHandler);
     return this;

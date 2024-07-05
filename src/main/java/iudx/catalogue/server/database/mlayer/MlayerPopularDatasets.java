@@ -6,7 +6,6 @@ import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
-import co.elastic.clients.elasticsearch._types.aggregations.AggregationBuilders;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import io.vertx.core.*;
@@ -169,7 +168,8 @@ public class MlayerPopularDatasets {
   private void allMlayerDomains(Promise<JsonArray> domainResult) {
     List<String> includes = List.of("domainId", "description", "icon", "label", "name");
     SourceConfig sourceConfig = buildSourceConfig(includes);
-    int limit = FILTER_PAGINATION_SIZE, offset = FILTER_PAGINATION_FROM;
+    int limit = FILTER_PAGINATION_SIZE;
+    int offset = FILTER_PAGINATION_FROM;
     Query getAllDomains = buildAllMlayerDomainsQuery();
     client.searchAsync(
         getAllDomains,
@@ -209,7 +209,7 @@ public class MlayerPopularDatasets {
     } else {
       // Aggregation to count unique providers
       // Aggregation for provider_count
-      providerCountAgg = providerCountAgg("provider"+KEYWORD_KEY);
+      providerCountAgg = providerCountAgg("provider" + KEYWORD_KEY);
       providerAndResources = buildgetDatasetByInstanceQuery(instance);
     }
     client.searchAsyncResourceGroupAndProvider(

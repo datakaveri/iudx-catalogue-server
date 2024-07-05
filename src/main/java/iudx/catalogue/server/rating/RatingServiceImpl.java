@@ -15,20 +15,18 @@ import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.database.elastic.ElasticsearchService;
 import iudx.catalogue.server.database.postgres.PostgresService;
 import iudx.catalogue.server.databroker.DataBrokerService;
-
 import java.nio.charset.StandardCharsets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 public class RatingServiceImpl implements RatingService {
   private static final Logger LOGGER = LogManager.getLogger(RatingServiceImpl.class);
+  private final String rsauditingtable;
+  private final int minReadNumber;
     ElasticsearchService databaseService;
   DataBrokerService dataBrokerService;
   PostgresService postgresService;
   private String ratingExchangeName;
-  private final String rsauditingtable;
-  private final int minReadNumber;
 
   /**
    * Constructor for RatingServiceImpl class. Initializes the object with the given parameters.

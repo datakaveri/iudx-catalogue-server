@@ -1,8 +1,8 @@
 package iudx.catalogue.server.database.elastic;
 
-import java.util.stream.Stream;
-
 import static iudx.catalogue.server.util.Constants.*;
+
+import java.util.stream.Stream;
 
 public enum ResponseUrn {
   INVALID_PROPERTY_VALUE_URN(TYPE_INVALID_PROPERTY_VALUE, TITLE_INVALID_PROPERTY_VALUE),
@@ -10,7 +10,7 @@ public enum ResponseUrn {
   BAD_FILTER_URN(TYPE_BAD_FILTER, TITLE_BAD_FILTER),
   INVALID_SYNTAX_URN(TYPE_INVALID_SYNTAX, TITLE_INVALID_SYNTAX),
   BAD_REQUEST_URN("urn:dx:cat:badRequest", "bad request parameter"),
-  BAD_TEXT_QUERY_URN(TYPE_BAD_TEXT_QUERY,TITLE_BAD_TEXT_QUERY),
+  BAD_TEXT_QUERY_URN(TYPE_BAD_TEXT_QUERY, TITLE_BAD_TEXT_QUERY),
   YET_NOT_IMPLEMENTED_URN("urn:dx:cat:general", "urn yet not implemented in backend verticle."),
   INVALID_COORDINATE_POLYGON_URN(TYPE_INVALID_GEO_VALUE, TITLE_INVALID_GEO_VALUE),
   INVALID_GEO_PARAMETER_URN(TYPE_INVALID_GEO_PARAM, TITLE_INVALID_GEO_PARAM);

@@ -1,6 +1,8 @@
 package iudx.catalogue.server.apiserver.stack;
 
 import static iudx.catalogue.server.apiserver.stack.StackConstants.DOC_ID;
+import iudx.catalogue.server.database.RespBuilder;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import static iudx.catalogue.server.database.elastic.query.Queries.buildSourceConfig;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.TITLE_ITEM_NOT_FOUND;
@@ -10,9 +12,6 @@ import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.elastic.ElasticClient;
-import iudx.catalogue.server.database.RespBuilder;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;

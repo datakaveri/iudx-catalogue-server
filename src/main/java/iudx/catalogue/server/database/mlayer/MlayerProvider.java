@@ -14,9 +14,9 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.elastic.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.Util;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,24 +41,27 @@ public class MlayerProvider {
 
   public void getMlayerProviders(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
-    int limit = requestParams.getString(LIMIT)!=null? Integer.parseInt(requestParams.getString(LIMIT)): FILTER_PAGINATION_SIZE;
-    int offset = requestParams.getString(OFFSET)!= null? Integer.parseInt(requestParams.getString(OFFSET)): FILTER_PAGINATION_FROM;
+    int limit =
+        requestParams.getString(LIMIT) != null
+            ? Integer.parseInt(requestParams.getString(LIMIT))
+            : FILTER_PAGINATION_SIZE;
+    // int offset = requestParams.getString(OFFSET)!= null?
+    // Integer.parseInt(requestParams.getString(OFFSET)): FILTER_PAGINATION_FROM;
     // Aggregation for provider_count
-    Aggregation providerCountAgg = AggregationBuilders.cardinality()
-            .field("provider.keyword")
-            .build()._toAggregation();
+    Aggregation providerCountAgg =
+        AggregationBuilders.cardinality().field("provider.keyword").build()._toAggregation();
 
     List<String> includes =
-            List.of(
-                    "id",
-                    "description",
-                    "type",
-                    "resourceGroup",
-                    "accessPolicy",
-                    "provider",
-                    "itemCreatedAt",
-                    "instance",
-                    "label");
+        List.of(
+            "id",
+            "description",
+            "type",
+            "resourceGroup",
+            "accessPolicy",
+            "provider",
+            "itemCreatedAt",
+            "instance",
+            "label");
     SourceConfig source = buildSourceConfig(includes);
     if (requestParams.containsKey(INSTANCE)) {
       Query query = buildgetDatasetByInstanceQuery(requestParams.getString(INSTANCE));
@@ -174,7 +177,7 @@ public class MlayerProvider {
               LOGGER.error("Fail: failed DB request");
               handler.handle(Future.failedFuture(internalErrorResp));
             }
-        });
+          });
     }
   }
 }

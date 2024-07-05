@@ -192,7 +192,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
 
     LOGGER.debug("Info: Query constructed;" + query);
     List<String> source = null;
-    int size = FILTER_PAGINATION_SIZE, from = 0;
+    int size = FILTER_PAGINATION_SIZE;
+    int from = FILTER_PAGINATION_FROM;
     String searchType = request.getString(SEARCH_TYPE);
     LOGGER.debug(searchType);
     if (searchType.equalsIgnoreCase("getParentObjectInfo")) {
@@ -230,7 +231,9 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
           request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
       size = limit;
     }
-    if (source == null) source = List.of();
+    if (source == null) {
+      source = List.of();
+    }
     client.searchAsync(
         query,
         buildSourceConfig(source),
@@ -798,7 +801,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
   public ElasticsearchService listRelationship(
       JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
     RespBuilder respBuilder = new RespBuilder();
-    Query typeQuery = buildGetRSGroupQuery(request.getString(ID));
+    Query typeQuery = buildGetRsGroupQuery(request.getString(ID));
     LOGGER.debug("typeQuery: " + typeQuery);
 
     client.searchAsync(
@@ -852,7 +855,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
               Query elasticQuery = queryDecoder.listRelationshipQuery(request);
               LOGGER.debug("Info: Query constructed;" + elasticQuery);
               JsonObject filters = handleResponseFiltering(request);
-              int size = filters.getInteger(SIZE_KEY), from = filters.getInteger("from");
+              int size = filters.getInteger(SIZE_KEY);
+              int from = filters.getInteger("from");
               List<String> includes =
                   filters.getJsonArray("includes") == null
                       ? List.of()
@@ -929,7 +933,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
             Query elasticQuery = queryDecoder.listRelationshipQuery(request);
             LOGGER.debug("Info: Query constructed;" + elasticQuery);
             JsonObject filters = handleResponseFiltering(request);
-            int size = filters.getInteger(SIZE_KEY), from = filters.getInteger("from");
+            int size = filters.getInteger(SIZE_KEY);
+            int from = filters.getInteger("from");
             List<String> includes =
                 filters.getJsonArray("includes") == null
                     ? List.of()
@@ -1110,7 +1115,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
                                               w -> w.field(ID_KEYWORD).value(idObj + "*")))
                                   .collect(Collectors.toList())));
               /* checking the requests for limit attribute */
-              int size = FILTER_PAGINATION_SIZE, from = 0;
+              int size = FILTER_PAGINATION_SIZE;
+              int from = FILTER_PAGINATION_FROM;
               if (request.containsKey(LIMIT)) {
                 Integer sizeFilter = request.getInteger(LIMIT);
                 size = sizeFilter;

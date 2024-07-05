@@ -1,10 +1,8 @@
 /**
- *
- *
  * <h1>CrudApis.java</h1>
- *
  * Callback handlers for CRUD
  */
+
 package iudx.catalogue.server.apiserver;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
@@ -613,7 +611,9 @@ public final class CrudApis {
                         .getResponse());
             return;
           } else {
-            /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */
+            /*
+            INSTANCE = "" to make sure createItem can be used for onboarding instance and items
+             */
             JsonObject body =
                 new JsonObject()
                     .put(ID, instance)
@@ -682,7 +682,9 @@ public final class CrudApis {
                         .getResponse());
             return;
           } else {
-            /* INSTANCE = "" to make sure createItem can be used for onboarding instance and items */
+            /*
+             INSTANCE = "" to make sure createItem can be used for onboarding instance and items
+             */
             JsonObject body = new JsonObject().put(ID, instance).put(INSTANCE, "");
             esService.deleteItem(
                 body,
