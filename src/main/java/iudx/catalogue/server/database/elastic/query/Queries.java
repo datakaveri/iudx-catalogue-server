@@ -510,7 +510,9 @@ public class Queries {
                     inline ->
                         inline
                             .source(
-                                "doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0")
+                                "doc['_word_vector'].size() == 0 "
+                                    + "? 0 : "
+                                    + "cosineSimilarity(params.query_vector, '_word_vector') + 1.0")
                             .lang("painless")
                             .params(params)));
     ScriptScoreQuery scriptScoreQuery =
@@ -590,7 +592,9 @@ public class Queries {
                 inline ->
                     inline
                         .source(
-                            "doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0")
+                            "doc['_word_vector'].size() == 0 "
+                                + "? 0 : "
+                                + "cosineSimilarity(params.query_vector, '_word_vector') + 1.0")
                         .params(params))
             .build();
     // Construct the script score query

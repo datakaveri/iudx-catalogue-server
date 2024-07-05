@@ -1,14 +1,14 @@
 package iudx.catalogue.server.database.elastic.query.querydecorator;
 
+import static iudx.catalogue.server.util.Constants.Q_VALUE;
+
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.elastic.exception.EsQueryException;
 import iudx.catalogue.server.database.elastic.ResponseUrn;
+import iudx.catalogue.server.database.elastic.exception.EsQueryException;
 import java.util.List;
 import java.util.Map;
-
-import static iudx.catalogue.server.util.Constants.Q_VALUE;
 
 public class TextQueryFiltersDecorator implements ElasticsearchQueryDecorator {
 

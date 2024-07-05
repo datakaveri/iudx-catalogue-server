@@ -970,7 +970,8 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
             Query elasticQuery = queryDecoder.listRelationshipQuery(request);
             LOGGER.debug("Info: Query constructed;" + elasticQuery);
             JsonObject filters = handleResponseFiltering(request);
-            int size = filters.getInteger(SIZE_KEY), from = filters.getInteger("from");
+            int size = filters.getInteger(SIZE_KEY);
+            int from = filters.getInteger("from");
             List<String> includes =
                 filters.getJsonArray("includes") == null
                     ? List.of()

@@ -20,7 +20,8 @@ public class GeoQueryFiltersDecorator implements ElasticsearchQueryDecorator {
   private Map<FilterType, List<Query>> queryFilters;
   private JsonObject requestQuery;
 
-  public GeoQueryFiltersDecorator(Map<FilterType, List<Query>> queryFilters, JsonObject requestQuery) {
+  public GeoQueryFiltersDecorator(
+      Map<FilterType, List<Query>> queryFilters, JsonObject requestQuery) {
     this.queryFilters = queryFilters;
     this.requestQuery = requestQuery;
   }
@@ -44,7 +45,8 @@ public class GeoQueryFiltersDecorator implements ElasticsearchQueryDecorator {
       JsonArray coordinates = requestQuery.getJsonArray(COORDINATES_KEY);
       /*Check if valid polygon*/
       if (POLYGON.equalsIgnoreCase(geometry) && !isValidPolygonCoordinates(coordinates)) {
-        throw new EsQueryException(INVALID_COORDINATE_POLYGON_URN, DETAIL_INVALID_COORDINATE_POLYGON);
+        throw new EsQueryException(
+            INVALID_COORDINATE_POLYGON_URN, DETAIL_INVALID_COORDINATE_POLYGON);
       }
       geoShapeQuery = buildGeoShapeQuery(geoProperty, geometry, coordinates, relation);
 
@@ -61,47 +63,54 @@ public class GeoQueryFiltersDecorator implements ElasticsearchQueryDecorator {
     return queryFilters;
   }
 
-  private Query buildCircleGeoShapeQuery(String geoProperty, JsonArray coordinates, String relation, int radius) {
+  private Query buildCircleGeoShapeQuery(
+      String geoProperty, JsonArray coordinates, String relation, int radius) {
     JsonObject geoJson = new JsonObject();
     geoJson.put("type", GEO_CIRCLE);
     geoJson.put("coordinates", coordinates);
     geoJson.put("radius", radius + "m");
     relation = relation.substring(0, 1).toUpperCase() + relation.substring(1).toLowerCase();
 
-    GeoShapeFieldQuery geoShapeFieldQuery = new GeoShapeFieldQuery.Builder()
+    GeoShapeFieldQuery geoShapeFieldQuery =
+        new GeoShapeFieldQuery.Builder()
             .shape(JsonData.fromJson(geoJson.toString()))
             .relation(GeoShapeRelation.valueOf(relation))
             .build();
-    Query query = QueryBuilders.geoShape(g->g
-            .field(geoProperty+GEO_KEY)
-            .shape(geoShapeFieldQuery));
+    Query query =
+        QueryBuilders.geoShape(g -> g.field(geoProperty + GEO_KEY).shape(geoShapeFieldQuery));
 
     return query;
   }
 
-  private Query buildGeoShapeQuery(String geoProperty, String geometry, JsonArray coordinates, String relation) {
+  private Query buildGeoShapeQuery(
+      String geoProperty, String geometry, JsonArray coordinates, String relation) {
     JsonObject geoJson = new JsonObject();
     geoJson.put("type", geometry);
     geoJson.put("coordinates", coordinates);
     relation = relation.substring(0, 1).toUpperCase() + relation.substring(1).toLowerCase();
 
-    GeoShapeFieldQuery geoShapeFieldQuery = new GeoShapeFieldQuery.Builder()
+    GeoShapeFieldQuery geoShapeFieldQuery =
+        new GeoShapeFieldQuery.Builder()
             .shape(JsonData.fromJson(geoJson.toString()))
             .relation(GeoShapeRelation.valueOf(relation))
             .build();
-    Query query = QueryBuilders.geoShape(g->g
-            .field(geoProperty+GEO_KEY)
-            .shape(geoShapeFieldQuery));
+    Query query =
+        QueryBuilders.geoShape(g -> g.field(geoProperty + GEO_KEY).shape(geoShapeFieldQuery));
 
     return query;
   }
 
   private boolean isValidPolygonCoordinates(JsonArray coordinates) {
     int length = coordinates.getJsonArray(0).size();
-    return coordinates.getJsonArray(0).getJsonArray(0).getDouble(0)
+    return coordinates
+            .getJsonArray(0)
+            .getJsonArray(0)
+            .getDouble(0)
             .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(0))
-            && coordinates.getJsonArray(0).getJsonArray(0).getDouble(1)
+        && coordinates
+            .getJsonArray(0)
+            .getJsonArray(0)
+            .getDouble(1)
             .equals(coordinates.getJsonArray(0).getJsonArray(length - 1).getDouble(1));
   }
-
 }
