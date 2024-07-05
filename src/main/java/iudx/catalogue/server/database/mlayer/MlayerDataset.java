@@ -50,7 +50,7 @@ public class MlayerDataset {
         providerAndRsIdQuery,
         buildSourceConfig(List.of("provider", "cos")),
         FILTER_PAGINATION_SIZE,
-        0,
+        FILTER_PAGINATION_FROM,
         docIndex,
         handlerRes -> {
           if (handlerRes.succeeded()) {
@@ -99,7 +99,7 @@ public class MlayerDataset {
 
             SourceConfig mlayerDatasetSource = buildSourceConfig(includesList);
             Query query = buildMlayerDatasetQuery(requestData.getString(ID), providerId, cosId);
-            int size = 10000;
+            int size = FILTER_PAGINATION_SIZE;
             LOGGER.debug("Query " + query);
             client.searchAsyncDataset(
                 query,
@@ -130,7 +130,7 @@ public class MlayerDataset {
                           getIconQuery,
                           buildSourceConfig(List.of("icon")),
                           FILTER_PAGINATION_SIZE,
-                          0,
+                          FILTER_PAGINATION_FROM,
                           mlayerInstanceIndex,
                           iconResultHandler -> {
                             if (iconResultHandler.succeeded()) {
@@ -366,7 +366,7 @@ public class MlayerDataset {
         null,
         buildSourceConfig(List.of("name", "icon")),
         FILTER_PAGINATION_SIZE,
-        0,
+        FILTER_PAGINATION_FROM,
         mlayerInstanceIndex,
         instanceRes -> {
           if (instanceRes.succeeded()) {

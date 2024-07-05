@@ -2,10 +2,10 @@ package iudx.catalogue.server.database.elastic.query;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.database.elastic.query.Queries.*;
+import static iudx.catalogue.server.database.elastic.query.Queries.buildNestedMustQuery;
 import static iudx.catalogue.server.util.Constants.*;
 
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
-import co.elastic.clients.elasticsearch._types.aggregations.TermsAggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -100,7 +100,7 @@ public final class QueryDecoder {
     }
     } catch (EsQueryException e) {
     LOGGER.error("Error constructing search query: {}", e.getMessage());
-    return new JsonObject().put(ERROR, e.toString());
+    return new JsonObject().put(ERROR, e.toJson());
     }
   }
 
@@ -129,31 +129,18 @@ public final class QueryDecoder {
     } else if (request.containsKey(ID) && itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
       String cosId = request.getString(ID);
       termQuery = buildTermQuery(COS_ITEM + KEYWORD_KEY, cosId);
-      LOGGER.debug("termQ-->iudx:COS: {}", termQuery);
       switch (relationshipType) {
         case RESOURCE:
-          subQuery =
-              QueryBuilders.bool(
-                  b -> b.must(termQuery).must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE)));
+          subQuery = buildRelSubQuery(termQuery, ITEM_TYPE_RESOURCE);
           break;
         case RESOURCE_GRP:
-          subQuery =
-              QueryBuilders.bool(
-                  b ->
-                      b.must(termQuery)
-                          .must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE_GROUP)));
+          subQuery = buildRelSubQuery(termQuery, ITEM_TYPE_RESOURCE_GROUP);
           break;
         case RESOURCE_SVR:
-          subQuery =
-              QueryBuilders.bool(
-                  b ->
-                      b.must(termQuery)
-                          .must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE_SERVER)));
+          subQuery = buildRelSubQuery(termQuery, ITEM_TYPE_RESOURCE_SERVER);
           break;
         case PROVIDER:
-          subQuery =
-              QueryBuilders.bool(
-                  b -> b.must(termQuery).must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_PROVIDER)));
+          subQuery = buildRelSubQuery(termQuery, ITEM_TYPE_PROVIDER);
           break;
         default:
           return null;
@@ -162,50 +149,30 @@ public final class QueryDecoder {
         && RESOURCE.equals(relationshipType)
         && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
       String providerId = request.getString(ID);
-      subQuery =
-          QueryBuilders.bool(
-              b ->
-                  b.must(buildTermQuery(PROVIDER + KEYWORD_KEY, providerId))
-                      .must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE)));
+      subQuery = buildNestedMustQuery(PROVIDER, providerId, ITEM_TYPE_RESOURCE);
     } else if (request.containsKey(ID)
         && RESOURCE.equals(relationshipType)
         && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
       String resourceGroupId = request.getString(ID);
 
-      subQuery =
-          QueryBuilders.bool(
-              b ->
-                  b.must(buildTermQuery(RESOURCE_GRP + KEYWORD_KEY, resourceGroupId))
-                      .must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE)));
+      subQuery = buildNestedMustQuery(RESOURCE_GRP, resourceGroupId, ITEM_TYPE_RESOURCE);
     } else if (request.containsKey(ID)
         && RESOURCE.equals(relationshipType)
         && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       String resourceServerId = request.getString(ID);
 
-      subQuery =
-          QueryBuilders.bool(
-              b ->
-                  b.must(buildTermQuery(RESOURCE_SVR + KEYWORD_KEY, resourceServerId))
-                      .must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE)));
+      subQuery = buildNestedMustQuery(RESOURCE_SVR, resourceServerId, ITEM_TYPE_RESOURCE);
     } else if (request.containsKey(ID)
         && RESOURCE_GRP.equals(relationshipType)
         && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
       String resourceGroupId = request.getString("resourceGroup");
-      subQuery =
-          QueryBuilders.bool(
-              b ->
-                  b.must(buildTermQuery(ID_KEYWORD, resourceGroupId))
-                      .must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE_GROUP)));
+      subQuery = buildNestedMustQuery(ID, resourceGroupId, ITEM_TYPE_RESOURCE_GROUP);
 
     } else if (request.containsKey(ID)
         && RESOURCE_GRP.equals(relationshipType)
         && itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
       String providerId = request.getString(ID);
-      subQuery =
-          QueryBuilders.bool(
-              b ->
-                  b.must(buildTermQuery(PROVIDER + KEYWORD_KEY, providerId))
-                      .must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE_GROUP)));
+      subQuery = buildNestedMustQuery(PROVIDER, providerId, ITEM_TYPE_RESOURCE_GROUP);
 
     } else if (request.containsKey(ID)
         && RESOURCE_GRP.equals(relationshipType)
@@ -220,7 +187,7 @@ public final class QueryDecoder {
       // Build the should clauses for each provider ID
       BoolQuery.Builder boolQueryBuilder = QueryBuilders.bool();
       for (String id : ids) {
-        boolQueryBuilder.should(QueryBuilders.match(m -> m.field("provider.keyword").query(id)));
+        boolQueryBuilder.should(buildMatchQuery("provider.keyword",id));
       }
       // Minimum should match clause
       boolQueryBuilder.minimumShouldMatch(String.valueOf(1));
@@ -232,29 +199,17 @@ public final class QueryDecoder {
         && itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       String resourceServerId = request.getString(ID);
 
-      subQuery =
-          QueryBuilders.bool(
-              b ->
-                  b.must(buildTermQuery(RESOURCE_SVR + KEYWORD_KEY, resourceServerId))
-                      .must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_PROVIDER)));
+      subQuery = buildNestedMustQuery(RESOURCE_SVR, resourceServerId, ITEM_TYPE_PROVIDER);
     } else if (request.containsKey(ID) && PROVIDER.equals(relationshipType)) {
       // String id = request.getString(ID);
       String providerId = request.getString(PROVIDER);
 
-      subQuery =
-          QueryBuilders.bool(
-              b ->
-                  b.must(buildTermQuery(ID_KEYWORD, providerId))
-                      .must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_PROVIDER)));
+      subQuery = buildNestedMustQuery(ID, providerId, ITEM_TYPE_PROVIDER);
 
     } else if (request.containsKey(ID) && RESOURCE_SVR.equals(relationshipType)) {
       String resourceServer = request.getString(RESOURCE_SVR);
 
-      subQuery =
-          QueryBuilders.bool(
-              b ->
-                  b.must(QueryBuilders.match(m -> m.field(ID_KEYWORD).query(resourceServer)))
-                      .must(buildTermQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE_SERVER)));
+      subQuery = buildRelSubQuery(buildMatchQuery(ID_KEYWORD, resourceServer),ITEM_TYPE_RESOURCE_SERVER);
 
     } else if (request.containsKey(ID) && TYPE_KEY.equals(relationshipType)) {
       /* parsing id from the request */
@@ -304,14 +259,12 @@ public final class QueryDecoder {
     String type = request.getString(TYPE_KEY);
     String instanceId = request.getString(INSTANCE);
     Integer limit =
-        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, 0));
+        request.getInteger(LIMIT, FILTER_PAGINATION_SIZE - request.getInteger(OFFSET, FILTER_PAGINATION_FROM));
     Query query;
     Aggregation aggregation;
 
     if (itemType.equalsIgnoreCase(TAGS)) {
-      aggregation =
-          Aggregation.of(
-              a -> a.terms(TermsAggregation.of(t -> t.field("tags.keyword").size(limit))));
+      aggregation = buildTermsAggs(TAGS+KEYWORD_KEY, limit);
       if (instanceId == null || instanceId.isEmpty()) {
         // Match all documents and aggregate tags
         query = QueryBuilders.matchAll().build()._toQuery();
@@ -319,8 +272,7 @@ public final class QueryDecoder {
         query = buildTermQuery("instance.keyword", instanceId);
       }
     } else {
-      aggregation =
-          Aggregation.of(a -> a.terms(TermsAggregation.of(t -> t.field("id.keyword").size(limit))));
+      aggregation = buildTermsAggs(ID_KEYWORD, limit);
       if (instanceId == null || instanceId.isEmpty()) {
         query = QueryBuilders.bool(b -> b.filter(buildMatchQuery("type", type)));
       } else {

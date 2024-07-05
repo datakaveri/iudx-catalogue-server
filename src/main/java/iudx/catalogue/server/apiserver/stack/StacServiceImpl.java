@@ -47,7 +47,7 @@ public class StacServiceImpl implements StacSevice {
         query,
         buildSourceConfig(List.of()),
         FILTER_PAGINATION_SIZE,
-        0,
+        FILTER_PAGINATION_FROM,
         index,
         clientHandler -> {
           if (clientHandler.succeeded()) {

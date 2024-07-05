@@ -1,54 +1,54 @@
 package iudx.catalogue.server.database.elastic.query;
 
 import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.geocoding.util.Constants.*;
+import static iudx.catalogue.server.geocoding.util.Constants.COUNTRY;
 import static iudx.catalogue.server.util.Constants.*;
+import static iudx.catalogue.server.util.Constants.BBOX;
 
-import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
-import co.elastic.clients.elasticsearch._types.aggregations.AverageAggregation;
-import co.elastic.clients.elasticsearch._types.aggregations.TermsAggregation;
-import co.elastic.clients.elasticsearch._types.aggregations.ValueCountAggregation;
+import co.elastic.clients.elasticsearch._types.*;
+import co.elastic.clients.elasticsearch._types.aggregations.*;
 import co.elastic.clients.elasticsearch._types.query_dsl.*;
 import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import co.elastic.clients.elasticsearch.core.search.SourceFilter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import co.elastic.clients.json.JsonData;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
+import java.util.*;
 
 public class Queries {
   public static Query buildMlayerDatasetQuery(String id1, String id2, String id3) {
     // Match queries
-    Query matchId1 = MatchQuery.of(m -> m.field(ID_KEYWORD).query(id1))._toQuery();
+    Query matchId1 = buildMatchQuery(ID_KEYWORD, id1);
 
-    Query matchTypeResourceGroup =
-        MatchQuery.of(m -> m.field(TYPE_KEYWORD).query("iudx:ResourceGroup"))._toQuery();
+    Query matchTypeResourceGroup = buildMatchQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE_GROUP);
 
-    Query matchId2 = MatchQuery.of(m -> m.field(ID_KEYWORD).query(id2))._toQuery();
+    Query matchId2 = buildMatchQuery(ID_KEYWORD, id2);
 
-    Query matchTypeProvider =
-        MatchQuery.of(m -> m.field(TYPE_KEYWORD).query("iudx:Provider"))._toQuery();
+    Query matchTypeProvider = buildMatchQuery(TYPE_KEYWORD, ITEM_TYPE_PROVIDER);
 
-    Query matchResourceGroup =
-        MatchQuery.of(m -> m.field("resourceGroup" + KEYWORD_KEY).query(id1))._toQuery();
+    Query matchResourceGroup = buildMatchQuery("resourceGroup" + KEYWORD_KEY, id1);
 
-    Query matchTypeResource =
-        MatchQuery.of(m -> m.field(TYPE_KEYWORD).query("iudx:Resource"))._toQuery();
+    Query matchTypeResource = buildMatchQuery(TYPE_KEYWORD, ITEM_TYPE_RESOURCE);
 
-    Query matchId3 = MatchQuery.of(m -> m.field(ID_KEYWORD).query(id3))._toQuery();
+    Query matchId3 = buildMatchQuery(ID_KEYWORD, id3);
 
-    Query matchTypeCOS = MatchQuery.of(m -> m.field(TYPE_KEYWORD).query("iudx:COS"))._toQuery();
+    Query matchTypeCOS = buildMatchQuery(TYPE_KEYWORD, ITEM_TYPE_COS);
 
     // Bool queries with must clauses
-    Query boolQuery1 = BoolQuery.of(b -> b.must(matchId1, matchTypeResourceGroup))._toQuery();
+    Query boolQuery1 = getBoolQuery(matchId1, matchTypeResourceGroup);
 
-    Query boolQuery2 = BoolQuery.of(b -> b.must(matchId2, matchTypeProvider))._toQuery();
+    Query boolQuery2 = getBoolQuery(matchId2, matchTypeProvider);
 
-    Query boolQuery3 = BoolQuery.of(b -> b.must(matchResourceGroup, matchTypeResource))._toQuery();
+    Query boolQuery3 = getBoolQuery(matchResourceGroup, matchTypeResource);
 
-    Query boolQuery4 = BoolQuery.of(b -> b.must(matchId3, matchTypeCOS))._toQuery();
+    Query boolQuery4 = getBoolQuery(matchId3, matchTypeCOS);
 
     return BoolQuery.of(b -> b.should(boolQuery1, boolQuery2, boolQuery3, boolQuery4))._toQuery();
+  }
+
+  public static Query getBoolQuery(Query key, Query value) {
+    return BoolQuery.of(b -> b.must(key, value))._toQuery();
   }
 
   public static Query buildMlayerInstanceIconQuery(String name) {
@@ -202,32 +202,6 @@ public class Queries {
 
   public static Query buildMlayerProvidersQuery() {
     return MatchQuery.of(q -> q.field(TYPE_KEYWORD).query("iudx:Provider"))._toQuery();
-  }
-
-  public static Query getMlayerAllDatasetsQuery() {
-    return TermsQuery.of(
-            f ->
-                f.field(TYPE_KEYWORD)
-                    .terms(
-                        (TermsQueryField)
-                            List.of(
-                                "iudx:Provider",
-                                "iudx:COS",
-                                "iudx:ResourceGroup",
-                                "iudx:Resource")))
-        ._toQuery();
-  }
-
-  public static Query buildGetAllDatasetsByFieldsQuery() {
-    Query resourceGroupQuery =
-        BoolQuery.of(
-                b ->
-                    b.must(
-                        List.of(
-                            MatchQuery.of(q -> q.field(TYPE_KEYWORD).query("iudx:ResourceGroup"))
-                                ._toQuery())))
-            ._toQuery();
-    return BoolQuery.of(b -> b.should(List.of(resourceGroupQuery)))._toQuery();
   }
 
   public static Query buildRDocQuery(String ratingId) {
@@ -503,5 +477,127 @@ public class Queries {
   public static SourceConfig buildSourceConfig(List<String> includes) {
     SourceFilter sourceFilter = SourceFilter.of(f -> f.includes(includes));
     return SourceConfig.of(s -> s.filter(sourceFilter));
+  }
+
+  public static SortOptions getSortOptions(String field) {
+    return SortOptions.of(s -> s.field(f -> f.field(field).order(SortOrder.Asc)));
+  }
+
+  public static Aggregation providerCountAgg(String field) {
+    return AggregationBuilders.cardinality().field(field).build()._toAggregation();
+  }
+
+  public static Aggregation buildTermsAggs(String field, int size) {
+    return Aggregation.of(a -> a.terms(TermsAggregation.of(t -> t.field(field).size(size))));
+  }
+
+  public static Query buildRelSubQuery(Query termQuery, String itemType) {
+    return QueryBuilders.bool(b -> b.must(termQuery).must(buildTermQuery(TYPE_KEYWORD, itemType)));
+  }
+
+  public static Query buildNestedMustQuery(String type, String id, String itemType) {
+    return QueryBuilders.bool(
+        b ->
+            b.must(buildTermQuery(type + KEYWORD_KEY, id))
+                .must(buildTermQuery(TYPE_KEYWORD, itemType)));
+  }
+
+  public static Query getScriptScoreQuery(Map<String, JsonData> params) {
+    Script script =
+        Script.of(
+            s ->
+                s.inline(
+                    inline ->
+                        inline
+                            .source(
+                                "doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0")
+                            .lang("painless")
+                            .params(params)));
+    ScriptScoreQuery scriptScoreQuery =
+        new ScriptScoreQuery.Builder()
+            .query(MatchAllQuery.of(m -> m)._toQuery())
+            .script(script)
+            .build();
+    return Query.of(q -> q.scriptScore(scriptScoreQuery));
+  }
+
+  public static Query getScriptLocationSearchQuery(
+      JsonObject queryParams, Map<String, JsonData> params) {
+    List<Query> shouldQueries = new ArrayList<>();
+
+    if (queryParams.containsKey(BOROUGH)) {
+      shouldQueries.add(
+          MatchQuery.of(
+                  m ->
+                      m.field("_geosummary._geocoded.results.borough")
+                          .query(queryParams.getString(BOROUGH)))
+              ._toQuery());
+    }
+    if (queryParams.containsKey(LOCALITY)) {
+      shouldQueries.add(
+          MatchQuery.of(
+                  m ->
+                      m.field("_geosummary._geocoded.results.locality")
+                          .query(queryParams.getString(LOCALITY)))
+              ._toQuery());
+    }
+    if (queryParams.containsKey(COUNTY)) {
+      shouldQueries.add(
+          MatchQuery.of(
+                  m ->
+                      m.field("_geosummary._geocoded.results.county")
+                          .query(queryParams.getString(COUNTY)))
+              ._toQuery());
+    }
+    if (queryParams.containsKey(REGION)) {
+      shouldQueries.add(
+          MatchQuery.of(
+                  m ->
+                      m.field("_geosummary._geocoded.results.region")
+                          .query(queryParams.getString(REGION)))
+              ._toQuery());
+    }
+    if (queryParams.containsKey(COUNTRY)) {
+      shouldQueries.add(
+          MatchQuery.of(
+                  m ->
+                      m.field("_geosummary._geocoded.results.country")
+                          .query(queryParams.getString(COUNTRY)))
+              ._toQuery());
+    }
+    JsonArray bboxCoords = queryParams.getJsonArray(BBOX);
+    JsonObject geoJson = new JsonObject();
+    geoJson.put("type", "envelope");
+    geoJson.put(
+        "coordinates",
+        List.of(
+            List.of(bboxCoords.getFloat(0), bboxCoords.getFloat(3)),
+            List.of(bboxCoords.getFloat(2), bboxCoords.getFloat(1))));
+
+    GeoShapeFieldQuery geoShapeFieldQuery =
+        new GeoShapeFieldQuery.Builder()
+            .shape(JsonData.fromJson(geoJson.toString()))
+            .relation(GeoShapeRelation.Intersects)
+            .build();
+    Query geoShapeQuery =
+        QueryBuilders.geoShape(g -> g.field("location" + GEO_KEY).shape(geoShapeFieldQuery));
+    BoolQuery boolQuery =
+        BoolQuery.of(b -> b.should(shouldQueries).minimumShouldMatch("1").filter(geoShapeQuery));
+    // Construct the script
+    Script script =
+        new Script.Builder()
+            .inline(
+                inline ->
+                    inline
+                        .source(
+                            "doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0")
+                        .params(params))
+            .build();
+    // Construct the script score query
+    ScriptScoreQuery scriptScoreQuery =
+        new ScriptScoreQuery.Builder().query(boolQuery._toQuery()).script(script).build();
+
+    // Wrap the script score query
+    return new Query.Builder().scriptScore(scriptScoreQuery).build();
   }
 }

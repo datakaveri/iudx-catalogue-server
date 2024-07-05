@@ -44,7 +44,7 @@ public class MlayerDomain {
         checkForExistingDomain,
         buildSourceConfig(List.of()),
         FILTER_PAGINATION_SIZE,
-        0,
+        FILTER_PAGINATION_FROM,
         mlayerDomainIndex,
         res -> {
           if (res.failed()) {
@@ -108,11 +108,11 @@ public class MlayerDomain {
     sourceConfig = buildSourceConfig(includes);
     int limit =
         requestParams.getString(LIMIT) == null
-            ? 10000
+            ? FILTER_PAGINATION_SIZE
             : Integer.parseInt(requestParams.getString(LIMIT));
     int offset =
         requestParams.getString(OFFSET) == null
-            ? 0
+            ? FILTER_PAGINATION_FROM
             : Integer.parseInt(requestParams.getString(OFFSET));
     if (!requestParams.containsKey(ID)) {
       query = buildAllMlayerDomainsQuery();

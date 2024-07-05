@@ -37,7 +37,7 @@ public class AttributeQueryFiltersDecorator implements ElasticsearchQueryDecorat
       // Ensure property and value arrays are of the same size
       if (propertyAttrs.size() != valueAttrs.size()) {
         throw new EsQueryException(
-                ResponseUrn.INVALID_ATTR_PARAM_URN, "Invalid Property Value: Sizes do not match");
+                ResponseUrn.INVALID_PROPERTY_VALUE_URN, "Invalid Property Value");
       }
 
       // Initialize a BoolQuery for combining must clauses

@@ -30,12 +30,11 @@ public class EsQueryException extends RuntimeException {
     this.statusCode = statusCode;
   }
 
-  public String toString() {
+  public JsonObject toJson() {
     JsonObject json = new JsonObject();
-    json.put("status", statusCode);
     json.put(TYPE, urn.getUrn());
     json.put(TITLE, urn.getMessage());
     json.put(DETAIL, message);
-    return json.toString();
+    return json;
   }
 }

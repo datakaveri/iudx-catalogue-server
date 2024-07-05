@@ -5,8 +5,6 @@ import static iudx.catalogue.server.database.elastic.query.Queries.*;
 import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
-import co.elastic.clients.elasticsearch._types.SortOptions;
-import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.AggregationBuilders;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
@@ -14,9 +12,9 @@ import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.elastic.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.Util;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -135,13 +133,10 @@ public class MlayerPopularDatasets {
     Query query = buildMatchAllQuery();
     List<String> includes = List.of("name", "cover", "icon");
     SourceConfig source = buildSourceConfig(includes);
-    // Constructing the sort options
-    SortOptions sortOptions =
-        SortOptions.of(s -> s.field(f -> f.field("name").order(SortOrder.Asc)));
     client.searchAsync(
         query,
         source,
-        sortOptions,
+        getSortOptions("name"),
         mlayerInstanceIndex,
         resultHandler -> {
           if (resultHandler.succeeded()) {
@@ -174,7 +169,7 @@ public class MlayerPopularDatasets {
   private void allMlayerDomains(Promise<JsonArray> domainResult) {
     List<String> includes = List.of("domainId", "description", "icon", "label", "name");
     SourceConfig sourceConfig = buildSourceConfig(includes);
-    int limit = FILTER_PAGINATION_SIZE, offset = 0;
+    int limit = FILTER_PAGINATION_SIZE, offset = FILTER_PAGINATION_FROM;
     Query getAllDomains = buildAllMlayerDomainsQuery();
     client.searchAsync(
         getAllDomains,
@@ -214,16 +209,14 @@ public class MlayerPopularDatasets {
     } else {
       // Aggregation to count unique providers
       // Aggregation for provider_count
-      providerCountAgg = AggregationBuilders.cardinality()
-              .field("provider.keyword")
-              .build()._toAggregation();
+      providerCountAgg = providerCountAgg("provider"+KEYWORD_KEY);
       providerAndResources = buildgetDatasetByInstanceQuery(instance);
     }
     client.searchAsyncResourceGroupAndProvider(
         providerAndResources,
         providerCountAgg,
         source,
-        10000,
+        FILTER_PAGINATION_SIZE,
         docIndex,
         getCatRecords -> {
           if (getCatRecords.succeeded()) {

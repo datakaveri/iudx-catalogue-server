@@ -41,8 +41,8 @@ public class MlayerProvider {
 
   public void getMlayerProviders(
       JsonObject requestParams, Handler<AsyncResult<JsonObject>> handler) {
-    int limit = Integer.parseInt(requestParams.getString(LIMIT));
-    int offset = Integer.parseInt(requestParams.getString(OFFSET));
+    int limit = requestParams.getString(LIMIT)!=null? Integer.parseInt(requestParams.getString(LIMIT)): FILTER_PAGINATION_SIZE;
+    int offset = requestParams.getString(OFFSET)!= null? Integer.parseInt(requestParams.getString(OFFSET)): FILTER_PAGINATION_FROM;
     // Aggregation for provider_count
     Aggregation providerCountAgg = AggregationBuilders.cardinality()
             .field("provider.keyword")
@@ -66,7 +66,7 @@ public class MlayerProvider {
           query,
           providerCountAgg,
           source,
-          10000,
+          FILTER_PAGINATION_SIZE,
           docIndex,
           resultHandler -> {
             if (resultHandler.succeeded()) {

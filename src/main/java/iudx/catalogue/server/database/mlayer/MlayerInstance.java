@@ -126,7 +126,7 @@ public class MlayerInstance {
         checkForExistingRecord,
         buildSourceConfig(List.of()),
         FILTER_PAGINATION_SIZE,
-        0,
+        FILTER_PAGINATION_FROM,
         mlayerInstanceIndex,
         res -> {
           if (res.failed()) {

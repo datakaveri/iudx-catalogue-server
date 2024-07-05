@@ -2,6 +2,8 @@ package iudx.catalogue.server.mlayer.vocabulary;
 
 import static iudx.catalogue.server.database.elastic.query.Queries.buildAllDatasetsByRsGrpQuery;
 import static iudx.catalogue.server.database.elastic.query.Queries.buildSourceConfig;
+import static iudx.catalogue.server.util.Constants.FILTER_PAGINATION_FROM;
+import static iudx.catalogue.server.util.Constants.FILTER_PAGINATION_SIZE;
 
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import io.vertx.core.AsyncResult;
@@ -50,8 +52,8 @@ public class DataModel {
     client.searchAsync(
         query,
         buildSourceConfig(List.of()),
-        10000,
-        0,
+        FILTER_PAGINATION_SIZE,
+        FILTER_PAGINATION_FROM,
         docIndex,
         searchHandler -> {
           if (searchHandler.succeeded()) {
@@ -116,7 +118,7 @@ public class DataModel {
    * @param promise The Promise to complete with classIdToSubClassMap.
    * @param dmUrl The URL of the data model.
    */
-  private void handleDataModelResponse(
+  public void handleDataModelResponse(
       AsyncResult<HttpResponse<Buffer>> dmAr,
       String id,
       String classId,

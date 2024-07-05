@@ -178,7 +178,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     if (q.containsKey(ERROR)) {
 
       LOGGER.error("Fail: Query returned with an error");
-      handler.handle(Future.failedFuture(q.getString(ERROR)));
+      handler.handle(Future.failedFuture(String.valueOf(q.getJsonObject(ERROR))));
       return null;
     }
     Query query = (Query) q.getValue("query");
@@ -348,7 +348,7 @@ public class ElasticsearchServiceImpl implements ElasticsearchService {
     if (q.containsKey(ERROR)) {
 
       LOGGER.error("Fail: Query returned with an error");
-      handler.handle(Future.failedFuture(q.getString(ERROR)));
+      handler.handle(Future.failedFuture(String.valueOf(q.getJsonObject(ERROR))));
       return null;
     }
     Query query = (Query) q.getValue("query");

@@ -14,7 +14,7 @@ public class QueryBuilder {
     return buildGetStackQuery(stackId);
   }
 
-  String getPatchQuery(JsonObject request) {
+  public String getPatchQuery(JsonObject request) {
     StringBuilder query =
         new StringBuilder(
             PATCH_QUERY

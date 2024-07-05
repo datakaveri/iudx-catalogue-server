@@ -1,8 +1,8 @@
 package iudx.catalogue.server.database.elastic;
 
 import static iudx.catalogue.server.database.Constants.*;
-import static iudx.catalogue.server.geocoding.util.Constants.*;
-import static iudx.catalogue.server.geocoding.util.Constants.BBOX;
+import static iudx.catalogue.server.database.elastic.query.Queries.getScriptLocationSearchQuery;
+import static iudx.catalogue.server.database.elastic.query.Queries.getScriptScoreQuery;
 import static iudx.catalogue.server.geocoding.util.Constants.RESULTS;
 import static iudx.catalogue.server.geocoding.util.Constants.TYPE;
 import static iudx.catalogue.server.util.Constants.*;
@@ -10,8 +10,6 @@ import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 
 import co.elastic.clients.elasticsearch.ElasticsearchAsyncClient;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.GeoShapeRelation;
-import co.elastic.clients.elasticsearch._types.Script;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.WriteResponseBase;
 import co.elastic.clients.elasticsearch._types.aggregations.*;
@@ -39,7 +37,6 @@ import jakarta.json.stream.JsonGenerator;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -552,23 +549,9 @@ public final class ElasticClient {
     // Create a map for script parameters
     Map<String, JsonData> params = new HashMap<>();
     params.put("query_vector", JsonData.fromJson(jsonString));
-    Script script =
-        Script.of(
-            s ->
-                s.inline(
-                    inline ->
-                        inline
-                            .source(
-                                "doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0")
-                            .lang("painless")
-                            .params(params)));
-    ScriptScoreQuery scriptScoreQuery =
-        new ScriptScoreQuery.Builder()
-            .query(MatchAllQuery.of(m -> m)._toQuery())
-            .script(script)
-            .build();
 
-    Query query = Query.of(q -> q.scriptScore(scriptScoreQuery));
+
+    Query query = getScriptScoreQuery(params);
     SearchRequest searchRequest =
         new SearchRequest.Builder()
             .index(index)
@@ -591,96 +574,14 @@ public final class ElasticClient {
    */
   public Future<JsonObject> scriptLocationSearch(JsonArray queryVector, JsonObject queryParams) {
 
-    List<Query> shouldQueries = new ArrayList<>();
-
-    if (queryParams.containsKey(BOROUGH)) {
-      shouldQueries.add(
-          MatchQuery.of(
-                  m ->
-                      m.field("_geosummary._geocoded.results.borough")
-                          .query(queryParams.getString(BOROUGH)))
-              ._toQuery());
-    }
-    if (queryParams.containsKey(LOCALITY)) {
-      shouldQueries.add(
-          MatchQuery.of(
-                  m ->
-                      m.field("_geosummary._geocoded.results.locality")
-                          .query(queryParams.getString(LOCALITY)))
-              ._toQuery());
-    }
-    if (queryParams.containsKey(COUNTY)) {
-      shouldQueries.add(
-          MatchQuery.of(
-                  m ->
-                      m.field("_geosummary._geocoded.results.county")
-                          .query(queryParams.getString(COUNTY)))
-              ._toQuery());
-    }
-    if (queryParams.containsKey(REGION)) {
-      shouldQueries.add(
-          MatchQuery.of(
-                  m ->
-                      m.field("_geosummary._geocoded.results.region")
-                          .query(queryParams.getString(REGION)))
-              ._toQuery());
-    }
-    if (queryParams.containsKey(COUNTRY)) {
-      shouldQueries.add(
-          MatchQuery.of(
-                  m ->
-                      m.field("_geosummary._geocoded.results.country")
-                          .query(queryParams.getString(COUNTRY)))
-              ._toQuery());
-    }
-
-    JsonArray bboxCoords = queryParams.getJsonArray(BBOX);
-    JsonObject geoJson = new JsonObject();
-    geoJson.put("type", "envelope");
-    geoJson.put(
-        "coordinates",
-        List.of(
-            List.of(bboxCoords.getFloat(0), bboxCoords.getFloat(3)),
-            List.of(bboxCoords.getFloat(2), bboxCoords.getFloat(1))));
-
-    GeoShapeFieldQuery geoShapeFieldQuery =
-        new GeoShapeFieldQuery.Builder()
-            .shape(JsonData.fromJson(geoJson.toString()))
-            .relation(GeoShapeRelation.Intersects)
-            .build();
-    Query geoShapeQuery =
-        QueryBuilders.geoShape(g -> g.field("location" + GEO_KEY).shape(geoShapeFieldQuery));
-
-    BoolQuery boolQuery =
-        BoolQuery.of(b -> b.should(shouldQueries).minimumShouldMatch("1").filter(geoShapeQuery));
-
     // Convert JsonArray to List for params
     List<Double> vectorList = queryVector.getList();
-
     // Convert List to JSON string
     String jsonString = new JsonArray(vectorList).encode();
-
     // Create a map for script parameters
     Map<String, JsonData> params = new HashMap<>();
     params.put("query_vector", JsonData.fromJson(jsonString));
-
-    // Construct the script
-    Script script =
-        new Script.Builder()
-            .inline(
-                inline ->
-                    inline
-                        .source(
-                            "doc['_word_vector'].size() == 0 ? 0 : cosineSimilarity(params.query_vector, '_word_vector') + 1.0")
-                        .params(params))
-            .build();
-
-    // Construct the script score query
-    ScriptScoreQuery scriptScoreQuery =
-        new ScriptScoreQuery.Builder().query(boolQuery._toQuery()).script(script).build();
-
-    // Wrap the script score query in a Query object
-    Query query = new Query.Builder().scriptScore(scriptScoreQuery).build();
+    Query query = getScriptLocationSearchQuery(queryParams, params);
 
     SearchRequest searchRequest =
         new SearchRequest.Builder()

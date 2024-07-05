@@ -218,7 +218,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         checkQuery,
         buildSourceConfig(List.of("type")),
         FILTER_PAGINATION_SIZE,
-        0,
+        FILTER_PAGINATION_FROM,
         docIndex,
         res -> {
           if (res.failed()) {
@@ -261,7 +261,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         checkQuery,
         buildSourceConfig(List.of("type")),
         FILTER_PAGINATION_SIZE,
-        0,
+        FILTER_PAGINATION_FROM,
         docIndex,
         res -> {
           if (res.failed()) {
@@ -405,7 +405,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         checkQuery,
         buildSourceConfig(List.of("type")),
         FILTER_PAGINATION_SIZE,
-        0,
+        FILTER_PAGINATION_FROM,
         docIndex,
         res -> {
           if (res.failed()) {

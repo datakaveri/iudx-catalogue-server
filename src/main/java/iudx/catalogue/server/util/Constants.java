@@ -175,6 +175,7 @@ public class Constants {
   public static final int ID_SIZE = 512;
   public static final int INSTANCE_SIZE = 100;
   public static final int FILTER_PAGINATION_SIZE = 10000;
+  public static final int FILTER_PAGINATION_FROM = 0;
   public static final int OFFSET_PAGINATION_SIZE = 9999;
   public static final int MAX_RESULT_WINDOW = 10000;
   public static final int MAXDISTANCE_LIMIT = 10000; // 10KM
