@@ -1,4 +1,4 @@
-package iudx.catalogue.server.database;
+package iudx.catalogue.server.database.elastic;
 
 import static iudx.catalogue.server.database.Constants.*;
 import static iudx.catalogue.server.mlayer.util.Constants.*;
@@ -13,9 +13,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.Configuration;
-import iudx.catalogue.server.database.elastic.ElasticClient;
-import iudx.catalogue.server.database.elastic.ElasticsearchService;
-import iudx.catalogue.server.database.elastic.ElasticsearchServiceImpl;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import java.util.List;
@@ -124,17 +121,36 @@ public class ElasticsearchServiceImplTest {
             })
         .when(client)
         .searchAsync(any(), any(), any());
-
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(1)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(5)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .listAggregationAsync(any(), any());
+        .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(4)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(client)
+        .searchAsync(any(), any(), any(), anyString(), any());
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(client)
+        .searchAsync(any(), any(), anyString(), any());
 
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -145,7 +161,7 @@ public class ElasticsearchServiceImplTest {
               }
             })
         .when(client)
-        .countAsync(any(), any(), any());
+        .listAggregationAsync(any(), any(), any());
 
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
@@ -156,18 +172,29 @@ public class ElasticsearchServiceImplTest {
               }
             })
         .when(client)
-        .searchGetId(any(), any(), any());
+        .countAsync(any(), anyString(), any());
 
     doAnswer(
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .searchAsyncGetId(any(), any(), any());
+        .searchGetId(any(), any(), anyString(), any());
+
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(client)
+        .searchAsyncGetId(any(), any(), anyString(), any());
 
     testContext.completeNow();
   }
@@ -267,7 +294,8 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(15)).searchAsync(any(), any(), any());
+            verify(client, times(13))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -286,7 +314,8 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(24)).searchAsync(anyString(), any(), any());
+            verify(client, times(21))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -305,7 +334,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(2)).listAggregationAsync(any(), any());
+            verify(client, times(2)).listAggregationAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("fail");
@@ -324,7 +353,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(1)).listAggregationAsync(anyString(), any());
+            verify(client, times(1)).listAggregationAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -393,12 +422,14 @@ public class ElasticsearchServiceImplTest {
     when(asyncResult.cause()).thenReturn(throwable);
     when(throwable.getMessage()).thenReturn("dummy");
 
-    elasticsearchService.verifyInstance(instanceId)
+    elasticsearchService
+        .verifyInstance(instanceId)
         .onComplete(
             handler -> {
               if (handler.failed()) {
                 elasticsearchService.verifyInstance(instanceId);
-                verify(client, times(45)).searchAsync(any(), any(), any());
+                verify(client, times(40))
+                    .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
                 assertEquals(TYPE_INTERNAL_SERVER_ERROR, handler.cause().getMessage());
                 vertxTestContext.completeNow();
               } else {
@@ -418,12 +449,14 @@ public class ElasticsearchServiceImplTest {
     json.put(TOTAL_HITS, 0);
     when(asyncResult.result()).thenReturn(json);
 
-    elasticsearchService.verifyInstance(instanceId)
+    elasticsearchService
+        .verifyInstance(instanceId)
         .onComplete(
             boolHandler -> {
               if (boolHandler.failed()) {
                 assertEquals(json, asyncResult.result());
-                verify(client, times(17)).searchAsync(anyString(), any(), any());
+                verify(client, times(15))
+                    .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -442,12 +475,14 @@ public class ElasticsearchServiceImplTest {
     json.put(TOTAL_HITS, 100);
     when(asyncResult.result()).thenReturn(json);
 
-    elasticsearchService.verifyInstance(instanceId)
+    elasticsearchService
+        .verifyInstance(instanceId)
         .onComplete(
             boolHandler -> {
               if (boolHandler.succeeded()) {
                 assertEquals(json, asyncResult.result());
-                verify(client, times(27)).searchAsync(anyString(), any(), any());
+                verify(client, times(24))
+                    .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -483,7 +518,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(10)).searchAsync(any(), any(), any());
+            verify(client, times(8))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -550,17 +586,17 @@ public class ElasticsearchServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .ratingAggregationAsync(any(), any(), any());
+        .ratingAggregationAsync(any(), any(), anyString(), any());
     dbService.getRatings(
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(2)).ratingAggregationAsync(any(), any(), any());
+            verify(client, times(2)).ratingAggregationAsync(any(), any(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -581,7 +617,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(8)).searchGetId(any(), any(), any());
+            verify(client, times(8)).searchGetId(any(), any(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -603,7 +639,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(48)).searchAsync(any(), any(), any());
+            verify(client, times(42))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
           } else vertxTestContext.failNow("Fail");
         });
@@ -635,7 +672,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(74)).searchAsync(any(), any(), any());
+            verify(client, times(65))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -684,7 +722,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(72)).searchAsync(any(), any(), any());
+            verify(client, times(63))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -706,7 +745,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(9)).searchGetId(any(), any(), any());
+            verify(client, times(9)).searchGetId(any(), any(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -745,7 +784,7 @@ public class ElasticsearchServiceImplTest {
         handler -> {
           if (handler.failed()) {
             verify(client, times(1)).docDelAsync(any(), any(), any());
-            verify(client, times(2)).searchGetId(any(), any(), any());
+            verify(client, times(2)).searchGetId(any(), any(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -784,7 +823,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(6)).searchGetId(any(), any(), any());
+            verify(client, times(6)).searchGetId(any(), any(), anyString(), any());
             verify(client, times(2)).docPutAsync(any(), any(), any(), any());
             vertxTestContext.completeNow();
           } else {
@@ -810,7 +849,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(61)).searchAsync(any(), any(), any());
+            verify(client, times(53))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -833,7 +873,8 @@ public class ElasticsearchServiceImplTest {
         handler -> {
           if (handler.failed()) {
             assertEquals("dummy", asyncResult.cause().getMessage());
-            verify(client, times(12)).searchAsync(any(), any(), any());
+            verify(client, times(10))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -856,7 +897,7 @@ public class ElasticsearchServiceImplTest {
         handler -> {
           if (handler.failed()) {
             assertEquals("dummy", asyncResult.cause().getMessage());
-            verify(client, times(1)).countAsync(any(), any(), any());
+            verify(client, times(1)).countAsync(any(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -884,7 +925,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(50)).searchAsync(any(), any(), any());
+            verify(client, times(44))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -915,7 +957,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(2)).searchAsync(any(), any(), any());
+            verify(client, times(2))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.failNow("Fail");
 
           } else {
@@ -947,7 +990,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(2)).searchAsync(any(), any(), any());
+            verify(client, times(2))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.failNow("Fail");
 
           } else {
@@ -977,7 +1021,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(2)).searchAsync(any(), any(), any());
+            verify(client, times(2))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.failNow("Fail");
 
           } else {
@@ -1007,7 +1052,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(2)).searchAsync(any(), any(), any());
+            verify(client, times(2))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.failNow("Fail");
 
           } else {
@@ -1036,7 +1082,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(23)).searchAsync(any(), any(), any());
+            verify(client, times(20))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
 
             vertxTestContext.completeNow();
           } else {
@@ -1066,7 +1113,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(2)).searchAsync(any(), any(), any());
+            verify(client, times(2))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.failNow("Fail");
 
           } else {
@@ -1102,7 +1150,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(70)).searchAsync(any(), any(), any());
+            verify(client, times(61))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1138,7 +1187,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(34)).searchAsync(any(), any(), any());
+            verify(client, times(30))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1173,17 +1223,17 @@ public class ElasticsearchServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult1);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult1);
                 return null;
               }
             })
         .when(client)
-        .ratingAggregationAsync(any(), any(), any());
+        .ratingAggregationAsync(any(), any(), anyString(), any());
     dbService.getRatings(
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(1)).ratingAggregationAsync(any(), any(), any());
+            verify(client, times(1)).ratingAggregationAsync(any(), any(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -1212,11 +1262,13 @@ public class ElasticsearchServiceImplTest {
     when(throwable.getMessage()).thenReturn("dummy");
 
     dbService.createItem(json, handler);
-    elasticsearchService.verifyInstance(instanceId)
+    elasticsearchService
+        .verifyInstance(instanceId)
         .onComplete(
             handler -> {
               if (handler.failed()) {
-                verify(client, times(8)).searchAsync(any(), any(), any());
+                verify(client, times(6))
+                    .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -1244,11 +1296,13 @@ public class ElasticsearchServiceImplTest {
     when(asyncResult.result()).thenReturn(json);
 
     dbService.createItem(json, handler);
-    elasticsearchService.verifyInstance(instanceId)
+    elasticsearchService
+        .verifyInstance(instanceId)
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
-                verify(client, times(14)).searchAsync(any(), any(), any());
+                verify(client, times(12))
+                    .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -1276,11 +1330,13 @@ public class ElasticsearchServiceImplTest {
     when(asyncResult.result()).thenReturn(json);
 
     dbService.createItem(json, handler);
-    elasticsearchService.verifyInstance(instanceId)
+    elasticsearchService
+        .verifyInstance(instanceId)
         .onComplete(
             handler -> {
               if (handler.failed()) {
-                verify(client, times(43)).searchAsync(any(), any(), any());
+                verify(client, times(38))
+                    .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
                 verify(nlpService, times(0)).getEmbedding(any(), any());
                 verify(geoService, times(0)).geoSummarize(any(), any());
                 vertxTestContext.completeNow();
@@ -1308,7 +1364,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(66)).searchAsync(any(), any(), any());
+            verify(client, times(57))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1340,7 +1397,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(30)).searchAsync(any(), any(), any());
+            verify(client, times(26))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             verify(client, times(4)).docPostAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1361,7 +1419,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(63)).searchAsync(any(), any(), any());
+            verify(client, times(54))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             testContext.completeNow();
 
           } else {
@@ -1393,7 +1452,8 @@ public class ElasticsearchServiceImplTest {
         handler -> {
           if (handler.failed()) {
             verify(client, times(5)).docPostAsync(any(), any(), any());
-            verify(client, times(56)).searchAsync(any(), any(), any());
+            verify(client, times(49))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
 
             testContext.completeNow();
 
@@ -1422,8 +1482,7 @@ public class ElasticsearchServiceImplTest {
   @Test
   @Description("test getMlayerInstance method when the DB Request is Successful")
   public void testGetMlayerInstance(VertxTestContext testContext) {
-    JsonObject requestParams =
-        new JsonObject().put("id", ID).put("limit", LIMIT).put("offset", OFFSET);
+    JsonObject requestParams = new JsonObject().put("id", ID).put(LIMIT, 10).put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(true);
 
     //    when(asyncResult.succeeded()).thenReturn(true);
@@ -1431,7 +1490,8 @@ public class ElasticsearchServiceImplTest {
         requestParams,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(35)).searchAsync(any(), any(), any());
+            verify(client, times(31))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -1442,14 +1502,14 @@ public class ElasticsearchServiceImplTest {
   @Test
   @Description("test getMlayerInstance method when get instance DB Request fails")
   public void testGetMlayerInstanceFailure(VertxTestContext testContext) {
-    JsonObject requestParams =
-        new JsonObject().put("id", ID).put("limit", LIMIT).put("offset", OFFSET);
+    JsonObject requestParams = new JsonObject().put("id", ID).put(LIMIT, 10).put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(false);
     dbService.getMlayerInstance(
         requestParams,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(64)).searchAsync(any(), any(), any());
+            verify(client, times(55))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             testContext.completeNow();
 
           } else {
@@ -1471,7 +1531,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(3)).searchGetId(any(), any(), any());
+            verify(client, times(3)).searchGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1493,7 +1553,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(1)).searchGetId(any(), any(), any());
+            verify(client, times(1)).searchGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1529,7 +1589,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(11)).searchGetId(any(), any(), any());
+            verify(client, times(11)).searchGetId(any(), any(), anyString(), any());
             verify(client, times(5)).docDelAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1564,7 +1624,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(4)).searchGetId(any(), any(), any());
+            verify(client, times(4)).searchGetId(any(), any(), anyString(), any());
             verify(client, times(2)).docDelAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1585,7 +1645,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(10)).searchAsyncGetId(any(), any(), any());
+            verify(client, times(10)).searchAsyncGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1606,7 +1666,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(1)).searchAsyncGetId(any(), any(), any());
+            verify(client, times(1)).searchAsyncGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1637,7 +1697,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(6)).searchAsyncGetId(any(), any(), any());
+            verify(client, times(6)).searchAsyncGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1679,7 +1739,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(3)).searchAsyncGetId(any(), any(), any());
+            verify(client, times(3)).searchAsyncGetId(any(), any(), anyString(), any());
             verify(client, times(1)).docPutAsync(any(), any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1723,7 +1783,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(9)).searchAsyncGetId(any(), any(), any());
+            verify(client, times(9)).searchAsyncGetId(any(), any(), anyString(), any());
             verify(client, times(5)).docPutAsync(any(), any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1757,7 +1817,8 @@ public class ElasticsearchServiceImplTest {
         handler -> {
           if (handler.failed()) {
             verify(client, times(2)).docPostAsync(any(), any(), any());
-            verify(client, times(11)).searchAsync(any(), any(), any());
+            verify(client, times(9))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
 
             testContext.completeNow();
 
@@ -1791,7 +1852,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(20)).searchAsync(any(), any(), any());
+            verify(client, times(17))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             verify(client, times(3)).docPostAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1812,7 +1874,8 @@ public class ElasticsearchServiceImplTest {
         handler -> {
           if (handler.failed()) {
 
-            verify(client, times(71)).searchAsync(any(), any(), any());
+            verify(client, times(62))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
 
             testContext.completeNow();
 
@@ -1837,7 +1900,8 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(1)).searchAsync(any(), any(), any());
+            verify(client, times(1))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1848,8 +1912,7 @@ public class ElasticsearchServiceImplTest {
   @Test
   @Description("test getMlayerDomain method when the DB Request is Successful")
   public void testGetMlayerDomain(VertxTestContext testContext) {
-    JsonObject requestParams =
-        new JsonObject().put("id", ID).put("limit", LIMIT).put("offset", OFFSET);
+    JsonObject requestParams = new JsonObject().put("id", ID).put(LIMIT, 10).put(OFFSET, 0);
 
     when(asyncResult.succeeded()).thenReturn(true);
 
@@ -1857,7 +1920,8 @@ public class ElasticsearchServiceImplTest {
         requestParams,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(38)).searchAsync(any(), any(), any());
+            verify(client, times(34))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -1868,15 +1932,15 @@ public class ElasticsearchServiceImplTest {
   @Test
   @Description("test getMlayerDomain method when get instance DB Request fails")
   public void testGetMlayerDomainFailure(VertxTestContext testContext) {
-    JsonObject requestParams =
-        new JsonObject().put("id", ID).put("limit", LIMIT).put("offset", OFFSET);
+    JsonObject requestParams = new JsonObject().put("id", ID).put(LIMIT, 10).put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(false);
 
     dbService.getMlayerDomain(
         requestParams,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(59)).searchAsync(any(), any(), any());
+            verify(client, times(51))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             testContext.completeNow();
 
           } else {
@@ -1898,7 +1962,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(13)).searchGetId(any(), any(), any());
+            verify(client, times(13)).searchGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1920,7 +1984,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(7)).searchGetId(any(), any(), any());
+            verify(client, times(7)).searchGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1954,7 +2018,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(10)).searchGetId(any(), any(), any());
+            verify(client, times(10)).searchGetId(any(), any(), anyString(), any());
             verify(client, times(4)).docDelAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1991,7 +2055,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(5)).searchGetId(any(), any(), any());
+            verify(client, times(5)).searchGetId(any(), any(), anyString(), any());
             verify(client, times(3)).docDelAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -2012,7 +2076,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(7)).searchAsyncGetId(any(), any(), any());
+            verify(client, times(7)).searchAsyncGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -2033,7 +2097,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(2)).searchAsyncGetId(any(), any(), any());
+            verify(client, times(2)).searchAsyncGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -2075,7 +2139,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(5)).searchAsyncGetId(any(), any(), any());
+            verify(client, times(5)).searchAsyncGetId(any(), any(), anyString(), any());
             verify(client, times(3)).docPutAsync(any(), any(), any(), any());
 
             testContext.completeNow();
@@ -2108,7 +2172,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(4)).searchAsyncGetId(any(), any(), any());
+            verify(client, times(4)).searchAsyncGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -2149,7 +2213,7 @@ public class ElasticsearchServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(8)).searchAsyncGetId(any(), any(), any());
+            verify(client, times(8)).searchAsyncGetId(any(), any(), anyString(), any());
             verify(client, times(4)).docPutAsync(any(), any(), any(), any());
             testContext.completeNow();
           } else {
@@ -2161,8 +2225,7 @@ public class ElasticsearchServiceImplTest {
   @Test
   @Description("test getMlayerProviders method when the DB Request is Successful")
   public void testGetMlayerProviders(VertxTestContext testContext) {
-    JsonObject requestParams =
-        new JsonObject().put("id", ID).put("limit", LIMIT).put("offset", OFFSET);
+    JsonObject requestParams = new JsonObject().put("id", ID).put("limit", 10).put("offset", 0);
 
     when(asyncResult.succeeded()).thenReturn(true);
 
@@ -2170,7 +2233,8 @@ public class ElasticsearchServiceImplTest {
         requestParams,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(25)).searchAsync(any(), any(), any());
+            verify(client, times(22))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -2181,15 +2245,15 @@ public class ElasticsearchServiceImplTest {
   @Test
   @Description("test getMlayerProviders method when get providers DB Request fails")
   public void testGetMlayerProvidersFailure(VertxTestContext testContext) {
-    JsonObject requestParams =
-        new JsonObject().put("id", ID).put("limit", LIMIT).put("offset", OFFSET);
+    JsonObject requestParams = new JsonObject().put("id", ID).put(LIMIT, 10).put(OFFSET, 0);
     when(asyncResult.succeeded()).thenReturn(false);
 
     dbService.getMlayerProviders(
         requestParams,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(46)).searchAsync(any(), any(), any());
+            verify(client, times(41))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             testContext.completeNow();
 
           } else {
@@ -2211,17 +2275,17 @@ public class ElasticsearchServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .searchAsyncGeoQuery(any(), any(), any());
+        .searchAsyncGeoQuery(any(), any(), anyString(), any());
     dbService.getMlayerGeoQuery(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(1)).searchAsyncGeoQuery(any(), any(), any());
+            verify(client, times(1)).searchAsyncGeoQuery(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -2243,7 +2307,8 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(2)).searchAsync(any(), any(), any());
+            verify(client, times(2))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             testContext.failNow("fail");
 
           } else {
@@ -2273,19 +2338,20 @@ public class ElasticsearchServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(4)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .searchAsyncDataset(any(), any(), any(), any(), any());
+        .searchAsyncDataset(any(), any(), anyInt(), anyString(), any());
 
     dbService.getMlayerDataset(
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(52)).searchAsync(any(), any(), any());
-            verify(client, times(2)).searchAsyncDataset(any(), any(), any(), any(), any());
+            verify(client, times(46))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
+            verify(client, times(2)).searchAsyncDataset(any(), any(), anyInt(), anyString(), any());
 
             testContext.completeNow();
 
@@ -2321,7 +2387,7 @@ public class ElasticsearchServiceImplTest {
               }
             })
         .when(client)
-        .searchAsyncDataset(any(), any(), any(), any(), any());
+        .searchAsyncDataset(any(), any(), anyInt(), anyString(), any());
 
     dbService.getMlayerDataset(
         request,
@@ -2330,8 +2396,9 @@ public class ElasticsearchServiceImplTest {
             testContext.failNow("fail");
 
           } else {
-            verify(client, times(67)).searchAsync(any(), any(), any());
-            verify(client, times(2)).searchAsyncDataset(any(), any(), any(), any(), any());
+            verify(client, times(58))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
+            verify(client, times(2)).searchAsyncDataset(any(), any(), anyInt(), anyString(), any());
 
             testContext.completeNow();
           }
@@ -2374,20 +2441,20 @@ public class ElasticsearchServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .resourceAggregationAsync(any(), any(), any(), any());
+        .resourceAggregationAsync(any(), anyInt(), anyString(), any());
 
     dbService.getMlayerAllDatasets(
         request,
         "abc",
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(6)).searchAsync(any(), any(), any());
-            verify(client, times(1)).resourceAggregationAsync(any(), any(), any(), any());
+            verify(client, times(1)).searchAsync(anyString(), any(), any());
+            verify(client, times(1)).resourceAggregationAsync(any(), anyInt(), anyString(), any());
             testContext.completeNow();
 
           } else {
@@ -2427,20 +2494,20 @@ public class ElasticsearchServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .resourceAggregationAsync(any(), any(), any(), any());
+        .resourceAggregationAsync(any(), anyInt(), anyString(), any());
 
     dbService.getMlayerAllDatasets(
         request,
         "abc",
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(6)).searchAsync(any(), any(), any());
-            verify(client, times(1)).resourceAggregationAsync(any(), any(), any(), any());
+            verify(client, times(6)).searchAsync(anyString(), any(), any());
+            verify(client, times(1)).resourceAggregationAsync(any(), anyInt(), anyString(), any());
             testContext.failNow("fail");
 
           } else {
@@ -2499,12 +2566,12 @@ public class ElasticsearchServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .resourceAggregationAsync(any(), any(), any(), any());
+        .resourceAggregationAsync(any(), anyInt(), anyString(), any());
 
     dbService.getMlayerAllDatasets(
         request,
@@ -2512,8 +2579,8 @@ public class ElasticsearchServiceImplTest {
         handler -> {
           if (handler.succeeded()) {
             // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
-            verify(client, times(55)).searchAsync(any(), any(), any());
-            verify(client, times(5)).resourceAggregationAsync(any(), any(), any(), any());
+            verify(client, times(4)).searchAsync(anyString(), any(), any());
+            verify(client, times(5)).resourceAggregationAsync(any(), anyInt(), anyString(), any());
             testContext.completeNow();
 
           } else {
@@ -2535,7 +2602,7 @@ public class ElasticsearchServiceImplTest {
         handler -> {
           if (handler.failed()) {
             // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
-            verify(client, times(29)).searchAsync(any(), any(), any());
+            verify(client, times(3)).searchAsync(anyString(), any(), any());
 
             testContext.completeNow();
 
@@ -2605,17 +2672,28 @@ public class ElasticsearchServiceImplTest {
             .put("latestDataset", latestDataset);
     when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
-    mockAsyncMethod(client -> client.searchAsync(any(), any(), any()));
-    mockAsyncMethod(client -> client.resourceAggregationAsync(any(), any(), any(), any()));
-    mockAsyncMethod(client -> client.searchAsyncResourceGroupAndProvider(any(), any(), any()));
+    mockAsyncMethod(client -> client.searchAsync(any(), any(), any(), anyString(), any()), 4);
+    mockAsyncMethod(
+        client -> client.searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any()), 5);
+    mockAsyncMethod(
+        client -> client.resourceAggregationAsync(any(), anyInt(), anyString(), any()), 3);
+    mockAsyncMethod(
+        client ->
+            client.searchAsyncResourceGroupAndProvider(
+                any(), any(), any(), anyInt(), anyString(), any()),
+        5);
     elasticsearchService.getMlayerPopularDatasets(
         instanceName,
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(58)).searchAsync(any(), any(), any());
-            verify(client, times(5)).searchAsyncResourceGroupAndProvider(any(), any(), any());
-            verify(client, times(6)).resourceAggregationAsync(any(), any(), any(), any());
+            verify(client, times(3)).searchAsync(any(), any(), any(), anyString(), any());
+            verify(client, times(50))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
+            verify(client, times(5))
+                .searchAsyncResourceGroupAndProvider(
+                    any(), any(), any(), anyInt(), anyString(), any());
+            verify(client, times(6)).resourceAggregationAsync(any(), anyInt(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -2644,7 +2722,10 @@ public class ElasticsearchServiceImplTest {
         handler -> {
           if (handler.failed()) {
             // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
-            verify(client, times(3)).searchAsync(any(), any(), any());
+            verify(client, times(1)).searchAsync(any(), any(), any(), anyString(), any());
+            verify(client, times(1)).searchAsync(any(), any(), any(), anyString(), any());
+            verify(client, times(2))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
 
             testContext.completeNow();
 
@@ -2729,20 +2810,30 @@ public class ElasticsearchServiceImplTest {
     JsonObject result = new JsonObject().put(TOTAL_HITS, 1).put(RESULTS, resultArray);
     when(asyncResult.result()).thenReturn(result);
     when(asyncResult.succeeded()).thenReturn(true);
-    mockAsyncMethod(client -> client.searchAsync(any(), any(), any()));
-    mockAsyncMethod(client -> client.resourceAggregationAsync(any(), any(), any(), any()));
-    mockAsyncMethod(client -> client.searchAsyncResourceGroupAndProvider(any(), any(), any()));
+    mockAsyncMethod(
+        client -> client.searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any()), 5);
+    mockAsyncMethod(client -> client.searchAsync(any(), any(), any(), anyString(), any()), 4);
+    mockAsyncMethod(
+        client -> client.resourceAggregationAsync(any(), anyInt(), anyString(), any()), 3);
+    mockAsyncMethod(
+        client ->
+            client.searchAsyncResourceGroupAndProvider(
+                any(), any(), any(), anyInt(), anyString(), any()),
+        5);
 
     elasticsearchService.getMlayerPopularDatasets(
         instanceName,
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(ElasticsearchServiceImpl.client, times(40)).searchAsync(any(), any(), any());
+            verify(client, times(2)).searchAsync(any(), any(), any(), anyString(), any());
+            verify(client, times(35))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             verify(ElasticsearchServiceImpl.client, times(3))
-                .searchAsyncResourceGroupAndProvider(any(), any(), any());
+                .searchAsyncResourceGroupAndProvider(
+                    any(), any(), any(), anyInt(), anyString(), any());
             verify(ElasticsearchServiceImpl.client, times(4))
-                .resourceAggregationAsync(any(), any(), any(), any());
+                .resourceAggregationAsync(any(), anyInt(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -2803,7 +2894,8 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(21)).searchAsync(any(), any(), any());
+            verify(client, times(18))
+                .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -2825,7 +2917,7 @@ public class ElasticsearchServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(1)).searchGetId(any(), any(), any());
+            verify(client, times(1)).searchGetId(any(), any(), anyString(), any());
             vertxTestContext.failNow("Fail");
 
           } else {
@@ -2834,10 +2926,10 @@ public class ElasticsearchServiceImplTest {
         });
   }
 
-  private void mockAsyncMethod(Consumer<ElasticClient> asyncMethodMock) {
+  private void mockAsyncMethod(Consumer<ElasticClient> asyncMethodMock, int arg) {
     doAnswer(
             invocation -> {
-              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(2);
+              Handler<AsyncResult<JsonObject>> handler = invocation.getArgument(arg);
               handler.handle(asyncResult);
               return null;
             })
@@ -2880,19 +2972,21 @@ public class ElasticsearchServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(5)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .searchAsyncResourceGroupAndProvider(any(), any(), any());
+        .searchAsyncResourceGroupAndProvider(any(), any(), any(), anyInt(), anyString(), any());
 
     dbService.getMlayerProviders(
         request,
         handler -> {
           if (handler.succeeded()) {
             //   verify(client, times(6)).searchAsync(any(), any(), any());
-            verify(client, times(2)).searchAsyncResourceGroupAndProvider(any(), any(), any());
+            verify(client, times(2))
+                .searchAsyncResourceGroupAndProvider(
+                    any(), any(), any(), anyInt(), anyString(), any());
             testContext.completeNow();
 
           } else {
@@ -2910,19 +3004,21 @@ public class ElasticsearchServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(5)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .searchAsyncResourceGroupAndProvider(any(), any(), any());
+        .searchAsyncResourceGroupAndProvider(any(), any(), any(), anyInt(), anyString(), any());
 
     dbService.getMlayerProviders(
         request,
         handler -> {
           if (handler.succeeded()) {
             //   verify(client, times(6)).searchAsync(any(), any(), any());
-            verify(client, times(1)).searchAsyncResourceGroupAndProvider(any(), any(), any());
+            verify(client, times(1))
+                .searchAsyncResourceGroupAndProvider(
+                    any(), any(), any(), anyInt(), anyString(), any());
             testContext.failNow("fail");
 
           } else {

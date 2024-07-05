@@ -1,27 +1,32 @@
-package iudx.catalogue.server.database;
+package iudx.catalogue.server.database.elastic;
 
-import static iudx.catalogue.server.database.Constants.*;
-import static iudx.catalogue.server.database.elastic.query.Queries.buildSourceConfig;
+import static iudx.catalogue.server.database.Constants.ID_KEYWORD;
+import static iudx.catalogue.server.database.elastic.query.Queries.*;
 import static iudx.catalogue.server.geocoding.util.Constants.*;
 import static iudx.catalogue.server.util.Constants.*;
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.AggregationBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.database.elastic.ElasticClient;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
+import iudx.catalogue.server.Configuration;
+import iudx.catalogue.server.apiserver.stack.QueryBuilder;
 import iudx.catalogue.server.util.Constants;
+import java.util.List;
 import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import io.vertx.junit5.VertxExtension;
-import io.vertx.junit5.VertxTestContext;
-import io.vertx.core.Vertx;
-import iudx.catalogue.server.Configuration;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
@@ -32,22 +37,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(VertxExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ElasticClientTest {
-  @Mock
-  Handler<AsyncResult<JsonObject>> handler;
   private static final Logger LOGGER = LogManager.getLogger(ElasticClientTest.class);
   private static ElasticClient elasticClient;
   private static String databaseIP;
   private static int databasePort;
-  private static String docIndex,ratingIndex;
+  private static String docIndex, ratingIndex;
   private static String databaseUser;
   private static String databasePassword;
   private static String databaseIndex;
+  @Mock Handler<AsyncResult<JsonObject>> handler;
 
   @BeforeAll
   @DisplayName("")
@@ -65,7 +67,8 @@ public class ElasticClientTest {
     docIndex = elasticConfig.getString(DOC_INDEX);
     ratingIndex = elasticConfig.getString(RATING_INDEX);
 
-    elasticClient = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
+    elasticClient =
+        new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
     LOGGER.info("Read config file");
     testContext.completeNow();
@@ -75,19 +78,22 @@ public class ElasticClientTest {
   @Order(1)
   @DisplayName("Test Get all")
   void TestGetAll(VertxTestContext testContext) {
-    JsonObject query = new JsonObject().put("query", new JsonObject()
-                                        .put("match_all", new JsonObject()));
-    elasticClient.searchAsync(query.toString(), docIndex, res -> {
-      if (res.succeeded()) {
-        LOGGER.info("Succeeded");
-        LOGGER.debug(res.result());
-        LOGGER.debug("Computed size = " + res.result().getJsonArray("results").size());
-        testContext.completeNow();
-      } else {
-        LOGGER.error("Failed, cause:" + res.cause());
-        testContext.failed();
-      }
-    });
+    JsonObject query =
+        new JsonObject().put("query", new JsonObject().put("match_all", new JsonObject()));
+    elasticClient.searchAsync(
+        query.toString(),
+        docIndex,
+        res -> {
+          if (res.succeeded()) {
+            LOGGER.info("Succeeded");
+            LOGGER.debug(res.result());
+            LOGGER.debug("Computed size = " + res.result().getJsonArray("results").size());
+            testContext.completeNow();
+          } else {
+            LOGGER.error("Failed, cause:" + res.cause());
+            testContext.failed();
+          }
+        });
   }
 
   @Test
@@ -97,160 +103,252 @@ public class ElasticClientTest {
 
     LOGGER.info("Reached get aggregations");
 
-    String req = "{\"query\":{\"bool\":{\"filter\":[{\"match\":{\"type\":\"iudx:ResourceGroup\"}}]}},\"aggs\":{\"results\":{\"terms\":{\"field\":\"id.keyword\",\"size\":10000}}}}";
-    LOGGER.debug("Aggregation query is " + req);
-    elasticClient.listAggregationAsync(req, res -> {
-      if (res.succeeded()) {
-        LOGGER.info("Succeeded");
-        LOGGER.debug(res.result());
-        LOGGER.debug("Computed size = " + res.result().getJsonArray("results").size());
-        testContext.completeNow();
-      } else {
-        LOGGER.error("Failed, cause:" + res.cause());
-        testContext.failed();
-      }
-    });
+    Query query =
+        new Query.Builder()
+            .bool(b -> b.filter(f -> f.match(m -> m.field("type").query(ITEM_TYPE_RESOURCE_GROUP))))
+            .build();
+    Aggregation aggregation =
+        Aggregation.of(a -> a.terms(t -> t.field("id.keyword").size(FILTER_PAGINATION_SIZE)));
+
+    LOGGER.debug("query is " + query);
+    LOGGER.debug("Aggregation query is " + aggregation);
+    elasticClient.listAggregationAsync(
+        query,
+        aggregation,
+        res -> {
+          if (res.succeeded()) {
+            LOGGER.info("Succeeded");
+            LOGGER.debug(res.result());
+            LOGGER.debug("Computed size = " + res.result().getJsonArray("results").size());
+            testContext.completeNow();
+          } else {
+            LOGGER.error("Failed, cause:" + res.cause());
+            testContext.failed();
+          }
+        });
   }
 
   @Test
   @DisplayName("test get rating aggs")
   void testGetRatingAggregations(VertxTestContext testContext) {
 
-    StringBuilder req = new StringBuilder(GET_AVG_RATING_PREFIX).append(GET_AVG_RATING_MATCH_QUERY.replace("$1", "b58da193-23d9-43eb-b98a-a103d4b6103c"));
-    req.deleteCharAt(req.lastIndexOf(","));
-    req.append(GET_AVG_RATING_SUFFIX);
-    LOGGER.debug(req);
-    elasticClient.ratingAggregationAsync(req.toString(), ratingIndex, res -> {
-      if(res.succeeded()) {
-        LOGGER.debug(res.result());
-        testContext.completeNow();
-      } else {
-        testContext.failNow("test failed");
-      }
-    });
+    Query matchQuery =
+        QueryBuilders.match(m -> m.field(ID_KEYWORD).query("b58da193-23d9-43eb-b98a-a103d4b6103c"));
+    Query avgQuery =
+        QueryBuilders.bool(
+            b ->
+                b.should(matchQuery)
+                    .minimumShouldMatch("1")
+                    .must(QueryBuilders.match(m -> m.field("status").query("approved"))));
+    LOGGER.debug(avgQuery);
+    elasticClient.ratingAggregationAsync(
+        avgQuery,
+        buildAvgRatingAggregation(),
+        ratingIndex,
+        res -> {
+          if (res.succeeded()) {
+            LOGGER.debug(res.result());
+            testContext.completeNow();
+          } else {
+            testContext.failNow("test failed");
+          }
+        });
   }
 
   @Test
   @Description("test script search method ")
   public void testScriptSearch(VertxTestContext vertxTestContext) {
-    JsonArray queryVector=new JsonArray();
-    assertNotNull(elasticClient.scriptSearch(queryVector,handler));
+    JsonArray queryVector = new JsonArray();
+    assertNotNull(elasticClient.scriptSearch(queryVector, handler));
     vertxTestContext.completeNow();
   }
 
   JsonArray newWordVector() {
     JsonArray result = new JsonArray();
-    for(int i=0;i<100;i++)
-      result.add(i,Math.random()*5.0);
+    for (int i = 0; i < 100; i++) result.add(i, Math.random() * 5.0);
     return result;
   }
-
 
   @Test
   @Description("test script location search")
   public void testScriptLocationSearch(VertxTestContext vertxTestContext) {
     JsonArray wordVector = newWordVector();
-    JsonObject params = new JsonObject()
-        .put(COUNTRY,"India")
-        .put(REGION,"Karnataka")
-        .put(COUNTY, "Bangalore")
-        .put(LOCALITY, "Bangalore")
-        .put(BOROUGH, "East Bangalore")
-        .put(Constants.BBOX, new JsonArray().add(0, 77.5).add(1,13.0).add(2,77.6).add(3,13.1));
+    JsonObject params =
+        new JsonObject()
+            .put(COUNTRY, "India")
+            .put(REGION, "Karnataka")
+            .put(COUNTY, "Bangalore")
+            .put(LOCALITY, "Bangalore")
+            .put(BOROUGH, "East Bangalore")
+            .put(
+                Constants.BBOX,
+                new JsonArray().add(0, 77.5).add(1, 13.0).add(2, 77.6).add(3, 13.1));
 
-    elasticClient.scriptLocationSearch(wordVector, params).onComplete(handler -> {
-      if(handler.succeeded()) {
-        vertxTestContext.completeNow();
-      } else {
-        vertxTestContext.failNow(handler.cause());
-      }
-    });
-
-
+    elasticClient
+        .scriptLocationSearch(wordVector, params)
+        .onComplete(
+            handler -> {
+              if (handler.succeeded()) {
+                vertxTestContext.completeNow();
+              } else {
+                vertxTestContext.failNow(handler.cause());
+              }
+            });
   }
+
   @Test
   @Description("testing ratingAggreagationAsync method")
   public void testRatingAggreagate(VertxTestContext vertxTestContext) {
-    String queryVector="dummy";
-    String bbox= "dummy";
-    assertNotNull(elasticClient.ratingAggregationAsync(queryVector,bbox,handler));
+    Query matchQuery =
+        QueryBuilders.match(m -> m.field(ID_KEYWORD).query("b58da193-23d9-43eb-b98a-a103d4b6103c"));
+    Query avgQuery =
+        QueryBuilders.bool(
+            b ->
+                b.should(matchQuery)
+                    .minimumShouldMatch("1")
+                    .must(QueryBuilders.match(m -> m.field("status").query("approved"))));
+    LOGGER.debug(avgQuery);
+    assertNotNull(
+        elasticClient.ratingAggregationAsync(
+            avgQuery, buildAvgRatingAggregation(), ratingIndex, handler));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing searchAsyncGeoQuery method")
   public void testSearchAsyncGeoQuery(VertxTestContext vertxTestContext) {
-    String query = "dummy query";
     String index = "dummy index";
-    assertNotNull(elasticClient.searchAsyncGeoQuery(query,index,handler));
+    Query query = MatchQuery.of(m -> m.field("dummy query").query(""))._toQuery();
+    assertNotNull(
+        elasticClient.searchAsyncGeoQuery(
+            query,
+            buildSourceConfig(List.of("id", "location", "instance", "label")),
+            index,
+            handler));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("testing searchAsyncGetId method")
   public void testSearchAsyncGetId(VertxTestContext vertxTestContext) {
-    String query = "dummy query";
+    Query query = MatchQuery.of(m -> m.field("dummy query").query(""))._toQuery();
     String index = "dummy index";
-    assertNotNull(elasticClient.searchAsyncGetId(query,index,handler));
+    assertNotNull(
+        elasticClient.searchAsyncGetId(
+            query,
+            buildSourceConfig(List.of("domainId", "description", "icon", "label", "name")),
+            index,
+            handler));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("test countAsync method")
   public void testCountAsync(VertxTestContext vertxTestContext) {
-    Query query = Query.of(f -> f.term(t -> t.field("dummy")));
-    assertNotNull(elasticClient.countAsync(query,docIndex, handler));
+    Query query = Query.of(f -> f.term(t -> t.field("dummy").value("")));
+    assertNotNull(elasticClient.countAsync(query, docIndex, handler));
     vertxTestContext.completeNow();
   }
 
   @Test
   @Description("test searchAsyncDataset method")
   public void testSearchAsync(VertxTestContext vertxTestContext) {
-    Query query=Query.of(f -> f.term(t -> t.field("dummy")));
-    assertNotNull(elasticClient.searchAsyncDataset(query, buildSourceConfig(List.of()), 10000, docIndex, handler));
+    Query query = buildMlayerDatasetQuery("id", "providerId", "cosId");
+    assertNotNull(
+        elasticClient.searchAsyncDataset(
+            query, buildSourceConfig(List.of()), FILTER_PAGINATION_SIZE, docIndex, handler));
+    assertNotNull(elasticClient.searchAsync(query, buildAvgRatingAggregation(), docIndex, handler));
+    assertNotNull(
+        elasticClient.searchAsync(
+            query,
+            buildSourceConfig(List.of("type", "id")),
+            SortOptions.of(s -> s.field(f -> f.field("name").order(SortOrder.Asc))),
+            docIndex,
+            handler));
+    assertNotNull(
+        elasticClient.searchAsync(
+            query,
+            buildSourceConfig(List.of("type")),
+            FILTER_PAGINATION_SIZE,
+            0,
+            docIndex,
+            handler));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("test docPostAsync method")
   public void testDocPostAsync(VertxTestContext vertxTestContext) {
-    String query="dummy";
-    assertNotNull(elasticClient.docPostAsync(query,docIndex, handler));
+    JsonObject query = new JsonObject().put("id", "dummy-id");
+    assertNotNull(elasticClient.docPostAsync(docIndex, query.toString(), handler));
     vertxTestContext.completeNow();
   }
+
   @Test
   @Description("test docPutAsync method")
   public void testDocPutAsync(VertxTestContext vertxTestContext) {
-    String query="dummy";
+    String query = "dummy";
     JsonObject doc = new JsonObject();
-    assertNotNull(elasticClient.docPutAsync(query,docIndex,doc, handler));
+    assertNotNull(elasticClient.docPutAsync(query, docIndex, doc, handler));
     vertxTestContext.completeNow();
   }
+
+  @Test
+  @Description("test docPatchAsync method")
+  public void testDocPatchAsync(VertxTestContext vertxTestContext) {
+    String query = "dummy";
+    JsonObject doc =
+        new JsonObject()
+            .put("type", "dummy")
+            .put("titile", "test")
+            .put("href", "abc/abc")
+            .put("rel", "abc/abcd");
+    assertNotNull(
+        elasticClient.docPatchAsync(
+            query, docIndex, new QueryBuilder().getPatchQuery(doc), handler));
+    vertxTestContext.completeNow();
+  }
+
   @Test
   @Description("test docDelAsync method")
   public void testDocDelAsync(VertxTestContext vertxTestContext) {
-    String query="dummy";
-    assertNotNull(elasticClient.docDelAsync(query,docIndex, handler));
+    String query = "dummy";
+    assertNotNull(elasticClient.docDelAsync(query, docIndex, handler));
     vertxTestContext.completeNow();
   }
 
   @Test
   @Description("test searchAsyncResourceGroupAndProvider method")
   public void testSearchAsyncResourceGroupAndProvider(VertxTestContext vertxTestContext) {
-    String query="dummy";
-    assertNotNull(elasticClient.searchAsyncResourceGroupAndProvider(query,docIndex, handler));
+    Query query = Query.of(f -> f.term(t -> t.field("dummy").value("")));
+    Aggregation aggregation =
+        AggregationBuilders.cardinality().field("dummy").build()._toAggregation();
+    assertNotNull(
+        elasticClient.searchAsyncResourceGroupAndProvider(
+            query,
+            aggregation,
+            buildSourceConfig(List.of()),
+            FILTER_PAGINATION_SIZE,
+            docIndex,
+            handler));
     vertxTestContext.completeNow();
   }
 
   @Test
   @Description("test resourceAggregationAsync method")
   public void testResourceAggregationAsync(VertxTestContext vertxTestContext) {
-    Aggregation aggregation = null;
-    assertNotNull(elasticClient.resourceAggregationAsync(aggregation, 10000,  docIndex, handler));
+    assertNotNull(
+        elasticClient.resourceAggregationAsync(
+            buildResourceAccessPolicyCountQuery(), FILTER_PAGINATION_SIZE, docIndex, handler));
     vertxTestContext.completeNow();
   }
 
   @Test
   @Description("test resourceAggregationAsync method")
   public void testResourceAggregationAsync2(VertxTestContext vertxTestContext) {
-    String query="dummy";
-    assertNotNull(elasticClient.searchGetId(query,docIndex, handler));
+    Query query = Query.of(f -> f.term(t -> t.field("dummy").value("")));
+    assertNotNull(
+        elasticClient.searchGetId(query, buildSourceConfig(List.of("id")), docIndex, handler));
     vertxTestContext.completeNow();
   }
 }

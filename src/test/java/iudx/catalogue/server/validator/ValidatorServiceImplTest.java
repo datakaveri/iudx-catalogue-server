@@ -1,7 +1,6 @@
 package iudx.catalogue.server.validator;
 
 import static iudx.catalogue.server.util.Constants.*;
-import static junit.framework.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -14,7 +13,7 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.Configuration;
-import iudx.catalogue.server.database.ElasticClient;
+import iudx.catalogue.server.database.elastic.ElasticClient;
 import java.util.stream.Stream;
 import jdk.jfr.Description;
 import org.apache.logging.log4j.LogManager;
@@ -80,12 +79,12 @@ public class ValidatorServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(5)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .searchAsync(any(), any(), any());
+        .searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
     testContext.completeNow();
   }
 
@@ -224,12 +223,12 @@ public class ValidatorServiceImplTest {
             new Answer<AsyncResult<JsonObject>>() {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(3)).handle(asyncResult);
                 return null;
               }
             })
         .when(client)
-        .searchGetId(any(), any(), any());
+        .searchGetId(any(), any(), anyString(), any());
 
     when(asyncResult.failed()).thenReturn(false);
     when(asyncResult.result()).thenReturn(new JsonObject().put(TOTAL_HITS, 0));
@@ -238,7 +237,7 @@ public class ValidatorServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(1)).searchGetId(anyString(), any(), any());
+            verify(client, times(1)).searchGetId(any(), any(), anyString(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Failed to invalidate");
@@ -281,7 +280,7 @@ public class ValidatorServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(8)).searchAsync(anyString(), any(), any());
+            verify(client, times(8)).searchAsync(any(), any(), anyInt(), anyInt(), anyString(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
