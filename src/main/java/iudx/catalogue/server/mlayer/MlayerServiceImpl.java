@@ -348,7 +348,7 @@ public class MlayerServiceImpl implements MlayerService {
             processMlayerAllDatasets(getMlayerAllDatasets.result(), requestParam, handler);
           } else {
             LOGGER.error("Fail: Getting all datasets failed");
-            handler.handle(Future.failedFuture(getMlayerAllDatasets.cause()));
+            handler.handle(Future.failedFuture(getMlayerAllDatasets.cause().getMessage()));
           }
         });
     return this;
@@ -447,7 +447,7 @@ public class MlayerServiceImpl implements MlayerService {
 
               } else {
                 LOGGER.error("Fail: failed DB request");
-                handler.handle(Future.failedFuture(internalErrorResp));
+                handler.handle(Future.failedFuture(ar.cause().getMessage()));
               }
             });
   }
@@ -646,7 +646,7 @@ public class MlayerServiceImpl implements MlayerService {
                                 }
                                 handler.handle(Future.succeededFuture(dataset));
                               } else {
-                                handler.handle(Future.failedFuture(instanceIconResult.cause()));
+                                handler.handle(Future.failedFuture(instanceIconResult.cause().getMessage()));
                               }
                             });
                       } else {
@@ -654,11 +654,11 @@ public class MlayerServiceImpl implements MlayerService {
                         handler.handle(Future.succeededFuture(dataset));
                       }
                     } else {
-                      handler.handle(Future.failedFuture(datasetResult.cause()));
+                      handler.handle(Future.failedFuture(datasetResult.cause().getMessage()));
                     }
                   });
             } else {
-              handler.handle(Future.failedFuture(providerAndResourceServerIdResult.cause()));
+              handler.handle(Future.failedFuture(providerAndResourceServerIdResult.cause().getMessage()));
             }
           });
     } else if ((requestData.containsKey("tags")
@@ -716,7 +716,7 @@ public class MlayerServiceImpl implements MlayerService {
               processMlayerAllDatasets(getMlayerAllDatasets.result(), requestData, handler);
             } else {
               LOGGER.error("Fail: Getting all datasets failed");
-              handler.handle(Future.failedFuture(getMlayerAllDatasets.cause()));
+              handler.handle(Future.failedFuture(getMlayerAllDatasets.cause().getMessage()));
             }
           });
     } else {
