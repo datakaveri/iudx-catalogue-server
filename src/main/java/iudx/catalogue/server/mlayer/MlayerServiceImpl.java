@@ -529,6 +529,12 @@ public class MlayerServiceImpl implements MlayerService {
       JsonObject resourceCountRes, Promise<JsonObject> resourceCountResult) {
     // Getting resource item count
     LOGGER.debug("resourceAP started");
+    int size = resourceCountRes.getJsonArray(RESULTS).size();
+    if (size == 0) {
+      LOGGER.debug("resourceAP is zero");
+      resourceCountResult.handle(Future.failedFuture(NO_CONTENT_AVAILABLE));
+      return;
+    }
     JsonObject resourceItemCount = new JsonObject();
     JsonObject resourceAccessPolicy = new JsonObject();
     JsonArray resultsArray = resourceCountRes.getJsonArray(RESULTS);
