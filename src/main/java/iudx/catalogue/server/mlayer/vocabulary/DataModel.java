@@ -41,7 +41,32 @@ public class DataModel {
    */
   public Future<JsonObject> getDataModelInfo() {
     Promise<JsonObject> promise = Promise.promise();
-    JsonObject classIdToSubClassMap = new JsonObject();
+
+    // Get All datasets by resource group
+    Future<JsonArray> searchFuture = getAllDatasetsByRsGrp();
+
+    // Process search results when completed and Fetch data models asynchronously
+    searchFuture
+        .compose(this::fetchDataModels)
+        .onComplete(
+            ar -> {
+              if (ar.succeeded()) {
+                promise.complete(ar.result());
+              } else {
+                promise.complete(new JsonObject());
+              }
+            });
+
+    return promise.future();
+  }
+
+  /**
+   * Performs Elasticsearch search asynchronously.
+   *
+   * @return Future containing JsonArray of search results.
+   */
+  private Future<JsonArray> getAllDatasetsByRsGrp() {
+    Promise<JsonArray> promise = Promise.promise();
 
     client.searchAsync(
         GET_ALL_DATASETS_BY_RS_GRP,
@@ -51,50 +76,60 @@ public class DataModel {
             LOGGER.debug("Successful Elastic request");
             JsonObject response = searchHandler.result();
             JsonArray results = response.getJsonArray("results");
-            if (results.isEmpty()) {
-              promise.complete(classIdToSubClassMap);
-              return;
-            }
-            AtomicInteger pendingRequests = new AtomicInteger(results.size());
-            String contextUrl = results.getJsonObject(0).getString("@context");
-            for (int i = 0; i < results.size(); i++) {
-
-              JsonObject result = results.getJsonObject(i);
-              JsonArray typeArray = result.getJsonArray("type");
-
-              if (typeArray == null || typeArray.size() < 2) {
-                LOGGER.error("Invalid type array in result: {}", result.encode());
-                if (pendingRequests.decrementAndGet() == 0) {
-                  promise.complete(classIdToSubClassMap);
-                }
-                continue;
-              }
-
-              String id = result.getString("id");
-              String type = typeArray.getString(1);
-              String classId = type.split(":")[1];
-              String dmUrl = contextUrl + classId + ".jsonld";
-
-              webClient
-                  .getAbs(dmUrl)
-                  .send(
-                      dmAr -> {
-                        handleDataModelResponse(
-                            dmAr,
-                            id,
-                            classId,
-                            classIdToSubClassMap,
-                            pendingRequests,
-                            promise,
-                            dmUrl);
-                      });
-            }
+            promise.complete(results);
           } else {
             LOGGER.error("Failed Elastic Request: {}", searchHandler.cause().getMessage());
-            promise.complete(classIdToSubClassMap);
+            promise.complete(new JsonArray());
           }
         });
 
+    return promise.future();
+  }
+
+  /**
+   * Fetches data models asynchronously.
+   *
+   * @param results The JsonArray of results from Elasticsearch search.
+   * @return Future containing JsonObject with class to subclass mappings.
+   */
+  private Future<JsonObject> fetchDataModels(JsonArray results) {
+    Promise<JsonObject> promise = Promise.promise();
+    JsonObject classIdToSubClassMap = new JsonObject();
+
+    if (results.isEmpty()) {
+      promise.complete(classIdToSubClassMap);
+      return promise.future();
+    }
+
+    AtomicInteger pendingRequests = new AtomicInteger(results.size());
+    String contextUrl = results.getJsonObject(0).getString("@context");
+
+    for (int i = 0; i < results.size(); i++) {
+      JsonObject result = results.getJsonObject(i);
+      JsonArray typeArray = result.getJsonArray("type");
+
+      if (typeArray == null || typeArray.size() < 2) {
+        LOGGER.error("Invalid type array in result: {}", result.encode());
+        if (pendingRequests.decrementAndGet() == 0) {
+          promise.complete(classIdToSubClassMap);
+        }
+        continue;
+      }
+
+      String id = result.getString("id");
+      String type = typeArray.getString(1);
+      String classId = type.split(":")[1];
+      String dmUrl = contextUrl + classId + ".jsonld";
+
+      webClient
+          .getAbs(dmUrl)
+          .send(
+              dmAr -> {
+                handleDataModelResponse(
+                    dmAr, id, classId, classIdToSubClassMap, pendingRequests, promise, dmUrl);
+              });
+    }
+    this.webClient.close();
     return promise.future();
   }
 
