@@ -646,7 +646,8 @@ public class MlayerServiceImpl implements MlayerService {
                                 }
                                 handler.handle(Future.succeededFuture(dataset));
                               } else {
-                                handler.handle(Future.failedFuture(instanceIconResult.cause().getMessage()));
+                                handler.handle(
+                                    Future.failedFuture(instanceIconResult.cause().getMessage()));
                               }
                             });
                       } else {
