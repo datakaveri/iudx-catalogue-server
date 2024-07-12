@@ -1344,11 +1344,10 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerGeoQuery(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-    LOGGER.debug("request body" + request);
+  public DatabaseService getMlayerGeoQuery(String query, Handler<AsyncResult<JsonObject>> handler) {
+    LOGGER.debug("query " + query);
     MlayerGeoQuery mlayerGeoQuery = new MlayerGeoQuery(client, docIndex);
-    mlayerGeoQuery.getMlayerGeoQuery(request, handler);
+    mlayerGeoQuery.getMlayerGeoQuery(query, handler);
 
     return this;
   }
@@ -1362,10 +1361,25 @@ public class DatabaseServiceImpl implements DatabaseService {
   }
 
   @Override
-  public DatabaseService getMlayerDataset(
-      JsonObject requestData, Handler<AsyncResult<JsonObject>> handler) {
+  public DatabaseService getProviderAndResourceServerId(
+      String query, Handler<AsyncResult<JsonObject>> handler) {
     MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
-    mlayerDataset.getMlayerDataset(requestData, handler);
+    mlayerDataset.getProviderAndResourceServerId(query, handler);
+    return this;
+  }
+
+  @Override
+  public DatabaseService getDataset(String query, Handler<AsyncResult<JsonObject>> handler) {
+    MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
+    mlayerDataset.getDataset(query, handler);
+    return this;
+  }
+
+  @Override
+  public DatabaseService getInstanceIcon(
+      String query, Handler<AsyncResult<JsonObject>> handler) {
+    MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
+    mlayerDataset.getInstanceIcon(query, handler);
     return this;
   }
 
@@ -1392,7 +1406,8 @@ public class DatabaseServiceImpl implements DatabaseService {
       return promise.future();
     }
 
-    String checkInstance = GET_INSTANCE_CASE_INSENSITIVE_QUERY.replace("$1", instanceId).replace("$2", "");
+    String checkInstance =
+        GET_INSTANCE_CASE_INSENSITIVE_QUERY.replace("$1", instanceId).replace("$2", "");
     client.searchAsync(
         checkInstance,
         docIndex,
