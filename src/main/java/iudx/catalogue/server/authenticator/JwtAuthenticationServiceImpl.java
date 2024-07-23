@@ -6,9 +6,7 @@ import static iudx.catalogue.server.authenticator.Constants.METHOD;
 import static iudx.catalogue.server.authenticator.Constants.RESOURCE_SERVER_URL;
 import static iudx.catalogue.server.util.Constants.*;
 
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.authentication.TokenCredentials;
@@ -152,10 +150,10 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
    * @return a Future containing a JsonObject with user information if the access is allowed, or a
    *     failure if the access is denied
    */
-  public Future<JsonObject> validateAccess(
+  public Future<JwtData> validateAccess(
       JwtData jwtData, JsonObject authenticationInfo, String itemType) {
     LOGGER.trace("validateAccess() started");
-    Promise<JsonObject> promise = Promise.promise();
+    Promise<JwtData> promise = Promise.promise();
 
     Method method = Method.valueOf(authenticationInfo.getString(METHOD));
     String api = authenticationInfo.getString(API_ENDPOINT);
@@ -173,11 +171,11 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
       LOGGER.debug("User access is allowed");
       JsonObject response = new JsonObject();
       // adding user id, user role and iid to response for auditing purpose
-      response
-          .put(USER_ROLE, jwtData.getRole())
-          .put(USER_ID, jwtData.getSub())
-          .put(IID, jwtData.getIid());
-      promise.complete(response);
+//      response
+//          .put(USER_ROLE, jwtData.getRole())
+//          .put(USER_ID, jwtData.getSub())
+//          .put(IID, jwtData.getIid());
+      promise.complete(jwtData);
     } else {
       LOGGER.error("user access denied");
       JsonObject result = new JsonObject().put("401", "no access provided to endpoint");
@@ -187,8 +185,9 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
   }
 
   @Override
-  public AuthenticationService tokenInterospect(
-      JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
+  public Future<JwtData> tokenInterospect(
+      JsonObject request, JsonObject authenticationInfo) {
+    Promise<JwtData> promise = Promise.promise();
     String endPoint = authenticationInfo.getString(API_ENDPOINT);
     String provider = authenticationInfo.getString(PROVIDER_USER_ID, "");
     String token = authenticationInfo.getString(TOKEN);
@@ -255,12 +254,12 @@ public class JwtAuthenticationServiceImpl implements AuthenticationService {
         .onComplete(
             completeHandler -> {
               if (completeHandler.succeeded()) {
-                handler.handle(Future.succeededFuture(completeHandler.result()));
+                promise.complete(completeHandler.result());
               } else {
-                handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
+                promise.fail(completeHandler.cause().getMessage());
               }
             });
-    return this;
+    return promise.future();
   }
 
   /**

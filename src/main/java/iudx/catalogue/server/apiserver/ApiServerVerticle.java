@@ -89,32 +89,12 @@ public class ApiServerVerticle extends AbstractVerticle {
     if (isSsL) {
       LOGGER.debug("Info: Starting HTTPs server");
 
-      /* Read the configuration and set the HTTPs server properties. */
-
-      keystore = config().getString("keystore");
-      keystorePassword = config().getString("keystorePassword");
-
-      /*
-       * Default port when ssl is enabled is 8443. If set through config, then that value is taken
-       */
-      port = config().getInteger(PORT) == null ? 8443 : config().getInteger(PORT);
-
-      /* Setup the HTTPs server properties, APIs and port. */
-
-      serverOptions
-          .setSsl(true)
-          .setKeyStoreOptions(new JksOptions().setPath(keystore).setPassword(keystorePassword));
+      startHttpsServer(serverOptions);
 
     } else {
       LOGGER.debug("Info: Starting HTTP server");
 
-      /* Setup the HTTP server properties, APIs and port. */
-
-      serverOptions.setSsl(false);
-      /*
-       * Default port when ssl is disabled is 8080. If set through config, then that value is taken
-       */
-      port = config().getInteger(PORT) == null ? 8080 : config().getInteger(PORT);
+      startHttpServer(serverOptions);
     }
     LOGGER.debug("Started HTTP server at port : " + port);
 
@@ -144,7 +124,6 @@ public class ApiServerVerticle extends AbstractVerticle {
     crudApis.setDbService(dbService);
     listApis.setDbService(dbService);
     relApis.setDbService(dbService);
-    // TODO : set db service for Rating APIs
     crudApis.setHost(config().getString(HOST));
     ratingApis.setHost(config().getString(HOST));
     mlayerApis.setHost(config().getString(HOST));
@@ -667,8 +646,7 @@ public class ApiServerVerticle extends AbstractVerticle {
     router
         .route(api.getStackRestApis() + "/*")
         .subRouter(
-            new StacRestApi(
-                     router, api, config(), validationService, authService, auditingService)
+            new StacRestApi(router, api, config(), validationService, authService, auditingService)
                 .init());
 
     // Start server
@@ -677,6 +655,34 @@ public class ApiServerVerticle extends AbstractVerticle {
     /* Print the deployed endpoints */
     printDeployedEndpoints(router);
     LOGGER.info("API server deployed on :" + serverOptions.getPort());
+  }
+
+  private void startHttpServer(HttpServerOptions serverOptions) {
+    /* Setup the HTTP server properties, APIs and port. */
+
+    serverOptions.setSsl(false);
+    /*
+     * Default port when ssl is disabled is 8080. If set through config, then that value is taken
+     */
+    port = config().getInteger(PORT) == null ? 8080 : config().getInteger(PORT);
+  }
+
+  private void startHttpsServer(HttpServerOptions serverOptions) {
+    /* Read the configuration and set the HTTPs server properties. */
+
+    keystore = config().getString("keystore");
+    keystorePassword = config().getString("keystorePassword");
+
+    /*
+     * Default port when ssl is enabled is 8443. If set through config, then that value is taken
+     */
+    port = config().getInteger(PORT) == null ? 8443 : config().getInteger(PORT);
+
+    /* Setup the HTTPs server properties, APIs and port. */
+
+    serverOptions
+        .setSsl(true)
+        .setKeyStoreOptions(new JksOptions().setPath(keystore).setPassword(keystorePassword));
   }
 
   private void printDeployedEndpoints(Router router) {
