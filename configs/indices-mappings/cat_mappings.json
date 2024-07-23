@@ -1,6 +1,6 @@
 {
     "mappings": {
-        "dynamic": "strict",
+        "dynamic": "false",
         "properties": {
             "@context": {
                 "type": "text",
@@ -70,6 +70,8 @@
             },
             "_word_vector": {
                 "type": "dense_vector",
+                "index": true,
+                "similarity": "cosine",
                 "dims": 100
             },
             "accessObjectInfo": {

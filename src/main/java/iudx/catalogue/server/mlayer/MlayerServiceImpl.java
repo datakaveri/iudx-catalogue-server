@@ -32,9 +32,7 @@ public class MlayerServiceImpl implements MlayerService {
   private JsonArray excludedIdsJson;
 
   MlayerServiceImpl(
-          DatabaseService databaseService,
-          PostgresService postgresService,
-          JsonObject config) {
+      DatabaseService databaseService, PostgresService postgresService, JsonObject config) {
     this.databaseService = databaseService;
     this.postgresService = postgresService;
     this.configJson = config;
@@ -281,13 +279,10 @@ public class MlayerServiceImpl implements MlayerService {
             || requestData.containsKey("providers")
             || requestData.containsKey("domains"))
         && (!requestData.containsKey(ID) || requestData.getString(ID).isBlank())) {
-      if (requestData.containsKey("domains")
-          && !requestData.getJsonArray("domains").isEmpty()) {
+      if (requestData.containsKey("domains") && !requestData.getJsonArray("domains").isEmpty()) {
         JsonArray domainsArray = requestData.getJsonArray("domains");
         JsonArray tagsArray =
-            requestData.containsKey("tags")
-                ? requestData.getJsonArray("tags")
-                : new JsonArray();
+            requestData.containsKey("tags") ? requestData.getJsonArray("tags") : new JsonArray();
 
         tagsArray.addAll(domainsArray);
         requestData.put("tags", tagsArray);
@@ -296,16 +291,18 @@ public class MlayerServiceImpl implements MlayerService {
 
       if (requestData.containsKey(TAGS) && !requestData.getJsonArray(TAGS).isEmpty()) {
         JsonArray tagsArray = requestData.getJsonArray(TAGS);
-        JsonArray lowerTagsArray = new JsonArray();
+        String tagQueryString = "";
 
         for (Object tagValue : tagsArray) {
           if (tagValue instanceof String) {
-            lowerTagsArray.add(((String) tagValue).toLowerCase());
+            tagQueryString = tagQueryString.concat(tagValue + " OR ");
           }
         }
 
-        if (!lowerTagsArray.isEmpty()) {
-          query += ",{\"terms\":{\"tags.keyword\":" + lowerTagsArray.encode() + "}}";
+        if (!tagQueryString.isEmpty()) {
+          tagQueryString = "(" + tagQueryString.substring(0, tagQueryString.length() - 4) + ")";
+          query += ",{\"query_string\":{\"default_field\":\"tags\",\"query\":\""
+                  + tagQueryString + "\"}}";
         }
       }
       if (requestData.containsKey(INSTANCE) && !requestData.getString(INSTANCE).isBlank()) {
@@ -314,8 +311,7 @@ public class MlayerServiceImpl implements MlayerService {
                 ",{\"match\":{\"instance.keyword\":\"$1\"}}"
                     .replace("$1", requestData.getString(INSTANCE).toLowerCase()));
       }
-      if (requestData.containsKey(PROVIDERS)
-          && !requestData.getJsonArray(PROVIDERS).isEmpty()) {
+      if (requestData.containsKey(PROVIDERS) && !requestData.getJsonArray(PROVIDERS).isEmpty()) {
         query =
             query.concat(
                 ",{\"terms\":{\"provider.keyword\":$1}}"
