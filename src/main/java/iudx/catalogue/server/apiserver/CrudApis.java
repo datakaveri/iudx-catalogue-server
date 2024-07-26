@@ -1,8 +1,10 @@
 /**
+ *
+ *
  * <h1>CrudApis.java</h1>
+ *
  * Callback handlers for CRUD
  */
-
 package iudx.catalogue.server.apiserver;
 
 import static iudx.catalogue.server.apiserver.util.Constants.*;
@@ -38,11 +40,10 @@ import org.apache.logging.log4j.Logger;
 
 public final class CrudApis {
 
-
   private static final Logger LOGGER = LogManager.getLogger(CrudApis.class);
   private static final Pattern UUID_PATTERN =
-          Pattern.compile(
-                  "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
+      Pattern.compile(
+          "^[a-zA-Z0-9]{8}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{4}-[a-zA-Z0-9]{12}$");
   private DatabaseService dbService;
   private AuthenticationService authService;
   private ValidatorService validatorService;
@@ -52,13 +53,10 @@ public final class CrudApis {
   private Api api;
   private boolean isUac;
 
-
-
   /**
-   * Crud  constructor.
+   * Crud constructor.
    *
-   * @param api endpoint for base path
-   * @TODO Throw error if load failed
+   * @param api endpoint for base path @TODO Throw error if load failed
    */
   public CrudApis(Api api, boolean isUac) {
     this.api = api;
@@ -71,12 +69,12 @@ public final class CrudApis {
       type = new HashSet<String>(requestBody.getJsonArray(TYPE).getList());
     } catch (Exception e) {
       LOGGER.error("Fail: Invalid type");
-      RespBuilder respBuilder = new RespBuilder()
-          .withType(TYPE_INVALID_SCHEMA)
-          .withTitle(TITLE_INVALID_SCHEMA)
-          .withDetail("Invalid type for item/type not present");
-      response.setStatusCode(400)
-              .end(respBuilder.getResponse());
+      RespBuilder respBuilder =
+          new RespBuilder()
+              .withType(TYPE_INVALID_SCHEMA)
+              .withTitle(TITLE_INVALID_SCHEMA)
+              .withDetail("Invalid type for item/type not present");
+      response.setStatusCode(400).end(respBuilder.getResponse());
     }
     type.retainAll(ITEM_TYPES);
     String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
@@ -107,8 +105,7 @@ public final class CrudApis {
   /**
    * Create/Update Item.
    *
-   * @param routingContext {@link RoutingContext}
-   * @TODO Throw error if load failed
+   * @param routingContext {@link RoutingContext} @TODO Throw error if load failed
    */
   // tag::db-service-calls[]
   public void createItemHandler(RoutingContext routingContext) {
@@ -117,7 +114,7 @@ public final class CrudApis {
 
     /* Contains the cat-item */
     JsonObject requestBody = routingContext.body().asJsonObject();
-              HttpServerRequest request = routingContext.request();
+    HttpServerRequest request = routingContext.request();
 
     String postOrPutOperation = request.method().toString();
     HttpServerResponse response = routingContext.response();
@@ -131,7 +128,8 @@ public final class CrudApis {
 
     validatorService
         .validateSchema(requestBody)
-            .compose(validatedRequestBody -> {
+        .compose(
+            validatedRequestBody -> {
               JsonObject jwtAuthenticationInfo = new JsonObject();
 
               // populating jwt authentication info ->
@@ -140,154 +138,168 @@ public final class CrudApis {
                   .put(METHOD, REQUEST_POST)
                   .put(API_ENDPOINT, api.getRouteItems())
                   .put(ITEM_TYPE, itemType);
-              JsonObject validatedRequestBodyWithMetaData = getParentObjectMetadata(itemType, validatedRequestBody, response, jwtAuthenticationInfo);
+              JsonObject validatedRequestBodyWithMetaData =
+                  getParentObjectMetadata(
+                      itemType, validatedRequestBody, response, jwtAuthenticationInfo);
 
-              return authService.tokenInterospect(validatedRequestBodyWithMetaData, jwtAuthenticationInfo);
+              return authService.tokenInterospect(
+                  validatedRequestBodyWithMetaData, jwtAuthenticationInfo);
             })
-                .compose(jwtData -> {
-                  resultContainer.jwtData = jwtData;
-                  return validatorService.validateItem(requestBody);
-                })
-                    .compose(requestBodyWithId -> {
-                      return insertOrUpsertItem(requestBodyWithId, resultContainer.jwtData, postOrPutOperation);
-                    })
-                        .onSuccess(successHandler -> {
-//                          handleSuccessfulCreation(successHandler, postOrPutOperation);
-                        })
-                            .onFailure(failureHandler -> {
-                              // TODO: handle all 4xx cases of the compose chain accordingly
-//                              handleCreationFailure(failureHandler);
-                            });
+        .compose(
+            jwtData -> {
+              resultContainer.jwtData = jwtData;
+              return validatorService.validateItem(requestBody);
+            })
+        .compose(
+            requestBodyWithId -> {
+              return insertOrUpsertItem(
+                  requestBodyWithId, resultContainer.jwtData, postOrPutOperation);
+            })
+        .onSuccess(
+            successHandler -> {
+                                        handleSuccessfulCreation(successHandler,
+               postOrPutOperation);
+            })
+        .onFailure(
+            failureHandler -> {
+              // TODO: handle all 4xx cases of the compose chain accordingly
+              //                              handleCreationFailure(failureHandler);
+            });
   }
 
-  private Future<JsonObject> insertOrUpsertItem(JsonObject requestBodyWithId, JwtData jwtData, String postOrPutOperation) {
-  Promise<JsonObject> promise = Promise.promise();
-              if (postOrPutOperation.equalsIgnoreCase(REQUEST_POST)) {
-                /* Requesting database service, creating a item */
-                LOGGER.debug("Info: Inserting item");
-                dbService.createItem(requestBodyWithId, dbhandler -> {
-                  if (dbhandler.failed()) {
-                    LOGGER.error("Fail: Item creation;" + dbhandler.cause().getMessage());
-                    promise.fail(dbhandler.cause().getMessage());
-                  }
-                  if (dbhandler.succeeded()) {
-                    LOGGER.info("Success: Item created;");
-                    promise.complete(dbhandler.result());
-                    if (hasAuditService && !isUac) {
-                      Future.future(fu -> updateAuditInfo(
-                              jwtData,
-                              new String[]{requestBodyWithId.getString(ID),
-                                      api.getRouteItems(), REQUEST_POST}));
-                    }
-                  }
-                });
-              } else {
-                LOGGER.debug("Info: Updating item");
-                /* Requesting database service, creating a item */
-                dbService.updateItem(requestBodyWithId, dbhandler -> {
-                  if (dbhandler.succeeded()) {
-                    LOGGER.info("Success: Item updated;");
-                    promise.complete(dbhandler.result());
-                    if (hasAuditService) {
-                      Future.future(fu -> updateAuditInfo(jwtData,
-                              new String[]{requestBodyWithId.getString(ID),
-                                      api.getRouteItems(), REQUEST_PUT}));
-                    }
-                  } else if (dbhandler.failed()) {
-                    LOGGER.error("Fail: Item update;" + dbhandler.cause().getMessage());
-                    promise.fail(dbhandler.cause());
-                  }
-                });
+  private void handleSuccessfulCreation(JsonObject successHandler, String postOrPutOperation) {
+
+  }
+
+  private Future<JsonObject> insertOrUpsertItem(
+      JsonObject requestBodyWithId, JwtData jwtData, String postOrPutOperation) {
+    Promise<JsonObject> promise = Promise.promise();
+    if (postOrPutOperation.equalsIgnoreCase(REQUEST_POST)) {
+      /* Requesting database service, creating a item */
+      LOGGER.debug("Info: Inserting item");
+      dbService.createItem(
+          requestBodyWithId,
+          dbhandler -> {
+            if (dbhandler.failed()) {
+              LOGGER.error("Fail: Item creation;" + dbhandler.cause().getMessage());
+              promise.fail(dbhandler.cause().getMessage());
+            }
+            if (dbhandler.succeeded()) {
+              LOGGER.info("Success: Item created;");
+              promise.complete(dbhandler.result());
+              if (hasAuditService && !isUac) {
+                Future.future(
+                    fu ->
+                        updateAuditInfo(
+                            jwtData,
+                            new String[] {
+                              requestBodyWithId.getString(ID), api.getRouteItems(), REQUEST_POST
+                            }));
               }
-              return promise.future();
+            }
+          });
+    } else {
+      LOGGER.debug("Info: Updating item");
+      /* Requesting database service, creating a item */
+      dbService.updateItem(
+          requestBodyWithId,
+          dbhandler -> {
+            if (dbhandler.succeeded()) {
+              LOGGER.info("Success: Item updated;");
+              promise.complete(dbhandler.result());
+              if (hasAuditService) {
+                Future.future(
+                    fu ->
+                        updateAuditInfo(
+                            jwtData,
+                            new String[] {
+                              requestBodyWithId.getString(ID), api.getRouteItems(), REQUEST_PUT
+                            }));
+              }
+            } else if (dbhandler.failed()) {
+              LOGGER.error("Fail: Item update;" + dbhandler.cause().getMessage());
+              promise.fail(dbhandler.cause());
+            }
+          });
+    }
+    return promise.future();
   }
 
-  private JsonObject getParentObjectMetadata(String itemType,
-                                             JsonObject requestBody,
-                                       HttpServerResponse response,
-                                       JsonObject jwtAuthenticationInfo) {
+  private JsonObject getParentObjectMetadata(
+      String itemType,
+      JsonObject requestBody,
+      HttpServerResponse response,
+      JsonObject jwtAuthenticationInfo) {
 
     if (isUac) {
     } else {
-      if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)
-          || itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
+      if (itemType.equalsIgnoreCase(ITEM_TYPE_COS) || itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
       } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       } else if (itemType.equals(ITEM_TYPE_PROVIDER)) {
         Future<JsonObject> resourceServerUrlFuture =
             getParentObjectInfo(requestBody.getString(RESOURCE_SVR));
         // add resource server url to provider body
-        resourceServerUrlFuture.onSuccess(resourceServerUrl -> {
-                String rsUrl = resourceServerUrl.getString(RESOURCE_SERVER_URL);
-                // used for relationship apis
-                String cosId = resourceServerUrl.getString(COS_ITEM);
+        resourceServerUrlFuture
+            .onSuccess(
+                resourceServerUrl -> {
+                  String rsUrl = resourceServerUrl.getString(RESOURCE_SERVER_URL);
+                  // used for relationship apis
+                  String cosId = resourceServerUrl.getString(COS_ITEM);
 
-                jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
-                requestBody.put(RESOURCE_SERVER_URL, rsUrl);
-                requestBody.put(COS_ITEM, cosId);
-              }).onFailure(parentInfoFailure-> {
-                response
-                    .setStatusCode(400)
-                    .end(
-                        new RespBuilder()
-                            .withType(TYPE_LINK_VALIDATION_FAILED)
-                            .withTitle(TITLE_LINK_VALIDATION_FAILED)
-                            .withDetail("Resource Server not found")
-                            .getResponse());
-              });
+                  jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+                  requestBody.put(RESOURCE_SERVER_URL, rsUrl);
+                  requestBody.put(COS_ITEM, cosId);
+                })
+            .onFailure(
+                parentInfoFailure -> {
+                  response
+                      .setStatusCode(400)
+                      .end(
+                          new RespBuilder()
+                              .withType(TYPE_LINK_VALIDATION_FAILED)
+                              .withTitle(TITLE_LINK_VALIDATION_FAILED)
+                              .withDetail("Resource Server not found")
+                              .getResponse());
+                });
 
       } else {
-        Future<JsonObject> ownerUserIdFuture =
-            getParentObjectInfo(requestBody.getString(PROVIDER));
+        Future<JsonObject> ownerUserIdFuture = getParentObjectInfo(requestBody.getString(PROVIDER));
         // add provider kc id to requestBody
-        ownerUserIdFuture.onSuccess(ownerUserId -> {
-                LOGGER.debug(ownerUserId);
-                String kcId = ownerUserId.getString(PROVIDER_USER_ID);
-                String rsUrl = ownerUserId.getString(RESOURCE_SERVER_URL);
-                // cosId is used for relationship apis
+        ownerUserIdFuture
+            .onSuccess(
+                ownerUserId -> {
+                  LOGGER.debug(ownerUserId);
+                  String kcId = ownerUserId.getString(PROVIDER_USER_ID);
+                  String rsUrl = ownerUserId.getString(RESOURCE_SERVER_URL);
+                  // cosId is used for relationship apis
 
-                jwtAuthenticationInfo.put(PROVIDER_USER_ID, kcId);
-                jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
-                requestBody.put(PROVIDER_USER_ID, kcId);
+                  jwtAuthenticationInfo.put(PROVIDER_USER_ID, kcId);
+                  jwtAuthenticationInfo.put(RESOURCE_SERVER_URL, rsUrl);
+                  requestBody.put(PROVIDER_USER_ID, kcId);
 
-                String cosId = ownerUserId.getString(COS_ITEM);
-                requestBody.put(COS_ITEM, cosId);
-              }).onFailure(parentInfoFailure -> {
-                response
-                    .setStatusCode(400)
-                    .end(
-                        new RespBuilder()
-                            .withType(TYPE_LINK_VALIDATION_FAILED)
-                            .withTitle(TITLE_LINK_VALIDATION_FAILED)
-                            .withDetail("Provider not found")
-                            .getResponse());
-              });
-
+                  String cosId = ownerUserId.getString(COS_ITEM);
+                  requestBody.put(COS_ITEM, cosId);
+                })
+            .onFailure(
+                parentInfoFailure -> {
+                  response
+                      .setStatusCode(400)
+                      .end(
+                          new RespBuilder()
+                              .withType(TYPE_LINK_VALIDATION_FAILED)
+                              .withTitle(TITLE_LINK_VALIDATION_FAILED)
+                              .withDetail("Provider not found")
+                              .getResponse());
+                });
       }
     }
     return requestBody;
-//    authService.tokenInterospect(new JsonObject(),
-//        jwtAuthenticationInfo, authHandler -> {
-//        if (authHandler.failed()) {
-//        } else {
-//          LOGGER.debug("Success: JWT Auth successful");
-//          requestBody.put(HTTP_METHOD, routingContext.request().method().toString());
-//          /* Link Validating the request to ensure item correctness */
-//          validatorService.validateItem(requestBody, valhandler -> {
-//            if (valhandler.succeeded()) {
-//              LOGGER.debug("Success: Item link validation");
-//
-//              // If post, create. If put, update
-//            }
-//          });
-//        }
-//      });
   }
 
   /**
    * Get Item.
    *
-   * @param routingContext {@link RoutingContext}
-   * @TODO Throw error if load failed
+   * @param routingContext {@link RoutingContext} @TODO Throw error if load failed
    */
   // tag::db-service-calls[]
   public void getItemHandler(RoutingContext routingContext) {
@@ -304,35 +316,36 @@ public final class CrudApis {
 
     if (validateId(itemId)) {
       // if (validateId(itemId) == false) {
-      dbService.getItem(requestBody, dbhandler -> {
-        if (dbhandler.succeeded()) {
-          if (dbhandler.result().getInteger(TOTAL_HITS) == 0) {
-            LOGGER.error("Fail: Item not found");
-            JsonObject result = dbhandler.result();
-            result.put(STATUS, ERROR);
-            result.put(TYPE, TYPE_ITEM_NOT_FOUND);
-            dbhandler.result().put("detail", "doc doesn't exist");
-            response.setStatusCode(404)
-                    .end(dbhandler.result().toString());
-          } else {
-            LOGGER.info("Success: Retreived item");
-            response.setStatusCode(200)
-                    .end(dbhandler.result().toString());
-          }
-        } else if (dbhandler.failed()) {
-          LOGGER.error("Fail: Item not found;" + dbhandler.cause().getMessage());
-          response.setStatusCode(400)
-              .end(dbhandler.cause().getMessage());
-        }
-      });
+      dbService.getItem(
+          requestBody,
+          dbhandler -> {
+            if (dbhandler.succeeded()) {
+              if (dbhandler.result().getInteger(TOTAL_HITS) == 0) {
+                LOGGER.error("Fail: Item not found");
+                JsonObject result = dbhandler.result();
+                result.put(STATUS, ERROR);
+                result.put(TYPE, TYPE_ITEM_NOT_FOUND);
+                dbhandler.result().put("detail", "doc doesn't exist");
+                response.setStatusCode(404).end(dbhandler.result().toString());
+              } else {
+                LOGGER.info("Success: Retreived item");
+                response.setStatusCode(200).end(dbhandler.result().toString());
+              }
+            } else if (dbhandler.failed()) {
+              LOGGER.error("Fail: Item not found;" + dbhandler.cause().getMessage());
+              response.setStatusCode(400).end(dbhandler.cause().getMessage());
+            }
+          });
     } else {
       LOGGER.error("Fail: Invalid request payload");
-      response.setStatusCode(400)
-              .end(new RespBuilder()
-                        .withType(TYPE_INVALID_UUID)
-                        .withTitle(TITLE_INVALID_UUID)
-                        .withDetail("The id is invalid")
-                        .getResponse());
+      response
+          .setStatusCode(400)
+          .end(
+              new RespBuilder()
+                  .withType(TYPE_INVALID_UUID)
+                  .withTitle(TITLE_INVALID_UUID)
+                  .withDetail("The id is invalid")
+                  .getResponse());
     }
   }
 
@@ -438,9 +451,11 @@ public final class CrudApis {
     }
   }
 
-  private void handleItemDeletion(HttpServerResponse response,
-                                  JsonObject jwtAuthenticationInfo,
-                                  JsonObject requestBody, String itemId) {
+  private void handleItemDeletion(
+      HttpServerResponse response,
+      JsonObject jwtAuthenticationInfo,
+      JsonObject requestBody,
+      String itemId) {
     // TODO: convert callback handlers to future compose chains
     /*
     authService.tokenInterospect(new JsonObject(),
@@ -487,8 +502,7 @@ public final class CrudApis {
 
   Future<JsonObject> getParentObjectInfo(String itemId) {
     Promise<JsonObject> promise = Promise.promise();
-    JsonObject req = new JsonObject().put(ID, itemId)
-            .put(SEARCH_TYPE, "getParentObjectInfo");
+    JsonObject req = new JsonObject().put(ID, itemId).put(SEARCH_TYPE, "getParentObjectInfo");
 
     LOGGER.debug(req);
     dbService.searchQuery(
@@ -496,10 +510,11 @@ public final class CrudApis {
         handler -> {
           if (handler.succeeded()) {
             if (handler.result().getInteger(TOTAL_HITS) != 1) {
-              RespBuilder respBuilder = new RespBuilder()
-                  .withType(TYPE_ITEM_NOT_FOUND)
-                  .withTitle(TITLE_ITEM_NOT_FOUND)
-                  .withDetail("Fail: Doc doesn't exist, can't perform operation");
+              RespBuilder respBuilder =
+                  new RespBuilder()
+                      .withType(TYPE_ITEM_NOT_FOUND)
+                      .withTitle(TITLE_ITEM_NOT_FOUND)
+                      .withDetail("Fail: Doc doesn't exist, can't perform operation");
               promise.fail(respBuilder.getResponse());
             } else {
               promise.complete(handler.result().getJsonArray("results").getJsonObject(0));
@@ -516,7 +531,7 @@ public final class CrudApis {
    *
    * @param routingContext the routing context for handling HTTP requests and responses
    * @param catAdmin he catalogue admin for the item
-   * @throws  RuntimeException if item creation fails
+   * @throws RuntimeException if item creation fails
    */
   public void createInstanceHandler(RoutingContext routingContext, String catAdmin) {
 
@@ -526,23 +541,19 @@ public final class CrudApis {
     HttpServerRequest request = routingContext.request();
     response.putHeader(HEADER_CONTENT_TYPE, MIME_APPLICATION_JSON);
 
-
     JsonObject authenticationInfo = new JsonObject();
 
     String instance = routingContext.queryParams().get(ID);
 
-
-
     //  Start insertion flow
 
-
     // Json schema validate item
-    authenticationInfo.put(TOKEN,
-                            request.getHeader(HEADER_TOKEN))
-                            .put(METHOD, REQUEST_POST)
-                            .put(API_ENDPOINT, api.getRouteInstance())
-                            .put(ITEM_TYPE, ITEM_TYPE_INSTANCE)
-                            .put(ID, host);
+    authenticationInfo
+        .put(TOKEN, request.getHeader(HEADER_TOKEN))
+        .put(METHOD, REQUEST_POST)
+        .put(API_ENDPOINT, api.getRouteInstance())
+        .put(ITEM_TYPE, ITEM_TYPE_INSTANCE)
+        .put(ID, host);
     // Introspect token and authorize operation
 
     // TODO: convert callback handlers to future compose chains
@@ -582,10 +593,10 @@ public final class CrudApis {
    * Deletes the specified instance from the database.
    *
    * @param routingContext the routing context
-   * @param catAdmin  the catalogue admin
+   * @param catAdmin the catalogue admin
    * @throws NullPointerException if routingContext is null
-   * @throws RuntimeException if the instance cannot be deleted
-   * @TODO call auditing service after successful deletion
+   * @throws RuntimeException if the instance cannot be deleted @TODO call auditing service after
+   *     successful deletion
    */
   public void deleteInstanceHandler(RoutingContext routingContext, String catAdmin) {
 
@@ -599,16 +610,15 @@ public final class CrudApis {
 
     String instance = routingContext.queryParams().get(ID);
 
-
     //  Start insertion flow
 
-
     // Json schema validate item
-    authenticationInfo.put(TOKEN, request.getHeader(HEADER_TOKEN))
-                      .put(METHOD, REQUEST_DELETE)
-                      .put(API_ENDPOINT, api.getRouteInstance())
-                      .put(ITEM_TYPE, ITEM_TYPE_INSTANCE)
-                      .put(ID, host);
+    authenticationInfo
+        .put(TOKEN, request.getHeader(HEADER_TOKEN))
+        .put(METHOD, REQUEST_DELETE)
+        .put(API_ENDPOINT, api.getRouteInstance())
+        .put(ITEM_TYPE, ITEM_TYPE_INSTANCE)
+        .put(ID, host);
     // Introspect token and authorize operation
     // TODO: convert callback handlers to future compose chains
     /*
@@ -646,13 +656,11 @@ public final class CrudApis {
   /**
    * Check if the itemId contains certain invalid characters.
    *
-   *
    * @param itemId which is a String
-   * @return  true if the item ID contains invalid characters, false otherwise
+   * @return true if the item ID contains invalid characters, false otherwise
    */
   private boolean validateId(String itemId) {
     return UUID_PATTERN.matcher(itemId).matches();
-
   }
 
   /**
@@ -668,20 +676,23 @@ public final class CrudApis {
     ZonedDateTime zst = ZonedDateTime.now();
     LOGGER.debug("TIME ZST: " + zst);
     long epochTime = getEpochTime(zst);
-    auditInfo.put(IUDX_ID, otherInfo[0])
-            .put(API, otherInfo[1])
-            .put(HTTP_METHOD, otherInfo[2])
-            .put(EPOCH_TIME, epochTime)
-            .put(USERID, jwtDecodedInfo.getString(USER_ID));
+    auditInfo
+        .put(IUDX_ID, otherInfo[0])
+        .put(API, otherInfo[1])
+        .put(HTTP_METHOD, otherInfo[2])
+        .put(EPOCH_TIME, epochTime)
+        .put(USERID, jwtDecodedInfo.getString(USER_ID));
 
     LOGGER.debug("audit data: " + auditInfo.encodePrettily());
-    auditingService.insertAuditngValuesInRmq(auditInfo, auditHandler -> {
-      if (auditHandler.succeeded()) {
-        LOGGER.info("message published in RMQ.");
-      } else {
-        LOGGER.error("failed to publish message in RMQ.");
-      }
-    });
+    auditingService.insertAuditngValuesInRmq(
+        auditInfo,
+        auditHandler -> {
+          if (auditHandler.succeeded()) {
+            LOGGER.info("message published in RMQ.");
+          } else {
+            LOGGER.error("failed to publish message in RMQ.");
+          }
+        });
   }
 
   private Future<Void> updateAuditInfo(JwtData jwtData, String[] otherInfo) {
@@ -690,26 +701,28 @@ public final class CrudApis {
     ZonedDateTime zst = ZonedDateTime.now();
     LOGGER.debug("TIME ZST: " + zst);
     long epochTime = getEpochTime(zst);
-    auditInfo.put(IUDX_ID, otherInfo[0])
+    auditInfo
+        .put(IUDX_ID, otherInfo[0])
         .put(API, otherInfo[1])
         .put(HTTP_METHOD, otherInfo[2])
         .put(EPOCH_TIME, epochTime)
         .put(USERID, jwtData.getSub());
 
-    auditingService.insertAuditngValuesInRmq(auditInfo, auditHandler -> {
-      if (auditHandler.succeeded()) {
-        LOGGER.info("message published in RMQ.");
-      } else {
-        LOGGER.error("failed to publish message in RMQ.");
-      }
-    });
+    auditingService.insertAuditngValuesInRmq(
+        auditInfo,
+        auditHandler -> {
+          if (auditHandler.succeeded()) {
+            LOGGER.info("message published in RMQ.");
+          } else {
+            LOGGER.error("failed to publish message in RMQ.");
+          }
+        });
     return Future.succeededFuture();
   }
 
   private long getEpochTime(ZonedDateTime zst) {
     return zst.toInstant().toEpochMilli();
   }
-
 
   final class ResultContainer {
     JwtData jwtData;
