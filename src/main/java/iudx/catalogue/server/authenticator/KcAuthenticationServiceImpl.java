@@ -5,12 +5,9 @@ import static iudx.catalogue.server.authenticator.Constants.*;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.JWTProcessor;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
-import iudx.catalogue.server.authenticator.authorization.Method;
 import iudx.catalogue.server.authenticator.model.JwtData;
 import iudx.catalogue.server.util.Api;
 import org.apache.logging.log4j.LogManager;
@@ -67,8 +64,9 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
   }
 
   @Override
-  public AuthenticationService tokenInterospect(
-      JsonObject request, JsonObject authenticationInfo, Handler<AsyncResult<JsonObject>> handler) {
+  public Future<JwtData> tokenInterospect(
+      JsonObject request, JsonObject authenticationInfo) {
+    Promise<JwtData>  promise = Promise.promise();
     String endpoint = authenticationInfo.getString(API_ENDPOINT);
     // String id = authenticationInfo.getString(ID);
     String token = authenticationInfo.getString(TOKEN);
@@ -100,13 +98,13 @@ public class KcAuthenticationServiceImpl implements AuthenticationService {
         .onComplete(
             completeHandler -> {
               if (completeHandler.succeeded()) {
-                handler.handle(Future.succeededFuture());
+                promise.complete();
               } else {
                 LOGGER.debug(completeHandler.cause().getMessage());
-                handler.handle(Future.failedFuture(completeHandler.cause().getMessage()));
+                promise.fail(completeHandler.cause().getMessage());
               }
             });
-    return this;
+    return promise.future();
   }
 
   private Future<Boolean> isValidIssuer(JwtData jwtData, String issuer) {
