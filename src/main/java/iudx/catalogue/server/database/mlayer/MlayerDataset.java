@@ -11,6 +11,7 @@ import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.Util;
+import iudx.catalogue.server.mlayer.vocabulary.DataModel;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -136,7 +137,9 @@ public class MlayerDataset {
   }
 
   public void getMlayerAllDatasets(
-      JsonObject requestParam, String query, Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject requestParam,
+      String query,
+      Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Getting all the resource group items");
     Promise<JsonObject> datasetResult = Promise.promise();
@@ -151,77 +154,97 @@ public class MlayerDataset {
         .onComplete(
             ar -> {
               if (ar.succeeded()) {
-                JsonObject instanceList = ar.result().resultAt(0);
-                JsonObject resourceGroupList = ar.result().resultAt(1);
-                JsonObject resourceAndPolicyCount = ar.result().resultAt(2);
-                JsonArray resourceGroupArray = new JsonArray();
-                LOGGER.debug("getMlayerDatasets resourceGroupList iteration started");
-                for (int i = 0; i < resourceGroupList.getInteger("resourceGroupCount"); i++) {
-                  JsonObject record =
-                      resourceGroupList.getJsonArray("resourceGroup").getJsonObject(i);
-                  record.put(
-                      "icon",
-                      record.containsKey(INSTANCE)
-                          ? instanceList.getString(record.getString(INSTANCE))
-                          : "");
-                  record.put(
-                      "totalResources",
-                      resourceAndPolicyCount
-                              .getJsonObject("resourceItemCount")
-                              .containsKey(record.getString(ID))
-                          ? resourceAndPolicyCount
-                              .getJsonObject("resourceItemCount")
-                              .getInteger(record.getString(ID))
-                          : 0);
-                  if (resourceAndPolicyCount
-                      .getJsonObject("resourceAccessPolicy")
-                      .containsKey(record.getString(ID))) {
-                    record.put(
-                        ACCESS_POLICY,
-                        resourceAndPolicyCount
-                            .getJsonObject("resourceAccessPolicy")
-                            .getJsonObject(record.getString(ID)));
-                  } else {
-                    record.put(
-                        ACCESS_POLICY,
-                        new JsonObject().put("PII", 0).put("SECURE", 0).put("OPEN", 0));
-                  }
-                  record.remove(TYPE);
-                  resourceGroupArray.add(record);
-                }
-                JsonArray pagedResourceGroups = new JsonArray();
-                int endIndex =
-                    requestParam.getInteger(LIMIT) + requestParam.getInteger(OFFSET);
-                if (endIndex >= resourceGroupArray.size()) {
-                  if (requestParam.getInteger(OFFSET) >= resourceGroupArray.size()) {
-                    LOGGER.debug("Offset value has exceeded total hits");
-                    RespBuilder respBuilder =
-                        new RespBuilder()
-                            .withType(TYPE_SUCCESS)
-                            .withTitle(SUCCESS)
-                            .withTotalHits(resourceGroupList.getInteger("resourceGroupCount"));
-                    handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
-                  } else {
-                    endIndex = resourceGroupArray.size();
-                  }
-                }
-                for (int i = requestParam.getInteger(OFFSET); i < endIndex; i++) {
-                  pagedResourceGroups.add(resourceGroupArray.getJsonObject(i));
-                }
+                DataModel dataModel = new DataModel(client, docIndex);
+                dataModel
+                    .getDataModelInfo()
+                    .onComplete(
+                        domainInfoResult -> {
+                          if (domainInfoResult.succeeded()) {
+                            JsonObject domains = domainInfoResult.result();
 
-                LOGGER.debug("getMlayerDatasets resourceGroupList interation succeeded");
-                RespBuilder respBuilder =
-                    new RespBuilder()
-                        .withType(TYPE_SUCCESS)
-                        .withTitle(SUCCESS)
-                        .withTotalHits(resourceGroupList.getInteger("resourceGroupCount"))
-                        .withResult(pagedResourceGroups);
-                LOGGER.debug("getMlayerDatasets succeeded");
-                handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+                            JsonObject instanceList = ar.result().resultAt(0);
+                            JsonObject resourceGroupList = ar.result().resultAt(1);
+                            JsonObject resourceAndPolicyCount = ar.result().resultAt(2);
+                            JsonArray resourceGroupArray = new JsonArray();
+                            LOGGER.debug("getMlayerDatasets resourceGroupList iteration started");
+                            for (int i = 0;
+                                i < resourceGroupList.getInteger("resourceGroupCount");
+                                i++) {
+                              JsonObject record =
+                                  resourceGroupList.getJsonArray("resourceGroup").getJsonObject(i);
+                              record.put(
+                                  "icon",
+                                  record.containsKey(INSTANCE)
+                                      ? instanceList.getString(record.getString(INSTANCE))
+                                      : "");
+                              record.put(
+                                  "totalResources",
+                                  resourceAndPolicyCount
+                                          .getJsonObject("resourceItemCount")
+                                          .containsKey(record.getString(ID))
+                                      ? resourceAndPolicyCount
+                                          .getJsonObject("resourceItemCount")
+                                          .getInteger(record.getString(ID))
+                                      : 0);
+                              if (resourceAndPolicyCount
+                                  .getJsonObject("resourceAccessPolicy")
+                                  .containsKey(record.getString(ID))) {
+                                record.put(
+                                    ACCESS_POLICY,
+                                    resourceAndPolicyCount
+                                        .getJsonObject("resourceAccessPolicy")
+                                        .getJsonObject(record.getString(ID)));
+                              } else {
+                                record.put(
+                                    ACCESS_POLICY,
+                                    new JsonObject().put("PII", 0).put("SECURE", 0).put("OPEN", 0));
+                              }
+                              if (domains.getString(record.getString("id")) != null) {
+                                record.put("domain", domains.getString(record.getString("id")));
+                              }
+                              record.remove(TYPE);
+                              resourceGroupArray.add(record);
+                            }
+                            JsonArray pagedResourceGroups = new JsonArray();
+                            int endIndex =
+                                requestParam.getInteger(LIMIT) + requestParam.getInteger(OFFSET);
+                            if (endIndex >= resourceGroupArray.size()) {
+                              if (requestParam.getInteger(OFFSET) >= resourceGroupArray.size()) {
+                                LOGGER.debug("Offset value has exceeded total hits");
+                                RespBuilder respBuilder =
+                                    new RespBuilder()
+                                        .withType(TYPE_SUCCESS)
+                                        .withTitle(SUCCESS)
+                                        .withTotalHits(
+                                            resourceGroupList.getInteger("resourceGroupCount"));
+                                handler.handle(
+                                    Future.succeededFuture(respBuilder.getJsonResponse()));
+                              } else {
+                                endIndex = resourceGroupArray.size();
+                              }
+                            }
+                            for (int i = requestParam.getInteger(OFFSET); i < endIndex; i++) {
+                              pagedResourceGroups.add(resourceGroupArray.getJsonObject(i));
+                            }
 
+                            LOGGER.debug("getMlayerDatasets resourceGroupList iteration succeeded");
+                            RespBuilder respBuilder =
+                                new RespBuilder()
+                                    .withType(TYPE_SUCCESS)
+                                    .withTitle(SUCCESS)
+                                    .withTotalHits(
+                                        resourceGroupList.getInteger("resourceGroupCount"))
+                                    .withResult(pagedResourceGroups);
+                            LOGGER.debug("getMlayerDatasets succeeded");
+                            handler.handle(Future.succeededFuture(respBuilder.getJsonResponse()));
+                          } else {
+                            LOGGER.error("Fail: failed DataModel request");
+                            handler.handle(Future.failedFuture(internalErrorResp));
+                          }
+                        });
               } else {
                 LOGGER.error("Fail: failed DB request");
-                handler.handle(Future.failedFuture(internalErrorResp));
+                handler.handle(Future.failedFuture(ar.cause().getMessage()));
               }
             });
   }
@@ -242,12 +265,7 @@ public class MlayerDataset {
               if (size == 0) {
                 LOGGER.debug("getRGs is zero");
                 datasetResult.handle(
-                    Future.failedFuture(
-                        new RespBuilder()
-                            .withType(TYPE_ITEM_NOT_FOUND)
-                            .withTitle(TITLE_ITEM_NOT_FOUND)
-                            .withDetail("no datasets are present")
-                            .getResponse()));
+                    Future.failedFuture(NO_CONTENT_AVAILABLE));
                 return;
               }
               JsonObject rsUrl = new JsonObject();

@@ -35,6 +35,7 @@ info:
        - <b>/internal/ui/providers</b>
        - <b>/internal/ui/instance</b>
        - <b>/internal/ui/domain</b>
+       - <b>/internal/ui/dataset</b>
        
     Additional query parameters to be used:
       - <b>offset</b> : The from parameter defines the offset from the first result you want to fetch,  ( <i>default : 0</i> ,<i>minValue: 0</i>, <i>maxValue: 10000</i> )
@@ -2041,6 +2042,12 @@ paths:
             `offset` of the data model domain, to be fetched
           schema:
             type: string
+        - name: instance
+          in: query
+          description: |
+            `name` of the instance from where the dataset information has to be fetched
+          schema:
+            type: string
       responses:
         '200':
           description: Success
@@ -2108,6 +2115,19 @@ paths:
       description: |
         Fetches details of all the datasets.
       operationId: get datasets
+      parameters:
+        - name: limit
+          in: query
+          description: |
+            `limit` of the data model domain, to be fetched
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: |
+            `offset` of the data model domain, to be fetched
+          schema:
+            type: string
       responses:
         '200':
           description: Successfully fetched
@@ -2128,6 +2148,19 @@ paths:
         - Mlayer Dataset
       description: Fetches the dataset details of a particular dataset using dataset_id. Domains, Instance, Tags and provider field can be used to filter the datasets.
       operationId: get dataset and its resources
+      parameters:
+        - name: limit
+          in: query
+          description: |
+            `limit` of the data model domain, to be fetched
+          schema:
+            type: string
+        - name: offset
+          in: query
+          description: |
+            `offset` of the data model domain, to be fetched
+          schema:
+            type: string
       requestBody:
         description: 'Based on id dataset and its resources are retrieved. If id field blank or not present then, tags, providers and instance can be used to filter from all datasets.'
         required: true

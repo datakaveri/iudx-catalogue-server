@@ -27,7 +27,7 @@ public class MlayerDomainCRUDIT {
                 .put("description", "Data Models that pertain to civic domain")
                 .put("icon", "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.png")
                 .put("label", "Civic")
-                .put("name", "civic");
+                .put("name", "civicTest");
 
         Response resp= given()
                 .header("Content-Type", "application/json")
@@ -96,7 +96,7 @@ public class MlayerDomainCRUDIT {
    public void updateMlayerDomainTest(){
        JsonObject requestBody = new JsonObject()
                .put("icon", "https://iudx-catalogue-assets.s3.ap-south-1.amazonaws.com/instances/icons/civic.jpeg")
-               .put("name", "civic")
+               .put("name", "civicTest")
                .put("description", "Data Models that pertain to civic domain")
                .put("label", "Civic");
        given()
