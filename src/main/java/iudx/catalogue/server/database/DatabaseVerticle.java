@@ -3,13 +3,15 @@ package iudx.catalogue.server.database;
 import static iudx.catalogue.server.util.Constants.*;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageConsumer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.serviceproxy.ServiceBinder;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
-
 
 /**
  * The Database Verticle.
@@ -39,6 +41,17 @@ public class DatabaseVerticle extends AbstractVerticle {
   private MessageConsumer<JsonObject> consumer;
 
   /**
+   * Helper function to create a WebClient to talk to the vocabulary server.
+   *
+   * @param vertx the vertx instance
+   * @return a web client initialized with the relevant client certificate
+   */
+  static WebClient createWebClient(Vertx vertx) {
+    WebClientOptions webClientOptions = new WebClientOptions();
+    return WebClient.create(vertx, webClientOptions);
+  }
+
+  /**
    * This method is used to start the Verticle. It deploys a verticle in a cluster, registers the
    * service with the Event bus against an address, publishes the service with the service discovery
    * interface.
@@ -66,10 +79,22 @@ public class DatabaseVerticle extends AbstractVerticle {
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
       database =
           new DatabaseServiceImpl(
-              client, docIndex, ratingIndex, mlayerIndex, mlayerDomainIndex,
-                  nlpService, geoService);
+              createWebClient(vertx),
+              client,
+              docIndex,
+              ratingIndex,
+              mlayerIndex,
+              mlayerDomainIndex,
+              nlpService,
+              geoService);
     } else {
-      database = new DatabaseServiceImpl(client, docIndex, ratingIndex, mlayerIndex,
+      database =
+          new DatabaseServiceImpl(
+              createWebClient(vertx),
+              client,
+              docIndex,
+              ratingIndex,
+              mlayerIndex,
               mlayerDomainIndex);
     }
 

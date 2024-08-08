@@ -6,6 +6,7 @@ import static iudx.catalogue.server.util.Constants.*;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.WebClient;
 import iudx.catalogue.server.database.mlayer.*;
 import iudx.catalogue.server.geocoding.GeocodingService;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
@@ -45,6 +46,7 @@ public class DatabaseServiceImpl implements DatabaseService {
   private String ratingIndex;
   private String mlayerInstanceIndex;
   private String mlayerDomainIndex;
+  private WebClient webClient;
 
   /**
    * Constructs a new DatabaseServiceImpl instance with the given ElasticClient and index names.
@@ -56,12 +58,14 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @param mlayerDomainIndex the name of the index used for ML layer domain storage
    */
   public DatabaseServiceImpl(
+      WebClient webClient,
       ElasticClient client,
       String docIndex,
       String ratingIndex,
       String mlayerInstanceIndex,
       String mlayerDomainIndex) {
     this(client);
+    this.webClient = webClient;
     this.docIndex = docIndex;
     this.ratingIndex = ratingIndex;
     this.mlayerInstanceIndex = mlayerInstanceIndex;
@@ -80,6 +84,7 @@ public class DatabaseServiceImpl implements DatabaseService {
    * @param geoService the geocoding service used to perform geocoding operations
    */
   public DatabaseServiceImpl(
+      WebClient webClient,
       ElasticClient client,
       String docIndex,
       String ratingIndex,
@@ -88,6 +93,7 @@ public class DatabaseServiceImpl implements DatabaseService {
       NLPSearchService nlpService,
       GeocodingService geoService) {
     this(client, nlpService, geoService);
+    this.webClient = webClient;
     this.docIndex = docIndex;
     this.ratingIndex = ratingIndex;
     this.mlayerInstanceIndex = mlayerInstanceIndex;
@@ -1356,7 +1362,8 @@ public class DatabaseServiceImpl implements DatabaseService {
   @Override
   public DatabaseService getMlayerAllDatasets(
       JsonObject requestParam, String query, Handler<AsyncResult<JsonObject>> handler) {
-    MlayerDataset mlayerDataset = new MlayerDataset(client, docIndex, mlayerInstanceIndex);
+    MlayerDataset mlayerDataset =
+        new MlayerDataset(webClient, client, docIndex, mlayerInstanceIndex);
     mlayerDataset.getMlayerAllDatasets(requestParam, query, handler);
     return this;
   }
@@ -1392,7 +1399,8 @@ public class DatabaseServiceImpl implements DatabaseService {
       return promise.future();
     }
 
-    String checkInstance = GET_INSTANCE_CASE_INSENSITIVE_QUERY.replace("$1", instanceId).replace("$2", "");
+    String checkInstance =
+        GET_INSTANCE_CASE_INSENSITIVE_QUERY.replace("$1", instanceId).replace("$2", "");
     client.searchAsync(
         checkInstance,
         docIndex,

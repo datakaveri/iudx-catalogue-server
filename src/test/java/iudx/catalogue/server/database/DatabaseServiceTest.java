@@ -1,40 +1,31 @@
 package iudx.catalogue.server.database;
 
+import static iudx.catalogue.server.database.Constants.*;
+import static iudx.catalogue.server.util.Constants.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import io.vertx.ext.web.client.WebClient;
 import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
-import io.vertx.core.Vertx;
-import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.WebClientOptions;
 import iudx.catalogue.server.Configuration;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import iudx.catalogue.server.geocoding.GeocodingService;
+import iudx.catalogue.server.nlpsearch.NLPSearchService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import static iudx.catalogue.server.database.Constants.*;
-import static iudx.catalogue.server.util.Constants.*;
-import static org.mockito.Mockito.*;
-
-import iudx.catalogue.server.nlpsearch.NLPSearchService;
-import iudx.catalogue.server.geocoding.GeocodingService;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -56,7 +47,6 @@ public class DatabaseServiceTest {
   private static int databasePort;
   private static String databaseUser;
   private static String databasePassword;
-  private String ratingID;
   private static Configuration config;
   private static WebClient webClient;
   private static NLPSearchService nlpService;
@@ -64,6 +54,7 @@ public class DatabaseServiceTest {
   private static JsonArray optionalModules;
   @Mock AsyncResult<JsonObject> asyncResult;
   @Mock Throwable throwable;
+  private String ratingID;
 
   @BeforeAll
   @DisplayName("Deploying Verticle")
@@ -84,11 +75,12 @@ public class DatabaseServiceTest {
     client = new ElasticClient(databaseIP, databasePort, docIndex, databaseUser, databasePassword);
 
     if (optionalModules.contains(NLPSEARCH_PACKAGE_NAME)
-            && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
+        && optionalModules.contains(GEOCODING_PACKAGE_NAME)) {
       NLPSearchService nlpService = NLPSearchService.createProxy(vertx, NLP_SERVICE_ADDRESS);
       GeocodingService geoService = GeocodingService.createProxy(vertx, GEOCODING_SERVICE_ADDRESS);
       dbService =
           new DatabaseServiceImpl(
+              webClient,
               client,
               docIndex,
               ratingIndex,
@@ -99,7 +91,7 @@ public class DatabaseServiceTest {
     } else {
       dbService =
           new DatabaseServiceImpl(
-              client, docIndex, ratingIndex, mlayerInstanceIndex, mlayerDomainIndex);
+              webClient, client, docIndex, ratingIndex, mlayerInstanceIndex, mlayerDomainIndex);
     }
 
     testContext.completeNow();
@@ -244,7 +236,7 @@ public class DatabaseServiceTest {
         });
   }
 
- /*@Test
+  /*@Test
   @Order(4)
   @DisplayName("Deleting Non Existant Item")
   void deleteNonExistantItemTest(VertxTestContext testContext) {
@@ -363,10 +355,13 @@ public class DatabaseServiceTest {
   @Order(10)
   @DisplayName("Create existing rating")
   void createExistingRatingTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject()
-            .put("rating",4.5)
-            .put("comment","some comment")
-            .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+    JsonObject request =
+        new JsonObject()
+            .put("rating", 4.5)
+            .put("comment", "some comment")
+            .put(
+                "id",
+                "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
             .put("userID", "some-user")
             .put("status", "approved")
             .put("ratingID", "rating-id");
@@ -453,10 +448,13 @@ public class DatabaseServiceTest {
   @Order(12)
   @DisplayName("Update non-existing rating test")
   void updateNonExistingRatingTest(VertxTestContext testContext) {
-    JsonObject request = new JsonObject()
-            .put("rating",4.5)
-            .put("comment","some comment")
-            .put("id", "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
+    JsonObject request =
+        new JsonObject()
+            .put("rating", 4.5)
+            .put("comment", "some comment")
+            .put(
+                "id",
+                "iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs.iudx.io/pune-env-flood")
             .put("userID", "some-user")
             .put("status", "approved")
             .put("ratingID", "rating-id");
@@ -598,31 +596,31 @@ public class DatabaseServiceTest {
   }
 
   /*  @Test
-    @DisplayName("Fail: Get rating for non-existing rating id")
-    void failureGetRatingForNonExistingIDTest(VertxTestContext testContext) {
-      JsonObject request = new JsonObject().put("ratingID","18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c2b");
+  @DisplayName("Fail: Get rating for non-existing rating id")
+  void failureGetRatingForNonExistingIDTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject().put("ratingID","18c2a0bcafc188ce8cac0c20857a70e88259f60778c6aafb3d22dd9f03531c2b");
 
-      dbService.getRatings(request, testContext.succeeding(response -> testContext.verify(() -> {
-        assertEquals(0,response.getInteger("totalHits"));
-        testContext.completeNow();
-      })));
-    }*/
- /* @Test
-  @DisplayName("Testing Geo-circle query")
-  void searchGeoCircle(VertxTestContext testContext) {
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_GEO)
-        .put(COORDINATES_KEY, new JsonArray().add(73.927).add(18.508)).put(MAX_DISTANCE, 5000)
-        .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, LOCATION);
-
-    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.927,
-          response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-              .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
-              .getDouble(0));
+    dbService.getRatings(request, testContext.succeeding(response -> testContext.verify(() -> {
+      assertEquals(0,response.getInteger("totalHits"));
       testContext.completeNow();
     })));
-  }
-*/
+  }*/
+  /* @Test
+    @DisplayName("Testing Geo-circle query")
+    void searchGeoCircle(VertxTestContext testContext) {
+      JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_GEO)
+          .put(COORDINATES_KEY, new JsonArray().add(73.927).add(18.508)).put(MAX_DISTANCE, 5000)
+          .put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN).put(GEOPROPERTY, LOCATION);
+
+      dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+        assertEquals(73.927,
+            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
+                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
+                .getDouble(0));
+        testContext.completeNow();
+      })));
+    }
+  */
   @Test
   @DisplayName("Testing Basic Exceptions (No searchType key)")
   void searchWithSearchType(VertxTestContext testContext) {
@@ -640,14 +638,14 @@ public class DatabaseServiceTest {
                     })));
   }
 
-/*  @Test
+  /*  @Test
   @DisplayName("Testing Geo-Polygon query")
   void searchGeoPolygon(VertxTestContext testContext) {
     /**
      * coordinates should look like this
      * [[[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5],[lo1,la1]]]
      */
-   /* JsonObject request =
+  /* JsonObject request =
         new JsonObject().put(GEOMETRY, POLYGON).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(new JsonArray().add(76.9).add(14.5))
                 .add(new JsonArray().add(72).add(13)).add(new JsonArray().add(73).add(20))
@@ -707,31 +705,31 @@ public class DatabaseServiceTest {
                     })));
   }
 
- /* @Test
+  /* @Test
   @DisplayName("Testing Geo-LineString query")
   void searchGeoLineString(VertxTestContext testContext) {
     /** COORDINATES_KEY should look like this [[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5]] */
   /*  JsonObject request =
-        new JsonObject().put(GEOMETRY, LINESTRING).put(GEORELATION, INTERSECTS).put(COORDINATES_KEY,
-            new JsonArray().add(new JsonArray().add(73.927).add(18.528))
-                .add(new JsonArray().add(73.836).add(18.572))
-                .add(new JsonArray().add(73.927).add(13.091)))
-            .put(GEOPROPERTY, LOCATION).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
+          new JsonObject().put(GEOMETRY, LINESTRING).put(GEORELATION, INTERSECTS).put(COORDINATES_KEY,
+              new JsonArray().add(new JsonArray().add(73.927).add(18.528))
+                  .add(new JsonArray().add(73.836).add(18.572))
+                  .add(new JsonArray().add(73.927).add(13.091)))
+              .put(GEOPROPERTY, LOCATION).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
-    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.927,
-          response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-              .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
-              .getDouble(0));
-      testContext.completeNow();
-    })));
-  }
-*/
- /* @Test
+      dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+        assertEquals(73.927,
+            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
+                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
+                .getDouble(0));
+        testContext.completeNow();
+      })));
+    }
+  */
+  /* @Test
   @DisplayName("Testing Geo-BBOX query")
   void searchGeoBbox(VertxTestContext testContext) {
     /** coordinates should look like this [[lo1,la1],[lo3,la3]] */
-   /* JsonObject request =
+  /* JsonObject request =
         new JsonObject().put(GEOMETRY, BBOX).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
             new JsonArray().add(new JsonArray().add(73).add(20))
                 .add(new JsonArray().add(75).add(14)))
@@ -746,24 +744,24 @@ public class DatabaseServiceTest {
     })));
   }*/
 
- /* @Test
+  /* @Test
   @DisplayName("Testing Geo-BBOX Exceptions [empty response]")
   void searchBboxEmptyResponse(VertxTestContext testContext) {
     /** COORDINATES_KEY should look like this [[lo1,la1],[lo3,la3]] */
   /*  JsonObject request =
-        new JsonObject().put(GEOMETRY, BBOX).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
-            new JsonArray().add(new JsonArray().add(82).add(25.33))
-                .add(new JsonArray().add(82.01).add(25.317)))
-            .put(GEOPROPERTY, LOCATION).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
+          new JsonObject().put(GEOMETRY, BBOX).put(GEORELATION, GEOREL_WITHIN).put(COORDINATES_KEY,
+              new JsonArray().add(new JsonArray().add(82).add(25.33))
+                  .add(new JsonArray().add(82.01).add(25.317)))
+              .put(GEOPROPERTY, LOCATION).put(SEARCH_TYPE, SEARCH_TYPE_GEO);
 
-    dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      Integer res = response.getInteger(TOTAL_HITS);
-      assertEquals(0, res);
-      testContext.completeNow();
-    })));
-  }
-*/
- /* @Test
+      dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+        Integer res = response.getInteger(TOTAL_HITS);
+        assertEquals(0, res);
+        testContext.completeNow();
+      })));
+    }
+  */
+  /* @Test
   @DisplayName("Testing Response Filter")
   void searchResponseFilter(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER).put("attrs",
@@ -801,37 +799,37 @@ public class DatabaseServiceTest {
                     })));
   }
 
- /* @Test
-  @DisplayName("Testing Complex (Geo + Response Filter) Search")
-  void searchComplexGeoResponse(VertxTestContext testContext) {
-    JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER_GEO)
-        .put("attrs", new JsonArray().add(ID).add(TAGS).add(LOCATION))
-        .put(COORDINATES_KEY, new JsonArray().add(73.927285).add(18.502712)).put(MAX_DISTANCE, 5000)
-        .put(GEOMETRY, POINT).put(GEORELATION, INTERSECTS).put(GEOPROPERTY, LOCATION);
-    Set<String> attrs = new HashSet<>();
-    attrs.add(ID);
-    attrs.add(TAGS);
-    attrs.add(LOCATION);
-    dbService.searchQuery(request, testContext.succeeding(response -> {
-      Set<String> resAttrs = new HashSet<>();
-      for (Object obj : response.getJsonArray(RESULT)) {
-        JsonObject jsonObj = (JsonObject) obj;
-        if (resAttrs != attrs) {
-          resAttrs = jsonObj.fieldNames();
+  /* @Test
+    @DisplayName("Testing Complex (Geo + Response Filter) Search")
+    void searchComplexGeoResponse(VertxTestContext testContext) {
+      JsonObject request = new JsonObject().put(SEARCH_TYPE, RESPONSE_FILTER_GEO)
+          .put("attrs", new JsonArray().add(ID).add(TAGS).add(LOCATION))
+          .put(COORDINATES_KEY, new JsonArray().add(73.927285).add(18.502712)).put(MAX_DISTANCE, 5000)
+          .put(GEOMETRY, POINT).put(GEORELATION, INTERSECTS).put(GEOPROPERTY, LOCATION);
+      Set<String> attrs = new HashSet<>();
+      attrs.add(ID);
+      attrs.add(TAGS);
+      attrs.add(LOCATION);
+      dbService.searchQuery(request, testContext.succeeding(response -> {
+        Set<String> resAttrs = new HashSet<>();
+        for (Object obj : response.getJsonArray(RESULT)) {
+          JsonObject jsonObj = (JsonObject) obj;
+          if (resAttrs != attrs) {
+            resAttrs = jsonObj.fieldNames();
+          }
         }
-      }
-      Set<String> finalResAttrs = resAttrs;
-      testContext.verify(() -> {
-        assertEquals(73.927,
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
-        assertEquals(attrs, finalResAttrs);
-        testContext.completeNow();
-      });
-    }));
-  }
-*/
- /* @Test
+        Set<String> finalResAttrs = resAttrs;
+        testContext.verify(() -> {
+          assertEquals(73.927,
+              response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
+                  .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
+          assertEquals(attrs, finalResAttrs);
+          testContext.completeNow();
+        });
+      }));
+    }
+  */
+  /* @Test
   @DisplayName("Testing Count Geo-circle query")
   void countGeoCircle(VertxTestContext testContext) {
     JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_GEO)
@@ -890,7 +888,7 @@ public class DatabaseServiceTest {
                     })));
   }
 
-/*  @Test
+  /*  @Test
   @DisplayName("Testing Count Geo-LineString query")
   void countGeoLineString(VertxTestContext testContext) {
     /** COORDINATES_KEY should look like this [[lo1,la1],[lo2,la2],[lo3,la3],[lo4,la4],[lo5,la5]] */
@@ -907,7 +905,7 @@ public class DatabaseServiceTest {
     })));
   }*/
 
-/*  @Test
+  /*  @Test
   @DisplayName("Testing Count Geo-BBOX query")
   void countGeoBbox(VertxTestContext testContext) {
     /** coordinates should look like this [[lo1,la1],[lo3,la3]] */
@@ -955,34 +953,34 @@ public class DatabaseServiceTest {
    *
    * @param testContext handles operations in Vert.x web
    */
- /* @Test
+  /* @Test
   @DisplayName("Testing Simple Attribute Search")
   void simpleAttributeSearch(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
- /*   JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
-        .put(PROPERTY, new JsonArray().add(ID)).put(VALUE,
-            new JsonArray().add(
-                new JsonArray().add("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs."
-                    + "iudx.io/aqm-bosch-climo/aqm_test_4")));
+  /*   JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
+      .put(PROPERTY, new JsonArray().add(ID)).put(VALUE,
+          new JsonArray().add(
+              new JsonArray().add("iisc.ac.in/89a36273d77dac4cf38114fca1bbe64392547f86/rs."
+                  + "iudx.io/aqm-bosch-climo/aqm_test_4")));
 
-    /* requesting db service */
+  /* requesting db service */
   /*  dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
-      assertEquals(73.927,
-          response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-              .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
-              .getDouble(0));
-      testContext.completeNow();
-    })));
-  }
-*/
+        assertEquals(73.927,
+            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
+                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
+                .getDouble(0));
+        testContext.completeNow();
+      })));
+    }
+  */
   /**
    * Simple Attribute Search test with multiple attribute in "value" query parameter
    * (property=[id]&value=[valid-id1,valid-id2]).
    *
    * @param testContext handles operations in Vert.x web
    */
- /* @Test
+  /* @Test
   @DisplayName("Testing Simple Attribute MultiValue Search")
   void simpleAttributeMultiValueSearch(VertxTestContext testContext) {
 
@@ -1018,13 +1016,13 @@ public class DatabaseServiceTest {
   void multiAttributeSearch(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
-   /* JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
-        .put(PROPERTY, new JsonArray().add(TAGS).add(TYPE))
-        .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
-            .add(new JsonArray().add("iudx:Resource").add("climo")));
+  /* JsonObject request = new JsonObject().put(SEARCH_TYPE, SEARCH_TYPE_ATTRIBUTE)
+      .put(PROPERTY, new JsonArray().add(TAGS).add(TYPE))
+      .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
+          .add(new JsonArray().add("iudx:Resource").add("climo")));
 
-    /* requesting db service */
- /*   dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
+  /* requesting db service */
+  /*   dbService.searchQuery(request, testContext.succeeding(response -> testContext.verify(() -> {
       assertEquals(73.927,
           response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
               .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY)
@@ -1033,62 +1031,62 @@ public class DatabaseServiceTest {
     })));
   }*/
 
-/**
- * Complex Attribute with ResponseFilter search test
- * (property=[attribute1,attribute2]&value=[value1,value2]&filter=[attribute1,attribute2,attribute3]).
- *
- * @param testContext handles operations in Vert.x web
- */
-/*  @Test
+  /**
+   * Complex Attribute with ResponseFilter search test
+   * (property=[attribute1,attribute2]&value=[value1,value2]&filter=[attribute1,attribute2,attribute3]).
+   *
+   * @param testContext handles operations in Vert.x web
+   */
+  /*  @Test
   @DisplayName("Testing Complex (Attribute + Response Filter) Search")
   void searchComplexAttribute(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
-   /* JsonObject request = new JsonObject()
-        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE))
-        .put(PROPERTY, new JsonArray().add(TAGS).add(TYPE))
-        .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
-            .add(new JsonArray().add("iudx:Resource").add("climo")))
-        .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION));
+  /* JsonObject request = new JsonObject()
+          .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE))
+          .put(PROPERTY, new JsonArray().add(TAGS).add(TYPE))
+          .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
+              .add(new JsonArray().add("iudx:Resource").add("climo")))
+          .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION));
 
-    Set<String> attrs = new HashSet<>();
-    attrs.add(ID);
-    attrs.add(TAGS);
-    attrs.add(LOCATION);
+      Set<String> attrs = new HashSet<>();
+      attrs.add(ID);
+      attrs.add(TAGS);
+      attrs.add(LOCATION);
 
-    dbService.searchQuery(request, testContext.succeeding(response -> {
-      Set<String> resAttrs = new HashSet<>();
-      for (Object obj : response.getJsonArray(RESULT)) {
-        JsonObject jsonObj = (JsonObject) obj;
-        if (resAttrs != attrs) {
-          resAttrs = jsonObj.fieldNames();
+      dbService.searchQuery(request, testContext.succeeding(response -> {
+        Set<String> resAttrs = new HashSet<>();
+        for (Object obj : response.getJsonArray(RESULT)) {
+          JsonObject jsonObj = (JsonObject) obj;
+          if (resAttrs != attrs) {
+            resAttrs = jsonObj.fieldNames();
+          }
         }
-      }
-      Set<String> finalResAttrs = resAttrs;
-      testContext.verify(() -> {
-        assertEquals(73.927,
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
-        assertEquals(attrs, finalResAttrs);
-        testContext.completeNow();
-      });
-    }));
-  }
+        Set<String> finalResAttrs = resAttrs;
+        testContext.verify(() -> {
+          assertEquals(73.927,
+              response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
+                  .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
+          assertEquals(attrs, finalResAttrs);
+          testContext.completeNow();
+        });
+      }));
+    }
 
-*/
-/**
- * Complex Attribute with Geo and ResponseFilter search test
- * (property=[attribute1,attribute2]&value=[value1,value2]&geoPointSearchAttributes
- * &filter=[attribute1,attribute2,attribute3]).
- *
- * @param testContext handles operations in Vert.x web
- */
- /* @Test
+  */
+  /**
+   * Complex Attribute with Geo and ResponseFilter search test
+   * (property=[attribute1,attribute2]&value=[value1,value2]&geoPointSearchAttributes
+   * &filter=[attribute1,attribute2,attribute3]).
+   *
+   * @param testContext handles operations in Vert.x web
+   */
+  /* @Test
   @DisplayName("Testing Complex (Attribute + Geo + Response Filter) Search")
   void searchComplexAttributeGeo(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
-   /* JsonObject request = new JsonObject()
+  /* JsonObject request = new JsonObject()
         .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE).concat(SEARCH_TYPE_GEO))
         .put(PROPERTY, new JsonArray().add(TAGS).add(TYPE))
         .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
@@ -1120,141 +1118,141 @@ public class DatabaseServiceTest {
       });
     }));
   }*/
-/**
- * Complex Attribute with Text and ResponseFilter search test
- * (property=[attribute1,attribute2]&value=[value1,value2]&q=string-value
- * &filter=[attribute1,attribute2,attribute3]).
- *
- * @param testContext handles operations in Vert.x web
- */
-/*  @Test
+  /**
+   * Complex Attribute with Text and ResponseFilter search test
+   * (property=[attribute1,attribute2]&value=[value1,value2]&q=string-value
+   * &filter=[attribute1,attribute2,attribute3]).
+   *
+   * @param testContext handles operations in Vert.x web
+   */
+  /*  @Test
   @DisplayName("Testing Complex (Attribute + Text + Response Filter) Search")
   void searchComplexAttributeText(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
-   /* JsonObject request = new JsonObject()
-        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE).concat(SEARCH_TYPE_TEXT))
-        .put(PROPERTY, new JsonArray().add(TAGS).add(TYPE))
-        .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
-            .add(new JsonArray().add("iudx:Resource")))
-        .put(Q_VALUE, "climo").put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION));
+  /* JsonObject request = new JsonObject()
+          .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE).concat(SEARCH_TYPE_TEXT))
+          .put(PROPERTY, new JsonArray().add(TAGS).add(TYPE))
+          .put(VALUE, new JsonArray().add(new JsonArray().add(TAG_AQM))
+              .add(new JsonArray().add("iudx:Resource")))
+          .put(Q_VALUE, "climo").put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION));
 
 
-    Set<String> attrs = new HashSet<>();
-    attrs.add(ID);
-    attrs.add(TAGS);
-    attrs.add(LOCATION);
+      Set<String> attrs = new HashSet<>();
+      attrs.add(ID);
+      attrs.add(TAGS);
+      attrs.add(LOCATION);
 
-    dbService.searchQuery(request, testContext.succeeding(response -> {
-      Set<String> resAttrs = new HashSet<>();
-      for (Object obj : response.getJsonArray(RESULT)) {
-        JsonObject jsonObj = (JsonObject) obj;
-        if (resAttrs != attrs) {
-          resAttrs = jsonObj.fieldNames();
+      dbService.searchQuery(request, testContext.succeeding(response -> {
+        Set<String> resAttrs = new HashSet<>();
+        for (Object obj : response.getJsonArray(RESULT)) {
+          JsonObject jsonObj = (JsonObject) obj;
+          if (resAttrs != attrs) {
+            resAttrs = jsonObj.fieldNames();
+          }
         }
-      }
-      Set<String> finalResAttrs = resAttrs;
-      testContext.verify(() -> {
-        assertEquals(73.927,
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
-        assertEquals(attrs, finalResAttrs);
-        testContext.completeNow();
-      });
-    }));
-  }
-*/
+        Set<String> finalResAttrs = resAttrs;
+        testContext.verify(() -> {
+          assertEquals(73.927,
+              response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
+                  .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
+          assertEquals(attrs, finalResAttrs);
+          testContext.completeNow();
+        });
+      }));
+    }
+  */
 
-/**
- * Complex Text with Geo and ResponseFilter search test (q=string-value&geoPointSearchAttributes
- * &filter=[attribute1,attribute2,attribute3]).
- *
- * @param testContext handles operations in Vert.x web
- */
-/*  @Test
+  /**
+   * Complex Text with Geo and ResponseFilter search test (q=string-value&geoPointSearchAttributes
+   * &filter=[attribute1,attribute2,attribute3]).
+   *
+   * @param testContext handles operations in Vert.x web
+   */
+  /*  @Test
   @DisplayName("Testing Complex (Geo + Text + Response Filter) Search")
   void searchComplexGeoText(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
- /*   JsonObject request =
-        new JsonObject()
-            .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_TEXT).concat(SEARCH_TYPE_GEO))
-            .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
-            .put(COORDINATES_KEY, new JsonArray().add(73.927285).add(18.502712))
-            .put(MAX_DISTANCE, 500).put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN)
-            .put(GEOPROPERTY, LOCATION).put(Q_VALUE, "aqm_test_4");
+  /*   JsonObject request =
+          new JsonObject()
+              .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_TEXT).concat(SEARCH_TYPE_GEO))
+              .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
+              .put(COORDINATES_KEY, new JsonArray().add(73.927285).add(18.502712))
+              .put(MAX_DISTANCE, 500).put(GEOMETRY, POINT).put(GEORELATION, GEOREL_WITHIN)
+              .put(GEOPROPERTY, LOCATION).put(Q_VALUE, "aqm_test_4");
 
 
-    Set<String> attrs = new HashSet<>();
-    attrs.add(ID);
-    attrs.add(TAGS);
-    attrs.add(LOCATION);
+      Set<String> attrs = new HashSet<>();
+      attrs.add(ID);
+      attrs.add(TAGS);
+      attrs.add(LOCATION);
 
-    dbService.searchQuery(request, testContext.succeeding(response -> {
-      Set<String> resAttrs = new HashSet<>();
-      for (Object obj : response.getJsonArray(RESULT)) {
-        JsonObject jsonObj = (JsonObject) obj;
-        if (resAttrs != attrs) {
-          resAttrs = jsonObj.fieldNames();
+      dbService.searchQuery(request, testContext.succeeding(response -> {
+        Set<String> resAttrs = new HashSet<>();
+        for (Object obj : response.getJsonArray(RESULT)) {
+          JsonObject jsonObj = (JsonObject) obj;
+          if (resAttrs != attrs) {
+            resAttrs = jsonObj.fieldNames();
+          }
         }
-      }
-      Set<String> finalResAttrs = resAttrs;
-      testContext.verify(() -> {
-        assertEquals(73.927,
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
-        assertEquals(attrs, finalResAttrs);
-        testContext.completeNow();
-      });
-    }));
-  }
-*/
-/**
- * Complex Text with ResponseFilter search test
- * (q=string-value&filter=[attribute1,attribute2,attribute3]).
- *
- * @param testContext handles operations in Vert.x web
- */
-/*  @Test
+        Set<String> finalResAttrs = resAttrs;
+        testContext.verify(() -> {
+          assertEquals(73.927,
+              response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
+                  .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
+          assertEquals(attrs, finalResAttrs);
+          testContext.completeNow();
+        });
+      }));
+    }
+  */
+  /**
+   * Complex Text with ResponseFilter search test
+   * (q=string-value&filter=[attribute1,attribute2,attribute3]).
+   *
+   * @param testContext handles operations in Vert.x web
+   */
+  /*  @Test
   @DisplayName("Testing Complex (Text + Response Filter) Search")
   void searchComplexText(VertxTestContext testContext) {
 
     /* Constructing request Json Body */
   /*  JsonObject request = new JsonObject()
-        .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_TEXT))
-        .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
-        .put(Q_VALUE, "aqm_test_2");
+          .put(SEARCH_TYPE, RESPONSE_FILTER.concat(SEARCH_TYPE_TEXT))
+          .put(FILTER, new JsonArray().add(ID).add(TAGS).add(LOCATION))
+          .put(Q_VALUE, "aqm_test_2");
 
 
-    Set<String> attrs = new HashSet<>();
-    attrs.add(ID);
-    attrs.add(TAGS);
-    attrs.add(LOCATION);
+      Set<String> attrs = new HashSet<>();
+      attrs.add(ID);
+      attrs.add(TAGS);
+      attrs.add(LOCATION);
 
-    dbService.searchQuery(request, testContext.succeeding(response -> {
-      Set<String> resAttrs = new HashSet<>();
-      for (Object obj : response.getJsonArray(RESULT)) {
-        JsonObject jsonObj = (JsonObject) obj;
-        if (resAttrs != attrs) {
-          resAttrs = jsonObj.fieldNames();
+      dbService.searchQuery(request, testContext.succeeding(response -> {
+        Set<String> resAttrs = new HashSet<>();
+        for (Object obj : response.getJsonArray(RESULT)) {
+          JsonObject jsonObj = (JsonObject) obj;
+          if (resAttrs != attrs) {
+            resAttrs = jsonObj.fieldNames();
+          }
         }
-      }
-      Set<String> finalResAttrs = resAttrs;
-      testContext.verify(() -> {
-        assertEquals(73.874,
-            response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
-                .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
-        assertEquals(attrs, finalResAttrs);
-        testContext.completeNow();
-      });
-    }));
-  }
-*/
+        Set<String> finalResAttrs = resAttrs;
+        testContext.verify(() -> {
+          assertEquals(73.874,
+              response.getJsonArray(RESULT).getJsonObject(0).getJsonObject(LOCATION)
+                  .getJsonObject(GEOMETRY).getJsonArray(COORDINATES_KEY).getDouble(0));
+          assertEquals(attrs, finalResAttrs);
+          testContext.completeNow();
+        });
+      }));
+    }
+  */
   /* @Test
- @DisplayName("Testing Complex (Attribute + Geo + Text + Response Filter) Search")
- void searchComplexAttributeGeoText(VertxTestContext testContext) {
+  @DisplayName("Testing Complex (Attribute + Geo + Text + Response Filter) Search")
+  void searchComplexAttributeGeoText(VertxTestContext testContext) {
 
-   /* Constructing request Json Body */
+    /* Constructing request Json Body */
   /*  JsonObject request = new JsonObject()
         .put(SEARCH_TYPE,
             RESPONSE_FILTER.concat(SEARCH_TYPE_ATTRIBUTE).concat(SEARCH_TYPE_GEO)
@@ -1307,33 +1305,33 @@ public class DatabaseServiceTest {
           }
         });
   }
-    @Test
-    @DisplayName("Test updateItem when handler fails")
-    void updateItemFailedTest(VertxTestContext testContext) {
-        JsonObject request = new JsonObject();
-        JsonArray jsonArray = new JsonArray().add("iudx:Resource");
-        request.put(ID, "dummyid").put("type", jsonArray);
-        DatabaseServiceImpl.client = mock(ElasticClient.class);
-        when(asyncResult.failed()).thenReturn(true);
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(DatabaseServiceImpl.client)
-                .searchGetId(any(), any(), any());
-        dbService.updateItem(
-                request,
-                handler -> {
-                    if (handler.failed()) {
-                        testContext.completeNow();
-                    } else {
-                        testContext.failNow("Fail");
-                    }
-                });
-    }
 
+  @Test
+  @DisplayName("Test updateItem when handler fails")
+  void updateItemFailedTest(VertxTestContext testContext) {
+    JsonObject request = new JsonObject();
+    JsonArray jsonArray = new JsonArray().add("iudx:Resource");
+    request.put(ID, "dummyid").put("type", jsonArray);
+    DatabaseServiceImpl.client = mock(ElasticClient.class);
+    when(asyncResult.failed()).thenReturn(true);
+    doAnswer(
+            new Answer<AsyncResult<JsonObject>>() {
+              @Override
+              public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+                ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                return null;
+              }
+            })
+        .when(DatabaseServiceImpl.client)
+        .searchGetId(any(), any(), any());
+    dbService.updateItem(
+        request,
+        handler -> {
+          if (handler.failed()) {
+            testContext.completeNow();
+          } else {
+            testContext.failNow("Fail");
+          }
+        });
+  }
 }
