@@ -127,7 +127,10 @@ public class DataModel {
     }
 
     AtomicInteger pendingRequests = new AtomicInteger(uniqueClassIds.size());
-
+    if (uniqueClassIds.isEmpty()) {
+      promise.complete(idToSubClassMap);
+      return promise.future();
+    }
     for (String classId : uniqueClassIds) {
       String dmUrl = contextUrl + classId + ".jsonld";
       acquireSemaphoreAndFetchDataModel(
@@ -180,7 +183,7 @@ public class DataModel {
    * @param promise The Promise to complete with idToSubClassMap.
    * @param dmUrl The URL of the data model.
    */
-  private void handleDataModelResponse(
+  void handleDataModelResponse(
       AsyncResult<HttpResponse<Buffer>> dmAr,
       String classId,
       Map<String, String> idToClassIdMap,
