@@ -15,6 +15,7 @@ import io.vertx.junit5.VertxExtension;
 import io.vertx.junit5.VertxTestContext;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.geocoding.GeocodingService;
+import iudx.catalogue.server.mlayer.vocabulary.DataModel;
 import iudx.catalogue.server.nlpsearch.NLPSearchService;
 import java.util.List;
 import java.util.function.Consumer;
@@ -2384,6 +2385,7 @@ public class DatabaseServiceImplTest {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                testContext.completeNow();
                 return null;
               }
             })
@@ -2398,7 +2400,6 @@ public class DatabaseServiceImplTest {
             verify(client, times(6)).searchAsync(any(), any(), any());
             verify(client, times(1)).resourceAggregationAsync(any(), any(), any());
             testContext.completeNow();
-
           } else {
             testContext.failNow("fail");
           }
@@ -2509,6 +2510,7 @@ public class DatabaseServiceImplTest {
               @Override
               public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
                 ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+                testContext.completeNow();
                 return null;
               }
             })
