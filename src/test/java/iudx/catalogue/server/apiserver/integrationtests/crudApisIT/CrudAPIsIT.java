@@ -558,7 +558,7 @@ public class CrudAPIsIT {
                                 )
                         )
                 )
-                .put("resourceServerRegURL", "rs.iudx.io")
+                .put("resourceServerRegURL", "rs-test-pm.iudx.io")
                 .put("resourceAccessModalities", new JsonArray()
                         .add(new JsonObject()
                                 .put("type", new JsonArray().add("iudx:HTTPAccess"))
