@@ -162,8 +162,8 @@ public class MlayerDataset {
         .onComplete(
             ar -> {
               if (ar.succeeded()) {
-                DataModel dataModel = new DataModel(webClient, client, docIndex);
-                dataModel
+                DataModel domainInfoFetcher = new DataModel(webClient, client, docIndex);
+                domainInfoFetcher
                     .getDataModelInfo()
                     .onComplete(
                         domainInfoResult -> {
