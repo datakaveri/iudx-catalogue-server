@@ -45,25 +45,21 @@ public class DataModelTest {
 
   @Test
   void testGetDataModelInfo_Success(VertxTestContext vertxTestContext) {
+    JsonObject respone =
+        new JsonObject()
+            .put(
+                "results",
+                new JsonArray()
+                    .add(
+                        new JsonObject()
+                            .put("@context", "https://example.com/")
+                            .put("type", new JsonArray().add("dummy").add("iudx:Resource"))));
     // Mocking Elasticsearch client's async search
     when(mockElasticClient.searchAsync(anyString(), anyString(), any()))
         .thenAnswer(
             invocation -> {
               ((Handler<AsyncResult<JsonObject>>) invocation.getArgument(2))
-                  .handle(
-                      Future.succeededFuture(
-                          new JsonObject()
-                              .put(
-                                  "results",
-                                  new JsonArray()
-                                      .add(
-                                          new JsonObject()
-                                              .put("@context", "https://example.com/")
-                                              .put(
-                                                  "type",
-                                                  new JsonArray()
-                                                      .add("dummy")
-                                                      .add("iudx:Resource"))))));
+                  .handle(Future.succeededFuture(respone));
               vertxTestContext.completeNow();
               return null;
             });
@@ -93,6 +89,15 @@ public class DataModelTest {
   @Test
   void testHandleDataModelResponse_Success(VertxTestContext vertxTestContext) {
     Promise<JsonObject> promise = Promise.promise();
+    JsonObject response =
+        new JsonObject()
+            .put(
+                "@graph",
+                new JsonArray()
+                    .add(
+                        new JsonObject()
+                            .put("@id", "iudx:Class")
+                            .put("rdfs:subClassOf", new JsonObject().put("@id", "iudx:SubClass"))));
     JsonObject classIdToSubClassMap = new JsonObject();
     AtomicInteger pendingRequests = new AtomicInteger(1);
 
@@ -103,18 +108,7 @@ public class DataModelTest {
     when(mockHttpResponse.body()).thenReturn(mockBuffer);
     when(mockHttpResponse.headers()).thenReturn(mockHeaders);
     when(mockHttpResponse.headers().get(anyString())).thenReturn("application/json");
-    when(mockBuffer.toJsonObject())
-        .thenReturn(
-            new JsonObject()
-                .put(
-                    "@graph",
-                    new JsonArray()
-                        .add(
-                            new JsonObject()
-                                .put("@id", "iudx:Class")
-                                .put(
-                                    "rdfs:subClassOf",
-                                    new JsonObject().put("@id", "iudx:SubClass")))));
+    when(mockBuffer.toJsonObject()).thenReturn(response);
     Map<String, String> idToClassIdMap = new HashMap<>();
     idToClassIdMap.put("id", "Class");
     dataModel.handleDataModelResponse(
