@@ -8,6 +8,7 @@ import static iudx.catalogue.server.validator.Constants.VALIDATION_FAILURE_MSG;
 import io.vertx.core.*;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.WebClient;
 import iudx.catalogue.server.database.ElasticClient;
 import iudx.catalogue.server.database.RespBuilder;
 import iudx.catalogue.server.database.Util;
@@ -26,8 +27,17 @@ public class MlayerDataset {
           .withDetail(DETAIL_INTERNAL_SERVER_ERROR)
           .getResponse();
   ElasticClient client;
+  WebClient webClient;
   String docIndex;
   String mlayerInstanceIndex;
+
+  public MlayerDataset(
+      WebClient webClient, ElasticClient client, String docIndex, String mlayerInstanceIndex) {
+    this.webClient = webClient;
+    this.client = client;
+    this.docIndex = docIndex;
+    this.mlayerInstanceIndex = mlayerInstanceIndex;
+  }
 
   public MlayerDataset(ElasticClient client, String docIndex, String mlayerInstanceIndex) {
     this.client = client;
@@ -137,9 +147,7 @@ public class MlayerDataset {
   }
 
   public void getMlayerAllDatasets(
-      JsonObject requestParam,
-      String query,
-      Handler<AsyncResult<JsonObject>> handler) {
+      JsonObject requestParam, String query, Handler<AsyncResult<JsonObject>> handler) {
 
     LOGGER.debug("Getting all the resource group items");
     Promise<JsonObject> datasetResult = Promise.promise();
@@ -154,8 +162,8 @@ public class MlayerDataset {
         .onComplete(
             ar -> {
               if (ar.succeeded()) {
-                DataModel dataModel = new DataModel(client, docIndex);
-                dataModel
+                DataModel domainInfoFetcher = new DataModel(webClient, client, docIndex);
+                domainInfoFetcher
                     .getDataModelInfo()
                     .onComplete(
                         domainInfoResult -> {
@@ -264,8 +272,7 @@ public class MlayerDataset {
               int size = resultHandler.result().getJsonArray(RESULTS).size();
               if (size == 0) {
                 LOGGER.debug("getRGs is zero");
-                datasetResult.handle(
-                    Future.failedFuture(NO_CONTENT_AVAILABLE));
+                datasetResult.handle(Future.failedFuture(NO_CONTENT_AVAILABLE));
                 return;
               }
               JsonObject rsUrl = new JsonObject();

@@ -5,14 +5,16 @@ import static iudx.catalogue.server.database.Constants.GET_ALL_DATASETS_BY_RS_GR
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.client.WebClientOptions;
 import iudx.catalogue.server.database.ElasticClient;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
@@ -32,12 +34,8 @@ public class DataModel {
    * @param client The ElasticClient instance
    * @param docIndex The index name where data are stored/retrieved in elastic.
    */
-  public DataModel(ElasticClient client, String docIndex) {
-    WebClientOptions options = new WebClientOptions()
-            .setMaxPoolSize(10)
-            .setKeepAlive(true)
-            .setConnectTimeout(5000);
-    this.webClient = WebClient.create(Vertx.vertx(), options);
+  public DataModel(WebClient webClient, ElasticClient client, String docIndex) {
+    this.webClient = webClient;
     this.client = client;
     this.docIndex = docIndex;
   }
@@ -98,48 +96,55 @@ public class DataModel {
    * Fetches data models asynchronously.
    *
    * @param results The JsonArray of results from Elasticsearch search.
-   * @return Future containing JsonObject with class to subclass mappings.
+   * @return Future containing JsonObject with id to subclass mappings.
    */
   private Future<JsonObject> fetchDataModels(JsonArray results) {
     Promise<JsonObject> promise = Promise.promise();
-    JsonObject classIdToSubClassMap = new JsonObject();
+    JsonObject idToSubClassMap = new JsonObject();
 
     if (results.isEmpty()) {
-      promise.complete(classIdToSubClassMap);
+      promise.complete(idToSubClassMap);
       return promise.future();
     }
 
-    AtomicInteger pendingRequests = new AtomicInteger(results.size());
+    Set<String> uniqueClassIds = new HashSet<>();
     String contextUrl = results.getJsonObject(0).getString("@context");
-
+    Map<String, String> idToClassIdMap = new HashMap<>();
     for (int i = 0; i < results.size(); i++) {
       JsonObject result = results.getJsonObject(i);
+      String id = result.getString("id");
       JsonArray typeArray = result.getJsonArray("type");
 
       if (typeArray == null || typeArray.size() < 2) {
         LOGGER.error("Invalid type array in result: {}", result.encode());
-        if (pendingRequests.decrementAndGet() == 0) {
-          promise.complete(classIdToSubClassMap);
-        }
         continue;
       }
 
-      String id = result.getString("id");
       String type = typeArray.getString(1);
       String classId = type.split(":")[1];
-      String dmUrl = contextUrl + classId + ".jsonld";
-
-      acquireSemaphoreAndFetchDataModel(
-          id, classId, dmUrl, classIdToSubClassMap, pendingRequests, promise);
+      uniqueClassIds.add(classId);
+      idToClassIdMap.put(id, classId);
     }
+
+    AtomicInteger pendingRequests = new AtomicInteger(uniqueClassIds.size());
+    if (uniqueClassIds.isEmpty()) {
+      promise.complete(idToSubClassMap);
+      return promise.future();
+    }
+    for (String classId : uniqueClassIds) {
+      String dmUrl = contextUrl + classId + ".jsonld";
+      acquireSemaphoreAndFetchDataModel(
+          classId, dmUrl, idToClassIdMap, idToSubClassMap, pendingRequests, promise);
+    }
+
     return promise.future();
   }
 
   private void acquireSemaphoreAndFetchDataModel(
-      String id,
       String classId,
       String dmUrl,
-      JsonObject classIdToSubClassMap,
+      Map<String, String> idToClassIdMap,
+      JsonObject idToSubClassMap,
       AtomicInteger pendingRequests,
       Promise<JsonObject> promise) {
     try {
@@ -149,14 +154,20 @@ public class DataModel {
           .send(
               dmAr -> {
                 handleDataModelResponse(
-                    dmAr, id, classId, classIdToSubClassMap, pendingRequests, promise, dmUrl);
+                    dmAr,
+                    classId,
+                    idToClassIdMap,
+                    idToSubClassMap,
+                    pendingRequests,
+                    promise,
+                    dmUrl);
                 semaphore.release();
               });
     } catch (InterruptedException e) {
       LOGGER.error("Semaphore acquisition interrupted for URL: {}", dmUrl, e);
       semaphore.release();
       if (pendingRequests.decrementAndGet() == 0) {
-        promise.complete(classIdToSubClassMap);
+        promise.complete(idToSubClassMap);
       }
     }
   }
@@ -165,18 +176,18 @@ public class DataModel {
    * Handles the response from fetching data model information.
    *
    * @param dmAr The async result of the HTTP response.
-   * @param id The id of the data model.
    * @param classId The class id of the data model.
-   * @param classIdToSubClassMap The JsonObject mapping class to subclass.
+   * @param idToClassIdMap The map of id to classId.
+   * @param idToSubClassMap The JsonObject mapping id to subclass.
    * @param pendingRequests The AtomicInteger tracking pending requests.
-   * @param promise The Promise to complete with classIdToSubClassMap.
+   * @param promise The Promise to complete with idToSubClassMap.
    * @param dmUrl The URL of the data model.
    */
-  private void handleDataModelResponse(
+  void handleDataModelResponse(
       AsyncResult<HttpResponse<Buffer>> dmAr,
-      String id,
       String classId,
-      JsonObject classIdToSubClassMap,
+      Map<String, String> idToClassIdMap,
+      JsonObject idToSubClassMap,
       AtomicInteger pendingRequests,
       Promise<JsonObject> promise,
       String dmUrl) {
@@ -210,7 +221,11 @@ public class DataModel {
                     String subClassIdStr = subClassOfObj.getString("@id");
                     if (subClassIdStr != null && subClassIdStr.contains(":")) {
                       String subClassId = subClassIdStr.split(":")[1];
-                      classIdToSubClassMap.put(id, subClassId);
+                      for (Map.Entry<String, String> entry : idToClassIdMap.entrySet()) {
+                        if (entry.getValue().equals(classId)) {
+                          idToSubClassMap.put(entry.getKey(), subClassId);
+                        }
+                      }
                     } else {
                       LOGGER.error("Invalid @id in rdfs:subClassOf for class ID: {}", classId);
                     }
@@ -231,7 +246,7 @@ public class DataModel {
     }
 
     if (pendingRequests.decrementAndGet() == 0) {
-      promise.complete(classIdToSubClassMap);
+      promise.complete(idToSubClassMap);
     }
   }
 }
