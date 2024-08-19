@@ -44,7 +44,7 @@ public class DataModelTest {
   }
 
   @Test
-  void testGetDataModelInfo_Success(VertxTestContext vertxTestContext) {
+  void SuccessGetDataModelInfoTest(VertxTestContext vertxTestContext) {
     JsonObject respone =
         new JsonObject()
             .put(
@@ -87,7 +87,7 @@ public class DataModelTest {
   }
 
   @Test
-  void testHandleDataModelResponse_Success(VertxTestContext vertxTestContext) {
+  void SuccessHandleDataModelResponseTest(VertxTestContext vertxTestContext) {
     Promise<JsonObject> promise = Promise.promise();
     JsonObject response =
         new JsonObject()
@@ -132,7 +132,7 @@ public class DataModelTest {
   }
 
   @Test
-  void testHandleDataModelResponse_Failed(VertxTestContext vertxTestContext) {
+  void FailureHandleDataModelResponseTest(VertxTestContext vertxTestContext) {
     Promise<JsonObject> promise = Promise.promise();
     JsonObject classIdToSubClassMap = new JsonObject();
     AtomicInteger pendingRequests = new AtomicInteger(1);
