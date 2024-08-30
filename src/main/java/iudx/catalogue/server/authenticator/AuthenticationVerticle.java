@@ -129,6 +129,8 @@ public class AuthenticationVerticle extends AbstractVerticle {
                     "JWT ignore expiration set to true, do not "
                         + "set IgnoreExpiration in production!!");
               }
+              jwtAuthOptions.getJWTOptions().setLeeway(JWT_LEEWAY_TIME);
+
               JWTAuth jwtAuth = JWTAuth.create(vertx, jwtAuthOptions);
 
               dxApiBasePath = config().getString("dxApiBasePath");
