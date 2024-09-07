@@ -1,30 +1,25 @@
 package iudx.catalogue.server.validator;
 
-import io.vertx.codegen.annotations.Fluent;
 import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 /**
  * The Validator Service.
- * <h1>Validator Service</h1>
- * <p>
- * The Validator Service in the IUDX Catalogue Server defines the operations to be performed with
- * the IUDX File server.
- * </p>
  *
+ * <h1>Validator Service</h1>
+ *
+ * <p>The Validator Service in the IUDX Catalogue Server defines the operations to be performed with
+ * the IUDX File server.
  *
  * @see io.vertx.codegen.annotations.ProxyGen
- *
  * @see io.vertx.codegen.annotations.VertxGen
  * @version 1.0
  * @since 2020-05-31
  */
-
 @VertxGen
 @ProxyGen
 public interface ValidatorService {
@@ -36,7 +31,6 @@ public interface ValidatorService {
    * @param address which is the proxy address
    * @return ValidatorServiceVertxEBProxy which is a service proxy
    */
-
   @GenIgnore
   static ValidatorService createProxy(Vertx vertx, String address) {
     return new ValidatorServiceVertxEBProxy(vertx, address);
@@ -46,40 +40,29 @@ public interface ValidatorService {
    * The validateSchema method implements the item schema validation.
    *
    * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return ValidatorService which is a Service
+   * @return Future<JsonObject> which is a Vert.x Future
    */
-  @Fluent
-  ValidatorService validateSchema(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  Future<JsonObject> validateSchema(JsonObject request);
 
   /**
    * The validateItem method implements the item validation flow based on the schema of the item.
    *
    * @param request which is a JsonObject
-   * @param handler which is a Request Handler
-   * @return ValidatorService which is a Service
+   * @return Future<JsonObject> which is a Vert.x Future
    */
-  @Fluent
-  ValidatorService validateItem(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
 
-  @Fluent
-  ValidatorService validateRating(JsonObject request, Handler<AsyncResult<JsonObject>> handler);
+  /*
+   * {@inheritDoc}
+   */
+  Future<JsonObject> validateItem(JsonObject request);
 
-  @Fluent
-  ValidatorService validateMlayerInstance(JsonObject request,
-                                          Handler<AsyncResult<JsonObject>> handler);
+  Future<JsonObject> validateRating(JsonObject request);
 
-  @Fluent
-  ValidatorService validateMlayerDomain(JsonObject request,
-                                        Handler<AsyncResult<JsonObject>> handler);
+  Future<JsonObject> validateMlayerInstance(JsonObject request);
 
-  @Fluent
-  ValidatorService validateMlayerGeoQuery(JsonObject request,
-                                           Handler<AsyncResult<JsonObject>> handler);
+  Future<JsonObject> validateMlayerDomain(JsonObject request);
 
-  @Fluent
-  ValidatorService validateMlayerDatasetId(JsonObject requestData,
-                                           Handler<AsyncResult<JsonObject>> handler);
+  Future<JsonObject> validateMlayerGeoQuery(JsonObject request);
 
-
+  Future<JsonObject> validateMlayerDatasetId(JsonObject requestData);
 }

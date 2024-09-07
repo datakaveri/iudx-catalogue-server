@@ -4,11 +4,11 @@ import static iudx.catalogue.server.util.Constants.*;
 import static iudx.catalogue.server.validator.Constants.*;
 
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.apiserver.util.RespBuilder;
 import iudx.catalogue.server.database.ElasticClient;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -95,17 +95,31 @@ public class ValidatorServiceImpl implements ValidatorService {
     return utcTime;
   }
 
-  private static String getItemType(JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  private static String getItemType(JsonObject requestBody) {
     Set<String> type = new HashSet<String>(new JsonArray().getList());
     try {
-      type = new HashSet<String>(request.getJsonArray(TYPE).getList());
+      type = new HashSet<String>(requestBody.getJsonArray(TYPE).getList());
     } catch (Exception e) {
-      LOGGER.error("Item type mismatch");
-      handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+      LOGGER.error("Fail: Invalid type");
     }
     type.retainAll(ITEM_TYPES);
-    String itemType = type.toString().replaceAll("\\[", "").replaceAll("\\]", "");
-    return itemType;
+    return String.join(", ", type);
+  }
+
+  private static boolean isValidUuid(String uuidString) {
+    return UUID_PATTERN.matcher(uuidString).matches();
+  }
+
+  private static boolean validateId(JsonObject request, boolean isUacInstance) {
+    if (request.containsKey("id")) {
+      String id = request.getString("id");
+      LOGGER.debug("id in the request body: " + id);
+
+      if (!isValidUuid(id)) {
+        return true;
+      }
+    } else return !isUacInstance || request.containsKey("id");
+    return true;
   }
 
   String getReturnTypeForValidation(JsonObject result) {
@@ -120,16 +134,14 @@ public class ValidatorServiceImpl implements ValidatorService {
   /*
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
-  public ValidatorService validateSchema(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  @Override
+  public Future<JsonObject> validateSchema(JsonObject request) {
 
+    Promise<JsonObject> promise = Promise.promise();
     LOGGER.debug("Info: Reached Validator service validate schema");
     String itemType = null;
     itemType =
-        request.containsKey("stack_type")
-            ? request.getString("stack_type")
-            : getItemType(request, handler);
+        request.containsKey("stack_type") ? request.getString("stack_type") : getItemType(request);
     request.remove("api");
 
     LOGGER.debug("Info: itemType: " + itemType);
@@ -154,55 +166,61 @@ public class ValidatorServiceImpl implements ValidatorService {
         isValidSchema = ownerItemSchema.validate(request.toString());
         break;
       case "patch:Stack":
-        isValidSchema =  stack4PatchValidator.validate(request.toString());
+        isValidSchema = stack4PatchValidator.validate(request.toString());
         break;
       case "post:Stack":
-        isValidSchema =  stackSchema4Post.validate(request.toString());
+        isValidSchema = stackSchema4Post.validate(request.toString());
         break;
       default:
-        handler.handle(Future.failedFuture("Invalid Item Type"));
-        return this;
+        promise.fail("Invalid Item Type");
+        return promise.future();
     }
 
-    validateSchema(handler);
-    return this;
+    return validateSchema();
   }
 
   /*
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public ValidatorService validateItem(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-
+  public Future<JsonObject> validateItem(JsonObject request) {
     request.put(CONTEXT, vocContext);
     String method = (String) request.remove(HTTP_METHOD);
 
-    String itemType = getItemType(request, handler);
+    String itemType = getItemType(request);
     LOGGER.debug("Info: itemType: " + itemType);
+
+    if (!validateId(request, isUacInstance)) {
+      RespBuilder responseBuilder =
+          new RespBuilder()
+              .withType(TYPE_INVALID_UUID)
+              .withTitle(TITLE_INVALID_UUID)
+              .withDetail("Invalid Id in Request");
+      return Future.failedFuture(responseBuilder.getResponse());
+    }
 
     // Validate if Resource
     if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE)) {
-      validateResource(request, method, handler);
+      return validateResource(request, method);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_SERVER)) {
       // Validate if Resource Server TODO: More checks and auth rules
-      validateResourceServer(request, method, handler);
+      return validateResourceServer(request, method);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_PROVIDER)) {
-      validateProvider(request, method, handler);
+      return validateProvider(request, method);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_RESOURCE_GROUP)) {
-      validateResourceGroup(request, method, handler);
+      return validateResourceGroup(request, method);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_COS)) {
-      validateCosItem(request, method, handler);
+      return validateCosItem(request, method);
     } else if (itemType.equalsIgnoreCase(ITEM_TYPE_OWNER)) {
-      validateOwnerItem(request, method, handler);
+      return validateOwnerItem(request, method);
     }
-    return this;
+
+    return Future.failedFuture("Invalid Item Type");
   }
 
-  private void validateResourceGroup(
-      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
-    validateId(request, handler, isUacInstance);
+  private Future<JsonObject> validateResourceGroup(JsonObject request, String method) {
+    //    validateId(request, isUacInstance);
+    Promise<JsonObject> promise = Promise.promise();
     if (!isUacInstance && !request.containsKey(ID)) {
       UUID uuid = UUID.randomUUID();
       request.put(ID, uuid.toString());
@@ -222,28 +240,28 @@ public class ValidatorServiceImpl implements ValidatorService {
         res -> {
           if (res.failed()) {
             LOGGER.debug("Fail: DB Error");
-            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
-            return;
+            promise.fail(VALIDATION_FAILURE_MSG);
           }
           String returnType = getReturnTypeForValidation(res.result());
           LOGGER.debug(returnType);
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_PROVIDER)) {
             LOGGER.debug("Provider does not exist");
-            handler.handle(Future.failedFuture("Fail: Provider item doesn't exist"));
+            promise.fail("Fail: Provider item doesn't exist");
           } else if (method.equalsIgnoreCase(REQUEST_POST)
               && returnType.contains(ITEM_TYPE_RESOURCE_GROUP)) {
             LOGGER.debug("RG already exists");
-            handler.handle(Future.failedFuture("Fail: Resource Group item already exists"));
+            promise.fail("Fail: Resource Group item already exists");
           } else {
-            handler.handle(Future.succeededFuture(request));
+            promise.complete(request);
           }
         });
+    return promise.future();
   }
 
-  private void validateProvider(
-      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
+  private Future<JsonObject> validateProvider(JsonObject request, String method) {
     // Validate if Provider
-    validateId(request, handler, isUacInstance);
+    //    validateId(request, handler, isUacInstance);
+    Promise<JsonObject> promise = Promise.promise();
     if (!isUacInstance && !request.containsKey(ID)) {
       UUID uuid = UUID.randomUUID();
       request.put(ID, uuid.toString());
@@ -266,7 +284,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         res -> {
           if (res.failed()) {
             LOGGER.debug("Fail: DB Error");
-            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            promise.fail(VALIDATION_FAILURE_MSG);
             return;
           }
           String returnType = getReturnTypeForValidation(res.result());
@@ -275,21 +293,21 @@ public class ValidatorServiceImpl implements ValidatorService {
           LOGGER.debug("res result " + res.result());
           if (!returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
             LOGGER.debug("RS does not exist");
-            handler.handle(Future.failedFuture("Fail: Resource Server item doesn't exist"));
+            promise.fail("Fail: Resource Server item doesn't exist");
           } else if (method.equalsIgnoreCase(REQUEST_POST)
               && returnType.contains(ITEM_TYPE_PROVIDER)) {
             LOGGER.debug("Provider already exists");
-            handler.handle(
-                Future.failedFuture("Fail: Provider item for this resource server already exists"));
+            promise.fail("Fail: Provider item for this resource server already exists");
           } else {
-            handler.handle(Future.succeededFuture(request));
+            promise.complete(request);
           }
         });
+    return promise.future();
   }
 
-  private void validateResourceServer(
-      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
-    validateId(request, handler, isUacInstance);
+  private Future<JsonObject> validateResourceServer(JsonObject request, String method) {
+    //    validateId(request, handler, isUacInstance);
+    Promise<JsonObject> promise = Promise.promise();
     if (!isUacInstance && !request.containsKey(ID)) {
       UUID uuid = UUID.randomUUID();
       request.put(ID, uuid.toString());
@@ -311,7 +329,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         res -> {
           if (res.failed()) {
             LOGGER.debug("Fail: DB Error");
-            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            promise.fail(VALIDATION_FAILURE_MSG);
             return;
           }
           String returnType = getReturnTypeForValidation(res.result());
@@ -319,24 +337,24 @@ public class ValidatorServiceImpl implements ValidatorService {
 
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_COS)) {
             LOGGER.debug("Cos does not exist");
-            handler.handle(Future.failedFuture("Fail: Cos item doesn't exist"));
+            promise.fail("Fail: Cos item doesn't exist");
           } else if (method.equalsIgnoreCase(REQUEST_POST)
               && returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
             LOGGER.debug("RS already exists");
-            handler.handle(
-                Future.failedFuture(
-                    String.format(
-                        "Fail: Resource Server item with url %s already exists for this COS",
-                        resourceServerUrl)));
+            promise.fail(
+                String.format(
+                    "Fail: Resource Server item with url %s already exists for this COS",
+                    resourceServerUrl));
           } else {
-            handler.handle(Future.succeededFuture(request));
+            promise.complete(request);
           }
         });
+    return promise.future();
   }
 
-  private void validateResource(
-      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
-    validateId(request, handler, isUacInstance);
+  private Future<JsonObject> validateResource(JsonObject request, String method) {
+    //    validateId(request, handler, isUacInstance);
+    Promise<JsonObject> promise = Promise.promise();
     if (!isUacInstance && !request.containsKey("id")) {
       UUID uuid = UUID.randomUUID();
       request.put("id", uuid.toString());
@@ -361,7 +379,7 @@ public class ValidatorServiceImpl implements ValidatorService {
         res -> {
           if (res.failed()) {
             LOGGER.debug("Fail: DB Error");
-            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            promise.fail(VALIDATION_FAILURE_MSG);
             return;
           }
           String returnType = getReturnTypeForValidation(res.result());
@@ -370,28 +388,29 @@ public class ValidatorServiceImpl implements ValidatorService {
           if (res.result().getInteger(TOTAL_HITS) < 3
               && !returnType.contains(ITEM_TYPE_RESOURCE_SERVER)) {
             LOGGER.debug("RS does not exist");
-            handler.handle(Future.failedFuture("Fail: Resource Server item doesn't exist"));
+            promise.fail("Fail: Resource Server item doesn't exist");
           } else if (res.result().getInteger(TOTAL_HITS) < 3
               && !returnType.contains(ITEM_TYPE_PROVIDER)) {
             LOGGER.debug("Provider does not exist");
-            handler.handle(Future.failedFuture("Fail: Provider item doesn't exist"));
+            promise.fail("Fail: Provider item doesn't exist");
           } else if (res.result().getInteger(TOTAL_HITS) < 3
               && !returnType.contains(ITEM_TYPE_RESOURCE_GROUP)) {
             LOGGER.debug("RG does not exist");
-            handler.handle(Future.failedFuture("Fail: Resource Group item doesn't exist"));
+            promise.fail("Fail: Resource Group item doesn't exist");
           } else if (method.equalsIgnoreCase(REQUEST_POST)
               && res.result().getInteger(TOTAL_HITS) > 3) {
             LOGGER.debug("RI already exists");
-            handler.handle(Future.failedFuture("Fail: Resource item already exists"));
+            promise.fail("Fail: Resource item already exists");
           } else {
-            handler.handle(Future.succeededFuture(request));
+            promise.complete(request);
           }
         });
+    return promise.future();
   }
 
-  private void validateCosItem(
-      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
-    validateId(request, handler, isUacInstance);
+  private Future<JsonObject> validateCosItem(JsonObject request, String method) {
+    //    validateId(request, handler, isUacInstance);
+    Promise<JsonObject> promise = Promise.promise();
     if (!isUacInstance && !request.containsKey(ID)) {
       UUID uuid = UUID.randomUUID();
       request.put(ID, uuid.toString());
@@ -412,26 +431,27 @@ public class ValidatorServiceImpl implements ValidatorService {
         res -> {
           if (res.failed()) {
             LOGGER.debug("Fail: DB Error");
-            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            promise.fail(VALIDATION_FAILURE_MSG);
             return;
           }
           String returnType = getReturnTypeForValidation(res.result());
           LOGGER.debug(returnType);
           if (res.result().getInteger(TOTAL_HITS) < 1 || !returnType.contains(ITEM_TYPE_OWNER)) {
             LOGGER.debug("Owner does not exist");
-            handler.handle(Future.failedFuture("Fail: Owner item doesn't exist"));
+            promise.fail("Fail: Owner item doesn't exist");
           } else if (method.equalsIgnoreCase(REQUEST_POST) && returnType.contains(ITEM_TYPE_COS)) {
             LOGGER.debug("COS already exists");
-            handler.handle(Future.failedFuture("Fail: COS item already exists"));
+            promise.fail("Fail: COS item already exists");
           } else {
-            handler.handle(Future.succeededFuture(request));
+            promise.complete(request);
           }
         });
+    return promise.future();
   }
 
-  private void validateOwnerItem(
-      JsonObject request, String method, Handler<AsyncResult<JsonObject>> handler) {
-    validateId(request, handler, isUacInstance);
+  private Future<JsonObject> validateOwnerItem(JsonObject request, String method) {
+    //    validateId(request, handler, isUacInstance);
+    Promise<JsonObject> promise = Promise.promise();
     if (!isUacInstance && !request.containsKey(ID)) {
       UUID uuid = UUID.randomUUID();
       request.put(ID, uuid.toString());
@@ -445,91 +465,59 @@ public class ValidatorServiceImpl implements ValidatorService {
         res -> {
           if (res.failed()) {
             LOGGER.debug("Fail: DB Error");
-            handler.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
+            promise.fail(VALIDATION_FAILURE_MSG);
             return;
           }
           if (method.equalsIgnoreCase(REQUEST_POST) && res.result().getInteger(TOTAL_HITS) > 0) {
             LOGGER.debug("Owner item already exists");
-            handler.handle(Future.failedFuture("Fail: Owner item already exists"));
+            promise.fail("Fail: Owner item already exists");
           } else {
-            handler.handle(Future.succeededFuture(request));
+            promise.complete(request);
           }
         });
+    return promise.future();
   }
 
-  private boolean isValidUuid(String uuidString) {
-    return UUID_PATTERN.matcher(uuidString).matches();
-  }
-
-  private void validateId(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler, boolean isUacInstance) {
-    if (request.containsKey("id")) {
-      String id = request.getString("id");
-      LOGGER.debug("id in the request body: " + id);
-
-      if (!isValidUuid(id)) {
-        handler.handle(Future.failedFuture("validation failed. Incorrect id"));
-      }
-    } else if (isUacInstance && !request.containsKey("id")) {
-      handler.handle(Future.failedFuture("mandatory id field not present in request body"));
-    }
-  }
-
-  private void validateSchema(Handler<AsyncResult<JsonObject>> handler) {
+  private Future<JsonObject> validateSchema() {
+    Promise<JsonObject> promise = Promise.promise();
     isValidSchema
-        .onSuccess(
-            x -> handler.handle(Future.succeededFuture(new JsonObject().put(STATUS, SUCCESS))))
+        .onSuccess(x -> promise.complete(new JsonObject().put(STATUS, SUCCESS)))
         .onFailure(
             x -> {
               LOGGER.error("Fail: Invalid Schema");
               LOGGER.error(x.getMessage());
-              handler.handle(
-                  Future.failedFuture(String.valueOf(new JsonArray().add(x.getMessage()))));
+              promise.fail(String.valueOf(new JsonArray().add(x.getMessage())));
             });
+    return promise.future();
   }
 
   @Override
-  public ValidatorService validateRating(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
-
+  public Future<JsonObject> validateRating(JsonObject request) {
     isValidSchema = ratingValidator.validate(request.toString());
-
-    validateSchema(handler);
-    return this;
+    return validateSchema();
   }
 
   @Override
-  public ValidatorService validateMlayerInstance(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public Future<JsonObject> validateMlayerInstance(JsonObject request) {
     isValidSchema = mlayerInstanceValidator.validate(request.toString());
-    validateSchema(handler);
-    return null;
+    return validateSchema();
   }
 
   @Override
-  public ValidatorService validateMlayerDomain(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public Future<JsonObject> validateMlayerDomain(JsonObject request) {
     isValidSchema = mlayerDomainValidator.validate(request.toString());
-
-    validateSchema(handler);
-    return this;
+    return validateSchema();
   }
 
   @Override
-  public ValidatorService validateMlayerGeoQuery(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public Future<JsonObject> validateMlayerGeoQuery(JsonObject request) {
     isValidSchema = mlayerGeoQueryValidator.validate(request.toString());
-
-    validateSchema(handler);
-    return this;
+    return validateSchema();
   }
 
   @Override
-  public ValidatorService validateMlayerDatasetId(
-      JsonObject request, Handler<AsyncResult<JsonObject>> handler) {
+  public Future<JsonObject> validateMlayerDatasetId(JsonObject request) {
     isValidSchema = mlayerDatasetValidator.validate(request.toString());
-
-    validateSchema(handler);
-    return this;
+    return validateSchema();
   }
 }

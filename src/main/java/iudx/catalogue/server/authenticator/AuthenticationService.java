@@ -5,9 +5,11 @@ import io.vertx.codegen.annotations.GenIgnore;
 import io.vertx.codegen.annotations.ProxyGen;
 import io.vertx.codegen.annotations.VertxGen;
 import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
+import iudx.catalogue.server.authenticator.model.JwtData;
 
 /**
  * The Authentication Service.
@@ -29,30 +31,27 @@ import io.vertx.core.json.JsonObject;
 public interface AuthenticationService {
 
   /**
+   * The createProxy helps the code generation blocks to generate proxy code.
+   *
+   * @param vertx which is the vertx instance
+   * @param address which is the proxy address
+   * @return AuthenticationServiceVertxEBProxy which is a service proxy
+   */
+
+  @GenIgnore
+  static AuthenticationService createProxy(Vertx vertx, String address) {
+    return new AuthenticationServiceVertxEBProxy(vertx, address);
+  }
+
+  /**
    * The tokenInterospect method implements the authentication and authorization module using IUDX
    * APIs.
    *
    *
    * @param request which is a JsonObject
    * @param authenticationInfo which is a JsonObject
-   * @param handler which is a request handler
-   * @return AuthenticationService which is a service
+   * @return Future<JwtData> which is a vert.x Future of type JwtData
    */
 
-  @Fluent
-  AuthenticationService tokenInterospect(JsonObject request, JsonObject authenticationInfo,
-      Handler<AsyncResult<JsonObject>> handler);
-
-  /**
-   * The createProxy helps the code generation blocks to generate proxy code.
-   *
-   * @param vertx which is the vertx instance
-   * @param address which is the proxy address
-   * @return AuthenticationServiceVertxEBProxy which is a service proxy 
-   */
-  
-  @GenIgnore
-  static AuthenticationService createProxy(Vertx vertx, String address) {
-    return new AuthenticationServiceVertxEBProxy(vertx, address);
-  }
+  Future<JwtData> tokenInterospect(JsonObject request, JsonObject authenticationInfo);
 }
