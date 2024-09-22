@@ -134,6 +134,9 @@ public class Constants {
           + "[\"type\",\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\","
           + "\"provider\", \"resourceServerRegURL\",\"description\" ,\"cosURL\", "
           + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\": 10000}";
+  public static final String GET_ALL_DATASETS_BY_RS_GRP =
+          "{\"size\":10000,\"query\":{\"bool\":{\"must\":[{\"bool\":{\"should\":[{\"match\":"
+                  + "{\"type.keyword\":\"iudx:ResourceGroup\"}}]}}]}}}";
   public static final String GET_ALL_DATASETS_BY_FIELDS =
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":"
           + "{\"type.keyword\":\"iudx:ResourceGroup\"}}";
