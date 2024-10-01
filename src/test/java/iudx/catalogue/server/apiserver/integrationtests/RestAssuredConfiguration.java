@@ -8,6 +8,7 @@ import static io.restassured.RestAssured.proxy;
 import static iudx.catalogue.server.authenticator.TokensForITs.*;
 
 import io.restassured.RestAssured;
+import io.restassured.filter.log.LogDetail;
 import io.vertx.core.json.JsonObject;
 import iudx.catalogue.server.Configuration;
 import iudx.catalogue.server.authenticator.TokenSetup;
@@ -75,7 +76,7 @@ public class RestAssuredConfiguration implements BeforeAllCallback {
 
     // LOGGER.debug();("done with setting up the tokens");
 
-    enableLoggingOfRequestAndResponseIfValidationFails();
+    enableLoggingOfRequestAndResponseIfValidationFails(LogDetail.BODY);
   }
 
   private void waitForTokens() {
