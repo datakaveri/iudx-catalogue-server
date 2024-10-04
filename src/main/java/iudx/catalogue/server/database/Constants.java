@@ -133,7 +133,7 @@ public class Constants {
           + ":{\"includes\": "
           + "[\"type\",\"id\",\"label\",\"accessPolicy\",\"tags\",\"instance\","
           + "\"provider\", \"resourceServerRegURL\",\"description\" ,\"cosURL\", "
-          + "\"cos\", \"resourceGroup\", \"resourceType\"]},\"size\": 10000}";
+          + "\"cos\", \"resourceGroup\", \"resourceType\", \"itemCreatedAt\"]},\"size\": 10000}";
   public static final String GET_ALL_DATASETS_BY_RS_GRP =
           "{\"size\":10000,\"query\":{\"bool\":{\"must\":[{\"bool\":{\"should\":[{\"match\":"
                   + "{\"type.keyword\":\"iudx:ResourceGroup\"}}]}}]}}}";
@@ -146,7 +146,7 @@ public class Constants {
           + "[\"iudx:Provider\",\"iudx:COS\"]}}]}}]}},\"_source\":"
           + "{\"includes\":[\"type\",\"id\",\"label\",\"accessPolicy\","
           + "\"tags\",\"instance\",\"provider\",\"resourceServerRegURL\","
-          + "\"description\",\"cosURL\",\"cos\",\"resourceGroup\"]},"
+          + "\"description\",\"cosURL\",\"cos\",\"resourceGroup\", \"itemCreatedAt\"]},"
           + "\"size\":10000}";
   public static final String GET_MLAYER_DATASET =
       "{\"query\":{\"bool\":{\"should\":[{\"bool\":{\"must\":[{\"match\":{\"id.keyword\":\"$1\"}}"
@@ -161,7 +161,7 @@ public class Constants {
           + " \"dataSample\","
           + " \"dataDescriptor\", \"@context\", \"dataQualityFile\", \"dataSampleFile\","
           + " \"resourceType\", \"resourceServerRegURL\",\"resourceType\","
-          + "\"location\", \"iudxResourceAPIs\"]},\"size\": 10000}";
+          + "\"location\", \"iudxResourceAPIs\", \"itemCreatedAt\"]},\"size\": 10000}";
   public static final String RESOURCE_ACCESSPOLICY_COUNT =
       "{\"size\": 0,\"aggs\":{\"results\":{\"terms\":{\"field\":\"resourceGroup.keyword\","
           + "\"size\":10000},\"aggs\":{\"access_policies\":{\"terms\":{\"field\":"

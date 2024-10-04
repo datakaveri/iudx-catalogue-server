@@ -221,6 +221,9 @@ public final class ElasticClient {
                       if (record.containsKey("location")) {
                         dataset.put("location", record.getJsonObject("location"));
                       }
+                      if (record.containsKey("itemCreatedAt")) {
+                        dataset.put("itemCreatedAt", record.getString("itemCreatedAt"));
+                      }
                     }
 
                 if (itemType.equals("iudx:COS")) {
