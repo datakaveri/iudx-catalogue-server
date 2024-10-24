@@ -161,7 +161,7 @@ public class Constants {
           + " \"dataSample\","
           + " \"dataDescriptor\", \"@context\", \"dataQualityFile\", \"dataSampleFile\","
           + " \"resourceType\", \"resourceServerRegURL\",\"resourceType\","
-          + "\"location\", \"iudxResourceAPIs\", \"itemCreatedAt\"]},\"size\": 10000}";
+          + "\"location\", \"iudxResourceAPIs\", \"itemCreatedAt\",\"nsdi\"]},\"size\": 10000}";
   public static final String RESOURCE_ACCESSPOLICY_COUNT =
       "{\"size\": 0,\"aggs\":{\"results\":{\"terms\":{\"field\":\"resourceGroup.keyword\","
           + "\"size\":10000},\"aggs\":{\"access_policies\":{\"terms\":{\"field\":"
