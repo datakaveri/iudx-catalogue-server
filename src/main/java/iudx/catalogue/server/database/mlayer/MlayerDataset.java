@@ -286,7 +286,9 @@ public class MlayerDataset {
                   datasetResult.handle(Future.failedFuture(VALIDATION_FAILURE_MSG));
                 }
                 if (itemType.equals(ITEM_TYPE_PROVIDER)) {
-                  providerDescription.put(record.getString(ID), record.getString(DESCRIPTION_ATTR));
+                  JsonObject newJson = new JsonObject().put(PROVIDER_DES, record.getString(DESCRIPTION_ATTR))
+                                  .put(ICON_BASE64, record.getString(ICON_BASE64));
+                  providerDescription.put(record.getString(ID), newJson);
                   rsUrl.put(
                       record.getString(ID),
                       record.containsKey("resourceServerRegURL")
@@ -305,9 +307,12 @@ public class MlayerDataset {
                 String itemType = Util.getItemType(record);
                 if (itemType.equals(ITEM_TYPE_RESOURCE_GROUP)) {
                   resourceGroupHits++;
+                  providerDescription.getJsonObject(record.getString(PROVIDER)).getString(ICON_BASE64);
                   record.put(
-                      "providerDescription",
-                      providerDescription.getString(record.getString(PROVIDER)));
+                      PROVIDER_DES,
+                    providerDescription.getJsonObject(record.getString(PROVIDER)).getString(PROVIDER_DES));
+                  record.put(
+                          ICON_BASE64, providerDescription.getJsonObject(record.getString(PROVIDER)).getString(ICON_BASE64));
                   record.put("resourceServerRegURL", rsUrl.getString(record.getString(PROVIDER)));
                   record.put(
                       "cosURL",

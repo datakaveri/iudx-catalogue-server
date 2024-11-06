@@ -149,6 +149,8 @@ public class Constants {
   public static final String TAGS = "tags";
   public static final String AVERAGE_RATING = "average_rating";
   public static final String TOTAL_RATINGS = "totalRatings";
+  public static final String ICON_BASE64 = "icon_base64";
+  public static final String PROVIDER_DES = "providerDescription";
 
   /** HTTP Methods. */
   public static final String REQUEST_GET = "GET";
