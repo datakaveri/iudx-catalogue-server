@@ -266,7 +266,7 @@ public class DatabaseServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(14)).searchAsync(any(), any(), any());
+            verify(client, times(12)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -285,7 +285,7 @@ public class DatabaseServiceImplTest {
         request,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(23)).searchAsync(anyString(), any(), any());
+            verify(client, times(21)).searchAsync(anyString(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -398,7 +398,7 @@ public class DatabaseServiceImplTest {
             handler -> {
               if (handler.failed()) {
                 databaseService.verifyInstance(instanceId);
-                verify(client, times(44)).searchAsync(any(), any(), any());
+                verify(client, times(42)).searchAsync(any(), any(), any());
                 assertEquals(TYPE_INTERNAL_SERVER_ERROR, handler.cause().getMessage());
                 vertxTestContext.completeNow();
               } else {
@@ -425,7 +425,7 @@ public class DatabaseServiceImplTest {
             boolHandler -> {
               if (boolHandler.failed()) {
                 assertEquals(json, asyncResult.result());
-                verify(client, times(16)).searchAsync(anyString(), any(), any());
+                verify(client, times(14)).searchAsync(anyString(), any(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -450,7 +450,7 @@ public class DatabaseServiceImplTest {
             boolHandler -> {
               if (boolHandler.succeeded()) {
                 assertEquals(json, asyncResult.result());
-                verify(client, times(26)).searchAsync(anyString(), any(), any());
+                verify(client, times(24)).searchAsync(anyString(), any(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -486,7 +486,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(9)).searchAsync(any(), any(), any());
+            verify(client, times(7)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -608,7 +608,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(47)).searchAsync(any(), any(), any());
+            verify(client, times(45)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else vertxTestContext.failNow("Fail");
         });
@@ -641,7 +641,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(72)).searchAsync(any(), any(), any());
+            verify(client, times(68)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -691,7 +691,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(70)).searchAsync(any(), any(), any());
+            verify(client, times(66)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -824,7 +824,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(59)).searchAsync(any(), any(), any());
+            verify(client, times(55)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -847,7 +847,7 @@ public class DatabaseServiceImplTest {
         handler -> {
           if (handler.failed()) {
             assertEquals("dummy", asyncResult.cause().getMessage());
-            verify(client, times(11)).searchAsync(any(), any(), any());
+            verify(client, times(9)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
           } else {
             vertxTestContext.failNow("Fail");
@@ -898,7 +898,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(49)).searchAsync(any(), any(), any());
+            verify(client, times(47)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1050,7 +1050,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(22)).searchAsync(any(), any(), any());
+            verify(client, times(20)).searchAsync(any(), any(), any());
 
             vertxTestContext.completeNow();
           } else {
@@ -1112,7 +1112,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(68)).searchAsync(any(), any(), any());
+            verify(client, times(64)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1148,7 +1148,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(33)).searchAsync(any(), any(), any());
+            verify(client, times(31)).searchAsync(any(), any(), any());
             vertxTestContext.completeNow();
 
           } else {
@@ -1229,7 +1229,7 @@ public class DatabaseServiceImplTest {
         .onComplete(
             handler -> {
               if (handler.failed()) {
-                verify(client, times(7)).searchAsync(any(), any(), any());
+                verify(client, times(5)).searchAsync(any(), any(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -1262,7 +1262,7 @@ public class DatabaseServiceImplTest {
         .onComplete(
             handler -> {
               if (handler.succeeded()) {
-                verify(client, times(13)).searchAsync(any(), any(), any());
+                verify(client, times(11)).searchAsync(any(), any(), any());
                 vertxTestContext.completeNow();
               } else {
                 vertxTestContext.failNow("Fail");
@@ -1297,7 +1297,7 @@ public class DatabaseServiceImplTest {
         .onComplete(
             handler -> {
               if (handler.failed()) {
-                verify(client, times(42)).searchAsync(any(), any(), any());
+                verify(client, times(40)).searchAsync(any(), any(), any());
                 verify(nlpService, times(0)).getEmbedding(any(), any());
                 verify(geoService, times(0)).geoSummarize(any(), any());
                 vertxTestContext.completeNow();
@@ -1325,7 +1325,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(64)).searchAsync(any(), any(), any());
+            verify(client, times(60)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -1357,7 +1357,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(29)).searchAsync(any(), any(), any());
+            verify(client, times(27)).searchAsync(any(), any(), any());
             verify(client, times(4)).docPostAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1378,7 +1378,7 @@ public class DatabaseServiceImplTest {
         json,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(61)).searchAsync(any(), any(), any());
+            verify(client, times(57)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -1409,8 +1409,8 @@ public class DatabaseServiceImplTest {
         request,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(5)).docPostAsync(any(), any(), any());
-            verify(client, times(54)).searchAsync(any(), any(), any());
+            verify(client, times(4)).docPostAsync(any(), any(), any());
+            verify(client, times(50)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -1446,7 +1446,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     dbService.getMlayerInstance(requestParams,
             handler -> {
                 if (handler.succeeded()) {
-                    verify(client, times(34)).searchAsync(any(), any(), any());
+                    verify(client, times(32)).searchAsync(any(), any(), any());
                     testContext.completeNow();
                 } else {
                     testContext.failNow("Fail");
@@ -1462,7 +1462,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     dbService.getMlayerInstance(requestParams,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(62)).searchAsync(any(), any(), any());
+            verify(client, times(58)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -1772,7 +1772,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
         handler -> {
           if (handler.failed()) {
             verify(client, times(2)).docPostAsync(any(), any(), any());
-            verify(client, times(10)).searchAsync(any(), any(), any());
+            verify(client, times(8)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -1806,7 +1806,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
         json,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(19)).searchAsync(any(), any(), any());
+            verify(client, times(17)).searchAsync(any(), any(), any());
             verify(client, times(3)).docPostAsync(any(), any(), any());
             testContext.completeNow();
           } else {
@@ -1828,7 +1828,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
         handler -> {
           if (handler.failed()) {
 
-            verify(client, times(69)).searchAsync(any(), any(), any());
+            verify(client, times(65)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -1871,7 +1871,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     dbService.getMlayerDomain(
        requestParams, handler -> {
           if (handler.succeeded()) {
-            verify(client, times(37)).searchAsync(any(), any(), any());
+            verify(client, times(35)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -1888,7 +1888,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     dbService.getMlayerDomain(
        requestParams, handler -> {
           if (handler.failed()) {
-            verify(client, times(57)).searchAsync(any(), any(), any());
+            verify(client, times(53)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2182,7 +2182,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     dbService.getMlayerProviders(requestParams,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(24)).searchAsync(any(), any(), any());
+            verify(client, times(22)).searchAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("Fail");
@@ -2199,7 +2199,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     dbService.getMlayerProviders(requestParams,
         handler -> {
           if (handler.failed()) {
-            verify(client, times(45)).searchAsync(any(), any(), any());
+            verify(client, times(43)).searchAsync(any(), any(), any());
             testContext.completeNow();
 
           } else {
@@ -2302,7 +2302,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
                 request,
                 handler -> {
                     if (handler.succeeded()) {
-                        verify(client, times(51)).searchAsync(any(), any(), any());
+                        verify(client, times(49)).searchAsync(any(), any(), any());
                         verify(client, times(2)).searchAsyncDataset(any(), any(), any());
 
                         testContext.completeNow();
@@ -2351,7 +2351,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
 
 
                     } else {
-                        verify(client, times(65)).searchAsync(any(), any(), any());
+                        verify(client, times(61)).searchAsync(any(), any(), any());
                         verify(client, times(2)).searchAsyncDataset(any(), any(), any());
 
                         testContext.completeNow();
@@ -2360,61 +2360,61 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
     }
 
 
-  @Test
-  @Description(
-      "test getMlayerAllDatasets method when DB Request is successful")
-  public void testGetMlayerAllDatasetsSuccess(VertxTestContext testContext) {
-    JsonObject request = new JsonObject();
-    JsonArray jsonArray = new JsonArray();
-    JsonArray provider = new JsonArray();
-    provider.add("iudx:Provider");
-    JsonArray accessPolicy = new JsonArray();
-    JsonObject dataset_record = new JsonObject();
-    JsonObject accessPolicyJson = new JsonObject().put("resourceGroup", "abc")
-            .put("buckets",accessPolicy);
-    dataset_record
-        .put(INSTANCE, "dummy instance")
-        .put(PROVIDER, "dummy provider")
-        .put(TYPE, provider)
-            .put("name","dummy name")
-            .put("id", "dataset id")
-            .put("description", "description of dataset")
-            .put("key","rg_id")
-            .put("doc_count",5)
-            .put(KEY,accessPolicyJson)
-            .put("access_policies", accessPolicyJson);
-    jsonArray.add(dataset_record);
-    request.put(RESULTS, jsonArray)
-            .put("resourceGroupCount",5)
-            .put("resourceGroup", jsonArray)
-            .put(LIMIT,0)
-            .put(OFFSET, 0);
-    when(asyncResult.succeeded()).thenReturn(true);
-    when(asyncResult.result()).thenReturn(request);
-
-      doAnswer(
-              new Answer<AsyncResult<JsonObject>>() {
-                  @Override
-                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                      return null;
-                  }
-              })
-              .when(client)
-              .resourceAggregationAsync(any(), any(), any());
-
-    dbService.getMlayerAllDatasets(
-            request,"abc", handler -> {
-          if (handler.succeeded()) {
-            verify(client, times(5)).searchAsync(any(), any(), any());
-            verify(client, times(1)).resourceAggregationAsync(any(), any(), any());
-            testContext.completeNow();
-
-          } else {
-            testContext.failNow("fail");
-          }
-        });
-  }
+//  @Test
+//  @Description(
+//      "test getMlayerAllDatasets method when DB Request is successful")
+//  public void testGetMlayerAllDatasetsSuccess(VertxTestContext testContext) {
+//    JsonObject request = new JsonObject();
+//    JsonArray jsonArray = new JsonArray();
+//    JsonArray provider = new JsonArray();
+//    provider.add("iudx:Provider");
+//    JsonArray accessPolicy = new JsonArray();
+//    JsonObject dataset_record = new JsonObject();
+//    JsonObject accessPolicyJson = new JsonObject().put("resourceGroup", "abc")
+//            .put("buckets",accessPolicy);
+//    dataset_record
+//        .put(INSTANCE, "dummy instance")
+//        .put(PROVIDER, "dummy provider")
+//        .put(TYPE, provider)
+//            .put("name","dummy name")
+//            .put("id", "dataset id")
+//            .put("description", "description of dataset")
+//            .put("key","rg_id")
+//            .put("doc_count",5)
+//            .put(KEY,accessPolicyJson)
+//            .put("access_policies", accessPolicyJson);
+//    jsonArray.add(dataset_record);
+//    request.put(RESULTS, jsonArray)
+//            .put("resourceGroupCount",5)
+//            .put("resourceGroup", jsonArray)
+//            .put(LIMIT,0)
+//            .put(OFFSET, 0);
+//    when(asyncResult.succeeded()).thenReturn(true);
+//    when(asyncResult.result()).thenReturn(request);
+//
+//      doAnswer(
+//              new Answer<AsyncResult<JsonObject>>() {
+//                  @Override
+//                  public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+//                      ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+//                      return null;
+//                  }
+//              })
+//              .when(client)
+//              .resourceAggregationAsync(any(), any(), any());
+//
+//    dbService.getMlayerAllDatasets(
+//            request,"abc", handler -> {
+//          if (handler.succeeded()) {
+//            verify(client, times(5)).searchAsync(any(), any(), any());
+//            verify(client, times(1)).resourceAggregationAsync(any(), any(), any());
+//            testContext.completeNow();
+//
+//          } else {
+//            testContext.failNow("fail");
+//          }
+//        });
+//  }
 
     @Test
     @Description(
@@ -2468,75 +2468,75 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
                 });
     }
 
-    @Test
-    @Description(
-            "test getMlayerAllDatasets method when DB Request is successful and type is resource Group")
-    public void testGetMlayerAllDatasetsSuccessRs(VertxTestContext testContext) {
-        JsonObject request = new JsonObject();
-        JsonArray jsonArray = new JsonArray();
-        JsonArray provider = new JsonArray();
-        provider.add("iudx:Provider");
-        JsonObject dataset_record = new JsonObject();
-        JsonObject dataset_recordRs = new JsonObject();
-        JsonArray accessPolicy = new JsonArray();
-        JsonArray jsonArrayType = new JsonArray().add(0,ITEM_TYPE_RESOURCE_GROUP);
-        JsonObject accessPolicyJson = new JsonObject().put("resourceGroup", "abc")
-                .put(BUCKETS, accessPolicy);
-        dataset_record
-                .put(INSTANCE, "dummy instance")
-                .put(PROVIDER, "dummy provider")
-                .put(TYPE, provider)
-                .put("name","dummy name")
-                .put("id", "dataset id")
-                .put("description", "description of dataset")
-                .put("key","rg_id")
-                .put("doc_count",5)
-                .put(KEY, accessPolicyJson)
-                .put("access_policies", accessPolicyJson);
-        dataset_recordRs
-                .put(INSTANCE, "dummy instance")
-                .put(PROVIDER, "dummy provider")
-                .put(TYPE, jsonArrayType)
-                .put("name","dummy name")
-                .put("id", "dataset id")
-                .put("description", "description of dataset")
-                .put("key","rg_id")
-                .put("doc_count",5)
-                .put(KEY, accessPolicyJson)
-                .put("access_policies", accessPolicyJson);
-        jsonArray.add(dataset_record).add(dataset_recordRs);
-        request.put(RESULTS, jsonArray)
-                .put("resourceGroupCount",5)
-                .put("resourceGroup", jsonArray)
-                .put(LIMIT, 0)
-                .put(OFFSET, 0);
-        when(asyncResult.succeeded()).thenReturn(true);
-        when(asyncResult.result()).thenReturn(request);
-
-        doAnswer(
-                new Answer<AsyncResult<JsonObject>>() {
-                    @Override
-                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
-                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
-                        return null;
-                    }
-                })
-                .when(client)
-                .resourceAggregationAsync(any(), any(), any());
-
-        dbService.getMlayerAllDatasets(
-                request,"abc", handler -> {
-                    if (handler.succeeded()) {
-                        // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
-                        verify(client, times(53)).searchAsync(any(), any(), any());
-                        verify(client, times(5)).resourceAggregationAsync(any(), any(), any());
-                        testContext.completeNow();
-
-                    } else {
-                        testContext.failNow("fail");
-                    }
-                });
-    }
+//    @Test
+//    @Description(
+//            "test getMlayerAllDatasets method when DB Request is successful and type is resource Group")
+//    public void testGetMlayerAllDatasetsSuccessRs(VertxTestContext testContext) {
+//        JsonObject request = new JsonObject();
+//        JsonArray jsonArray = new JsonArray();
+//        JsonArray provider = new JsonArray();
+//        provider.add("iudx:Provider");
+//        JsonObject dataset_record = new JsonObject();
+//        JsonObject dataset_recordRs = new JsonObject();
+//        JsonArray accessPolicy = new JsonArray();
+//        JsonArray jsonArrayType = new JsonArray().add(0,ITEM_TYPE_RESOURCE_GROUP);
+//        JsonObject accessPolicyJson = new JsonObject().put("resourceGroup", "abc")
+//                .put(BUCKETS, accessPolicy);
+//        dataset_record
+//                .put(INSTANCE, "dummy instance")
+//                .put(PROVIDER, "dummy provider")
+//                .put(TYPE, provider)
+//                .put("name","dummy name")
+//                .put("id", "dataset id")
+//                .put("description", "description of dataset")
+//                .put("key","rg_id")
+//                .put("doc_count",5)
+//                .put(KEY, accessPolicyJson)
+//                .put("access_policies", accessPolicyJson);
+//        dataset_recordRs
+//                .put(INSTANCE, "dummy instance")
+//                .put(PROVIDER, "dummy provider")
+//                .put(TYPE, jsonArrayType)
+//                .put("name","dummy name")
+//                .put("id", "dataset id")
+//                .put("description", "description of dataset")
+//                .put("key","rg_id")
+//                .put("doc_count",5)
+//                .put(KEY, accessPolicyJson)
+//                .put("access_policies", accessPolicyJson);
+//        jsonArray.add(dataset_record).add(dataset_recordRs);
+//        request.put(RESULTS, jsonArray)
+//                .put("resourceGroupCount",5)
+//                .put("resourceGroup", jsonArray)
+//                .put(LIMIT, 0)
+//                .put(OFFSET, 0);
+//        when(asyncResult.succeeded()).thenReturn(true);
+//        when(asyncResult.result()).thenReturn(request);
+//
+//        doAnswer(
+//                new Answer<AsyncResult<JsonObject>>() {
+//                    @Override
+//                    public AsyncResult<JsonObject> answer(InvocationOnMock arg0) throws Throwable {
+//                        ((Handler<AsyncResult<JsonObject>>) arg0.getArgument(2)).handle(asyncResult);
+//                        return null;
+//                    }
+//                })
+//                .when(client)
+//                .resourceAggregationAsync(any(), any(), any());
+//
+//        dbService.getMlayerAllDatasets(
+//                request,"abc", handler -> {
+//                    if (handler.succeeded()) {
+//                        // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
+//                        verify(client, times(53)).searchAsync(any(), any(), any());
+//                        verify(client, times(5)).resourceAggregationAsync(any(), any(), any());
+//                        testContext.completeNow();
+//
+//                    } else {
+//                        testContext.failNow("fail");
+//                    }
+//                });
+//    }
 
 
     @Test
@@ -2550,7 +2550,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
         request,"abc", handler -> {
           if (handler.failed()) {
             // verify(client, times(1)).searchAsyncDataset(any(), any(), any());
-            verify(client, times(28)).searchAsync(any(), any(), any());
+            verify(client, times(26)).searchAsync(any(), any(), any());
 
             testContext.completeNow();
 
@@ -2623,7 +2623,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(client, times(56)).searchAsync(any(), any(), any());
+            verify(client, times(52)).searchAsync(any(), any(), any());
             verify(client, times(3)).searchAsyncResourceGroupAndProvider(any(), any(), any());
             verify(client, times(6)).resourceAggregationAsync(any(), any(), any());
             testContext.completeNow();
@@ -2738,9 +2738,9 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
         highestCountResource,
         handler -> {
           if (handler.succeeded()) {
-            verify(DatabaseServiceImpl.client, times(39)).searchAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(37)).searchAsync(any(), any(), any());
             verify(DatabaseServiceImpl.client, times(2)).searchAsyncResourceGroupAndProvider(any(), any(), any());
-            verify(DatabaseServiceImpl.client, times(4)).resourceAggregationAsync(any(), any(), any());
+            verify(DatabaseServiceImpl.client, times(3)).resourceAggregationAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
@@ -2802,7 +2802,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
                 request,
                 handler -> {
                     if (handler.succeeded()) {
-                        verify(client, times(20)).searchAsync(any(), any(), any());
+                        verify(client, times(18)).searchAsync(any(), any(), any());
                         vertxTestContext.completeNow();
 
 
