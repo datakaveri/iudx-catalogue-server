@@ -2625,7 +2625,7 @@ public void testGetMlayerInstance(VertxTestContext testContext) {
           if (handler.succeeded()) {
             verify(client, times(52)).searchAsync(any(), any(), any());
             verify(client, times(3)).searchAsyncResourceGroupAndProvider(any(), any(), any());
-            verify(client, times(6)).resourceAggregationAsync(any(), any(), any());
+            verify(client, times(4)).resourceAggregationAsync(any(), any(), any());
             testContext.completeNow();
           } else {
             testContext.failNow("fail");
