@@ -159,7 +159,7 @@ public final class ElasticClient {
                   provider
                           .put(ID, record.getString(ID))
                           .put(DESCRIPTION_ATTR, record.getString(DESCRIPTION_ATTR))
-                          .put(ICON_BASE64,record.getString(ICON_BASE64));
+                          .put(ICON_BASE64, record.getString(ICON_BASE64));
                       dataset.put("resourceServerRegURL", record.getString("resourceServerRegURL"));
                       dataset.put(PROVIDER, provider);
                     }
