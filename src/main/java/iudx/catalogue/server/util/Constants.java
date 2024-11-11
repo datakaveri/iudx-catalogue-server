@@ -151,6 +151,9 @@ public class Constants {
   public static final String TOTAL_RATINGS = "totalRatings";
   public static final String ICON_BASE64 = "icon_base64";
   public static final String PROVIDER_DES = "providerDescription";
+  public static final String RESOURCE_COUNT = "resourceCount";
+  public static final String PROVIDER_COUNT = "providerCount";
+  public static final String RESOURCE_GROUP_COUNT = "resourceGroupCount";
 
   /** HTTP Methods. */
   public static final String REQUEST_GET = "GET";
@@ -181,6 +184,8 @@ public class Constants {
   public static final int MAX_RESULT_WINDOW = 10000;
   public static final int MAXDISTANCE_LIMIT = 10000; // 10KM
   public static final int SERVICE_TIMEOUT = 3000;
+  public static final int POPULAR_DATASET_COUNT = 6;
+
 
 
   public static final String SUCCESS = "Success";
