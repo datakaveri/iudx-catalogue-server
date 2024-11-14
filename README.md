@@ -33,9 +33,9 @@ queries and consume the data from *Resource Servers* in an automated and machine
 The live running instance of the IUDX catalogue can be found [here](https://catalogue.iudx.org.in).
 
 # Explanation
-## Understanding Onboarding Server
+## Understanding Catalogue Server
 - The section available [here](./docs/Solution_Architecture.md) explains the components/services
-  used in implementing the Onboarding Server.
+  used in implementing the Catalogue Server.
 - To try out the APIs, import the API collection, postman environment files in postman.
 - Reference : [postman-collection](https://github.com/datakaveri/iudx-catalogue-server/blob/master/src/test/resources/iudx-catalogue-server-v5.5.0.postman_collection.json), [postman-environment](https://github.com/datakaveri/iudx-catalogue-server/blob/master/src/test/resources/CAT.postman_environmentv5.5.0.json)
 
