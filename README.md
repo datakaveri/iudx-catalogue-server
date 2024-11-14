@@ -41,11 +41,11 @@ The live running instance of the IUDX catalogue can be found [here](https://cata
 
 # How to Guide
 ## Setup and Installation
-Setup and installation guide is available [here](./docs/SETUP-and-installation.md)
+Setup and installation guide is available [here](./docs/SETUP-and-Installation)
 
 # Reference
 ## API Docs
-API docs are available [here](https://api.catalogue.cos.idxgh.com/apis).
+API docs are available [here](https://redocly.github.io/redoc/?url=https://raw.githubusercontent.com/datakaveri/iudx-catalogue-server/master/docs/openapi.yaml).
 
 ## FAQ
 FAQs are available [here](./docs/FAQ.md)
