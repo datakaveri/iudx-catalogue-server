@@ -156,7 +156,8 @@ public class MlayerDataset {
 
     gettingAllDatasets(query, datasetResult);
     allMlayerInstance(instanceResult);
-    gettingResourceAccessPolicyCount(resourceCount);
+    String getResourceAP = RESOURCE_ACCESSPOLICY_COUNT;
+    gettingResourceAccessPolicyCount(getResourceAP, resourceCount);
 
     CompositeFuture.all(instanceResult.future(), datasetResult.future(), resourceCount.future())
         .onComplete(
@@ -377,9 +378,9 @@ public class MlayerDataset {
         });
   }
 
-  public void gettingResourceAccessPolicyCount(Promise<JsonObject> resourceCountResult) {
+  public void gettingResourceAccessPolicyCount(
+          String query, Promise<JsonObject> resourceCountResult) {
     LOGGER.debug("Getting resource item count");
-    String query = RESOURCE_ACCESSPOLICY_COUNT;
     client.resourceAggregationAsync(
         query,
         docIndex,
