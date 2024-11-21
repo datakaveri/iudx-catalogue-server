@@ -41,7 +41,8 @@ public class Constants {
           + "\"match\":{\"id.keyword\":\"$3\"}},{"
           + "\"bool\":{\"must\":[{"
           + "\"match\":{\"type.keyword\":\"iudx:Resource\"}},{"
-          + "\"match\":{\"name.keyword\":\"$4\"}}]}}]}},"
+          + "\"match\":{\"name.keyword\":\"$4\"}}, {"
+          + "\"match\":{\"resourceGroup.keyword\":\"$3\"}}]}}]}},"
           + "\"_source\":[\"type\"]}";
   public static final String OWNER_ITEM_EXISTS_QUERY =
       "{\"query\":{\"bool\":{\"must\":[{"
