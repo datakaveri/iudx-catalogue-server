@@ -382,7 +382,10 @@ public class ValidatorServiceImpl implements ValidatorService {
           } else if (method.equalsIgnoreCase(REQUEST_POST)
               && res.result().getInteger(TOTAL_HITS) > 3) {
             LOGGER.debug("RI already exists");
-            handler.handle(Future.failedFuture("Fail: Resource item already exists"));
+            String errorMessage = String.format(
+                "Fail: Resource item with the name '%s' already exists in the resource group '%s'",
+                request.getString(NAME), resourceGroup);
+            handler.handle(Future.failedFuture(errorMessage));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
