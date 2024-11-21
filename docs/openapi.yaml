@@ -1,6 +1,6 @@
 openapi: 3.0.2
 info:
-  version: '5.5.0'
+  version: '5.6.0'
   title: Data Exchange Catalogue Server APIs
   license:
     name: Apache 2.0
@@ -47,8 +47,8 @@ info:
     The application should address them accordingly.
   contact:
     name: For support contact IUDX Team at
-    email: support@iudx.org.in
-    url: https://iudx.org.in/
+    email: support@cdpg.org.in
+    url: https://dataforpublicgood.org.in/
 servers:
   - url: 'https://example-cat.com/iudx/cat/v1'
     description: Production Instance
