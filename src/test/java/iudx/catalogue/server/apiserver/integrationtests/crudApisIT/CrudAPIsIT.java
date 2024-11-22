@@ -536,7 +536,7 @@ public class CrudAPIsIT {
     @Test
     @Order(13)
     @DisplayName("testing update DX Resource Server Item - 200")
-    void updateDXResourceItem(){
+    void updateDXResourceServerItem(){
         JsonObject jsonPayload = new JsonObject()
                 .put("@context", "https://voc.iudx.org.in/")
                 .put("type", new JsonArray().add("iudx:ResourceServer"))
@@ -558,7 +558,7 @@ public class CrudAPIsIT {
                                 )
                         )
                 )
-                .put("resourceServerRegURL", "rs.iudx.io")
+                .put("resourceServerRegURL", "rs-test-pm.iudx.io")
                 .put("resourceAccessModalities", new JsonArray()
                         .add(new JsonObject()
                                 .put("type", new JsonArray().add("iudx:HTTPAccess"))
