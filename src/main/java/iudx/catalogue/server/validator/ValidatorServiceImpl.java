@@ -211,7 +211,7 @@ public class ValidatorServiceImpl implements ValidatorService {
     request.put(ITEM_STATUS, ACTIVE).put(ITEM_CREATED_AT, getUtcDatetimeAsString());
     String provider = request.getString(PROVIDER);
     String checkQuery =
-        ITEM_EXISTS_QUERY
+        RG_ITEM_EXISTS_QUERY
             .replace("$1", provider)
             .replace("$2", ITEM_TYPE_RESOURCE_GROUP)
             .replace("$3", NAME)
@@ -233,7 +233,10 @@ public class ValidatorServiceImpl implements ValidatorService {
           } else if (method.equalsIgnoreCase(REQUEST_POST)
               && returnType.contains(ITEM_TYPE_RESOURCE_GROUP)) {
             LOGGER.debug("RG already exists");
-            handler.handle(Future.failedFuture("Fail: Resource Group item already exists"));
+            String errorMessage = String.format(
+                "Fail: Resource group item with the name '%s' already exists for the provider '%s'",
+                request.getString(NAME), provider);
+            handler.handle(Future.failedFuture(errorMessage));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
@@ -382,7 +385,10 @@ public class ValidatorServiceImpl implements ValidatorService {
           } else if (method.equalsIgnoreCase(REQUEST_POST)
               && res.result().getInteger(TOTAL_HITS) > 3) {
             LOGGER.debug("RI already exists");
-            handler.handle(Future.failedFuture("Fail: Resource item already exists"));
+            String errorMessage = String.format(
+                "Fail: Resource item with the name '%s' already exists in the resource group '%s'",
+                request.getString(NAME), resourceGroup);
+            handler.handle(Future.failedFuture(errorMessage));
           } else {
             handler.handle(Future.succeededFuture(request));
           }
