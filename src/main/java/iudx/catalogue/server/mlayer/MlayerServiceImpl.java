@@ -300,7 +300,7 @@ public class MlayerServiceImpl implements MlayerService {
 
         for (Object tagValue : tagsArray) {
           if (tagValue instanceof String) {
-            tagQueryString = tagQueryString.concat(tagValue + " OR ");
+            tagQueryString = tagQueryString.concat(tagValue + " AND ");
           }
         }
 
