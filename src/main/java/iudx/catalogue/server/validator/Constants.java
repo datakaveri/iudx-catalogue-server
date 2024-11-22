@@ -28,6 +28,13 @@ public class Constants {
           "{\"bool\":{\"must\":[{\"match\":{\"type.keyword\":\"$2\"}},"
               + "{\"match\":{\"$3.keyword\":\"$4\"}}]}}]}},\"_source\":[\"type\"]}");
 
+  public static final String RG_ITEM_EXISTS_QUERY =
+      ID_MATCH_SUB_QUERY.concat(
+          "{\"bool\":{\"must\":["
+              + "{\"match\":{\"type.keyword\":\"$2\"}},"
+              + "{\"match\":{\"$3.keyword\":\"$4\"}},"
+              + "{\"match\":{\"provider.keyword\":\"$1\"}}]}}]}},"
+              + "\"_source\":[\"type\"]}");
   public static final String PROVIDER_ITEM_EXISTS_QUERY =
       ID_MATCH_SUB_QUERY.concat(
           "{\"bool\":{\"must\":[{\"match\":{\"ownerUserId.keyword\":\"$2\"}},"
