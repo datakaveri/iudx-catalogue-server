@@ -387,6 +387,11 @@ public class MlayerDataset {
         resourceCountRes -> {
           if (resourceCountRes.succeeded()) {
             try {
+              if (resourceCountRes.result().getInteger(TOTAL_HITS) == 0) {
+                LOGGER.debug("No Resources With AccessPolicy Found");
+                resourceCountResult.handle(Future.failedFuture(NO_CONTENT_AVAILABLE));
+                return;
+              }
               LOGGER.debug("resourceAP started");
               JsonObject resourceItemCount = new JsonObject();
               JsonObject resourceAccessPolicy = new JsonObject();

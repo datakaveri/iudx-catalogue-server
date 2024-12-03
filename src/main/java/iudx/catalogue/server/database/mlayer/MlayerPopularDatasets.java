@@ -190,6 +190,7 @@ public class MlayerPopularDatasets {
             Map<String, JsonObject> resourceGroupMap = new HashMap<>();
             Map<String, String> providerDescription = new HashMap<>();
             if (getCatRecords.result().getJsonArray(RESULTS).isEmpty()) {
+              LOGGER.debug("Provider and RGs not present");
               datasetResult.handle(Future.failedFuture(NO_CONTENT_AVAILABLE));
             }
 
@@ -376,6 +377,7 @@ public class MlayerPopularDatasets {
         latestRgHandler -> {
           if (latestRgHandler.succeeded()) {
             if (latestRgHandler.result().getJsonArray(RESULTS).isEmpty()) {
+              LOGGER.debug("RGs not present");
               datasetResult.handle(Future.failedFuture(NO_CONTENT_AVAILABLE));
             }
             JsonArray latestDatasets = latestRgHandler.result().getJsonArray(RESULTS);
@@ -397,6 +399,7 @@ public class MlayerPopularDatasets {
                 providerAndPopularRgHandler -> {
                   if (providerAndPopularRgHandler.succeeded()) {
                     if (providerAndPopularRgHandler.result().getJsonArray(RESULTS).isEmpty()) {
+                      LOGGER.debug("Providers and RGs not present");
                       datasetResult.handle(Future.failedFuture(NO_CONTENT_AVAILABLE));
                     }
                     Map<String, String> providerDetails = new HashMap<>();
