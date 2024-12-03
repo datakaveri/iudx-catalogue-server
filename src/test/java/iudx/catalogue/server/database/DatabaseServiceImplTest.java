@@ -2355,8 +2355,11 @@ public class DatabaseServiceImplTest {
     JsonArray jsonArray = new JsonArray();
     JsonArray provider = new JsonArray();
     provider.add("iudx:Provider");
+    JsonArray rg = new JsonArray();
+    rg.add("iudx:ResourceGroup");
     JsonArray accessPolicy = new JsonArray();
     JsonObject dataset_record = new JsonObject();
+    JsonObject resourceGroup = new JsonObject();
     JsonObject accessPolicyJson =
         new JsonObject().put("resourceGroup", "abc").put("buckets", accessPolicy);
     dataset_record
@@ -2370,13 +2373,26 @@ public class DatabaseServiceImplTest {
         .put("doc_count", 5)
         .put(KEY, accessPolicyJson)
         .put("access_policies", accessPolicyJson);
+      resourceGroup
+              .put(INSTANCE, "dummy instance")
+              .put(PROVIDER, "dummy provider")
+              .put(TYPE, provider)
+              .put("name", "dummy name")
+              .put("id", "dataset id")
+              .put("description", "description of dataset")
+              .put("key", "rg_id")
+              .put("doc_count", 5)
+              .put(KEY, accessPolicyJson)
+              .put("access_policies", accessPolicyJson);
     jsonArray.add(dataset_record);
+    jsonArray.add(resourceGroup);
     request
         .put(RESULTS, jsonArray)
         .put("resourceGroupCount", 5)
         .put("resourceGroup", jsonArray)
         .put(LIMIT, 0)
-        .put(OFFSET, 0);
+        .put(OFFSET, 0)
+            .put(TOTAL_HITS,2);
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(request);
 
@@ -2429,7 +2445,8 @@ public class DatabaseServiceImplTest {
         .put("resourceGroupCount", 5)
         .put("resourceGroup", jsonArray)
         .put(LIMIT, 0)
-        .put(OFFSET, 0);
+        .put(OFFSET, 0)
+            .put(TOTAL_HITS,0);
     when(asyncResult.succeeded()).thenReturn(true);
     when(asyncResult.result()).thenReturn(request);
 
@@ -2605,7 +2622,6 @@ public class DatabaseServiceImplTest {
             .put("access_policies", accessPolicyJson)
             .put("resourceGroupAndProvider", resourceArray)
             .put("providerCount", 7);
-    resourceArray.add(instance).add(instance).add(instance).add(instance).add(instance);
     JsonArray latestDataset = new JsonArray().add(accessPolicyJson);
     JsonArray resultArray =
         new JsonArray().add(instance).add(instance).add(instance).add(instance).add(instance);
@@ -2684,7 +2700,6 @@ public class DatabaseServiceImplTest {
                         .put("access_policies", accessPolicyJson)
                         .put("resourceGroupAndProvider", resourceArray)
                         .put("providerCount", 7);
-        resourceArray.add(instance).add(instance).add(instance).add(instance).add(instance);
         JsonArray latestDataset = new JsonArray().add(accessPolicyJson);
         JsonArray resultArray =
                 new JsonArray().add(instance).add(instance).add(instance).add(instance).add(instance).add(instance);
@@ -2693,7 +2708,7 @@ public class DatabaseServiceImplTest {
 
     JsonObject result =
         new JsonObject()
-            .put(TOTAL_HITS, 1)
+            .put(TOTAL_HITS, 3)
             .put(RESULTS, resultArray)
             .put("latestDataset", latestDataset)
             .put("count", aggResult);
@@ -2806,14 +2821,7 @@ public class DatabaseServiceImplTest {
             .put("access_policies", record)
             .put("resourceGroupAndProvider", resourceArray)
             .put("providerCount", 7);
-    resourceArray
-        .add(instance)
-        .add(instanceRg)
-        .add(instanceRg)
-        .add(instanceRg)
-        .add(instanceRg)
-        .add(instanceRg)
-        .add(instanceRg);
+
     JsonArray resultArray =
         new JsonArray()
             .add(instanceRg)
