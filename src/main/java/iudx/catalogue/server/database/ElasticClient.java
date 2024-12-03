@@ -102,7 +102,9 @@ public final class ElasticClient {
                   results = responseJson.getJsonObject(AGGREGATIONS)
                           .getJsonObject(RESULTS)
                           .getJsonArray(BUCKETS);
-                }
+                  responseMsg.response.put(TOTAL_HITS, results.size());
+
+            }
                 if (options == LATEST_RG_AGG) {
                   results = responseJson.getJsonObject(HITS).getJsonArray(HITS);
                   aggregationResult =
