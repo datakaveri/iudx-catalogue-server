@@ -111,7 +111,6 @@ pipeline {
         }
         script{
             sh 'scp /home/ubuntu/configs/cat-config-test.json ./configs/config-test.json'
-            sh 'sudo update-alternatives --set java /usr/lib/jvm/java-21-openjdk-amd64/bin/java'
             sh 'mvn test-compile failsafe:integration-test -DskipUnitTests=true -DintTestProxyHost=jenkins-master-priv -DintTestProxyPort=8090 -DintTestHost=jenkins-slave1 -DintTestPort=8080'
         }
         node('built-in') {
@@ -137,7 +136,6 @@ pipeline {
         }
         cleanup{
           script{
-            sh 'sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java'
             sh 'docker compose down --remove-orphans'
           } 
         }
