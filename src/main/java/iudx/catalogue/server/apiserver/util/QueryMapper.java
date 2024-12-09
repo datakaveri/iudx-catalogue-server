@@ -34,9 +34,6 @@ public class QueryMapper {
    * @return jsonObject of queryParameters
    */
   public static JsonObject map2Json(MultiMap queryParameters) {
-
-    JsonObject jsonBody = new JsonObject();
-
     ArrayList<String> excepAttribute = new ArrayList<String>();
     excepAttribute.add(COORDINATES);
     excepAttribute.add(OFFSET);
@@ -48,6 +45,8 @@ public class QueryMapper {
     Pattern regPatternText = Pattern.compile("^[\\*]{0,1}[A-Za-z0-9\\-\\_ ]+[\\*]{0,1}");
 
     LOGGER.debug("In query mapper");
+
+    JsonObject jsonBody = new JsonObject();
 
     for (Entry<String, String> entry : queryParameters.entries()) {
 
