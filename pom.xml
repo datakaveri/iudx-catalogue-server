@@ -286,6 +286,12 @@
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>9.47</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.micrometer/micrometer-registry-prometheus-simpleclient -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus-simpleclient</artifactId>
+            <version>1.14.1</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
